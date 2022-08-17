@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { listSecrets, listSecretVersionsCmd } from '../../ops/SecretsOps.js';
+import { AuthenticateOps, SecretsOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens, SecretsOps } = AuthenticateOps;
+const { listSecrets, listSecretVersionsCmd } = SecretsOps;
 
 const program = new Command('frodo esv secret version list');
 
@@ -24,14 +24,14 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage('Listing versions...');
+        console.log('Listing versions...');
         listSecretVersionsCmd(options.secretId);
       }
     }

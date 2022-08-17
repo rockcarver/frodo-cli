@@ -1,9 +1,13 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { removeCustomDomain } from '../../ops/RealmOps.js';
+import {
+  AuthenticateOps,
+  removeCustomDomain,
+  state,
+} from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { removeCustomDomain } = RealmOps;
 
 const program = new Command('frodo realm remove-custom-domain');
 
@@ -26,19 +30,22 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage(
+        console.log(
           `Removing custom DNS domain ${
             options.domain
-          } from realm ${storage.session.getRealm()}...`
+          } from realm ${state.default.session.getRealm()}...`
         );
-        await removeCustomDomain(storage.session.getRealm(), options.domain);
+        await removeCustomDomain(
+          state.default.session.getRealm(),
+          options.domain
+        );
       }
     }
     // end command logic inside action handler

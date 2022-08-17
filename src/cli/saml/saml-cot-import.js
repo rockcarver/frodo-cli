@@ -1,14 +1,18 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
 import {
+  AuthenticateOps,
+  CirclesOfTrustOps,
+  state,
+} from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const {
   importCircleOfTrust,
   importCirclesOfTrustFromFile,
   importCirclesOfTrustFromFiles,
   importFirstCircleOfTrust,
-} from '../../ops/CirclesOfTrustOps.js';
+} = CirclesOfTrustOps;
 
 const program = new Command('frodo saml cot import');
 
@@ -49,48 +53,48 @@ program
   .action(
     // implement program logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // import by id
         if (options.file && options.cotId) {
-          printMessage(
+          console.log(
             `Importing circle of trust "${
               options.cotId
-            }" into realm "${storage.session.getRealm()}"...`
+            }" into realm "${state.default.session.getRealm()}"...`
           );
           importCircleOfTrust(options.cotId, options.file);
         }
         // --all -a
         else if (options.all && options.file) {
-          printMessage(
+          console.log(
             `Importing all circles of trust from a single file (${options.file})...`
           );
           importCirclesOfTrustFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
-          printMessage(
+          console.log(
             'Importing all circles of trust from separate files (*.saml.json) in current directory...'
           );
           importCirclesOfTrustFromFiles();
         }
         // import first provider from file
         else if (options.file) {
-          printMessage(
+          console.log(
             `Importing first circle of trust from file "${
               options.file
-            }" into realm "${storage.session.getRealm()}"...`
+            }" into realm "${state.default.session.getRealm()}"...`
           );
           importFirstCircleOfTrust(options.file);
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

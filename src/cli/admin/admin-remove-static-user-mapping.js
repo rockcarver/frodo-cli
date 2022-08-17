@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { removeStaticUserMapping } from '../../ops/AdminOps.js';
+import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { removeStaticUserMapping } = AdminOps;
 
 const program = new Command('frodo admin remove-static-user-mapping');
 
@@ -20,16 +20,16 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage("Removing a subject's static user mapping...");
+        console.log("Removing a subject's static user mapping...");
         await removeStaticUserMapping(options.subject);
-        printMessage('Done.');
+        console.log('Done.');
       }
     }
     // end command logic inside action handler

@@ -1,6 +1,8 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { describeConnectionProfile } from '../../ops/ConnectionProfileOps.js';
+import { ConnectionProfileOps, state } from '@rockcarver/frodo-lib';
+
+const { describeConnectionProfile } = ConnectionProfileOps;
 
 const program = new Command('frodo conn describe');
 

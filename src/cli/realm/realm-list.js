@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { listRealms } from '../../ops/RealmOps.js';
+import { AuthenticateOps, RealmOps, state } from '@rockcarver/frodo-lib';
+
+const { listRealms } = RealmOps;
+const { getTokens } = AuthenticateOps;
 
 const program = new Command('frodo realm list');
 
@@ -23,14 +23,14 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage('Listing all realms...');
+        console.log('Listing all realms...');
         await listRealms(options.long);
       }
     }

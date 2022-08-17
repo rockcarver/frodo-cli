@@ -1,7 +1,7 @@
 import util from 'util';
 import { getTenantURL } from './utils/ApiUtils.js';
 import { generateESVApi } from './BaseApi.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const startupURLTemplate = '%s/environment/startup';
 const startupInitiateRestartURLTemplate = `${startupURLTemplate}?_action=restart`;
@@ -19,7 +19,7 @@ const getApiConfig = () => ({
 export async function getStatus() {
   const urlString = util.format(
     startupURLTemplate,
-    getTenantURL(storage.session.getTenant())
+    getTenantURL(state.default.session.getTenant())
   );
   return generateESVApi(getApiConfig()).get(urlString, {
     withCredentials: true,
@@ -35,7 +35,7 @@ export async function initiateRestart() {
   if (restartStatus === 'ready') {
     const urlString = util.format(
       startupInitiateRestartURLTemplate,
-      getTenantURL(storage.session.getTenant())
+      getTenantURL(state.default.session.getTenant())
     );
     return generateESVApi(getApiConfig()).post(urlString, null, {
       withCredentials: true,

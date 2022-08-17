@@ -1,14 +1,15 @@
 import { Command, Option } from 'commander';
 import {
-  getConnectionProfile,
-  saveConnectionProfile,
-} from '../../ops/ConnectionProfileOps.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
+  AuthenticateOps,
+  ConnectionProfileOps,
+  LogOps,
+  state,
+} from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-// import { createAPIKeyAndSecret, tailLogs } from '../../api/LogApi.js';
-import { provisionCreds, tailLogs, resolveLevel } from '../../ops/LogOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
+
+const { provisionCreds, tailLogs, resolveLevel } = LogOps;
+const { getConnectionProfile, saveConnectionProfile } = ConnectionProfileOps;
+const { getTokens } = AuthenticateOps;
 
 const program = new Command('frodo journey tail');
 program
@@ -34,37 +35,40 @@ Following values are possible (values on the same line are equivalent): \
   )
   .action(async (host, user, password, options, command) => {
     let credsFromParameters = true;
-    storage.session.setTenant(host);
-    storage.session.setUsername(user);
-    storage.session.setPassword(password);
-    storage.session.setAllowInsecureConnection(options.insecure);
+    state.default.session.setTenant(host);
+    state.default.session.setUsername(user);
+    state.default.session.setPassword(password);
+    state.default.session.setAllowInsecureConnection(options.insecure);
     const conn = await getConnectionProfile();
-    storage.session.setTenant(conn.tenant);
+    state.default.session.setTenant(conn.tenant);
     if (conn.key != null && conn.secret != null) {
       credsFromParameters = false;
-      storage.session.setLogApiKey(conn.key);
-      storage.session.setLogApiSecret(conn.secret);
+      state.default.session.setLogApiKey(conn.key);
+      state.default.session.setLogApiSecret(conn.secret);
     } else {
       if (conn.username == null && conn.password == null) {
-        if (!storage.session.getUsername() && !storage.session.getPassword()) {
+        if (
+          !state.default.session.getUsername() &&
+          !state.default.session.getPassword()
+        ) {
           credsFromParameters = false;
-          printMessage(
+          console.log(
             'User credentials not specified as parameters and no saved API key and secret found!',
             'warn'
           );
           return;
         }
       } else {
-        storage.session.setUsername(conn.username);
-        storage.session.setPassword(conn.password);
+        state.default.session.setUsername(conn.username);
+        state.default.session.setPassword(conn.password);
       }
       if (await getTokens()) {
         const creds = await provisionCreds();
-        storage.session.setLogApiKey(creds.api_key_id);
-        storage.session.setLogApiSecret(creds.api_key_secret);
+        state.default.session.setLogApiKey(creds.api_key_id);
+        state.default.session.setLogApiSecret(creds.api_key_secret);
       }
     }
-    printMessage(
+    console.log(
       `Tailing ID Cloud logs from the following sources: ${
         command.opts().sources
       } and levels [${resolveLevel(command.opts().level)}]...`

@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import { prune } from '../../ops/JourneyOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
+import { AuthenticateOps, JourneyOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens, JourneyOps } = AuthenticateOps;
+const { prune } = JourneyOps;
 
 const program = new Command('frodo journey prune');
 
@@ -22,15 +22,15 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage(
-          `Pruning orphaned configuration artifacts in realm "${storage.session.getRealm()}"...`
+        console.log(
+          `Pruning orphaned configuration artifacts in realm "${state.default.session.getRealm()}"...`
         );
         prune();
       }

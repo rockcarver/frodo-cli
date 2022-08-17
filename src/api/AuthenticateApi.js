@@ -1,6 +1,6 @@
 import util from 'util';
 import { generateAmApi } from './BaseApi.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const authenticateUrlTemplate = '%s/json%s/authenticate';
 
@@ -26,7 +26,7 @@ export function getRealmUrl(realm) {
 export async function step(data = {}, config = {}) {
   const urlString = util.format(
     authenticateUrlTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getRealmUrl('/')
   );
   return generateAmApi(getApiConfig()).post(urlString, data, config);

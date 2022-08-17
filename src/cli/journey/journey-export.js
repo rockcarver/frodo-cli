@@ -1,13 +1,10 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import {
-  exportJourneyToFile,
-  exportJourneysToFile,
-  exportJourneysToFiles,
-} from '../../ops/JourneyOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
+import { AuthenticateOps, JourneyOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { exportJourneyToFile, exportJourneysToFile, exportJourneysToFiles } =
+  JourneyOps;
 
 const program = new Command('frodo journey export');
 
@@ -66,16 +63,16 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export
         if (options.journeyId) {
-          printMessage('Exporting journey...');
+          console.log('Exporting journey...');
           exportJourneyToFile(options.journeyId, options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
@@ -84,7 +81,7 @@ program
         }
         // --all -a
         else if (options.all) {
-          printMessage('Exporting all journeys to a single file...');
+          console.log('Exporting all journeys to a single file...');
           exportJourneysToFile(options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
@@ -93,7 +90,7 @@ program
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          printMessage('Exporting all journeys to separate files...');
+          console.log('Exporting all journeys to separate files...');
           exportJourneysToFiles({
             useStringArrays: options.useStringArrays,
             deps: options.deps,
@@ -102,7 +99,7 @@ program
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

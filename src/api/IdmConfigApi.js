@@ -1,7 +1,7 @@
 import util from 'util';
 import { generateIdmApi } from './BaseApi.js';
 import { getTenantURL } from './utils/ApiUtils.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const idmAllConfigURLTemplate = '%s/openidm/config';
 const idmConfigURLTemplate = '%s/openidm/config/%s';
@@ -16,7 +16,7 @@ const idmManagedObjectURLTemplate =
 export async function getAllConfigEntities() {
   const urlString = util.format(
     idmAllConfigURLTemplate,
-    getTenantURL(storage.session.getTenant())
+    getTenantURL(state.default.session.getTenant())
   );
   return generateIdmApi().get(urlString);
 }
@@ -29,7 +29,7 @@ export async function getAllConfigEntities() {
 export async function getConfigEntitiesByType(type) {
   const urlString = util.format(
     idmConfigEntityQueryTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     encodeURIComponent(`_id sw '${type}'`)
   );
   return generateIdmApi().get(urlString);
@@ -43,7 +43,7 @@ export async function getConfigEntitiesByType(type) {
 export async function getConfigEntity(id) {
   const urlString = util.format(
     idmConfigURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateIdmApi().get(urlString);
@@ -58,7 +58,7 @@ export async function getConfigEntity(id) {
 export async function putConfigEntity(id, data) {
   const urlString = util.format(
     idmConfigURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateIdmApi().put(urlString, data);
@@ -81,7 +81,7 @@ export async function queryAllManagedObjectsByType(type, fields, pageCookie) {
     : `${idmManagedObjectURLTemplate}${fieldsParam}`;
   const urlString = util.format(
     urlTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     type
   );
   return generateIdmApi().get(urlString);

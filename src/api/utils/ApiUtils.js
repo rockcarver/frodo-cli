@@ -1,5 +1,4 @@
 import util from 'util';
-import storage from '../../storage/SessionStorage.js';
 
 const realmPathTemplate = '/realms/%s';
 
@@ -8,7 +7,7 @@ const realmPathTemplate = '/realms/%s';
  * @returns {String} a CREST-compliant realm path, e.g. /realms/root/realms/alpha
  */
 export function getCurrentRealmPath() {
-  let realm = storage.session.getRealm();
+  let realm = state.default.session.getRealm();
   if (realm.startsWith('/') && realm.length > 1) {
     realm = realm.substring(1);
   }
@@ -24,7 +23,7 @@ export function getCurrentRealmPath() {
  * @returns {String} name of the current realm. /alpha -> alpha
  */
 export function getCurrentRealmName() {
-  const realm = storage.session.getRealm();
+  const realm = state.default.session.getRealm();
   const components = realm.split('/');
   let realmName = '/';
   if (components.length > 0 && realmName !== realm) {

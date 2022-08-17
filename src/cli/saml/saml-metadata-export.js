@@ -1,14 +1,19 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
 import {
+  AuthenticateOps,
+  CirclesOfTrustOps,
+  SamlOps,
+  state,
+} from '@rockcarver/frodo-lib';
+const { getTokens } = AuthenticateOps;
+
+const {
   exportCircleOfTrust,
   exportCirclesOfTrustToFile,
   exportCirclesOfTrustToFiles,
-} from '../../ops/CirclesOfTrustOps.js';
-import { exportMetadata } from '../../ops/SamlOps.js';
+} = CirclesOfTrustOps;
+const { exportMetadata } = SamlOps;
 
 const program = new Command('frodo saml metadata export');
 
@@ -43,30 +48,30 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export by id/name
         if (options.entityId) {
-          printMessage(
+          console.log(
             `Exporting metadata for provider "${
               options.entityId
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           exportMetadata(options.entityId, options.file);
         }
         // // --all-separate -A
         // else if (options.allSeparate) {
-        //   printMessage('Exporting all providers to separate files...');
+        //   console.log('Exporting all providers to separate files...');
         //   exportProvidersToFiles();
         // }
         // unrecognized combination of options or no options
         else {
-          printMessage(
+          console.log(
             'Unrecognized combination of options or no options...',
             'error'
           );
