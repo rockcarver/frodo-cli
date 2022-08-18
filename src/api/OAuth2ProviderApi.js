@@ -2,7 +2,7 @@
 import util from 'util';
 import { generateAmApi } from './BaseApi.js';
 import { getCurrentRealmPath } from './utils/ApiUtils.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const oauthProviderServiceURLTemplate =
   '%s/json%s/realm-config/services/oauth-oidc';
@@ -23,7 +23,7 @@ const getApiConfig = () => {
 export async function getOAuth2Provider() {
   const urlString = util.format(
     oauthProviderServiceURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath()
   );
   return generateAmApi(getApiConfig()).get(urlString, {

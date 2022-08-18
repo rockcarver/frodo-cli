@@ -2,7 +2,7 @@ import util from 'util';
 import _ from 'lodash';
 import { generateAmApi } from './BaseApi.js';
 import { getCurrentRealmPath } from './utils/ApiUtils.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const circleOfTrustByIdURLTemplate =
   '%s/json%s/realm-config/federation/circlesoftrust/%s';
@@ -26,7 +26,7 @@ const getApiConfig = () => {
 export async function getCirclesOfTrust() {
   const urlString = util.format(
     queryAllCirclesOfTrustURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath()
   );
   return generateAmApi(getApiConfig()).get(urlString, {
@@ -42,7 +42,7 @@ export async function getCirclesOfTrust() {
 export async function getCircleOfTrust(cotId) {
   const urlString = util.format(
     circleOfTrustByIdURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     cotId
   );
@@ -60,8 +60,8 @@ export async function createCircleOfTrust(cotData) {
   const postData = _.cloneDeep(cotData);
   const urlString = util.format(
     createCircleOfTrustURLTemplate,
-    storage.session.getTenant(),
-    getCurrentRealmPath(storage.session.getRealm())
+    state.default.session.getTenant(),
+    getCurrentRealmPath(state.default.session.getRealm())
   );
   return generateAmApi(getApiConfig()).post(urlString, postData, {
     withCredentials: true,
@@ -77,7 +77,7 @@ export async function createCircleOfTrust(cotData) {
 export async function updateCircleOfTrust(cotId, cotData) {
   const urlString = util.format(
     circleOfTrustByIdURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     cotId
   );

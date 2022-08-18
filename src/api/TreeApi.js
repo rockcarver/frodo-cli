@@ -1,7 +1,7 @@
 import util from 'util';
 import { deleteDeepByKey, getCurrentRealmPath } from './utils/ApiUtils.js';
 import { generateAmApi } from './BaseApi.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const nodeURLTemplate =
   '%s/json%s/realm-config/authentication/authenticationtrees/nodes/%s/%s';
@@ -28,7 +28,7 @@ const getTreeApiConfig = () => {
 export async function getNodeTypes() {
   const urlString = util.format(
     queryAllNodeTypesURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath()
   );
   return generateAmApi(getTreeApiConfig()).post(
@@ -48,7 +48,7 @@ export async function getNodeTypes() {
 export async function getNodes() {
   const urlString = util.format(
     queryAllNodesURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath()
   );
   return generateAmApi(getTreeApiConfig()).post(
@@ -69,7 +69,7 @@ export async function getNodes() {
 export async function getNodesByType(type) {
   const urlString = util.format(
     queryAllNodesByTypeURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     type
   );
@@ -87,8 +87,8 @@ export async function getNodesByType(type) {
 export async function getNode(id, nodeType) {
   const urlString = util.format(
     nodeURLTemplate,
-    storage.session.getTenant(),
-    getCurrentRealmPath(storage.session.getRealm()),
+    state.default.session.getTenant(),
+    getCurrentRealmPath(state.default.session.getRealm()),
     nodeType,
     id
   );
@@ -110,8 +110,8 @@ export async function putNode(id, nodeType, nodeData) {
   const data = deleteDeepByKey(nodeData, '-encrypted');
   const urlString = util.format(
     nodeURLTemplate,
-    storage.session.getTenant(),
-    getCurrentRealmPath(storage.session.getRealm()),
+    state.default.session.getTenant(),
+    getCurrentRealmPath(state.default.session.getRealm()),
     nodeType,
     id
   );
@@ -129,7 +129,7 @@ export async function putNode(id, nodeType, nodeData) {
 export async function deleteNode(id, nodeType) {
   const urlString = util.format(
     nodeURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     nodeType,
     id
@@ -146,7 +146,7 @@ export async function deleteNode(id, nodeType) {
 export async function getTrees() {
   const urlString = util.format(
     queryAllTreesURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath()
   );
   return generateAmApi(getTreeApiConfig()).get(urlString, {
@@ -162,7 +162,7 @@ export async function getTrees() {
 export async function getTree(id) {
   const urlString = util.format(
     treeByIdURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     id
   );
@@ -180,8 +180,8 @@ export async function getTree(id) {
 export async function putTree(id, data) {
   const urlString = util.format(
     treeByIdURLTemplate,
-    storage.session.getTenant(),
-    getCurrentRealmPath(storage.session.getRealm()),
+    state.default.session.getTenant(),
+    getCurrentRealmPath(state.default.session.getRealm()),
     id
   );
   return generateAmApi(getTreeApiConfig()).put(urlString, data, {
@@ -197,7 +197,7 @@ export async function putTree(id, data) {
 export async function deleteTree(id) {
   const urlString = util.format(
     treeByIdURLTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     getCurrentRealmPath(),
     id
   );

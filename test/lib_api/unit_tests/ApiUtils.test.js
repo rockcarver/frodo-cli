@@ -19,7 +19,7 @@ test.skip('replaceAll should be deleted because it works like native String.repl
 test('getCurrentRealmPath should prepend realmPath to specified realm', () => {
   // Arrange
   const REALM_PATH = 'alpha';
-  sessionStorage.session.setItem('realm', REALM_PATH);
+  sessionstate.default.session.setItem('realm', REALM_PATH);
   // Act
   const testString = getCurrentRealmPath(REALM_PATH);
   // Assert
@@ -29,7 +29,7 @@ test('getCurrentRealmPath should prepend realmPath to specified realm', () => {
 test('getCurrentRealmPath should prepend realmPath to specified realm with leading slash', () => {
   // Arrange
   const REALM_PATH = '/alpha';
-  sessionStorage.session.setItem('realm', REALM_PATH);
+  sessionstate.default.session.setItem('realm', REALM_PATH);
   // Act
   const testString = getCurrentRealmPath(REALM_PATH);
   // Assert
@@ -39,7 +39,7 @@ test('getCurrentRealmPath should prepend realmPath to specified realm with leadi
 test('getCurrentRealmPath "/" should resolve to root', () => {
   // Arrange
   const REALM_PATH = '/';
-  sessionStorage.session.setItem('realm', REALM_PATH);
+  sessionstate.default.session.setItem('realm', REALM_PATH);
   // Act
   const testString = getCurrentRealmPath(REALM_PATH);
   // Assert
@@ -49,7 +49,7 @@ test('getCurrentRealmPath "/" should resolve to root', () => {
 test('getCurrentRealmPath should not handle multiple leading slash', () => {
   // Arrange
   const REALM_PATH = '//alpha';
-  sessionStorage.session.setItem('realm', REALM_PATH);
+  sessionstate.default.session.setItem('realm', REALM_PATH);
   // Act
   const testString = getCurrentRealmPath(REALM_PATH);
   // Assert
@@ -59,7 +59,7 @@ test('getCurrentRealmPath should not handle multiple leading slash', () => {
 test('getCurrentRealmPath should not handle nested depth realms', () => {
   // Arrange
   const REALM_PATH = '/alpha/erm';
-  sessionStorage.session.setItem('realm', REALM_PATH);
+  sessionstate.default.session.setItem('realm', REALM_PATH);
   // Act
   const testString = getCurrentRealmPath(REALM_PATH);
   // Assert
@@ -157,8 +157,8 @@ test.skip('getRealmManagedUser in cloud environments should return differnt valu
 
 test('getRealmManagedUser in prem environments should return differnt value', () => {
   // Arrange
-  sessionStorage.session.setItem('deploymentType', 'cloud');
-  sessionStorage.session.setItem('realm', 'foxtrot');
+  sessionstate.default.session.setItem('deploymentType', 'cloud');
+  sessionstate.default.session.setItem('realm', 'foxtrot');
   // Act
   const result = getRealmManagedUser();
   // Assert

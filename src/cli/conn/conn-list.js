@@ -1,8 +1,13 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { listConnectionProfiles } from '../../ops/ConnectionProfileOps.js';
+import {
+  AuthenticateOps,
+  ConnectionProfileOps,
+  state,
+} from '@rockcarver/frodo-lib';
+const { getTokens } = AuthenticateOps;
+
+const { listConnectionProfiles } = ConnectionProfileOps;
 
 const program = new Command('frodo conn list');
 

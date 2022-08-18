@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { addAutoIdStaticUserMapping } from '../../ops/AdminOps.js';
+import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { addAutoIdStaticUserMapping } = AdminOps;
 
 const program = new Command('frodo admin add-autoid-static-user-mapping');
 
@@ -22,16 +22,16 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage(`Adding AutoId static user mapping...`);
+        console.log(`Adding AutoId static user mapping...`);
         await addAutoIdStaticUserMapping();
-        printMessage('Done.');
+        console.log('Done.');
       }
     }
     // end command logic inside action handler

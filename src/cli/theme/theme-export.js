@@ -1,14 +1,14 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import {
+import { AuthenticateOps, ThemeOps, state } from '@rockcarver/frodo-lib';
+const { getTokens } = AuthenticateOps;
+
+const {
   exportThemeById,
   exportThemeByName,
   exportThemesToFile,
   exportThemesToFiles,
-} from '../../ops/ThemeOps.js';
+} = ThemeOps;
 
 const program = new Command('frodo theme export');
 
@@ -55,44 +55,44 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export by name
         if (options.themeName) {
-          printMessage(
+          console.log(
             `Exporting theme "${
               options.themeName
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           exportThemeByName(options.themeName, options.file);
         }
         // export by id
         else if (options.themeId) {
-          printMessage(
+          console.log(
             `Exporting theme "${
               options.themeId
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           exportThemeById(options.themeId, options.file);
         }
         // --all -a
         else if (options.all) {
-          printMessage('Exporting all themes to a single file...');
+          console.log('Exporting all themes to a single file...');
           exportThemesToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          printMessage('Exporting all themes to separate files...');
+          console.log('Exporting all themes to separate files...');
           exportThemesToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          printMessage(
+          console.log(
             'Unrecognized combination of options or no options...',
             'error'
           );

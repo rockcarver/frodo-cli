@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { applyUpdates, checkForUpdates } from '../../ops/StartupOps.js';
+import { AuthenticateOps, StartupOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { applyUpdates, checkForUpdates } = StartupOps;
 
 const program = new Command('frodo esv apply');
 
@@ -41,21 +41,21 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // check for updates only
         if (options.checkOnly) {
-          printMessage(`Checking for updates...`);
+          console.log(`Checking for updates...`);
           await checkForUpdates();
         }
         // apply updates
         else {
-          printMessage(`Applying updates...`);
+          console.log(`Applying updates...`);
           await applyUpdates(options.force, options.wait, options.yes);
         }
       }

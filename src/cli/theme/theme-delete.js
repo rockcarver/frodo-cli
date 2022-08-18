@@ -1,13 +1,9 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import {
-  deleteThemeByNameCmd,
-  deleteThemeCmd,
-  deleteThemesCmd,
-} from '../../ops/ThemeOps.js';
+import { AuthenticateOps, ThemeOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { deleteThemeByNameCmd, deleteThemeCmd, deleteThemesCmd } = ThemeOps;
 
 const program = new Command('frodo theme delete');
 
@@ -42,41 +38,41 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // delete by name
         if (options.themeName) {
-          printMessage(
+          console.log(
             `Deleting theme with name "${
               options.themeName
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           deleteThemeByNameCmd(options.themeName, options.file);
         }
         // delete by id
         else if (options.themeId) {
-          printMessage(
+          console.log(
             `Deleting theme with id "${
               options.themeId
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           deleteThemeCmd(options.themeId, options.file);
         }
         // --all -a
         else if (options.all) {
-          printMessage(
-            `Deleting all themes from realm "${storage.session.getRealm()}"...`
+          console.log(
+            `Deleting all themes from realm "${state.default.session.getRealm()}"...`
           );
           deleteThemesCmd(options.file);
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

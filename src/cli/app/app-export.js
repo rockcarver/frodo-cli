@@ -1,13 +1,13 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import {
+import { AuthenticateOps, OAuth2ClientOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const {
   exportOAuth2ClientsToFile,
   exportOAuth2ClientsToFiles,
   exportOAuth2ClientToFile,
-} from '../../ops/OAuth2ClientOps.js';
+} = OAuth2ClientOps;
 
 const program = new Command('frodo app export');
 
@@ -43,31 +43,31 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export
         if (options.appId) {
-          printMessage('Exporting OAuth2 application...');
+          console.log('Exporting OAuth2 application...');
           exportOAuth2ClientToFile(options.appId, options.file);
         }
         // -a/--all
         else if (options.all) {
-          printMessage('Exporting all OAuth2 applications to file...');
+          console.log('Exporting all OAuth2 applications to file...');
           exportOAuth2ClientsToFile(options.file);
         }
         // -A/--all-separate
         else if (options.allSeparate) {
-          printMessage('Exporting all applications to separate files...');
+          console.log('Exporting all applications to separate files...');
           exportOAuth2ClientsToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

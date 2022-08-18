@@ -1,14 +1,14 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import {
+import { AuthenticateOps, SamlOps, state } from '@rockcarver/frodo-lib';
+const { getTokens } = AuthenticateOps;
+
+const {
   importProvider,
   importProvidersFromFile,
   importProvidersFromFiles,
   importFirstProvider,
-} from '../../ops/SamlOps.js';
+} = SamlOps;
 
 const program = new Command('frodo saml import');
 
@@ -49,48 +49,48 @@ program
   .action(
     // implement program logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // import by id
         if (options.file && options.entityId) {
-          printMessage(
+          console.log(
             `Importing provider "${
               options.entityId
-            }" into realm "${storage.session.getRealm()}"...`
+            }" into realm "${state.default.session.getRealm()}"...`
           );
           importProvider(options.entityId, options.file);
         }
         // --all -a
         else if (options.all && options.file) {
-          printMessage(
+          console.log(
             `Importing all providers from a single file (${options.file})...`
           );
           importProvidersFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
-          printMessage(
+          console.log(
             'Importing all providers from separate files (*.saml.json) in current directory...'
           );
           importProvidersFromFiles();
         }
         // import first provider from file
         else if (options.file) {
-          printMessage(
+          console.log(
             `Importing first provider from file "${
               options.file
-            }" into realm "${storage.session.getRealm()}"...`
+            }" into realm "${state.default.session.getRealm()}"...`
           );
           importFirstProvider(options.file);
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

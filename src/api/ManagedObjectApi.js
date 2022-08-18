@@ -1,7 +1,7 @@
 import util from 'util';
 import { generateIdmApi } from './BaseApi.js';
 import { getTenantURL } from './utils/ApiUtils.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const managedObjectURLTemplate = '%s/openidm/managed/%s';
 const managedObjectByIdURLTemplate = '%s/openidm/managed/%s/%s';
@@ -17,7 +17,7 @@ export async function getManagedObject(type, id, fields) {
     fields.length > 0 ? `_fields=${fields.join(',')}` : '_fields=*';
   const urlString = util.format(
     `${managedObjectByIdURLTemplate}?${fieldsParam}`,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     type,
     id
   );
@@ -33,7 +33,7 @@ export async function getManagedObject(type, id, fields) {
 export async function putManagedObject(type, id, data) {
   const urlString = util.format(
     managedObjectByIdURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     type,
     id
   );
@@ -55,7 +55,7 @@ export async function queryAllManagedObjectsByType(type, fields, pageCookie) {
     : `${managedObjectQueryAllURLTemplate}${fieldsParam}`;
   const urlString = util.format(
     urlTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     type
   );
   return generateIdmApi().get(urlString);

@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
+import { AuthenticateOps, JourneyOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { deleteJourney, deleteJourneys } = JourneyOps;
 
 const program = new Command('frodo journey delete');
 
@@ -44,30 +44,30 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // delete by id
         if (options.journeyId) {
-          printMessage(
+          console.log(
             `Deleting journey ${
               options.journeyId
-            } in realm "${storage.session.getRealm()}"...`
+            } in realm "${state.default.session.getRealm()}"...`
           );
           deleteJourney(options.journeyId, options);
         }
         // --all -a
         else if (options.all) {
-          printMessage('Deleting all journeys...');
+          console.log('Deleting all journeys...');
           deleteJourneys(options);
         }
         // unrecognized combination of options or no options
         else {
-          printMessage('Unrecognized combination of options or no options...');
+          console.log('Unrecognized combination of options or no options...');
           program.help();
         }
       }

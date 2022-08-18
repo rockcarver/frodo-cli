@@ -1,10 +1,11 @@
 import { Command } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
-import { describe } from '../../ops/RealmOps.js';
+import { AuthenticateOps, RealmOps, state } from '@rockcarver/frodo-lib';
+
 import { getRealmName } from '../../api/utils/ApiUtils.js';
+
+const { getTokens } = AuthenticateOps;
+const { describe } = RealmOps;
 
 const program = new Command('frodo realm describe');
 
@@ -21,17 +22,17 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        printMessage(
-          `Retrieving details of realm ${storage.session.getRealm()}...`
+        console.log(
+          `Retrieving details of realm ${state.default.session.getRealm()}...`
         );
-        describe(getRealmName(storage.session.getRealm()));
+        describe(getRealmName(state.default.session.getRealm()));
       }
     }
     // end command logic inside action handler

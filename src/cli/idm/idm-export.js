@@ -1,13 +1,13 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import {
+import { AuthenticateOps, IdmOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const {
   exportAllConfigEntities,
   exportAllRawConfigEntities,
   exportConfigEntity,
-} from '../../ops/IdmOps.js';
-import storage from '../../storage/SessionStorage.js';
-import { printMessage } from '../../ops/utils/Console.js';
+} = IdmOps;
 
 const program = new Command('frodo idm export');
 
@@ -61,19 +61,19 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export by id/name
         if (options.idmName) {
-          printMessage(
+          console.log(
             `Exporting object "${
               options.idmName
-            }" from realm "${storage.session.getRealm()}"...`
+            }" from realm "${state.default.session.getRealm()}"...`
           );
           exportConfigEntity(options.idmName, options.file);
         }
@@ -84,7 +84,7 @@ program
           options.entitiesFile &&
           options.envFile
         ) {
-          printMessage(
+          console.log(
             `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
           );
           exportAllConfigEntities(
@@ -95,14 +95,14 @@ program
         }
         // --all-separate -A without variable replacement
         else if (options.allSeparate && options.directory) {
-          printMessage(
+          console.log(
             `Exporting all IDM configuration objects into separate files in ${options.directory}...`
           );
           exportAllRawConfigEntities(options.directory);
         }
         // unrecognized combination of options or no options
         else {
-          printMessage(
+          console.log(
             'Unrecognized combination of options or no options...',
             'error'
           );

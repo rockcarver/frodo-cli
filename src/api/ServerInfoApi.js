@@ -1,6 +1,6 @@
 import util from 'util';
 import { generateAmApi } from './BaseApi.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const serverInfoUrlTemplate = '%s/json/serverinfo/%s';
 
@@ -21,7 +21,7 @@ const getServerVersionApiConfig = () => ({
 export async function getServerInfo() {
   const urlString = util.format(
     serverInfoUrlTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     '*'
   );
   return generateAmApi(getServerInfoApiConfig()).get(urlString, {});
@@ -34,7 +34,7 @@ export async function getServerInfo() {
 export async function getServerVersionInfo() {
   const urlString = util.format(
     serverInfoUrlTemplate,
-    storage.session.getTenant(),
+    state.default.session.getTenant(),
     'version'
   );
   return generateAmApi(getServerVersionApiConfig()).get(urlString, {});

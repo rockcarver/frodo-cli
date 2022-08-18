@@ -2,7 +2,7 @@ import util from 'util';
 import { encode } from './utils/Base64.js';
 import { getTenantURL, getCurrentRealmPath } from './utils/ApiUtils.js';
 import { generateESVApi } from './BaseApi.js';
-import storage from '../storage/SessionStorage.js';
+import { state } from '@rockcarver/frodo-lib';
 
 const variablesListURLTemplate = '%s/environment/variables';
 const variableURLTemplate = '%s/environment/variables/%s';
@@ -24,7 +24,7 @@ const getApiConfig = () => {
 export async function getVariables() {
   const urlString = util.format(
     variablesListURLTemplate,
-    getTenantURL(storage.session.getTenant())
+    getTenantURL(state.default.session.getTenant())
   );
   return generateESVApi(getApiConfig()).get(urlString, {
     withCredentials: true,
@@ -39,7 +39,7 @@ export async function getVariables() {
 export async function getVariable(id) {
   const urlString = util.format(
     variableURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateESVApi(getApiConfig()).get(urlString, {
@@ -60,7 +60,7 @@ export async function putVariable(id, value, description) {
   if (description) data.description = description;
   const urlString = util.format(
     variableURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateESVApi(getApiConfig()).put(urlString, data, {
@@ -77,7 +77,7 @@ export async function putVariable(id, value, description) {
 export async function setVariableDescription(id, description) {
   const urlString = util.format(
     variableSetDescriptionURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateESVApi(getApiConfig()).post(
@@ -95,7 +95,7 @@ export async function setVariableDescription(id, description) {
 export async function deleteVariable(id) {
   const urlString = util.format(
     variableURLTemplate,
-    getTenantURL(storage.session.getTenant()),
+    getTenantURL(state.default.session.getTenant()),
     id
   );
   return generateESVApi(getApiConfig()).delete(urlString, {

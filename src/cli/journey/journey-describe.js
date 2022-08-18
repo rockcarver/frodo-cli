@@ -1,19 +1,10 @@
 import fs from 'fs';
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
-import { getTokens } from '../../ops/AuthenticateOps.js';
-import {
-  listJourneys,
-  getJourneyData,
-  describeTree,
-} from '../../ops/JourneyOps.js';
-import storage from '../../storage/SessionStorage.js';
-import {
-  printMessage,
-  createProgressBar,
-  updateProgressBar,
-  stopProgressBar,
-} from '../../ops/utils/Console.js';
+import { AuthenticateOps, JourneyOps, state } from '@rockcarver/frodo-lib';
+
+const { getTokens } = AuthenticateOps;
+const { listJourneys, getJourneyData, describeTree } = JourneyOps;
 
 const program = new Command('frodo journey describe');
 
@@ -50,68 +41,68 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      storage.session.setTenant(host);
-      storage.session.setRealm(realm);
-      storage.session.setUsername(user);
-      storage.session.setPassword(password);
-      storage.session.setDeploymentType(options.type);
-      storage.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setTenant(host);
+      state.default.session.setRealm(realm);
+      state.default.session.setUsername(user);
+      state.default.session.setPassword(password);
+      state.default.session.setDeploymentType(options.type);
+      state.default.session.setAllowInsecureConnection(options.insecure);
       const treeDescription = [];
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {
         if (typeof options.file === 'undefined') {
-          printMessage(
+          console.log(
             'You either need <host> or -f when using describe',
             'error'
           );
           return;
         }
-        printMessage(`Describing local journey file ${options.file}...`);
+        console.log(`Describing local journey file ${options.file}...`);
         try {
           const data = fs.readFileSync(options.file, 'utf8');
           const journeyData = JSON.parse(data);
           treeDescription.push(describeTree(journeyData));
         } catch (err) {
-          printMessage(err, 'error');
+          console.log(err, 'error');
         }
       } else if (await getTokens()) {
-        printMessage(
-          `Describing journey(s) in realm "${storage.session.getRealm()}"...`
+        console.log(
+          `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
         if (typeof options.journeyId === 'undefined') {
           const journeyList = await listJourneys(false);
-          createProgressBar(journeyList.length, '');
+          // createProgressBar(journeyList.length, '');
           for (const item of journeyList) {
             // eslint-disable-next-line no-await-in-loop
             const journeyData = await getJourneyData(item.name);
             treeDescription.push(describeTree(journeyData));
-            updateProgressBar(`Analyzing journey - ${item.name}`);
+            // updateProgressBar(`Analyzing journey - ${item.name}`);
           }
-          stopProgressBar('Done');
+          // stopProgressBar('Done');
         } else {
           const journeyData = await getJourneyData(options.journeyId);
           treeDescription.push(describeTree(journeyData));
         }
       }
       for (const item of treeDescription) {
-        printMessage(`\nJourney: ${item.treeName}`, 'info');
-        printMessage('========');
-        printMessage('\nNodes:', 'info');
+        console.log(`\nJourney: ${item.treeName}`, 'info');
+        console.log('========');
+        console.log('\nNodes:', 'info');
         if (Object.entries(item.nodeTypes).length) {
           for (const [name, count] of Object.entries(item.nodeTypes)) {
-            printMessage(`- ${name}: ${count}`, 'info');
+            console.log(`- ${name}: ${count}`, 'info');
           }
         }
         if (Object.entries(item.scripts).length) {
-          printMessage('\nScripts:', 'info');
+          console.log('\nScripts:', 'info');
           for (const [name, desc] of Object.entries(item.scripts)) {
-            printMessage(`- ${name}: ${desc}`, 'info');
+            console.log(`- ${name}: ${desc}`, 'info');
           }
         }
         if (Object.entries(item.emailTemplates).length) {
-          printMessage('\nEmail Templates:', 'info');
+          console.log('\nEmail Templates:', 'info');
           for (const [id] of Object.entries(item.emailTemplates)) {
-            printMessage(`- ${id}`, 'info');
+            console.log(`- ${id}`, 'info');
           }
         }
       }

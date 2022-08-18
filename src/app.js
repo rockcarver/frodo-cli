@@ -1,10 +1,9 @@
 #!/usr/bin/env -S node --no-warnings --enable-source-maps
 
+import { ConnectionProfileOps, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { Command } from 'commander';
-import { initConnectionProfiles } from './ops/ConnectionProfileOps.js';
 // import pkg from '../package.json' assert { type: 'json' };
-import { printMessage } from './ops/utils/Console.js';
 
 // commands
 import admin from './cli/admin/admin.js';
@@ -25,6 +24,8 @@ import theme from './cli/theme/theme.js';
 const pkg = JSON.parse(
   fs.readFileSync(new URL('../package.json', import.meta.url))
 );
+
+const { initConnectionProfiles } = ConnectionProfileOps;
 
 const program = new Command(pkg.name).version(
   `v${pkg.version} [${process.version}]`,
@@ -54,6 +55,6 @@ const program = new Command(pkg.name).version(
     program.enablePositionalOptions();
     program.parse();
   } catch (e) {
-    printMessage(`ERROR: exception running frodo - ${e}`, 'error');
+    console.log(`ERROR: exception running frodo - ${e}`, 'error');
   }
 })();
