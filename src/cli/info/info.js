@@ -1,7 +1,8 @@
 import { Command } from 'commander';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, state } from '@rockcarver/frodo-lib';
-const { getTokens } = AuthenticateOps;
+
+const { getTokens } = Authenticate;
 
 export default function setup() {
   const info = new Command('info');

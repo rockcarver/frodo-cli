@@ -1,15 +1,15 @@
 import {
-  AuthenticateOps,
-  ConnectionProfileOps,
-  LogOps,
+  Authenticate,
+  ConnectionProfile,
+  Log,
   state,
 } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 import * as common from '../cmd_common.js';
 
-const { provisionCreds, getLogSources } = LogOps;
-const { getConnectionProfile, saveConnectionProfile } = ConnectionProfileOps;
-const { getTokens } = AuthenticateOps;
+const { provisionCreds, getLogSources } = Log;
+const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo journey list');
 program

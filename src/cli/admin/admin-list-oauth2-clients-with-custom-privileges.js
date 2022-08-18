@@ -1,10 +1,10 @@
 import { Command } from 'commander';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { listOAuth2CustomClients } = AdminOps;
+const { listOAuth2CustomClients } = Admin;
 
-const { getTokens } = AuthenticateOps;
+const { getTokens } = Authenticate;
 
 const program = new Command(
   'frodo admin list-oauth2-clients-with-custom-privileges'

@@ -1,9 +1,9 @@
 import { Command } from 'commander';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { addAutoIdStaticUserMapping } = AdminOps;
+const { getTokens } = Authenticate;
+const { addAutoIdStaticUserMapping } = Admin;
 
 const program = new Command('frodo admin add-autoid-static-user-mapping');
 

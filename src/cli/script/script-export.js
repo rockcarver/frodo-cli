@@ -1,14 +1,11 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Script, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, ScriptOps , state } from '@rockcarver/frodo-lib'
-const { getTokens } = AuthenticateOps;
 
-
-import {
-  exportScriptByName,
-  exportScriptsToFile,
-  exportScriptsToFiles,
-} from ScriptOps;
+const { getTokens } = Authenticate;
+const { exportScriptByName } = Script;
+const { exportScriptsToFile } = Script;
+const { exportScriptsToFiles } = Script;
 
 const program = new Command('frodo script export');
 

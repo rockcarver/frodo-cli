@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { hideGenericExtensionAttributes } = AdminOps;
+const { getTokens } = Authenticate;
+const { hideGenericExtensionAttributes } = Admin;
 
 const program = new Command('frodo admin hide-generic-extension-attributes');
 

@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, SamlOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { describeProvider } = SamlOps;
+const { getTokens } = Authenticate;
+const { describeProvider } = Saml;
 
 const program = new Command('frodo saml describe');
 

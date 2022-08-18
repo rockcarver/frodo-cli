@@ -1,10 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, OAuth2OIDCApi, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, state } from '@rockcarver/frodo-lib';
 
-import { clientCredentialsGrant } from '../../api/OAuth2OIDCApi.js';
-
-const { getTokens } = AuthenticateOps;
+const { clientCredentialsGrant } = OAuth2OIDCApi;
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo admin get-access-token');
 

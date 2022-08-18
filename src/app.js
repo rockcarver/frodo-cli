@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node --no-warnings --enable-source-maps
 
-import { ConnectionProfileOps, state } from '@rockcarver/frodo-lib';
+import { ConnectionProfile } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { Command } from 'commander';
 // import pkg from '../package.json' assert { type: 'json' };
@@ -25,7 +25,7 @@ const pkg = JSON.parse(
   fs.readFileSync(new URL('../package.json', import.meta.url))
 );
 
-const { initConnectionProfiles } = ConnectionProfileOps;
+const { initConnectionProfiles } = ConnectionProfile;
 
 const program = new Command(pkg.name).version(
   `v${pkg.version} [${process.version}]`,

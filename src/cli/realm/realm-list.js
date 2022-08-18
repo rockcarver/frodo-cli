@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Realm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, RealmOps, state } from '@rockcarver/frodo-lib';
 
-const { listRealms } = RealmOps;
-const { getTokens } = AuthenticateOps;
+const { listRealms } = Realm;
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo realm list');
 

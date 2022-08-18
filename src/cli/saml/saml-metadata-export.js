@@ -1,19 +1,10 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import {
-  AuthenticateOps,
-  CirclesOfTrustOps,
-  SamlOps,
-  state,
-} from '@rockcarver/frodo-lib';
-const { getTokens } = AuthenticateOps;
 
-const {
-  exportCircleOfTrust,
-  exportCirclesOfTrustToFile,
-  exportCirclesOfTrustToFiles,
-} = CirclesOfTrustOps;
-const { exportMetadata } = SamlOps;
+const { getTokens } = Authenticate;
+
+const { exportMetadata } = Saml;
 
 const program = new Command('frodo saml metadata export');
 

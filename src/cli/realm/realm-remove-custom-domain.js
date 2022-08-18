@@ -1,13 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Realm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import {
-  AuthenticateOps,
-  removeCustomDomain,
-  state,
-} from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { removeCustomDomain } = RealmOps;
+const { getTokens } = Authenticate;
+const { removeCustomDomain } = Realm;
 
 const program = new Command('frodo realm remove-custom-domain');
 

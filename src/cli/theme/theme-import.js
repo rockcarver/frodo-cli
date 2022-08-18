@@ -1,7 +1,8 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, ThemeOps, state } from '@rockcarver/frodo-lib';
-const { getTokens } = AuthenticateOps;
+
+const { getTokens } = Authenticate;
 
 const {
   importFirstThemeFromFile,
@@ -9,7 +10,7 @@ const {
   importThemeByName,
   importThemesFromFile,
   importThemesFromFiles,
-} = ThemeOps;
+} = Theme;
 
 const program = new Command('frodo theme import');
 

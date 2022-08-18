@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, OAuth2Client, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, OAuth2ClientOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { listOAuth2Clients } = OAuth2ClientOps;
+const { getTokens } = Authenticate;
+const { listOAuth2Clients } = OAuth2Client;
 
 const program = new Command('frodo app list');
 

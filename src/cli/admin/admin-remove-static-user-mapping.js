@@ -1,9 +1,9 @@
 import { Command } from 'commander';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { removeStaticUserMapping } = AdminOps;
+const { getTokens } = Authenticate;
+const { removeStaticUserMapping } = Admin;
 
 const program = new Command('frodo admin remove-static-user-mapping');
 

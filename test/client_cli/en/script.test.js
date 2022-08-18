@@ -6,72 +6,71 @@ const CMD = 'frodo script --help';
 const { stdout } = await exec(CMD);
 
 test("CLI help interface for 'script' Usage should be expected english", async () => {
-    // Arrange
-    const expected = `
+  // Arrange
+  const expected = `
         Usage: frodo script [options] [command]
     `.trim();
-    // Act
-    const testLine = stdout
-        .split(/\n/)
-        .find(line => line.trim().startsWith('Usage:'))
-        .trim();
-    // Assert
-    expect(testLine).toBe(expected);
+  // Act
+  const testLine = stdout
+    .split(/\n/)
+    .find((line) => line.trim().startsWith('Usage:'))
+    .trim();
+  // Assert
+  expect(testLine).toBe(expected);
 });
 
-
 test("CLI help interface 'script' description at line 2 should be expected english", async () => {
-    // Arrange
-    const expected = `
+  // Arrange
+  const expected = `
         Manage scripts.
     `.trim();
-    // Act
-    const testLine = stdout
-        .split(/\n/)
-        .map(line => line.trim())
-        .at(2)
-    // Assert
-    expect(testLine).toBe(expected);
+  // Act
+  const testLine = stdout
+    .split(/\n/)
+    .map((line) => line.trim())
+    .at(2);
+  // Assert
+  expect(testLine).toBe(expected);
 });
 
 test("CLI help interface 'script commands list' description should be expected english", async () => {
-    // Arrange
-    const expected = `
+  // Arrange
+  const expected = `
         list [options] <host> [realm] [user] [password]    List all the scripts in a realm.
     `.trim();
-    // Act
-    const testLine = stdout
-        .split(/\n/)
-        .find(line => line.trim().startsWith('list'))
-        .trim();
-    // Assert
-    expect(testLine).toBe(expected);
+  // Act
+  const testLine = stdout
+    .split(/\n/)
+    .find((line) => line.trim().startsWith('list'))
+    .trim();
+  // Assert
+  expect(testLine).toBe(expected);
 });
 
 test("CLI help interface 'script commands export' description should be expected english", async () => {
-    // Arrange
-    const expected = `
+  // Arrange
+  const expected = `
         export [options] <host> [realm] [user] [password]  Export scripts.
     `.trim();
-    // Act
-    const testLine = stdout
-        .split(/\n/)
-        .find(line => line.trim().startsWith('export'))
-        .trim();
-    // Assert
-    expect(testLine).toBe(expected);
+  // Act
+  const testLine = stdout
+    .split(/\n/)
+    .find((line) => line.trim().startsWith('export'))
+    .trim();
+  // Assert
+  expect(testLine).toBe(expected);
 });
 
 test("CLI help interface 'script commands import' description should be expected english", async () => {
-    // Arrange
-    const expected = `
+  // Arrange
+  const expected = `
         import [options] <host> [realm] [user] [password]  Import script.
     `.trim();
-    // Act
-    const testLine = stdout
-        .split(/\n/)
-        .find(line => line.trim().startsWith('import'))
-        .trim();
-    // Assert
-    expect(testLine).toBe(expected);
+  // Act
+  const testLine = stdout
+    .split(/\n/)
+    .find((line) => line.trim().startsWith('import'))
+    .trim();
+  // Assert
+  expect(testLine).toBe(expected);
 });

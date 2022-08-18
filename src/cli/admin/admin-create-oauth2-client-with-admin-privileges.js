@@ -1,12 +1,11 @@
 import { Command, Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
 import Table from 'cli-table3';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { createLongLivedToken, createOAuth2ClientWithAdminPrivileges } =
-  AdminOps;
+const { getTokens } = Authenticate;
+const { createLongLivedToken, createOAuth2ClientWithAdminPrivileges } = Admin;
 
 const program = new Command(
   'frodo admin create-oauth2-client-with-admin-privileges'

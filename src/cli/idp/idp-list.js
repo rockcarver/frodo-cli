@@ -1,9 +1,9 @@
 import { Command } from 'commander';
+import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, IdpOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { listProviders } = IdpOps;
+const { getTokens } = Authenticate;
+const { listProviders } = Idp;
 
 const program = new Command('frodo idp list');
 

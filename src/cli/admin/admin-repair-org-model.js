@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, AdminOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { repairOrgModel } = AdminOps;
+const { getTokens } = Authenticate;
+const { repairOrgModel } = Admin;
 
 const program = new Command('frodo admin repair-org-model');
 

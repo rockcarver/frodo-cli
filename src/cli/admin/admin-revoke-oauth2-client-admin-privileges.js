@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Admin, Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { revokeOAuth2ClientAdminPrivileges } = AdminOps;
+const { getTokens } = Authenticate;
+const { revokeOAuth2ClientAdminPrivileges } = Admin;
 
 const program = new Command(
   'frodo admin revoke-oauth2-client-admin-privileges'

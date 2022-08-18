@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, Realm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { AuthenticateOps, RealmOps, state } from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { addCustomDomain } = RealmOps;
+const { getTokens } = Authenticate;
+const { addCustomDomain } = Realm;
 
 const program = new Command('frodo realm add-custom-domain');
 

@@ -1,13 +1,9 @@
 import { Command, Option } from 'commander';
+import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import {
-  AuthenticateOps,
-  CirclesOfTrustOps,
-  state,
-} from '@rockcarver/frodo-lib';
 
-const { getTokens } = AuthenticateOps;
-const { listCirclesOfTrust } = CirclesOfTrustOps;
+const { getTokens } = Authenticate;
+const { listCirclesOfTrust } = CirclesOfTrust;
 
 const program = new Command('frodo saml cot list');
 
