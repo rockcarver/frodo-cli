@@ -1,6 +1,12 @@
 import cp from 'child_process';
 import { promisify } from 'util';
-import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
+import {
+  node14Compatibility,
+  crudeMultilineTakeUntil,
+  collapseWhitespace,
+} from '../utils/utils.js';
+
+node14Compatibility();
 
 const exec = promisify(cp.exec);
 const CMD = 'frodo email template import --help';

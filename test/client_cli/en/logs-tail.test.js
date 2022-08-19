@@ -1,6 +1,12 @@
 import cp from 'child_process';
 import { promisify } from 'util';
-import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
+import {
+  crudeMultilineTakeUntil,
+  collapseWhitespace,
+  node14Compatibility,
+} from '../utils/utils.js';
+
+node14Compatibility();
 
 const exec = promisify(cp.exec);
 const CMD = 'frodo logs tail --help';
@@ -77,7 +83,11 @@ test("CLI help interface 'tail argument secret' description should be expected e
     `).trim();
   // Act
   const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(stdout, '  password                     ', 'Options:')
+    crudeMultilineTakeUntil(
+      stdout,
+      '  password                     ',
+      'Options:'
+    )
   );
   // Assert
   expect(collapseWhitespace(testLine)).toBe(expected);

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /**
  * @file A collection of slightly rushed functions to help test the interface
  */
@@ -34,3 +35,29 @@ export const crudeMultilineTakeUntil = (str, startsWith, endsAt) =>
     .replace(new RegExp(escapeRegExp(endsAt), 'g'), '');
 
 export const collapseWhitespace = (str) => str.replace(/\s+/g, ' ').trim();
+
+// node 14 compatibility
+function at(n) {
+  // ToInteger() abstract op
+  n = Math.trunc(n) || 0;
+  // Allow negative indexing from the end
+  if (n < 0) n += this.length;
+  // OOB access is guaranteed to return undefined
+  if (n < 0 || n >= this.length) return undefined;
+  // Otherwise, this is just normal property access
+  return this[n];
+}
+
+export function node14Compatibility() {
+  if (process.version.startsWith('v14')) {
+    const TypedArray = Reflect.getPrototypeOf(Int8Array);
+    for (const C of [Array, String, TypedArray]) {
+      Object.defineProperty(C.prototype, 'at', {
+        value: at,
+        writable: true,
+        enumerable: false,
+        configurable: true,
+      });
+    }
+  }
+}
