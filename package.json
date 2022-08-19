@@ -118,6 +118,7 @@
     "gulp-sourcemaps": "^3.0.0",
     "jest": "^28.1.3",
     "map-stream": "^0.0.7",
-    "pkg": "^5.8.0"
+    "pkg": "^5.8.0",
+    "prettier": "^2.7.1"
   }
 }
