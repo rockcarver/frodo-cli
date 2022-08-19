@@ -10,7 +10,7 @@ const {
   importFirstJourneyFromFile,
 } = Journey;
 
-const program = new Command('frodo command sub');
+const program = new Command('frodo journey import');
 
 program
   .description('Import journey/tree.')

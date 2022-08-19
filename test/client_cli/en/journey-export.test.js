@@ -57,8 +57,7 @@ test("CLI help interface 'export argument host' description should be expected e
 test("CLI help interface 'export argument realm' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                           or '/parent/child' otherwise. (default: "__default__realm__")
+  realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -95,7 +94,7 @@ test("CLI help interface 'export argument user' description should be expected e
 test("CLI help interface 'export argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password           Password.
+  password                    Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -138,15 +137,16 @@ test("CLI help interface 'export option -m, --type <type>' description should be
 test("CLI help interface 'export option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure           Allow insecure connections when using SSL/TLS (default: Don't
-                                 allow insecure connections)
+  -k, --insecure              Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
+  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default:
+  Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -t, --tree <tree>  '
+      '  -i, --journey-id <journey>  '
     )
   );
 
@@ -157,14 +157,13 @@ test("CLI help interface 'export option -k, --insecure' description should be ex
 test("CLI help interface 'export option -t, --tree <tree>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -t, --tree <tree>  Name of a journey/tree. If specified, -a and -A are
-                           ignored.
+  -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A are ignored.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -t, --tree <tree>  ',
+      ' -i, --journey-id <journey>  ',
       ' -f, --file <file>  '
     )
   );
@@ -176,8 +175,7 @@ test("CLI help interface 'export option -t, --tree <tree>' description should be
 test("CLI help interface 'export option -f, --file <file>' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -f, --file <file>  Name of the file to write the exported journey(s) to.
-                           Ignored with -A.
+  -f, --file <file>           Name of the file to write the exported journey(s) to. Ignored with -A.
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -194,15 +192,14 @@ test("CLI help interface 'export option -f, --file <file>' description should be
 test("CLI help interface 'export option -a, --all' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    -a, --all          Export all the journeys/trees in a realm. Ignored with
-                       -t.
+  -a, --all                   Export all the journeys/trees in a realm. Ignored with -i.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       ' -a, --all          ',
-      ' -A, --allSeparate  '
+      ' -A, --all-separate  '
     )
   );
   // Assert
@@ -212,15 +209,15 @@ test("CLI help interface 'export option -a, --all' description should be expecte
 test("CLI help interface 'export option -A, --allSeparate' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -A, --allSeparate  Export all the journeys/trees in a realm as separate
-                           files <journey/tree name>.json. Ignored with -t or -a.
+  -A, --all-separate          Export all the journeys/trees in a realm as separate files <journey/tree name>.json. Ignored with -i or
+  -a.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -A, --allSeparate  ',
-      '  -h, --help         '
+      ' -A, --all-separate  ',
+      '  --use-string-arrays         '
     )
   );
   // Assert

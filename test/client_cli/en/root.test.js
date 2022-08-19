@@ -5,15 +5,15 @@ const exec = promisify(cp.exec);
 const CMD = 'frodo --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface 'connections' description should be expected english", async () => {
+test("CLI help interface 'connection' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        connections                              Manage connection profiles.
+  conn|connection                          Manage connection profiles.
     `.trim();
   // Act
   const testLine = stdout
     .split(/\n/)
-    .find((line) => line.trim().startsWith('connections'))
+    .find((line) => line.trim().startsWith('conn'))
     .trim();
   // Assert
   expect(testLine).toBe(expectedDescription);
@@ -78,7 +78,7 @@ test("CLI help interface 'idm' description should be expected english", async ()
 test("CLI help interface 'logs' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        logs <host>                              View Identity Cloud logs.
+  logs                                     List/View Identity Cloud logs
     `.trim();
   // Act
   const testLine = stdout

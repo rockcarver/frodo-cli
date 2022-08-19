@@ -8,7 +8,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'connections' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo connections [options] [command]
+  Usage: frodo conn|connection [options] [command]
     `.trim();
   // Act
   const testLine = stdout
@@ -36,7 +36,7 @@ test('CLI help interface connections description at line 2 should be expected en
 test("CLI help interface 'list' description should be expected english", async () => {
   // Arrange
   const expected = `
-        list                                         List configured connections.
+  list            List connection profiles.
     `.trim();
   // Act
   const testLine = stdout
@@ -50,7 +50,7 @@ test("CLI help interface 'list' description should be expected english", async (
 test("CLI help interface 'delete' description should be expected english", async () => {
   // Arrange
   const expected = `
-    delete <host>                                Delete an existing connection profile (can also be done by editing '$HOME/.frodorc' in a text editor).
+  delete          Delete connection profiles.
     `.trim();
   // Act
   const testLine = stdout

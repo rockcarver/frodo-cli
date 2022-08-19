@@ -2,13 +2,13 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo connections list --help';
+const CMD = 'frodo connections delete --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'list' Usage should be expected english", async () => {
+test("CLI help interface for 'delete' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo connections list [options]
+        Usage: frodo conn delete [options] <host>
     `.trim();
   // Act
   const testLine = stdout
@@ -19,10 +19,10 @@ test("CLI help interface for 'list' Usage should be expected english", async () 
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'connections List' description at line 2 should be expected english", async () => {
+test("CLI help interface 'conn delete' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        List configured connections.
+  Delete connection profiles.
     `.trim();
   // Act
   const testLine = stdout

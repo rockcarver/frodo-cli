@@ -9,7 +9,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'logs tail' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo logs tail [options] <host> [key] [secret]
+  Usage: frodo journey tail [options] <host> [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -37,16 +37,15 @@ test("CLI help interface 'logs tail' description at line 2 should be expected en
 test("CLI help interface 'tail argument host' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        host                    Access Management base URL, e.g.:
-                                https://cdk.iam.example.com/am. To use a connection profile,
-                                just specify a unique substring.
+  host                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just
+  specify a unique substring.
     `).trim();
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  host                     ',
-      '  key                      '
+      '  host                         ',
+      '  user                         '
     )
   );
   // Assert
@@ -56,14 +55,15 @@ test("CLI help interface 'tail argument host' description should be expected eng
 test("CLI help interface 'tail argument key' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        key             API key for logging API.
+  user                         Username to login with. Must be an admin user with appropriate rights to manage authentication
+  journeys/trees.
     `).trim();
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  key                      ',
-      '  secret                   '
+      '  user                         ',
+      '  password                     '
     )
   );
   // Assert
@@ -73,11 +73,11 @@ test("CLI help interface 'tail argument key' description should be expected engl
 test("CLI help interface 'tail argument secret' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        secret          API secret for logging API.
+  password                     Password.
     `).trim();
   // Act
   const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(stdout, '  secret                   ', 'Options:')
+    crudeMultilineTakeUntil(stdout, '  password                     ', 'Options:')
   );
   // Assert
   expect(collapseWhitespace(testLine)).toBe(expected);
@@ -86,8 +86,7 @@ test("CLI help interface 'tail argument secret' description should be expected e
 test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure  Allow insecure connections when using SSL/TLS
-                        (default: Don't allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -105,8 +104,7 @@ test("CLI help interface 'list option -k, --insecure' description should be expe
 test("CLI help interface 'list option -c, --sources <sources>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -c, --sources <sources>  Comma separated list of log sources (default: Log
-                                 everything)
+  -c, --sources <sources> Comma separated list of log sources (default: Log everything) -l, --level <level> Set log level filter. You can specify the level as a number or a string. Following values are possible (values on the same line are equivalent): 0, SEVERE, FATAL, or ERROR 1, WARNING, WARN or CONFIG 2, INFO or INFORMATION 3, DEBUG, FINE, FINER or FINEST 4 or ALL (default: SEVERE,ERROR,FATAL) -t, --transaction-id <txid> Filter by transactionId
     `);
   // Act
   const testLine = collapseWhitespace(

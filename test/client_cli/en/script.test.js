@@ -36,7 +36,7 @@ test("CLI help interface 'script' description at line 2 should be expected engli
 test("CLI help interface 'script commands list' description should be expected english", async () => {
   // Arrange
   const expected = `
-        list [options] <host> [realm] [user] [password]    List all the scripts in a realm.
+  list            List scripts.
     `.trim();
   // Act
   const testLine = stdout
@@ -50,7 +50,7 @@ test("CLI help interface 'script commands list' description should be expected e
 test("CLI help interface 'script commands export' description should be expected english", async () => {
   // Arrange
   const expected = `
-        export [options] <host> [realm] [user] [password]  Export scripts.
+  export          Export scripts.
     `.trim();
   // Act
   const testLine = stdout
@@ -64,7 +64,7 @@ test("CLI help interface 'script commands export' description should be expected
 test("CLI help interface 'script commands import' description should be expected english", async () => {
   // Arrange
   const expected = `
-        import [options] <host> [realm] [user] [password]  Import script.
+  import          Import scripts.
     `.trim();
   // Act
   const testLine = stdout

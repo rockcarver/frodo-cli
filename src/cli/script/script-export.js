@@ -35,13 +35,13 @@ program
   .addOption(
     new Option(
       '-a, --all',
-      'Export all cmds to a single file. Ignored with -i.'
+      'Export all scripts to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all cmds to separate files (*.cmd.json) in the current directory. Ignored with -i or -a.'
+      'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -i or -a.'
     )
   )
   // deprecated option

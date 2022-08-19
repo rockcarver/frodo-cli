@@ -27,7 +27,7 @@ const pkg = JSON.parse(
 
 const { initConnectionProfiles } = ConnectionProfile;
 
-const program = new Command(pkg.name).version(
+const program = new Command('frodo').version(
   `v${pkg.version} [${process.version}]`,
   '-v, --version'
 );

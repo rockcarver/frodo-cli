@@ -2,13 +2,13 @@ import cp from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo email_templates --help';
+const CMD = 'frodo email template --help';
 const { stdout } = await exec(CMD);
 
 test("CLI help interface for 'email_templates' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo email_templates [options] [command]
+  Usage: frodo email template [options] [command]
     `.trim();
   // Act
   const testLine = stdout
@@ -36,7 +36,7 @@ test("CLI help interface 'email_templates' description at line 2 should be expec
 test("CLI help interface 'email_templates commands list' description should be expected english", async () => {
   // Arrange
   const expected = `
-        list [options] <host> [user] [password]    List all the email templates in the system.
+  list            List email templates.
     `.trim();
   // Act
   const testLine = stdout
@@ -50,7 +50,7 @@ test("CLI help interface 'email_templates commands list' description should be e
 test("CLI help interface 'email_templates commands export' description should be expected english", async () => {
   // Arrange
   const expected = `
-        export [options] <host> [user] [password]  Export email templates.
+  export          Export email templates.
     `.trim();
   // Act
   const testLine = stdout
@@ -64,7 +64,7 @@ test("CLI help interface 'email_templates commands export' description should be
 test("CLI help interface 'email_templates commands import' description should be expected english", async () => {
   // Arrange
   const expected = `
-        import [options] <host> [user] [password]  Import email template.
+  import          Import email templates.
     `.trim();
   // Act
   const testLine = stdout

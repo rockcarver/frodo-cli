@@ -75,7 +75,7 @@ test("CLI help interface 'info argument user' description should be expected eng
 test("CLI help interface 'info argument password' description should be expected english", async () => {
   // Arrange
   const expected = `
-    password           Password.
+  password              Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -115,8 +115,7 @@ test("CLI help interface 'info Options -m, --type' description should be expecte
 test("CLI help interface 'info Options -k, --insecure' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    -k, --insecure      Allow insecure connections when using SSL/TLS (default: Don't
-                        allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -s, --scriptFriendly Send output of operation to STDOUT in a script-friendly format (JSON) which can be piped to other commands. User messages/warnings are output to STDERR, and are not piped. For example, to only get bearer token: <<< frodo info my-tenant -s 2>/dev/null | jq -r .bearerToken >>> (default: Output as plain text)
     `);
   // Act
   const testLine = collapseWhitespace(

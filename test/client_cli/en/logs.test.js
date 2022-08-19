@@ -9,7 +9,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'logs' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo logs [options] [command] <host>
+  Usage: frodo logs [options] [command]
     `.trim();
   // Act
   const testLine = stdout
@@ -23,7 +23,7 @@ test("CLI help interface for 'logs' Usage should be expected english", async () 
 test("CLI help interface 'logs' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        View Identity Cloud logs.
+  View Identity Cloud logs. If valid tenant admin credentials are specified, a log API key and secret are automatically created for that admin user.
     `.trim();
   // Act
   const testLine = stdout
@@ -34,27 +34,10 @@ test("CLI help interface 'logs' description at line 2 should be expected english
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'logs argument host' description should be expected english", async () => {
-  // Arrange
-  const expected = collapseWhitespace(`
-        host                                  Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-    `).trim();
-  // Act
-  const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(
-      stdout,
-      '  host                                  ',
-      'Options:'
-    )
-  );
-  // Assert
-  expect(collapseWhitespace(testLine)).toBe(expected);
-});
-
 test("CLI help interface 'logs commands list' description should be expected english", async () => {
   // Arrange
   const expected = `
-        list [options] <host> [key] [secret]  List available ID Cloud log sources.
+  list            List available ID Cloud log sources.
     `.trim();
   // Act
   const testLine = stdout
@@ -68,7 +51,7 @@ test("CLI help interface 'logs commands list' description should be expected eng
 test("CLI help interface 'logs commands tail' description should be expected english", async () => {
   // Arrange
   const expected = `
-        tail [options] <host> [key] [secret]  Tail Identity Cloud logs.
+        tail            Tail Identity Cloud logs.
     `.trim();
   // Act
   const testLine = stdout

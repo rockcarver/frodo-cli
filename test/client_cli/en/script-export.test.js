@@ -57,8 +57,7 @@ test("CLI help interface 'export argument host' description should be expected e
 test("CLI help interface 'export argument realm' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                           or '/parent/child' otherwise. (default: "__default__realm__")
+  realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -95,7 +94,7 @@ test("CLI help interface 'export argument user' description should be expected e
 test("CLI help interface 'export argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password               Password.
+  password                  Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -138,15 +137,16 @@ test("CLI help interface 'export option -m, --type <type>' description should be
 test("CLI help interface 'export option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure           Allow insecure connections when using SSL/TLS (default: Don't
-                                 allow insecure connections)
+  -k, --insecure            Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
+  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't
+  allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure         ',
-      '  -s, --script <script>  '
+      '  -k, --insecure            ',
+      '  -n, --script-name <name>  '
     )
   );
 
@@ -157,14 +157,13 @@ test("CLI help interface 'export option -k, --insecure' description should be ex
 test("CLI help interface 'export option -s, --script <script>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -s, --script <script>  Name of a script. If specified, -a and -A are
-                               ignored.
+  -n, --script-name <name> Name of the script. If specified, -a and -A are ignored.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -s, --script <script>  ',
+      ' -n, --script-name <name>  ',
       ' -f, --file <file>  '
     )
   );
@@ -176,8 +175,7 @@ test("CLI help interface 'export option -s, --script <script>' description shoul
 test("CLI help interface 'export option -f, --file <file>' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -f, --file <file>  Name of the file to write the exported script(s) to.
-                           Ignored with -A.
+  -f, --file <file> Name of the export file.
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -194,33 +192,31 @@ test("CLI help interface 'export option -f, --file <file>' description should be
 test("CLI help interface 'export option -a, --all' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    -a, --all          Export all the scripts in a realm. Ignored with
-                       -t.
+  -a, --all Export all scripts to a single file. Ignored with -i.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       ' -a, --all          ',
-      ' -A, --allSeparate  '
+      ' -A, --all-separate  '
     )
   );
   // Assert
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'export option -A, --allSeparate' description should be expected english", async () => {
+test("CLI help interface 'export option -A, --all-separate' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -A, --allSeparate  Export all the scripts in a realm as separate
-                           files <script>.json. Ignored with -s or -a.
+  -A, --all-separate Export all scripts to separate files (*.script.json) in the current directory. Ignored with -i or -a.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -A, --allSeparate  ',
-      '  -h, --help         '
+      '  -A, --all-separate        ',
+      '  -s, --script <script>     '
     )
   );
   // Assert

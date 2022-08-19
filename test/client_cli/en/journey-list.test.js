@@ -3,13 +3,13 @@ import { promisify } from 'util';
 import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo script import --help';
+const CMD = 'frodo journey list --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'script import' Usage should be expected english", async () => {
+test("CLI help interface for 'journey list' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo script import [options] <host> [realm] [user] [password]
+        Usage: frodo journey list [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -20,10 +20,10 @@ test("CLI help interface for 'script import' Usage should be expected english", 
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'script import' description at line 2 should be expected english", async () => {
+test("CLI help interface 'journey list' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        Import script.
+  List journeys/trees.
     `.trim();
   // Act
   const testLine = stdout
@@ -34,7 +34,7 @@ test("CLI help interface 'script import' description at line 2 should be expecte
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import argument host' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     host                Access Management base URL, e.g.:
@@ -54,11 +54,10 @@ test("CLI help interface 'import argument host' description should be expected e
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import argument realm' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument realm' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                           or '/parent/child' otherwise. (default: "__default__realm__")
+  realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -73,7 +72,7 @@ test("CLI help interface 'import argument realm' description should be expected 
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import argument user' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument user' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
         user                     Username to login with. Must be an admin user with appropriate
@@ -92,7 +91,7 @@ test("CLI help interface 'import argument user' description should be expected e
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import argument password' description should be expected english", async () => {
+test("CLI help interface 'list argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
         password           Password.
@@ -106,7 +105,7 @@ test("CLI help interface 'import argument password' description should be expect
   expect(testLine).toBe(expectedDescription);
 });
 
-test("CLI help interface 'import option -m, --type <type>' description should be expected english multiline", async () => {
+test("CLI help interface 'list option -m, --type <type>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -m, --type <type>  Override auto-detected deployment type. Valid values for
@@ -135,18 +134,17 @@ test("CLI help interface 'import option -m, --type <type>' description should be
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import option -k, --insecure' description should be expected english multiline", async () => {
+test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure     Allow insecure connections when using SSL/TLS (default:
-                           Don't allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -l, --long Long with all fields. (default: false)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -f, --file <file>  '
+      '  -a, --analyze      '
     )
   );
 
@@ -154,19 +152,16 @@ test("CLI help interface 'import option -k, --insecure' description should be ex
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'import option -f, --file <file>' description should be expected english", async () => {
+test("CLI help interface 'list option --analyze' description should be expected english", async () => {
   // Arrange
-  const expected = collapseWhitespace(`
-        -f, --file <file>  File name.
-    `);
+  const expectedDescription = `
+        -a, --analyze      Analyze journeys for custom nodes.
+    `.trim();
   // Act
-  const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(
-      stdout,
-      ' -f, --file <file>  ',
-      ' -h, --help         '
-    )
-  );
+  const testLine = stdout
+    .split(/\n/)
+    .find((line) => line.trim().startsWith('-a, --analyze'))
+    .trim();
   // Assert
-  expect(testLine).toBe(expected);
+  expect(testLine).toBe(expectedDescription);
 });

@@ -9,7 +9,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'idm list' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo idm list [options] <host> [user] [password]
+  Usage: frodo idm list [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -23,7 +23,7 @@ test("CLI help interface for 'idm list' Usage should be expected english", async
 test("CLI help interface 'idm list' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        List all IDM configuration objects.
+  List IDM configuration objects.
     `.trim();
   // Act
   const testLine = stdout
@@ -37,13 +37,16 @@ test("CLI help interface 'idm list' description at line 2 should be expected eng
 test("CLI help interface 'list argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        host                Access Management base URL, e.g.:
-                            https://cdk.iam.example.com/am. To use a connection
-                            profile, just specify a unique substring.
+  host               Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a
+  unique substring.
     `);
   // Act
   const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(stdout, '  host           ', '  user           ')
+    crudeMultilineTakeUntil(
+      stdout,
+      '  host               ',
+      '  realm              '
+    )
   );
 
   // Assert
@@ -68,7 +71,7 @@ test("CLI help interface 'list argument user' description should be expected eng
 test("CLI help interface 'list argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password        Password.
+  password           Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -82,12 +85,17 @@ test("CLI help interface 'list argument password' description should be expected
 test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure              Allow insecure connections when using SSL/TLS
-                                    (default: Don't allow insecure connections)
+  -k, --insecure     Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
+  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow
+  insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(stdout, '  -k, --insecure  ', '  -h, --help      ')
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -k, --insecure     ',
+      '  -h, --help         '
+    )
   );
 
   // Assert

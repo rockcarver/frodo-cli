@@ -47,6 +47,10 @@ jobs:
       #
       # Run tests.
       #
+      - name: CLI Help Test
+        run: |
+          npm test
+
       - name: Version Test
         run: |
           frodo -v

@@ -3,13 +3,13 @@ import { promisify } from 'util';
 import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo journey list --help';
+const CMD = 'frodo email template import --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'journey list' Usage should be expected english", async () => {
+test("CLI help interface for 'email_templates import' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo journey list [options] <host> [realm] [user] [password]
+  Usage: frodo email template import [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -20,10 +20,10 @@ test("CLI help interface for 'journey list' Usage should be expected english", a
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'journey list' description at line 2 should be expected english", async () => {
+test("CLI help interface 'email_templates import' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        List all the journeys/trees in a realm.
+        Import email templates.
     `.trim();
   // Act
   const testLine = stdout
@@ -34,19 +34,17 @@ test("CLI help interface 'journey list' description at line 2 should be expected
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list argument host' description should be expected english multiline", async () => {
+test("CLI help interface 'import argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    host                Access Management base URL, e.g.:
-                        https://cdk.iam.example.com/am. To use a connection
-                        profile, just specify a unique substring.
+  host Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring. realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: \"alpha\" for Identity Cloud tenants, \"/\" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  host               ',
-      '  realm              '
+      '  user           '
     )
   );
 
@@ -54,26 +52,7 @@ test("CLI help interface 'list argument host' description should be expected eng
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list argument realm' description should be expected english multiline", async () => {
-  // Arrange
-  const expected = collapseWhitespace(`
-        realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                           or '/parent/child' otherwise. (default: "__default__realm__")
-    `);
-  // Act
-  const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(
-      stdout,
-      '  realm              ',
-      '  user               '
-    )
-  );
-
-  // Assert
-  expect(testLine).toBe(expected);
-});
-
-test("CLI help interface 'list argument user' description should be expected english multiline", async () => {
+test("CLI help interface 'import argument user' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
         user                     Username to login with. Must be an admin user with appropriate
@@ -92,10 +71,10 @@ test("CLI help interface 'list argument user' description should be expected eng
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list argument password' description should be expected english", async () => {
+test("CLI help interface 'import argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password           Password.
+  password                         Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -106,7 +85,7 @@ test("CLI help interface 'list argument password' description should be expected
   expect(testLine).toBe(expectedDescription);
 });
 
-test("CLI help interface 'list option -m, --type <type>' description should be expected english multiline", async () => {
+test("CLI help interface 'import option -m, --type <type>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -m, --type <type>  Override auto-detected deployment type. Valid values for
@@ -135,18 +114,17 @@ test("CLI help interface 'list option -m, --type <type>' description should be e
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
+test("CLI help interface 'import option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure           Allow insecure connections when using SSL/TLS (default: Don't
-                                 allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -i, --template-id <template-id> Email template id/name. If specified, -a and -A are ignored.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -a, --analyze      '
+      '  -f, --file <file>  '
     )
   );
 
@@ -154,16 +132,19 @@ test("CLI help interface 'list option -k, --insecure' description should be expe
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option --analyze' description should be expected english", async () => {
+test("CLI help interface 'import option -f, --file <file>' description should be expected english", async () => {
   // Arrange
-  const expectedDescription = `
-        -a, --analyze      Analyze journeys for custom nodes.
-    `.trim();
+  const expected = collapseWhitespace(`
+  -f, --file <file>                Name of the import file.
+    `);
   // Act
-  const testLine = stdout
-    .split(/\n/)
-    .find((line) => line.trim().startsWith('-a, --analyze'))
-    .trim();
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      ' -f, --file <file>  ',
+      ' -a, --all          '
+    )
+  );
   // Assert
-  expect(testLine).toBe(expectedDescription);
+  expect(testLine).toBe(expected);
 });

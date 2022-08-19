@@ -33,9 +33,6 @@
     "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
     "lint": "eslint --ext .js --ignore-path .gitignore ."
   },
-  "jest": {
-    "globalSetup": "<rootDir>/test/global/setup.js"
-  },
   "contributors": [
     {
       "name": "Sandeep Chaturvedi",

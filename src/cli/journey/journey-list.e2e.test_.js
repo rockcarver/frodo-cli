@@ -80,6 +80,7 @@ describe('frodo journey list', () => {
   });
 
   const expectedLong = [
+    'Listing journeys in realm "alpha"...',
     'Name              │Status  │Tags               ',
     'Disabled          │disabled│Prototype          ',
     'ForgottenUsername │enabled │Username Reset     ',

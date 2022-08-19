@@ -3,13 +3,13 @@ import { promisify } from 'util';
 import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo journey importAll --help';
+const CMD = 'frodo script list --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'journey importAll' Usage should be expected english", async () => {
+test("CLI help interface for 'script list' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo journey importAll [options] <host> [realm] [user] [password]
+        Usage: frodo script list [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -20,10 +20,10 @@ test("CLI help interface for 'journey importAll' Usage should be expected englis
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'journey importAll' description at line 2 should be expected english", async () => {
+test("CLI help interface 'script list' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        Import all the trees in a realm.
+  List scripts.
     `.trim();
   // Act
   const testLine = stdout
@@ -34,7 +34,7 @@ test("CLI help interface 'journey importAll' description at line 2 should be exp
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'importAll argument host' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     host                Access Management base URL, e.g.:
@@ -54,11 +54,10 @@ test("CLI help interface 'importAll argument host' description should be expecte
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'importAll argument realm' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument realm' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                           or '/parent/child' otherwise. (default: "__default__realm__")
+  realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -73,7 +72,7 @@ test("CLI help interface 'importAll argument realm' description should be expect
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'importAll argument user' description should be expected english multiline", async () => {
+test("CLI help interface 'list argument user' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
         user                     Username to login with. Must be an admin user with appropriate
@@ -92,7 +91,7 @@ test("CLI help interface 'importAll argument user' description should be expecte
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'importAll argument password' description should be expected english", async () => {
+test("CLI help interface 'list argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
         password           Password.
@@ -106,7 +105,7 @@ test("CLI help interface 'importAll argument password' description should be exp
   expect(testLine).toBe(expectedDescription);
 });
 
-test("CLI help interface 'importAll option -m, --type <type>' description should be expected english multiline", async () => {
+test("CLI help interface 'list option -m, --type <type>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -m, --type <type>  Override auto-detected deployment type. Valid values for
@@ -135,57 +134,20 @@ test("CLI help interface 'importAll option -m, --type <type>' description should
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'importAll option -k, --insecure' description should be expected english multiline", async () => {
+test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure           Allow insecure connections when using SSL/TLS (default: Don't
-                                 allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -l, --long Long with all fields. (default: false)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -f, --file <file>  '
-    )
-  );
-
-  // Assert
-  expect(testLine).toBe(expected);
-});
-
-test("CLI help interface 'importAll option -f, --file <file>' description should be expected english", async () => {
-  // Arrange
-  const expected = collapseWhitespace(`
-        -f, --file <file>  File name.
-    `);
-  // Act
-  const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(
-      stdout,
-      ' -f, --file <file>  ',
-      '  -n                 '
-    )
-  );
-  // Assert
-  expect(testLine).toBe(expected);
-});
-
-test("CLI help interface 'importAll option -n' description should be expected english multiline", async () => {
-  // Arrange
-  const expected = collapseWhitespace(`
-        -n                 No Re-UUID, i.e., import does not generate new UUIDs for
-                           (inner)nodes. Used to update existing trees/nodes instead
-                           of cloning them.
-    `);
-  // Act
-  const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(
-      stdout,
-      '  -n                 ',
       '  -h, --help         '
     )
   );
+
   // Assert
   expect(testLine).toBe(expected);
 });

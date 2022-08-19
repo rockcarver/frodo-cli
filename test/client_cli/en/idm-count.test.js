@@ -3,13 +3,13 @@ import { promisify } from 'util';
 import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo idm exportAllRaw --help';
+const CMD = 'frodo idm count --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'idm exportAllRaw' Usage should be expected english", async () => {
+test("CLI help interface for 'idm count' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo idm exportAllRaw [options] <host> [user] [password]
+  Usage: frodo idm count [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -20,10 +20,10 @@ test("CLI help interface for 'idm exportAllRaw' Usage should be expected english
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'idm exportAllRaw' description at line 2 should be expected english", async () => {
+test("CLI help interface 'idm export' description at line 2 should be expected english", async () => {
   // Arrange
   const expected = `
-        Export all IDM configuration objects into separate JSON files in a directory specified by <directory>
+  Count managed objects.
     `.trim();
   // Act
   const testLine = stdout
@@ -34,19 +34,18 @@ test("CLI help interface 'idm exportAllRaw' description at line 2 should be expe
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'exportAllRaw argument host' description should be expected english multiline", async () => {
+test("CLI help interface 'count argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    host                Access Management base URL, e.g.:
-                        https://cdk.iam.example.com/am. To use a connection
-                        profile, just specify a unique substring.
+  host                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just
+  specify a unique substring.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  host               ',
-      '  user              '
+      '  host                         ',
+      '  realm                        '
     )
   );
 
@@ -54,7 +53,7 @@ test("CLI help interface 'exportAllRaw argument host' description should be expe
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'exportAllRaw argument user' description should be expected english multiline", async () => {
+test("CLI help interface 'count argument user' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
         user                     Username to login with. Must be an admin user with appropriate
@@ -73,10 +72,10 @@ test("CLI help interface 'exportAllRaw argument user' description should be expe
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'exportAllRaw argument password' description should be expected english", async () => {
+test("CLI help interface 'count argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password                     Password.
+  password                     Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -87,18 +86,17 @@ test("CLI help interface 'exportAllRaw argument password' description should be 
   expect(testLine).toBe(expectedDescription);
 });
 
-test("CLI help interface 'exportAllRaw option -D, --directory <directory>' description should be expected english multiline", async () => {
+test("CLI help interface 'count option -N, --name <name>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -D, --directory <directory>  Directory for exporting all configuration
-                                     entities to.
+  -m, --managed-object <type>  Type of managed object to count. E.g. "alpha_user", "alpha_role", "user", "role".
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -D, --directory <directory>  ',
-      '  -k, --insecure               '
+      '  -m, --managed-object <type>  ',
+      '  -h, --help    '
     )
   );
 
@@ -106,18 +104,19 @@ test("CLI help interface 'exportAllRaw option -D, --directory <directory>' descr
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'exportAllRaw option -k, --insecure' description should be expected english multiline", async () => {
+test("CLI help interface 'export option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure              Allow insecure connections when using SSL/TLS
-                                    (default: Don't allow insecure connections)
+  -k, --insecure               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
+  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default:
+  Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure               ',
-      '  -h, --help         '
+      '  -k, --insecure     ',
+      '  -m, --managed-object <type>  '
     )
   );
 

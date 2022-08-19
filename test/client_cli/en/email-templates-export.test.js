@@ -3,13 +3,13 @@ import { promisify } from 'util';
 import { crudeMultilineTakeUntil, collapseWhitespace } from '../utils/utils.js';
 
 const exec = promisify(cp.exec);
-const CMD = 'frodo email_templates export --help';
+const CMD = 'frodo email template export --help';
 const { stdout } = await exec(CMD);
 
 test("CLI help interface for 'email_templates export' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-        Usage: frodo email_templates export [options] <host> [user] [password]
+  Usage: frodo email template export [options] <host> [realm] [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -37,9 +37,7 @@ test("CLI help interface 'email_templates export' description at line 2 should b
 test("CLI help interface 'export argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    host                Access Management base URL, e.g.:
-                        https://cdk.iam.example.com/am. To use a connection
-                        profile, just specify a unique substring.
+  host Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring. realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: \"alpha\" for Identity Cloud tenants, \"/\" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
@@ -76,7 +74,7 @@ test("CLI help interface 'export argument user' description should be expected e
 test("CLI help interface 'export argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-        password                   Password.
+  password                         Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -119,15 +117,14 @@ test("CLI help interface 'export option -m, --type <type>' description should be
 test("CLI help interface 'export option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -k, --insecure           Allow insecure connections when using SSL/TLS (default: Don't
-                                 allow insecure connections)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure         ',
-      '  -t, --template <template>  '
+      '  -i, --template-id <template-id>  '
     )
   );
 
@@ -138,15 +135,14 @@ test("CLI help interface 'export option -k, --insecure' description should be ex
 test("CLI help interface 'export option -t, --template <template>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -t, --template <template>  Name of email template. If specified, -a and -A
-                                   are ignored.
+  -i, --template-id <template-id> Email template id/name. If specified, -a and -A are ignored.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -t, --template <template>  ',
-      ' -f, --file <file>  '
+      ' -i, --template-id <template-id>  ',
+      ' -f, --file [file]  '
     )
   );
 
@@ -157,14 +153,13 @@ test("CLI help interface 'export option -t, --template <template>' description s
 test("CLI help interface 'export option -f, --file <file>' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -f, --file <file>  Name of the file to write the exported email template(s) to.
-                           Ignored with -A.
+  -f, --file [file] Name of the export file. Ignored with -A. Defaults to <template-id>.template.email.json.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -f, --file <file>  ',
+      ' -f, --file [file]  ',
       ' -a, --all          '
     )
   );
@@ -175,15 +170,14 @@ test("CLI help interface 'export option -f, --file <file>' description should be
 test("CLI help interface 'export option -a, --all' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    -a, --all          Export all the email templates in the system. Ignored with
-                       -t.
+  -a, --all Export all email templates to a single file. Ignored with -i.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       ' -a, --all          ',
-      ' -A, --allSeparate  '
+      ' -A, --all-separate '
     )
   );
   // Assert
@@ -193,15 +187,14 @@ test("CLI help interface 'export option -a, --all' description should be expecte
 test("CLI help interface 'export option -A, --allSeparate' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-        -A, --allSeparate  Export all the email templates as separate
-                           files <template>.json. Ignored with -s or -a.
+  -A, --all-separate Export all email templates as separate files <template-id>.template.email.json. Ignored with -i, and -a.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -A, --allSeparate  ',
-      '  -h, --help         '
+      ' -A, --all-separate  ',
+      ' -h, --help          '
     )
   );
   // Assert
