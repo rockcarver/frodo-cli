@@ -1,4 +1,4 @@
-name: 'Frodo Release Pipeline'
+name: 'Frodo CLI Release Pipeline'
 
 on:
   push:
