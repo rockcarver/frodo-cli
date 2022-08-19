@@ -1,6 +1,6 @@
 {
   "name": "@rockcarver/frodo-cli",
-  "version": "0.11.0",
+  "version": "0.11.1-0",
   "type": "module",
   "description": "This is the ForgeROck DO (FRODO) command line interface, a CLI to manage the ForgeRock Identity Cloud tenants, ForgeOps deployments, and classic deployments.",
   "keywords": [
