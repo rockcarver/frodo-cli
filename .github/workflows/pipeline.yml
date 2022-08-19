@@ -47,6 +47,10 @@ jobs:
       #
       # Run tests.
       #
+      - name: Lint & Fix
+        run: |
+          npm run lint -- --fix
+
       - name: CLI Help Test
         run: |
           npm test

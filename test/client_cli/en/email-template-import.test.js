@@ -43,7 +43,7 @@ test("CLI help interface 'email_templates import' description at line 2 should b
 test("CLI help interface 'import argument host' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-  host Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring. realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: \"alpha\" for Identity Cloud tenants, \"/\" otherwise.)
+  host Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring. realm Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
     `);
   // Act
   const testLine = collapseWhitespace(
