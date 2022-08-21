@@ -73,7 +73,7 @@ program
         // export
         if (options.journeyId) {
           console.log('Exporting journey...');
-          exportJourneyToFile(options.journeyId, options.file, {
+          await exportJourneyToFile(options.journeyId, options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
             verbose: options.verbose,
@@ -82,7 +82,7 @@ program
         // --all -a
         else if (options.all) {
           console.log('Exporting all journeys to a single file...');
-          exportJourneysToFile(options.file, {
+          await exportJourneysToFile(options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
             verbose: options.verbose,
@@ -91,7 +91,7 @@ program
         // --all-separate -A
         else if (options.allSeparate) {
           console.log('Exporting all journeys to separate files...');
-          exportJourneysToFiles({
+          await exportJourneysToFiles({
             useStringArrays: options.useStringArrays,
             deps: options.deps,
             verbose: options.verbose,
