@@ -1,0 +1,13 @@
+.eslintrc                                                        
+.github/
+.prettierrc                                                      
+CODE_OF_CONDUCT.md                                               
+dist/
+docs/
+gulpfile.js                                                      
+jsconfig.json
+node_modules/
+resources/
+src/**/*.test.js
+src/**/*.test_.js
+test/

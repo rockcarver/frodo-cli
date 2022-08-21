@@ -1,8 +1,14 @@
 import gulp from 'gulp';
+import install from 'gulp-install';
 import babel from 'gulp-babel';
 import del from 'del';
 import sourcemaps from 'gulp-sourcemaps';
 import map from 'map-stream';
+import { exec } from 'pkg';
+
+gulp.task('install', () =>
+  gulp.src(['package.json'], { base: '.' }).pipe(install())
+);
 
 gulp.task('clean', () => del(['dist/src']));
 
@@ -13,12 +19,16 @@ gulp.task('package', () =>
       map((file, done) => {
         const json = JSON.parse(file.contents.toString());
         delete json.type;
-        // eslint-disable-next-line no-param-reassign, no-buffer-constructor
-        file.contents = new Buffer(JSON.stringify(json));
+        // eslint-disable-next-line no-param-reassign
+        file.contents = Buffer.from(JSON.stringify(json));
         done(null, file);
       })
     )
     .pipe(gulp.dest('dist'))
+);
+
+gulp.task('dist-install', () =>
+  gulp.src(['dist/package.json'], { base: 'dist' }).pipe(install())
 );
 
 gulp.task('transpile', () =>
@@ -46,4 +56,27 @@ gulp.task('resources', () =>
   gulp.src(['src/**/*.json'], { base: './' }).pipe(gulp.dest('dist'))
 );
 
-gulp.task('default', gulp.series('clean', 'package', 'transpile', 'resources'));
+gulp.task('pkg', () =>
+  exec([
+    '-C',
+    'Gzip',
+    '-t',
+    'node18-macos-x64',
+    '-o',
+    'dist/bin/macos/frodo',
+    'dist',
+  ])
+);
+
+gulp.task(
+  'default',
+  gulp.series(
+    'install',
+    'clean',
+    'package',
+    'dist-install',
+    'transpile',
+    'resources',
+    'pkg'
+  )
+);
