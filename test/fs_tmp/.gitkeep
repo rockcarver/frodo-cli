@@ -1,2 +1,0 @@
-Used to keep a directory where fs writes files.
-files other than this should be torn down and ignored

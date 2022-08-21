@@ -1,6 +1,6 @@
-#!/usr/bin/env -S node --no-warnings --enable-source-maps
+#!/usr/bin/env -S node --no-warnings --enable-source-maps --experimental-specifier-resolution=node
 
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { getVersion, ConnectionProfile } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { Command } from 'commander';
 // import pkg from '../package.json' assert { type: 'json' };
@@ -28,7 +28,7 @@ const pkg = JSON.parse(
 const { initConnectionProfiles } = ConnectionProfile;
 
 const program = new Command('frodo').version(
-  `v${pkg.version} [${process.version}]`,
+  `cli: v${pkg.version}\nlib: ${getVersion()}\nnode: ${process.version}`,
   '-v, --version'
 );
 

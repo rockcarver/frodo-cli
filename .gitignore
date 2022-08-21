@@ -1,3 +1,5 @@
+dist/
+
 *.cer
 *.p12
 *.developerprofile
