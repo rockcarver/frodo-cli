@@ -9,9 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1-2] - 2022-08-21
 
+### Fixed
+
+-   rockcarver/frodo#389: Exporting of empty scripts now works properly
+
 ## [0.11.1-1] - 2022-08-21
 
-## [0.11.1-0] - 2022-08-19
+### Added
+
+-   Frodo CLI is now effectively using Frodo Library for all functionality except CLI.
+    -   This changes has no effect on users using frodo binaries except for the download location of those binaries, which has now shifted to the [frodo-cli](https://github.com/rockcarver/frodo-cli) repo [release section](https://github.com/rockcarver/frodo-cli/releases).
+    -   This change does affect users who run Frodo in `Developer Mode`. The exact effects and required actions are not yet fully documented and understood.
+    -   This change does not effect the installation/update/usage process of users running the Frodo CLI NPM package. However, under the surface there is a big change in that the [Frodo CLI (@rockcarver/frodo-cli)](https://www.npmjs.com/package/@rockcarver/frodo-cli) package is now built on the new [Frodo Library (@rockcarver/frodo-lib)](https://www.npmjs.com/package/@rockcarver/frodo-lib).
+
+### Changed
+
+-   The output of `frodo -v` has changed to include all three versions: cli, lib, and node:
+    ```console
+    % frodo -v
+    cli: v0.11.1-1
+    lib: v0.11.1-6
+    node: v18.7.0
+    ```
+
+## [0.11.1-0] - 2022-08-19 [YANKED]
 
 ## [0.10.4] - 2022-08-13
 
