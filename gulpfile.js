@@ -93,6 +93,7 @@ gulp.task('pkg', () => {
       ]);
     default:
       console.log('Unsupported OS - not building binaries.');
+      return null;
   }
 });
 
