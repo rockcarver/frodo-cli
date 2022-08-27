@@ -359,12 +359,15 @@ jobs:
       - name: Build distribution binary
         working-directory: ./dist
         run: pkg -C Gzip -t node18-macos-x64 -o bin/macos/frodo .
+
       #
       # Fail early on failing tests.
       #
-
       - name: 'Test'
-        run: 'dist/bin/macos/frodo -v'
+        run: |
+          dist/bin/macos/frodo -v
+          dist/bin/macos/frodo journey -h
+          dist/bin/macos/frodo journey export -h
 
       #
       # Re-sign the application with the "Developer ID" certificate.
@@ -432,7 +435,10 @@ jobs:
       # Fail early on failing tests.
       #
       - name: 'Test'
-        run: 'dist/bin/linux/frodo -v'
+        run: |
+          dist/bin/linux/frodo -v
+          dist/bin/linux/frodo journey -h
+          dist/bin/linux/frodo journey export -h
 
       - name: Archive distribution binary
         run: zip -r -Z bzip2 dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip . -i dist/bin/linux/frodo
@@ -487,7 +493,10 @@ jobs:
       # Fail early on failing tests.
       #
       - name: 'Test'
-        run: 'dist/bin/win/frodo.exe -v'
+        run: |
+          dist/bin/win/frodo.exe -v
+          dist/bin/win/frodo.exe journey -h
+          dist/bin/win/frodo.exe journey export -h
 
       - name: Archive distribution binary
         run: 7z a -tzip dist/frodo-win-${{ needs.release.outputs.newVersion }}.zip dist/bin/win/frodo.exe
