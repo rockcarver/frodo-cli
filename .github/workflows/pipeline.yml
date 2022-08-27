@@ -284,8 +284,7 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
-      - name: Remove Pre-Release Tag
-        continue-on-error: true
+      - name: Add next tag
         if: ${{ ! fromJSON(needs.bump-version.outputs.preRelease) }}
         run: |
           export INPUT_TOKEN=${{ secrets.NPM_ACCESS_TOKEN }}
