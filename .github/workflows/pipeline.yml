@@ -349,16 +349,8 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Transpile to CommonJS
-        run: gulp
-
-      - name: Install binary distribution dependencies
-        working-directory: ./dist
-        run: npm ci
-
-      - name: Build distribution binary
-        working-directory: ./dist
-        run: pkg -C Gzip -t node18-macos-x64 -o bin/macos/frodo .
+      - name: Build
+        run: npm run build
 
       #
       # Fail early on failing tests.
@@ -420,16 +412,8 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Transpile to CommonJS
-        run: gulp
-
-      - name: Install binary distribution dependencies
-        working-directory: ./dist
-        run: npm ci
-
-      - name: Build distribution binary
-        working-directory: ./dist
-        run: pkg -C Gzip -t node18-linux-x64 -o bin/linux/frodo .
+      - name: Build
+        run: npm run build
 
       #
       # Fail early on failing tests.
@@ -478,16 +462,8 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Transpile to CommonJS
-        run: gulp
-
-      - name: Install binary distribution dependencies
-        working-directory: ./dist
-        run: npm ci
-
-      - name: Build distribution binary
-        working-directory: ./dist
-        run: pkg -C Gzip -t node18-win-x64 -o bin/win/frodo .
+      - name: Build
+        run: npm run build
 
       #
       # Fail early on failing tests.

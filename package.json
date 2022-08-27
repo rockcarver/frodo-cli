@@ -76,6 +76,11 @@
     "assets": [
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json"
+    ],
+    "scripts": [
+      "src/cli/**/*.js",
+      "src/storage/**/*.js",
+      "src/utils/**/*.js"
     ]
   },
   "dependencies": {

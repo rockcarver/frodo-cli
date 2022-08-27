@@ -56,17 +56,45 @@ gulp.task('resources', () =>
   gulp.src(['src/**/*.json'], { base: './' }).pipe(gulp.dest('dist'))
 );
 
-gulp.task('pkg', () =>
-  exec([
-    '-C',
-    'Gzip',
-    '-t',
-    'node18-macos-x64',
-    '-o',
-    'dist/bin/macos/frodo',
-    'dist',
-  ])
-);
+gulp.task('pkg', () => {
+  switch (process.platform) {
+    case 'darwin':
+      console.log('Building MacOS binary.');
+      return exec([
+        '-C',
+        'Gzip',
+        '-t',
+        'node18-macos-x64',
+        '-o',
+        'dist/bin/macos/frodo',
+        'dist',
+      ]);
+    case 'linux':
+      console.log('Building Linux binary.');
+      return exec([
+        '-C',
+        'Gzip',
+        '-t',
+        'node18-linux-x64',
+        '-o',
+        'dist/bin/linux/frodo',
+        'dist',
+      ]);
+    case 'win32':
+      console.log('Building Windows binary.');
+      return exec([
+        '-C',
+        'Gzip',
+        '-t',
+        'node18-win-x64',
+        '-o',
+        'dist/bin/win/frodo',
+        'dist',
+      ]);
+    default:
+      console.log('Unsupported OS - not building binaries.');
+  }
+});
 
 gulp.task(
   'default',
