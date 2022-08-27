@@ -70,15 +70,15 @@ For those who want to contribute or are just curious about the build process.
 
 If you are a node developer and want to use frodo as a cli tool or as a library for your own applications, you can install the npm package:
 
-- To install the latest version as a cli tool:
+- To install (or update to) the latest version as a cli tool:
   ```console
   npm i -g @rockcarver/frodo-cli
   ```
-- To install the latest version as a dependency for you own application:
+- To install (or update to) the latest version as a dependency for you own application:
   ```console
   npm i --save @rockcarver/frodo-cli
   ```
-- To install the latest pre-release:
+- To install (or update to) the latest pre-release:
   ```console
   npm i @rockcarver/frodo-cli@next
   ```
