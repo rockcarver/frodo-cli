@@ -285,11 +285,12 @@ jobs:
         with:
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Remove Pre-Release Tag
+        continue-on-error: true
         if: ${{ ! fromJSON(needs.bump-version.outputs.preRelease) }}
         run: |
           export INPUT_TOKEN=${{ secrets.NPM_ACCESS_TOKEN }}
           npm whoami
-          npm dist-tag rm @rockcarver/frodo-cli next
+          npm dist-tag add @rockcarver/frodo-cli@${{ needs.bump-version.outputs.newVersion }} next
 
   macos-binary-release:
     needs: [bump-version, release]
