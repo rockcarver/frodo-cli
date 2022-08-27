@@ -1,5 +1,18 @@
 import { Argument, Option } from 'commander';
+import { state } from '@rockcarver/frodo-lib';
+
 import * as global from '../storage/StaticStorage.js';
+import {
+  printMessage,
+  createProgressIndicator,
+  updateProgressIndicator,
+  stopProgressIndicator,
+} from '../utils/Console.js';
+
+state.default.session.setPrintHandler(printMessage);
+state.default.session.setCreateProgressHandler(createProgressIndicator);
+state.default.session.setUpdateProgressHandler(updateProgressIndicator);
+state.default.session.setStopProgressHandler(stopProgressIndicator);
 
 const hostArgumentDescription =
   'Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.';
