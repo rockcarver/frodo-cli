@@ -80,24 +80,12 @@
   },
   "dependencies": {
     "@colors/colors": "^1.5.0",
-    "@rockcarver/frodo-lib": "^0.11.1-7",
-    "axios": "^0.27.2",
-    "axios-retry": "^3.3.1",
+    "@rockcarver/frodo-lib": "~0.12.0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.2",
     "commander": "^9.4.0",
-    "fs-extra": "^10.0.0",
-    "https-proxy-agent": "^5.0.1",
-    "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
-    "properties-reader": "^2.2.0",
-    "qs": "^6.10.3",
-    "readline-sync": "^1.4.10",
-    "replaceall": "^0.1.6",
-    "slugify": "^1.6.5",
-    "url": "^0.11.0",
-    "uuid": "^8.3.2",
-    "yesno": "^0.4.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.18.9",
