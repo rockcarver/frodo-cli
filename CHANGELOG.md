@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.12.3-1] - 2022-09-01
+### Fixed
 
-## [0.12.3-0] - 2022-09-01
+-   \#24 - `frodo conn list` now showing the expected output
+-   \#25 - `npm run build` now running properly
 
 ## [0.12.2] - 2022-08-27
 
@@ -20,12 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   \#16: 2nd-level commands in binary builds are working properly again (they were broken in all 0.11.x and 0.12.x builds)
-
-## [0.12.2-2] - 2022-08-27 [YANKED]
-
-## [0.12.2-1] - 2022-08-27 [YANKED]
-
-## [0.12.2-0] - 2022-08-27 [YANKED]
 
 ## [0.12.1] - 2022-08-27 [YANKED]
 
