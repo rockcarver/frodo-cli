@@ -1,7 +1,11 @@
 import { Command, Option } from 'commander';
 import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { init } from '../cmd_common.js';
 
 const { listConnectionProfiles } = ConnectionProfile;
+
+// pseudo init to trigger print and progress handler registration
+init();
 
 const program = new Command('frodo conn list');
 
