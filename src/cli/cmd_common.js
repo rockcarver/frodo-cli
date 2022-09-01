@@ -1,6 +1,5 @@
 import { Argument, Option } from 'commander';
 import { state } from '@rockcarver/frodo-lib';
-
 import * as global from '../storage/StaticStorage.js';
 import {
   printMessage,
@@ -13,6 +12,10 @@ state.default.session.setPrintHandler(printMessage);
 state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
+
+// pseudo functions for commands that do not otherwise need to import
+// this file but need to trigger print and progress handler registration
+export function init() {}
 
 const hostArgumentDescription =
   'Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.';
