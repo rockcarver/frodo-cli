@@ -14,7 +14,7 @@ gulp.task('clean', () => del(['dist/src']));
 
 gulp.task('package', () =>
   gulp
-    .src('*.json')
+    .src('package.json')
     .pipe(
       map((file, done) => {
         const json = JSON.parse(file.contents.toString());
