@@ -1,9 +1,10 @@
 import { Command } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
+import yesno from 'yesno';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { prune } = Journey;
+const { findOrphanedNodes, removeOrphanedNodes } = Journey;
 
 const program = new Command('frodo journey prune');
 
@@ -32,7 +33,17 @@ program
         console.log(
           `Pruning orphaned configuration artifacts in realm "${state.default.session.getRealm()}"...`
         );
-        prune();
+        const orphanedNodes = await findOrphanedNodes();
+        if (orphanedNodes.length > 0) {
+          const ok = await yesno({
+            question: 'Prune (permanently delete) orphaned nodes? (y|n):',
+          });
+          if (ok) {
+            await removeOrphanedNodes(orphanedNodes);
+          }
+        } else {
+          console.log('No orphaned nodes found.');
+        }
       }
     }
     // end command logic inside action handler
