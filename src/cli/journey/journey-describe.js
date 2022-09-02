@@ -4,7 +4,7 @@ import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { listJourneys, getJourneyData, describeTree } = Journey;
+const { listJourneys, exportTree, describeTree } = Journey;
 
 const program = new Command('frodo journey describe');
 
@@ -47,7 +47,6 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      const treeDescription = [];
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {
         if (typeof options.file === 'undefined') {
@@ -61,7 +60,7 @@ program
         try {
           const data = fs.readFileSync(options.file, 'utf8');
           const journeyData = JSON.parse(data);
-          treeDescription.push(describeTree(journeyData));
+          describeTree(journeyData);
         } catch (err) {
           console.log(err, 'error');
         }
@@ -74,36 +73,14 @@ program
           // createProgressBar(journeyList.length, '');
           for (const item of journeyList) {
             // eslint-disable-next-line no-await-in-loop
-            const journeyData = await getJourneyData(item.name);
-            treeDescription.push(describeTree(journeyData));
+            const journeyData = await exportTree(item.name);
+            describeTree(journeyData);
             // updateProgressBar(`Analyzing journey - ${item.name}`);
           }
           // stopProgressBar('Done');
         } else {
-          const journeyData = await getJourneyData(options.journeyId);
-          treeDescription.push(describeTree(journeyData));
-        }
-      }
-      for (const item of treeDescription) {
-        console.log(`\nJourney: ${item.treeName}`, 'info');
-        console.log('========');
-        console.log('\nNodes:', 'info');
-        if (Object.entries(item.nodeTypes).length) {
-          for (const [name, count] of Object.entries(item.nodeTypes)) {
-            console.log(`- ${name}: ${count}`, 'info');
-          }
-        }
-        if (Object.entries(item.scripts).length) {
-          console.log('\nScripts:', 'info');
-          for (const [name, desc] of Object.entries(item.scripts)) {
-            console.log(`- ${name}: ${desc}`, 'info');
-          }
-        }
-        if (Object.entries(item.emailTemplates).length) {
-          console.log('\nEmail Templates:', 'info');
-          for (const [id] of Object.entries(item.emailTemplates)) {
-            console.log(`- ${id}`, 'info');
-          }
+          const journeyData = await exportTree(options.journeyId);
+          describeTree(journeyData);
         }
       }
     }
