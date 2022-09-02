@@ -1,9 +1,17 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Startup, state } from '@rockcarver/frodo-lib';
+import {
+  Authenticate,
+  Startup,
+  ManagedObject,
+  state,
+} from '@rockcarver/frodo-lib';
+import yesno from 'yesno';
 import * as common from '../cmd_common.js';
+import { createTable, printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { applyUpdates, checkForUpdates } = Startup;
+const { resolveUserName } = ManagedObject;
 
 const program = new Command('frodo esv apply');
 
@@ -37,6 +45,12 @@ program
       'Verbose output during command execution. If specified, may or may not produce additional output.'
     ).default(false, 'off')
   )
+  .addOption(
+    new Option(
+      '--timeout <seconds>',
+      'Specify a timeout in seconds how long the tool should wait for the apply command to finish. Only effective without --no-wait.'
+    ).default(600, '600 secs (10 mins)')
+  )
   .addOption(new Option('-y, --yes', 'Answer y/yes to all prompts.'))
   .action(
     // implement command logic inside action handler
@@ -48,15 +62,55 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        // check for updates only
-        if (options.checkOnly) {
-          console.log(`Checking for updates...`);
-          await checkForUpdates();
+        const updates = await checkForUpdates();
+        const updatesTable = createTable([
+          'Type',
+          'Name',
+          'Modified',
+          'Modifier',
+        ]);
+        for (const secret of updates.secrets) {
+          if (!secret.loaded) {
+            updatesTable.push([
+              'secret',
+              secret._id,
+              new Date(secret.lastChangeDate).toLocaleString(),
+              // eslint-disable-next-line no-await-in-loop
+              await resolveUserName('teammember', secret.lastChangedBy),
+            ]);
+          }
         }
-        // apply updates
-        else {
-          console.log(`Applying updates...`);
-          await applyUpdates(options.force, options.wait, options.yes);
+        for (const variable of updates.variables) {
+          if (!variable.loaded) {
+            updatesTable.push([
+              'variable',
+              variable._id,
+              new Date(variable.lastChangeDate).toLocaleString(),
+              // eslint-disable-next-line no-await-in-loop
+              await resolveUserName('teammember', variable.lastChangedBy),
+            ]);
+          }
+        }
+        if (updatesTable.length > 0) {
+          printMessage(updatesTable.toString(), 'data');
+        }
+        if (!options.checkOnly) {
+          if (
+            updates.secrets?.length ||
+            updates.variables?.length ||
+            options.force
+          ) {
+            const ok =
+              options.yes ||
+              (await yesno({
+                question: `\nChanges may take up to 10 minutes to propagate, during which time you will not be able to make further updates.\n\nApply updates? (y|n):`,
+              }));
+            if (ok) {
+              if (!(await applyUpdates(options.wait, options.timeout * 1000))) {
+                process.exitCode = 1;
+              }
+            }
+          }
         }
       }
     }
