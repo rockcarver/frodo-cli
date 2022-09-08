@@ -4,7 +4,7 @@ import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { listJourneys, exportTree, describeTree } = Journey;
+const { getJourneys, exportTree, describeTree } = Journey;
 
 const program = new Command('frodo journey describe');
 
@@ -14,7 +14,7 @@ program
   )
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
+  .addArgument(common.hostArgument)
   .addArgument(common.realmArgument)
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)
@@ -49,11 +49,12 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {
-        if (typeof options.file === 'undefined') {
-          console.log(
-            'You either need <host> or -f when using describe',
-            'error'
-          );
+        if (
+          typeof host === 'undefined' &&
+          typeof options.file === 'undefined'
+        ) {
+          console.log('Need either [host] or -f.');
+          process.exitCode = 1;
           return;
         }
         console.log(`Describing local journey file ${options.file}...`);
@@ -61,26 +62,35 @@ program
           const data = fs.readFileSync(options.file, 'utf8');
           const journeyData = JSON.parse(data);
           describeTree(journeyData);
-        } catch (err) {
-          console.log(err, 'error');
+        } catch (error) {
+          console.log(error.message);
+          process.exitCode = 1;
         }
       } else if (await getTokens()) {
         console.log(
           `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
         if (typeof options.journeyId === 'undefined') {
-          const journeyList = await listJourneys(false);
-          // createProgressBar(journeyList.length, '');
-          for (const item of journeyList) {
-            // eslint-disable-next-line no-await-in-loop
-            const journeyData = await exportTree(item.name);
-            describeTree(journeyData);
-            // updateProgressBar(`Analyzing journey - ${item.name}`);
+          let journeys = [];
+          journeys = await getJourneys();
+          for (const journey of journeys) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              const treeData = await exportTree(journey._id);
+              describeTree(treeData);
+            } catch (error) {
+              console.log(error.message);
+              process.exitCode = 1;
+            }
           }
-          // stopProgressBar('Done');
         } else {
-          const journeyData = await exportTree(options.journeyId);
-          describeTree(journeyData);
+          try {
+            const treeData = await exportTree(options.journeyId);
+            describeTree(treeData);
+          } catch (error) {
+            console.log(error.message);
+            process.exitCode = 1;
+          }
         }
       }
     }
