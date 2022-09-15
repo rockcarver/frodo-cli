@@ -105,7 +105,7 @@ export function printMessage(message, type = 'text', newline = true) {
       if (newline) {
         info(message);
       } else {
-        process.stderr.write(message.brightCyan);
+        process.stderr.write(message['brightCyan']);
       }
       break;
     case 'warn':
@@ -119,14 +119,14 @@ export function printMessage(message, type = 'text', newline = true) {
       if (newline) {
         error(message);
       } else {
-        process.stderr.write(message.brightRed);
+        process.stderr.write(message['brightRed']);
       }
       break;
     default:
       if (newline) {
         error(message);
       } else {
-        process.stderr.write(message.bgBrightRed);
+        process.stderr.write(message['bgBrightRed']);
       }
   }
 }
@@ -315,11 +315,11 @@ export function stopProgressIndicator(message, status = 'none') {
 
 /**
  * Create an empty table
- * @param {[String]} head header row as an array of strings
- * @returns {CliTable3} an empty table
+ * @param {string[]} head header row as an array of strings
+ * @returns {any} an empty table
  */
 export function createTable(head) {
-  return new Table({
+  const table = new Table({
     head,
     chars: {
       top: '',
@@ -339,14 +339,15 @@ export function createTable(head) {
     },
     style: { 'padding-left': 0, 'padding-right': 0, head: ['brightCyan'] },
   });
+  return table;
 }
 
 /**
  * Create a new key/value table
- * @returns {CliTable3} an empty key/value table
+ * @returns {any} an empty key/value table
  */
 export function createKeyValueTable() {
-  return new Table({
+  const table = new Table({
     chars: {
       top: '',
       'top-mid': '',
@@ -366,6 +367,7 @@ export function createKeyValueTable() {
     style: { 'padding-left': 0, 'padding-right': 0 },
     wordWrap: true,
   });
+  return table;
 }
 
 /**
@@ -398,10 +400,10 @@ function hasValues(object) {
 
 /**
  * Helper function (recursive) to add rows to an object table
- * @param {Object} object object to render
- * @param {Number} depth total depth of initial object
- * @param {Number} level current level
- * @param {CliTable3} table the object table to add the rows to
+ * @param {object} object object to render
+ * @param {number} depth total depth of initial object
+ * @param {number} level current level
+ * @param {any} table the object table to add the rows to
  * @returns the updated object table
  */
 function addRows(object, depth, level, table, keyMap) {
@@ -411,7 +413,7 @@ function addRows(object, depth, level, table, keyMap) {
     if (Object(object[key]) !== object[key]) {
       if (level === 1) {
         table.push([
-          keyMap[key] ? keyMap[key].brightCyan : key.brightCyan,
+          keyMap[key] ? keyMap[key].brightCyan : key['brightCyan'],
           object[key],
         ]);
       } else {
@@ -433,7 +435,7 @@ function addRows(object, depth, level, table, keyMap) {
         if (level < 3) indention = `\n${indention}`;
         table.push([
           indention.concat(
-            keyMap[key] ? keyMap[key].brightCyan : key.brightCyan
+            keyMap[key] ? keyMap[key].brightCyan : key['brightCyan']
           ),
           '',
         ]);
@@ -448,7 +450,7 @@ function addRows(object, depth, level, table, keyMap) {
 /**
  * Create and populate an object table from any JSON object. Use for describe commands.
  * @param {Object} object JSON object to create
- * @returns {CliTable3} a table that can be printed to the console
+ * @returns {any} a table that can be printed to the console
  */
 export function createObjectTable(object, keyMap = {}) {
   // eslint-disable-next-line no-param-reassign

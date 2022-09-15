@@ -102,16 +102,16 @@ program
               options.lltEsv,
               options.lltTtl
             );
-            table.push(['Secret Name'.brightCyan, response.secret]);
-            table.push(['Scope'.brightCyan, response.scope]);
+            table.push(['Secret Name'['brightCyan'], response.secret]);
+            table.push(['Scope'['brightCyan'], response.scope]);
             // table.push(['Token Lifetime'.brightCyan, response.expires_in]);
-            table.push(['Expires'.brightCyan, response.expires_on]);
+            table.push(['Expires'['brightCyan'], response.expires_on]);
           } catch (error) {
             console.log(error, 'error');
           }
         }
-        table.push(['Client ID'.brightCyan, clientId]);
-        table.push(['Client Secret'.brightCyan, clientSecret]);
+        table.push(['Client ID'['brightCyan'], clientId]);
+        table.push(['Client Secret'['brightCyan'], clientSecret]);
         console.log(table.toString());
       }
     }

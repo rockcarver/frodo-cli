@@ -1,15 +1,15 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
+import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
 const {
-  importProvider,
-  importProvidersFromFile,
-  importProvidersFromFiles,
-  importFirstProvider,
-} = Saml;
+  importSaml2ProviderFromFile,
+  importSaml2ProvidersFromFile,
+  importSaml2ProvidersFromFiles,
+  importFirstSaml2ProviderFromFile,
+} = Saml2;
 
 const program = new Command('frodo saml import');
 
@@ -64,21 +64,21 @@ program
               options.entityId
             }" into realm "${state.default.session.getRealm()}"...`
           );
-          importProvider(options.entityId, options.file);
+          importSaml2ProviderFromFile(options.entityId, options.file);
         }
         // --all -a
         else if (options.all && options.file) {
           console.log(
             `Importing all providers from a single file (${options.file})...`
           );
-          importProvidersFromFile(options.file);
+          importSaml2ProvidersFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
           console.log(
             'Importing all providers from separate files (*.saml.json) in current directory...'
           );
-          importProvidersFromFiles();
+          importSaml2ProvidersFromFiles();
         }
         // import first provider from file
         else if (options.file) {
@@ -87,7 +87,7 @@ program
               options.file
             }" into realm "${state.default.session.getRealm()}"...`
           );
-          importFirstProvider(options.file);
+          importFirstSaml2ProviderFromFile(options.file);
         }
         // unrecognized combination of options or no options
         else {

@@ -70,24 +70,24 @@ program
           'Modifier',
         ]);
         for (const secret of updates.secrets) {
-          if (!secret.loaded) {
+          if (!secret['loaded']) {
             updatesTable.push([
               'secret',
-              secret._id,
-              new Date(secret.lastChangeDate).toLocaleString(),
+              secret['_id'],
+              new Date(secret['lastChangeDate']).toLocaleString(),
               // eslint-disable-next-line no-await-in-loop
-              await resolveUserName('teammember', secret.lastChangedBy),
+              await resolveUserName('teammember', secret['lastChangedBy']),
             ]);
           }
         }
         for (const variable of updates.variables) {
-          if (!variable.loaded) {
+          if (!variable['loaded']) {
             updatesTable.push([
               'variable',
-              variable._id,
-              new Date(variable.lastChangeDate).toLocaleString(),
+              variable['_id'],
+              new Date(variable['lastChangeDate']).toLocaleString(),
               // eslint-disable-next-line no-await-in-loop
-              await resolveUserName('teammember', variable.lastChangedBy),
+              await resolveUserName('teammember', variable['lastChangedBy']),
             ]);
           }
         }

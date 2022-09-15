@@ -48,9 +48,13 @@ jobs:
       #
       # Run tests.
       #
-      - name: Lint & Fix
+      - name: Lint
         run: |
-          npm run lint -- --fix
+          npm run lint
+
+      - name: Type Check
+        run: |
+          npx tsc
 
       - name: CLI Help Tests
         run: |

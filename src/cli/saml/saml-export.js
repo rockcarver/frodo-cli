@@ -1,10 +1,14 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
+import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const { exportProvider, exportProvidersToFile, exportProvidersToFiles } = Saml;
+const {
+  exportSaml2ProviderToFile,
+  exportSaml2ProvidersToFile,
+  exportSaml2ProvidersToFiles,
+} = Saml2;
 
 const program = new Command('frodo saml export');
 
@@ -59,17 +63,17 @@ program
               options.entityId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportProvider(options.entityId, options.file);
+          exportSaml2ProviderToFile(options.entityId, options.file);
         }
         // --all -a
         else if (options.all) {
           console.log('Exporting all providers to a single file...');
-          exportProvidersToFile(options.file);
+          exportSaml2ProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
           console.log('Exporting all providers to separate files...');
-          exportProvidersToFiles();
+          exportSaml2ProvidersToFiles();
         }
         // unrecognized combination of options or no options
         else {

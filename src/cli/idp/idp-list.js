@@ -3,7 +3,7 @@ import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { listProviders } = Idp;
+const { listSocialProviders } = Idp;
 
 const program = new Command('frodo idp list');
 
@@ -33,7 +33,7 @@ program
         console.log(
           `Listing providers in realm "${state.default.session.getRealm()}"...`
         );
-        listProviders();
+        listSocialProviders();
       }
     }
     // end command logic inside action handler
