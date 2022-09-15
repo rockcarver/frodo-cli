@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 const {
-  importProviderById,
-  importFirstProvider,
-  importProvidersFromFile,
-  importProvidersFromFiles,
+  importSocialProviderFromFile,
+  importFirstSocialProviderFromFile,
+  importSocialProvidersFromFile,
+  importSocialProvidersFromFiles,
 } = Idp;
 
 const program = new Command('frodo idp import');
@@ -63,21 +63,21 @@ program
               options.idpId
             }" into realm "${state.default.session.getRealm()}"...`
           );
-          importProviderById(options.idpId, options.file);
+          importSocialProviderFromFile(options.idpId, options.file);
         }
         // --all -a
         else if (options.all && options.file) {
           console.log(
             `Importing all providers from a single file (${options.file})...`
           );
-          importProvidersFromFile(options.file);
+          importSocialProvidersFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
           console.log(
             'Importing all providers from separate files in current directory...'
           );
-          importProvidersFromFiles();
+          importSocialProvidersFromFiles();
         }
         // import first provider from file
         else if (options.file) {
@@ -86,7 +86,7 @@ program
               options.file
             }" into realm "${state.default.session.getRealm()}"...`
           );
-          importFirstProvider(options.file);
+          importFirstSocialProviderFromFile(options.file);
         }
         // unrecognized combination of options or no options
         else {

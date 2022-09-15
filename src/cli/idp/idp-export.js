@@ -3,7 +3,11 @@ import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { exportProvider, exportProvidersToFile, exportProvidersToFiles } = Idp;
+const {
+  exportSocialProviderToFile,
+  exportSocialProvidersToFile,
+  exportSocialProvidersToFiles,
+} = Idp;
 
 const program = new Command('frodo idp export');
 
@@ -58,17 +62,17 @@ program
               options.idpId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportProvider(options.idpId, options.file);
+          exportSocialProviderToFile(options.idpId, options.file);
         }
         // --all -a
         else if (options.all) {
           console.log('Exporting all providers to a single file...');
-          exportProvidersToFile(options.file);
+          exportSocialProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
           console.log('Exporting all providers to separate files...');
-          exportProvidersToFiles();
+          exportSocialProvidersToFiles();
         }
         // unrecognized combination of options or no options
         else {

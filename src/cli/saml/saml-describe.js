@@ -1,9 +1,9 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
+import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { describeProvider } = Saml;
+const { describeSaml2Provider } = Saml2;
 
 const program = new Command('frodo saml describe');
 
@@ -33,7 +33,7 @@ program
             options.entityId
           } in realm "${state.default.session.getRealm()}"...`
         );
-        describeProvider(options.entityId);
+        describeSaml2Provider(options.entityId);
       }
     }
     // end command logic inside action handler
