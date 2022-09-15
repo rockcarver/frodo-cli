@@ -1,10 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml, state } from '@rockcarver/frodo-lib';
+import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const { exportMetadata } = Saml;
+const { exportSaml2Metadata } = Saml2;
 
 const program = new Command('frodo saml metadata export');
 
@@ -53,7 +53,7 @@ program
               options.entityId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportMetadata(options.entityId, options.file);
+          exportSaml2Metadata(options.entityId, options.file);
         }
         // // --all-separate -A
         // else if (options.allSeparate) {

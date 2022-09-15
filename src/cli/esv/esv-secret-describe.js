@@ -1,8 +1,8 @@
 import { Command, Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
-const { getTokens, Secrets } = Authenticate;
+const { getTokens } = Authenticate;
 const { describeSecret } = Secrets;
 
 const program = new Command('frodo esv secret describe');

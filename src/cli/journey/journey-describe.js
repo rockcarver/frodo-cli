@@ -4,7 +4,7 @@ import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { getJourneys, exportTree, describeTree } = Journey;
+const { getJourneys, exportJourney, describeJourney } = Journey;
 
 const program = new Command('frodo journey describe');
 
@@ -61,7 +61,7 @@ program
         try {
           const data = fs.readFileSync(options.file, 'utf8');
           const journeyData = JSON.parse(data);
-          describeTree(journeyData);
+          describeJourney(journeyData);
         } catch (error) {
           console.log(error.message);
           process.exitCode = 1;
@@ -76,8 +76,8 @@ program
           for (const journey of journeys) {
             try {
               // eslint-disable-next-line no-await-in-loop
-              const treeData = await exportTree(journey._id);
-              describeTree(treeData);
+              const treeData = await exportJourney(journey['_id']);
+              describeJourney(treeData);
             } catch (error) {
               console.log(error.message);
               process.exitCode = 1;
@@ -85,8 +85,8 @@ program
           }
         } else {
           try {
-            const treeData = await exportTree(options.journeyId);
-            describeTree(treeData);
+            const treeData = await exportJourney(options.journeyId);
+            describeJourney(treeData);
           } catch (error) {
             console.log(error.message);
             process.exitCode = 1;

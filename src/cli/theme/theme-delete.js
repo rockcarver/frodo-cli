@@ -52,7 +52,7 @@ program
               options.themeName
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          deleteThemeByNameCmd(options.themeName, options.file);
+          deleteThemeByNameCmd(options.themeName);
         }
         // delete by id
         else if (options.themeId) {
@@ -61,14 +61,14 @@ program
               options.themeId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          deleteThemeCmd(options.themeId, options.file);
+          deleteThemeCmd(options.themeId);
         }
         // --all -a
         else if (options.all) {
           console.log(
             `Deleting all themes from realm "${state.default.session.getRealm()}"...`
           );
-          deleteThemesCmd(options.file);
+          deleteThemesCmd();
         }
         // unrecognized combination of options or no options
         else {

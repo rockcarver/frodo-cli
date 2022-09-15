@@ -3,7 +3,8 @@
 import { getVersion, ConnectionProfile } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { Command } from 'commander';
-// import pkg from '../package.json' assert { type: 'json' };
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // commands
 import admin from './cli/admin/admin.js';
@@ -21,8 +22,10 @@ import saml from './cli/saml/saml.js';
 import script from './cli/script/script.js';
 import theme from './cli/theme/theme.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const pkg = JSON.parse(
-  fs.readFileSync(new URL('../package.json', import.meta.url))
+  fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8')
 );
 
 const { initConnectionProfiles } = ConnectionProfile;
