@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Frodo now allows two new parameters when adding a connection profile:
+
+    \--authentication-service [service]           Name of the authentication service/tree to use.
+
+    \--authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+
+    These parameters are currently only supported in the `frodo conn add` command and the configuration elements will be automatically applied to commands issued using that connection profile.
+
+        % frodo conn add https://platform.example.com:9443/am username password --authentication-service ldapService --authentication-header-overrides '{"host":"am.example.com:8081"}' -k
+        ForgeOps deployment detected.
+        Connected to ForgeRock Access Management 7.2.0 Build 64ef7ebc01ed3df1a1264d7b0400351bc101361f (2022-June-27 08:15)
+        Saving creds in /Users/vscheuber/.frodo/.frodorc...
+        Updating connection profile https://platform.example.com:9443/am
+        Advanced setting: Authentication Service: ldapService
+        Advanced setting: Authentication Header Overrides: 
+        { host: 'am.example.com:8081' }
+        %
+
+    After the connection profile is created with the additional parameters, the environment can be accessed as usual. In this case it requires the `-k` parameter for every command, as the environment uses a self-signed certificate.
+
+        % frodo journey list platform alpha -k 
+        ForgeOps deployment detected.
+        Connected to ForgeRock Access Management 7.2.0 Build 64ef7ebc01ed3df1a1264d7b0400351bc101361f (2022-June-27 08:15)
+        Listing journeys in realm "alpha"...
+        Agent
+        Example
+        Facebook-ProvisionIDMAccount
+        Google-AnonymousUser
+        Google-DynamicAccountCreation
+        HmacOneTimePassword
+        PersistentCookie
+        PlatformForgottenUsername
+        PlatformLogin
+        PlatformProgressiveProfile
+        PlatformRegistration
+        PlatformResetPassword
+        PlatformUpdatePassword
+        RetryLimit
+        %
+
+### Fixed
+
+-   rockcarver/frodo-lib#94: Frodo can now connect to improperly configured platform instances
+
 ## [0.12.5] - 2022-09-16
 
 ### Fixed
