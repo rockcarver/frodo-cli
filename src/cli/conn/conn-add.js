@@ -21,6 +21,18 @@ program
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
   .addOption(new Option('--no-validate', 'Do not validate connection.'))
+  .addOption(
+    new Option(
+      '--authentication-service [service]',
+      'Name of the authentication service/tree to use.'
+    )
+  )
+  .addOption(
+    new Option(
+      '--authentication-header-overrides [headers]',
+      'Map of headers: {"host":"am.example.com:8081"}.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, user, password, key, secret, options) => {
@@ -31,6 +43,16 @@ program
       state.default.session.setLogApiSecret(secret);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      if (options.authenticationService) {
+        state.default.session.setAuthenticationService(
+          options.authenticationService
+        );
+      }
+      if (options.authenticationHeaderOverrides) {
+        state.default.session.setAuthenticationHeaderOverrides(
+          JSON.parse(options.authenticationHeaderOverrides)
+        );
+      }
       if ((options.validate && (await getTokens())) || !options.validate) {
         saveConnectionProfile();
       } else {
