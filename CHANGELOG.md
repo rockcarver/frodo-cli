@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2022-09-17
+
 ### Added
 
 -   Frodo now allows two new parameters when adding a connection profile:
@@ -533,7 +535,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.12.5...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.13.0...HEAD
+
+[0.13.0]: https://github.com/rockcarver/frodo-cli/compare/v0.12.5...v0.13.0
 
 [0.12.5]: https://github.com/rockcarver/frodo-cli/compare/v0.12.4...v0.12.5
 
