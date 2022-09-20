@@ -16,7 +16,10 @@ ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platfo
 ## Quick start
 
 1. Download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory.
-2. Open a terminal and change to the above directory.
+2. Open a terminal and change to the above directory. Create $PATH for frodo in `.bash` or `.zshrc` if you haven't already.
+
+   **NOTE: MacOS and Windows may not let you run `frodo` right after you download (and unzip) and execute it for the very first time. Please refer to [this page](../docs/BINARIES.md) if this happens.**
+
 3. Run `frodo conn add` (example below) to setup `frodo` for your ForgeRock environment. If all parameters are correct, `frodo` creates a new [connection profile](#connection-profiles). If you are offline and don't want to validate the data you enter, you can use the --no-validate paramter and frodo stores the [connection profile](#connection-profiles) without validating it.
 
    ```console
@@ -25,8 +28,6 @@ ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platfo
    Connected to ForgeRock Access Management 7.2.0-2022-6-SNAPSHOT Build ee394dde039e790642653a516d498c16759876c1 (2022-July-07 19:49)
    Saving creds in /Users/john.doe/.frodo/.frodorc...
    ```
-
-   **NOTE: MacOS and Windows may not let you run `frodo` right after you download (and unzip) and execute it for the very first time. Please refer to [this page](../docs/BINARIES.md) if this happens.**
 
 4. Test your connection profile using a simple convenience feature in frodo:
 
@@ -211,3 +212,4 @@ If you would like to contribute to frodo, please refer to the [contributing inst
 ## Maintaining
 
 If you are a maintainer of this repository, please refer to the [pipeline and release process instructions](../docs/PIPELINE.md).
+
