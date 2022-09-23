@@ -17,7 +17,12 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
-  .addOption(new Option('-i, --variable-id <variable-id>', 'Variable id.'))
+  .addOption(
+    new Option(
+      '-i, --variable-id <variable-id>',
+      'Variable id.'
+    ).makeOptionMandatory()
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
