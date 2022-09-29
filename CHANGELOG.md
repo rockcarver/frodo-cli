@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   rockcarver/frodo-lib#98: Frodo now properly runs `frodo idm export -A -D ./idm <host>` command
+-   rockcarver/frodo-lib#100: Frodo now properly handles nested realms when specified as `/parent/child`
+-   rockcarver/frodo-lib#101: Frodo now properly sets the identity resource when the realm was specified with a leading slash
+-   rockcarver/frodo-lib#102: Frodo now properly replaces existing themes on import when the realm was specified with a leading slash
+
 ## [0.13.1] - 2022-09-23
+
+### Changed
+
+-   Updated binary installation instructions in README.md
+
+### Fixed
+
+-   \#49: Frodo now properly reports missing mandatory parameters when running `frodo esv variable describe <host>` and `frodo esv secret describe <host>`
 
 ## [0.13.0] - 2022-09-17
 
