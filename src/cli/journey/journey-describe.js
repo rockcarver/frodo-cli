@@ -4,7 +4,12 @@ import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { getJourneys, exportJourney, describeJourney } = Journey;
+const {
+  getJourneys,
+  exportJourney,
+  createFileParamTreeExportResolver,
+  describeJourney,
+} = Journey;
 
 const program = new Command('frodo journey describe');
 
@@ -59,9 +64,47 @@ program
         }
         console.log(`Describing local journey file ${options.file}...`);
         try {
-          const data = fs.readFileSync(options.file, 'utf8');
-          const journeyData = JSON.parse(data);
-          describeJourney(journeyData);
+          const fileData = JSON.parse(fs.readFileSync(options.file, 'utf8'));
+          let journeyData = null;
+          // single or multi tree export?
+          // multi - by id
+          if (
+            typeof options.journeyId !== 'undefined' &&
+            fileData.trees &&
+            fileData.trees[options.journeyId]
+          ) {
+            journeyData = fileData.trees[options.journeyId];
+          }
+          // multi - first
+          else if (typeof options.journeyId === 'undefined' && fileData.trees) {
+            [journeyData] = Object.values(fileData.trees);
+          }
+          // single - by id
+          else if (
+            typeof options.journeyId !== 'undefined' &&
+            options.journeyId === fileData.tree?._id
+          ) {
+            journeyData = fileData;
+          }
+          // single
+          else if (
+            typeof options.journeyId === 'undefined' &&
+            fileData.tree?._id
+          ) {
+            journeyData = fileData;
+          }
+          // no journey/tree found
+          else {
+            throw new Error(
+              typeof options.journeyId === 'undefined'
+                ? `No journey found in ${options.file}`
+                : `Journey '${options.journeyId}' not found in ${options.file}`
+            );
+          }
+          describeJourney(
+            journeyData,
+            createFileParamTreeExportResolver(options.file)
+          );
         } catch (error) {
           console.log(error.message);
           process.exitCode = 1;
@@ -75,7 +118,7 @@ program
           journeys = await getJourneys();
           for (const journey of journeys) {
             try {
-              // eslint-disable-next-line no-await-in-loop
+              // eslint-disable-next-line no-await-in-loop, dot-notation
               const treeData = await exportJourney(journey['_id']);
               describeJourney(treeData);
             } catch (error) {
