@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.3] - 2022-09-30
+
 ### Added
 
 -   rockcarver/frodo-lib#104: Enhanced `frodo journey describe` command to include more details
@@ -568,7 +570,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.13.2...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.13.3...HEAD
+
+[0.13.3]: https://github.com/rockcarver/frodo-cli/compare/v0.13.2...v0.13.3
 
 [0.13.2]: https://github.com/rockcarver/frodo-cli/compare/v0.13.1...v0.13.2
 
