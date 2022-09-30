@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   rockcarver/frodo-lib#104: Enhanced `frodo journey describe` command to include more details
+-   \#60: Support the improved frodo journey describe command with frodo-cli
+
+### Changed
+
+-   Updated frodo-lib to 0.12.6
+
 ## [0.13.2] - 2022-09-29
 
 ### Changed
