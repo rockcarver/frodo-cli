@@ -65,7 +65,7 @@ program
         console.log(`Describing local journey file ${options.file}...`);
         try {
           const fileData = JSON.parse(fs.readFileSync(options.file, 'utf8'));
-          let journeyData = null;
+          let journeyData;
           // single or multi tree export?
           // multi - by id
           if (
@@ -114,7 +114,7 @@ program
           `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
         if (typeof options.journeyId === 'undefined') {
-          let journeys = [];
+          let journeys: any[] = [];
           journeys = await getJourneys();
           for (const journey of journeys) {
             try {
