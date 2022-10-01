@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import gulp from 'gulp';
 import install from 'gulp-install';
 import babel from 'gulp-babel';
@@ -6,13 +7,48 @@ import sourcemaps from 'gulp-sourcemaps';
 import map from 'map-stream';
 import { exec } from 'pkg';
 
+import rename from 'gulp-rename';
+
+gulp.task('clean-esm', () => del(['esm']));
+
+gulp.task('clean-build', () => del(['build']));
+
+gulp.task('transpile-esm', () =>
+  gulp
+    .src(['src/*.ts', 'src/**/*.ts'])
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(babel({ configFile: './babel.config.esm.json' }))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('esm'))
+);
+
+gulp.task('create-mjs-esm', () =>
+  gulp
+    .src(['build/**/*.js'], { base: './build/' })
+    .pipe(
+      rename((path) => {
+        // Updates the object in-place
+        path.dirname += '';
+        path.basename += '';
+        path.extname = '.mjs';
+      })
+    )
+    .pipe(gulp.dest('esm'))
+);
+
+gulp.task('resources-esm', () =>
+  gulp
+    .src(['src/**/*.json', 'src/**/*.txt', 'src/**/*.xml'], { base: './src/' })
+    .pipe(gulp.dest('esm'))
+);
+
 gulp.task('install', () =>
   gulp.src(['package.json'], { base: '.' }).pipe(install())
 );
 
-gulp.task('clean', () => del(['dist/src']));
+gulp.task('dist-clean', () => del(['dist/src']));
 
-gulp.task('package', () =>
+gulp.task('dist-package', () =>
   gulp
     .src('package.json')
     .pipe(
@@ -31,7 +67,7 @@ gulp.task('dist-install', () =>
   gulp.src(['dist/package.json'], { base: 'dist' }).pipe(install())
 );
 
-gulp.task('transpile', () =>
+gulp.task('dist-transpile', () =>
   gulp
     .src(['src/*.js', 'src/**/*.js'])
     .pipe(sourcemaps.init({ loadMaps: true }))
@@ -52,11 +88,11 @@ gulp.task('transpile', () =>
     .pipe(gulp.dest('dist/src'))
 );
 
-gulp.task('resources', () =>
+gulp.task('dist-resources', () =>
   gulp.src(['src/**/*.json'], { base: './' }).pipe(gulp.dest('dist'))
 );
 
-gulp.task('pkg', () => {
+gulp.task('dist-pkg', () => {
   switch (process.platform) {
     case 'darwin':
       console.log('Building MacOS binary.');
@@ -99,13 +135,40 @@ gulp.task('pkg', () => {
 
 gulp.task(
   'default',
-  gulp.series(
-    'install',
-    'clean',
-    'package',
-    'dist-install',
-    'transpile',
-    'resources',
-    'pkg'
+  gulp.parallel(
+    gulp.series(
+      'clean-build',
+      'clean-esm',
+      'transpile-esm',
+      'resources-esm',
+      'create-mjs-esm',
+      'clean-build',
+      'install'
+    ),
+    gulp.series(
+      'dist-clean',
+      'dist-package',
+      'dist-install',
+      'dist-transpile',
+      'dist-resources',
+      'dist-pkg'
+    )
   )
 );
+
+gulp.task(
+  'local',
+  gulp.series(
+    // 'clean-build',
+    'clean-esm',
+    'transpile-esm',
+    'resources-esm',
+    // 'create-mjs-esm',
+    // 'clean-build',
+    'install'
+  )
+);
+
+gulp.task('watch', () => {
+  gulp.watch(['src/*.ts', 'src/**/*.ts'], gulp.series('transpile-esm'));
+});

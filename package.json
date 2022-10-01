@@ -27,14 +27,16 @@
   "bugs": {
     "url": "https://github.com/rockcarver/frodo-cli/issues"
   },
-  "main": "src/app.js",
+  "main": "esm/app.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests",
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand e2e",
     "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
     "lint": "npx eslint --ext .js --ignore-path .gitignore .",
-    "build": "npx gulp"
+    "build": "npx gulp",
+    "build:local": "npx gulp local",
+    "watch": "npx gulp watch"
   },
   "contributors": [
     {
@@ -60,7 +62,7 @@
   ],
   "license": "MIT",
   "bin": {
-    "frodo": "./src/app.js"
+    "frodo": "./esm/app.js"
   },
   "babel": {
     "plugins": [
@@ -84,10 +86,10 @@
     ]
   },
   "dependencies": {
-    "@colors/colors": "^1.5.0",
     "@rockcarver/frodo-lib": "0.12.6",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.2",
+    "colors": "^1.4.0",
     "commander": "^9.4.0",
     "nanospinner": "^1.1.0",
     "uuid": "^8.3.2",
@@ -97,6 +99,9 @@
     "@babel/eslint-parser": "^7.18.9",
     "@babel/plugin-syntax-import-assertions": "^7.16.7",
     "@babel/plugin-transform-modules-commonjs": "^7.16.8",
+    "@babel/preset-env": "^7.19.3",
+    "@babel/preset-typescript": "^7.18.6",
+    "@types/colors": "^1.2.1",
     "babel-plugin-transform-import-meta": "^2.1.1",
     "del": "^6.0.0",
     "eslint": "^8.21.0",
@@ -111,6 +116,7 @@
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-install": "^1.1.0",
+    "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "jest": "^28.1.3",
     "map-stream": "^0.0.7",
