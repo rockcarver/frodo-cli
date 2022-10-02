@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Updated frodo-lib to 0.12.7
+-   Changes to `frodo journey describe` command:
+    -   Added journey status (enabled/disabled)
+    -   Added journey/node classification:
+        Classifications are shown for the whole journey and for each node type and node, making it easy to determine why a journey is classified a certain way.
+        -   `standard`: can run on any instance of a ForgeRock platform
+        -   `cloud`: utilize nodes, which are exclusively available in the ForgeRock Identity Cloud
+        -   `premium`: utilizes nodes, which come at a premium
+        -   `custom`: utilizes nodes not included in the ForgeRock platform release
+    -   Added journey categories/tags
+    -   Added consideration of version from export file meta data when using `-f [file]` option to describe a juorney export
+    -   Added `-o`/`--override-version` parameter. Notation: '<major>.<minor>.<patch>' e.g. `7.2.0`. Override detected version with any version. This is helpful in order to check if journeys in one environment would be compatible running in another environment (e.g. in preparation of migrating from on-prem to ForgeRock Identity Cloud.
+-   \#59: Converted frodo-cli to TypeScript
+
 ## [0.13.3] - 2022-09-30
 
 ### Added

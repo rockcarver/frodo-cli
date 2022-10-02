@@ -7,20 +7,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // commands
-import admin from './cli/admin/admin.js';
-import app from './cli/app/app.js';
-import conn from './cli/conn/conn.js';
-import email from './cli/email/email.js';
-import esv from './cli/esv/esv.js';
-import idm from './cli/idm/idm.js';
-import idp from './cli/idp/idp.js';
-import info from './cli/info/info.js';
-import journey from './cli/journey/journey.js';
-import logging from './cli/logging/logs.js';
-import realm from './cli/realm/realm.js';
-import saml from './cli/saml/saml.js';
-import script from './cli/script/script.js';
-import theme from './cli/theme/theme.js';
+import admin from './cli/admin/admin';
+import app from './cli/app/app';
+import conn from './cli/conn/conn';
+import email from './cli/email/email';
+import esv from './cli/esv/esv';
+import idm from './cli/idm/idm';
+import idp from './cli/idp/idp';
+import info from './cli/info/info';
+import journey from './cli/journey/journey';
+import logging from './cli/logging/logs';
+import realm from './cli/realm/realm';
+import saml from './cli/saml/saml';
+import script from './cli/script/script';
+import theme from './cli/theme/theme';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -6,12 +6,17 @@ import del from 'del';
 import sourcemaps from 'gulp-sourcemaps';
 import map from 'map-stream';
 import { exec } from 'pkg';
+import { spawn } from 'child_process';
 
-import rename from 'gulp-rename';
+gulp.task('link-frodo-lib', (cb) => {
+  const cmd = spawn('npm', ['link', '../frodo-lib'], { stdio: 'inherit' });
+  cmd.on('close', (code) => {
+    console.log(`link-frodo-lib exited with code ${code}`);
+    cb(code);
+  });
+});
 
 gulp.task('clean-esm', () => del(['esm']));
-
-gulp.task('clean-build', () => del(['build']));
 
 gulp.task('transpile-esm', () =>
   gulp
@@ -19,20 +24,6 @@ gulp.task('transpile-esm', () =>
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(babel({ configFile: './babel.config.esm.json' }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('esm'))
-);
-
-gulp.task('create-mjs-esm', () =>
-  gulp
-    .src(['build/**/*.js'], { base: './build/' })
-    .pipe(
-      rename((path) => {
-        // Updates the object in-place
-        path.dirname += '';
-        path.basename += '';
-        path.extname = '.mjs';
-      })
-    )
     .pipe(gulp.dest('esm'))
 );
 
@@ -55,6 +46,8 @@ gulp.task('dist-package', () =>
       map((file, done) => {
         const json = JSON.parse(file.contents.toString());
         delete json.type;
+        json.main = 'src/app.js';
+        json.bin.frodo = './src/app.js';
         // eslint-disable-next-line no-param-reassign
         file.contents = Buffer.from(JSON.stringify(json));
         done(null, file);
@@ -69,10 +62,11 @@ gulp.task('dist-install', () =>
 
 gulp.task('dist-transpile', () =>
   gulp
-    .src(['src/*.js', 'src/**/*.js'])
+    .src(['src/*.ts', 'src/**/*.ts'])
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(
       babel({
+        configFile: './babel.config.esm.json',
         plugins: [
           [
             '@babel/plugin-transform-modules-commonjs',
@@ -134,41 +128,26 @@ gulp.task('dist-pkg', () => {
 });
 
 gulp.task(
-  'default',
-  gulp.parallel(
-    gulp.series(
-      'clean-build',
-      'clean-esm',
-      'transpile-esm',
-      'resources-esm',
-      'create-mjs-esm',
-      'clean-build',
-      'install'
-    ),
-    gulp.series(
-      'dist-clean',
-      'dist-package',
-      'dist-install',
-      'dist-transpile',
-      'dist-resources',
-      'dist-pkg'
-    )
-  )
+  'build-local',
+  gulp.series('install', 'clean-esm', 'transpile-esm', 'resources-esm')
 );
 
 gulp.task(
-  'local',
+  'build-binary',
   gulp.series(
-    // 'clean-build',
-    'clean-esm',
-    'transpile-esm',
-    'resources-esm',
-    // 'create-mjs-esm',
-    // 'clean-build',
-    'install'
+    'dist-clean',
+    'dist-package',
+    'dist-install',
+    'dist-transpile',
+    'dist-resources',
+    'dist-pkg'
   )
 );
 
-gulp.task('watch', () => {
+gulp.task('default', gulp.parallel('build-local', 'build-binary'));
+
+gulp.task('do-watch', () => {
   gulp.watch(['src/*.ts', 'src/**/*.ts'], gulp.series('transpile-esm'));
 });
+
+gulp.task('watch', gulp.series('link-frodo-lib', 'do-watch'));
