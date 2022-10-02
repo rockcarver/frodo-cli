@@ -1,9 +1,10 @@
 import { SingleBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
-// eslint-disable-next-line no-unused-vars
-import * as colors from '@colors/colors';
 import { state } from '@rockcarver/frodo-lib';
+import Color from 'colors';
+
+Color.enable();
 
 /**
  * Output a data message

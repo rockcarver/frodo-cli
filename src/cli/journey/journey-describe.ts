@@ -1,15 +1,12 @@
 import fs from 'fs';
 import { Command, Option } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
+import { describeJourney } from '../../ops/JourneyOps';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const {
-  getJourneys,
-  exportJourney,
-  createFileParamTreeExportResolver,
-  describeJourney,
-} = Journey;
+const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
+  Journey;
 
 const program = new Command('frodo journey describe');
 
@@ -37,12 +34,12 @@ program
       'Name of the file to write the exported journey(s) to. Ignored with -A.'
     )
   )
-  // .addOption(
-  //   new Option(
-  //     '-o, --override-version <version>',
-  //     "Override version. Notation: 'X.Y.Z' e.g. '7.1.0'. Override detected version with any version. This is helpful in order to check if journeys in one environment would be compatible running in another environment (e.g. in preparation of migrating from on-prem to ForgeRock Identity Cloud. Only impacts these actions: -d, -l."
-  //   )
-  // )
+  .addOption(
+    new Option(
+      '-o, --override-version <version>',
+      "Override version. Notation: '<major>.<minor>.<patch>' e.g. '7.2.0'. Override detected version with any version. This is helpful in order to check if journeys in one environment would be compatible running in another environment (e.g. in preparation of migrating from on-prem to ForgeRock Identity Cloud."
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -64,8 +61,12 @@ program
         }
         console.log(`Describing local journey file ${options.file}...`);
         try {
+          // override version
+          if (typeof options.overrideVersion !== 'undefined') {
+            state.default.session.setAmVersion(options.overrideVersion);
+          }
           const fileData = JSON.parse(fs.readFileSync(options.file, 'utf8'));
-          let journeyData = null;
+          let journeyData;
           // single or multi tree export?
           // multi - by id
           if (
@@ -113,8 +114,12 @@ program
         console.log(
           `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
+        // override version
+        if (typeof options.overrideVersion !== 'undefined') {
+          state.default.session.setAmVersion(options.overrideVersion);
+        }
         if (typeof options.journeyId === 'undefined') {
-          let journeys = [];
+          let journeys: any[] = [];
           journeys = await getJourneys();
           for (const journey of journeys) {
             try {

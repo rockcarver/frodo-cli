@@ -1,4 +1,6 @@
+build/
 dist/
+esm/
 
 *.cer
 *.p12

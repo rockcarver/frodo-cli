@@ -100,7 +100,7 @@ test("CLI help interface 'describe argument user' description should be expected
 test("CLI help interface 'describe argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-  password                    Password.
+  password                          Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -164,8 +164,8 @@ test("CLI help interface 'describe option -f, --file <file>' description should 
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -f, --file <file>           ',
-      '  -h, --help                  '
+      '  -f, --file <file>                 ',
+      '  -o, --override-version <version>  '
     )
   );
 
