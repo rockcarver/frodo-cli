@@ -19,6 +19,12 @@ program
   .addOption(common.insecureOption)
   .addOption(
     new Option(
+      '--exclude-customized',
+      'Exclude customized properties from repair.'
+    )
+  )
+  .addOption(
+    new Option(
       '--extend-permissions',
       'Extend permissions to include custom attributes.'
     )
@@ -37,7 +43,7 @@ program
         console.log(
           `Repairing org model in realm "${state.default.session.getRealm()}"...`
         );
-        await repairOrgModel(options.extendPermissions, options.dryRun);
+        await repairOrgModel(options.excludeCustomized, options.extendPermissions, options.dryRun);
         console.log('Done.');
       }
     }
