@@ -43,7 +43,7 @@ export default function setup() {
           sessionToken: state.default.session.getCookieValue(),
         };
         if (state.default.session.getBearerToken()) {
-          output.bearerToken = state.default.session.getBearerToken();
+          output['bearerToken'] = state.default.session.getBearerToken();
         }
         console.log(JSON.stringify(output, null, 2), 'data');
       } else {
