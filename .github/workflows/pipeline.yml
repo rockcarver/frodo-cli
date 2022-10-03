@@ -39,10 +39,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Update npm, install dependencies, and install frodo globally
+      - name: Update npm, install dependencies, build frodo-cli, and install frodo-cli globally 
         run: |
           npm install -g npm
           npm ci
+          npm run build:local
           npm i -g
 
       #
