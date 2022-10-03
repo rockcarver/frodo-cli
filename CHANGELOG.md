@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#66: Removed unnecessary files from npm package
+
 ## [0.14.0] - 2022-10-03
 
 ### Changed
