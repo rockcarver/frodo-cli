@@ -104,7 +104,41 @@ test("CLI help interface 'journey commands prune' description should be expected
     `);
   // Act
   const testLine = collapseWhitespace(
-    crudeMultilineTakeUntil(stdout, '  prune      ', '  help [command] ')
+    crudeMultilineTakeUntil(
+      stdout,
+      '  prune      ',
+      '  enable          Enable journeys/trees.'
+    )
+  );
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'journey commands enable' description should be expected english", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  enable          Enable journeys/trees.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  enable          ',
+      '  disable         Disable journeys/trees.'
+    )
+  );
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'journey commands disable' description should be expected english", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  disable         Disable journeys/trees.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(stdout, '  disable         ', '  help [command]  ')
   );
   // Assert
   expect(testLine).toBe(expected);

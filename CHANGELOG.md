@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   New `frodo journey` sub-commands:
+    -   `frodo journey enable -i 'journeyId'` to enable a journey by name/id
+    -   `frodo journey disable -i 'journeyId'` to disable a journey by name/id
+
 ## [0.14.1] - 2022-10-03
 
 ### Fixed

@@ -32,6 +32,10 @@ export default function setup() {
     )
     .showHelpAfterError();
 
+    program.command('enable', 'Enable journeys/trees.').showHelpAfterError();
+  
+    program.command('disable', 'Disable journeys/trees.').showHelpAfterError();
+
   program.showHelpAfterError();
   return program;
 }
