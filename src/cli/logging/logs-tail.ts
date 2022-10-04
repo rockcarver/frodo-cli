@@ -6,12 +6,13 @@ import {
   state,
 } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import * as config from '../../utils/Config.js';
 
 const { provisionCreds, tailLogs, resolveLevel } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo journey tail');
+const program = new Command('frodo logs tail');
 program
   .description('Tail Identity Cloud logs.')
   .helpOption('-h, --help', 'Help')
@@ -32,6 +33,12 @@ Following values are possible (values on the same line are equivalent): \
   )
   .addOption(
     new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
+  )
+  .addOption(
+    new Option('-d, --defaults', 'Use default logging noise filters').default(
+      false,
+      `Use custom logging noise filters defined in ${config.getConfigPath()}/${config.FRODO_LOG_NOISEFILTER_FILENAME}`
+    )
   )
   .action(async (host, user, password, options, command) => {
     let credsFromParameters = true;
@@ -78,7 +85,8 @@ Following values are possible (values on the same line are equivalent): \
       command.opts().sources,
       resolveLevel(command.opts().level),
       command.opts().transactionId,
-      null
+      null,
+      config.getNoiseFilters(options.defaults)
     );
   });
 

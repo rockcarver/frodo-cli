@@ -11,7 +11,7 @@ const { provisionCreds, getLogSources } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo journey list');
+const program = new Command('frodo logs list');
 program
   .description('List available ID Cloud log sources.')
   .helpOption('-h, --help', 'Help')

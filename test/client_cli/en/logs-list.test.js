@@ -15,7 +15,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'logs list' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-  Usage: frodo journey list [options] <host> [user] [password]
+  Usage: frodo logs list [options] <host> [user] [password]
     `.trim();
   // Act
   const testLine = stdout
