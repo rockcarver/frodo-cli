@@ -15,7 +15,7 @@ const { stdout } = await exec(CMD);
 test("CLI help interface for 'logs tail' Usage should be expected english", async () => {
   // Arrange
   const expected = `
-  Usage: frodo journey tail [options] <host> [user] [password]
+  Usage: frodo logs tail [options] <host> [user] [password]
     `.trim();
   // Act
   const testLine = stdout
@@ -113,9 +113,9 @@ test("CLI help interface 'list option -k, --insecure' description should be expe
 
 test("CLI help interface 'list option -c, --sources <sources>' description should be expected english multiline", async () => {
   // Arrange
-  const expected = collapseWhitespace(`
-  -c, --sources <sources> Comma separated list of log sources (default: Log everything) -l, --level <level> Set log level filter. You can specify the level as a number or a string. Following values are possible (values on the same line are equivalent): 0, SEVERE, FATAL, or ERROR 1, WARNING, WARN or CONFIG 2, INFO or INFORMATION 3, DEBUG, FINE, FINER or FINEST 4 or ALL (default: SEVERE,ERROR,FATAL) -t, --transaction-id <txid> Filter by transactionId
-    `);
+  //   const expected = collapseWhitespace(`
+  //   -c, --sources <sources> Comma separated list of log sources (default: Log everything) -l, --level <level> Set log level filter. You can specify the level as a number or a string. Following values are possible (values on the same line are equivalent): 0, SEVERE, FATAL, or ERROR 1, WARNING, WARN or CONFIG 2, INFO or INFORMATION 3, DEBUG, FINE, FINER or FINEST 4 or ALL (default: SEVERE,ERROR,FATAL) -t, --transaction-id <txid> Filter by transactionId -d, --defaults Use default logging noise filters (default: Use custom logging noise filters defined in (\w|\/|\.)+/gm)
+  //     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
@@ -126,5 +126,7 @@ test("CLI help interface 'list option -c, --sources <sources>' description shoul
   );
 
   // Assert
-  expect(testLine).toBe(expected);
+  expect(testLine).toMatch(
+    /-c, --sources <sources> Comma separated list of log sources \(default: Log everything\) -l, --level <level> Set log level filter\. You can specify the level as a number or a string\. Following values are possible \(values on the same line are equivalent\): 0, SEVERE, FATAL, or ERROR 1, WARNING, WARN or CONFIG 2, INFO or INFORMATION 3, DEBUG, FINE, FINER or FINEST 4 or ALL \(default: SEVERE,ERROR,FATAL\) -t, --transaction-id <txid> Filter by transactionId -d, --defaults Use default logging noise filters \(default: Use custom logging noise filters defined in (\w|\/|\.)+\)/gm
+  );
 });

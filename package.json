@@ -29,7 +29,7 @@
   },
   "main": "esm/app.js",
   "scripts": {
-    "test": "npx tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests",
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand e2e",
     "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
