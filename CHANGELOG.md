@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#70: Added ability to create custom logging noise filters
+
 ## [0.15.0] - 2022-10-04
 
 ### Added
