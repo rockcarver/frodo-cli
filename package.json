@@ -29,7 +29,8 @@
   },
   "main": "esm/app.js",
   "scripts": {
-    "test": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "npx tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:local": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests",
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand e2e",
     "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
@@ -87,7 +88,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.13.1",
+    "@rockcarver/frodo-lib": "0.13.2-0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.2",
     "colors": "^1.4.0",
