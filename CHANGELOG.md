@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2022-10-05
+
 ### Fixed
 
 -   \#73: frodo command can now be run properly again after `npm i -g @rockcarver/frodo-cli` with version 0.15.1 and newer. Npm package `@rockcarver/frodo-cli` versions `0.14.0 - 0.15.1-0` were defective and did not run after a global install.
@@ -612,7 +614,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.15.1-0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.15.1...HEAD
+
+[0.15.1]: https://github.com/rockcarver/frodo-cli/compare/v0.15.1-0...v0.15.1
 
 [0.15.1-0]: https://github.com/rockcarver/frodo-cli/compare/v0.15.0...v0.15.1-0
 
