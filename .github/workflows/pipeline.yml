@@ -253,7 +253,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ needs.bump-version.outputs.newVersion }}
+          name: Frodo CLI ${{ needs.bump-version.outputs.newVersion }}
           tag_name: ${{ needs.bump-version.outputs.newTag }}
           body: ${{ needs.release-notes.outputs.notes }}
           prerelease: ${{ needs.bump-version.outputs.preRelease }}

@@ -102,7 +102,7 @@ program
                 : `Journey '${options.journeyId}' not found in ${options.file}`
             );
           }
-          describeJourney(
+          await describeJourney(
             journeyData,
             createFileParamTreeExportResolver(options.file)
           );
@@ -125,7 +125,7 @@ program
             try {
               // eslint-disable-next-line no-await-in-loop, dot-notation
               const treeData = await exportJourney(journey['_id']);
-              describeJourney(treeData);
+              await describeJourney(treeData);
             } catch (error) {
               console.log(error.message);
               process.exitCode = 1;
@@ -134,7 +134,7 @@ program
         } else {
           try {
             const treeData = await exportJourney(options.journeyId);
-            describeJourney(treeData);
+            await describeJourney(treeData);
           } catch (error) {
             console.log(error.message);
             process.exitCode = 1;

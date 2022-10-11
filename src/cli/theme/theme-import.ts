@@ -24,6 +24,8 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
       '-n, --theme-name <name>',
@@ -63,6 +65,8 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (await getTokens()) {
         // import by name
         if (options.file && options.themeName) {
