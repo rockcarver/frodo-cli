@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#82: Check for updates
+
 ## [0.16.1] - 2022-10-11
 
 ### Changed
@@ -37,6 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   rockcarver/frodo-lib#116: Frodo now properly imports themes.
+=======
+### Added
+
+-   \#82: Added version update checking
+>>>>>>> Stashed changes
 
 ## [0.15.1] - 2022-10-05
 

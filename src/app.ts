@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node --no-warnings --enable-source-maps --experimental-specifier-resolution=node
 
-import { getVersion, ConnectionProfile } from '@rockcarver/frodo-lib';
+import { ConnectionProfile } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { Command } from 'commander';
 import path from 'path';
@@ -21,22 +21,20 @@ import realm from './cli/realm/realm';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
 import theme from './cli/theme/theme';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const pkg = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8')
-);
+import { printMessage } from './utils/Console';
+import { getVersions } from './utils/Version';
 
 const { initConnectionProfiles } = ConnectionProfile;
 
 const program = new Command('frodo').version(
-  `cli: v${pkg.version}\nlib: ${getVersion()}\nnode: ${process.version}`,
+  await getVersions(false),
   '-v, --version'
 );
 
 (async () => {
   try {
+    printMessage(await getVersions(true), 'text', false);
+
     initConnectionProfiles();
 
     program.addCommand(admin());
@@ -58,6 +56,7 @@ const program = new Command('frodo').version(
     program.enablePositionalOptions();
     program.parse();
   } catch (e) {
-    console.log(`ERROR: exception running frodo - ${e}`, 'error');
+    console.log(e);
+    printMessage(`ERROR: exception running frodo - ${e}`, 'error');
   }
 })();

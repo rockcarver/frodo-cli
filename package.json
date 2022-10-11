@@ -88,11 +88,12 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.14.1",
+    "@rockcarver/frodo-lib": "0.14.2-0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.2",
     "colors": "^1.4.0",
     "commander": "^9.4.0",
+    "compare-versions": "^5.0.1",
     "nanospinner": "^1.1.0",
     "uuid": "^8.3.2",
     "yesno": "^0.4.0"
