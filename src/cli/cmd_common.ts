@@ -6,12 +6,16 @@ import {
   createProgressIndicator,
   updateProgressIndicator,
   stopProgressIndicator,
+  verbose,
+  debug
 } from '../utils/Console.js';
 
 state.default.session.setPrintHandler(printMessage);
 state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
+state.default.session.setVerboseHandler(verbose);
+state.default.session.setDebugHandler(debug);
 
 // pseudo functions for commands that do not otherwise need to import
 // this file but need to trigger print and progress handler registration
@@ -100,15 +104,14 @@ export const insecureOption = new Option(
   'Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability.'
 ).default(false, "Don't allow insecure connections");
 
-export const nameOption = new Option(
-  '-N, --name <name>',
-  'Config entity name to be exported or imported/updated. Examples are \
-managed, sync, provisioner-xxxx, etc.'
+export const verboseOption = new Option(
+  '--verbose',
+  'Verbose output during command execution. If specified, may or may not produce additional output.'
 );
-export const nameOptionM = new Option(
-  '-N, --name <name>',
-  'Config entity name to be exported or imported/updated. Examples are \
-managed, sync, provisioner-xxxx, etc.'
+
+export const debugOption = new Option(
+  '--debug',
+  'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
 );
 
 export const managedNameOption = new Option(
@@ -173,7 +176,6 @@ bearer token: \n\
 treeOptionM.makeOptionMandatory();
 fileOptionM.makeOptionMandatory();
 deploymentOptionM.makeOptionMandatory();
-nameOptionM.makeOptionMandatory();
 dirOptionM.makeOptionMandatory();
 entitiesFileOptionM.makeOptionMandatory();
 envFileOptionM.makeOptionMandatory();
