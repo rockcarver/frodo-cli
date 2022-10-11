@@ -9,15 +9,13 @@ import Color from 'colors';
 import { LibVersion } from '@rockcarver/frodo-lib';
 
 const VERSION_CACHE_FILE = `${os.homedir()}/.frodo/Versions.json`;
-const VERSION_CHECK_INTERVAL = 30;
+const VERSION_CHECK_INTERVAL = 3600;
 
-const GITHUB_REPOS_URL = `https://api.github.com/repos`;
-const GITHUB_RELEASES_PATH_CLI = `/rockcarver/frodo-cli/releases`;
-const GITHUB_RELEASES_PATH_LIB = `/rockcarver/frodo-lib/releases`;
+const GITHUB_REPOS_URL = `https://api.github.com`;
+const GITHUB_RELEASES_PATH_CLI = `/repos/rockcarver/frodo-cli/releases`;
 
 const NPM_BASE_URL = `https://registry.npmjs.org`;
 const NPM_PACKAGE_PATH_CLI = `/@rockcarver/frodo-cli`;
-const NPM_PACKAGE_PATH_LIB = `/@rockcarver/frodo-lib`;
 
 const ENDPOINTS = [
   {
@@ -25,29 +23,15 @@ const ENDPOINTS = [
     path: GITHUB_RELEASES_PATH_CLI,
   },
   {
-    base: GITHUB_REPOS_URL,
-    path: GITHUB_RELEASES_PATH_LIB,
-  },
-  {
     base: NPM_BASE_URL,
     path: NPM_PACKAGE_PATH_CLI,
-  },
-  {
-    base: NPM_BASE_URL,
-    path: NPM_PACKAGE_PATH_LIB,
   },
 ];
 
 let versionObject = {
   last_checked: 0,
-  cli: {
-    github: '',
-    npm: '',
-  },
-  lib: {
-    github: '',
-    npm: '',
-  },
+  github: '',
+  npm: '',
 };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -69,7 +53,6 @@ function getLibVersion() {
 function extractGithubReleaseInfo(data) {
   const release = {
     type: 'github',
-    component: '',
     name: '',
     published_at: '',
   };
@@ -77,29 +60,18 @@ function extractGithubReleaseInfo(data) {
   const r = data.find((rel) => rel.prerelease == false);
   release.name = r.name;
   release.published_at = r.published_at;
-  if (r.url.includes('frodo-cli')) {
-    release.component = 'cli';
-  } else {
-    release.component = 'lib';
-  }
   return release;
 }
 
 function extractNpmReleaseInfo(data) {
   const release = {
     type: 'npm',
-    component: '',
     name: '',
     published_at: '',
   };
   // stable release
   release.name = data[`dist-tags`].latest;
   release.published_at = data.time[data[`dist-tags`].latest];
-  if (data.name.includes('frodo-cli')) {
-    release.component = 'cli';
-  } else {
-    release.component = 'lib';
-  }
   return release;
 }
 
@@ -130,20 +102,11 @@ async function getRemoteVersionData() {
     });
     // const allVersions = await LibVersion.getAllVersions(ENDPOINTS);
     allVersions.forEach((element) => {
-      if (element.component == 'cli') {
-        // cli
-        if (element.type == 'github') {
-          versionObject.cli.github = element.name;
-        } else {
-          versionObject.cli.npm = element.name;
-        }
+      // cli
+      if (element.type == 'github') {
+        versionObject.github = element.name;
       } else {
-        // lib
-        if (element.type == 'github') {
-          versionObject.lib.github = element.name;
-        } else {
-          versionObject.lib.npm = element.name;
-        }
+        versionObject.npm = element.name;
       }
     });
     versionObject.last_checked = Math.floor(Date.now() / 1000);
@@ -164,10 +127,18 @@ export async function getVersions(checkOnly: boolean) {
   if (getBinaryName() == 'frodo') {
     usingBinary = true;
   }
+  try {
+    await getRemoteVersionData();
+  } catch (e) {
+    // Do not report error if remote version can not be obtained.
+    // Just silently report installed version
+    versionObject = {
+      last_checked: 0,
+      github: null,
+      npm: null,
+    };
+  }
 
-  //   console.time('Execution Time');
-  await getRemoteVersionData();
-  //   console.timeEnd('Execution Time');
   let versionString = `You seem to be running the ${
     usingBinary ? 'binary' : 'NPM'
   } package`;
@@ -177,33 +148,29 @@ export async function getVersions(checkOnly: boolean) {
     process.version
   }`;
   let newVersionString = '';
-  //   console.log(
-  //     `${usingBinary}, ${compareVersions(getCliVersion(), versionObject.cli.npm)}`
-  //   );
   if (
-    (usingBinary &&
-      compareVersions(getCliVersion(), versionObject.cli.github) == -1) ||
-    (!usingBinary &&
-      compareVersions(getCliVersion(), versionObject.cli.npm) == -1)
+    (usingBinary && versionObject.github != null && 
+      compareVersions(getCliVersion(), versionObject.github) == -1) ||
+    (!usingBinary && versionObject.npm != null && compareVersions(getCliVersion(), versionObject.npm) == -1)
   ) {
     updateAvailable = true;
     newVersionString += `\n\nNewer version(s) available`;
     if (usingBinary) {
       newVersionString +=
-        compareVersions(getCliVersion(), versionObject.cli.github) == -1
-          ? `\ncli (github): v${versionObject.cli.github}`.brightGreen
+        compareVersions(getCliVersion(), versionObject.github) == -1
+          ? `\ncli (github): v${versionObject.github}`.green
           : ``;
     } else {
       newVersionString +=
-        compareVersions(getCliVersion(), versionObject.cli.npm) == -1
-          ? `\ncli (npm): v${versionObject.cli.npm}`.brightGreen
+        compareVersions(getCliVersion(), versionObject.npm) == -1
+          ? `\ncli (npm): v${versionObject.npm}`.green
           : ``;
     }
   }
   if (checkOnly) {
     if (updateAvailable) {
       return `A new version of frodo is available.\nPlease run 'frodo -v' for more details.\n`
-        .brightGreen;
+        .green;
     } else {
       return ``;
     }
