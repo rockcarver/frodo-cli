@@ -35,9 +35,9 @@
     "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand e2e",
     "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
     "lint": "npx eslint --ext .js --ignore-path .gitignore .",
-    "build": "npx gulp",
-    "build:local": "npx gulp build-local",
-    "build:binary": "npx gulp build-binary",
+    "build": "npx tsc && npx gulp",
+    "build:local": "npx tsc && npx gulp build-local",
+    "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
   },
   "contributors": [
@@ -88,7 +88,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.13.2-0",
+    "@rockcarver/frodo-lib": "0.14.0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.2",
     "colors": "^1.4.0",

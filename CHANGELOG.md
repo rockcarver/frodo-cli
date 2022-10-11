@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Updated frodo-lib to 0.14.0
+
+### Added
+
+-   rockcarver/frodo-cli#70: Added ability to create custom logging noise filters
+-   \#76, \#77, \#78, \#79: `frodo theme import` command now supports `--debug` and `--verbose` flags. Other commands may register the new cli options as well. Most output is expected to come from the library layer but cli commands may also issue `verbose` and `debug` message.
+
+### Fixed
+
+-   rockcarver/frodo-lib#116: Frodo now properly imports themes.
+
 ## [0.15.1] - 2022-10-05
 
 ### Fixed
@@ -14,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   \#73: frodo command can now be run properly again after `npm i -g @rockcarver/frodo-cli` with version 0.15.1 and newer. Npm package `@rockcarver/frodo-cli` versions `0.14.0 - 0.15.1-0` were defective and did not run after a global install.
 
 ## [0.15.1-0] - 2022-10-04
+
+### Changed
+
+-   Updated frodo-lib to 0.13.1-0
 
 ### Added
 

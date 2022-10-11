@@ -69,10 +69,42 @@ function warn(message) {
 function error(message) {
   switch (typeof message) {
     case 'object':
-      console.dir(message, { depth: 4 });
+      console.dir(message, { depth: 3 });
       break;
     default:
       console.error(message.brightRed);
+  }
+}
+
+/**
+ * Output a debug message
+ * @param {Object} message the message
+ */
+export function verbose(message) {
+  if (state.default.session.getVerbose()) {
+    switch (typeof message) {
+      case 'object':
+        console.dir(message, { depth: 3 });
+        break;
+      default:
+        console.error(message);
+    }
+  }
+}
+
+/**
+ * Output a debug message
+ * @param {Object} message the message
+ */
+export function debug(message) {
+  if (state.default.session.getDebug()) {
+    switch (typeof message) {
+      case 'object':
+        console.dir(message, { depth: 10 });
+        break;
+      default:
+        console.error(message.brightMagenta);
+    }
   }
 }
 
@@ -82,7 +114,7 @@ function error(message) {
  * @param {string} message The string message to print
  * @param {string} [type=text] "text", "info", "warn", "error" or "data". All but
  * type="data" will be written to stderr.
- * @param {boolean} [newline=true] Whether to add a new at the end of message
+ * @param {boolean} [newline=true] Whether to add a newline at the end of message
  *
  */
 export function printMessage(message, type = 'text', newline = true) {
