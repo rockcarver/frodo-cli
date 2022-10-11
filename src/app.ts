@@ -1,10 +1,7 @@
 #!/usr/bin/env -S node --no-warnings --enable-source-maps --experimental-specifier-resolution=node
 
 import { ConnectionProfile } from '@rockcarver/frodo-lib';
-import fs from 'fs';
 import { Command } from 'commander';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 // commands
 import admin from './cli/admin/admin';
@@ -26,13 +23,13 @@ import { getVersions } from './utils/Version';
 
 const { initConnectionProfiles } = ConnectionProfile;
 
-const program = new Command('frodo').version(
-  await getVersions(false),
-  '-v, --version'
-);
-
 (async () => {
   try {
+    const program = new Command('frodo').version(
+      await getVersions(false),
+      '-v, --version'
+    );
+
     printMessage(await getVersions(true), 'text', false);
 
     initConnectionProfiles();
