@@ -69,13 +69,13 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         // export by id/name
-        if (options.idmName) {
+        if (options.name) {
           console.log(
             `Exporting object "${
-              options.idmName
+              options.name
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportConfigEntity(options.idmName, options.file);
+          exportConfigEntity(options.name, options.file);
         }
         // --all-separate -A
         else if (
