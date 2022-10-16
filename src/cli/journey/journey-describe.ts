@@ -1,12 +1,19 @@
 import fs from 'fs';
 import { Command, Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
-import { describeJourney } from '../../ops/JourneyOps';
+import {
+  Authenticate,
+  ExportImportUtils,
+  Journey,
+  state,
+} from '@rockcarver/frodo-lib';
+import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
   Journey;
+const { saveTextToFile } = ExportImportUtils;
 
 const program = new Command('frodo journey describe');
 
@@ -31,9 +38,16 @@ program
   .addOption(
     new Option(
       '-f, --file <file>',
-      'Name of the file to write the exported journey(s) to. Ignored with -A.'
+      'Name of the journey export file to describe. Ignored with -A.'
     )
   )
+  .addOption(
+    new Option(
+      '-F, --output-file <file>',
+      'Name of the file to write the output to.'
+    )
+  )
+  .addOption(new Option('--markdown', 'Output in markdown.'))
   .addOption(
     new Option(
       '-o, --override-version <version>',
@@ -49,17 +63,19 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      if (options.outputFile)
+        state.default.session.setOutputFile(options.outputFile);
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {
         if (
           typeof host === 'undefined' &&
           typeof options.file === 'undefined'
         ) {
-          console.log('Need either [host] or -f.');
+          printMessage('Need either [host] or -f.', 'error');
           process.exitCode = 1;
           return;
         }
-        console.log(`Describing local journey file ${options.file}...`);
+        printMessage(`Describing local journey file ${options.file}...`);
         try {
           // override version
           if (typeof options.overrideVersion !== 'undefined') {
@@ -102,16 +118,28 @@ program
                 : `Journey '${options.journeyId}' not found in ${options.file}`
             );
           }
-          await describeJourney(
-            journeyData,
-            createFileParamTreeExportResolver(options.file)
-          );
+          // ANSI text output
+          if (!options.markdown) {
+            await describeJourney(
+              journeyData,
+              createFileParamTreeExportResolver(options.file)
+            );
+          }
+          // Markdown output
+          else {
+            // reset output file
+            if (options.outputFile) saveTextToFile('', options.outputFile);
+            await describeJourneyMd(
+              journeyData,
+              createFileParamTreeExportResolver(options.file)
+            );
+          }
         } catch (error) {
-          console.log(error.message);
+          printMessage(error.message, 'error');
           process.exitCode = 1;
         }
       } else if (await getTokens()) {
-        console.log(
+        printMessage(
           `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
         // override version
@@ -125,18 +153,36 @@ program
             try {
               // eslint-disable-next-line no-await-in-loop, dot-notation
               const treeData = await exportJourney(journey['_id']);
-              await describeJourney(treeData);
+              // ANSI text output
+              if (!options.markdown) {
+                await describeJourney(treeData);
+              }
+              // Markdown output
+              else {
+                // reset output file
+                if (options.outputFile) saveTextToFile('', options.outputFile);
+                await describeJourneyMd(treeData);
+              }
             } catch (error) {
-              console.log(error.message);
+              printMessage(error.message, 'error');
               process.exitCode = 1;
             }
           }
         } else {
           try {
             const treeData = await exportJourney(options.journeyId);
-            await describeJourney(treeData);
+            // ANSI text output
+            if (!options.markdown) {
+              await describeJourney(treeData);
+            }
+            // Markdown output
+            else {
+              // reset output file
+              if (options.outputFile) saveTextToFile('', options.outputFile);
+              await describeJourneyMd(treeData);
+            }
           } catch (error) {
-            console.log(error.message);
+            printMessage(error.message, 'error');
             process.exitCode = 1;
           }
         }

@@ -7,7 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Updated frodo-lib to 0.15.1
+
+### Added
+
+-   \#82: Check for updates
+-   \#86: Support markdown output with `frodo journey describe` command
+    -   Added new `--markdown` option to enable markdown output
+    -   Added new `--output-file` option to enable writing output to a file
+
+### Fixed
+
+-   \#88: `frodo idm export` now properly regognizes  `-N`/`--name` option
+
 ## [0.16.2-1] - 2022-10-11
+
+### Added
+
+-   \#82: Check for updates
 
 ## [0.16.2-0] - 2022-10-11
 
