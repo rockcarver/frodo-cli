@@ -6,16 +6,16 @@ import {
   createProgressIndicator,
   updateProgressIndicator,
   stopProgressIndicator,
-  verbose,
-  debug
+  verboseMessage,
+  debugMessage,
 } from '../utils/Console.js';
 
 state.default.session.setPrintHandler(printMessage);
+state.default.session.setVerboseHandler(verboseMessage);
+state.default.session.setDebugHandler(debugMessage);
 state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
-state.default.session.setVerboseHandler(verbose);
-state.default.session.setDebugHandler(debug);
 
 // pseudo functions for commands that do not otherwise need to import
 // this file but need to trigger print and progress handler registration

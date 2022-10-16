@@ -158,14 +158,14 @@ test("CLI help interface 'describe option -t, --tree <tree>' description should 
 test("CLI help interface 'describe option -f, --file <file>' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-  -f, --file <file> Name of the file to write the exported journey(s) to. Ignored with -A.
+  -f, --file <file> Name of the journey export file to describe. Ignored with -A.
     `.trim();
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -f, --file <file>                 ',
-      '  -o, --override-version <version>  '
+      '  -F, --output-file <file>          '
     )
   );
 

@@ -1,94 +1,112 @@
 import { SingleBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
-import { state } from '@rockcarver/frodo-lib';
+import { ExportImportUtils, state } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 
 Color.enable();
 
+const { appendTextToFile } = ExportImportUtils;
+
 /**
- * Output a data message
- * @param {Object} message the message
+ * Output a message in default color to stdout or append to `state.default.session.getOutputFile()`
+ * @param {string | object} message the message
  */
-function data(message) {
-  switch (typeof message) {
-    case 'object':
-      console.dir(message, { depth: 3 });
-      break;
-    default:
-      console.log(message);
+function data(message: string | object, newline = true) {
+  if (state.default.session.getOutputFile()) {
+    if (typeof message === 'object') {
+      message = JSON.stringify(message, null, 2);
+    }
+    if (newline) {
+      message += '\n';
+    }
+    appendTextToFile(message, state.default.session.getOutputFile());
+  } else if (typeof message === 'object') {
+    console.dir(message, { depth: 3 });
+  } else if (newline) {
+    console.log(message);
+  } else {
+    process.stdout.write(message);
   }
 }
 
 /**
- * Output a text message
+ * Output a default color message to stderr
  * @param {Object} message the message
  */
-function text(message) {
-  switch (typeof message) {
-    case 'object':
-      console.dir(message, { depth: 3 });
-      break;
-    default:
-      console.error(message);
+function text(message: string | object, newline = true) {
+  if (typeof message === 'object') {
+    console.dir(message, { depth: 3 });
+  } else if (newline) {
+    console.error(message);
+  } else {
+    process.stderr.write(message);
   }
 }
 
 /**
- * Output an info message
+ * Output a message in bright cyan to stderr
  * @param {Object} message the message
  */
-function info(message) {
-  switch (typeof message) {
-    case 'object':
-      console.dir(message, { depth: 3 });
-      break;
-    default:
-      console.error(message.brightCyan);
+function info(message: string | object, newline = true) {
+  if (typeof message === 'object') {
+    console.dir(message, { depth: 3 });
+  } else if (newline) {
+    console.error(message['brightCyan']);
+  } else {
+    process.stderr.write(message['brightCyan']);
   }
 }
 
 /**
- * Output a warn message
+ * Output a message in yellow to stderr
  * @param {Object} message the message
  */
-function warn(message) {
-  switch (typeof message) {
-    case 'object':
-      console.dir(message, { depth: 3 });
-      break;
-    default:
-      console.error(message.yellow);
+function warn(message: string | object, newline = true) {
+  if (typeof message === 'object') {
+    console.dir(message, { depth: 3 });
+  } else if (newline) {
+    console.error(message['yellow']);
+  } else {
+    process.stderr.write(message['yellow']);
   }
 }
 
 /**
- * Output an error message
+ * Output a message in bright red to stderr
  * @param {Object} message the message
  */
-function error(message) {
-  switch (typeof message) {
-    case 'object':
-      console.dir(message, { depth: 3 });
-      break;
-    default:
-      console.error(message.brightRed);
+function error(message: string | object, newline = true) {
+  if (typeof message === 'object') {
+    console.dir(message, { depth: 3 });
+  } else if (newline) {
+    console.error(message['brightRed']);
+  } else {
+    process.stderr.write(message['brightRed']);
   }
 }
 
 /**
  * Output a debug message
+ * @param {string | object} message the message
+ */
+function debug(message: string | object, newline = true) {
+  if (typeof message === 'object') {
+    console.dir(message, { depth: 6 });
+  } else if (newline) {
+    console.error(message['brightMagenta']);
+  } else {
+    process.stderr.write(message['brightMagenta']);
+  }
+}
+
+/**
+ * Output a message in default color to stderr
  * @param {Object} message the message
  */
-export function verbose(message) {
+export function verboseMessage(message) {
   if (state.default.session.getVerbose()) {
-    switch (typeof message) {
-      case 'object':
-        console.dir(message, { depth: 3 });
-        break;
-      default:
-        console.error(message);
-    }
+    text(message);
   }
 }
 
@@ -96,15 +114,9 @@ export function verbose(message) {
  * Output a debug message
  * @param {Object} message the message
  */
-export function debug(message) {
+export function debugMessage(message) {
   if (state.default.session.getDebug()) {
-    switch (typeof message) {
-      case 'object':
-        console.dir(message, { depth: 10 });
-        break;
-      default:
-        console.error(message.brightMagenta);
-    }
+    debug(message);
   }
 }
 
@@ -118,49 +130,24 @@ export function debug(message) {
  *
  */
 export function printMessage(message, type = 'text', newline = true) {
-  //   if (state.default.session.getItem('scriptFriendly')) {
   switch (type) {
     case 'data':
-      if (newline) {
-        data(message);
-      } else {
-        process.stdout.write(message);
-      }
+      data(message, newline);
       break;
     case 'text':
-      if (newline) {
-        text(message);
-      } else {
-        process.stderr.write(message);
-      }
+      text(message, newline);
       break;
     case 'info':
-      if (newline) {
-        info(message);
-      } else {
-        process.stderr.write(message['brightCyan']);
-      }
+      info(message, newline);
       break;
     case 'warn':
-      if (newline) {
-        warn(message);
-      } else {
-        process.stderr.write(message.yellow);
-      }
+      warn(message, newline);
       break;
     case 'error':
-      if (newline) {
-        error(message);
-      } else {
-        process.stderr.write(message['brightRed']);
-      }
+      error(message, newline);
       break;
     default:
-      if (newline) {
-        error(message);
-      } else {
-        process.stderr.write(message['bgBrightRed']);
-      }
+      text(message, newline);
   }
 }
 
