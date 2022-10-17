@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1] - 2022-10-17
+
 ### Changed
 
 -   Updated frodo-lib to 0.15.2
@@ -690,7 +692,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.17.1...HEAD
+
+[0.17.1]: https://github.com/rockcarver/frodo-cli/compare/v0.17.0...v0.17.1
 
 [0.17.0]: https://github.com/rockcarver/frodo-cli/compare/v0.16.2-1...v0.17.0
 
