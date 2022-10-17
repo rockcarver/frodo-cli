@@ -173,6 +173,24 @@ test("CLI help interface 'describe option -f, --file <file>' description should 
   expect(testLine).toBe(expectedDescription);
 });
 
+test("CLI help interface 'describe option -F, --output-file <file>' description should be expected english", async () => {
+  // Arrange
+  const expectedDescription = `
+  -F, --output-file <file> Name of the file to write the output to.
+    `.trim();
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -F, --output-file <file>          ',
+      '  --markdown                        '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expectedDescription);
+});
+
 test("CLI help interface 'describe option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
@@ -184,8 +202,62 @@ test("CLI help interface 'describe option -k, --insecure' description should be 
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure              ',
-      '  -i, --journey-id <journey>  '
+      '  -k, --insecure                    ',
+      '  --verbose                         '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'describe option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose                         Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose                         ',
+      '  --debug                           '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'describe option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug                           Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug                           ',
+      '  -i, --journey-id <journey>        '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'describe option --markdown' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --markdown                        Output in markdown.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --markdown                        ',
+      '  -o, --override-version <version>  '
     )
   );
 
