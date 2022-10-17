@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Updated frodo-lib to 0.15.2
+-   Added options to `frodo journey describe` command:
+    -   Added `--verbose` option
+    -   Added `--debug` option
+
 ## [0.17.0] - 2022-10-16
 
 ### Changed
