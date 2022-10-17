@@ -29,6 +29,8 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -63,6 +65,8 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (options.outputFile)
         state.default.session.setOutputFile(options.outputFile);
       // TODO: review checks for arguments
