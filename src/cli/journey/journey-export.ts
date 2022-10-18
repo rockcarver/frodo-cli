@@ -1,10 +1,13 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import {
+  exportJourneyToFile,
+  exportJourneysToFile,
+  exportJourneysToFiles,
+} from '../../ops/JourneyOps';
 
 const { getTokens } = Authenticate;
-const { exportJourneyToFile, exportJourneysToFile, exportJourneysToFiles } =
-  Journey;
 
 const program = new Command('frodo journey export');
 

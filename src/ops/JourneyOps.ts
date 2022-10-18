@@ -1,14 +1,33 @@
+import fs from 'fs';
+import _ from 'lodash';
 import {
   NodeSkeleton,
   TreeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
+  MultiTreeExportInterface,
   SingleTreeExportInterface,
   TreeDependencyMapInterface,
+  TreeExportOptions,
   TreeExportResolverInterface,
+  TreeImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import { printMessage } from '../utils/Console';
-import { Journey, Types, state } from '@rockcarver/frodo-lib';
+import {
+  printMessage,
+  createProgressBar,
+  updateProgressBar,
+  stopProgressBar,
+  showSpinner,
+  succeedSpinner,
+  failSpinner,
+  createTable,
+} from '../utils/Console';
+import {
+  ExportImportUtils,
+  Journey,
+  Types,
+  state,
+} from '@rockcarver/frodo-lib';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
 import * as Idp from './IdpOps';
@@ -16,8 +35,368 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
+import wordwrap from './utils/Wordwrap';
 
-const { onlineTreeExportResolver, getTreeDescendents, getNodeRef } = Journey;
+const {
+  getJourneys,
+  importAllJourneys,
+  importJourney,
+  resolveDependencies,
+  createMultiTreeExportTemplate,
+  exportJourney,
+  onlineTreeExportResolver,
+  getTreeDescendents,
+  getNodeRef,
+} = Journey;
+const { getTypedFilename, saveJsonToFile, getRealmString } = ExportImportUtils;
+
+/**
+ * List all the journeys/trees
+ * @param {boolean} long Long version, all the fields
+ * @param {boolean} analyze Analyze journeys/trees for custom nodes (expensive)
+ * @returns {Promise<unknown[]>} a promise that resolves to an array journey objects
+ */
+export async function listJourneys(
+  long = false,
+  analyze = false
+): Promise<unknown[]> {
+  let journeys = [];
+  try {
+    journeys = await getJourneys();
+    if (!long && !analyze) {
+      for (const journeyStub of journeys) {
+        printMessage(`${journeyStub['_id']}`, 'data');
+      }
+    } else {
+      if (!analyze) {
+        const table = createTable(['Name', 'Status', 'Tags']);
+        for (const journeyStub of journeys) {
+          table.push([
+            `${journeyStub._id}`,
+            journeyStub.enabled === false
+              ? 'disabled'['brightRed']
+              : 'enabled'['brightGreen'],
+            journeyStub.uiConfig?.categories
+              ? wordwrap(
+                  JSON.parse(journeyStub.uiConfig.categories).join(', '),
+                  60
+                )
+              : '',
+          ]);
+        }
+        printMessage(table.toString(), 'data');
+      } else {
+        showSpinner('Retrieving details of all journeys...');
+        const exportPromises = [];
+        try {
+          for (const journeyStub of journeys) {
+            exportPromises.push(
+              exportJourney(journeyStub['_id'], {
+                useStringArrays: false,
+                deps: false,
+                verbose: false,
+              })
+            );
+          }
+          const journeyExports = await Promise.all(exportPromises);
+          succeedSpinner('Retrieved details of all journeys.');
+          const table = createTable([
+            'Name',
+            'Status',
+            'Classification',
+            'Tags',
+          ]);
+          for (const journeyExport of journeyExports) {
+            table.push([
+              `${journeyExport.tree._id}`,
+              journeyExport.tree.enabled === false
+                ? 'disabled'['brightRed']
+                : 'enabled'['brightGreen'],
+              getJourneyClassification(journeyExport).join(', '),
+              journeyExport.tree.uiConfig?.categories
+                ? wordwrap(
+                    JSON.parse(journeyExport.tree.uiConfig.categories).join(
+                      ', '
+                    ),
+                    60
+                  )
+                : '',
+            ]);
+          }
+          printMessage(table.toString(), 'data');
+        } catch (error) {
+          failSpinner('Error retrieving details of all journeys.');
+          printMessage(error.response.data, 'error');
+        }
+      }
+    }
+  } catch (error) {
+    printMessage(error.response.data, 'error');
+  }
+  return journeys;
+}
+
+/**
+ * Export journey by id/name to file
+ * @param {string} journeyId journey id/name
+ * @param {string} file optional export file name
+ * @param {TreeExportOptions} options export options
+ */
+export async function exportJourneyToFile(
+  journeyId: string,
+  file: string,
+  options: TreeExportOptions
+): Promise<void> {
+  const { verbose } = options;
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(journeyId, 'journey');
+  }
+  if (!verbose) showSpinner(`${journeyId}`);
+  try {
+    const fileData: SingleTreeExportInterface = await exportJourney(
+      journeyId,
+      options
+    );
+    if (verbose) showSpinner(`${journeyId}`);
+    saveJsonToFile(fileData, fileName);
+    succeedSpinner(
+      `Exported ${journeyId['brightCyan']} to ${fileName['brightCyan']}.`
+    );
+  } catch (error) {
+    if (verbose) showSpinner(`${journeyId}`);
+    failSpinner(`Error exporting journey ${journeyId}: ${error}`);
+  }
+}
+
+/**
+ * Export all journeys to file
+ * @param {string} file optional export file name
+ * @param {TreeExportOptions} options export options
+ */
+export async function exportJourneysToFile(
+  file: string,
+  options: TreeExportOptions = {
+    deps: false,
+    useStringArrays: false,
+    verbose: false,
+  }
+): Promise<void> {
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journeys');
+  }
+  const trees = await getJourneys();
+  const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
+  createProgressBar(trees.length, 'Exporting journeys...');
+  for (const tree of trees) {
+    updateProgressBar(`${tree._id}`);
+    try {
+      const exportData = await exportJourney(tree._id, options);
+      delete exportData.meta;
+      fileData.trees[tree._id] = exportData;
+    } catch (error) {
+      printMessage(`Error exporting journey ${tree._id}: ${error}`, 'error');
+    }
+  }
+  saveJsonToFile(fileData, fileName);
+  stopProgressBar(`Exported to ${fileName}`);
+}
+
+/**
+ * Export all journeys to separate files
+ * @param {TreeExportOptions} options export options
+ */
+export async function exportJourneysToFiles(
+  options: TreeExportOptions
+): Promise<void> {
+  const trees = await getJourneys();
+  createProgressBar(trees.length, 'Exporting journeys...');
+  for (const tree of trees) {
+    updateProgressBar(`${tree._id}`);
+    const fileName = getTypedFilename(`${tree._id}`, 'journey');
+    try {
+      const exportData: SingleTreeExportInterface = await exportJourney(
+        tree._id,
+        options
+      );
+      saveJsonToFile(exportData, fileName);
+    } catch (error) {
+      // do we need to report status here?
+    }
+  }
+  stopProgressBar('Done');
+}
+
+/**
+ * Import a journey from file
+ * @param {string} journeyId journey id/name
+ * @param {string} file import file name
+ * @param {TreeImportOptions} options import options
+ */
+export async function importJourneyFromFile(
+  journeyId: string,
+  file: string,
+  options: TreeImportOptions
+) {
+  const { verbose } = options;
+  fs.readFile(file, 'utf8', async (err, data) => {
+    if (err) throw err;
+    let journeyData = JSON.parse(data);
+    // check if this is a file with multiple trees and get journey by id
+    if (journeyData.trees && journeyData.trees[journeyId]) {
+      journeyData = journeyData.trees[journeyId];
+    } else if (journeyData.trees) {
+      journeyData = null;
+    }
+
+    // if a journeyId was specified, only import the matching journey
+    if (journeyData && journeyId === journeyData.tree._id) {
+      // attempt dependency resolution for single tree import
+      const installedJourneys = (await getJourneys()).map((x) => x._id);
+      const unresolvedJourneys = {};
+      const resolvedJourneys = [];
+      showSpinner('Resolving dependencies');
+      await resolveDependencies(
+        installedJourneys,
+        { [journeyId]: journeyData },
+        unresolvedJourneys,
+        resolvedJourneys
+      );
+      if (Object.keys(unresolvedJourneys).length === 0) {
+        succeedSpinner(`Resolved all dependencies.`);
+
+        if (!verbose) showSpinner(`Importing ${journeyId}...`);
+        importJourney(journeyData, options)
+          .then(() => {
+            if (verbose) showSpinner(`Importing ${journeyId}...`);
+            succeedSpinner(`Imported ${journeyId}.`);
+          })
+          .catch((importError) => {
+            if (verbose) showSpinner(`Importing ${journeyId}...`);
+            failSpinner(`${importError}`);
+          });
+      } else {
+        failSpinner(`Unresolved dependencies:`);
+        for (const journey of Object.keys(unresolvedJourneys)) {
+          printMessage(
+            `  ${journey} requires ${unresolvedJourneys[journey]}`,
+            'error'
+          );
+        }
+      }
+      // end dependency resolution for single tree import
+    } else {
+      showSpinner(`Importing ${journeyId}...`);
+      failSpinner(`${journeyId} not found!`);
+    }
+  });
+}
+
+/**
+ * Import first journey from file
+ * @param {string} file import file name
+ * @param {TreeImportOptions} options import options
+ */
+export async function importFirstJourneyFromFile(
+  file: string,
+  options: TreeImportOptions
+) {
+  const { verbose } = options;
+  fs.readFile(file, 'utf8', async (err, data) => {
+    if (err) throw err;
+    let journeyData = _.cloneDeep(JSON.parse(data));
+    let journeyId = null;
+    // single tree
+    if (journeyData.tree) {
+      journeyId = _.cloneDeep(journeyData.tree._id);
+    }
+    // multiple trees, so get the first tree
+    else if (journeyData.trees) {
+      for (const treeId in journeyData.trees) {
+        if (Object.hasOwnProperty.call(journeyData.trees, treeId)) {
+          journeyId = treeId;
+          journeyData = journeyData.trees[treeId];
+          break;
+        }
+      }
+    }
+
+    // if a journeyId was specified, only import the matching journey
+    if (journeyData && journeyId) {
+      // attempt dependency resolution for single tree import
+      const installedJourneys = (await getJourneys()).map((x) => x._id);
+      const unresolvedJourneys = {};
+      const resolvedJourneys = [];
+      showSpinner('Resolving dependencies');
+      await resolveDependencies(
+        installedJourneys,
+        { [journeyId]: journeyData },
+        unresolvedJourneys,
+        resolvedJourneys
+      );
+      if (Object.keys(unresolvedJourneys).length === 0) {
+        succeedSpinner(`Resolved all dependencies.`);
+
+        if (!verbose) showSpinner(`Importing ${journeyId}...`);
+        importJourney(journeyData, options)
+          .then(() => {
+            if (verbose) showSpinner(`Importing ${journeyId}...`);
+            succeedSpinner(`Imported ${journeyId}.`);
+          })
+          .catch((importError) => {
+            if (verbose) showSpinner(`Importing ${journeyId}...`);
+            failSpinner(`${importError}`);
+          });
+      } else {
+        failSpinner(`Unresolved dependencies:`);
+        for (const journey of Object.keys(unresolvedJourneys)) {
+          printMessage(
+            `  ${journey} requires ${unresolvedJourneys[journey]}`,
+            'error'
+          );
+        }
+      }
+    } else {
+      showSpinner(`Importing...`);
+      failSpinner(`No journeys found!`);
+    }
+    // end dependency resolution for single tree import
+  });
+}
+
+/**
+ * Import all journeys from file
+ * @param {string} file import file name
+ * @param {TreeImportOptions} options import options
+ */
+export async function importJourneysFromFile(
+  file: string,
+  options: TreeImportOptions
+) {
+  fs.readFile(file, 'utf8', (err, data) => {
+    if (err) throw err;
+    const fileData = JSON.parse(data);
+    importAllJourneys(fileData.trees, options);
+  });
+}
+
+/**
+ * Import all journeys from separate files
+ * @param {TreeImportOptions} options import options
+ */
+export async function importJourneysFromFiles(options: TreeImportOptions) {
+  const names = fs.readdirSync('.');
+  const jsonFiles = names.filter((name) =>
+    name.toLowerCase().endsWith('.journey.json')
+  );
+  const allJourneysData = { trees: {} };
+  for (const file of jsonFiles) {
+    const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
+    allJourneysData.trees[journeyData.tree._id] = journeyData;
+  }
+  importAllJourneys(allJourneysData.trees as MultiTreeExportInterface, options);
+}
 
 /**
  * Get journey classification

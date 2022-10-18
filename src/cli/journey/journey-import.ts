@@ -1,14 +1,14 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-
-const { getTokens } = Authenticate;
-const {
+import {
   importJourneyFromFile,
   importJourneysFromFile,
   importJourneysFromFiles,
   importFirstJourneyFromFile,
-} = Journey;
+} from '../../ops/JourneyOps';
+
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo journey import');
 
