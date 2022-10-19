@@ -32,9 +32,7 @@ export function getNoiseFilters(defaults: boolean): Array<string> {
     return defaultNoiseFilter();
   }
   let noiseFilter = getCustomNoiseFilters();
-  if (noiseFilter.length > 0) {
-    printMessage(`Using custom noise filters from ${filename}`, 'info');
-  } else {
+  if (noiseFilter.length == 0) {
     printMessage(`No custom noise filters defined. Using defaults.`, 'info');
     noiseFilter = defaultNoiseFilter();
     try {

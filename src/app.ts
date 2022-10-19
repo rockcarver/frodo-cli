@@ -53,7 +53,6 @@ const { initConnectionProfiles } = ConnectionProfile;
     program.enablePositionalOptions();
     program.parse();
   } catch (e) {
-    console.log(e);
     printMessage(`ERROR: exception running frodo - ${e}`, 'error');
   }
 })();

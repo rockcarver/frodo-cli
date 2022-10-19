@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#85: Ability to fetch historical logs from ID Cloud
+
 ## [0.17.1] - 2022-10-17
 
 ### Changed
