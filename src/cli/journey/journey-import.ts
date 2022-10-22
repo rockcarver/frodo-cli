@@ -1,12 +1,13 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
+import * as common from '../cmd_common';
 import {
   importJourneyFromFile,
   importJourneysFromFile,
   importJourneysFromFiles,
   importFirstJourneyFromFile,
 } from '../../ops/JourneyOps';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -22,6 +23,8 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -58,12 +61,6 @@ program
       'Do not include any dependencies (scripts, email templates, SAML entity providers and circles of trust, social identity providers, themes).'
     )
   )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -73,50 +70,48 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (await getTokens()) {
         // import
         if (options.journeyId) {
-          console.log(`Importing journey ${options.journeyId}...`);
+          printMessage(`Importing journey ${options.journeyId}...`);
           importJourneyFromFile(options.journeyId, options.file, {
             reUuid: options.reUuid,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // --all -a
         else if (options.all && options.file) {
-          console.log(
+          printMessage(
             `Importing all journeys from a single file (${options.file})...`
           );
           importJourneysFromFile(options.file, {
             reUuid: options.reUuid,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
-          console.log(
+          printMessage(
             'Importing all journeys from separate files in current directory...'
           );
           importJourneysFromFiles({
             reUuid: options.reUuid,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // import first journey in file
         else if (options.file) {
-          console.log('Importing first journey in file...');
+          printMessage('Importing first journey in file...');
           importFirstJourneyFromFile(options.file, {
             reUuid: options.reUuid,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

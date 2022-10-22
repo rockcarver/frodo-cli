@@ -21,6 +21,7 @@ import {
   succeedSpinner,
   failSpinner,
   createTable,
+  debugMessage,
 } from '../utils/Console';
 import {
   ExportImportUtils,
@@ -54,12 +55,12 @@ const { getTypedFilename, saveJsonToFile, getRealmString } = ExportImportUtils;
  * List all the journeys/trees
  * @param {boolean} long Long version, all the fields
  * @param {boolean} analyze Analyze journeys/trees for custom nodes (expensive)
- * @returns {Promise<unknown[]>} a promise that resolves to an array journey objects
+ * @returns {Promise<TreeSkeleton[]>} a promise that resolves to an array journey objects
  */
 export async function listJourneys(
   long = false,
   analyze = false
-): Promise<unknown[]> {
+): Promise<TreeSkeleton[]> {
   let journeys = [];
   try {
     journeys = await getJourneys();
@@ -94,7 +95,6 @@ export async function listJourneys(
               exportJourney(journeyStub['_id'], {
                 useStringArrays: false,
                 deps: false,
-                verbose: false,
               })
             );
           }
@@ -147,10 +147,20 @@ export async function exportJourneyToFile(
   file: string,
   options: TreeExportOptions
 ): Promise<void> {
-  const { verbose } = options;
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(journeyId, 'journey');
+  debugMessage(`exportJourneyToFile: start`);
+  const verbose = state.default.session.getDebug();
+  if (!file) {
+    file = getTypedFilename(journeyId, 'journey');
+  }
+  if (state.default.session.getDirectory()) {
+    const dir = state.default.session.getDirectory().replace(/\/$/, '');
+    debugMessage(`exportJourneyToFile: directory='${dir}'`);
+    file = `${dir}/${file}`;
+    // create directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      debugMessage(`exportJourneyToFile: creating directory '${dir}'`);
+      fs.mkdirSync(dir, { recursive: true });
+    }
   }
   if (!verbose) showSpinner(`${journeyId}`);
   try {
@@ -159,9 +169,9 @@ export async function exportJourneyToFile(
       options
     );
     if (verbose) showSpinner(`${journeyId}`);
-    saveJsonToFile(fileData, fileName);
+    saveJsonToFile(fileData, file);
     succeedSpinner(
-      `Exported ${journeyId['brightCyan']} to ${fileName['brightCyan']}.`
+      `Exported ${journeyId['brightCyan']} to ${file['brightCyan']}.`
     );
   } catch (error) {
     if (verbose) showSpinner(`${journeyId}`);
@@ -179,7 +189,6 @@ export async function exportJourneysToFile(
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
-    verbose: false,
   }
 ): Promise<void> {
   let fileName = file;
@@ -239,7 +248,7 @@ export async function importJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const { verbose } = options;
+  const verbose = state.default.session.getDebug();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = JSON.parse(data);
@@ -302,7 +311,7 @@ export async function importFirstJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const { verbose } = options;
+  const verbose = state.default.session.getDebug();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = _.cloneDeep(JSON.parse(data));

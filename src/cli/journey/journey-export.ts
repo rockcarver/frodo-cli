@@ -1,11 +1,12 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
+import * as common from '../cmd_common';
 import {
   exportJourneyToFile,
   exportJourneysToFile,
   exportJourneysToFiles,
 } from '../../ops/JourneyOps';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -21,6 +22,8 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -58,10 +61,16 @@ program
     )
   )
   .addOption(
+    new Option('-D, --directory <directory>', 'Destination directory.')
+  )
+  .addOption(
     new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
+      '-O, --organize <method>',
+      'Organize exports into folders using the indicated method. Valid values for method:\n' +
+        'id: folders named by id of exported object\n' +
+        'type: folders named by type (e.g. script, journey, idp)\n' +
+        'type/id: folders named by type with sub-folders named by id'
+    )
   )
   .action(
     // implement command logic inside action handler
@@ -72,37 +81,38 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      if (options.directory)
+        state.default.session.setDirectory(options.directory);
       if (await getTokens()) {
         // export
         if (options.journeyId) {
-          console.log('Exporting journey...');
+          printMessage('Exporting journey...');
           await exportJourneyToFile(options.journeyId, options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // --all -a
         else if (options.all) {
-          console.log('Exporting all journeys to a single file...');
+          printMessage('Exporting all journeys to a single file...');
           await exportJourneysToFile(options.file, {
             useStringArrays: options.useStringArrays,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          console.log('Exporting all journeys to separate files...');
+          printMessage('Exporting all journeys to separate files...');
           await exportJourneysToFiles({
             useStringArrays: options.useStringArrays,
             deps: options.deps,
-            verbose: options.verbose,
           });
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }
