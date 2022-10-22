@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, EmailTemplate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const {
@@ -53,33 +54,33 @@ program
       if (await getTokens()) {
         // import by id
         if (options.file && options.templateId) {
-          console.log(`Importing email template "${options.templateId}"...`);
+          printMessage(`Importing email template "${options.templateId}"...`);
           importEmailTemplateFromFile(options.templateId, options.file);
         }
         // --all -a
         else if (options.all && options.file) {
-          console.log(
+          printMessage(
             `Importing all email templates from a single file (${options.file})...`
           );
           importEmailTemplatesFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
-          console.log(
+          printMessage(
             'Importing all email templates from separate files (*.template.email.json) in current directory...'
           );
           importEmailTemplatesFromFiles();
         }
         // import first template from file
         else if (options.file) {
-          console.log(
+          printMessage(
             `Importing first email template from file "${options.file}"...`
           );
           importFirstEmailTemplateFromFile(options.file);
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

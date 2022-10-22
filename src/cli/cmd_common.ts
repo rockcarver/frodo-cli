@@ -17,9 +17,10 @@ state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
 
-// pseudo functions for commands that do not otherwise need to import
-// this file but need to trigger print and progress handler registration
-export function init() {}
+export function init() {
+  // pseudo functions for commands that do not otherwise need to import
+  // this file but need to trigger print and progress handler registration
+}
 
 const hostArgumentDescription =
   'Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.';

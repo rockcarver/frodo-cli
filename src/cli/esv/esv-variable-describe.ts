@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Variables, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { describeVariable } = Variables;
@@ -33,7 +34,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(`Describing variable ${options.variableId}...`);
+        printMessage(`Describing variable ${options.variableId}...`);
         describeVariable(options.variableId);
       }
     }

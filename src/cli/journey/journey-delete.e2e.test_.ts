@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // import { jest } from '@jest/globals';
 import { spawn, spawnSync } from 'child_process';
 
@@ -8,7 +9,9 @@ const ansiEscapeCodes =
 /**
  * Run once before running the suites in this file
  */
-beforeAll(async () => {});
+beforeAll(async () => {
+  //
+});
 
 /**
  * Run before every test in every suite in this file
@@ -21,7 +24,7 @@ beforeEach(async () => {
     '--all',
     'frodo-dev',
   ]);
-  if (deleteJourneysCmd.status > 0) {
+  if (deleteJourneysCmd.status && deleteJourneysCmd.status > 0) {
     console.error(deleteJourneysCmd.stderr.toString());
     console.log(deleteJourneysCmd.stdout.toString());
   }
@@ -34,7 +37,7 @@ beforeEach(async () => {
       cwd: `test/e2e/journey/delete`,
     }
   );
-  if (importTestJourneysCmd.status > 0) {
+  if (importTestJourneysCmd.status && importTestJourneysCmd.status > 0) {
     console.error(importTestJourneysCmd.stderr.toString());
     console.log(importTestJourneysCmd.stdout.toString());
   }
@@ -50,7 +53,7 @@ describe('frodo journey delete', () => {
       'frodo-dev',
     ]);
     const expected = ['✔ Deleted deleteMe and 7/7 nodes.', ''].join('\n');
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -89,7 +92,7 @@ describe('frodo journey delete', () => {
       'Deleted c22373f9-252b-4d0b-b80e-e4b392a17d98 (ValidatedPasswordNode) from deleteMe\n',
       '✔ Deleted deleteMe and 7/7 nodes.\n',
     ];
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -118,7 +121,7 @@ describe('frodo journey delete', () => {
       'frodo-dev',
     ]);
     const expected = ['✔ Deleted deleteMe and 0/0 nodes.', ''].join('\n');
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -149,7 +152,7 @@ describe('frodo journey delete', () => {
       'Deleted deleteMe (tree)\n',
       '✔ Deleted deleteMe and 0/0 nodes.\n',
     ];
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -183,7 +186,7 @@ describe('frodo journey delete --all', () => {
         '[========================================] 100% | 8/8 | Deleted 8/8 journeys and 51/51 nodes.',
         '',
       ].join('\n');
-      const chunks = [];
+      const chunks: Uint8Array[] = [];
       deleteJourneyCmd.stderr.on('data', (chunk) => {
         chunks.push(chunk);
       });
@@ -287,7 +290,7 @@ describe('frodo journey delete --all', () => {
         'Deleted a12bc72f-ad97-4f1e-a789-a1fa3dd566c8 (PageNode) from Login\n',
         '[========================================] 100% | 8/8 | Deleted 8/8 journeys and 51/51 nodes.\n',
       ];
-      const chunks = [];
+      const chunks: Uint8Array[] = [];
       deleteJourneyCmd.stderr.on('data', (chunk) => {
         chunks.push(chunk);
       });
@@ -321,7 +324,7 @@ describe('frodo journey delete --all', () => {
       '[========================================] 100% | 8/8 | Deleted 8/8 journeys and 0/0 nodes.',
       '',
     ].join('\n');
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -359,7 +362,7 @@ describe('frodo journey delete --all', () => {
       'Deleted Login (tree)\n',
       '[========================================] 100% | 8/8 | Deleted 8/8 journeys and 0/0 nodes.\n',
     ];
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     deleteJourneyCmd.stderr.on('data', (chunk) => {
       chunks.push(chunk);
     });

@@ -1,21 +1,15 @@
 {
-  "extends": ["airbnb", "prettier"],
-  "parser": "@babel/eslint-parser",
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "requireConfigFile": false
   },
-  "plugins": ["prettier", "jest"],
+  "plugins": ["@typescript-eslint", "prettier", "jest"],
+  "root": true,
   "rules": {
-    "prettier/prettier": ["error"],
-    "import/extensions": [
-      "error",
-      {
-        "js": "always",
-        "json": "always"
-      }
-    ],
-    "dot-notation": "warn",
-    "no-console": "off",
+    "prettier/prettier": ["warn"],
+    "dot-notation": "off",
+    "no-console": "warn",
     "no-underscore-dangle": "off",
     "no-restricted-syntax": [
       "error",

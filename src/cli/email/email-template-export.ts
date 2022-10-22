@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, EmailTemplate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const {
@@ -57,7 +58,7 @@ program
       if (await getTokens()) {
         // export by id/name
         if (options.templateId) {
-          console.log(
+          printMessage(
             `Exporting email template "${
               options.templateId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -66,17 +67,17 @@ program
         }
         // --all -a
         else if (options.all) {
-          console.log('Exporting all email templates to a single file...');
+          printMessage('Exporting all email templates to a single file...');
           exportEmailTemplatesToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          console.log('Exporting all email templates to separate files...');
+          printMessage('Exporting all email templates to separate files...');
           exportEmailTemplatesToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );

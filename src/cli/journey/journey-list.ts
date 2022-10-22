@@ -1,9 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
+import * as common from '../cmd_common';
+import { listJourneys } from '../../ops/JourneyOps';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
-const { listJourneys } = Journey;
 
 const program = new Command('frodo journey list');
 
@@ -31,7 +32,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Listing journeys in realm "${state.default.session.getRealm()}"...`
         );
         listJourneys(options.long, options.analyze);

@@ -5,9 +5,9 @@ import {
   Log,
   state,
 } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
-import * as config from '../../utils/Config.js';
-import { printMessage } from '../../utils/Console.js';
+import * as common from '../cmd_common';
+import * as config from '../../utils/Config';
+import { printMessage } from '../../utils/Console';
 
 const { provisionCreds, fetchLogs, resolveLevel } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
@@ -86,7 +86,7 @@ Cannot be more than 30 days in the past.'
           !state.default.session.getPassword()
         ) {
           credsFromParameters = false;
-          console.log(
+          printMessage(
             'User credentials not specified as parameters and no saved API key and secret found!',
             'warn'
           );
@@ -103,12 +103,9 @@ Cannot be more than 30 days in the past.'
       }
     }
     let beginTs = Date.parse(options.beginTimestamp) / 1000;
-    if((Date.parse(options.endTimestamp) / 1000) < beginTs) {
-        printMessage(
-            'End timestamp can not be before begin timestamp',
-            'error'
-          );
-          return;    
+    if (Date.parse(options.endTimestamp) / 1000 < beginTs) {
+      printMessage('End timestamp can not be before begin timestamp', 'error');
+      return;
     }
     const now = Date.now() / 1000;
     if (now - beginTs > LOG_TIME_WINDOW_MAX) {
@@ -119,7 +116,7 @@ Cannot be more than 30 days in the past.'
       return;
     }
     let intermediateEndTs = 0;
-    console.log(
+    printMessage(
       `Fetching ID Cloud logs from the following sources: ${
         command.opts().sources
       } and levels [${resolveLevel(command.opts().level)}]...`

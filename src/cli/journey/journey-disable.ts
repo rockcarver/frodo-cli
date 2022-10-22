@@ -1,19 +1,20 @@
-import fs from 'fs';
 import { Command, Option } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
-import { showSpinner, failSpinner, succeedSpinner } from '../../utils/Console';
+import * as common from '../cmd_common';
+import {
+  showSpinner,
+  failSpinner,
+  succeedSpinner,
+  printMessage,
+} from '../../utils/Console';
 
 const { getTokens } = Authenticate;
-const { disableJourney } =
-  Journey;
+const { disableJourney } = Journey;
 
 const program = new Command('frodo journey disable');
 
 program
-  .description(
-    'Disable journeys/trees.'
-  )
+  .description('Disable journeys/trees.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -23,10 +24,7 @@ program
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
   .addOption(
-    new Option(
-      '-i, --journey-id <journey>',
-      'Name of a journey/tree.'
-    )
+    new Option('-i, --journey-id <journey>', 'Name of a journey/tree.')
   )
   // .addOption(
   //   new Option(
@@ -55,7 +53,7 @@ program
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // import { jest } from '@jest/globals';
 import { spawn, spawnSync } from 'child_process';
 
@@ -16,7 +17,7 @@ beforeAll(async () => {
     '--all',
     'frodo-dev',
   ]);
-  if (deleteJourneysCmd.status > 0) {
+  if (deleteJourneysCmd.status && deleteJourneysCmd.status > 0) {
     console.error(deleteJourneysCmd.stderr.toString());
     console.log(deleteJourneysCmd.stdout.toString());
   }
@@ -29,7 +30,10 @@ beforeAll(async () => {
       cwd: `test/e2e/journey/baseline`,
     }
   );
-  if (importBaselineJourneysCmd.status > 0) {
+  if (
+    importBaselineJourneysCmd.status &&
+    importBaselineJourneysCmd.status > 0
+  ) {
     console.error(importBaselineJourneysCmd.stderr.toString());
     console.log(importBaselineJourneysCmd.stdout.toString());
   }
@@ -42,7 +46,7 @@ beforeAll(async () => {
       cwd: `test/e2e/journey/list`,
     }
   );
-  if (importTestJourneysCmd.status > 0) {
+  if (importTestJourneysCmd.status && importTestJourneysCmd.status > 0) {
     console.error(importTestJourneysCmd.stderr.toString());
     console.log(importTestJourneysCmd.stdout.toString());
   }
@@ -63,7 +67,7 @@ describe('frodo journey list', () => {
       '',
     ].join('\n');
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     journeyList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -96,7 +100,7 @@ describe('frodo journey list', () => {
   it('"frodo journey list -l": should list the names, status, and tags of the default journeys', (done) => {
     const journeyList = spawn('frodo', ['journey', 'list', '-l', 'frodo-dev']);
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     journeyList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -122,7 +126,7 @@ describe('frodo journey list', () => {
       'frodo-dev',
     ]);
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     journeyList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });
