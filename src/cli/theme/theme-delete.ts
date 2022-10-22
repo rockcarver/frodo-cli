@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { deleteThemeByNameCmd, deleteThemeCmd, deleteThemesCmd } = Theme;
@@ -47,7 +48,7 @@ program
       if (await getTokens()) {
         // delete by name
         if (options.themeName) {
-          console.log(
+          printMessage(
             `Deleting theme with name "${
               options.themeName
             }" from realm "${state.default.session.getRealm()}"...`
@@ -56,7 +57,7 @@ program
         }
         // delete by id
         else if (options.themeId) {
-          console.log(
+          printMessage(
             `Deleting theme with id "${
               options.themeId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -65,14 +66,14 @@ program
         }
         // --all -a
         else if (options.all) {
-          console.log(
+          printMessage(
             `Deleting all themes from realm "${state.default.session.getRealm()}"...`
           );
           deleteThemesCmd();
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

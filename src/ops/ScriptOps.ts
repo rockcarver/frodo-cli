@@ -29,7 +29,9 @@ export function getTableHeaderMd(): string {
  */
 export function getTableRowMd(scriptObj: ScriptSkeleton): string {
   const langMap = { JAVASCRIPT: 'JavaSscript', GROOVY: 'Groovy' };
-  const description = `| ${scriptObj.name} | ${langMap[scriptObj.language]} | ${ExportImportUtils.titleCase(
+  const description = `| ${scriptObj.name} | ${
+    langMap[scriptObj.language]
+  } | ${ExportImportUtils.titleCase(
     scriptObj.context.split('_').join(' ')
   )} | \`${scriptObj._id}\` |`;
   return description;

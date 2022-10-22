@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -65,7 +66,7 @@ program
       if (await getTokens()) {
         // export by name
         if (options.themeName) {
-          console.log(
+          printMessage(
             `Exporting theme "${
               options.themeName
             }" from realm "${state.default.session.getRealm()}"...`
@@ -74,7 +75,7 @@ program
         }
         // export by id
         else if (options.themeId) {
-          console.log(
+          printMessage(
             `Exporting theme "${
               options.themeId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -83,17 +84,17 @@ program
         }
         // --all -a
         else if (options.all) {
-          console.log('Exporting all themes to a single file...');
+          printMessage('Exporting all themes to a single file...');
           exportThemesToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          console.log('Exporting all themes to separate files...');
+          printMessage('Exporting all themes to separate files...');
           exportThemesToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );

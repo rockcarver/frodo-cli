@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, OAuth2Client, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const {
@@ -52,22 +53,22 @@ program
       if (await getTokens()) {
         // export
         if (options.appId) {
-          console.log('Exporting OAuth2 application...');
+          printMessage('Exporting OAuth2 application...');
           exportOAuth2ClientToFile(options.appId, options.file);
         }
         // -a/--all
         else if (options.all) {
-          console.log('Exporting all OAuth2 applications to file...');
+          printMessage('Exporting all OAuth2 applications to file...');
           exportOAuth2ClientsToFile(options.file);
         }
         // -A/--all-separate
         else if (options.allSeparate) {
-          console.log('Exporting all applications to separate files...');
+          printMessage('Exporting all applications to separate files...');
           exportOAuth2ClientsToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

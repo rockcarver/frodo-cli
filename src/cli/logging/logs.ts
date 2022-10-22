@@ -17,6 +17,8 @@ export default function setup() {
     .command('list', 'List available ID Cloud log sources.')
     .showHelpAfterError();
   program.command('tail', 'Tail Identity Cloud logs.').showHelpAfterError();
-  program.command('fetch', 'Fetch Identity Cloud logs for a given time period.').showHelpAfterError();
+  program
+    .command('fetch', 'Fetch Identity Cloud logs for a given time period.')
+    .showHelpAfterError();
   return program;
 }

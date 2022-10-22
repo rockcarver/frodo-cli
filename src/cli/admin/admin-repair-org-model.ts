@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { repairOrgModel } = Admin;
@@ -40,11 +41,15 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Repairing org model in realm "${state.default.session.getRealm()}"...`
         );
-        await repairOrgModel(options.excludeCustomized, options.extendPermissions, options.dryRun);
-        console.log('Done.');
+        await repairOrgModel(
+          options.excludeCustomized,
+          options.extendPermissions,
+          options.dryRun
+        );
+        printMessage('Done.');
       }
     }
     // end command logic inside action handler

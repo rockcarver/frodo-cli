@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { removeStaticUserMapping } = Admin;
@@ -27,9 +28,9 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log("Removing a subject's static user mapping...");
+        printMessage("Removing a subject's static user mapping...");
         await removeStaticUserMapping(options.subject);
-        console.log('Done.');
+        printMessage('Done.');
       }
     }
     // end command logic inside action handler

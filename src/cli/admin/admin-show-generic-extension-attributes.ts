@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { showGenericExtensionAttributes } = Admin;
 const { getTokens } = Authenticate;
@@ -39,14 +40,14 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Showing generic extension attributes in realm "${state.default.session.getRealm()}"...`
         );
         await showGenericExtensionAttributes(
           options.includeCustomized,
           options.dryRun
         );
-        console.log('Done.');
+        printMessage('Done.');
       }
     }
     // end command logic inside action handler

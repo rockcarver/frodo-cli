@@ -91,7 +91,7 @@ async function getRemoteVersionData() {
   }
 
   if (!useCache) {
-    let allVersions = [];
+    const allVersions = [];
     const result = await LibVersion.getAllVersions(ENDPOINTS);
     result.forEach((item) => {
       if (Array.isArray(item['value'].data)) {
@@ -149,9 +149,12 @@ export async function getVersions(checkOnly: boolean) {
   }`;
   let newVersionString = '';
   if (
-    (usingBinary && versionObject.github != null && 
+    (usingBinary &&
+      versionObject.github != null &&
       compareVersions(getCliVersion(), versionObject.github) == -1) ||
-    (!usingBinary && versionObject.npm != null && compareVersions(getCliVersion(), versionObject.npm) == -1)
+    (!usingBinary &&
+      versionObject.npm != null &&
+      compareVersions(getCliVersion(), versionObject.npm) == -1)
   ) {
     updateAvailable = true;
     newVersionString += `\n\nNewer version(s) available`;

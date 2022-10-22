@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -23,14 +24,14 @@ export default function setup() {
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setItem('scriptFriendly', options.scriptFriendly);
       if (!options.scriptFriendly) {
-        console.log('Printing versions and tokens...');
+        printMessage('Printing versions and tokens...');
         if (await getTokens()) {
-          console.log(`Cookie name: ${state.default.session.getCookieName()}`);
-          console.log(
+          printMessage(`Cookie name: ${state.default.session.getCookieName()}`);
+          printMessage(
             `Session token: ${state.default.session.getCookieValue()}`
           );
           if (state.default.session.getBearerToken()) {
-            console.log(
+            printMessage(
               `Bearer token: ${state.default.session.getBearerToken()}`
             );
           }
@@ -45,7 +46,7 @@ export default function setup() {
         if (state.default.session.getBearerToken()) {
           output['bearerToken'] = state.default.session.getBearerToken();
         }
-        console.log(JSON.stringify(output, null, 2), 'data');
+        printMessage(JSON.stringify(output, null, 2), 'data');
       } else {
         process.exitCode = 1;
       }

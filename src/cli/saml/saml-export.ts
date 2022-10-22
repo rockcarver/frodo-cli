@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -58,7 +59,7 @@ program
       if (await getTokens()) {
         // export by id/name
         if (options.entityId) {
-          console.log(
+          printMessage(
             `Exporting provider "${
               options.entityId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -67,17 +68,17 @@ program
         }
         // --all -a
         else if (options.all) {
-          console.log('Exporting all providers to a single file...');
+          printMessage('Exporting all providers to a single file...');
           exportSaml2ProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          console.log('Exporting all providers to separate files...');
+          printMessage('Exporting all providers to separate files...');
           exportSaml2ProvidersToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );

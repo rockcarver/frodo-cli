@@ -5,7 +5,8 @@ import {
   state,
 } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
-import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console';
+import * as common from '../cmd_common';
 
 const { provisionCreds, getLogSources } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
@@ -25,7 +26,7 @@ program
     state.default.session.setUsername(user);
     state.default.session.setPassword(password);
     state.default.session.setAllowInsecureConnection(options.insecure);
-    console.log('Listing available ID Cloud log sources...');
+    printMessage('Listing available ID Cloud log sources...');
     const conn = await getConnectionProfile();
     state.default.session.setTenant(conn.tenant);
     if (conn.key != null && conn.secret != null) {
@@ -39,7 +40,7 @@ program
           !state.default.session.getPassword()
         ) {
           credsFromParameters = false;
-          console.log(
+          printMessage(
             'User credentials not specified as parameters and no saved API key and secret found!',
             'warn'
           );
@@ -58,19 +59,19 @@ program
 
     const sources = await getLogSources();
     if (sources.length === 0) {
-      console.log(
+      printMessage(
         "Can't get sources, possible cause - wrong API key or secret",
         'error'
       );
     } else {
       if (credsFromParameters) await saveConnectionProfile(); // save new values if they were specified on CLI
-      console.log('Available log sources:');
+      printMessage('Available log sources:');
       sources.forEach((source) => {
-        console.log(`${source}`, 'info');
+        printMessage(`${source}`, 'info');
       });
-      console.log('You can use any combination of comma separated sources.');
-      console.log('For example:');
-      console.log(`$ frodo logs tail -c am-core,idm-core ${host}`, 'info');
+      printMessage('You can use any combination of comma separated sources.');
+      printMessage('For example:');
+      printMessage(`$ frodo logs tail -c am-core,idm-core ${host}`, 'info');
     }
   });
 

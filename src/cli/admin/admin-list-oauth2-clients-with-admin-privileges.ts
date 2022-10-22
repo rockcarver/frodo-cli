@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { listOAuth2AdminClients } = Admin;
 const { getTokens } = Authenticate;
@@ -29,13 +30,13 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Listing oauth2 clients with admin privileges in realm "${state.default.session.getRealm()}"...`
         );
         const adminClients = await listOAuth2AdminClients();
         adminClients.sort((a, b) => a.localeCompare(b));
         adminClients.forEach((item) => {
-          console.log(`${item}`);
+          printMessage(`${item}`);
         });
       }
     }
