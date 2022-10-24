@@ -16,6 +16,7 @@ const program = new Command('frodo logs list');
 program
   .description('List available ID Cloud log sources.')
   .helpOption('-h, --help', 'Help')
+  .showHelpAfterError()
   .addArgument(common.hostArgumentM)
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)

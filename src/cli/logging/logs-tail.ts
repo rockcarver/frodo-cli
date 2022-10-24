@@ -17,6 +17,7 @@ const program = new Command('frodo logs tail');
 program
   .description('Tail Identity Cloud logs.')
   .helpOption('-h, --help', 'Help')
+  .showHelpAfterError()
   .addArgument(common.hostArgumentM)
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)

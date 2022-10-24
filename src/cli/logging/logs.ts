@@ -20,5 +20,6 @@ export default function setup() {
   program
     .command('fetch', 'Fetch Identity Cloud logs for a given time period.')
     .showHelpAfterError();
+  //   program.showHelpAfterError();
   return program;
 }
