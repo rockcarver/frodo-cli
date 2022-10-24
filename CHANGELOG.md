@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 
--   \#99: Error fetching logs with txId
--   \#108: Use default values for begin and end timestampts for logs fetch
+-   \#99: frodo logs does not show help on error.
+-   \#108: Use default values for begin and end timestamps for logs fetch
 
 ## [0.18.2-0] - 2022-10-22
 
