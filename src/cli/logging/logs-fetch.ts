@@ -25,6 +25,7 @@ program
  WARNING: depending on filters and time period specified, this could take substantial time to complete.'
   )
   .helpOption('-h, --help', 'Help')
+  .showHelpAfterError()
   .addArgument(common.hostArgumentM)
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)
@@ -47,11 +48,12 @@ Following values are possible (values on the same line are equivalent): \
     new Option(
       '-b, --begin-timestamp <beginTs>',
       'Begin timestamp for period (in ISO8601, example: "2022-10-13T19:06:28Z", or "2022-09.30". \
-Cannot be more than 30 days in the past.'
+Cannot be more than 30 days in the past. If not specified, logs from one hour ago are fetched \
+(-e is ignored)'
     )
   )
   .addOption(
-    new Option('-e, --end-timestamp <endTs>', 'End timestamp for period')
+    new Option('-e, --end-timestamp <endTs>', 'End timestamp for period. Default: "now"')
   )
   .addOption(
     new Option(
@@ -102,12 +104,37 @@ Cannot be more than 30 days in the past.'
         state.default.session.setLogApiSecret(creds.api_key_secret);
       }
     }
+    const now = Date.now() / 1000;
+    if (
+      typeof options.beginTimestamp === 'undefined' ||
+      !options.beginTimestamp
+    ) {
+      // no beginTimestamp value specified, default is 1 hour ago
+      const tempStartDate = new Date();
+      tempStartDate.setTime((now - SECONDS_IN_1_HOUR) * 1000);
+      options.beginTimestamp = tempStartDate.toISOString();
+      // also override endTimestamp to now
+      const tempEndDate = new Date();
+      tempEndDate.setTime(now * 1000);
+      options.endTimestamp = tempEndDate;
+      printMessage(
+        'No timestamps specified, defaulting to logs from 1 hour ago',
+        'info'
+      );
+    }
+    if (typeof options.endTimestamp === 'undefined' || !options.endTimestamp) {
+      // no endTimestamp value specified, default is now
+      options.endTimestamp = now * 1000;
+      printMessage(
+        'No end timestamp specified, defaulting end timestamp to "now"',
+        'info'
+      );
+    }
     let beginTs = Date.parse(options.beginTimestamp) / 1000;
     if (Date.parse(options.endTimestamp) / 1000 < beginTs) {
       printMessage('End timestamp can not be before begin timestamp', 'error');
       return;
     }
-    const now = Date.now() / 1000;
     if (now - beginTs > LOG_TIME_WINDOW_MAX) {
       printMessage(
         'Begin timestamp can not be more than 30 days in the past',

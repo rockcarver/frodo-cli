@@ -151,7 +151,7 @@ test("CLI help interface 'list option -b, --begin-timestamp' description should 
   // Arrange
   const expected = collapseWhitespace(`
   -b, --begin-timestamp <beginTs>  Begin timestamp for period (in ISO8601, example: "2022-10-13T19:06:28Z", or "2022-09.30". Cannot be more than
-  30 days in the past.
+  30 days in the past. If not specified, logs from one hour ago are fetched (-e is ignored)
         `);
   // Act
   const testLine = collapseWhitespace(
@@ -169,7 +169,7 @@ test("CLI help interface 'list option -b, --begin-timestamp' description should 
 test("CLI help interface 'list option -e, --end-timestamp' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-    -e, --end-timestamp <endTs> End timestamp for period
+    -e, --end-timestamp <endTs> End timestamp for period. Default: "now"
           `);
   // Act
   const testLine = collapseWhitespace(

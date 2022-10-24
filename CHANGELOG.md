@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Fixed
+
+-   \#99: Error fetching logs with txId
+-   \#108: Use default values for begin and end timestampts for logs fetch
+
 ## [0.18.2-0] - 2022-10-22
 
 ## [0.18.1] - 2022-10-20
