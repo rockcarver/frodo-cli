@@ -17,6 +17,7 @@ import logging from './cli/logging/logs';
 import realm from './cli/realm/realm';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
+import service from './cli/service/service';
 import theme from './cli/theme/theme';
 import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
@@ -47,6 +48,7 @@ const { initConnectionProfiles } = ConnectionProfile;
     program.addCommand(realm());
     program.addCommand(saml());
     program.addCommand(script());
+    program.addCommand(service());
     program.addCommand(theme());
 
     program.showHelpAfterError();
