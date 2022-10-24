@@ -53,7 +53,10 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
     )
   )
   .addOption(
-    new Option('-e, --end-timestamp <endTs>', 'End timestamp for period. Default: "now"')
+    new Option(
+      '-e, --end-timestamp <endTs>',
+      'End timestamp for period. Default: "now"'
+    )
   )
   .addOption(
     new Option(
