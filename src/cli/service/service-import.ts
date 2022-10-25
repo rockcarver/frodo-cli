@@ -1,5 +1,5 @@
-import { Command, Option } from 'commander';
 import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
@@ -7,7 +7,7 @@ const { importService, importServices, importServicesSeparate } = Service;
 
 const program = new Command('frodo service import');
 
-interface ServiceExportOptions {
+interface ServiceImportOptions {
   file?: string;
   all?: boolean;
   name?: string;
@@ -19,7 +19,7 @@ interface ServiceExportOptions {
 }
 
 program
-  .description('Export services.')
+  .description('Import services.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -30,19 +30,18 @@ program
   .addOption(common.insecureOption)
   .addOption(
     new Option(
-      '-n, --name <name>',
-      'Name of the service. If specified, -a and -A are ignored.'
+      '-f, --file <file>',
+      'Name of the file to import SAML Entity(s) from. Ignored with -A.'
     )
   )
-  .addOption(new Option('-f, --file <file>', 'Name of the import file.'))
-  .addOption(new Option('-a, --all', 'Export all services to a single file.'))
+  .addOption(new Option('-a, --all', 'Import all services from a single file.'))
   .addOption(
     new Option('-C, --clean', 'Remove previous services before importing.')
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all services to separate files (*.service.json) in the current directory. Ignored with -i or -a.'
+      'Import all SAML Entities in a realm as separate files <id>.json. If supplied, file option will be ignored.'
     )
   )
   .addOption(
@@ -57,7 +56,7 @@ program
       realm: string,
       user: string,
       password: string,
-      options: ServiceExportOptions
+      options: ServiceImportOptions
     ) => {
       state.default.session.setTenant(host);
       state.default.session.setRealm(realm);
@@ -71,17 +70,17 @@ program
       if (await getTokens()) {
         // import by name
         if (options.name) {
-          console.log('Exporting service...');
+          console.log('Importing service...');
           await importService(options.name, clean, options.file);
         }
         // -a / --all
         else if (options.all && options.file) {
-          console.log('Exporting all services to a single file...');
+          console.log('Importing all services from a single file...');
           await importServices(clean, options.file);
         }
         // -A / --all-separate
         else if (options.allSeparate && options.directory) {
-          console.log('Exporting all services to separate files...');
+          console.log('Importing all services from separate files...');
           await importServicesSeparate(clean, options.directory);
         }
         // unrecognized combination of options or no options

@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Command } from 'commander';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
@@ -17,19 +17,17 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
-  .action(
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        console.log('Listing all Service objects...');
-        await listServices();
-      }
+  .action(async (host, realm, user, password, options) => {
+    state.default.session.setTenant(host);
+    state.default.session.setRealm(realm);
+    state.default.session.setUsername(user);
+    state.default.session.setPassword(password);
+    state.default.session.setDeploymentType(options.type);
+    state.default.session.setAllowInsecureConnection(options.insecure);
+    if (await getTokens()) {
+      console.log(`Listing all service objects for realm: ${realm}`);
+      await listServices();
     }
-  );
+  });
 
 program.parse();

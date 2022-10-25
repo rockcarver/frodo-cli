@@ -17,6 +17,14 @@ export default function setup() {
     .showHelpAfterError();
 
   program
+    .command('import', 'Import Service configuration objects.')
+    .showHelpAfterError();
+
+  program
+    .command('delete', 'Delete Service configuration objects.')
+    .showHelpAfterError();
+
+  program
     .command('count', 'Count number of objects of a given type.')
     .showHelpAfterError();
 
