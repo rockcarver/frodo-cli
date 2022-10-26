@@ -1,5 +1,5 @@
-import { Command, Option } from 'commander';
 import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Command, Option } from 'commander';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
@@ -33,16 +33,11 @@ program
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
-  .addOption(
-    new Option(
-      '-a, --all',
-      'Export all services to a single file. Ignored with -i.'
-    )
-  )
+  .addOption(new Option('-a, --all', 'Export all services to a single file.'))
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all services to separate files (*.service.json) in the current directory. Ignored with -i or -a.'
+      'Export all services to separate files (*.service.json) in the current directory. Ignored with -a.'
     )
   )
   .action(
