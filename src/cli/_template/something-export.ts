@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd export');
+const program = new Command('frodo something export');
 
 program
-  .description('Cmd export.')
+  .description('Export something.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,23 +16,25 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
-      '-i, --cmd-id <cmd-id>',
-      'Cmd id. If specified, -a and -A are ignored.'
+      '-i, --something-id <something-id>',
+      '[Something] id. If specified, -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
     new Option(
       '-a, --all',
-      'Export all cmds to a single file. Ignored with -i.'
+      'Export all [somethings] to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all cmds to separate files (*.cmd.json) in the current directory. Ignored with -i or -a.'
+      'Export all [somethings] to separate files (*.[something].json) in the current directory. Ignored with -i or -a.'
     )
   )
   .action(
@@ -44,6 +46,8 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (await getTokens()) {
         // code goes here
       }

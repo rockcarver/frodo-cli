@@ -1,20 +1,20 @@
 import { Command } from 'commander';
 
-const program = new Command('frodo cmd sub2');
+const program = new Command('frodo something other');
 
 program
-  .description('Sub2 command.')
+  .description('Manage other.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError();
 
-program.command('list', 'Sub2 list.').showHelpAfterError();
+program.command('list', 'List other.').showHelpAfterError();
 
-program.command('describe', 'Sub2 describe.').showHelpAfterError();
+program.command('describe', 'Describe other.').showHelpAfterError();
 
-program.command('export', 'Sub2 export.').showHelpAfterError();
+program.command('export', 'Export other.').showHelpAfterError();
 
-program.command('import', 'Sub2 import.').showHelpAfterError();
+program.command('import', 'Import other.').showHelpAfterError();
 
-program.command('delete', 'Sub2 delete.').showHelpAfterError();
+program.command('delete', 'Delete other.').showHelpAfterError();
 
 program.parse();

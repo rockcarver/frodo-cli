@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub1 delete');
+const program = new Command('frodo something else delete');
 
 program
-  .description('Sub1 delete.')
+  .description('Delete something else.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,26 +16,20 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
-      '-i, --sub1-id <sub1-id>',
-      'Sub1 id. If specified, -a and -A are ignored.'
+      '-i, --else-id <else-id>',
+      '[Else] id. If specified, -a and -A are ignored.'
     )
   )
-  .addOption(
-    new Option('-a, --all', 'Delete all sub1s in a realm. Ignored with -i.')
-  )
+  .addOption(new Option('-a, --all', 'Delete all [elses]. Ignored with -i.'))
   .addOption(
     new Option(
       '--no-deep',
       'No deep delete. This leaves orphaned configuration artifacts behind.'
     )
-  )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
   )
   .action(
     // implement command logic inside action handler
@@ -46,6 +40,8 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (await getTokens()) {
         // code goes here
       }

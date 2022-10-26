@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub1 export');
+const program = new Command('frodo something else export');
 
 program
-  .description('Sub1 export.')
+  .description('Export something else.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,23 +16,25 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .addOption(
     new Option(
-      '-i, --sub1-id <sub1-id>',
-      'Sub1 id. If specified, -a and -A are ignored.'
+      '-i, --else-id <else-id>',
+      '[Else] id. If specified, -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
     new Option(
       '-a, --all',
-      'Export all sub1s to a single file. Ignored with -i.'
+      'Export all [else] to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all sub1s to separate files (*.sub1.json) in the current directory. Ignored with -i or -a.'
+      'Export all [else] to separate files (*.[else].json) in the current directory. Ignored with -i or -a.'
     )
   )
   .action(
@@ -44,6 +46,8 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       if (await getTokens()) {
         // code goes here
       }
