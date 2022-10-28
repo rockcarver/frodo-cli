@@ -18,6 +18,10 @@ export default function setup() {
 
   program.command('export', 'Export entity providers.').showHelpAfterError();
 
+  program
+    .command('exportRaw', 'Export entity providers with raw config.')
+    .showHelpAfterError();
+
   program.command('import', 'Import entity providers.').showHelpAfterError();
 
   program.command('cot', 'Manage circles of trust.').showHelpAfterError();
