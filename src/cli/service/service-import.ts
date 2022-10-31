@@ -30,6 +30,12 @@ program
   .addOption(common.insecureOption)
   .addOption(
     new Option(
+      '-n, --name <name>',
+      'Name of the service. If specified, -a and -A are ignored.'
+    )
+  )
+  .addOption(
+    new Option(
       '-f, --file <file>',
       'Name of the file to import SAML Entity(s) from. Ignored with -A.'
     )
