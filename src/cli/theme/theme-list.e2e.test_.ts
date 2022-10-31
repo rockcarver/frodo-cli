@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // import { jest } from '@jest/globals';
 import { spawn, spawnSync } from 'child_process';
 
@@ -16,7 +17,7 @@ beforeAll(async () => {
     '--all',
     'frodo-dev',
   ]);
-  if (deleteThemesCmd.status > 0) {
+  if (deleteThemesCmd.status && deleteThemesCmd.status > 0) {
     console.error(deleteThemesCmd.stderr.toString());
     console.log(deleteThemesCmd.stdout.toString());
   }
@@ -29,7 +30,7 @@ beforeAll(async () => {
       cwd: `test/e2e/theme/baseline`,
     }
   );
-  if (importBaselineThemesCmd.status > 0) {
+  if (importBaselineThemesCmd.status && importBaselineThemesCmd.status > 0) {
     console.error(importBaselineThemesCmd.stderr.toString());
     console.log(importBaselineThemesCmd.stdout.toString());
   }
@@ -47,7 +48,7 @@ describe('frodo theme list', () => {
       '',
     ].join('\n');
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     themeList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -78,7 +79,7 @@ describe('frodo theme list', () => {
   it('"frodo theme list -l": should list the names, ids, and default flag of the baseline themes', (done) => {
     const themeList = spawn('frodo', ['theme', 'list', '-l', 'frodo-dev']);
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     themeList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });
@@ -99,7 +100,7 @@ describe('frodo theme list', () => {
   it('"frodo theme list --long": should list the names, status, and default flag of the baseline themes', (done) => {
     const themeList = spawn('frodo', ['theme', 'list', '--long', 'frodo-dev']);
 
-    const chunks = [];
+    const chunks: Uint8Array[] = [];
     themeList.stdout.on('data', (chunk) => {
       chunks.push(chunk);
     });

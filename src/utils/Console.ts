@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { SingleBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';

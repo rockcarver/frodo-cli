@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { deleteVersionOfSecretCmd } = Secrets;
@@ -45,17 +46,17 @@ program
       if (await getTokens()) {
         // delete by id
         if (options.secretId && options.version) {
-          console.log(`Deleting version of secret...`);
+          printMessage(`Deleting version of secret...`);
           deleteVersionOfSecretCmd(options.secretId, options.version);
         }
         // --all -a
         // else if (options.all) {
-        //   console.log('Deleting all versions...');
+        //   printMessage('Deleting all versions...');
         //   deleteJourneys(options);
         // }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

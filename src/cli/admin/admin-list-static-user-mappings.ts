@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { listNonOAuth2AdminStaticUserMappings } = Admin;
@@ -35,7 +36,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           'Listing all non-oauth2 client subjects of static user mappings...'
         );
         const subjects = await listNonOAuth2AdminStaticUserMappings(
@@ -43,7 +44,7 @@ program
         );
         subjects.sort((a, b) => a.localeCompare(b));
         subjects.forEach((item) => {
-          console.log(`${item}`);
+          printMessage(`${item}`);
         });
       }
     }

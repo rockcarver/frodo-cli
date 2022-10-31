@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Script, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { exportScriptByName } = Script;
@@ -63,7 +64,7 @@ program
       if (await getTokens()) {
         // export by name
         if (options.scriptName || options.script) {
-          console.log('Exporting script...');
+          printMessage('Exporting script...');
           exportScriptByName(
             options.scriptName || options.script,
             options.file
@@ -71,17 +72,17 @@ program
         }
         // -a / --all
         else if (options.all) {
-          console.log('Exporting all scripts to a single file...');
+          printMessage('Exporting all scripts to a single file...');
           exportScriptsToFile(options.file);
         }
         // -A / --all-separate
         else if (options.allSeparate) {
-          console.log('Exporting all scripts to separate files...');
+          printMessage('Exporting all scripts to separate files...');
           exportScriptsToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );

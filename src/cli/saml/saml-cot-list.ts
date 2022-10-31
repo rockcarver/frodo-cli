@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { listCirclesOfTrust } = CirclesOfTrust;
@@ -30,7 +31,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Listing SAML circles of trust in realm "${state.default.session.getRealm()}"...`
         );
         listCirclesOfTrust(options.long);

@@ -100,7 +100,7 @@ test("CLI help interface 'export argument user' description should be expected e
 test("CLI help interface 'export argument password' description should be expected english", async () => {
   // Arrange
   const expectedDescription = `
-  password                    Password.
+  password                     Password.
     `.trim();
   // Act
   const testLine = stdout
@@ -151,8 +151,8 @@ test("CLI help interface 'export option -k, --insecure' description should be ex
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure     ',
-      '  -i, --journey-id <journey>  '
+      '  -k, --insecure               ',
+      '  --verbose                    '
     )
   );
 

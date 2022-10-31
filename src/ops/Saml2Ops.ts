@@ -46,6 +46,8 @@ export function getTableRowMd(saml2ProviderObj: Saml2ProviderSkeleton): string {
       roles.push(value);
     }
   }
-  const row = `| ${saml2ProviderObj.entityId} | ${saml2ProviderObj.entityLocation} | ${roles.length ? roles.join(', ') : ''} |`;
+  const row = `| ${saml2ProviderObj.entityId} | ${
+    saml2ProviderObj.entityLocation
+  } | ${roles.length ? roles.join(', ') : ''} |`;
   return row;
 }

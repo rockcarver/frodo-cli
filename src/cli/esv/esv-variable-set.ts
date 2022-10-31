@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Variables, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { setDescriptionOfVariable, updateVariable } = Variables;
@@ -37,19 +38,19 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
         if (options.variableId && options.value && options.description) {
-          console.log('Updating variable...');
+          printMessage('Updating variable...');
           updateVariable(
             options.variableId,
             options.value,
             options.description
           );
         } else if (options.variableId && options.description) {
-          console.log('Updating variable...');
+          printMessage('Updating variable...');
           setDescriptionOfVariable(options.variableId, options.description);
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Provide --variable-id and either one or both of --value and --description.'
           );
           program.help();

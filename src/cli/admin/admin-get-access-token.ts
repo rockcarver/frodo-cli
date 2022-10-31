@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, OAuth2OIDCApi, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { clientCredentialsGrant } = OAuth2OIDCApi;
 const { getTokens } = Authenticate;
@@ -40,7 +41,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Getting an access token using client "${options.clientId}"...`
         );
         const response = (
@@ -50,7 +51,7 @@ program
             options.scope
           )
         ).data;
-        console.log(`Token: ${response.access_token}`);
+        printMessage(`Token: ${response.access_token}`);
       }
     }
     // end command logic inside action handler

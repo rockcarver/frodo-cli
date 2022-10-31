@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { listSecretVersionsCmd } = Secrets;
@@ -31,7 +32,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log('Listing versions...');
+        printMessage('Listing versions...');
         listSecretVersionsCmd(options.secretId);
       }
     }

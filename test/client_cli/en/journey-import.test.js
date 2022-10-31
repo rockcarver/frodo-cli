@@ -151,8 +151,8 @@ test("CLI help interface 'import option -k, --insecure' description should be ex
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure     ',
-      '  -i, --journey-id <journey>  '
+      '  -k, --insecure              ',
+      '  --verbose                   '
     )
   );
 
