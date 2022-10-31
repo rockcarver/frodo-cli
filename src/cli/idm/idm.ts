@@ -19,10 +19,6 @@ export default function setup() {
     .command('export', 'Export IDM configuration objects.')
     .showHelpAfterError();
 
-    program
-    .command('import', 'Import IDM configuration objects.')
-    .showHelpAfterError();
-
   program
     .command('count', 'Count number of managed objects of a given type.')
     .showHelpAfterError();
