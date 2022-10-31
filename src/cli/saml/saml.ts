@@ -24,6 +24,10 @@ export default function setup() {
 
   program.command('import', 'Import entity providers.').showHelpAfterError();
 
+  program
+    .command('importRaw', 'Import entity providers with raw config.')
+    .showHelpAfterError();
+
   program.command('cot', 'Manage circles of trust.').showHelpAfterError();
 
   program.command('metadata', 'Metadata operations.').showHelpAfterError();
