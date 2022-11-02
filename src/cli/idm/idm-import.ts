@@ -54,12 +54,6 @@ program
   )
   .addOption(
     new Option(
-      '-a, --all',
-      'Import all IDM configuration objects into a single file in directory -D. Ignored with -N.'
-    )
-  )
-  .addOption(
-    new Option(
       '-A, --all-separate',
       'Import all IDM configuration objects into separate JSON files in directory -D. Ignored with -N, and -a.'
     )
@@ -93,7 +87,7 @@ program
               options.name
             }" to realm "${state.default.session.getRealm()}"...`
           );
-          importConfigEntity(options.name, options.file);
+          await importConfigEntity(options.name, options.file);
         }
         // --all-separate -A
         else if (
@@ -105,7 +99,7 @@ program
           console.log(
             `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
           );
-          importAllConfigEntities(
+          await importAllConfigEntities(
             options.directory,
             options.entitiesFile,
             options.envFile
@@ -116,7 +110,7 @@ program
           console.log(
             `Importing all IDM configuration objects into separate files in ${options.directory}...`
           );
-          importAllRawConfigEntities(options.directory);
+          await importAllRawConfigEntities(options.directory);
         }
         // unrecognized combination of options or no options
         else {
