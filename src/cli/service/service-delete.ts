@@ -1,6 +1,5 @@
 import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
-import yesno from 'yesno';
 import * as common from '../cmd_common.js';
 
 const { deleteServiceOp } = Service;
@@ -31,12 +30,6 @@ program
       'Id of Service to be deleted.'
     ).makeOptionMandatory()
   )
-  .addOption(
-    new Option(
-      '-s, --silent',
-      'Deletion in silent mode, user will not be prompted before any destructive operations are performed'
-    )
-  )
   .action(
     async (
       host: string,
@@ -52,19 +45,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        if (options.silent) {
-          return deleteServiceOp(options.id);
-        } else {
-          const ok = await yesno({
-            question:
-              'Do you want to permanently delete Service and all its Secondary Configurations?(y|n):',
-          });
-          if (ok) {
-            return deleteServiceOp(options.id);
-          } else {
-            console.log('Deletion cancelled');
-          }
-        }
+        return deleteServiceOp(options.id);
       } else {
         program.help();
       }
