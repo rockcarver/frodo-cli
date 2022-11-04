@@ -1,6 +1,5 @@
 import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
-import yesno from 'yesno';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
@@ -21,12 +20,6 @@ program
   .addOption(
     new Option('-i, --id <id>', 'Id of SAML Entity.').makeOptionMandatory()
   )
-  .addOption(
-    new Option(
-      '-s, --silent',
-      'Deletion in silent mode, user will not be prompted before any destructive operations are performed'
-    )
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -39,22 +32,10 @@ program
       if (await getTokens()) {
         if (options.id) {
           console.log(`Deleting SAML entity ...${options.id}`);
-          if (options.silent) {
-            deleteSamlEntityByEntityId(options.id).then((result) => {
-              if (result !== null)
-                console.log(`Deleted SAML entity ${options.id}`);
-            });
-          } else {
-            const ok = await yesno({
-              question: 'Do you want to permanently delete SAML Entity?(y|n):',
-            });
-            if (ok) {
-              deleteSamlEntityByEntityId(options.id).then((result) => {
-                if (result !== null)
-                  console.log(`Deleted SAML entity ${options.id}`);
-              });
-            }
-          }
+          deleteSamlEntityByEntityId(options.id).then((result) => {
+            if (result !== null)
+              console.log(`Deleted SAML entity ${options.id}`);
+          });
         }
       }
     }
