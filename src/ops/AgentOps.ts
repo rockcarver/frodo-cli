@@ -8,7 +8,7 @@ import {
   failSpinner,
 } from '../utils/Console';
 import { ExportImportUtils, Agent, Utils, state } from '@rockcarver/frodo-lib';
-import { AgentExportInterface } from '../../../frodo-lib/types/ops/OpsTypes';
+import { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 const {
   AGENT_TYPE_IG,
