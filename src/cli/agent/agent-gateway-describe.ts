@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub1 describe');
+const program = new Command('frodo agent gateway describe');
 
 program
-  .description('Sub1 describe.')
+  .description('Describe gateway agents.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,7 +16,10 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
-  .addOption(new Option('-i, --sub1-id <sub1-id>', 'Sub1 id.'))
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
+  .addOption(new Option('-i, --agent-id <agent-id>', 'Agent id.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -26,6 +29,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }

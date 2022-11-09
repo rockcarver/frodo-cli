@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub2 export');
+const program = new Command('frodo something other describe');
 
 program
-  .description('Sub2 export.')
+  .description('Describe other.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,25 +16,10 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
-  .addOption(
-    new Option(
-      '-i, --sub2-id <sub2-id>',
-      'Sub2 id. If specified, -a and -A are ignored.'
-    )
-  )
-  .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
-  .addOption(
-    new Option(
-      '-a, --all',
-      'Export all sub2s to a single file. Ignored with -i.'
-    )
-  )
-  .addOption(
-    new Option(
-      '-A, --all-separate',
-      'Export all sub2s to separate files (*.sub2.json) in the current directory. Ignored with -i or -a.'
-    )
-  )
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
+  .addOption(new Option('-i, --other-id <other-id>', '[Other] id.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -44,6 +29,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }

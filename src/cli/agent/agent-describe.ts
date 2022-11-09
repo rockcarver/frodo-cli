@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub2 delete');
+const program = new Command('frodo cmd describe');
 
 program
-  .description('Sub2 delete.')
+  .description('Cmd describe.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,27 +16,10 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
-  .addOption(
-    new Option(
-      '-i, --sub2-id <sub2-id>',
-      'Sub2 id. If specified, -a and -A are ignored.'
-    )
-  )
-  .addOption(
-    new Option('-a, --all', 'Delete all sub2s in a realm. Ignored with -i.')
-  )
-  .addOption(
-    new Option(
-      '--no-deep',
-      'No deep delete. This leaves orphaned configuration artifacts behind.'
-    )
-  )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
-  )
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
+  .addOption(new Option('-i, --cmd-id <cmd-id>', 'Cmd id.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -46,6 +29,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }
