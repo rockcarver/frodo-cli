@@ -18,6 +18,7 @@ program
   .addOption(common.insecureOption)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --something-id <something-id>',
@@ -44,6 +45,7 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }
