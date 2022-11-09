@@ -8,11 +8,13 @@ import {
   stopProgressIndicator,
   verboseMessage,
   debugMessage,
+  curlirizeMessage,
 } from '../utils/Console.js';
 
 state.default.session.setPrintHandler(printMessage);
 state.default.session.setVerboseHandler(verboseMessage);
 state.default.session.setDebugHandler(debugMessage);
+state.default.session.setCurlirizeHandler(curlirizeMessage);
 state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
@@ -113,6 +115,11 @@ export const verboseOption = new Option(
 export const debugOption = new Option(
   '--debug',
   'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
+);
+
+export const curlirizeOption = new Option(
+  '--curlirize',
+  'Output all network calls in curl format.'
 );
 
 export const managedNameOption = new Option(

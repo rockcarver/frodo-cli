@@ -102,6 +102,14 @@ function debug(message: string | object, newline = true) {
 }
 
 /**
+ * Output a curlirize message
+ * @param {string} message the message
+ */
+function curlirize(message: string) {
+  console.error(message['brightBlue']);
+}
+
+/**
  * Output a message in default color to stderr
  * @param {Object} message the message
  */
@@ -118,6 +126,16 @@ export function verboseMessage(message) {
 export function debugMessage(message) {
   if (state.default.session.getDebug()) {
     debug(message);
+  }
+}
+
+/**
+ * Output a curlirize message
+ * @param {Object} message the message
+ */
+export function curlirizeMessage(message) {
+  if (state.default.session.getCurlirize()) {
+    curlirize(message);
   }
 }
 
