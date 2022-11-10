@@ -19,7 +19,7 @@ export default function setup() {
     .command('export', 'Export IDM configuration objects.')
     .showHelpAfterError();
 
-    program
+  program
     .command('import', 'Import IDM configuration objects.')
     .showHelpAfterError();
 

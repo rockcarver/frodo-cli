@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -82,7 +83,7 @@ program
       if (await getTokens()) {
         // import by id/name
         if (options.name) {
-          console.log(
+          printMessage(
             `Importing object "${
               options.name
             }" to realm "${state.default.session.getRealm()}"...`
@@ -96,7 +97,7 @@ program
           options.entitiesFile &&
           options.envFile
         ) {
-          console.log(
+          printMessage(
             `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
           );
           await importAllConfigEntities(
@@ -107,14 +108,14 @@ program
         }
         // --all-separate -A without variable replacement
         else if (options.allSeparate && options.directory) {
-          console.log(
+          printMessage(
             `Importing all IDM configuration objects into separate files in ${options.directory}...`
           );
           await importAllRawConfigEntities(options.directory);
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );
