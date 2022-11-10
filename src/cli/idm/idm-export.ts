@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
