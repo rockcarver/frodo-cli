@@ -14,6 +14,7 @@ const { appendTextToFile } = ExportImportUtils;
  * @param {string | object} message the message
  */
 function data(message: string | object, newline = true) {
+  if (!message) return;
   if (state.default.session.getOutputFile()) {
     if (typeof message === 'object') {
       message = JSON.stringify(message, null, 2);
@@ -36,6 +37,7 @@ function data(message: string | object, newline = true) {
  * @param {Object} message the message
  */
 function text(message: string | object, newline = true) {
+  if (!message) return;
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
@@ -50,6 +52,7 @@ function text(message: string | object, newline = true) {
  * @param {Object} message the message
  */
 function info(message: string | object, newline = true) {
+  if (!message) return;
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
@@ -64,6 +67,7 @@ function info(message: string | object, newline = true) {
  * @param {Object} message the message
  */
 function warn(message: string | object, newline = true) {
+  if (!message) return;
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
@@ -78,6 +82,7 @@ function warn(message: string | object, newline = true) {
  * @param {Object} message the message
  */
 function error(message: string | object, newline = true) {
+  if (!message) return;
   if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
@@ -92,6 +97,7 @@ function error(message: string | object, newline = true) {
  * @param {string | object} message the message
  */
 function debug(message: string | object, newline = true) {
+  if (!message) return;
   if (typeof message === 'object') {
     console.dir(message, { depth: 6 });
   } else if (newline) {
@@ -106,6 +112,7 @@ function debug(message: string | object, newline = true) {
  * @param {string} message the message
  */
 function curlirize(message: string) {
+  if (!message) return;
   console.error(message['brightBlue']);
 }
 
@@ -114,6 +121,7 @@ function curlirize(message: string) {
  * @param {Object} message the message
  */
 export function verboseMessage(message) {
+  if (!message) return;
   if (state.default.session.getVerbose()) {
     text(message);
   }
@@ -124,6 +132,7 @@ export function verboseMessage(message) {
  * @param {Object} message the message
  */
 export function debugMessage(message) {
+  if (!message) return;
   if (state.default.session.getDebug()) {
     debug(message);
   }
@@ -134,6 +143,7 @@ export function debugMessage(message) {
  * @param {Object} message the message
  */
 export function curlirizeMessage(message) {
+  if (!message) return;
   if (state.default.session.getCurlirize()) {
     curlirize(message);
   }
