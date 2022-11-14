@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { addAutoIdStaticUserMapping } = Admin;
@@ -29,9 +30,9 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(`Adding AutoId static user mapping...`);
+        printMessage(`Adding AutoId static user mapping...`);
         await addAutoIdStaticUserMapping();
-        console.log('Done.');
+        printMessage('Done.');
       }
     }
     // end command logic inside action handler

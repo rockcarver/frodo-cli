@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -58,7 +59,7 @@ program
       if (await getTokens()) {
         // import by id
         if (options.file && options.cotId) {
-          console.log(
+          printMessage(
             `Importing circle of trust "${
               options.cotId
             }" into realm "${state.default.session.getRealm()}"...`
@@ -67,21 +68,21 @@ program
         }
         // --all -a
         else if (options.all && options.file) {
-          console.log(
+          printMessage(
             `Importing all circles of trust from a single file (${options.file})...`
           );
           importCirclesOfTrustFromFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
-          console.log(
+          printMessage(
             'Importing all circles of trust from separate files (*.saml.json) in current directory...'
           );
           importCirclesOfTrustFromFiles();
         }
         // import first provider from file
         else if (options.file) {
-          console.log(
+          printMessage(
             `Importing first circle of trust from file "${
               options.file
             }" into realm "${state.default.session.getRealm()}"...`
@@ -90,7 +91,7 @@ program
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

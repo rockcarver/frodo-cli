@@ -1,7 +1,8 @@
 import { Command } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { findOrphanedNodes, removeOrphanedNodes } = Journey;
@@ -30,7 +31,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Pruning orphaned configuration artifacts in realm "${state.default.session.getRealm()}"...`
         );
         const orphanedNodes = await findOrphanedNodes();
@@ -42,7 +43,7 @@ program
             await removeOrphanedNodes(orphanedNodes);
           }
         } else {
-          console.log('No orphaned nodes found.');
+          printMessage('No orphaned nodes found.');
         }
       }
     }

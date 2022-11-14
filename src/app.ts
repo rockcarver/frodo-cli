@@ -5,6 +5,7 @@ import { Command } from 'commander';
 
 // commands
 import admin from './cli/admin/admin';
+import agent from './cli/agent/agent';
 import app from './cli/app/app';
 import conn from './cli/conn/conn';
 import email from './cli/email/email';
@@ -36,6 +37,7 @@ const { initConnectionProfiles } = ConnectionProfile;
     initConnectionProfiles();
 
     program.addCommand(admin());
+    program.addCommand(agent());
     program.addCommand(app());
     program.addCommand(conn());
     program.addCommand(email());
@@ -55,7 +57,6 @@ const { initConnectionProfiles } = ConnectionProfile;
     program.enablePositionalOptions();
     program.parse();
   } catch (e) {
-    console.log(e);
     printMessage(`ERROR: exception running frodo - ${e}`, 'error');
   }
 })();

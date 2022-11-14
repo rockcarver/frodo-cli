@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2-4] - 2022-11-10
+
+## [0.18.2-3] - 2022-11-09
+
+## [0.18.2-2] - 2022-11-09
+
+## [0.18.2-1] - 2022-10-24
+
+## Fixed
+
+-   \#99: frodo logs does not show help on error.
+-   \#108: Use default values for begin and end timestamps for logs fetch
+
+## [0.18.2-0] - 2022-10-22
+
+## [0.18.1] - 2022-10-20
+
+### Changed
+
+-   Updated frodo-lib to 0.16.1
+
+## [0.18.0] - 2022-10-19
+
+### Added
+
+-   \#85: Ability to fetch historical logs from ID Cloud
+
 ## [0.17.1] - 2022-10-17
 
 ### Changed
@@ -692,7 +719,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.17.1...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-4...HEAD
+
+[0.18.2-4]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-3...v0.18.2-4
+
+[0.18.2-3]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-2...v0.18.2-3
+
+[0.18.2-2]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-1...v0.18.2-2
+
+[0.18.2-1]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-0...v0.18.2-1
+
+[0.18.2-0]: https://github.com/rockcarver/frodo-cli/compare/v0.18.1...v0.18.2-0
+
+[0.18.1]: https://github.com/rockcarver/frodo-cli/compare/v0.18.0...v0.18.1
+
+[0.18.0]: https://github.com/rockcarver/frodo-cli/compare/v0.17.1...v0.18.0
 
 [0.17.1]: https://github.com/rockcarver/frodo-cli/compare/v0.17.0...v0.17.1
 

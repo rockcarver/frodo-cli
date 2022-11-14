@@ -4,10 +4,10 @@ import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub1 import');
+const program = new Command('frodo something export');
 
 program
-  .description('Sub1 import.')
+  .description('Export something.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,23 +16,26 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
-      '-i, --sub1-id <sub1-id>',
-      'Sub1 id. If specified, only one sub1 is imported and the options -a and -A are ignored.'
+      '-i, --something-id <something-id>',
+      '[Something] id. If specified, -a and -A are ignored.'
     )
   )
-  .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+  .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
     new Option(
       '-a, --all',
-      'Import all sub1s from single file. Ignored with -i.'
+      'Export all [somethings] to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Import all sub1s from separate files (*.sub1.json) in the current directory. Ignored with -i or -a.'
+      'Export all [somethings] to separate files (*.[something].json) in the current directory. Ignored with -i or -a.'
     )
   )
   .action(
@@ -44,6 +47,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }

@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -57,7 +58,7 @@ program
       if (await getTokens()) {
         // export by id/name
         if (options.cotId) {
-          console.log(
+          printMessage(
             `Exporting circle of trust "${
               options.cotId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -66,17 +67,17 @@ program
         }
         // --all -a
         else if (options.all) {
-          console.log('Exporting all circles of trust to a single file...');
+          printMessage('Exporting all circles of trust to a single file...');
           exportCirclesOfTrustToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          console.log('Exporting all circles of trust to separate files...');
+          printMessage('Exporting all circles of trust to separate files...');
           exportCirclesOfTrustToFiles();
         }
         // unrecognized combination of options or no options
         else {
-          console.log(
+          printMessage(
             'Unrecognized combination of options or no options...',
             'error'
           );

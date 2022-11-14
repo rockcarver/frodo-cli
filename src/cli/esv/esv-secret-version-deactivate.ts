@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { deactivateVersionOfSecret } = Secrets;
@@ -37,12 +38,12 @@ program
       if (await getTokens()) {
         // activate by id
         if (options.secretId && options.version) {
-          console.log(`Deactivating version of secret...`);
+          printMessage(`Deactivating version of secret...`);
           deactivateVersionOfSecret(options.secretId, options.version);
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

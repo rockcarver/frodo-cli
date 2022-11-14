@@ -151,7 +151,7 @@ program
           state.default.session.setAmVersion(options.overrideVersion);
         }
         if (typeof options.journeyId === 'undefined') {
-          let journeys: any[] = [];
+          let journeys = [];
           journeys = await getJourneys();
           for (const journey of journeys) {
             try {

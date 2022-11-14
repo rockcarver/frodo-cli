@@ -8,18 +8,21 @@ import {
   stopProgressIndicator,
   verboseMessage,
   debugMessage,
+  curlirizeMessage,
 } from '../utils/Console.js';
 
 state.default.session.setPrintHandler(printMessage);
 state.default.session.setVerboseHandler(verboseMessage);
 state.default.session.setDebugHandler(debugMessage);
+state.default.session.setCurlirizeHandler(curlirizeMessage);
 state.default.session.setCreateProgressHandler(createProgressIndicator);
 state.default.session.setUpdateProgressHandler(updateProgressIndicator);
 state.default.session.setStopProgressHandler(stopProgressIndicator);
 
-// pseudo functions for commands that do not otherwise need to import
-// this file but need to trigger print and progress handler registration
-export function init() {}
+export function init() {
+  // pseudo functions for commands that do not otherwise need to import
+  // this file but need to trigger print and progress handler registration
+}
 
 const hostArgumentDescription =
   'Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.';
@@ -112,6 +115,11 @@ export const verboseOption = new Option(
 export const debugOption = new Option(
   '--debug',
   'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
+);
+
+export const curlirizeOption = new Option(
+  '--curlirize',
+  'Output all network calls in curl format.'
 );
 
 export const managedNameOption = new Option(

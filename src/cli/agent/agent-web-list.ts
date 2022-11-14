@@ -1,13 +1,14 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { listWebAgents } from '../../ops/AgentOps.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd sub1 export');
+const program = new Command('frodo agent web list');
 
 program
-  .description('Sub1 export.')
+  .description('List web agents.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -16,24 +17,11 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
-    new Option(
-      '-i, --sub1-id <sub1-id>',
-      'Sub1 id. If specified, -a and -A are ignored.'
-    )
-  )
-  .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
-  .addOption(
-    new Option(
-      '-a, --all',
-      'Export all sub1s to a single file. Ignored with -i.'
-    )
-  )
-  .addOption(
-    new Option(
-      '-A, --all-separate',
-      'Export all sub1s to separate files (*.sub1.json) in the current directory. Ignored with -i or -a.'
-    )
+    new Option('-l, --long', 'Long with all fields.').default(false, 'false')
   )
   .action(
     // implement command logic inside action handler
@@ -44,8 +32,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        // code goes here
+        await listWebAgents(options.long);
       }
     }
     // end command logic inside action handler

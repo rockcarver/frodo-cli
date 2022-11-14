@@ -27,26 +27,26 @@ function getCustomNoiseFilters(): Array<string> {
 
 export function getNoiseFilters(defaults: boolean): Array<string> {
   const filename = `${getConfigPath()}/${FRODO_LOG_NOISEFILTER_FILENAME}`;
-  if(defaults) {
+  if (defaults) {
     printMessage(`Using default logging noise filters.`, 'info');
     return defaultNoiseFilter();
   }
   let noiseFilter = getCustomNoiseFilters();
-  if (noiseFilter.length > 0) {
-    printMessage(`Using custom noise filters from ${filename}`, 'info');
-  } else {
+  if (noiseFilter.length == 0) {
     printMessage(`No custom noise filters defined. Using defaults.`, 'info');
     noiseFilter = defaultNoiseFilter();
     try {
-        fs.writeFileSync(filename, JSON.stringify(noiseFilter, null, 2));
-        printMessage(
-          `The default filters were saved in ${filename}. You can change the filters as needed.`,
-          'info'
-        );    
+      fs.writeFileSync(filename, JSON.stringify(noiseFilter, null, 2));
+      printMessage(
+        `The default filters were saved in ${filename}. You can change the filters as needed.`,
+        'info'
+      );
     } catch (e) {
-        printMessage(`Error creating noise filter configuration with default values.`, 'error');
+      printMessage(
+        `Error creating noise filter configuration with default values.`,
+        'error'
+      );
     }
   }
   return noiseFilter;
 }
-

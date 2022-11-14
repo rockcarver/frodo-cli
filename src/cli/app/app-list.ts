@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, OAuth2Client, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { listOAuth2Clients } = OAuth2Client;
@@ -30,7 +31,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(`Listing OAuth2 applications...`);
+        printMessage(`Listing OAuth2 applications...`);
         listOAuth2Clients(options.long);
       }
     }

@@ -1,6 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Variables, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
+import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { deleteVariableCmd, deleteVariablesCmd } = Variables;
@@ -50,17 +51,17 @@ program
       if (await getTokens()) {
         // delete by id
         if (options.variableId) {
-          console.log('Deleting variable...');
+          printMessage('Deleting variable...');
           deleteVariableCmd(options.variableId);
         }
         // --all -a
         else if (options.all) {
-          console.log('Deleting all variables...');
+          printMessage('Deleting all variables...');
           deleteVariablesCmd();
         }
         // unrecognized combination of options or no options
         else {
-          console.log('Unrecognized combination of options or no options...');
+          printMessage('Unrecognized combination of options or no options...');
           program.help();
         }
       }

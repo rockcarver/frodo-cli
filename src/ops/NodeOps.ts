@@ -108,10 +108,10 @@ export function getTableRowMd(
   nodeObj: NodeSkeleton,
   nodeRef?: NodeRefSkeletonInterface | InnerNodeRefSkeletonInterface
 ): string {
-  const row = `| ${
-    nodeRef ? nodeRef.displayName : ''
-  } | ${nodeObj._type._id} | ${getNodeClassificationMd(
+  const row = `| ${nodeRef ? nodeRef.displayName : ''} | ${
     nodeObj._type._id
-  ).join('<br>')} | \`${nodeObj._id}\` |`;
+  } | ${getNodeClassificationMd(nodeObj._type._id).join('<br>')} | \`${
+    nodeObj._id
+  }\` |`;
   return row;
 }

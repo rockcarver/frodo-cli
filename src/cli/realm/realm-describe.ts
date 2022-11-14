@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, Realm, Utils, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import * as common from '../cmd_common';
+import { printMessage } from '../../utils/Console';
 
 const { getRealmName } = Utils;
 const { getTokens } = Authenticate;
@@ -28,7 +29,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        console.log(
+        printMessage(
           `Retrieving details of realm ${state.default.session.getRealm()}...`
         );
         describe(getRealmName(state.default.session.getRealm()));
