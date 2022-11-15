@@ -45,7 +45,7 @@ program
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
       if (await getTokens()) {
-        return deleteServiceOp(options.id);
+        await deleteServiceOp(options.id);
       } else {
         program.help();
       }
