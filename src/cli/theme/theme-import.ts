@@ -1,6 +1,6 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
+import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
@@ -27,6 +27,7 @@ program
   .addOption(common.insecureOption)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-n, --theme-name <name>',
@@ -68,53 +69,52 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
-      if (await getTokens()) {
-        // import by name
-        if (options.file && options.themeName) {
-          printMessage(
-            `Importing theme with name "${
-              options.themeName
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importThemeByName(options.themeName, options.file);
-        }
-        // import by id
-        else if (options.file && options.themeId) {
-          printMessage(
-            `Importing theme with id "${
-              options.themeId
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importThemeById(options.themeId, options.file);
-        }
-        // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all themes from a single file (${options.file})...`
-          );
-          importThemesFromFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all themes from separate files in current directory...'
-          );
-          importThemesFromFiles();
-        }
-        // import single theme from file
-        else if (options.file) {
-          printMessage(
-            `Importing first theme from file "${
-              options.file
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importFirstThemeFromFile(options.file);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setCurlirize(options.curlirize);
+      // import by name
+      if (options.file && options.themeName && (await getTokens())) {
+        printMessage(
+          `Importing theme with name "${
+            options.themeName
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importThemeByName(options.themeName, options.file);
+      }
+      // import by id
+      else if (options.file && options.themeId && (await getTokens())) {
+        printMessage(
+          `Importing theme with id "${
+            options.themeId
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importThemeById(options.themeId, options.file);
+      }
+      // --all -a
+      else if (options.all && options.file && (await getTokens())) {
+        printMessage(
+          `Importing all themes from a single file (${options.file})...`
+        );
+        importThemesFromFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && !options.file && (await getTokens())) {
+        printMessage(
+          'Importing all themes from separate files in current directory...'
+        );
+        importThemesFromFiles();
+      }
+      // import single theme from file
+      else if (options.file && (await getTokens())) {
+        printMessage(
+          `Importing first theme from file "${
+            options.file
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importFirstThemeFromFile(options.file);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler

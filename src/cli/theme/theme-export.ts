@@ -24,6 +24,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-n, --theme-name <name>',
@@ -63,43 +66,44 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // export by name
-        if (options.themeName) {
-          printMessage(
-            `Exporting theme "${
-              options.themeName
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportThemeByName(options.themeName, options.file);
-        }
-        // export by id
-        else if (options.themeId) {
-          printMessage(
-            `Exporting theme "${
-              options.themeId
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportThemeById(options.themeId, options.file);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Exporting all themes to a single file...');
-          exportThemesToFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate) {
-          printMessage('Exporting all themes to separate files...');
-          exportThemesToFiles();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // export by name
+      if (options.themeName && (await getTokens())) {
+        printMessage(
+          `Exporting theme "${
+            options.themeName
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportThemeByName(options.themeName, options.file);
+      }
+      // export by id
+      else if (options.themeId && (await getTokens())) {
+        printMessage(
+          `Exporting theme "${
+            options.themeId
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportThemeById(options.themeId, options.file);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        printMessage('Exporting all themes to a single file...');
+        exportThemesToFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
+        printMessage('Exporting all themes to separate files...');
+        exportThemesToFiles();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

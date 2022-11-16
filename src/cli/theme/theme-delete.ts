@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-n, --theme-name <name>',
@@ -45,37 +48,38 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // delete by name
-        if (options.themeName) {
-          printMessage(
-            `Deleting theme with name "${
-              options.themeName
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          deleteThemeByNameCmd(options.themeName);
-        }
-        // delete by id
-        else if (options.themeId) {
-          printMessage(
-            `Deleting theme with id "${
-              options.themeId
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          deleteThemeCmd(options.themeId);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage(
-            `Deleting all themes from realm "${state.default.session.getRealm()}"...`
-          );
-          deleteThemesCmd();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // delete by name
+      if (options.themeName && (await getTokens())) {
+        printMessage(
+          `Deleting theme with name "${
+            options.themeName
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        deleteThemeByNameCmd(options.themeName);
+      }
+      // delete by id
+      else if (options.themeId && (await getTokens())) {
+        printMessage(
+          `Deleting theme with id "${
+            options.themeId
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        deleteThemeCmd(options.themeId);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        printMessage(
+          `Deleting all themes from realm "${state.default.session.getRealm()}"...`
+        );
+        deleteThemesCmd();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler
