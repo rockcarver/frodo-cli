@@ -90,11 +90,11 @@ export async function exportServicesToFiles() {
   debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
   const services = await getFullServices();
   for (const service of services) {
-    const fileName = getTypedFilename(service._id, `service`);
+    const fileName = getTypedFilename(service._type._id, `service`);
     const exportData = createServiceExportTemplate();
-    exportData.service[service._id] = service;
+    exportData.service[service._type._id] = service;
     debugMessage(
-      `cli.ServiceOps.exportServicesToFiles: exporting ${service._id} to ${fileName}`
+      `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${fileName}`
     );
     saveJsonToFile(exportData, fileName);
   }
