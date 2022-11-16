@@ -7,25 +7,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default function setup() {
   const program = new Command('service')
     .helpOption('-h, --help', 'Help')
-    .description('Manage Service configuration.')
+    .description('Manage AM services.')
     .executableDir(__dirname);
 
-  program.command('list', 'List all Services.').showHelpAfterError();
+  program.command('list', 'List AM services.').showHelpAfterError();
 
   program
-    .command('export', 'Export Service configuration objects.')
+    .command('export', 'Export AM services.')
     .showHelpAfterError();
 
   program
-    .command('import', 'Import Service configuration objects.')
+    .command('import', 'Import AM services.')
     .showHelpAfterError();
 
   program
-    .command('delete', 'Delete Service configuration objects.')
-    .showHelpAfterError();
-
-  program
-    .command('count', 'Count number of objects of a given type.')
+    .command('delete', 'Delete AM services.')
     .showHelpAfterError();
 
   program.showHelpAfterError();

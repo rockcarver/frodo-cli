@@ -1,23 +1,31 @@
-import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
+import {
+  exportServicesToFile,
+  exportServicesToFiles,
+  exportServiceToFile,
+} from '../../ops/ServiceOps.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { exportService, exportServicesToFile, exportServicesToFiles } = Service;
 
 const program = new Command('frodo service export');
 
 interface ServiceExportOptions {
   file?: string;
   all?: boolean;
-  name?: string;
+  serviceId?: string;
   allSeparate?: boolean;
   type?: string;
   insecure?: boolean;
+  verbose?: boolean;
+  debug?: boolean;
+  curlirize?: boolean;
 }
 
 program
-  .description('Export services.')
+  .description('Export AM services.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -26,10 +34,13 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
-      '-n, --name <name>',
-      'Name of the service. If specified, -a and -A are ignored.'
+      '-i, --service-id <service-id>',
+      'Service id. If specified, -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
@@ -54,30 +65,31 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // export by name
-        if (options.name) {
-          console.log('Exporting service...');
-          await exportService(options.name);
-        }
-        // -a / --all
-        else if (options.all) {
-          console.log('Exporting all services to a single file...');
-          await exportServicesToFile(options.file);
-        }
-        // -A / --all-separate
-        else if (options.allSeparate) {
-          console.log('Exporting all services to separate files...');
-          await exportServicesToFiles();
-        }
-        // unrecognized combination of options or no options
-        else {
-          console.log(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // export by name
+      if (options.serviceId && (await getTokens())) {
+        verboseMessage('Exporting service...');
+        await exportServiceToFile(options.serviceId, options.file);
+      }
+      // -a / --all
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all services to a single file...');
+        await exportServicesToFile(options.file);
+      }
+      // -A / --all-separate
+      else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all services to separate files...');
+        await exportServicesToFiles();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

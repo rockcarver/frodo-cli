@@ -1,25 +1,33 @@
-import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
+import {
+  importServiceFromFile,
+  importServicesFromFile,
+  importServicesFromFiles,
+} from '../../ops/ServiceOps.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { importService, importServices, importServicesSeparate } = Service;
 
 const program = new Command('frodo service import');
 
 interface ServiceImportOptions {
   file?: string;
   all?: boolean;
-  name?: string;
+  serviceId?: string;
   allSeparate?: boolean;
   type?: string;
   insecure?: boolean;
   clean?: boolean;
   directory?: string;
+  verbose?: boolean;
+  debug?: boolean;
+  curlirize?: boolean;
 }
 
 program
-  .description('Import services.')
+  .description('Import AM services.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -28,10 +36,13 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
-      '-n, --name <name>',
-      'Name of the service. If specified, -a and -A are ignored.'
+      '-i, --service-id <service-id>',
+      'Service id. If specified, -a and -A are ignored.'
     )
   )
   .addOption(
@@ -42,20 +53,15 @@ program
   )
   .addOption(new Option('-a, --all', 'Import all services from a single file.'))
   .addOption(
-    new Option('-C, --clean', 'Remove previous services before importing.')
+    new Option('-C, --clean', 'Remove existing service(s) before importing.')
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Import all SAML Entities in a realm as separate files <id>.json. If supplied, file option will be ignored.'
+      'Import all services from separate files <id>.service.json.'
     )
   )
-  .addOption(
-    new Option(
-      '-d, --directory <directory>',
-      'Directory containing service files to import.'
-    )
-  )
+  .addOption(new Option('-D, --directory <directory>', 'Working directory.'))
   .action(
     async (
       host: string,
@@ -70,33 +76,35 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      state.default.session.setDirectory(options.directory || '.');
 
       const clean = options.clean ?? false;
 
-      if (await getTokens()) {
-        // import by name
-        if (options.name) {
-          console.log('Importing service...');
-          await importService(options.name, clean, options.file);
-        }
-        // -a / --all
-        else if (options.all && options.file) {
-          console.log('Importing all services from a single file...');
-          await importServices(clean, options.file);
-        }
-        // -A / --all-separate
-        else if (options.allSeparate && options.directory) {
-          console.log('Importing all services from separate files...');
-          await importServicesSeparate(clean, options.directory);
-        }
-        // unrecognized combination of options or no options
-        else {
-          console.log(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      // import by id
+      if (options.serviceId && (await getTokens())) {
+        verboseMessage('Importing service...');
+        await importServiceFromFile(options.serviceId, options.file, clean);
+      }
+      // -a / --all
+      else if (options.all && options.file && (await getTokens())) {
+        verboseMessage('Importing all services from a single file...');
+        await importServicesFromFile(options.file, clean);
+      }
+      // -A / --all-separate
+      else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Importing all services from separate files...');
+        await importServicesFromFiles(clean);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

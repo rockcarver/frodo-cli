@@ -1,8 +1,8 @@
-import { Authenticate, Service, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
+import { deleteService } from '../../ops/ServiceOps.js';
 import * as common from '../cmd_common.js';
 
-const { deleteServiceOp } = Service;
 const { getTokens } = Authenticate;
 
 const program = new Command('frodo service delete');
@@ -12,10 +12,13 @@ interface ServiceDeleteOptions {
   type?: string;
   insecure?: boolean;
   silent?: boolean;
+  verbose?: boolean;
+  debug?: boolean;
+  curlirize?: boolean;
 }
 
 program
-  .description('service delete.')
+  .description('Delete AM services.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -24,6 +27,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --id <id>',
@@ -44,8 +50,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        await deleteServiceOp(options.id);
+        await deleteService(options.id);
       } else {
         program.help();
       }
