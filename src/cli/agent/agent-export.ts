@@ -13,7 +13,7 @@ const { getTokens } = Authenticate;
 const program = new Command('frodo cmd export');
 
 program
-  .description('Cmd export.')
+  .description('Agent export.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -28,20 +28,20 @@ program
   .addOption(
     new Option(
       '-i, --agent-id <agent-id>',
-      'Cmd id. If specified, -a and -A are ignored.'
+      'Agent id. If specified, -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
     new Option(
       '-a, --all',
-      'Export all cmds to a single file. Ignored with -i.'
+      'Export all agents to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all cmds to separate files (*.cmd.json) in the current directory. Ignored with -i or -a.'
+      'Export all agents to separate files (*.<type>.agent.json) in the current directory. Ignored with -i or -a.'
     )
   )
   .action(
