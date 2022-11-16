@@ -17,6 +17,7 @@ import { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes
 
 const {
   createServiceExportTemplate,
+  deleteFullServices,
   deleteFullService,
   getListOfServices,
   getFullServices,
@@ -112,7 +113,9 @@ export async function importServiceFromFile(
   file: string,
   clean: boolean
 ) {
-  debugMessage(`cli.ServiceOps.importServiceFromFile: start`);
+  debugMessage(
+    `cli.ServiceOps.importServiceFromFile: start [serviceId=${serviceId}, file=${file}]`
+  );
   const verbose = state.default.session.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
@@ -124,15 +127,55 @@ export async function importServiceFromFile(
         await importService(serviceId, importData, clean);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
+        const message = importError.response?.data?.message;
+        const detail = importError.response?.data?.detail;
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        failSpinner(`${importError}`);
+        failSpinner(`${detail ? message + ' - ' + detail : message}`);
       }
     } else {
       showSpinner(`Importing ${serviceId}...`);
       failSpinner(`${serviceId} not found!`);
     }
   });
-  debugMessage(`cli.ServiceOps.importServiceFromFile: end`);
+  debugMessage(
+    `cli.ServiceOps.importServiceFromFile: end [serviceId=${serviceId}, file=${file}]`
+  );
+}
+
+/**
+ * Import first service from file
+ * @param {string} file import file name
+ * @param {boolean} clean remove existing service
+ */
+export async function importFirstServiceFromFile(file: string, clean: boolean) {
+  debugMessage(
+    `cli.ServiceOps.importFirstServiceFromFile: start [file=${file}]`
+  );
+  const verbose = state.default.session.getVerbose();
+  fs.readFile(file, 'utf8', async (err, data) => {
+    if (err) throw err;
+    const importData = JSON.parse(data);
+    if (importData && Object.keys(importData.service).length) {
+      const serviceId = Object.keys(importData.service)[0];
+      if (!verbose) showSpinner(`Importing ${serviceId}...`);
+      try {
+        if (verbose) showSpinner(`Importing ${serviceId}...`);
+        await importService(serviceId, importData, clean);
+        succeedSpinner(`Imported ${serviceId}.`);
+      } catch (importError) {
+        const message = importError.response?.data?.message;
+        const detail = importError.response?.data?.detail;
+        if (verbose) showSpinner(`Importing ${serviceId}...`);
+        failSpinner(`${detail ? message + ' - ' + detail : message}`);
+      }
+    } else {
+      showSpinner(`Importing service...`);
+      failSpinner(`No service found in ${file}!`);
+    }
+    debugMessage(
+      `cli.ServiceOps.importFirstServiceFromFile: end [file=${file}]`
+    );
+  });
 }
 
 /**
@@ -141,7 +184,7 @@ export async function importServiceFromFile(
  * @param {boolean} clean remove existing service
  */
 export async function importServicesFromFile(file: string, clean: boolean) {
-  debugMessage(`cli.ServiceOps.importServiceFromFile: start`);
+  debugMessage(`cli.ServiceOps.importServiceFromFile: start [file=${file}]`);
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${file}`);
@@ -152,7 +195,7 @@ export async function importServicesFromFile(file: string, clean: boolean) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
     }
-    debugMessage(`cli.ServiceOps.importServiceFromFile: end`);
+    debugMessage(`cli.ServiceOps.importServiceFromFile: end [file=${file}]`);
   });
 }
 
@@ -161,6 +204,7 @@ export async function importServicesFromFile(file: string, clean: boolean) {
  * @param {boolean} clean remove existing service
  */
 export async function importServicesFromFiles(clean: boolean) {
+  debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
   const names = fs.readdirSync(getWorkingDirectory());
   const agentFiles = names.filter((name) =>
     name.toLowerCase().endsWith('.service.json')
@@ -168,12 +212,25 @@ export async function importServicesFromFiles(clean: boolean) {
   for (const file of agentFiles) {
     await importServicesFromFile(file, clean);
   }
+  debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
 }
 
 /**
- * Deletes a service by id/name
+ * Delete a service by id/name
  * @param {string} serviceId Reference to the service to delete
  */
 export async function deleteService(serviceId: string) {
-  await deleteFullService(serviceId);
+  try {
+    await deleteFullService(serviceId);
+  } catch (error) {
+    const message = error.response?.data?.message;
+    printMessage(`Delete service '${serviceId}': ${message}`, 'error');
+  }
+}
+
+/**
+ * Delete all services
+ */
+export async function deleteServices() {
+  await deleteFullServices();
 }

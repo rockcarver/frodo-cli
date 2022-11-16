@@ -1,6 +1,6 @@
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
-import { deleteService } from '../../ops/ServiceOps.js';
+import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
 import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
@@ -11,10 +11,10 @@ interface ServiceDeleteOptions {
   id?: string;
   type?: string;
   insecure?: boolean;
-  silent?: boolean;
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;
+  all?: boolean;
 }
 
 program
@@ -30,12 +30,8 @@ program
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
   .addOption(common.curlirizeOption)
-  .addOption(
-    new Option(
-      '-i, --id <id>',
-      'Id of Service to be deleted.'
-    ).makeOptionMandatory()
-  )
+  .addOption(new Option('-i, --id <id>', 'Id of Service to be deleted.'))
+  .addOption(new Option('-a, --all', 'Delete all services. Ignored with -i.'))
   .action(
     async (
       host: string,
@@ -53,8 +49,10 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      if (await getTokens()) {
+      if (options.id && (await getTokens())) {
         await deleteService(options.id);
+      } else if (options.all && (await getTokens())) {
+        await deleteServices();
       } else {
         program.help();
       }

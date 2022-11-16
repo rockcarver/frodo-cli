@@ -1,6 +1,7 @@
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
 import {
+  importFirstServiceFromFile,
   importServiceFromFile,
   importServicesFromFile,
   importServicesFromFiles,
@@ -84,7 +85,7 @@ program
       const clean = options.clean ?? false;
 
       // import by id
-      if (options.serviceId && (await getTokens())) {
+      if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
         await importServiceFromFile(options.serviceId, options.file, clean);
       }
@@ -97,6 +98,11 @@ program
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
         await importServicesFromFiles(clean);
+      }
+      // import file
+      else if (options.file && (await getTokens())) {
+        verboseMessage('Importing service...');
+        await importFirstServiceFromFile(options.file, clean);
       }
       // unrecognized combination of options or no options
       else {
