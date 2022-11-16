@@ -12,17 +12,11 @@ export default function setup() {
 
   program.command('list', 'List AM services.').showHelpAfterError();
 
-  program
-    .command('export', 'Export AM services.')
-    .showHelpAfterError();
+  program.command('export', 'Export AM services.').showHelpAfterError();
 
-  program
-    .command('import', 'Import AM services.')
-    .showHelpAfterError();
+  program.command('import', 'Import AM services.').showHelpAfterError();
 
-  program
-    .command('delete', 'Delete AM services.')
-    .showHelpAfterError();
+  program.command('delete', 'Delete AM services.').showHelpAfterError();
 
   program.showHelpAfterError();
   return program;
