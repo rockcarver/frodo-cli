@@ -1,6 +1,6 @@
 import { Argument, Option } from 'commander';
 import { state } from '@rockcarver/frodo-lib';
-import * as global from '../storage/StaticStorage.js';
+import * as globalConfig from '../storage/StaticStorage';
 import {
   printMessage,
   createProgressIndicator,
@@ -35,7 +35,7 @@ export const realmArgument = new Argument(
   '[realm]',
   realmArgumentDescription
 ).default(
-  global.DEFAULT_REALM_KEY,
+  globalConfig.DEFAULT_REALM_KEY,
   '"alpha" for Identity Cloud tenants, "/" otherwise.'
 );
 export const realmArgumentM = new Argument('<realm>', realmArgumentDescription);
@@ -96,11 +96,11 @@ to walk through the tenant admin login flow of Identity Cloud and handle MFA';
 export const deploymentOption = new Option(
   '-m, --type <type>',
   deploymentOptionDescription
-).choices(global.DEPLOYMENT_TYPES);
+).choices(globalConfig.DEPLOYMENT_TYPES);
 export const deploymentOptionM = new Option(
   '-m, --type <type>',
   deploymentOptionDescription
-).choices(global.DEPLOYMENT_TYPES);
+).choices(globalConfig.DEPLOYMENT_TYPES);
 
 export const insecureOption = new Option(
   '-k, --insecure',
