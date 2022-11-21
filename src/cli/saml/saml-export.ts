@@ -1,15 +1,17 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-
-const {
+import { printMessage, verboseMessage } from '../../utils/Console';
+import {
+  exportRawSaml2ProvidersToFile,
+  exportRawSaml2ProvidersToFiles,
+  exportRawSaml2ProviderToFile,
   exportSaml2ProviderToFile,
   exportSaml2ProvidersToFile,
   exportSaml2ProvidersToFiles,
-} = Saml2;
+} from '../../ops/Saml2Ops';
+
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo saml export');
 
@@ -23,6 +25,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --entity-id <entity-id>',
@@ -47,6 +52,7 @@ program
       'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
     )
   )
+  .addOption(new Option('--raw', 'Include raw XML in export.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -56,34 +62,54 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // export by id/name
-        if (options.entityId) {
-          printMessage(
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // export by id/name
+      if (options.entityId && (await getTokens())) {
+        if (!options.raw) {
+          verboseMessage(
             `Exporting provider "${
               options.entityId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportSaml2ProviderToFile(options.entityId, options.file);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Exporting all providers to a single file...');
-          exportSaml2ProvidersToFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate) {
-          printMessage('Exporting all providers to separate files...');
-          exportSaml2ProvidersToFiles();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
+          await exportSaml2ProviderToFile(options.entityId, options.file);
+        } else {
+          verboseMessage(
+            `Exporting raw provider "${
+              options.entityId
+            }" from realm "${state.default.session.getRealm()}"...`
           );
-          program.help();
+          await exportRawSaml2ProviderToFile(options.entityId, options.file);
         }
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        if (!options.raw) {
+          verboseMessage('Exporting all providers to a single file...');
+          await exportSaml2ProvidersToFile(options.file);
+        } else {
+          verboseMessage('Exporting all providers raw to a single file...');
+          await exportRawSaml2ProvidersToFile(options.file);
+        }
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
+        if (!options.raw) {
+          verboseMessage('Exporting all providers to separate files...');
+          await exportSaml2ProvidersToFiles();
+        } else {
+          verboseMessage('Exporting all providers raw to separate files...');
+          await exportRawSaml2ProvidersToFiles();
+        }
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

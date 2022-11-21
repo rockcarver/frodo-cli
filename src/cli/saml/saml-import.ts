@@ -1,16 +1,18 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-
-const {
+import { printMessage, verboseMessage } from '../../utils/Console';
+import {
+  importFirstSaml2ProviderFromFile,
+  importRawSaml2ProviderFromFile,
+  importRawSaml2ProvidersFromFile,
+  importRawSaml2ProvidersFromFiles,
   importSaml2ProviderFromFile,
   importSaml2ProvidersFromFile,
   importSaml2ProvidersFromFiles,
-  importFirstSaml2ProviderFromFile,
-} = Saml2;
+} from '../../ops/Saml2Ops';
+
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo saml import');
 
@@ -24,6 +26,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --entity-id <entity-id>',
@@ -48,6 +53,7 @@ program
       'Import all entity providers from separate files (*.saml.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(new Option('--raw', 'Import files exported with --raw.'))
   .action(
     // implement program logic inside action handler
     async (host, realm, user, password, options) => {
@@ -57,38 +63,69 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // import by id
-        if (options.file && options.entityId) {
-          printMessage(
-            `Importing provider "${
-              options.entityId
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importSaml2ProviderFromFile(options.entityId, options.file);
+        if (options.file && options.entityId && (await getTokens())) {
+          if (!options.raw) {
+            verboseMessage(
+              `Importing provider "${
+                options.entityId
+              }" into realm "${state.default.session.getRealm()}"...`
+            );
+            importSaml2ProviderFromFile(options.entityId, options.file);
+          } else {
+            verboseMessage(
+              `Importing raw provider "${
+                options.entityId
+              }" into realm "${state.default.session.getRealm()}"...`
+            );
+            importRawSaml2ProviderFromFile(options.file);
+          }
         }
         // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all providers from a single file (${options.file})...`
-          );
-          importSaml2ProvidersFromFile(options.file);
+        else if (options.all && options.file && (await getTokens())) {
+          if (!options.raw) {
+            verboseMessage(
+              `Importing all providers from a single file (${options.file})...`
+            );
+            importSaml2ProvidersFromFile(options.file);
+          } else {
+            verboseMessage(
+              `Importing all providers raw from a single file (${options.file})...`
+            );
+            importRawSaml2ProvidersFromFile(options.file);
+          }
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all providers from separate files (*.saml.json) in current directory...'
-          );
-          importSaml2ProvidersFromFiles();
+        else if (options.allSeparate && !options.file && (await getTokens())) {
+          if (!options.raw) {
+            verboseMessage(
+              'Importing all providers from separate files (*.saml.json) in current directory...'
+            );
+            importSaml2ProvidersFromFiles();
+          } else {
+            importRawSaml2ProvidersFromFiles('.');
+          }
         }
         // import first provider from file
-        else if (options.file) {
-          printMessage(
-            `Importing first provider from file "${
-              options.file
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importFirstSaml2ProviderFromFile(options.file);
+        else if (options.file && (await getTokens())) {
+          if (!options.raw) {
+            verboseMessage(
+              `Importing first provider from file "${
+                options.file
+              }" into realm "${state.default.session.getRealm()}"...`
+            );
+            importFirstSaml2ProviderFromFile(options.file);
+          } else {
+            verboseMessage(
+              `Importing first provider raw from file "${
+                options.file
+              }" into realm "${state.default.session.getRealm()}"...`
+            );
+          }
         }
         // unrecognized combination of options or no options
         else {

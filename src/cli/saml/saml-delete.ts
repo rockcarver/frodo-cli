@@ -1,15 +1,15 @@
+import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
 import { Command, Option } from 'commander';
-import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
+import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
-const { listCirclesOfTrust } = CirclesOfTrust;
+const { deleteSaml2Provider, deleteSaml2Providers } = Saml2;
 
-const program = new Command('frodo saml cot list');
+const program = new Command('frodo saml delete');
 
 program
-  .description('List SAML circles of trust.')
+  .description('Delete SAML entity providers.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
@@ -22,7 +22,13 @@ program
   .addOption(common.debugOption)
   .addOption(common.curlirizeOption)
   .addOption(
-    new Option('-l, --long', 'Long with all fields.').default(false, 'false')
+    new Option(
+      '-i, --entity-id <entity-id>',
+      'Entity id. If specified, -a is ignored.'
+    )
+  )
+  .addOption(
+    new Option('-a, --all', 'Delete all entity providers. Ignored with -i.')
   )
   .action(
     // implement command logic inside action handler
@@ -36,11 +42,23 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      if (await getTokens()) {
+      // -i / --entity-id
+      if (options.entityId && (await getTokens())) {
+        verboseMessage(`Deleting entity provider '${options.entityId}'...`);
+        await deleteSaml2Provider(options.entityId);
+      }
+      // -a / --all
+      else if (options.all && (await getTokens())) {
+        verboseMessage(`Deleting all entity providers...`);
+        await deleteSaml2Providers();
+      }
+      // unrecognized combination of options or no options
+      else {
         printMessage(
-          `Listing SAML circles of trust in realm "${state.default.session.getRealm()}"...`
+          'Unrecognized combination of options or no options...',
+          'error'
         );
-        listCirclesOfTrust(options.long);
+        program.help();
       }
     }
     // end command logic inside action handler
