@@ -1,11 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { printMessage } from '../../utils/Console';
+import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 
 const { getTokens } = Authenticate;
-
-const { exportSaml2Metadata } = Saml2;
 
 const program = new Command('frodo saml metadata export');
 
@@ -19,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --entity-id <entity-id>',
@@ -46,6 +48,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // export by id/name
         if (options.entityId) {
@@ -54,7 +59,7 @@ program
               options.entityId
             }" from realm "${state.default.session.getRealm()}"...`
           );
-          exportSaml2Metadata(options.entityId, options.file);
+          exportSaml2MetadataToFile(options.entityId, options.file);
         }
         // // --all-separate -A
         // else if (options.allSeparate) {

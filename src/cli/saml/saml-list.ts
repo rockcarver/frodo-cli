@@ -1,10 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Saml2, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { printMessage } from '../../utils/Console';
+import { listRawSaml2Providers, listSaml2Providers } from '../../ops/Saml2Ops';
 
 const { getTokens } = Authenticate;
-const { listSaml2Providers } = Saml2;
 
 const program = new Command('frodo saml list');
 
@@ -18,9 +18,13 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option('-l, --long', 'Long with all fields.').default(false, 'false')
   )
+  .addOption(new Option('--raw', 'List raw entity providers.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -30,11 +34,21 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
-          `Listing SAML entity providers in realm "${state.default.session.getRealm()}"...`
-        );
-        listSaml2Providers(options.long);
+        if (!options.raw) {
+          printMessage(
+            `Listing SAML entity providers in realm "${state.default.session.getRealm()}"...`
+          );
+          listSaml2Providers(options.long);
+        } else {
+          printMessage(
+            `Listing raw SAML entity providers in realm "${state.default.session.getRealm()}"...`
+          );
+          listRawSaml2Providers();
+        }
       }
     }
     // end command logic inside action handler

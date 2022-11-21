@@ -24,6 +24,8 @@ export default function setup() {
 
   program.command('metadata', 'Metadata operations.').showHelpAfterError();
 
+  program.command('delete', 'Delete an SAML Entity').showHelpAfterError();
+
   program.showHelpAfterError();
   return program;
 }
