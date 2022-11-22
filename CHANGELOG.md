@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+-   \#110: Migrate from .frodorc to Connections.json
+-   Refactored Email Template and Theme functionality in lib to remove fs operations
+
 ## [0.18.2-8] - 2022-11-22
 
 ## [0.18.2-7] - 2022-11-21

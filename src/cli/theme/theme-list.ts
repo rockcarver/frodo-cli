@@ -1,10 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { listThemes } from '../../ops/ThemeOps';
 import * as common from '../cmd_common';
 import { printMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
-const { listThemes } = Theme;
 
 const program = new Command('frodo theme list');
 
