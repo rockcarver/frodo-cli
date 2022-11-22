@@ -1,10 +1,14 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Theme, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { printMessage } from '../../utils/Console';
+import {
+  deleteThemeByNameCmd,
+  deleteThemeCmd,
+  deleteAllThemes,
+} from '../../ops/ThemeOps';
 
 const { getTokens } = Authenticate;
-const { deleteThemeByNameCmd, deleteThemeCmd, deleteThemesCmd } = Theme;
 
 const program = new Command('frodo theme delete');
 
@@ -74,7 +78,7 @@ program
         printMessage(
           `Deleting all themes from realm "${state.default.session.getRealm()}"...`
         );
-        deleteThemesCmd();
+        deleteAllThemes();
       }
       // unrecognized combination of options or no options
       else {
