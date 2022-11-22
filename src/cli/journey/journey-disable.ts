@@ -23,6 +23,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option('-i, --journey-id <journey>', 'Name of a journey/tree.')
   )
@@ -41,21 +44,22 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // enable
-        if (options.journeyId) {
-          showSpinner(`Disabling journey ${options.journeyId}...`);
-          if (await disableJourney(options.journeyId)) {
-            succeedSpinner(`Disabled journey ${options.journeyId}.`);
-          } else {
-            failSpinner(`Disabling journey ${options.journeyId} failed.`);
-          }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // enable
+      if (options.journeyId && (await getTokens())) {
+        showSpinner(`Disabling journey ${options.journeyId}...`);
+        if (await disableJourney(options.journeyId)) {
+          succeedSpinner(`Disabled journey ${options.journeyId}.`);
+        } else {
+          failSpinner(`Disabling journey ${options.journeyId} failed.`);
         }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler
