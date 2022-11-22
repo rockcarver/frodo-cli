@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { createSecret } = Secrets;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .requiredOption('-i, --secret-id <secret-id>', 'Secret id.')
   .requiredOption('--value <value>', 'Secret value.')
   .option('--description [description]', 'Secret description.')
@@ -33,12 +36,6 @@ program
       'Secret cannot be used in placeholders.'
     )
   )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -48,8 +45,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage('Creating secret...');
+        verboseMessage('Creating secret...');
         createSecret(
           options.secretId,
           options.value,

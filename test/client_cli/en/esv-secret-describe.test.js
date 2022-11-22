@@ -185,8 +185,8 @@ test("CLI help interface 'describe option -k, --insecure' description should be 
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure              ',
-      '  -i, --secret-id <secret-id>  '
+      '  -k, --insecure               ',
+      '  --verbose                    '
     )
   );
 

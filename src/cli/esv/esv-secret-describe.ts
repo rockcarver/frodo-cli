@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Secrets, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { describeSecret } = Secrets;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --secret-id <secret-id>',
@@ -33,8 +36,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(`Describing secret ${options.secretId}...`);
+        verboseMessage(`Describing secret ${options.secretId}...`);
         describeSecret(options.secretId);
       }
     }
