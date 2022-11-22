@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -61,34 +61,32 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      if (await getTokens()) {
-        // export by id/name
-        if (options.cotId) {
-          printMessage(
-            `Exporting circle of trust "${
-              options.cotId
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportCircleOfTrust(options.cotId, options.file);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Exporting all circles of trust to a single file...');
-          exportCirclesOfTrustToFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate) {
-          printMessage('Exporting all circles of trust to separate files...');
-          exportCirclesOfTrustToFiles();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      // export by id/name
+      if (options.cotId && (await getTokens())) {
+        verboseMessage(
+          `Exporting circle of trust "${
+            options.cotId
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportCircleOfTrust(options.cotId, options.file);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all circles of trust to a single file...');
+        exportCirclesOfTrustToFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all circles of trust to separate files...');
+        exportCirclesOfTrustToFiles();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

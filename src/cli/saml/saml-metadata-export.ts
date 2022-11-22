@@ -51,29 +51,27 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      if (await getTokens()) {
-        // export by id/name
-        if (options.entityId) {
-          printMessage(
-            `Exporting metadata for provider "${
-              options.entityId
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportSaml2MetadataToFile(options.entityId, options.file);
-        }
-        // // --all-separate -A
-        // else if (options.allSeparate) {
-        //   printMessage('Exporting all providers to separate files...');
-        //   exportProvidersToFiles();
-        // }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      // export by id/name
+      if (options.entityId && (await getTokens())) {
+        printMessage(
+          `Exporting metadata for provider "${
+            options.entityId
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportSaml2MetadataToFile(options.entityId, options.file);
+      }
+      // // --all-separate -A
+      // else if (options.allSeparate && (await getTokens())) {
+      //   printMessage('Exporting all providers to separate files...');
+      //   exportProvidersToFiles();
+      // }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

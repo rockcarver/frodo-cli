@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -62,44 +62,45 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      if (await getTokens()) {
-        // import by id
-        if (options.file && options.cotId) {
-          printMessage(
-            `Importing circle of trust "${
-              options.cotId
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importCircleOfTrust(options.cotId, options.file);
-        }
-        // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all circles of trust from a single file (${options.file})...`
-          );
-          importCirclesOfTrustFromFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all circles of trust from separate files (*.saml.json) in current directory...'
-          );
-          importCirclesOfTrustFromFiles();
-        }
-        // import first provider from file
-        else if (options.file) {
-          printMessage(
-            `Importing first circle of trust from file "${
-              options.file
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importFirstCircleOfTrust(options.file);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      // import by id
+      if (options.file && options.cotId && (await getTokens())) {
+        verboseMessage(
+          `Importing circle of trust "${
+            options.cotId
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importCircleOfTrust(options.cotId, options.file);
+      }
+      // --all -a
+      else if (options.all && options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing all circles of trust from a single file (${options.file})...`
+        );
+        importCirclesOfTrustFromFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && !options.file && (await getTokens())) {
+        verboseMessage(
+          'Importing all circles of trust from separate files (*.saml.json) in current directory...'
+        );
+        importCirclesOfTrustFromFiles();
+      }
+      // import first provider from file
+      else if (options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing first circle of trust from file "${
+            options.file
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importFirstCircleOfTrust(options.file);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end program logic inside action handler
