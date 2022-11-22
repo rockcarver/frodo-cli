@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, OAuth2Client, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { importOAuth2ClientsFromFile } = OAuth2Client;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   // .addOption(
   //   new Option(
   //     '-i, --cmd-id <cmd-id>',
@@ -46,8 +49,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(`Importing OAuth2 application(s) ...`);
+        verboseMessage(`Importing OAuth2 application(s) ...`);
         importOAuth2ClientsFromFile(options.file);
       }
     }
