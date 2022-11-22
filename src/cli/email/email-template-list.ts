@@ -1,10 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, EmailTemplate, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 import { printMessage } from '../../utils/Console.js';
+import { listEmailTemplates } from '../../ops/EmailTemplateOps';
 
 const { getTokens } = Authenticate;
-const { listEmailTemplates } = EmailTemplate;
 
 const program = new Command('frodo email template list');
 
