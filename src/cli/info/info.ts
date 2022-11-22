@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -14,6 +14,9 @@ export default function setup() {
     .helpOption('-h, --help', 'Help')
     .addOption(common.deploymentOption)
     .addOption(common.insecureOption)
+    .addOption(common.verboseOption)
+    .addOption(common.debugOption)
+    .addOption(common.curlirizeOption)
     .addOption(common.scriptFriendlyOption)
     .description('Print versions and tokens.')
     .action(async (host, user, password, options) => {
@@ -22,9 +25,12 @@ export default function setup() {
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       state.default.session.setItem('scriptFriendly', options.scriptFriendly);
       if (!options.scriptFriendly) {
-        printMessage('Printing versions and tokens...');
+        verboseMessage('Printing versions and tokens...');
         if (await getTokens()) {
           printMessage(`Cookie name: ${state.default.session.getCookieName()}`);
           printMessage(
