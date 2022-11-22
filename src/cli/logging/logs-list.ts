@@ -21,12 +21,18 @@ program
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .action(async (host, user, password, options) => {
     let credsFromParameters = true;
     state.default.session.setTenant(host);
     state.default.session.setUsername(user);
     state.default.session.setPassword(password);
     state.default.session.setAllowInsecureConnection(options.insecure);
+    state.default.session.setVerbose(options.verbose);
+    state.default.session.setDebug(options.debug);
+    state.default.session.setCurlirize(options.curlirize);
     printMessage('Listing available ID Cloud log sources...');
     const conn = await getConnectionProfile();
     state.default.session.setTenant(conn.tenant);

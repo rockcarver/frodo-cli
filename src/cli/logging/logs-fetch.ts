@@ -30,6 +30,9 @@ program
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(common.sourcesOptionM)
   .addOption(
     new Option(
@@ -78,6 +81,9 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
     state.default.session.setUsername(user);
     state.default.session.setPassword(password);
     state.default.session.setAllowInsecureConnection(options.insecure);
+    state.default.session.setVerbose(options.verbose);
+    state.default.session.setDebug(options.debug);
+    state.default.session.setCurlirize(options.curlirize);
     const conn = await getConnectionProfile();
     state.default.session.setTenant(conn.tenant);
     if (conn.key != null && conn.secret != null) {
