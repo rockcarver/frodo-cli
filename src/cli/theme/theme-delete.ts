@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   deleteThemeByNameCmd,
   deleteThemeCmd,
@@ -57,7 +57,7 @@ program
       state.default.session.setCurlirize(options.curlirize);
       // delete by name
       if (options.themeName && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Deleting theme with name "${
             options.themeName
           }" from realm "${state.default.session.getRealm()}"...`
@@ -66,7 +66,7 @@ program
       }
       // delete by id
       else if (options.themeId && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Deleting theme with id "${
             options.themeId
           }" from realm "${state.default.session.getRealm()}"...`
@@ -75,14 +75,17 @@ program
       }
       // --all -a
       else if (options.all && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Deleting all themes from realm "${state.default.session.getRealm()}"...`
         );
         deleteAllThemes();
       }
       // unrecognized combination of options or no options
       else {
-        printMessage('Unrecognized combination of options or no options...');
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
         program.help();
       }
     }
