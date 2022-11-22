@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { listAllConfigEntities } = Idm;
@@ -37,7 +37,7 @@ program
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage('Listing all IDM configuration objects...');
+        verboseMessage('Listing all IDM configuration objects...');
         listAllConfigEntities();
       }
     }

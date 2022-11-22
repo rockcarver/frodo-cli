@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -76,7 +76,7 @@ program
       state.default.session.setCurlirize(options.curlirize);
       // export by id/name
       if (options.name && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Exporting object "${
             options.name
           }" from realm "${state.default.session.getRealm()}"...`
@@ -91,7 +91,7 @@ program
         options.envFile &&
         (await getTokens())
       ) {
-        printMessage(
+        verboseMessage(
           `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
         );
         exportAllConfigEntities(
@@ -106,7 +106,7 @@ program
         options.directory &&
         (await getTokens())
       ) {
-        printMessage(
+        verboseMessage(
           `Exporting all IDM configuration objects into separate files in ${options.directory}...`
         );
         exportAllRawConfigEntities(options.directory);
