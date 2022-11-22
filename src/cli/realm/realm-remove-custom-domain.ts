@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Realm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { removeCustomDomain } = Realm;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-d, --domain <name>',
@@ -33,8 +36,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Removing custom DNS domain ${
             options.domain
           } from realm ${state.default.session.getRealm()}...`
