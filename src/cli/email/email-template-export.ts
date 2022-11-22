@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import {
   exportEmailTemplateToFile,
   exportEmailTemplatesToFile,
@@ -22,6 +22,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --template-id <template-id>',
@@ -55,34 +58,35 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // export by id/name
-        if (options.templateId) {
-          printMessage(
-            `Exporting email template "${
-              options.templateId
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportEmailTemplateToFile(options.templateId, options.file);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Exporting all email templates to a single file...');
-          exportEmailTemplatesToFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate) {
-          printMessage('Exporting all email templates to separate files...');
-          exportEmailTemplatesToFiles();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // export by id/name
+      if (options.templateId && (await getTokens())) {
+        verboseMessage(
+          `Exporting email template "${
+            options.templateId
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportEmailTemplateToFile(options.templateId, options.file);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all email templates to a single file...');
+        exportEmailTemplatesToFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all email templates to separate files...');
+        exportEmailTemplatesToFiles();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler
