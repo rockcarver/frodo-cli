@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { ConnectionProfile, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
 
 const { deleteConnectionProfile } = ConnectionProfile;
@@ -11,9 +11,13 @@ program
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
   .addArgument(common.hostArgumentM)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
   .action(
     // implement command logic inside action handler
-    async (host) => {
+    async (host, options) => {
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
       deleteConnectionProfile(host);
     }
     // end command logic inside action handler
