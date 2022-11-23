@@ -103,7 +103,7 @@ test("CLI help interface 'fetch option -k, --insecure' description should be exp
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure           ',
-      '  -c, --sources <sources>  '
+      '  --verbose                '
     )
   );
 
@@ -111,7 +111,61 @@ test("CLI help interface 'fetch option -k, --insecure' description should be exp
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option -c, --sources <sources>' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose                        Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose                        ',
+      '  --debug                          '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'fetch option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug                          Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug                          ',
+      '  --curlirize                      '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'fetch option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize                      Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize                      ',
+      '  -c, --sources <sources>          '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'fetch option -c, --sources <sources>' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -c, --sources <sources> Comma separated list of log sources (default: Log everything)
@@ -129,7 +183,7 @@ test("CLI help interface 'list option -c, --sources <sources>' description shoul
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option -t, --transaction-id' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option -t, --transaction-id' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -t, --transaction-id <txid> Filter by transactionId
@@ -147,7 +201,7 @@ test("CLI help interface 'list option -t, --transaction-id' description should b
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option -b, --begin-timestamp' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option -b, --begin-timestamp' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
   -b, --begin-timestamp <beginTs>  Begin timestamp for period (in ISO8601, example: "2022-10-13T19:06:28Z", or "2022-09.30". Cannot be more than
@@ -166,7 +220,7 @@ test("CLI help interface 'list option -b, --begin-timestamp' description should 
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'list option -e, --end-timestamp' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option -e, --end-timestamp' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
     -e, --end-timestamp <endTs> End timestamp for period. Default: "now"
@@ -184,7 +238,7 @@ test("CLI help interface 'list option -e, --end-timestamp' description should be
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface '-s, --search-string' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option -s, --search-string' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
         -s, --search-string <ss> Filter by a specific string (ANDed with transactionID filter)
@@ -202,7 +256,7 @@ test("CLI help interface '-s, --search-string' description should be expected en
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface '-d, --defaults' description should be expected english multiline", async () => {
+test("CLI help interface 'fetch option -d, --defaults' description should be expected english multiline", async () => {
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(

@@ -150,7 +150,61 @@ test("CLI help interface 'prune option -k, --insecure' description should be exp
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -h, --help      '
+      '  --verbose          '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'prune option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose            Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose          ',
+      '  --debug            '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'prune option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug            Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug            ',
+      '  --curlirize        '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'prune option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize        Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize        ',
+      '  -h, --help         '
     )
   );
 

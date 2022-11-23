@@ -123,14 +123,86 @@ test("CLI help interface 'import option -m, --type <type>' description should be
 test("CLI help interface 'import option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -i, --template-id <template-id> Email template id/name. If specified, -a and -A are ignored.
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure     ',
-      '  -f, --file <file>  '
+      '  -k, --insecure                   ',
+      '  --verbose                        '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose                        Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose                        ',
+      '  --debug                          '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug                          Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug                          ',
+      '  --curlirize                      '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize                      Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize                      ',
+      '  -i, --template-id <template-id>  '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option -i, --template-id' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -i, --template-id <template-id>  Email template id/name. If specified, -a and -A are ignored.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -i, --template-id <template-id>  ',
+      '  -f, --file <file>                '
     )
   );
 
@@ -147,8 +219,43 @@ test("CLI help interface 'import option -f, --file <file>' description should be
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      ' -f, --file <file>  ',
-      ' -a, --all          '
+      '  -f, --file <file>                ',
+      '  -a, --all                        '
+    )
+  );
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option -a, --all' description should be expected english", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -a, --all                        Import all email templates from single file. Ignored with -i.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -a, --all                        ',
+      '  -A, --all-separate               '
+    )
+  );
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'import option -A, --all-separate' description should be expected english", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -A, --all-separate               Import all email templates from separate files (*.template.email.json) in
+  the current directory. Ignored with -i or -a.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -A, --all-separate               ',
+      '  -h, --help                       '
     )
   );
   // Assert

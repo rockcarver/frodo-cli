@@ -239,6 +239,24 @@ test("CLI help interface 'describe option --debug' description should be expecte
     crudeMultilineTakeUntil(
       stdout,
       '  --debug                           ',
+      '  --curlirize                       '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'describe option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize                       Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize                       ',
       '  -i, --journey-id <journey>        '
     )
   );

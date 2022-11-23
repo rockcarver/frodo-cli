@@ -143,13 +143,85 @@ test("CLI help interface 'list option -m, --type <type>' description should be e
 test("CLI help interface 'list option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -l, --long Long with all fields. (default: false)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
+      '  --verbose          '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'list option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose            Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose          ',
+      '  --debug            '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'list option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug            Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug            ',
+      '  --curlirize        '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'list option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize        Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize        ',
+      '  -l, --long         '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'list option -l, --long' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -l, --long         Long with all fields. (default: false)
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -l, --long         ',
       '  -a, --analyze      '
     )
   );
@@ -160,14 +232,17 @@ test("CLI help interface 'list option -k, --insecure' description should be expe
 
 test("CLI help interface 'list option --analyze' description should be expected english", async () => {
   // Arrange
-  const expectedDescription = `
-        -a, --analyze      Analyze journeys for custom nodes.
-    `.trim();
+  const expected = collapseWhitespace(`
+  -a, --analyze      Analyze journeys for custom nodes.
+      `);
   // Act
-  const testLine = stdout
-    .split(/\n/)
-    .find((line) => line.trim().startsWith('-a, --analyze'))
-    .trim();
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -a, --analyze      ',
+      '  -h, --help         '
+    )
+  );
   // Assert
-  expect(testLine).toBe(expectedDescription);
+  expect(testLine).toBe(expected);
 });

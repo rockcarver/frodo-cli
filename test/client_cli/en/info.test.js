@@ -121,16 +121,93 @@ test("CLI help interface 'info Options -m, --type' description should be expecte
 test("CLI help interface 'info Options -k, --insecure' description should be expected english", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections) -s, --scriptFriendly Send output of operation to STDOUT in a script-friendly format (JSON) which can be piped to other commands. User messages/warnings are output to STDERR, and are not piped. For example, to only get bearer token: <<< frodo info my-tenant -s 2>/dev/null | jq -r .bearerToken >>> (default: Output as plain text)
+  -k, --insecure Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure     ',
-      '  -h, --help         '
+      '  -k, --insecure        ',
+      '  --verbose             '
     )
   );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'info option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose             Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose             ',
+      '  --debug               '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'info option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug               Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+    `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --debug               ',
+      '  --curlirize           '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'info option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize           Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize           ',
+      '  -s, --scriptFriendly  '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'info option -s, --scriptFriendly' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -s, --scriptFriendly  Send output of operation to STDOUT in a script-friendly format (JSON) which can
+  be piped to other commands. User messages/warnings are output to STDERR, and are
+  not piped. For example, to only get bearer token:
+  <<< frodo info my-tenant -s 2>/dev/null | jq -r .bearerToken >>> (default: Output
+  as plain text)
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -s, --scriptFriendly  ',
+      '  -h, --help            '
+    )
+  );
+
   // Assert
   expect(testLine).toBe(expected);
 });
