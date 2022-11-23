@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   exportThemeById,
   exportThemeByName,
@@ -70,7 +70,7 @@ program
       state.default.session.setCurlirize(options.curlirize);
       // export by name
       if (options.themeName && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Exporting theme "${
             options.themeName
           }" from realm "${state.default.session.getRealm()}"...`
@@ -79,7 +79,7 @@ program
       }
       // export by id
       else if (options.themeId && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Exporting theme "${
             options.themeId
           }" from realm "${state.default.session.getRealm()}"...`
@@ -88,12 +88,12 @@ program
       }
       // --all -a
       else if (options.all && (await getTokens())) {
-        printMessage('Exporting all themes to a single file...');
+        verboseMessage('Exporting all themes to a single file...');
         exportThemesToFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
-        printMessage('Exporting all themes to separate files...');
+        verboseMessage('Exporting all themes to separate files...');
         exportThemesToFiles();
       }
       // unrecognized combination of options or no options

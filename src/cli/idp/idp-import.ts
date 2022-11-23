@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -23,6 +23,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --idp-id <id>',
@@ -56,44 +59,45 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // import by id
-        if (options.file && options.idpId) {
-          printMessage(
-            `Importing provider "${
-              options.idpId
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importSocialProviderFromFile(options.idpId, options.file);
-        }
-        // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all providers from a single file (${options.file})...`
-          );
-          importSocialProvidersFromFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all providers from separate files in current directory...'
-          );
-          importSocialProvidersFromFiles();
-        }
-        // import first provider from file
-        else if (options.file) {
-          printMessage(
-            `Importing first provider from file "${
-              options.file
-            }" into realm "${state.default.session.getRealm()}"...`
-          );
-          importFirstSocialProviderFromFile(options.file);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // import by id
+      if (options.file && options.idpId && (await getTokens())) {
+        verboseMessage(
+          `Importing provider "${
+            options.idpId
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importSocialProviderFromFile(options.idpId, options.file);
+      }
+      // --all -a
+      else if (options.all && options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing all providers from a single file (${options.file})...`
+        );
+        importSocialProvidersFromFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && !options.file && (await getTokens())) {
+        verboseMessage(
+          'Importing all providers from separate files in current directory...'
+        );
+        importSocialProvidersFromFiles();
+      }
+      // import first provider from file
+      else if (options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing first provider from file "${
+            options.file
+          }" into realm "${state.default.session.getRealm()}"...`
+        );
+        importFirstSocialProviderFromFile(options.file);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler

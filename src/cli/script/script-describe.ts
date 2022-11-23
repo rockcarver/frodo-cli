@@ -16,6 +16,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(new Option('-i, --cmd-id <cmd-id>', 'Cmd id.'))
   .action(
     // implement command logic inside action handler
@@ -26,6 +29,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }

@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -22,6 +22,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --idp-id <idp-id>',
@@ -55,10 +58,13 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // export by id/name
         if (options.idpId) {
-          printMessage(
+          verboseMessage(
             `Exporting provider "${
               options.idpId
             }" from realm "${state.default.session.getRealm()}"...`
@@ -67,12 +73,12 @@ program
         }
         // --all -a
         else if (options.all) {
-          printMessage('Exporting all providers to a single file...');
+          verboseMessage('Exporting all providers to a single file...');
           exportSocialProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
-          printMessage('Exporting all providers to separate files...');
+          verboseMessage('Exporting all providers to separate files...');
           exportSocialProvidersToFiles();
         }
         // unrecognized combination of options or no options

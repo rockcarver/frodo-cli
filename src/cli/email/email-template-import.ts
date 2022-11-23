@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import {
   importEmailTemplateFromFile,
   importEmailTemplatesFromFile,
@@ -23,6 +23,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --template-id <template-id>',
@@ -51,38 +54,42 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // import by id
-        if (options.file && options.templateId) {
-          printMessage(`Importing email template "${options.templateId}"...`);
-          importEmailTemplateFromFile(options.templateId, options.file);
-        }
-        // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all email templates from a single file (${options.file})...`
-          );
-          importEmailTemplatesFromFile(options.file);
-        }
-        // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all email templates from separate files (*.template.email.json) in current directory...'
-          );
-          importEmailTemplatesFromFiles();
-        }
-        // import first template from file
-        else if (options.file) {
-          printMessage(
-            `Importing first email template from file "${options.file}"...`
-          );
-          importFirstEmailTemplateFromFile(options.file);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // import by id
+      if (options.file && options.templateId && (await getTokens())) {
+        verboseMessage(`Importing email template "${options.templateId}"...`);
+        importEmailTemplateFromFile(options.templateId, options.file);
+      }
+      // --all -a
+      else if (options.all && options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing all email templates from a single file (${options.file})...`
+        );
+        importEmailTemplatesFromFile(options.file);
+      }
+      // --all-separate -A
+      else if (options.allSeparate && !options.file && (await getTokens())) {
+        verboseMessage(
+          'Importing all email templates from separate files (*.template.email.json) in current directory...'
+        );
+        importEmailTemplatesFromFiles();
+      }
+      // import first template from file
+      else if (options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing first email template from file "${options.file}"...`
+        );
+        importFirstEmailTemplateFromFile(options.file);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end program logic inside action handler

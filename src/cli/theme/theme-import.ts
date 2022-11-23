@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import * as common from '../cmd_common';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importFirstThemeFromFile,
   importThemeById,
@@ -71,7 +71,7 @@ program
       state.default.session.setCurlirize(options.curlirize);
       // import by name
       if (options.file && options.themeName && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Importing theme with name "${
             options.themeName
           }" into realm "${state.default.session.getRealm()}"...`
@@ -80,7 +80,7 @@ program
       }
       // import by id
       else if (options.file && options.themeId && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Importing theme with id "${
             options.themeId
           }" into realm "${state.default.session.getRealm()}"...`
@@ -89,21 +89,21 @@ program
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Importing all themes from a single file (${options.file})...`
         );
         importThemesFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           'Importing all themes from separate files in current directory...'
         );
         importThemesFromFiles();
       }
       // import single theme from file
       else if (options.file && (await getTokens())) {
-        printMessage(
+        verboseMessage(
           `Importing first theme from file "${
             options.file
           }" into realm "${state.default.session.getRealm()}"...`
@@ -112,7 +112,10 @@ program
       }
       // unrecognized combination of options or no options
       else {
-        printMessage('Unrecognized combination of options or no options...');
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
         program.help();
       }
     }

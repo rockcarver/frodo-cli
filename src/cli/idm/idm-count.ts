@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { countManagedObjects } = Idm;
@@ -17,6 +17,9 @@ program
   .addArgument(common.userArgument)
   .addArgument(common.passwordArgument)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-m, --managed-object <type>',
@@ -32,8 +35,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(`Counting managed ${options.managedObject} objects...`);
+        verboseMessage(`Counting managed ${options.managedObject} objects...`);
         countManagedObjects(options.managedObject);
       }
     }

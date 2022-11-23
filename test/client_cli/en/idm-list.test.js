@@ -100,7 +100,7 @@ test("CLI help interface 'list option -k, --insecure' description should be expe
     crudeMultilineTakeUntil(
       stdout,
       '  -k, --insecure     ',
-      '  -h, --help         '
+      '  --verbose          '
     )
   );
 

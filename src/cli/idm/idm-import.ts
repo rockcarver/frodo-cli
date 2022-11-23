@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -15,6 +15,9 @@ const program = new Command('frodo idm import');
 interface IdmImportOptions {
   type?: string;
   insecure?: string;
+  verbose?: boolean;
+  debug?: boolean;
+  curlirize?: boolean;
   name?: string;
   file?: string;
   entitiesFile?: string;
@@ -34,6 +37,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-N, --name <name>',
@@ -80,47 +86,53 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // import by id/name
-        if (options.name) {
-          printMessage(
-            `Importing object "${
-              options.name
-            }" to realm "${state.default.session.getRealm()}"...`
-          );
-          await importConfigEntity(options.name, options.file);
-        }
-        // --all-separate -A
-        else if (
-          options.allSeparate &&
-          options.directory &&
-          options.entitiesFile &&
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // import by id/name
+      if (options.name && (await getTokens())) {
+        verboseMessage(
+          `Importing object "${
+            options.name
+          }" to realm "${state.default.session.getRealm()}"...`
+        );
+        await importConfigEntity(options.name, options.file);
+      }
+      // --all-separate -A
+      else if (
+        options.allSeparate &&
+        options.directory &&
+        options.entitiesFile &&
+        options.envFile &&
+        (await getTokens())
+      ) {
+        verboseMessage(
+          `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
+        );
+        await importAllConfigEntities(
+          options.directory,
+          options.entitiesFile,
           options.envFile
-        ) {
-          printMessage(
-            `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
-          );
-          await importAllConfigEntities(
-            options.directory,
-            options.entitiesFile,
-            options.envFile
-          );
-        }
-        // --all-separate -A without variable replacement
-        else if (options.allSeparate && options.directory) {
-          printMessage(
-            `Importing all IDM configuration objects into separate files in ${options.directory}...`
-          );
-          await importAllRawConfigEntities(options.directory);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+        );
+      }
+      // --all-separate -A without variable replacement
+      else if (
+        options.allSeparate &&
+        options.directory &&
+        (await getTokens())
+      ) {
+        verboseMessage(
+          `Importing all IDM configuration objects into separate files in ${options.directory}...`
+        );
+        await importAllRawConfigEntities(options.directory);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

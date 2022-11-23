@@ -6,7 +6,7 @@ import {
   exportJourneysToFile,
   exportJourneysToFiles,
 } from '../../ops/JourneyOps';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -24,6 +24,7 @@ program
   .addOption(common.insecureOption)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -83,38 +84,40 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (options.directory)
         state.default.session.setDirectory(options.directory);
-      if (await getTokens()) {
-        // export
-        if (options.journeyId) {
-          printMessage('Exporting journey...');
-          await exportJourneyToFile(options.journeyId, options.file, {
-            useStringArrays: options.useStringArrays,
-            deps: options.deps,
-          });
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Exporting all journeys to a single file...');
-          await exportJourneysToFile(options.file, {
-            useStringArrays: options.useStringArrays,
-            deps: options.deps,
-          });
-        }
-        // --all-separate -A
-        else if (options.allSeparate) {
-          printMessage('Exporting all journeys to separate files...');
-          await exportJourneysToFiles({
-            useStringArrays: options.useStringArrays,
-            deps: options.deps,
-          });
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      // export
+      if (options.journeyId && (await getTokens())) {
+        verboseMessage('Exporting journey...');
+        await exportJourneyToFile(options.journeyId, options.file, {
+          useStringArrays: options.useStringArrays,
+          deps: options.deps,
+        });
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all journeys to a single file...');
+        await exportJourneysToFile(options.file, {
+          useStringArrays: options.useStringArrays,
+          deps: options.deps,
+        });
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all journeys to separate files...');
+        await exportJourneysToFiles({
+          useStringArrays: options.useStringArrays,
+          deps: options.deps,
+        });
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

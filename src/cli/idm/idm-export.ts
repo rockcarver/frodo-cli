@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const {
@@ -22,6 +22,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-N, --name <name>',
@@ -68,47 +71,53 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // export by id/name
-        if (options.name) {
-          printMessage(
-            `Exporting object "${
-              options.name
-            }" from realm "${state.default.session.getRealm()}"...`
-          );
-          exportConfigEntity(options.name, options.file);
-        }
-        // --all-separate -A
-        else if (
-          options.allSeparate &&
-          options.directory &&
-          options.entitiesFile &&
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // export by id/name
+      if (options.name && (await getTokens())) {
+        verboseMessage(
+          `Exporting object "${
+            options.name
+          }" from realm "${state.default.session.getRealm()}"...`
+        );
+        exportConfigEntity(options.name, options.file);
+      }
+      // --all-separate -A
+      else if (
+        options.allSeparate &&
+        options.directory &&
+        options.entitiesFile &&
+        options.envFile &&
+        (await getTokens())
+      ) {
+        verboseMessage(
+          `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
+        );
+        exportAllConfigEntities(
+          options.directory,
+          options.entitiesFile,
           options.envFile
-        ) {
-          printMessage(
-            `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
-          );
-          exportAllConfigEntities(
-            options.directory,
-            options.entitiesFile,
-            options.envFile
-          );
-        }
-        // --all-separate -A without variable replacement
-        else if (options.allSeparate && options.directory) {
-          printMessage(
-            `Exporting all IDM configuration objects into separate files in ${options.directory}...`
-          );
-          exportAllRawConfigEntities(options.directory);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage(
-            'Unrecognized combination of options or no options...',
-            'error'
-          );
-          program.help();
-        }
+        );
+      }
+      // --all-separate -A without variable replacement
+      else if (
+        options.allSeparate &&
+        options.directory &&
+        (await getTokens())
+      ) {
+        verboseMessage(
+          `Exporting all IDM configuration objects into separate files in ${options.directory}...`
+        );
+        exportAllRawConfigEntities(options.directory);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

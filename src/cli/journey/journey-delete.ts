@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { deleteJourney, deleteJourneys } = Journey;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -51,26 +54,30 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // delete by id
-        if (options.journeyId) {
-          printMessage(
-            `Deleting journey ${
-              options.journeyId
-            } in realm "${state.default.session.getRealm()}"...`
-          );
-          deleteJourney(options.journeyId, options);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Deleting all journeys...');
-          deleteJourneys(options);
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // delete by id
+      if (options.journeyId && (await getTokens())) {
+        verboseMessage(
+          `Deleting journey ${
+            options.journeyId
+          } in realm "${state.default.session.getRealm()}"...`
+        );
+        deleteJourney(options.journeyId, options);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Deleting all journeys...');
+        deleteJourneys(options);
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
       }
     }
     // end command logic inside action handler

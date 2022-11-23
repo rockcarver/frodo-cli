@@ -20,6 +20,9 @@ program
   .addArgument(common.apiSecretArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(new Option('--no-validate', 'Do not validate connection.'))
   .addOption(
     new Option(
@@ -43,6 +46,9 @@ program
       state.default.session.setLogApiSecret(secret);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (options.authenticationService) {
         state.default.session.setAuthenticationService(
           options.authenticationService

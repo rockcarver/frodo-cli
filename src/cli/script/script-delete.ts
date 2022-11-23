@@ -16,6 +16,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --cmd-id <cmd-id>',
@@ -31,12 +34,6 @@ program
       'No deep delete. This leaves orphaned configuration artifacts behind.'
     )
   )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -46,6 +43,9 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
         // code goes here
       }

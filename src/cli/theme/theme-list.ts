@@ -2,7 +2,7 @@ import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { listThemes } from '../../ops/ThemeOps';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -37,7 +37,7 @@ program
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Listing themes in realm "${state.default.session.getRealm()}"...`
         );
         listThemes(options.long);

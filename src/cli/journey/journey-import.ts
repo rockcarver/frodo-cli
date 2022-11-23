@@ -25,6 +25,7 @@ program
   .addOption(common.insecureOption)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -72,48 +73,47 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
-      if (await getTokens()) {
-        // import
-        if (options.journeyId) {
-          printMessage(`Importing journey ${options.journeyId}...`);
-          importJourneyFromFile(options.journeyId, options.file, {
-            reUuid: options.reUuid,
-            deps: options.deps,
-          });
-        }
-        // --all -a
-        else if (options.all && options.file) {
-          printMessage(
-            `Importing all journeys from a single file (${options.file})...`
-          );
-          importJourneysFromFile(options.file, {
-            reUuid: options.reUuid,
-            deps: options.deps,
-          });
-        }
-        // --all-separate -A
-        else if (options.allSeparate && !options.file) {
-          printMessage(
-            'Importing all journeys from separate files in current directory...'
-          );
-          importJourneysFromFiles({
-            reUuid: options.reUuid,
-            deps: options.deps,
-          });
-        }
-        // import first journey in file
-        else if (options.file) {
-          printMessage('Importing first journey in file...');
-          importFirstJourneyFromFile(options.file, {
-            reUuid: options.reUuid,
-            deps: options.deps,
-          });
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setCurlirize(options.curlirize);
+      // import
+      if (options.journeyId && (await getTokens())) {
+        printMessage(`Importing journey ${options.journeyId}...`);
+        importJourneyFromFile(options.journeyId, options.file, {
+          reUuid: options.reUuid,
+          deps: options.deps,
+        });
+      }
+      // --all -a
+      else if (options.all && options.file && (await getTokens())) {
+        printMessage(
+          `Importing all journeys from a single file (${options.file})...`
+        );
+        importJourneysFromFile(options.file, {
+          reUuid: options.reUuid,
+          deps: options.deps,
+        });
+      }
+      // --all-separate -A
+      else if (options.allSeparate && !options.file && (await getTokens())) {
+        printMessage(
+          'Importing all journeys from separate files in current directory...'
+        );
+        importJourneysFromFiles({
+          reUuid: options.reUuid,
+          deps: options.deps,
+        });
+      }
+      // import first journey in file
+      else if (options.file && (await getTokens())) {
+        printMessage('Importing first journey in file...');
+        importFirstJourneyFromFile(options.file, {
+          reUuid: options.reUuid,
+          deps: options.deps,
+        });
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler

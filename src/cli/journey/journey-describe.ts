@@ -8,7 +8,7 @@ import {
 } from '@rockcarver/frodo-lib';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
@@ -31,6 +31,7 @@ program
   .addOption(common.insecureOption)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -67,6 +68,7 @@ program
       state.default.session.setAllowInsecureConnection(options.insecure);
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (options.outputFile)
         state.default.session.setOutputFile(options.outputFile);
       // TODO: review checks for arguments
@@ -79,7 +81,7 @@ program
           process.exitCode = 1;
           return;
         }
-        printMessage(`Describing local journey file ${options.file}...`);
+        verboseMessage(`Describing local journey file ${options.file}...`);
         try {
           // override version
           if (typeof options.overrideVersion !== 'undefined') {
@@ -143,7 +145,7 @@ program
           process.exitCode = 1;
         }
       } else if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
         );
         // override version

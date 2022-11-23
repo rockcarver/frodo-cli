@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, Variables, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common.js';
-import { printMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { deleteVariableCmd, deleteVariablesCmd } = Variables;
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --variable-id <variable-id>',
@@ -33,12 +36,6 @@ program
       'No deep delete. This leaves orphaned configuration artifacts behind.'
     )
   )
-  .addOption(
-    new Option(
-      '--verbose',
-      'Verbose output during command execution. If specified, may or may not produce additional output.'
-    ).default(false, 'off')
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
@@ -48,22 +45,23 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
-      if (await getTokens()) {
-        // delete by id
-        if (options.variableId) {
-          printMessage('Deleting variable...');
-          deleteVariableCmd(options.variableId);
-        }
-        // --all -a
-        else if (options.all) {
-          printMessage('Deleting all variables...');
-          deleteVariablesCmd();
-        }
-        // unrecognized combination of options or no options
-        else {
-          printMessage('Unrecognized combination of options or no options...');
-          program.help();
-        }
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
+      // delete by id
+      if (options.variableId && (await getTokens())) {
+        verboseMessage('Deleting variable...');
+        deleteVariableCmd(options.variableId);
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
+        verboseMessage('Deleting all variables...');
+        deleteVariablesCmd();
+      }
+      // unrecognized combination of options or no options
+      else {
+        printMessage('Unrecognized combination of options or no options...');
+        program.help();
       }
     }
     // end command logic inside action handler

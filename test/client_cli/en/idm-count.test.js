@@ -110,19 +110,95 @@ test("CLI help interface 'count option -N, --name <name>' description should be 
   expect(testLine).toBe(expected);
 });
 
-test("CLI help interface 'export option -k, --insecure' description should be expected english multiline", async () => {
+test("CLI help interface 'count option -k, --insecure' description should be expected english multiline", async () => {
   // Arrange
   const expected = collapseWhitespace(`
-  -k, --insecure               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
-  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default:
-  Don't allow insecure connections)
+  -k, --insecure               Allow insecure connections when using SSL/TLS. Has no effect when using a
+  network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the
+  proxy must provide this capability. (default: Don't allow insecure
+  connections)
+    `);
+
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -k, --insecure               ',
+      '  --verbose                    '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'count option --verbose' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --verbose                    Verbose output during command execution. If specified, may or may not produce additional output.
+    `);
+
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --verbose                    ',
+      '  --debug                      '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'count option --debug' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  --debug                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
     `);
   // Act
   const testLine = collapseWhitespace(
     crudeMultilineTakeUntil(
       stdout,
-      '  -k, --insecure     ',
+      '  --debug                      ',
+      '  --curlirize                  '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'count option --curlirize' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+    --curlirize                  Output all network calls in curl format.
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  --curlirize                  ',
       '  -m, --managed-object <type>  '
+    )
+  );
+
+  // Assert
+  expect(testLine).toBe(expected);
+});
+
+test("CLI help interface 'count option -m, --managed-object' description should be expected english multiline", async () => {
+  // Arrange
+  const expected = collapseWhitespace(`
+  -m, --managed-object <type>  Type of managed object to count. E.g. "alpha_user", "alpha_role", "user",
+  "role".
+      `);
+  // Act
+  const testLine = collapseWhitespace(
+    crudeMultilineTakeUntil(
+      stdout,
+      '  -m, --managed-object <type>  ',
+      '  -h, --help                   '
     )
   );
 

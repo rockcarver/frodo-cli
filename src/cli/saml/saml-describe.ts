@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 import { describeSaml2Provider } from '../../ops/Saml2Ops';
 
 const { getTokens } = Authenticate;
@@ -35,7 +35,7 @@ program
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Describing SAML entity provider ${
             options.entityId
           } in realm "${state.default.session.getRealm()}"...`

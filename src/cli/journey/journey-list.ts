@@ -2,7 +2,7 @@ import { Command, Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { listJourneys } from '../../ops/JourneyOps';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
@@ -18,6 +18,9 @@ program
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
+  .addOption(common.verboseOption)
+  .addOption(common.debugOption)
+  .addOption(common.curlirizeOption)
   .addOption(
     new Option('-l, --long', 'Long with all fields.').default(false, 'false')
   )
@@ -31,8 +34,11 @@ program
       state.default.session.setPassword(password);
       state.default.session.setDeploymentType(options.type);
       state.default.session.setAllowInsecureConnection(options.insecure);
+      state.default.session.setVerbose(options.verbose);
+      state.default.session.setDebug(options.debug);
+      state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Listing journeys in realm "${state.default.session.getRealm()}"...`
         );
         listJourneys(options.long, options.analyze);

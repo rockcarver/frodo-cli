@@ -1,7 +1,7 @@
 import { Command, Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
-import { printMessage } from '../../utils/Console';
+import { verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 const { listCirclesOfTrust } = CirclesOfTrust;
@@ -37,7 +37,7 @@ program
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        printMessage(
+        verboseMessage(
           `Listing SAML circles of trust in realm "${state.default.session.getRealm()}"...`
         );
         listCirclesOfTrust(options.long);
