@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2-10] - 2022-11-23
+
 ## [0.18.2-9] - 2022-11-22
 
 -   \#110: Migrate from .frodorc to Connections.json
@@ -732,7 +734,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-9...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-10...HEAD
+
+[0.18.2-10]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-9...v0.18.2-10
 
 [0.18.2-9]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-8...v0.18.2-9
 
