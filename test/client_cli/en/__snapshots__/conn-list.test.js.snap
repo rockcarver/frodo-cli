@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'list' should be expected english 1`] = `
+"Usage: frodo conn list [options]
+
+List connection profiles.
+
+Options:
+  --verbose   Verbose output during command execution. If specified, may or may
+              not produce additional output.
+  --debug     Debug output during command execution. If specified, may or may
+              not produce additional output helpful for troubleshooting.
+  -l, --long  Long with all fields. (default: false)
+  -h, --help  Help
+"
+`;

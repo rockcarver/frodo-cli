@@ -70,9 +70,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
   .addOption(
     new Option('-d, --defaults', 'Use default logging noise filters').default(
       false,
-      `Use custom logging noise filters defined in ${config.getConfigPath()}/${
-        config.FRODO_LOG_NOISEFILTER_FILENAME
-      }`
+      `Use custom logging noise filters defined in $HOME/${config.FRODO_LOG_NOISEFILTER_FILENAME}`
     )
   )
   .action(async (host, user, password, options, command) => {
