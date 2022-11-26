@@ -19,7 +19,7 @@ exports[`frodo info "frodo info -s": should output cookie name, session id, and 
 `;
 
 exports[`frodo info "frodo info": should display cookie name, session id, and access token 1`] = `
-"[96mForgeRock Identity Cloud [39mdetected.
+"ForgeRock Identity Cloud detected.
 Connected to [https://openam-frodo-dev.forgeblocks.com/am], [alpha] realm, as [volker.scheuber@forgerock.com]
 Cookie name: 4ad7d57003aee4f
 Session token: gHKOljqunpzZdmX_cmO7NHwQBP8.*AAJTSQACMDIAAlNLABxPbzBTZjQ2ZXNrZkVsUExXeUtVcmgrNkFOcmc9AAR0eXBlAANDVFMAAlMxAAIwMQ..*
