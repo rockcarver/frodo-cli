@@ -31,15 +31,28 @@
   "scripts": {
     "test": "npx tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:local": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests",
-    "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand e2e",
-    "test:e2e:list": "node --experimental-vm-modules node_modules/jest/bin/jest.js --listTests e2e",
+    "test:debug": "node --no-warnings --experimental-vm-modules --experimental-specifier-resolution=node node_modules/jest/bin/jest.js --verbose=true --silent=false",
     "lint": "npx eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "npx eslint --fix --ext .ts --ignore-path .gitignore .",
     "build": "npx tsc && npx gulp",
     "build:local": "npx tsc && npx gulp build-local",
     "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/esm/",
+      "<rootDir>/test/"
+    ],
+    "testMatch": [
+      "**/?(*.)(test).js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
+    "snapshotResolver": "<rootDir>/test/snapshotResolve.ts",
+    "verbose": true
   },
   "contributors": [
     {
@@ -90,7 +103,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.16.2-11",
+    "@rockcarver/frodo-lib": "0.16.2-12",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
