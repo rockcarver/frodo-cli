@@ -1,0 +1,293 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo journey list "frodo journey list --long": should list the names, status, and tags of the default journeys 1`] = `
+"[96mName                          [39m[90m│[39m[96mStatus  [39m[90m│[39m[96mTags                                                       [39m
+AA-Login                      [90m│[39m[92menabled[39m [90m│[39mAuthentication, Social Authentication, Adaptive, Autonomous
+                              [90m│[39m        [90m│[39mAccess                                                     
+AA-Registration               [90m│[39m[92menabled[39m [90m│[39mRegistration, Autonomous Access, Adaptive                  
+ADFSOIDC                      [90m│[39m[92menabled[39m [90m│[39mFederation, ADFS                                           
+Anonymous                     [90m│[39m[92menabled[39m [90m│[39mTracking                                                   
+APIProtection                 [90m│[39m[92menabled[39m [90m│[39mAPI Protection                                             
+AutoAccess                    [90m│[39m[92menabled[39m [90m│[39mAdaptive, Prototype                                        
+Azure                         [90m│[39m[92menabled[39m [90m│[39mAuthentication, SAML, Azure                                
+AzureADPassthru               [90m│[39m[92menabled[39m [90m│[39mAuthentication, Azure, Trickle Migration                   
+AzureOIDC                     [90m│[39m[92menabled[39m [90m│[39mAuthentication, Azure                                      
+ClearLockout                  [90m│[39m[92menabled[39m [90m│[39mSelf-Service, Proof Of Concept, Prototype                  
+CollectReplayCredentials      [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+ConnectSocial                 [90m│[39m[92menabled[39m [90m│[39mSelf-Service                                               
+CookieConsent                 [90m│[39m[92menabled[39m [90m│[39mAuthentication, Proof Of Concept, Prototype                
+Country                       [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Adaptive, Prototype                      
+Crypto                        [90m│[39m[92menabled[39m [90m│[39mProof Of Concept                                           
+CustomerIdentityUpdateUsername[90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Self-Service                             
+CustomHostedUILogin           [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+DefaultSuccessURL             [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+DelegatedProfileUpdate        [90m│[39m[92menabled[39m [90m│[39m                                                           
+DevicePrint                   [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper                                           
+Disabled                      [90m│[39m[91mdisabled[39m[90m│[39mPrototype                                                  
+Dispatcher                    [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+DynamicConfiguration          [90m│[39m[92menabled[39m [90m│[39m                                                           
+EmailValidation               [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper                                           
+FindUser                      [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+FindUserFromSession           [90m│[39m[92menabled[39m [90m│[39mHelper, Proof Of Concept, Prototype                        
+ForgottenUsername             [90m│[39m[92menabled[39m [90m│[39mSelf-Service                                               
+FRAAS-7955                    [90m│[39m[92menabled[39m [90m│[39mPrototype, Jira                                            
+FraudRisk                     [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper, Proof Of Concept                         
+FrodoTest                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+Hash                          [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype                                
+iAA-FraudRisk                 [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper, Proof Of Concept, Autonomous Access      
+iAA-LoginRisk                 [90m│[39m[92menabled[39m [90m│[39mAutonomous Access, Helper                                  
+iAA-RegistrationRisk          [90m│[39m[92menabled[39m [90m│[39mAutonomous Access, Helper                                  
+IdentityProofing              [90m│[39m[92menabled[39m [90m│[39m                                                           
+Impersonate                   [90m│[39m[92menabled[39m [90m│[39mProof Of Concept                                           
+Impersonation                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+iPasswordBreachDetection      [90m│[39m[92menabled[39m [90m│[39mAdaptive                                                   
+iSocialLogin                  [90m│[39m[92menabled[39m [90m│[39mSocial Authentication                                      
+KerberosLogin                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+LanguageSwitcher              [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+Launcher                      [90m│[39m[92menabled[39m [90m│[39mHelper                                                     
+Login                         [90m│[39m[92menabled[39m [90m│[39mAuthentication, Social Authentication                      
+Metrics                       [90m│[39m[92menabled[39m [90m│[39m                                                           
+MFAAutoSelect                 [90m│[39m[92menabled[39m [90m│[39mMFA, Adaptive, Helper, OTP                                 
+MFAWithEmailLink              [90m│[39m[92menabled[39m [90m│[39mHelper, MFA                                                
+MFAWithEmailOTP               [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MFAWithSMSOTP                 [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MFAWithVoiceOTP               [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MobileGenerateEmailOTP        [90m│[39m[92menabled[39m [90m│[39m                                                           
+MobileValidateEmailOTP        [90m│[39m[92menabled[39m [90m│[39m                                                           
+My Tree                       [90m│[39m[92menabled[39m [90m│[39m                                                           
+Oath                          [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+OathJoker                     [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+Okta_SAML                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+OTPaaS                        [90m│[39m[92menabled[39m [90m│[39mOTP                                                        
+OTPEndpoint                   [90m│[39m[92menabled[39m [90m│[39mHelper, OTP                                                
+Passthru                      [90m│[39m[92menabled[39m [90m│[39mAuthentication                                             
+PasswordBreachDetection       [90m│[39m[92menabled[39m [90m│[39m                                                           
+PasswordGrant                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+ProgressiveProfile            [90m│[39m[92menabled[39m [90m│[39mProgressive Profile, Helper                                
+ProtectedLogin                [90m│[39m[92menabled[39m [90m│[39mAPI Protection, Authentication, Proof Of Concept, Prototype
+Push                          [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+PushRegistration              [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+Registration                  [90m│[39m[92menabled[39m [90m│[39mRegistration                                               
+ResetPassword                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+ResetPassword-Choice          [90m│[39m[92menabled[39m [90m│[39m                                                           
+ResetReplayCredentials        [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+Routed_OIDC                   [90m│[39m[92menabled[39m [90m│[39mAuthentication, IDP Discovery                              
+Routed_SAML                   [90m│[39m[92menabled[39m [90m│[39mIDP Discovery, SAML                                        
+Router                        [90m│[39m[92menabled[39m [90m│[39mIDP Discovery                                              
+SessionInfo                   [90m│[39m[92menabled[39m [90m│[39m                                                           
+SetupMFA                      [90m│[39m[92menabled[39m [90m│[39m                                                           
+SocialLogin-stoyan            [90m│[39m[92menabled[39m [90m│[39m                                                           
+StudentLogin                  [90m│[39m[92menabled[39m [90m│[39m                                                           
+TandC                         [90m│[39m[92menabled[39m [90m│[39m                                                           
+temp                          [90m│[39m[92menabled[39m [90m│[39m                                                           
+TermsAndConditions            [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByLanguage               [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByLanguageMulti          [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByPreference             [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByProfileData            [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemedMFALogin                [90m│[39m[92menabled[39m [90m│[39m                                                           
+Themes                        [90m│[39m[92menabled[39m [90m│[39m                                                           
+TwilioIVR                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+TxAuthZ                       [90m│[39m[92menabled[39m [90m│[39mHelper, Proof Of Concept, TxAuthZ                          
+UpdatePassword                [90m│[39m[92menabled[39m [90m│[39m                                                           
+UpdatePersonalData            [90m│[39m[92menabled[39m [90m│[39m                                                           
+UpdateUsername                [90m│[39m[92menabled[39m [90m│[39m                                                           
+username                      [90m│[39m[92menabled[39m [90m│[39m                                                           
+WebAuthN                      [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+WebAuthNRegistration          [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+"
+`;
+
+exports[`frodo journey list "frodo journey list -l": should list the names, status, and tags of the default journeys 1`] = `
+"[96mName                          [39m[90m│[39m[96mStatus  [39m[90m│[39m[96mTags                                                       [39m
+AA-Login                      [90m│[39m[92menabled[39m [90m│[39mAuthentication, Social Authentication, Adaptive, Autonomous
+                              [90m│[39m        [90m│[39mAccess                                                     
+AA-Registration               [90m│[39m[92menabled[39m [90m│[39mRegistration, Autonomous Access, Adaptive                  
+ADFSOIDC                      [90m│[39m[92menabled[39m [90m│[39mFederation, ADFS                                           
+Anonymous                     [90m│[39m[92menabled[39m [90m│[39mTracking                                                   
+APIProtection                 [90m│[39m[92menabled[39m [90m│[39mAPI Protection                                             
+AutoAccess                    [90m│[39m[92menabled[39m [90m│[39mAdaptive, Prototype                                        
+Azure                         [90m│[39m[92menabled[39m [90m│[39mAuthentication, SAML, Azure                                
+AzureADPassthru               [90m│[39m[92menabled[39m [90m│[39mAuthentication, Azure, Trickle Migration                   
+AzureOIDC                     [90m│[39m[92menabled[39m [90m│[39mAuthentication, Azure                                      
+ClearLockout                  [90m│[39m[92menabled[39m [90m│[39mSelf-Service, Proof Of Concept, Prototype                  
+CollectReplayCredentials      [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+ConnectSocial                 [90m│[39m[92menabled[39m [90m│[39mSelf-Service                                               
+CookieConsent                 [90m│[39m[92menabled[39m [90m│[39mAuthentication, Proof Of Concept, Prototype                
+Country                       [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Adaptive, Prototype                      
+Crypto                        [90m│[39m[92menabled[39m [90m│[39mProof Of Concept                                           
+CustomerIdentityUpdateUsername[90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Self-Service                             
+CustomHostedUILogin           [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+DefaultSuccessURL             [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+DelegatedProfileUpdate        [90m│[39m[92menabled[39m [90m│[39m                                                           
+DevicePrint                   [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper                                           
+Disabled                      [90m│[39m[91mdisabled[39m[90m│[39mPrototype                                                  
+Dispatcher                    [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+DynamicConfiguration          [90m│[39m[92menabled[39m [90m│[39m                                                           
+EmailValidation               [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper                                           
+FindUser                      [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+FindUserFromSession           [90m│[39m[92menabled[39m [90m│[39mHelper, Proof Of Concept, Prototype                        
+ForgottenUsername             [90m│[39m[92menabled[39m [90m│[39mSelf-Service                                               
+FRAAS-7955                    [90m│[39m[92menabled[39m [90m│[39mPrototype, Jira                                            
+FraudRisk                     [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper, Proof Of Concept                         
+FrodoTest                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+Hash                          [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype                                
+iAA-FraudRisk                 [90m│[39m[92menabled[39m [90m│[39mAdaptive, Helper, Proof Of Concept, Autonomous Access      
+iAA-LoginRisk                 [90m│[39m[92menabled[39m [90m│[39mAutonomous Access, Helper                                  
+iAA-RegistrationRisk          [90m│[39m[92menabled[39m [90m│[39mAutonomous Access, Helper                                  
+IdentityProofing              [90m│[39m[92menabled[39m [90m│[39m                                                           
+Impersonate                   [90m│[39m[92menabled[39m [90m│[39mProof Of Concept                                           
+Impersonation                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+iPasswordBreachDetection      [90m│[39m[92menabled[39m [90m│[39mAdaptive                                                   
+iSocialLogin                  [90m│[39m[92menabled[39m [90m│[39mSocial Authentication                                      
+KerberosLogin                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+LanguageSwitcher              [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+Launcher                      [90m│[39m[92menabled[39m [90m│[39mHelper                                                     
+Login                         [90m│[39m[92menabled[39m [90m│[39mAuthentication, Social Authentication                      
+Metrics                       [90m│[39m[92menabled[39m [90m│[39m                                                           
+MFAAutoSelect                 [90m│[39m[92menabled[39m [90m│[39mMFA, Adaptive, Helper, OTP                                 
+MFAWithEmailLink              [90m│[39m[92menabled[39m [90m│[39mHelper, MFA                                                
+MFAWithEmailOTP               [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MFAWithSMSOTP                 [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MFAWithVoiceOTP               [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+MobileGenerateEmailOTP        [90m│[39m[92menabled[39m [90m│[39m                                                           
+MobileValidateEmailOTP        [90m│[39m[92menabled[39m [90m│[39m                                                           
+My Tree                       [90m│[39m[92menabled[39m [90m│[39m                                                           
+Oath                          [90m│[39m[92menabled[39m [90m│[39mMFA, OTP                                                   
+OathJoker                     [90m│[39m[92menabled[39m [90m│[39mPrototype                                                  
+Okta_SAML                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+OTPaaS                        [90m│[39m[92menabled[39m [90m│[39mOTP                                                        
+OTPEndpoint                   [90m│[39m[92menabled[39m [90m│[39mHelper, OTP                                                
+Passthru                      [90m│[39m[92menabled[39m [90m│[39mAuthentication                                             
+PasswordBreachDetection       [90m│[39m[92menabled[39m [90m│[39m                                                           
+PasswordGrant                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+ProgressiveProfile            [90m│[39m[92menabled[39m [90m│[39mProgressive Profile, Helper                                
+ProtectedLogin                [90m│[39m[92menabled[39m [90m│[39mAPI Protection, Authentication, Proof Of Concept, Prototype
+Push                          [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+PushRegistration              [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+Registration                  [90m│[39m[92menabled[39m [90m│[39mRegistration                                               
+ResetPassword                 [90m│[39m[92menabled[39m [90m│[39m                                                           
+ResetPassword-Choice          [90m│[39m[92menabled[39m [90m│[39m                                                           
+ResetReplayCredentials        [90m│[39m[92menabled[39m [90m│[39mProof Of Concept, Prototype, Helper                        
+Routed_OIDC                   [90m│[39m[92menabled[39m [90m│[39mAuthentication, IDP Discovery                              
+Routed_SAML                   [90m│[39m[92menabled[39m [90m│[39mIDP Discovery, SAML                                        
+Router                        [90m│[39m[92menabled[39m [90m│[39mIDP Discovery                                              
+SessionInfo                   [90m│[39m[92menabled[39m [90m│[39m                                                           
+SetupMFA                      [90m│[39m[92menabled[39m [90m│[39m                                                           
+SocialLogin-stoyan            [90m│[39m[92menabled[39m [90m│[39m                                                           
+StudentLogin                  [90m│[39m[92menabled[39m [90m│[39m                                                           
+TandC                         [90m│[39m[92menabled[39m [90m│[39m                                                           
+temp                          [90m│[39m[92menabled[39m [90m│[39m                                                           
+TermsAndConditions            [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByLanguage               [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByLanguageMulti          [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByPreference             [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemeByProfileData            [90m│[39m[92menabled[39m [90m│[39m                                                           
+ThemedMFALogin                [90m│[39m[92menabled[39m [90m│[39m                                                           
+Themes                        [90m│[39m[92menabled[39m [90m│[39m                                                           
+TwilioIVR                     [90m│[39m[92menabled[39m [90m│[39m                                                           
+TxAuthZ                       [90m│[39m[92menabled[39m [90m│[39mHelper, Proof Of Concept, TxAuthZ                          
+UpdatePassword                [90m│[39m[92menabled[39m [90m│[39m                                                           
+UpdatePersonalData            [90m│[39m[92menabled[39m [90m│[39m                                                           
+UpdateUsername                [90m│[39m[92menabled[39m [90m│[39m                                                           
+username                      [90m│[39m[92menabled[39m [90m│[39m                                                           
+WebAuthN                      [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+WebAuthNRegistration          [90m│[39m[92menabled[39m [90m│[39mMFA                                                        
+"
+`;
+
+exports[`frodo journey list "frodo journey list": should list the names of the default journeys 1`] = `
+"AA-Login
+AA-Registration
+ADFSOIDC
+Anonymous
+APIProtection
+AutoAccess
+Azure
+AzureADPassthru
+AzureOIDC
+ClearLockout
+CollectReplayCredentials
+ConnectSocial
+CookieConsent
+Country
+Crypto
+CustomerIdentityUpdateUsername
+CustomHostedUILogin
+DefaultSuccessURL
+DelegatedProfileUpdate
+DevicePrint
+Disabled
+Dispatcher
+DynamicConfiguration
+EmailValidation
+FindUser
+FindUserFromSession
+ForgottenUsername
+FRAAS-7955
+FraudRisk
+FrodoTest
+Hash
+iAA-FraudRisk
+iAA-LoginRisk
+iAA-RegistrationRisk
+IdentityProofing
+Impersonate
+Impersonation
+iPasswordBreachDetection
+iSocialLogin
+KerberosLogin
+LanguageSwitcher
+Launcher
+Login
+Metrics
+MFAAutoSelect
+MFAWithEmailLink
+MFAWithEmailOTP
+MFAWithSMSOTP
+MFAWithVoiceOTP
+MobileGenerateEmailOTP
+MobileValidateEmailOTP
+My Tree
+Oath
+OathJoker
+Okta_SAML
+OTPaaS
+OTPEndpoint
+Passthru
+PasswordBreachDetection
+PasswordGrant
+ProgressiveProfile
+ProtectedLogin
+Push
+PushRegistration
+Registration
+ResetPassword
+ResetPassword-Choice
+ResetReplayCredentials
+Routed_OIDC
+Routed_SAML
+Router
+SessionInfo
+SetupMFA
+SocialLogin-stoyan
+StudentLogin
+TandC
+temp
+TermsAndConditions
+ThemeByLanguage
+ThemeByLanguageMulti
+ThemeByPreference
+ThemeByProfileData
+ThemedMFALogin
+Themes
+TwilioIVR
+TxAuthZ
+UpdatePassword
+UpdatePersonalData
+UpdateUsername
+username
+WebAuthN
+WebAuthNRegistration
+"
+`;
