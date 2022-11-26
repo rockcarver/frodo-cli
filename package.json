@@ -39,21 +39,6 @@
     "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
   },
-  "jest": {
-    "roots": [
-      "<rootDir>/esm/",
-      "<rootDir>/test/"
-    ],
-    "testMatch": [
-      "**/?(*.)(test).js"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ],
-    "snapshotResolver": "<rootDir>/test/snapshotResolve.ts",
-    "verbose": true
-  },
   "contributors": [
     {
       "name": "Sandeep Chaturvedi",

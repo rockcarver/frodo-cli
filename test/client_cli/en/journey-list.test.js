@@ -10,7 +10,7 @@ node14Compatibility();
 
 const exec = promisify(cp.exec);
 const CMD = 'frodo journey list --help';
-const { stdout } = await exec(CMD);
+const { stdout, stderr } = await exec(CMD);
 
 test("CLI help interface for 'journey list' Usage should be expected english", async () => {
   // Arrange
