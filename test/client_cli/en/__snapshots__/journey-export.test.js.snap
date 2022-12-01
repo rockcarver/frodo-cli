@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'journey export' should be expected english 1`] = `
+"Usage: frodo journey export [options] <host> [realm] [user] [password]
+
+Export journeys/trees.
+
+Arguments:
+  host                         Access Management base URL, e.g.:
+                               https://cdk.iam.example.com/am. To use a
+                               connection profile, just specify a unique
+                               substring.
+  realm                        Realm. Specify realm as '/' for the root realm
+                               or 'realm' or '/parent/child' otherwise.
+                               (default: "alpha" for Identity Cloud tenants,
+                               "/" otherwise.)
+  user                         Username to login with. Must be an admin user
+                               with appropriate rights to manage authentication
+                               journeys/trees.
+  password                     Password.
+
+Options:
+  -m, --type <type>            Override auto-detected deployment type. Valid
+                               values for type:
+                               classic:  A classic Access Management-only
+                               deployment with custom layout and configuration.
+                               cloud:    A ForgeRock Identity Cloud
+                               environment.
+                               forgeops: A ForgeOps CDK or CDM deployment.
+                               The detected or provided deployment type
+                               controls certain behavior like obtaining an
+                               Identity Management admin token or not and
+                               whether to export/import referenced email
+                               templates or how to walk through the tenant
+                               admin login flow of Identity Cloud and handle
+                               MFA (choices: "classic", "cloud", "forgeops")
+  -k, --insecure               Allow insecure connections when using SSL/TLS.
+                               Has no effect when using a network proxy for
+                               https (HTTPS_PROXY=http://<host>:<port>), in
+                               that case the proxy must provide this
+                               capability. (default: Don't allow insecure
+                               connections)
+  --verbose                    Verbose output during command execution. If
+                               specified, may or may not produce additional
+                               output.
+  --debug                      Debug output during command execution. If
+                               specified, may or may not produce additional
+                               output helpful for troubleshooting.
+  --curlirize                  Output all network calls in curl format.
+  -i, --journey-id <journey>   Name of a journey/tree. If specified, -a and -A
+                               are ignored.
+  -f, --file <file>            Name of the file to write the exported
+                               journey(s) to. Ignored with -A.
+  -a, --all                    Export all the journeys/trees in a realm.
+                               Ignored with -i.
+  -A, --all-separate           Export all the journeys/trees in a realm as
+                               separate files <journey/tree name>.json. Ignored
+                               with -i or -a.
+  --use-string-arrays          Where applicable, use string arrays to store
+                               multi-line text (e.g. scripts). (default: off)
+  --no-deps                    Do not include any dependencies (scripts, email
+                               templates, SAML entity providers and circles of
+                               trust, social identity providers, themes).
+  -D, --directory <directory>  Destination directory.
+  -O, --organize <method>      Organize exports into folders using the
+                               indicated method. Valid values for method:
+                               id: folders named by id of exported object
+                               type: folders named by type (e.g. script,
+                               journey, idp)
+                               type/id: folders named by type with sub-folders
+                               named by id
+  -h, --help                   Help
+"
+`;

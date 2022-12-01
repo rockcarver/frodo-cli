@@ -88,7 +88,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.16.2-13",
+    "@rockcarver/frodo-lib": "0.16.2-14",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
@@ -96,8 +96,10 @@
     "compare-versions": "^5.0.1",
     "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
-    "uuid": "^9.0.0",
+    "properties-reader": "^2.2.0",
+    "replaceall": "^0.1.6",
     "slugify": "^1.6.5",
+    "uuid": "^9.0.0",
     "yesno": "^0.4.0"
   },
   "devDependencies": {

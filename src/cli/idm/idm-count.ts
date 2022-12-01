@@ -1,10 +1,10 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
-import { verboseMessage } from '../../utils/Console.js';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
+import * as common from '../cmd_common';
+import { verboseMessage } from '../../utils/Console';
+import { countManagedObjects } from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
-const { countManagedObjects } = Idm;
 
 const program = new Command('frodo idm count');
 

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'delete' should be expected english 1`] = `
+"Usage: frodo conn delete [options] <host>
+
+Delete connection profiles.
+
+Arguments:
+  host        Access Management base URL, e.g.: https://cdk.iam.example.com/am.
+              To use a connection profile, just specify a unique substring.
+
+Options:
+  --verbose   Verbose output during command execution. If specified, may or may
+              not produce additional output.
+  --debug     Debug output during command execution. If specified, may or may
+              not produce additional output helpful for troubleshooting.
+  -h, --help  Help
+"
+`;

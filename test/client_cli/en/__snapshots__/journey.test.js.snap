@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'journey' should be expected english 1`] = `
+"Usage: frodo journey [options] [command]
+
+Manage journeys/trees.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  list            List journeys/trees.
+  describe        If host argument is supplied, describe the journey/tree
+                  indicated by -t, or all journeys/trees in the realm if no -t
+                  is supplied, otherwise describe the journey/tree export file
+                  indicated by -f.
+  export          Export journeys/trees.
+  import          Import journeys/trees.
+  delete          Delete journeys/trees.
+  prune           Prune orphaned configuration artifacts left behind after
+                  deleting authentication trees. You will be prompted before
+                  any destructive operations are performed.
+  enable          Enable journeys/trees.
+  disable         Disable journeys/trees.
+  help [command]  display help for command
+"
+`;
