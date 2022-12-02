@@ -1,14 +1,14 @@
 import { Command, Option } from 'commander';
-import { Authenticate, Idm, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-const {
+import {
   importAllConfigEntities,
   importAllRawConfigEntities,
   importConfigEntity,
-} = Idm;
+} from '../../ops/IdmOps';
+
+const { getTokens } = Authenticate;
 
 const program = new Command('frodo idm import');
 

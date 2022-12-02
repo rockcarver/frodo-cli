@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'idm' should be expected english 1`] = `
+"Usage: frodo idm [options] [command]
+
+Manage IDM configuration.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  list            List all IDM configuration objects.
+  export          Export IDM configuration objects.
+  import          Import IDM configuration objects.
+  count           Count number of managed objects of a given type.
+  help [command]  display help for command
+"
+`;
