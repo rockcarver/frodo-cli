@@ -96,8 +96,8 @@
     "compare-versions": "^5.0.1",
     "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
-    "uuid": "^9.0.0",
     "slugify": "^1.6.5",
+    "uuid": "^9.0.0",
     "yesno": "^0.4.0"
   },
   "devDependencies": {

@@ -7,8 +7,21 @@ const { getTokens } = Authenticate;
 const { exportScriptByName } = Script;
 const { exportScriptsToFile } = Script;
 const { exportScriptsToFiles } = Script;
+const { exportScriptsExtract } = Script;
 
 const program = new Command('frodo script export');
+
+interface ScriptExportOptions extends common.CommonOptions {
+  scriptName?: string;
+  file?: string;
+  all?: boolean;
+  allSeparate?: boolean;
+  /**
+   * @deprecated
+   */
+  script?: string;
+  extract: boolean;
+}
 
 program
   .description('Export scripts.')
@@ -39,13 +52,13 @@ program
   .addOption(
     new Option(
       '-a, --all',
-      'Export all scripts to a single file. Ignored with -i.'
+      'Export all scripts to a single file. Ignored with -n.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -i or -a.'
+      'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -n or -a.'
     )
   )
   // deprecated option
@@ -55,9 +68,21 @@ program
       'DEPRECATED! Use -n/--script-name instead. Name of the script.'
     )
   )
+  .addOption(
+    new Option(
+      '-x, --extract',
+      'Extract the script from the exported file, and save it to a separate file. Ignored with -n or -a.'
+    )
+  )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
+    async (
+      host: string,
+      realm: string,
+      user: string,
+      password: string,
+      options: ScriptExportOptions
+    ) => {
       state.default.session.setTenant(host);
       state.default.session.setRealm(realm);
       state.default.session.setUsername(user);
@@ -67,20 +92,31 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
-      // export by name
-      if ((options.scriptName || options.script) && (await getTokens())) {
-        verboseMessage('Exporting script...');
-        exportScriptByName(options.scriptName || options.script, options.file);
-      }
-      // -a / --all
-      else if (options.all && (await getTokens())) {
-        verboseMessage('Exporting all scripts to a single file...');
-        exportScriptsToFile(options.file);
-      }
-      // -A / --all-separate
-      else if (options.allSeparate && (await getTokens())) {
-        verboseMessage('Exporting all scripts to separate files...');
-        exportScriptsToFiles();
+
+      if (await getTokens()) {
+        // export by name
+        if (options.scriptName || options.script) {
+          verboseMessage('Exporting script...');
+          await exportScriptByName(
+            options.scriptName || options.script,
+            options.file
+          );
+        }
+        // -a / --all
+        else if (options.all) {
+          verboseMessage('Exporting all scripts to a single file...');
+          await exportScriptsToFile(options.file);
+        }
+        // -A / --all-separate
+        else if (options.allSeparate) {
+          verboseMessage('Exporting all scripts to separate files...');
+          await exportScriptsToFiles();
+        }
+        // -j / --js
+        else if (options.extract) {
+          verboseMessage('Exporting all scripts as js files...');
+          await exportScriptsExtract();
+        }
       }
       // unrecognized combination of options or no options
       else {

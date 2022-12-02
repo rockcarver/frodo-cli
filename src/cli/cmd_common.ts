@@ -189,3 +189,11 @@ entitiesFileOptionM.makeOptionMandatory();
 envFileOptionM.makeOptionMandatory();
 managedNameOptionM.makeOptionMandatory();
 sourcesOptionM.makeOptionMandatory();
+
+export interface CommonOptions {
+  type: string;
+  insecure: boolean;
+  verbose: boolean;
+  debug: boolean;
+  curlirize: boolean;
+}

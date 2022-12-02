@@ -6,8 +6,20 @@ import { verboseMessage } from '../../utils/Console';
 const { getTokens } = Authenticate;
 
 const { importScriptsFromFile } = Script;
+const { importExtractedScripts } = Script;
 
 const program = new Command('frodo script import');
+
+interface ScriptImportOptions extends common.CommonOptions {
+  file?: string;
+  scriptName?: string;
+  /**
+   * @deprecated
+   */
+  script?: string;
+  reUuid?: boolean;
+  extract: boolean;
+}
 
 program
   .description('Import scripts.')
@@ -42,9 +54,21 @@ program
       'DEPRECATED! Use -n/--script-name instead. Name of the script.'
     )
   )
+  .addOption(
+    new Option(
+      '-x, --extract',
+      'Use this option to import scripts that were previously extracted using the -x option.'
+    ).default(false, 'false')
+  )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
+    async (
+      host: string,
+      realm: string,
+      user: string,
+      password: string,
+      options: ScriptImportOptions
+    ) => {
       state.default.session.setTenant(host);
       state.default.session.setRealm(realm);
       state.default.session.setUsername(user);
@@ -55,14 +79,21 @@ program
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        verboseMessage(
-          `Importing script(s) into realm "${state.default.session.getRealm()}"...`
-        );
-        importScriptsFromFile(
-          options.scriptName || options.script,
-          options.file,
-          options.reUuid
-        );
+        if (options.scriptName || options.script) {
+          verboseMessage(
+            `Importing script(s) into realm "${state.default.session.getRealm()}"...`
+          );
+          await importScriptsFromFile(
+            options.scriptName || options.script,
+            options.file,
+            options.reUuid
+          );
+        } else if (options.extract) {
+          verboseMessage(
+            `Importing extracted script(s) into realm "${state.default.session.getRealm()}"...`
+          );
+          await importExtractedScripts();
+        }
       }
     }
     // end command logic inside action handler
