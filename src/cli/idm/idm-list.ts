@@ -2,7 +2,10 @@ import { Command } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import * as common from '../cmd_common';
 import { verboseMessage } from '../../utils/Console';
-import { listAllConfigEntities } from '../../ops/IdmOps';
+import {
+  listAllConfigEntities,
+  listOfflineConnectorServers,
+} from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
 
@@ -39,6 +42,7 @@ program
       if (await getTokens()) {
         verboseMessage('Listing all IDM configuration objects...');
         listAllConfigEntities();
+        listOfflineConnectorServers();
       }
     }
     // end command logic inside action handler
