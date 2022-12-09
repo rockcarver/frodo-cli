@@ -6,6 +6,7 @@ import {
   exportAllConfigEntities,
   exportAllRawConfigEntities,
   exportConfigEntity,
+  listOfflineConnectorServers,
 } from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
@@ -83,6 +84,7 @@ program
           options.entitiesFile,
           options.envFile
         );
+        listOfflineConnectorServers();
       }
       // --all-separate -A without variable replacement
       else if (
@@ -94,6 +96,7 @@ program
           `Exporting all IDM configuration objects into separate files in ${options.directory}...`
         );
         exportAllRawConfigEntities(options.directory);
+        listOfflineConnectorServers();
       }
       // unrecognized combination of options or no options
       else {

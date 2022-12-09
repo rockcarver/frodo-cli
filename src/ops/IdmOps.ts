@@ -20,7 +20,37 @@ const {
   getConfigEntity,
   putConfigEntity,
   queryAllManagedObjectsByType,
+  getAllConnectorServers,
 } = Idm;
+
+/**
+ * List all offline remote connector servers
+ */
+export async function listOfflineConnectorServers() {
+  const offlineStatus = false;
+  try {
+    const { openicf } = await getAllConnectorServers();
+    const entityPromises = [];
+    for (const connector of openicf) {
+      if (connector.ok === offlineStatus) {
+        entityPromises.push(connector.name);
+      }
+    }
+    if (entityPromises.length) {
+      printMessage(
+        `\n\nWARNING: \nprovisioner.openicf entries for the following offline connector server(s) and are missing from the output:\n ${entityPromises}`,
+        'warn'
+      );
+    }
+  } catch (listOfflineConnectorServers) {
+    printMessage(listOfflineConnectorServers, 'error');
+    printMessage(
+      `Error getting config entities: ${listOfflineConnectorServers}`,
+      'error'
+    );
+  }
+}
+
 /**
  * List all IDM configuration objects
  */
