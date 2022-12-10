@@ -24,6 +24,7 @@ program
   .addOption(
     new Option('-l, --long', 'Long with all fields.').default(false, 'false')
   )
+  .addOption(new Option('-g, --global', 'List global services.'))
   .action(async (host, realm, user, password, options) => {
     state.default.session.setTenant(host);
     state.default.session.setRealm(realm);
@@ -36,7 +37,7 @@ program
     state.default.session.setCurlirize(options.curlirize);
     if (await getTokens()) {
       verboseMessage(`Listing all AM services for realm: ${realm}`);
-      await listServices(options.long);
+      await listServices(options.long, options.global);
     }
   });
 

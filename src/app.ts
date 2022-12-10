@@ -34,7 +34,7 @@ const { initConnectionProfiles } = ConnectionProfile;
 
     printMessage(await getVersions(true), 'text', false);
 
-    initConnectionProfiles();
+    await initConnectionProfiles();
 
     program.addCommand(admin());
     program.addCommand(agent());

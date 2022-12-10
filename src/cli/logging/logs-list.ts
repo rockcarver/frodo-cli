@@ -36,10 +36,10 @@ program
     printMessage('Listing available ID Cloud log sources...');
     const conn = await getConnectionProfile();
     state.default.session.setTenant(conn.tenant);
-    if (conn.key != null && conn.secret != null) {
+    if (conn.logApiKey != null && conn.logApiSecret != null) {
       credsFromParameters = false;
-      state.default.session.setLogApiKey(conn.key);
-      state.default.session.setLogApiSecret(conn.secret);
+      state.default.session.setLogApiKey(conn.logApiKey);
+      state.default.session.setLogApiSecret(conn.logApiSecret);
     } else {
       if (conn.username == null && conn.password == null) {
         if (
@@ -71,7 +71,7 @@ program
         'error'
       );
     } else {
-      if (credsFromParameters) await saveConnectionProfile(); // save new values if they were specified on CLI
+      if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
       printMessage('Available log sources:');
       sources.forEach((source) => {
         printMessage(`${source}`, 'info');
