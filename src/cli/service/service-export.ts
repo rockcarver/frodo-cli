@@ -22,6 +22,7 @@ interface ServiceExportOptions {
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;
+  global?: boolean;
 }
 
 program
@@ -51,6 +52,7 @@ program
       'Export all services to separate files (*.service.json) in the current directory. Ignored with -a.'
     )
   )
+  .addOption(new Option('-g, --global', 'List global services.'))
   .action(
     async (
       host: string,
@@ -68,20 +70,27 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
+
+      const globalConfig = options.global ?? false;
+
       // export by name
       if (options.serviceId && (await getTokens())) {
         verboseMessage('Exporting service...');
-        await exportServiceToFile(options.serviceId, options.file);
+        await exportServiceToFile(
+          options.serviceId,
+          options.file,
+          globalConfig
+        );
       }
       // -a / --all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all services to a single file...');
-        await exportServicesToFile(options.file);
+        await exportServicesToFile(options.file, globalConfig);
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all services to separate files...');
-        await exportServicesToFiles();
+        await exportServicesToFiles(globalConfig);
       }
       // unrecognized combination of options or no options
       else {

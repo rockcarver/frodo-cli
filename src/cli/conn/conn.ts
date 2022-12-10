@@ -13,7 +13,10 @@ export default function setup() {
     .description('Manage connection profiles.')
     .executableDir(__dirname);
 
-  program.command('add', 'Add connection profiles.').showHelpAfterError();
+  program
+    .command('save', 'Save connection profiles.')
+    .alias('add')
+    .showHelpAfterError();
 
   program.command('delete', 'Delete connection profiles.').showHelpAfterError();
 

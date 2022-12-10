@@ -25,6 +25,7 @@ interface ServiceImportOptions {
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;
+  global?: boolean;
 }
 
 program
@@ -63,6 +64,7 @@ program
     )
   )
   .addOption(new Option('-D, --directory <directory>', 'Working directory.'))
+  .addOption(new Option('-g, --global', 'List global services.'))
   .action(
     async (
       host: string,
@@ -83,26 +85,32 @@ program
       state.default.session.setDirectory(options.directory || '.');
 
       const clean = options.clean ?? false;
+      const globalConfig = options.global ?? false;
 
       // import by id
       if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importServiceFromFile(options.serviceId, options.file, clean);
+        await importServiceFromFile(
+          options.serviceId,
+          options.file,
+          clean,
+          globalConfig
+        );
       }
       // -a / --all
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage('Importing all services from a single file...');
-        await importServicesFromFile(options.file, clean);
+        await importServicesFromFile(options.file, clean, globalConfig);
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
-        await importServicesFromFiles(clean);
+        await importServicesFromFiles(clean, globalConfig);
       }
       // import file
       else if (options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importFirstServiceFromFile(options.file, clean);
+        await importFirstServiceFromFile(options.file, clean, globalConfig);
       }
       // unrecognized combination of options or no options
       else {
