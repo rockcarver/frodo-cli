@@ -33,9 +33,9 @@ const { getRealmName } = Utils;
 /**
  * List services
  */
-export async function listServices(long = false) {
+export async function listServices(long = false, globalConfig = false) {
   try {
-    const services = await getListOfServices();
+    const services = await getListOfServices(globalConfig);
     services.sort((a, b) => a._id.localeCompare(b._id));
     if (long) {
       const table = createTable(['Service Id', 'Service Name']);
@@ -58,8 +58,8 @@ export async function listServices(long = false) {
  * Export all services to file
  * @param {string} file file name
  */
-export async function exportServicesToFile(file) {
-  const exportData = await exportServices();
+export async function exportServicesToFile(file, globalConfig = false) {
+  const exportData = await exportServices(globalConfig);
   let fileName = getTypedFilename(
     `all${titleCase(getRealmName(state.default.session.getRealm()))}Services`,
     `service`
@@ -75,8 +75,12 @@ export async function exportServicesToFile(file) {
  * @param {string} serviceId service id
  * @param {string} file file name
  */
-export async function exportServiceToFile(serviceId: string, file: string) {
-  const exportData = await exportService(serviceId);
+export async function exportServiceToFile(
+  serviceId: string,
+  file: string,
+  globalConfig = false
+) {
+  const exportData = await exportService(serviceId, globalConfig);
   let fileName = getTypedFilename(serviceId, `service`);
   if (file) {
     fileName = file;
@@ -87,9 +91,9 @@ export async function exportServiceToFile(serviceId: string, file: string) {
 /**
  * Export all services to separate files
  */
-export async function exportServicesToFiles() {
+export async function exportServicesToFiles(globalConfig = false) {
   debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
-  const services = await getFullServices();
+  const services = await getFullServices(globalConfig);
   for (const service of services) {
     const fileName = getTypedFilename(service._type._id, `service`);
     const exportData = createServiceExportTemplate();
@@ -111,7 +115,8 @@ export async function exportServicesToFiles() {
 export async function importServiceFromFile(
   serviceId: string,
   file: string,
-  clean: boolean
+  clean: boolean,
+  globalConfig = false
 ) {
   debugMessage(
     `cli.ServiceOps.importServiceFromFile: start [serviceId=${serviceId}, file=${file}]`
@@ -124,7 +129,7 @@ export async function importServiceFromFile(
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, clean);
+        await importService(serviceId, importData, clean, globalConfig);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -147,7 +152,11 @@ export async function importServiceFromFile(
  * @param {string} file import file name
  * @param {boolean} clean remove existing service
  */
-export async function importFirstServiceFromFile(file: string, clean: boolean) {
+export async function importFirstServiceFromFile(
+  file: string,
+  clean: boolean,
+  globalConfig = false
+) {
   debugMessage(
     `cli.ServiceOps.importFirstServiceFromFile: start [file=${file}]`
   );
@@ -160,7 +169,7 @@ export async function importFirstServiceFromFile(file: string, clean: boolean) {
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, clean);
+        await importService(serviceId, importData, clean, globalConfig);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -183,14 +192,18 @@ export async function importFirstServiceFromFile(file: string, clean: boolean) {
  * @param {String} file file name
  * @param {boolean} clean remove existing service
  */
-export async function importServicesFromFile(file: string, clean: boolean) {
+export async function importServicesFromFile(
+  file: string,
+  clean: boolean,
+  globalConfig = false
+) {
   debugMessage(`cli.ServiceOps.importServiceFromFile: start [file=${file}]`);
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${file}`);
     const importData = JSON.parse(data) as ServiceExportInterface;
     try {
-      await importServices(importData, clean);
+      await importServices(importData, clean, globalConfig);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -203,14 +216,17 @@ export async function importServicesFromFile(file: string, clean: boolean) {
  * Import all services from separate files
  * @param {boolean} clean remove existing service
  */
-export async function importServicesFromFiles(clean: boolean) {
+export async function importServicesFromFiles(
+  clean: boolean,
+  globalConfig = false
+) {
   debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
   const names = fs.readdirSync(getWorkingDirectory());
   const agentFiles = names.filter((name) =>
     name.toLowerCase().endsWith('.service.json')
   );
   for (const file of agentFiles) {
-    await importServicesFromFile(file, clean);
+    await importServicesFromFile(file, clean, globalConfig);
   }
   debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
 }
@@ -219,9 +235,9 @@ export async function importServicesFromFiles(clean: boolean) {
  * Delete a service by id/name
  * @param {string} serviceId Reference to the service to delete
  */
-export async function deleteService(serviceId: string) {
+export async function deleteService(serviceId: string, globalConfig = false) {
   try {
-    await deleteFullService(serviceId);
+    await deleteFullService(serviceId, globalConfig);
   } catch (error) {
     const message = error.response?.data?.message;
     printMessage(`Delete service '${serviceId}': ${message}`, 'error');
@@ -231,6 +247,6 @@ export async function deleteService(serviceId: string) {
 /**
  * Delete all services
  */
-export async function deleteServices() {
-  await deleteFullServices();
+export async function deleteServices(globalConfig = false) {
+  await deleteFullServices(globalConfig);
 }

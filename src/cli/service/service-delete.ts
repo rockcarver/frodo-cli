@@ -15,6 +15,7 @@ interface ServiceDeleteOptions {
   debug?: boolean;
   curlirize?: boolean;
   all?: boolean;
+  global?: boolean;
 }
 
 program
@@ -32,6 +33,7 @@ program
   .addOption(common.curlirizeOption)
   .addOption(new Option('-i, --id <id>', 'Id of Service to be deleted.'))
   .addOption(new Option('-a, --all', 'Delete all services. Ignored with -i.'))
+  .addOption(new Option('-g, --global', 'List global services.'))
   .action(
     async (
       host: string,
@@ -49,10 +51,13 @@ program
       state.default.session.setVerbose(options.verbose);
       state.default.session.setDebug(options.debug);
       state.default.session.setCurlirize(options.curlirize);
+
+      const globalConfig = options.global ?? false;
+
       if (options.id && (await getTokens())) {
-        await deleteService(options.id);
+        await deleteService(options.id, globalConfig);
       } else if (options.all && (await getTokens())) {
-        await deleteServices();
+        await deleteServices(globalConfig);
       } else {
         program.help();
       }

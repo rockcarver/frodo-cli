@@ -56,10 +56,10 @@ Following values are possible (values on the same line are equivalent): \
     state.default.session.setCurlirize(options.curlirize);
     const conn = await getConnectionProfile();
     state.default.session.setTenant(conn.tenant);
-    if (conn.key != null && conn.secret != null) {
+    if (conn.logApiKey != null && conn.logApiSecret != null) {
       credsFromParameters = false;
-      state.default.session.setLogApiKey(conn.key);
-      state.default.session.setLogApiSecret(conn.secret);
+      state.default.session.setLogApiKey(conn.logApiKey);
+      state.default.session.setLogApiSecret(conn.logApiSecret);
     } else {
       if (conn.username == null && conn.password == null) {
         if (
@@ -88,7 +88,7 @@ Following values are possible (values on the same line are equivalent): \
         command.opts().sources
       } and levels [${resolveLevel(command.opts().level)}]...`
     );
-    if (credsFromParameters) await saveConnectionProfile(); // save new values if they were specified on CLI
+    if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
     await tailLogs(
       command.opts().sources,
       resolveLevel(command.opts().level),

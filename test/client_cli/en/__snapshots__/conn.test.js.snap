@@ -9,7 +9,7 @@ Options:
   -h, --help      Help
 
 Commands:
-  add             Add connection profiles.
+  save|add        Save connection profiles.
   delete          Delete connection profiles.
   describe        Describe connection profiles.
   list            List connection profiles.
