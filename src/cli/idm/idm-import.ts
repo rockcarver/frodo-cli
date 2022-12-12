@@ -14,7 +14,7 @@ const program = new Command('frodo idm import');
 
 interface IdmImportOptions {
   type?: string;
-  insecure?: string;
+  insecure?: boolean;
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;

@@ -4,20 +4,6 @@ import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
-const {
-  getCookieName,
-  getCookieValue,
-  getBearerToken,
-  setTenant,
-  setUsername,
-  setPassword,
-  setDeploymentType,
-  setAllowInsecureConnection,
-  setVerbose,
-  setDebug,
-  setCurlirize,
-  setItem,
-} = state.default.session;
 
 export default function setup() {
   const info = new Command('info');
@@ -34,37 +20,36 @@ export default function setup() {
     .addOption(common.scriptFriendlyOption)
     .description('Print versions and tokens.')
     .action(async (host, user, password, options) => {
-      setTenant(host);
-      setUsername(user);
-      setPassword(password);
-      setDeploymentType(options.type);
-      setAllowInsecureConnection(options.insecure);
-      setVerbose(options.verbose);
-      setDebug(options.debug);
-      setCurlirize(options.curlirize);
-      setItem('scriptFriendly', options.scriptFriendly);
+      state.setHost(host);
+      state.setUsername(user);
+      state.setPassword(password);
+      state.setDeploymentType(options.type);
+      state.setAllowInsecureConnection(options.insecure);
+      state.setVerbose(options.verbose);
+      state.setDebug(options.debug);
+      state.setCurlirize(options.curlirize);
       if (!options.scriptFriendly) {
         verboseMessage('Printing versions and tokens...');
         if (await getTokens()) {
-          printMessage(`Cookie name: ${getCookieName()}`);
-          if (getCookieValue()) {
-            printMessage(`Session token: ${getCookieValue()}`);
+          printMessage(`Cookie name: ${state.getCookieName()}`);
+          if (state.getCookieValue()) {
+            printMessage(`Session token: ${state.getCookieValue()}`);
           }
-          if (getBearerToken()) {
-            printMessage(`Bearer token: ${getBearerToken()}`);
+          if (state.getBearerToken()) {
+            printMessage(`Bearer token: ${state.getBearerToken()}`);
           }
         } else {
           process.exitCode = 1;
         }
       } else if (await getTokens()) {
         const output = {
-          cookieName: getCookieName(),
+          cookieName: state.getCookieName(),
         };
-        if (getCookieValue()) {
-          output['sessionToken'] = getCookieValue();
+        if (state.getCookieValue()) {
+          output['sessionToken'] = state.getCookieValue();
         }
-        if (getBearerToken()) {
-          output['bearerToken'] = getBearerToken();
+        if (state.getBearerToken()) {
+          output['bearerToken'] = state.getBearerToken();
         }
         printMessage(JSON.stringify(output, null, 2), 'data');
       } else {

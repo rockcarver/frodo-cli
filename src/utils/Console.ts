@@ -9,6 +9,9 @@ Color.enable();
 
 const { appendTextToFile } = ExportImportUtils;
 
+let progressBar = null;
+let spinner = null;
+
 /**
  * Output a message in default color to stdout or append to `state.default.session.getOutputFile()`
  * @param {string | object} message the message
@@ -206,12 +209,10 @@ export function createProgressBar(
       noTTYOutput: true,
     };
   }
-  let pBar = state.default.session.getItem('progressBar');
-  if (!pBar) pBar = new SingleBar(opt, Presets.legacy); // create only when needed
-  pBar.start(total, 0, {
+  progressBar = new SingleBar(opt, Presets.legacy); // create only when needed
+  progressBar.start(total, 0, {
     data: message,
   });
-  state.default.session.setItem('progressBar', pBar);
 }
 
 /**
@@ -220,12 +221,11 @@ export function createProgressBar(
  *
  */
 export function updateProgressBar(message = null) {
-  const pBar = state.default.session.getItem('progressBar');
   if (message)
-    pBar.increment({
+    progressBar.increment({
       data: message,
     });
-  else pBar.increment();
+  else progressBar.increment();
 }
 
 /**
@@ -233,12 +233,11 @@ export function updateProgressBar(message = null) {
  * @param {*} message optional message to update the progress bar
  */
 export function stopProgressBar(message = null) {
-  const pBar = state.default.session.getItem('progressBar');
   if (message)
-    pBar.update({
+    progressBar.update({
       data: message,
     });
-  pBar.stop();
+  progressBar.stop();
 }
 
 /**
@@ -246,8 +245,7 @@ export function stopProgressBar(message = null) {
  * @param {String} message optional spinner message
  */
 export function showSpinner(message) {
-  const spinner = createSpinner(message).start();
-  state.default.session.setItem('Spinner', spinner);
+  spinner = createSpinner(message).start();
 }
 
 /**
@@ -255,7 +253,6 @@ export function showSpinner(message) {
  * @param {String} message optional message to update the spinner
  */
 export function stopSpinner(message = null) {
-  const spinner = state.default.session.getItem('Spinner');
   if (spinner) {
     let options = {};
     if (message) options = { text: message };
@@ -268,7 +265,6 @@ export function stopSpinner(message = null) {
  * @param {String} message optional message to update the spinner
  */
 export function succeedSpinner(message = null) {
-  const spinner = state.default.session.getItem('Spinner');
   if (spinner) {
     let options = {};
     if (message) options = { text: message };
@@ -281,7 +277,6 @@ export function succeedSpinner(message = null) {
  * @param {String} message optional message to update the spinner
  */
 export function warnSpinner(message = null) {
-  const spinner = state.default.session.getItem('Spinner');
   if (spinner) {
     let options = {};
     if (message) options = { text: message };
@@ -294,7 +289,6 @@ export function warnSpinner(message = null) {
  * @param {String} message optional message to update the spinner
  */
 export function failSpinner(message = null) {
-  const spinner = state.default.session.getItem('Spinner');
   if (spinner) {
     let options = {};
     if (message) options = { text: message };
@@ -307,7 +301,6 @@ export function failSpinner(message = null) {
  * @param {String} message optional message to update the spinner
  */
 export function spinSpinner(message = null) {
-  const spinner = state.default.session.getItem('Spinner');
   if (spinner) {
     let options = {};
     if (message) options = { text: message };
@@ -329,7 +322,6 @@ export function createProgressIndicator(
 }
 
 export function updateProgressIndicator(message) {
-  const progressBar = state.default.session.getItem('progressBar');
   if (!progressBar) {
     spinSpinner(message);
   } else {
@@ -338,7 +330,6 @@ export function updateProgressIndicator(message) {
 }
 
 export function stopProgressIndicator(message, status = 'none') {
-  const progressBar = state.default.session.getItem('progressBar');
   if (!progressBar) {
     switch (status) {
       case 'none':
