@@ -10,7 +10,7 @@ program
   .description('Delete connection profiles.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
+  .addArgument(common.hostArgument)
   .addOption(common.verboseOption)
   .addOption(common.debugOption)
   .action(

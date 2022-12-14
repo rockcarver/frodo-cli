@@ -8,8 +8,8 @@ const { getTokens } = Authenticate;
 export default function setup() {
   const info = new Command('info');
   info
-    .addArgument(common.hostArgumentM)
-    .addArgument(common.userArgument)
+    .addArgument(common.hostArgument)
+    .addArgument(common.usernameArgument)
     .addArgument(common.passwordArgument)
     .helpOption('-h, --help', 'Help')
     .addOption(common.deploymentOption)

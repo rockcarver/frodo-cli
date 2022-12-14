@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'add' should be expected english 1`] = `
-"Usage: frodo conn save|add [options] <host> [user] [password] [key] [secret]
+"Usage: frodo conn save|add [options] [host] [username] [password] [key] [secret]
 
 Save connection profiles.
 
 Arguments:
   host                                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-  user                                         Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
+  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
   key                                          API key for logging API.
   secret                                       API secret for logging API.
@@ -33,13 +33,13 @@ Options:
 `;
 
 exports[`CLI help interface for 'add' should be expected english 2`] = `
-"Usage: frodo conn save|add [options] <host> [user] [password] [key] [secret]
+"Usage: frodo conn save|add [options] [host] [username] [password] [key] [secret]
 
 Save connection profiles.
 
 Arguments:
   host                                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-  user                                         Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
+  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
   key                                          API key for logging API.
   secret                                       API secret for logging API.
@@ -65,13 +65,13 @@ Options:
 `;
 
 exports[`CLI help interface for 'save' should be expected english 1`] = `
-"Usage: frodo conn save|add [options] <host> [user] [password] [key] [secret]
+"Usage: frodo conn save|add [options] [host] [username] [password] [key] [secret]
 
 Save connection profiles.
 
 Arguments:
   host                                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-  user                                         Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
+  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
   key                                          API key for logging API.
   secret                                       API secret for logging API.
@@ -97,13 +97,13 @@ Options:
 `;
 
 exports[`CLI help interface for 'save' should be expected english 2`] = `
-"Usage: frodo conn save|add [options] <host> [user] [password] [key] [secret]
+"Usage: frodo conn save|add [options] [host] [username] [password] [key] [secret]
 
 Save connection profiles.
 
 Arguments:
   host                                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-  user                                         Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
+  username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
   key                                          API key for logging API.
   secret                                       API secret for logging API.

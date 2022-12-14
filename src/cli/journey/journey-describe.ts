@@ -25,7 +25,7 @@ program
   .showHelpAfterError()
   .addArgument(common.hostArgument)
   .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
+  .addArgument(common.usernameArgument)
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'logs tail' should be expected english 1`] = `
-"Usage: frodo logs tail [options] <host> [user] [password]
+"Usage: frodo logs tail [options] [host] [username] [password]
 
 Tail Identity Cloud logs.
 
@@ -10,7 +10,7 @@ Arguments:
                                https://cdk.iam.example.com/am. To use a
                                connection profile, just specify a unique
                                substring.
-  user                         Username to login with. Must be an admin user
+  username                     Username to login with. Must be an admin user
                                with appropriate rights to manage authentication
                                journeys/trees.
   password                     Password.
