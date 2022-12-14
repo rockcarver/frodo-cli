@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'delete' should be expected english 1`] = `
-"Usage: frodo conn delete [options] <host>
+"Usage: frodo conn delete [options] [host]
 
 Delete connection profiles.
 

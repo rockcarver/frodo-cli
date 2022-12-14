@@ -13,9 +13,9 @@ program
   .description('Describe realms.')
   .helpOption('-h, --help', 'Help')
   .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
+  .addArgument(common.hostArgument)
   .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
+  .addArgument(common.usernameArgument)
   .addArgument(common.passwordArgument)
   .addOption(common.deploymentOption)
   .addOption(common.insecureOption)
@@ -25,20 +25,18 @@ program
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+      state.setHost(host);
+      state.setRealm(realm);
+      state.setUsername(user);
+      state.setPassword(password);
+      state.setDeploymentType(options.type);
+      state.setAllowInsecureConnection(options.insecure);
+      state.setVerbose(options.verbose);
+      state.setDebug(options.debug);
+      state.setCurlirize(options.curlirize);
       if (await getTokens()) {
-        verboseMessage(
-          `Retrieving details of realm ${state.default.session.getRealm()}...`
-        );
-        describe(getRealmName(state.default.session.getRealm()));
+        verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
+        describe(getRealmName(state.getRealm()));
       }
     }
     // end command logic inside action handler

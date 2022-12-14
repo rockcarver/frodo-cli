@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'idm count' should be expected english 1`] = `
-"Usage: frodo idm count [options] <host> [realm] [user] [password]
+"Usage: frodo idm count [options] [host] [realm] [username] [password]
 
 Count managed objects.
 
@@ -14,7 +14,7 @@ Arguments:
                                or 'realm' or '/parent/child' otherwise.
                                (default: "alpha" for Identity Cloud tenants,
                                "/" otherwise.)
-  user                         Username to login with. Must be an admin user
+  username                     Username to login with. Must be an admin user
                                with appropriate rights to manage authentication
                                journeys/trees.
   password                     Password.

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'logs list' should be expected english 1`] = `
-"Usage: frodo logs list [options] <host> [user] [password]
+"Usage: frodo logs list [options] [host] [username] [password]
 
 List available ID Cloud log sources.
 
@@ -9,7 +9,7 @@ Arguments:
   host            Access Management base URL, e.g.:
                   https://cdk.iam.example.com/am. To use a connection profile,
                   just specify a unique substring.
-  user            Username to login with. Must be an admin user with
+  username        Username to login with. Must be an admin user with
                   appropriate rights to manage authentication journeys/trees.
   password        Password.
 

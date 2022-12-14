@@ -131,7 +131,7 @@ export async function listJourneys(
       }
     }
   } catch (error) {
-    printMessage(error.response.data, 'error');
+    printMessage(error.response?.data, 'error');
   }
   return journeys;
 }
