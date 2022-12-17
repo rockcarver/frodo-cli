@@ -13,7 +13,7 @@ Commands:
   app|application                              Manage OAuth2 applications.
   conn|connection                              Manage connection profiles.
   email                                        Manage email templates and configuration.
-  esv                                          Manage Environment-Specific Variables (ESVs).
+  esv                                          Manage environment secrets and variables (ESVs).
   idm                                          Manage IDM configuration.
   idp                                          Manage (social) identity providers.
   info [options] [host] [username] [password]  Print versions and tokens.

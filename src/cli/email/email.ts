@@ -1,12 +1,11 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function setup() {
-  const program = new Command('email')
-    .helpOption('-h, --help', 'Help')
+  const program = new FrodoStubCommand('email')
     .description('Manage email templates and configuration.')
     .executableDir(__dirname);
 

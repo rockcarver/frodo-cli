@@ -1,21 +1,19 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function setup() {
-  const program = new Command('esv')
-    .helpOption('-h, --help', 'Help')
-    .description('Manage Environment-Specific Variables (ESVs).')
+  const program = new FrodoStubCommand('esv')
+    .description('Manage environment secrets and variables (ESVs).')
     .executableDir(__dirname);
 
-  program.command('apply', 'Apply pending changes.').showHelpAfterError();
+  program.command('apply', 'Apply pending changes.');
 
-  program.command('secret', 'Manage secrets.').showHelpAfterError();
+  program.command('secret', 'Manage secrets.');
 
-  program.command('variable', 'Manage variables.').showHelpAfterError();
+  program.command('variable', 'Manage variables.');
 
-  program.showHelpAfterError();
   return program;
 }

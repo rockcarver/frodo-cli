@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'idp' should be expected english 1`] = `
+"Usage: frodo idp [options] [command]
+
+Manage (social) identity providers.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  export          Export identity providers.
+  help [command]  display help for command
+  import          Import identity providers.
+  list            List identity providers.
+"
+`;

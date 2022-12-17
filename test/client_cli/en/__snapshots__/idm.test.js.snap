@@ -9,10 +9,10 @@ Options:
   -h, --help      Help
 
 Commands:
-  list            List all IDM configuration objects.
-  export          Export IDM configuration objects.
-  import          Import IDM configuration objects.
   count           Count number of managed objects of a given type.
+  export          Export IDM configuration objects.
   help [command]  display help for command
+  import          Import IDM configuration objects.
+  list            List all IDM configuration objects.
 "
 `;

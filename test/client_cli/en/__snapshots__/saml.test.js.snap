@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'saml' should be expected english 1`] = `
+"Usage: frodo saml [options] [command]
+
+Manage SAML entity providers and circles of trust.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  cot             Manage circles of trust.
+  delete          Delete an SAML Entity
+  describe        Describe entity providers.
+  export          Export entity providers.
+  help [command]  display help for command
+  import          Import entity providers.
+  list            List entity providers.
+  metadata        Metadata operations.
+"
+`;

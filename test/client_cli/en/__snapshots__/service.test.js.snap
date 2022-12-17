@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'service' should be expected english 1`] = `
+"Usage: frodo service [options] [command]
+
+Manage AM services.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  delete          Delete AM services.
+  export          Export AM services.
+  help [command]  display help for command
+  import          Import AM services.
+  list            List AM services.
+"
+`;

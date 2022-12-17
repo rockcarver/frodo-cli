@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   exportAllConfigEntities,
@@ -10,21 +10,10 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo idm export');
+const program = new FrodoCommand('frodo idm export');
 
 program
   .description('Export IDM configuration objects.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-N, --name <name>',
@@ -64,23 +53,18 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // export by id/name
       if (options.name && (await getTokens())) {
-        verboseMessage(
-          `Exporting object "${
-            options.name
-          }" from realm "${state.default.session.getRealm()}"...`
-        );
+        verboseMessage(`Exporting object "${options.name}"...`);
         exportConfigEntity(options.name, options.file);
       }
       // --all-separate -A
@@ -118,6 +102,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

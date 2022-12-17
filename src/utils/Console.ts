@@ -13,19 +13,19 @@ let progressBar = null;
 let spinner = null;
 
 /**
- * Output a message in default color to stdout or append to `state.default.session.getOutputFile()`
+ * Output a message in default color to stdout or append to `state.getOutputFile()`
  * @param {string | object} message the message
  */
 function data(message: string | object, newline = true) {
   if (!message) return;
-  if (state.default.session.getOutputFile()) {
+  if (state.getOutputFile()) {
     if (typeof message === 'object') {
       message = JSON.stringify(message, null, 2);
     }
     if (newline) {
       message += '\n';
     }
-    appendTextToFile(message, state.default.session.getOutputFile());
+    appendTextToFile(message, state.getOutputFile());
   } else if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {
@@ -125,7 +125,7 @@ function curlirize(message: string) {
  */
 export function verboseMessage(message) {
   if (!message) return;
-  if (state.default.session.getVerbose()) {
+  if (state.getVerbose()) {
     text(message);
   }
 }
@@ -136,7 +136,7 @@ export function verboseMessage(message) {
  */
 export function debugMessage(message) {
   if (!message) return;
-  if (state.default.session.getDebug()) {
+  if (state.getDebug()) {
     debug(message);
   }
 }
@@ -147,7 +147,7 @@ export function debugMessage(message) {
  */
 export function curlirizeMessage(message) {
   if (!message) return;
-  if (state.default.session.getCurlirize()) {
+  if (state.getCurlirize()) {
     curlirize(message);
   }
 }

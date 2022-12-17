@@ -1,21 +1,17 @@
-import { Command } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
 
-const program = new Command('frodo agent web');
+const program = new FrodoCommand('frodo agent web');
 
-program
-  .description('Manage web agents.')
-  .alias('ig')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage web agents.');
 
-program.command('list', 'List web agents.').showHelpAfterError();
+program.command('list', 'List web agents.');
 
-program.command('describe', 'Describe web agents.').showHelpAfterError();
+program.command('describe', 'Describe web agents.');
 
-program.command('export', 'Export web agents.').showHelpAfterError();
+program.command('export', 'Export web agents.');
 
-program.command('import', 'Import web agents.').showHelpAfterError();
+program.command('import', 'Import web agents.');
 
-program.command('delete', 'Delete web agents.').showHelpAfterError();
+program.command('delete', 'Delete web agents.');
 
 program.parse();

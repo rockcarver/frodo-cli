@@ -1,11 +1,11 @@
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
-import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo service delete');
+const program = new FrodoCommand('frodo service delete');
 
 interface ServiceDeleteOptions {
   id?: string;
@@ -20,17 +20,6 @@ interface ServiceDeleteOptions {
 
 program
   .description('Delete AM services.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(new Option('-i, --id <id>', 'Id of Service to be deleted.'))
   .addOption(new Option('-a, --all', 'Delete all services. Ignored with -i.'))
   .addOption(new Option('-g, --global', 'List global services.'))
@@ -40,17 +29,17 @@ program
       realm: string,
       user: string,
       password: string,
-      options: ServiceDeleteOptions
+      options: ServiceDeleteOptions,
+      command
     ) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
 
       const globalConfig = options.global ?? false;
 
@@ -60,6 +49,7 @@ program
         await deleteServices(globalConfig);
       } else {
         program.help();
+        process.exitCode = 1;
       }
     }
   );

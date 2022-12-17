@@ -1,20 +1,17 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo something else');
+const program = new FrodoStubCommand('frodo something else');
 
-program
-  .description('Manage something else.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage something else.');
 
-program.command('list', 'List something else.').showHelpAfterError();
+program.command('list', 'List something else.');
 
-program.command('describe', 'Describe something else.').showHelpAfterError();
+program.command('describe', 'Describe something else.');
 
-program.command('export', 'Export something else.').showHelpAfterError();
+program.command('export', 'Export something else.');
 
-program.command('import', 'Import something else.').showHelpAfterError();
+program.command('import', 'Import something else.');
 
-program.command('delete', 'Delete something else.').showHelpAfterError();
+program.command('delete', 'Delete something else.');
 
 program.parse();

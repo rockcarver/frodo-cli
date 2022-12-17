@@ -1,26 +1,15 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage } from '../../utils/Console';
 import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo saml metadata export');
+const program = new FrodoCommand('frodo saml metadata export');
 
 program
   .description('Export SAML metadata.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --entity-id <entity-id>',
@@ -41,22 +30,21 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // export by id/name
       if (options.entityId && (await getTokens())) {
         printMessage(
           `Exporting metadata for provider "${
             options.entityId
-          }" from realm "${state.default.session.getRealm()}"...`
+          }" from realm "${state.getRealm()}"...`
         );
         exportSaml2MetadataToFile(options.entityId, options.file);
       }
@@ -72,6 +60,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

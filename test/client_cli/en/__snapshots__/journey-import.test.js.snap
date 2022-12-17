@@ -20,6 +20,25 @@ Arguments:
   password                    Password.
 
 Options:
+  -a, --all                   Import all the journeys/trees from single file.
+                              Ignored with -i.
+  -A, --all-separate          Import all the journeys/trees from separate files
+                              (*.json) in the current directory. Ignored with
+                              -i or -a.
+  --curlirize                 Output all network calls in curl format.
+  --debug                     Debug output during command execution. If
+                              specified, may or may not produce additional
+                              output helpful for troubleshooting.
+  -f, --file <file>           Name of the file to import the journey(s) from.
+                              Ignored with -A.
+  -h, --help                  Help
+  -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A
+                              are ignored.
+  -k, --insecure              Allow insecure connections when using SSL/TLS.
+                              Has no effect when using a network proxy for
+                              https (HTTPS_PROXY=http://<host>:<port>), in that
+                              case the proxy must provide this capability.
+                              (default: Don't allow insecure connections)
   -m, --type <type>           Override auto-detected deployment type. Valid
                               values for type:
                               classic:  A classic Access Management-only
@@ -33,32 +52,16 @@ Options:
                               to walk through the tenant admin login flow of
                               Identity Cloud and handle MFA (choices:
                               "classic", "cloud", "forgeops")
-  -k, --insecure              Allow insecure connections when using SSL/TLS.
-                              Has no effect when using a network proxy for
-                              https (HTTPS_PROXY=http://<host>:<port>), in that
-                              case the proxy must provide this capability.
-                              (default: Don't allow insecure connections)
-  --verbose                   Verbose output during command execution. If
-                              specified, may or may not produce additional
-                              output.
-  --debug                     Debug output during command execution. If
-                              specified, may or may not produce additional
-                              output helpful for troubleshooting.
-  --curlirize                 Output all network calls in curl format.
-  -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A
-                              are ignored.
-  -f, --file <file>           Name of the file to import the journey(s) from.
-                              Ignored with -A.
-  -a, --all                   Import all the journeys/trees from single file.
-                              Ignored with -i.
-  -A, --all-separate          Import all the journeys/trees from separate files
-                              (*.json) in the current directory. Ignored with
-                              -i or -a.
-  --re-uuid                   Generate new UUIDs for all nodes during import.
-                              (default: off)
   --no-deps                   Do not include any dependencies (scripts, email
                               templates, SAML entity providers and circles of
                               trust, social identity providers, themes).
-  -h, --help                  Help
+  --re-uuid                   Generate new UUIDs for all nodes during import.
+                              (default: off)
+  --sa-id <sa-id>             Service account id.
+  --sa-jwk-file <file>        File containing the java web key (jwk) associated
+                              with the the service account.
+  --verbose                   Verbose output during command execution. If
+                              specified, may or may not produce additional
+                              output.
 "
 `;

@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importAllConfigEntities,
@@ -10,7 +10,7 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo idm import');
+const program = new FrodoCommand('frodo idm import');
 
 interface IdmImportOptions {
   type?: string;
@@ -29,17 +29,6 @@ interface IdmImportOptions {
 
 program
   .description('Import IDM configuration objects.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-N, --name <name>',
@@ -78,24 +67,20 @@ program
       realm: string,
       user: string,
       password: string,
-      options: IdmImportOptions
+      options: IdmImportOptions,
+      command
     ) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // import by id/name
       if (options.name && (await getTokens())) {
-        verboseMessage(
-          `Importing object "${
-            options.name
-          }" to realm "${state.default.session.getRealm()}"...`
-        );
+        verboseMessage(`Importing object "${options.name}"...`);
         await importConfigEntity(options.name, options.file);
       }
       // --all-separate -A
@@ -133,6 +118,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

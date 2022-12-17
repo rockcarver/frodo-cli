@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'realm' should be expected english 1`] = `
+"Usage: frodo realm [options] [command]
+
+Manage realms.
+
+Options:
+  -h, --help            Help
+
+Commands:
+  add-custom-domain     Add custom domain (realm DNS alias).
+  describe|details      Describe realms.
+  help [command]        display help for command
+  list                  List realms.
+  remove-custom-domain  Remove custom domain (realm DNS alias).
+"
+`;

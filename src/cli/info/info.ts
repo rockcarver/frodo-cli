@@ -1,33 +1,22 @@
-import { Command } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
 export default function setup() {
-  const info = new Command('info');
+  const info = new FrodoCommand('info', ['realm']);
   info
-    .addArgument(common.hostArgument)
-    .addArgument(common.usernameArgument)
-    .addArgument(common.passwordArgument)
-    .helpOption('-h, --help', 'Help')
-    .addOption(common.deploymentOption)
-    .addOption(common.insecureOption)
-    .addOption(common.verboseOption)
-    .addOption(common.debugOption)
-    .addOption(common.curlirizeOption)
-    .addOption(common.scriptFriendlyOption)
     .description('Print versions and tokens.')
-    .action(async (host, user, password, options) => {
-      state.setHost(host);
-      state.setUsername(user);
-      state.setPassword(password);
-      state.setDeploymentType(options.type);
-      state.setAllowInsecureConnection(options.insecure);
-      state.setVerbose(options.verbose);
-      state.setDebug(options.debug);
-      state.setCurlirize(options.curlirize);
+    .addOption(
+      new Option(
+        '-s, --scriptFriendly',
+        'Send output of operation to STDOUT in a script-friendly format (JSON) which can be piped to other commands. User messages/warnings are output to STDERR, and are not piped. For example, to only get bearer token: \n<<< frodo info my-tenant -s 2>/dev/null | jq -r .bearerToken >>>'
+      ).default(false, 'Output as plain text')
+    )
+    .action(async (host, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (!options.scriptFriendly) {
         verboseMessage('Printing versions and tokens...');
         if (await getTokens()) {

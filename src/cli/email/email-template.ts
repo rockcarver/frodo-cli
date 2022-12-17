@@ -1,16 +1,13 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo email template');
+const program = new FrodoStubCommand('frodo email template');
 
-program
-  .description('Manage email templates.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage email templates.');
 
-program.command('list', 'List email templates.').showHelpAfterError();
+program.command('list', 'List email templates.');
 
-program.command('export', 'Export email templates.').showHelpAfterError();
+program.command('export', 'Export email templates.');
 
-program.command('import', 'Import email templates.').showHelpAfterError();
+program.command('import', 'Import email templates.');
 
 program.parse();

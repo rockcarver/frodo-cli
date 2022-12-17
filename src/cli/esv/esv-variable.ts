@@ -1,24 +1,21 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo esv variable');
+const program = new FrodoStubCommand('frodo esv variable');
 
-program
-  .description('Manage variables.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage variables.');
 
-program.command('create', 'Create variables.').showHelpAfterError();
+program.command('create', 'Create variables.');
 
-program.command('delete', 'Delete variables.').showHelpAfterError();
+program.command('delete', 'Delete variables.');
 
-program.command('describe', 'Describe variables.').showHelpAfterError();
+program.command('describe', 'Describe variables.');
 
-// program.command('export', 'Export variables.').showHelpAfterError();
+// program.command('export', 'Export variables.');
 
-// program.command('import', 'Import variables.').showHelpAfterError();
+// program.command('import', 'Import variables.');
 
-program.command('list', 'List variables.').showHelpAfterError();
+program.command('list', 'List variables.');
 
-program.command('set', 'Set variable descriptions.').showHelpAfterError();
+program.command('set', 'Set variable descriptions.');
 
 program.parse();
