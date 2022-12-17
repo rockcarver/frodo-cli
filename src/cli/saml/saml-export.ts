@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   exportRawSaml2ProvidersToFile,
@@ -13,21 +13,10 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo saml export');
+const program = new FrodoCommand('frodo saml export');
 
 program
   .description('Export SAML entity providers.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --entity-id <entity-id>',
@@ -55,30 +44,29 @@ program
   .addOption(new Option('--raw', 'Include raw XML in export.'))
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // export by id/name
       if (options.entityId && (await getTokens())) {
         if (!options.raw) {
           verboseMessage(
             `Exporting provider "${
               options.entityId
-            }" from realm "${state.default.session.getRealm()}"...`
+            }" from realm "${state.getRealm()}"...`
           );
           await exportSaml2ProviderToFile(options.entityId, options.file);
         } else {
           verboseMessage(
             `Exporting raw provider "${
               options.entityId
-            }" from realm "${state.default.session.getRealm()}"...`
+            }" from realm "${state.getRealm()}"...`
           );
           await exportRawSaml2ProviderToFile(options.entityId, options.file);
         }
@@ -110,6 +98,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

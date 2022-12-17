@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import {
   importAgentFromFile,
@@ -11,25 +11,14 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo cmd import');
+const program = new FrodoCommand('frodo agent import');
 
 program
-  .description('Cmd import.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
+  .description('Import agents.')
   .addOption(
     new Option(
-      '-i, --cmd-id <cmd-id>',
-      'Cmd id. If specified, only one cmd is imported and the options -a and -A are ignored.'
+      '-i, --agent-id <agent-id>',
+      'Agent id. If specified, only one agent is imported and the options -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
@@ -47,16 +36,15 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       if (await getTokens()) {
         // import
         if (options.agentId) {
@@ -86,6 +74,7 @@ program
             'Unrecognized combination of options or no options...'
           );
           program.help();
+          process.exitCode = 1;
         }
       }
     }

@@ -1,12 +1,9 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo saml metadata');
+const program = new FrodoStubCommand('frodo saml metadata');
 
-program
-  .description('SAML metadata operations.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('SAML metadata operations.');
 
-program.command('export', 'Export metadata.').showHelpAfterError();
+program.command('export', 'Export metadata.');
 
 program.parse();

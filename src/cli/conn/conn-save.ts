@@ -1,4 +1,6 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { apiKeyArgument, apiSecretArgument } from './conn';
 import {
   Authenticate,
   ConnectionProfile,
@@ -6,7 +8,6 @@ import {
   state,
   constants,
 } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
 import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 
@@ -14,23 +15,13 @@ const { getTokens } = Authenticate;
 const { saveConnectionProfile, addNewServiceAccount } = ConnectionProfile;
 const { isServiceAccountsFeatureAvailable } = ServiceAccount;
 
-const program = new Command('frodo conn save');
+const program = new FrodoCommand('frodo conn save', ['realm']);
 
 program
   .alias('add')
   .description('Save connection profiles.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addArgument(common.apiKeyArgument)
-  .addArgument(common.apiSecretArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
+  .addArgument(apiKeyArgument)
+  .addArgument(apiSecretArgument)
   .addOption(
     new Option(
       '--sa-id <uuid>',
@@ -59,36 +50,34 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, user, password, key, secret, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setLogApiKey(key);
-      state.default.session.setLogApiSecret(secret);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, user, password, key, secret, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        user,
+        password,
+        key,
+        secret,
+        options,
+        command
+      );
+      state.setLogApiKey(key);
+      state.setLogApiSecret(secret);
       if (options.authenticationService) {
-        state.default.session.setAuthenticationService(
-          options.authenticationService
-        );
+        state.setAuthenticationService(options.authenticationService);
       }
       if (options.authenticationHeaderOverrides) {
-        state.default.session.setAuthenticationHeaderOverrides(
+        state.setAuthenticationHeaderOverrides(
           JSON.parse(options.authenticationHeaderOverrides)
         );
       }
       if ((options.validate && (await getTokens())) || !options.validate) {
         verboseMessage(
-          `Saving connection profile for tenant ${state.default.session.getTenant()}...`
+          `Saving connection profile for tenant ${state.getTenant()}...`
         );
         // if cloud deployment add service account
         if (
           options.validate &&
-          state.default.session.getDeploymentType() ===
-            constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
+          state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
           options.sa &&
           (await isServiceAccountsFeatureAvailable())
         ) {
@@ -108,7 +97,7 @@ program
             }
           }
           // add new service account if none already exists in the profile
-          else if (!state.default.session.getServiceAccountId()) {
+          else if (!state.getServiceAccountId()) {
             try {
               verboseMessage(`Creating service account...`);
               const sa = await addNewServiceAccount();
@@ -139,9 +128,7 @@ program
           );
         }
         if (await saveConnectionProfile(host)) {
-          printMessage(
-            `Saved connection profile ${state.default.session.getTenant()}`
-          );
+          printMessage(`Saved connection profile ${state.getTenant()}`);
         } else {
           process.exitCode = 1;
         }

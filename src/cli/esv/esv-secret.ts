@@ -1,26 +1,23 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo esv secret');
+const program = new FrodoStubCommand('frodo esv secret');
 
-program
-  .description('Manages secrets.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manages secrets.');
 
-program.command('create', 'Create secrets.').showHelpAfterError();
+program.command('create', 'Create secrets.');
 
-program.command('delete', 'Delete secrets.').showHelpAfterError();
+program.command('delete', 'Delete secrets.');
 
-program.command('describe', 'Describe secret.').showHelpAfterError();
+program.command('describe', 'Describe secret.');
 
-// program.command('export', 'Export secrets.').showHelpAfterError();
+// program.command('export', 'Export secrets.');
 
-// program.command('import', 'Import secrets.').showHelpAfterError();
+// program.command('import', 'Import secrets.');
 
-program.command('list', 'List secrets.').showHelpAfterError();
+program.command('list', 'List secrets.');
 
-program.command('set', 'Set secret descriptions.').showHelpAfterError();
+program.command('set', 'Set secret descriptions.');
 
-program.command('version', 'Manage secret versions.').showHelpAfterError();
+program.command('version', 'Manage secret versions.');
 
 program.parse();

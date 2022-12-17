@@ -9,9 +9,9 @@ Options:
   -h, --help      Help
 
 Commands:
-  list            List scripts.
   export          Export scripts.
-  import          Import scripts.
   help [command]  display help for command
+  import          Import scripts.
+  list            List scripts.
 "
 `;

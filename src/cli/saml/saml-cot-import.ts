@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
@@ -11,21 +11,10 @@ const {
   importFirstCircleOfTrust,
 } = CirclesOfTrust;
 
-const program = new Command('frodo saml cot import');
+const program = new FrodoCommand('frodo saml cot import');
 
 program
   .description('Import SAML circles of trust.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --cot-id <cot-id>',
@@ -52,22 +41,21 @@ program
   )
   .action(
     // implement program logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // import by id
       if (options.file && options.cotId && (await getTokens())) {
         verboseMessage(
           `Importing circle of trust "${
             options.cotId
-          }" into realm "${state.default.session.getRealm()}"...`
+          }" into realm "${state.getRealm()}"...`
         );
         importCircleOfTrust(options.cotId, options.file);
       }
@@ -90,7 +78,7 @@ program
         verboseMessage(
           `Importing first circle of trust from file "${
             options.file
-          }" into realm "${state.default.session.getRealm()}"...`
+          }" into realm "${state.getRealm()}"...`
         );
         importFirstCircleOfTrust(options.file);
       }
@@ -101,6 +89,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end program logic inside action handler

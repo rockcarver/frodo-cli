@@ -1,5 +1,6 @@
 import fs from 'fs';
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import {
   Authenticate,
   ExportImportUtils,
@@ -7,7 +8,6 @@ import {
   state,
 } from '@rockcarver/frodo-lib';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
-import * as common from '../cmd_common.js';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
@@ -15,23 +15,12 @@ const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
   Journey;
 const { saveTextToFile } = ExportImportUtils;
 
-const program = new Command('frodo journey describe');
+const program = new FrodoCommand('frodo journey describe');
 
 program
   .description(
     'If -h is supplied, describe the journey/tree indicated by -i, or all journeys/trees in the realm if no -i is supplied, otherwise describe the journey/tree export file indicated by -f.'
   )
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.realmArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --journey-id <journey>',
@@ -59,18 +48,16 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
-      if (options.outputFile)
-        state.default.session.setOutputFile(options.outputFile);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
+      if (options.outputFile) state.setOutputFile(options.outputFile);
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {
         if (
@@ -85,7 +72,7 @@ program
         try {
           // override version
           if (typeof options.overrideVersion !== 'undefined') {
-            state.default.session.setAmVersion(options.overrideVersion);
+            state.setAmVersion(options.overrideVersion);
           }
           const fileData = JSON.parse(fs.readFileSync(options.file, 'utf8'));
           let journeyData;
@@ -146,11 +133,11 @@ program
         }
       } else if (await getTokens()) {
         verboseMessage(
-          `Describing journey(s) in realm "${state.default.session.getRealm()}"...`
+          `Describing journey(s) in realm "${state.getRealm()}"...`
         );
         // override version
         if (typeof options.overrideVersion !== 'undefined') {
-          state.default.session.setAmVersion(options.overrideVersion);
+          state.setAmVersion(options.overrideVersion);
         }
         if (typeof options.journeyId === 'undefined') {
           let journeys = [];

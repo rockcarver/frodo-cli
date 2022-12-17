@@ -1,21 +1,17 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo agent gateway');
+const program = new FrodoStubCommand('frodo agent gateway');
 
-program
-  .description('Manage gateway agents.')
-  .alias('ig')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage gateway agents.').alias('ig');
 
-program.command('list', 'List gateway agents.').showHelpAfterError();
+program.command('list', 'List gateway agents.');
 
-program.command('describe', 'Describe gateway agents.').showHelpAfterError();
+program.command('describe', 'Describe gateway agents.');
 
-program.command('export', 'Export gateway agents.').showHelpAfterError();
+program.command('export', 'Export gateway agents.');
 
-program.command('import', 'Import gateway agents.').showHelpAfterError();
+program.command('import', 'Import gateway agents.');
 
-program.command('delete', 'Delete gateway agents.').showHelpAfterError();
+program.command('delete', 'Delete gateway agents.');
 
 program.parse();

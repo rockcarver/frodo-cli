@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'connections' should be expected english 1`] = `
+exports[`CLI help interface for 'conn' should be expected english 1`] = `
 "Usage: frodo conn|connection [options] [command]
 
 Manage connection profiles.
@@ -9,10 +9,10 @@ Options:
   -h, --help      Help
 
 Commands:
-  save|add        Save connection profiles.
   delete          Delete connection profiles.
   describe        Describe connection profiles.
-  list            List connection profiles.
   help [command]  display help for command
+  list            List connection profiles.
+  save|add        Save connection profiles.
 "
 `;

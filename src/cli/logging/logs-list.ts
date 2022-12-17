@@ -1,51 +1,32 @@
+import { FrodoCommand } from '../FrodoCommand';
 import {
   Authenticate,
   ConnectionProfile,
   Log,
   state,
 } from '@rockcarver/frodo-lib';
-import { Command } from 'commander';
-import { printMessage } from '../../utils/Console';
-import * as common from '../cmd_common';
+import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { provisionCreds, getLogSources } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo logs list');
+const program = new FrodoCommand('frodo logs list', ['realm', 'type']);
 program
   .description('List available ID Cloud log sources.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgument)
-  .addArgument(common.usernameArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
-  .action(async (host, user, password, options) => {
+  .action(async (host, user, password, options, command) => {
+    command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
-    state.default.session.setTenant(host);
-    state.default.session.setUsername(user);
-    state.default.session.setPassword(password);
-    state.default.session.setAllowInsecureConnection(options.insecure);
-    state.default.session.setVerbose(options.verbose);
-    state.default.session.setDebug(options.debug);
-    state.default.session.setCurlirize(options.curlirize);
-    printMessage('Listing available ID Cloud log sources...');
+    verboseMessage('Listing available ID Cloud log sources...');
     const conn = await getConnectionProfile();
-    state.default.session.setTenant(conn.tenant);
+    state.setHost(conn.tenant);
     if (conn.logApiKey != null && conn.logApiSecret != null) {
       credsFromParameters = false;
-      state.default.session.setLogApiKey(conn.logApiKey);
-      state.default.session.setLogApiSecret(conn.logApiSecret);
+      state.setLogApiKey(conn.logApiKey);
+      state.setLogApiSecret(conn.logApiSecret);
     } else {
       if (conn.username == null && conn.password == null) {
-        if (
-          !state.default.session.getUsername() &&
-          !state.default.session.getPassword()
-        ) {
+        if (!state.getUsername() && !state.getPassword()) {
           credsFromParameters = false;
           printMessage(
             'User credentials not specified as parameters and no saved API key and secret found!',
@@ -54,13 +35,13 @@ program
           return;
         }
       } else {
-        state.default.session.setUsername(conn.username);
-        state.default.session.setPassword(conn.password);
+        state.setUsername(conn.username);
+        state.setPassword(conn.password);
       }
       if (await getTokens()) {
         const creds = await provisionCreds();
-        state.default.session.setLogApiKey(creds.api_key_id);
-        state.default.session.setLogApiSecret(creds.api_key_secret);
+        state.setLogApiKey(creds.api_key_id);
+        state.setLogApiSecret(creds.api_key_secret);
       }
     }
 
@@ -72,13 +53,11 @@ program
       );
     } else {
       if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
-      printMessage('Available log sources:');
       sources.forEach((source) => {
-        printMessage(`${source}`, 'info');
+        printMessage(`${source}`, 'data');
       });
-      printMessage('You can use any combination of comma separated sources.');
-      printMessage('For example:');
-      printMessage(`$ frodo logs tail -c am-core,idm-core ${host}`, 'info');
+      printMessage('Use any combination of comma separated sources:', 'info');
+      printMessage(`$ frodo logs tail -c am-core,idm-core ${host}`, 'text');
     }
   });
 
