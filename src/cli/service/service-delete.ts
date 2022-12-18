@@ -22,7 +22,7 @@ program
   .description('Delete AM services.')
   .addOption(new Option('-i, --id <id>', 'Id of Service to be deleted.'))
   .addOption(new Option('-a, --all', 'Delete all services. Ignored with -i.'))
-  .addOption(new Option('-g, --global', 'List global services.'))
+  .addOption(new Option('-g, --global', 'Delete global services.'))
   .action(
     async (
       host: string,

@@ -21,8 +21,8 @@ Arguments:
 
 Options:
   -A, --all-separate                   Import all IDM configuration objects
-                                       into separate JSON files in directory
-                                       -D. Ignored with -N, and -a.
+                                       from separate files in directory -D.
+                                       Ignored with -N, and -a.
   --curlirize                          Output all network calls in curl format.
   -D, --directory <directory>          Import directory. Required with and
                                        ignored without -a/-A.

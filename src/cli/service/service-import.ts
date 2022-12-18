@@ -53,7 +53,7 @@ program
     )
   )
   .addOption(new Option('-D, --directory <directory>', 'Working directory.'))
-  .addOption(new Option('-g, --global', 'List global services.'))
+  .addOption(new Option('-g, --global', 'Import global services.'))
   .action(
     async (
       host: string,

@@ -51,7 +51,7 @@ program
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Import all IDM configuration objects into separate JSON files in directory -D. Ignored with -N, and -a.'
+      'Import all IDM configuration objects from separate files in directory -D. Ignored with -N, and -a.'
     )
   )
   .addOption(
