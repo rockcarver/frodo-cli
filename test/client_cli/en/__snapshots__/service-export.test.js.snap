@@ -29,7 +29,7 @@ Options:
                                  specified, may or may not produce additional
                                  output helpful for troubleshooting.
   -f, --file <file>              Name of the export file.
-  -g, --global                   List global services.
+  -g, --global                   Export global services.
   -h, --help                     Help
   -i, --service-id <service-id>  Service id. If specified, -a and -A are
                                  ignored.

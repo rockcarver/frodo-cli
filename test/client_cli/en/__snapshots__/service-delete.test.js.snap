@@ -23,7 +23,7 @@ Options:
   --debug               Debug output during command execution. If specified,
                         may or may not produce additional output helpful for
                         troubleshooting.
-  -g, --global          List global services.
+  -g, --global          Delete global services.
   -h, --help            Help
   -i, --id <id>         Id of Service to be deleted.
   -k, --insecure        Allow insecure connections when using SSL/TLS. Has no
