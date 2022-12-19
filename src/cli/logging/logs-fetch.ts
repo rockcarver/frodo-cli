@@ -1,11 +1,12 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { sourcesOptionM } from './logs';
+import { Option } from 'commander';
 import {
   Authenticate,
   ConnectionProfile,
   Log,
   state,
 } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 
@@ -18,22 +19,13 @@ const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
 const LOG_TIME_WINDOW_INCREMENT = SECONDS_IN_1_HOUR;
 
-const program = new Command('frodo logs fetch');
+const program = new FrodoCommand('frodo logs fetch', ['realm', 'type']);
 program
   .description(
     'Fetch Identity Cloud logs between a specified begin and end time period.\
  WARNING: depending on filters and time period specified, this could take substantial time to complete.'
   )
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
-  .addOption(common.sourcesOptionM)
+  .addOption(sourcesOptionM)
   .addOption(
     new Option(
       '-l, --level <level>',
@@ -74,26 +66,17 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
     )
   )
   .action(async (host, user, password, options, command) => {
+    command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
-    state.default.session.setTenant(host);
-    state.default.session.setUsername(user);
-    state.default.session.setPassword(password);
-    state.default.session.setAllowInsecureConnection(options.insecure);
-    state.default.session.setVerbose(options.verbose);
-    state.default.session.setDebug(options.debug);
-    state.default.session.setCurlirize(options.curlirize);
     const conn = await getConnectionProfile();
-    state.default.session.setTenant(conn.tenant);
-    if (conn.key != null && conn.secret != null) {
+    state.setHost(conn.tenant);
+    if (conn.logApiKey != null && conn.logApiSecret != null) {
       credsFromParameters = false;
-      state.default.session.setLogApiKey(conn.key);
-      state.default.session.setLogApiSecret(conn.secret);
+      state.setLogApiKey(conn.logApiKey);
+      state.setLogApiSecret(conn.logApiSecret);
     } else {
       if (conn.username == null && conn.password == null) {
-        if (
-          !state.default.session.getUsername() &&
-          !state.default.session.getPassword()
-        ) {
+        if (!state.getUsername() && !state.getPassword()) {
           credsFromParameters = false;
           printMessage(
             'User credentials not specified as parameters and no saved API key and secret found!',
@@ -102,13 +85,13 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           return;
         }
       } else {
-        state.default.session.setUsername(conn.username);
-        state.default.session.setPassword(conn.password);
+        state.setUsername(conn.username);
+        state.setPassword(conn.password);
       }
       if (await getTokens()) {
         const creds = await provisionCreds();
-        state.default.session.setLogApiKey(creds.api_key_id);
-        state.default.session.setLogApiSecret(creds.api_key_secret);
+        state.setLogApiKey(creds.api_key_id);
+        state.setLogApiSecret(creds.api_key_secret);
       }
     }
     const now = Date.now() / 1000;
@@ -155,7 +138,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         command.opts().sources
       } and levels [${resolveLevel(command.opts().level)}]...`
     );
-    if (credsFromParameters) await saveConnectionProfile(); // save new values if they were specified on CLI
+    if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
 
     do {
       intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;

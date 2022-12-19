@@ -1,30 +1,19 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
 import Table from 'cli-table3';
 import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
 import { printMessage } from '../../utils/Console.js';
 
 const { getTokens } = Authenticate;
 const { createLongLivedToken, createOAuth2ClientWithAdminPrivileges } = Admin;
 
-const program = new Command(
+const program = new FrodoCommand(
   'frodo admin create-oauth2-client-with-admin-privileges'
 );
 
 program
   .description('Create an oauth2 client with admin privileges.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(new Option('--client-id [id]', 'Client id.'))
   .addOption(new Option('--client-secret [secret]', 'Client secret.'))
   .addOption(
@@ -53,19 +42,18 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       if (await getTokens()) {
         printMessage(
-          `Creating oauth2 client with admin privileges in realm "${state.default.session.getRealm()}"...`
+          `Creating oauth2 client with admin privileges in realm "${state.getRealm()}"...`
         );
         let clientId = uuidv4();
         let clientSecret = uuidv4();
@@ -120,6 +108,8 @@ program
         table.push(['Client ID'['brightCyan'], clientId]);
         table.push(['Client Secret'['brightCyan'], clientSecret]);
         printMessage(table.toString());
+      } else {
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

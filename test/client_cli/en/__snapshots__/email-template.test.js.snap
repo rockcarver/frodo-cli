@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'email_templates' should be expected english 1`] = `
+exports[`CLI help interface for 'email template' should be expected english 1`] = `
 "Usage: frodo email template [options] [command]
 
 Manage email templates.
@@ -9,9 +9,9 @@ Options:
   -h, --help      Help
 
 Commands:
-  list            List email templates.
   export          Export email templates.
-  import          Import email templates.
   help [command]  display help for command
+  import          Import email templates.
+  list            List email templates.
 "
 `;

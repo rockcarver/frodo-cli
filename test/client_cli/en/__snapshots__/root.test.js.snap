@@ -4,26 +4,26 @@ exports[`CLI help interface for 'frodo' root command should be expected english 
 "Usage: frodo [options] [command]
 
 Options:
-  -v, --version                            output the version number
-  -h, --help                               display help for command
+  -v, --version                                output the version number
+  -h, --help                                   display help for command
 
 Commands:
-  admin                                    Platform admin tasks.
-  agent                                    Manage agents.
-  app|application                          Manage OAuth2 applications.
-  conn|connection                          Manage connection profiles.
-  email                                    Manage email templates and configuration.
-  esv                                      Manage Environment-Specific Variables (ESVs).
-  idm                                      Manage IDM configuration.
-  idp                                      Manage (social) identity providers.
-  info [options] <host> [user] [password]  Print versions and tokens.
-  journey                                  Manage journeys/trees.
-  logs                                     List/View Identity Cloud logs
-  realm                                    Manage realms.
-  saml                                     Manage SAML entity providers and circles of trust.
-  script                                   Manage scripts.
-  service                                  Manage AM services.
-  theme                                    Manage themes.
-  help [command]                           display help for command
+  admin                                        Platform admin tasks.
+  agent                                        Manage agents.
+  app|application                              Manage OAuth2 applications.
+  conn|connection                              Manage connection profiles.
+  email                                        Manage email templates and configuration.
+  esv                                          Manage environment secrets and variables (ESVs).
+  idm                                          Manage IDM configuration.
+  idp                                          Manage (social) identity providers.
+  info [options] [host] [username] [password]  Print versions and tokens.
+  journey                                      Manage journeys/trees.
+  logs                                         List/View Identity Cloud logs
+  realm                                        Manage realms.
+  saml                                         Manage SAML entity providers and circles of trust.
+  script                                       Manage scripts.
+  service                                      Manage AM services.
+  theme                                        Manage themes.
+  help [command]                               display help for command
 "
 `;

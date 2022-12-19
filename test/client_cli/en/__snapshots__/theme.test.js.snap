@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'theme' should be expected english 1`] = `
+"Usage: frodo theme [options] [command]
+
+Manage themes.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  delete          Delete themes.
+  export          Export themes.
+  help [command]  display help for command
+  import          Import themes.
+  list            List themes.
+"
+`;

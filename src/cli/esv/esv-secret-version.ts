@@ -1,20 +1,17 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo esv secret version');
+const program = new FrodoStubCommand('frodo esv secret version');
 
-program
-  .description('Manage secret versions.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage secret versions.');
 
-program.command('activate', 'Activate version.').showHelpAfterError();
+program.command('activate', 'Activate version.');
 
-program.command('create', 'Create new version.').showHelpAfterError();
+program.command('create', 'Create new version.');
 
-program.command('deactivate', 'Deactivate version.').showHelpAfterError();
+program.command('deactivate', 'Deactivate version.');
 
-program.command('delete', 'Delete version.').showHelpAfterError();
+program.command('delete', 'Delete version.');
 
-program.command('list', 'List versions.').showHelpAfterError();
+program.command('list', 'List versions.');
 
 program.parse();

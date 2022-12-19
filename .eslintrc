@@ -1,5 +1,9 @@
 {
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "requireConfigFile": false
@@ -22,6 +26,7 @@
   },
   "env": {
     "jest": true,
-    "jest/globals": true
+    "jest/globals": true,
+    "node": true
   }
 }

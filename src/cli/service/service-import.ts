@@ -1,5 +1,6 @@
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { Command, Option } from 'commander';
 import {
   importFirstServiceFromFile,
   importServiceFromFile,
@@ -7,11 +8,10 @@ import {
   importServicesFromFiles,
 } from '../../ops/ServiceOps.js';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
-import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo service import');
+const program = new FrodoCommand('frodo service import');
 
 interface ServiceImportOptions {
   file?: string;
@@ -25,21 +25,11 @@ interface ServiceImportOptions {
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;
+  global?: boolean;
 }
 
 program
   .description('Import AM services.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --service-id <service-id>',
@@ -63,46 +53,53 @@ program
     )
   )
   .addOption(new Option('-D, --directory <directory>', 'Working directory.'))
+  .addOption(new Option('-g, --global', 'Import global services.'))
   .action(
     async (
       host: string,
       realm: string,
       user: string,
       password: string,
-      options: ServiceImportOptions
+      options: ServiceImportOptions,
+      command
     ) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
-      state.default.session.setDirectory(options.directory || '.');
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
+      state.setDirectory(options.directory || '.');
 
       const clean = options.clean ?? false;
+      const globalConfig = options.global ?? false;
 
       // import by id
       if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importServiceFromFile(options.serviceId, options.file, clean);
+        await importServiceFromFile(
+          options.serviceId,
+          options.file,
+          clean,
+          globalConfig
+        );
       }
       // -a / --all
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage('Importing all services from a single file...');
-        await importServicesFromFile(options.file, clean);
+        await importServicesFromFile(options.file, clean, globalConfig);
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
-        await importServicesFromFiles(clean);
+        await importServicesFromFiles(clean, globalConfig);
       }
       // import file
       else if (options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importFirstServiceFromFile(options.file, clean);
+        await importFirstServiceFromFile(options.file, clean, globalConfig);
       }
       // unrecognized combination of options or no options
       else {
@@ -111,6 +108,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

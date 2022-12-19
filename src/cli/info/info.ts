@@ -1,56 +1,44 @@
-import { Command } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
 const { getTokens } = Authenticate;
 
 export default function setup() {
-  const info = new Command('info');
+  const info = new FrodoCommand('info', ['realm']);
   info
-    .addArgument(common.hostArgumentM)
-    .addArgument(common.userArgument)
-    .addArgument(common.passwordArgument)
-    .helpOption('-h, --help', 'Help')
-    .addOption(common.deploymentOption)
-    .addOption(common.insecureOption)
-    .addOption(common.verboseOption)
-    .addOption(common.debugOption)
-    .addOption(common.curlirizeOption)
-    .addOption(common.scriptFriendlyOption)
     .description('Print versions and tokens.')
-    .action(async (host, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
-      state.default.session.setItem('scriptFriendly', options.scriptFriendly);
+    .addOption(
+      new Option(
+        '-s, --scriptFriendly',
+        'Send output of operation to STDOUT in a script-friendly format (JSON) which can be piped to other commands. User messages/warnings are output to STDERR, and are not piped. For example, to only get bearer token: \n<<< frodo info my-tenant -s 2>/dev/null | jq -r .bearerToken >>>'
+      ).default(false, 'Output as plain text')
+    )
+    .action(async (host, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (!options.scriptFriendly) {
         verboseMessage('Printing versions and tokens...');
         if (await getTokens()) {
-          printMessage(`Cookie name: ${state.default.session.getCookieName()}`);
-          printMessage(
-            `Session token: ${state.default.session.getCookieValue()}`
-          );
-          if (state.default.session.getBearerToken()) {
-            printMessage(
-              `Bearer token: ${state.default.session.getBearerToken()}`
-            );
+          printMessage(`Cookie name: ${state.getCookieName()}`);
+          if (state.getCookieValue()) {
+            printMessage(`Session token: ${state.getCookieValue()}`);
+          }
+          if (state.getBearerToken()) {
+            printMessage(`Bearer token: ${state.getBearerToken()}`);
           }
         } else {
           process.exitCode = 1;
         }
       } else if (await getTokens()) {
         const output = {
-          cookieName: state.default.session.getCookieName(),
-          sessionToken: state.default.session.getCookieValue(),
+          cookieName: state.getCookieName(),
         };
-        if (state.default.session.getBearerToken()) {
-          output['bearerToken'] = state.default.session.getBearerToken();
+        if (state.getCookieValue()) {
+          output['sessionToken'] = state.getCookieValue();
+        }
+        if (state.getBearerToken()) {
+          output['bearerToken'] = state.getBearerToken();
         }
         printMessage(JSON.stringify(output, null, 2), 'data');
       } else {

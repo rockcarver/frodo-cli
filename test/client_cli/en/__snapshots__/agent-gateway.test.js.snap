@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'agent gateway' should be expected english 1`] = `
+"Usage: frodo agent gateway|ig [options] [command]
+
+Manage gateway agents.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  delete          Delete gateway agents.
+  describe        Describe gateway agents.
+  export          Export gateway agents.
+  help [command]  display help for command
+  import          Import gateway agents.
+  list            List gateway agents.
+"
+`;

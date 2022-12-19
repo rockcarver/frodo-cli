@@ -1,30 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'logs list' should be expected english 1`] = `
-"Usage: frodo logs list [options] <host> [user] [password]
+"Usage: frodo logs list [options] [host] [username] [password]
 
 List available ID Cloud log sources.
 
 Arguments:
-  host            Access Management base URL, e.g.:
-                  https://cdk.iam.example.com/am. To use a connection profile,
-                  just specify a unique substring.
-  user            Username to login with. Must be an admin user with
-                  appropriate rights to manage authentication journeys/trees.
-  password        Password.
+  host                  Access Management base URL, e.g.:
+                        https://cdk.iam.example.com/am. To use a connection
+                        profile, just specify a unique substring.
+  username              Username to login with. Must be an admin user with
+                        appropriate rights to manage authentication
+                        journeys/trees.
+  password              Password.
 
 Options:
-  -k, --insecure  Allow insecure connections when using SSL/TLS. Has no effect
-                  when using a network proxy for https
-                  (HTTPS_PROXY=http://<host>:<port>), in that case the proxy
-                  must provide this capability. (default: Don't allow insecure
-                  connections)
-  --verbose       Verbose output during command execution. If specified, may or
-                  may not produce additional output.
-  --debug         Debug output during command execution. If specified, may or
-                  may not produce additional output helpful for
-                  troubleshooting.
-  --curlirize     Output all network calls in curl format.
-  -h, --help      Help
+  --curlirize           Output all network calls in curl format.
+  --debug               Debug output during command execution. If specified,
+                        may or may not produce additional output helpful for
+                        troubleshooting.
+  -h, --help            Help
+  -k, --insecure        Allow insecure connections when using SSL/TLS. Has no
+                        effect when using a network proxy for https
+                        (HTTPS_PROXY=http://<host>:<port>), in that case the
+                        proxy must provide this capability. (default: Don't
+                        allow insecure connections)
+  --sa-id <sa-id>       Service account id.
+  --sa-jwk-file <file>  File containing the java web key (jwk) associated with
+                        the the service account.
+  --verbose             Verbose output during command execution. If specified,
+                        may or may not produce additional output.
 "
 `;

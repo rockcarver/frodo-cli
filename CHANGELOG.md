@@ -7,6 +7,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2022-12-18
+
+### Added
+
+-   \#154: Allow all connection parameters to be supplied using environment variables for secure CI/CD:
+    -   `FRODO_HOST`
+    -   `FRODO_REALM`
+    -   `FRODO_USERNAME`
+    -   `FRODO_PASSWORD`
+    -   `FRODO_SA_ID`
+    -   `FRODO_SA_JWK`
+    -   `FRODO_LOG_KEY`
+    -   `FRODO_LOG_SECRET`
+    -   `FRODO_DEBUG` - set to any value to enable debug logging, e.g. `FRODO_DEBUG=1 frodo info tenant-name`
+-   \#143: Support Identity Cloud Service Accounts in `frodo conn save|add` command
+    1.  The `frodo conn add` command is renamed to `frodo conn save` and `add` is added as an alias for backwards compatibility.
+    2.  The `frodo conn save` command supports the following new options to manage service accounts:
+        1.  `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`. Ignored with `--no-sa`.
+        2.  `--sa-jwk-file <file>` File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include `--sa-id`. Ignored with `--no-sa`.
+        3.  `--no-sa` Do not add service account.
+    3.  The existing `--no-validate` option also applies to service account operations, allowing to add service account configuration to a connection profile without validating it, typical use case is an offline situation.
+    4.  The `frodo conn save` command automatically creates a new service account and adds it to an existing ID Cloud profile without service account or to a new ID Cloud profile. It does not do that if the `--no-sa` option is supplied.
+        1.  If `--sa-id` and `--sa-jwk-file` are supplied, `frodo conn save` adds the existing service account specified by those two parameters to the profile instead of creating a new service account.
+        2.  The `frodo conn save` command checks if the ID Cloud tenant supports service accounts before performing any service account operations.
+    5.  The `frodo conn save` command validates service account configuration unless the `--no-validate` options is supplied.
+-   \#101: Added new `frodo service` set of commands to manage AM realm services (`baseurl`, `DataStoreService`, `oauth-oidc`, `policyconfiguration`, `selfServiceTrees`, `SocialIdentityProviders`, `validation`, etc.) and global services (e.g. `CorsService`, `dashboard`, etc.).
+        frodo service
+                      delete        Delete AM services.
+                      export        Export AM services.
+                      import        Import AM services.
+                      list          List AM services.
+-   Added new `frodo idm import` command.
+-   \#98: Add support for Agents / Gateways
+        frodo agent                  Manage agents.
+                    delete           Delete agents of any type.
+                    describe         Describe agents of any type.
+                    export           Export agents of any type.
+                    import           Import agents of any type.
+                    list             List agents of any type.
+                    gateway          Manage gateway agents.
+                            delete   Delete gateway agents.
+                            describe Describe gateway agents.
+                            export   Export gateway agents.
+                            import   Import gateway agents.
+                            list     List gateway agents.
+                    java             Manage java agents.
+                            delete   Delete java agents.
+                            describe Describe java agents.
+                            export   Export java agents.
+                            import   Import java agents.
+                            list     List java agents.
+                    web              Manage web agents.
+                            delete   Delete web agents.
+                            describe Describe web agents.
+                            export   Export web agents.
+                            import   Import web agents.
+                            list     List web agents.
+-   Added `--raw` option to `frodo saml import` and `frodo saml export` commands. The new option uses the classic (pre 7.0.0) SAML REST APIs. This allows Frodo to export and import SAML entity providers from pre 7 platform instances.
+-   New default options `--verbose`, `--debug`, and `--curlirize` for all commands
+
+### Changed
+
+-   Updated to frodo-lib 0.17.0
+-   \#110: Migrate from .frodorc to Connections.json
+-   Ongoing refactoring of code base:
+    -   Refactored Email Template and Theme functionality in lib to remove fs operations
+    -   \#93: Move cli functions from frodo-lib to frodo-cli
+-   More automated testing
+
+### Fixed
+
+-
+
+## [0.18.2-18] - 2022-12-17
+
+## [0.18.2-17] - 2022-12-14
+
+## [0.18.2-16] - 2022-12-14
+
+## [0.18.2-15] - 2022-12-12
+
+## [0.18.2-14] - 2022-12-10
+
 ## [0.18.2-13] - 2022-12-01
 
 ## [0.18.2-12] - 2022-11-29
@@ -740,7 +823,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-13...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.19.0...HEAD
+
+[0.19.0]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-18...v0.19.0
+
+[0.18.2-18]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-17...v0.18.2-18
+
+[0.18.2-17]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-16...v0.18.2-17
+
+[0.18.2-16]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-15...v0.18.2-16
+
+[0.18.2-15]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-14...v0.18.2-15
+
+[0.18.2-14]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-13...v0.18.2-14
 
 [0.18.2-13]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-12...v0.18.2-13
 

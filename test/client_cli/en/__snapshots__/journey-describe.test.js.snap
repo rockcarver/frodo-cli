@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'journey describe' should be expected english 1`] = `
-"Usage: frodo journey describe [options] [host] [realm] [user] [password]
+"Usage: frodo journey describe [options] [host] [realm] [username] [password]
 
 If -h is supplied, describe the journey/tree indicated by -i, or all journeys/trees in the realm if no -i is supplied, otherwise describe the journey/tree export file indicated by -f.
 
@@ -14,12 +14,30 @@ Arguments:
                                     realm or 'realm' or '/parent/child'
                                     otherwise. (default: "alpha" for Identity
                                     Cloud tenants, "/" otherwise.)
-  user                              Username to login with. Must be an admin
+  username                          Username to login with. Must be an admin
                                     user with appropriate rights to manage
                                     authentication journeys/trees.
   password                          Password.
 
 Options:
+  --curlirize                       Output all network calls in curl format.
+  --debug                           Debug output during command execution. If
+                                    specified, may or may not produce
+                                    additional output helpful for
+                                    troubleshooting.
+  -f, --file <file>                 Name of the journey export file to
+                                    describe. Ignored with -A.
+  -F, --output-file <file>          Name of the file to write the output to.
+  -h, --help                        Help
+  -i, --journey-id <journey>        Name of a journey/tree. If specified, -a
+                                    and -A are ignored.
+  -k, --insecure                    Allow insecure connections when using
+                                    SSL/TLS. Has no effect when using a network
+                                    proxy for https
+                                    (HTTPS_PROXY=http://<host>:<port>), in that
+                                    case the proxy must provide this
+                                    capability. (default: Don't allow insecure
+                                    connections)
   -m, --type <type>                 Override auto-detected deployment type.
                                     Valid values for type:
                                     classic:  A classic Access Management-only
@@ -36,26 +54,6 @@ Options:
                                     admin login flow of Identity Cloud and
                                     handle MFA (choices: "classic", "cloud",
                                     "forgeops")
-  -k, --insecure                    Allow insecure connections when using
-                                    SSL/TLS. Has no effect when using a network
-                                    proxy for https
-                                    (HTTPS_PROXY=http://<host>:<port>), in that
-                                    case the proxy must provide this
-                                    capability. (default: Don't allow insecure
-                                    connections)
-  --verbose                         Verbose output during command execution. If
-                                    specified, may or may not produce
-                                    additional output.
-  --debug                           Debug output during command execution. If
-                                    specified, may or may not produce
-                                    additional output helpful for
-                                    troubleshooting.
-  --curlirize                       Output all network calls in curl format.
-  -i, --journey-id <journey>        Name of a journey/tree. If specified, -a
-                                    and -A are ignored.
-  -f, --file <file>                 Name of the journey export file to
-                                    describe. Ignored with -A.
-  -F, --output-file <file>          Name of the file to write the output to.
   --markdown                        Output in markdown.
   -o, --override-version <version>  Override version. Notation:
                                     '<major>.<minor>.<patch>' e.g. '7.2.0'.
@@ -65,6 +63,11 @@ Options:
                                     compatible running in another environment
                                     (e.g. in preparation of migrating from
                                     on-prem to ForgeRock Identity Cloud.
-  -h, --help                        Help
+  --sa-id <sa-id>                   Service account id.
+  --sa-jwk-file <file>              File containing the java web key (jwk)
+                                    associated with the the service account.
+  --verbose                         Verbose output during command execution. If
+                                    specified, may or may not produce
+                                    additional output.
 "
 `;

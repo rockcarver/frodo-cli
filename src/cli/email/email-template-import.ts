@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common.js';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import {
   importEmailTemplateFromFile,
@@ -11,21 +11,10 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo email template import');
+const program = new FrodoCommand('frodo email template import');
 
 program
   .description('Import email templates.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --template-id <template-id>',
@@ -47,16 +36,15 @@ program
   )
   .action(
     // implement program logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // import by id
       if (options.file && options.templateId && (await getTokens())) {
         verboseMessage(`Importing email template "${options.templateId}"...`);
@@ -90,6 +78,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end program logic inside action handler

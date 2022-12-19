@@ -1,16 +1,13 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new Command('frodo saml cot');
+const program = new FrodoStubCommand('frodo saml cot');
 
-program
-  .description('Manage circles of trust.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError();
+program.description('Manage circles of trust.');
 
-program.command('list', 'List circles of trust.').showHelpAfterError();
+program.command('list', 'List circles of trust.');
 
-program.command('export', 'Export circles of trust.').showHelpAfterError();
+program.command('export', 'Export circles of trust.');
 
-program.command('import', 'Import circles of trust.').showHelpAfterError();
+program.command('import', 'Import circles of trust.');
 
 program.parse();

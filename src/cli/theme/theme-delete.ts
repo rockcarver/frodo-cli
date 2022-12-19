@@ -1,6 +1,6 @@
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import * as common from '../cmd_common';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   deleteThemeByNameCmd,
@@ -10,21 +10,10 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo theme delete');
+const program = new FrodoCommand('frodo theme delete');
 
 program
   .description('Delete themes.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-n, --theme-name <name>',
@@ -45,22 +34,21 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+    async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       // delete by name
       if (options.themeName && (await getTokens())) {
         verboseMessage(
           `Deleting theme with name "${
             options.themeName
-          }" from realm "${state.default.session.getRealm()}"...`
+          }" from realm "${state.getRealm()}"...`
         );
         deleteThemeByNameCmd(options.themeName);
       }
@@ -69,14 +57,14 @@ program
         verboseMessage(
           `Deleting theme with id "${
             options.themeId
-          }" from realm "${state.default.session.getRealm()}"...`
+          }" from realm "${state.getRealm()}"...`
         );
         deleteThemeCmd(options.themeId);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage(
-          `Deleting all themes from realm "${state.default.session.getRealm()}"...`
+          `Deleting all themes from realm "${state.getRealm()}"...`
         );
         deleteAllThemes();
       }
@@ -87,6 +75,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

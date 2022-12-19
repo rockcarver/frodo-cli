@@ -1,28 +1,32 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
+import { Argument } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+export const apiKeyArgument = new Argument('[key]', 'API key for logging API.');
+
+export const apiSecretArgument = new Argument(
+  '[secret]',
+  'API secret for logging API.'
+);
+
 export default function setup() {
-  const program = new Command('conn')
+  const program = new FrodoStubCommand('conn')
     .alias('connection')
     // for backwards compatibility
     .alias('connections')
-    .helpOption('-h, --help', 'Help')
     .description('Manage connection profiles.')
     .executableDir(__dirname);
 
-  program.command('add', 'Add connection profiles.').showHelpAfterError();
+  program.command('save', 'Save connection profiles.').alias('add');
 
-  program.command('delete', 'Delete connection profiles.').showHelpAfterError();
+  program.command('delete', 'Delete connection profiles.');
 
-  program
-    .command('describe', 'Describe connection profiles.')
-    .showHelpAfterError();
+  program.command('describe', 'Describe connection profiles.');
 
-  program.command('list', 'List connection profiles.').showHelpAfterError();
+  program.command('list', 'List connection profiles.');
 
-  program.showHelpAfterError();
   return program;
 }

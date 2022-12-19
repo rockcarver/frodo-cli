@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'app' should be expected english 1`] = `
+"Usage: frodo app|application [options] [command]
+
+Manage OAuth2 applications.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  export          Export OAuth2 applications.
+  help [command]  display help for command
+  import          Import OAuth2 applications.
+  list            List OAuth2 applications.
+"
+`;

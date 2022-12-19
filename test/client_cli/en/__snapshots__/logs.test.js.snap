@@ -9,9 +9,9 @@ Options:
   -h, --help      Help
 
 Commands:
+  fetch           Fetch Identity Cloud logs for a time window.
+  help [command]  display help for command
   list            List available ID Cloud log sources.
   tail            Tail Identity Cloud logs.
-  fetch           Fetch Identity Cloud logs for a given time period.
-  help [command]  display help for command
 "
 `;

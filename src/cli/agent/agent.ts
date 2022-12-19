@@ -1,34 +1,29 @@
-import { Command } from 'commander';
+import { FrodoStubCommand } from '../FrodoCommand';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function setup() {
-  const program = new Command('agent')
-    .helpOption('-h, --help', 'Help')
+  const program = new FrodoStubCommand('agent')
     .description('Manage agents.')
     .executableDir(__dirname);
 
-  program
-    .command('gateway', 'Manage gateway agents.')
-    .alias('ig')
-    .showHelpAfterError();
+  program.command('gateway', 'Manage gateway agents.').alias('ig');
 
-  program.command('java', 'Manage java agents.').showHelpAfterError();
+  program.command('java', 'Manage java agents.');
 
-  program.command('web', 'Manage web agents.').showHelpAfterError();
+  program.command('web', 'Manage web agents.');
 
-  program.command('list', 'List agents.').showHelpAfterError();
+  program.command('list', 'List agents.');
 
-  program.command('describe', 'Describe agents.').showHelpAfterError();
+  program.command('describe', 'Describe agents.');
 
-  program.command('export', 'Export agents.').showHelpAfterError();
+  program.command('export', 'Export agents.');
 
-  program.command('import', 'Import agents.').showHelpAfterError();
+  program.command('import', 'Import agents.');
 
-  program.command('delete', 'Delete agents.').showHelpAfterError();
+  program.command('delete', 'Delete agents.');
 
-  program.showHelpAfterError();
   return program;
 }

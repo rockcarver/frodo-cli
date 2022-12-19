@@ -5,6 +5,6 @@ const exec = promisify(cp.exec);
 const CMD = 'frodo email template --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'email_templates' should be expected english", async () => {
+test("CLI help interface for 'email template' should be expected english", async () => {
   expect(stdout).toMatchSnapshot();
 });

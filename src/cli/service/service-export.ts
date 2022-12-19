@@ -1,16 +1,16 @@
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { Command, Option } from 'commander';
+import { FrodoCommand } from '../FrodoCommand';
+import { Option } from 'commander';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import {
   exportServicesToFile,
   exportServicesToFiles,
   exportServiceToFile,
 } from '../../ops/ServiceOps.js';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
-import * as common from '../cmd_common.js';
 
 const { getTokens } = Authenticate;
 
-const program = new Command('frodo service export');
+const program = new FrodoCommand('frodo service export');
 
 interface ServiceExportOptions {
   file?: string;
@@ -22,21 +22,11 @@ interface ServiceExportOptions {
   verbose?: boolean;
   debug?: boolean;
   curlirize?: boolean;
+  global?: boolean;
 }
 
 program
   .description('Export AM services.')
-  .helpOption('-h, --help', 'Help')
-  .showHelpAfterError()
-  .addArgument(common.hostArgumentM)
-  .addArgument(common.realmArgument)
-  .addArgument(common.userArgument)
-  .addArgument(common.passwordArgument)
-  .addOption(common.deploymentOption)
-  .addOption(common.insecureOption)
-  .addOption(common.verboseOption)
-  .addOption(common.debugOption)
-  .addOption(common.curlirizeOption)
   .addOption(
     new Option(
       '-i, --service-id <service-id>',
@@ -51,37 +41,45 @@ program
       'Export all services to separate files (*.service.json) in the current directory. Ignored with -a.'
     )
   )
+  .addOption(new Option('-g, --global', 'Export global services.'))
   .action(
     async (
       host: string,
       realm: string,
       user: string,
       password: string,
-      options: ServiceExportOptions
+      options: ServiceExportOptions,
+      command
     ) => {
-      state.default.session.setTenant(host);
-      state.default.session.setRealm(realm);
-      state.default.session.setUsername(user);
-      state.default.session.setPassword(password);
-      state.default.session.setDeploymentType(options.type);
-      state.default.session.setAllowInsecureConnection(options.insecure);
-      state.default.session.setVerbose(options.verbose);
-      state.default.session.setDebug(options.debug);
-      state.default.session.setCurlirize(options.curlirize);
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
+
+      const globalConfig = options.global ?? false;
+
       // export by name
       if (options.serviceId && (await getTokens())) {
         verboseMessage('Exporting service...');
-        await exportServiceToFile(options.serviceId, options.file);
+        await exportServiceToFile(
+          options.serviceId,
+          options.file,
+          globalConfig
+        );
       }
       // -a / --all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all services to a single file...');
-        await exportServicesToFile(options.file);
+        await exportServicesToFile(options.file, globalConfig);
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all services to separate files...');
-        await exportServicesToFiles();
+        await exportServicesToFiles(globalConfig);
       }
       // unrecognized combination of options or no options
       else {
@@ -90,6 +88,7 @@ program
           'error'
         );
         program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler
