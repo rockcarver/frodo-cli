@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#161: Frodo now properly allows adding connection profiles with log credentials
+
 ## [0.19.0] - 2022-12-18
 
 ### Added
