@@ -7,21 +7,8 @@ const { getTokens } = Authenticate;
 const { exportScriptByName } = Script;
 const { exportScriptsToFile } = Script;
 const { exportScriptsToFiles } = Script;
-const { exportScriptsExtract } = Script;
 
 const program = new FrodoCommand('frodo script export');
-
-interface ScriptExportOptions extends common.CommonOptions {
-  scriptName?: string;
-  file?: string;
-  all?: boolean;
-  allSeparate?: boolean;
-  /**
-   * @deprecated
-   */
-  script?: string;
-  extract: boolean;
-}
 
 program
   .description('Export scripts.')
@@ -87,12 +74,7 @@ program
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all scripts to separate files...');
-        exportScriptsToFiles();
-      }
-      // -j / --js
-      else if (options.extract) {
-        verboseMessage('Exporting all scripts as js files...');
-        await exportScriptsExtract();
+        exportScriptsToFiles(options.extract);
       }
       // unrecognized combination of options or no options
       else {

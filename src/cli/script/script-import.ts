@@ -6,7 +6,7 @@ import { verboseMessage } from '../../utils/Console';
 const { getTokens } = Authenticate;
 
 const { importScriptsFromFile } = Script;
-const { importExtractedScripts } = Script;
+const { importScriptsFromFiles } = Script;
 
 const program = new FrodoCommand('frodo script import');
 
@@ -34,8 +34,14 @@ program
   )
   .addOption(
     new Option(
-      '-x, --extract',
-      'Use this option to import scripts that were previously extracted using the -x option.'
+      '-A, --all-separate',
+      'Import all scripts from separate files (*.script.json) in the current directory. Ignored with -n.'
+    )
+  )
+  .addOption(
+    new Option(
+      '-w, --watch',
+      'Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with -A.'
     ).default(false, 'false')
   )
   .action(
@@ -54,17 +60,14 @@ program
           `Importing script(s) into realm "${state.getRealm()}"...`
         );
 
-        if (options.extract) {
-          verboseMessage(
-            `Importing extracted script(s) into realm "${state.default.session.getRealm()}"...`
-          );
-          await importExtractedScripts();
-        } else {
+        if (options.scriptName) {
           importScriptsFromFile(
             options.scriptName || options.script,
             options.file,
             options.reUuid
           );
+        } else if (options.allSeparate) {
+          await importScriptsFromFiles(options.watch);
         }
       } else {
         process.exitCode = 1;
