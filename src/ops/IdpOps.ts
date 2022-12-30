@@ -66,8 +66,8 @@ export function getTableRowMd(socialIdpObj: SocialIdpSkeleton): string {
 export async function listSocialProviders() {
   try {
     const providers = await getSocialIdentityProviders();
-    providers.result.sort((a, b) => a._id.localeCompare(b._id));
-    providers.result.forEach((socialIdentityProvider) => {
+    providers.sort((a, b) => a._id.localeCompare(b._id));
+    providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
     });
   } catch (err) {
