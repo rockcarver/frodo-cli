@@ -1,6 +1,6 @@
 import fs from 'fs';
 import slugify from 'slugify';
-import { ExportImportUtils } from '@rockcarver/frodo-lib';
+import { ExportImportUtils, state } from '@rockcarver/frodo-lib';
 import { printMessage } from './Console';
 
 const { getMetadata } = ExportImportUtils;
@@ -17,7 +17,7 @@ export function getTypedFilename(name: string, type: string, suffix = 'json') {
  */
 export function saveJsonToFile(data, filename) {
   const exportData = data;
-  exportData.meta = getMetadata();
+  if (!exportData.meta) exportData.meta = getMetadata();
   fs.writeFile(filename, JSON.stringify(exportData, null, 2), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${filename}`, 'error');
@@ -44,4 +44,25 @@ export function saveToFile(type, data, identifier, filename) {
     }
     return '';
   });
+}
+
+/*
+ * Output str in title case
+ *
+ * e.g.: 'ALL UPPERCASE AND all lowercase' = 'All Uppercase And All Lowercase'
+ */
+export function titleCase(input) {
+  const str = input.toString();
+  const splitStr = str.toLowerCase().split(' ');
+  for (let i = 0; i < splitStr.length; i += 1) {
+    splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].slice(1);
+  }
+  return splitStr.join(' ');
+}
+
+export function getRealmString() {
+  const realm = state.getRealm();
+  return realm
+    .split('/')
+    .reduce((result, item) => `${result}${titleCase(item)}`, '');
 }

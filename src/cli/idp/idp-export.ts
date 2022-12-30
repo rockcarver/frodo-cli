@@ -1,14 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-const {
-  exportSocialProviderToFile,
+import {
   exportSocialProvidersToFile,
   exportSocialProvidersToFiles,
-} = Idp;
+  exportSocialProviderToFile,
+} from '../../ops/IdpOps';
+
+const { getTokens } = Authenticate;
 
 const program = new FrodoCommand('frodo idp export');
 
