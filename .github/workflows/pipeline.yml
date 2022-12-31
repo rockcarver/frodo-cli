@@ -451,6 +451,56 @@ jobs:
           tag_name: ${{ needs.release.outputs.newTag }}
           files: dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip
 
+  linux-arm64-binary-release:
+    needs: [bump-version, release]
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [18]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.release.outputs.newTag }}
+
+      - name: 'cat package.json'
+        run: cat ./package.json
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install pkg
+        run: npm install -g pkg
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      #
+      # Fail early on failing tests.
+      #
+      - name: 'Test'
+        run: |
+          dist/bin/linux/frodo -v
+          dist/bin/linux/frodo journey -h
+          dist/bin/linux/frodo journey export -h
+
+      - name: Archive distribution binary
+        run: zip -r -Z bzip2 dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip . -i dist/bin/linux/frodo
+
+      - name: Release distribution binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ needs.release.outputs.newVersion }}
+          tag_name: ${{ needs.release.outputs.newTag }}
+          files: dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip
+
   windows-binary-release:
     needs: [bump-version, release]
     runs-on: windows-latest

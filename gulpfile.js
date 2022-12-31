@@ -89,34 +89,34 @@ gulp.task('dist-resources', () =>
 gulp.task('dist-pkg', () => {
   switch (process.platform) {
     case 'darwin':
-      console.log('Building MacOS binary.');
+      console.log(`Building MacOS (${process.arch}) binary.`);
       return exec([
         '-C',
         'Gzip',
         '-t',
-        'node18-macos-x64',
+        `node18-macos-${process.arch}`,
         '-o',
         'dist/bin/macos/frodo',
         'dist',
       ]);
     case 'linux':
-      console.log('Building Linux binary.');
+      console.log(`Building Linux (${process.arch}) binary.`);
       return exec([
         '-C',
         'Gzip',
         '-t',
-        'node18-linux-x64',
+        `node18-linux-${process.arch}`,
         '-o',
         'dist/bin/linux/frodo',
         'dist',
       ]);
     case 'win32':
-      console.log('Building Windows binary.');
+      console.log(`Building Windows (${process.arch}) binary.`);
       return exec([
         '-C',
         'Gzip',
         '-t',
-        'node18-win-x64',
+        `node18-win-${process.arch}`,
         '-o',
         'dist/bin/win/frodo',
         'dist',
