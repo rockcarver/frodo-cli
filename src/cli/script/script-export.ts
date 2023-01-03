@@ -1,12 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Script } from '@rockcarver/frodo-lib';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
+import {
+  exportScriptByNameToFile,
+  exportScriptsToFile,
+  exportScriptsToFiles,
+} from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
-const { exportScriptByName } = Script;
-const { exportScriptsToFile } = Script;
-const { exportScriptsToFiles } = Script;
 
 const program = new FrodoCommand('frodo script export');
 
@@ -58,17 +60,20 @@ program
       // export by name
       if ((options.scriptName || options.script) && (await getTokens())) {
         verboseMessage('Exporting script...');
-        exportScriptByName(options.scriptName || options.script, options.file);
+        await exportScriptByNameToFile(
+          options.scriptName || options.script,
+          options.file
+        );
       }
       // -a / --all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all scripts to a single file...');
-        exportScriptsToFile(options.file);
+        await exportScriptsToFile(options.file);
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all scripts to separate files...');
-        exportScriptsToFiles();
+        await exportScriptsToFiles();
       }
       // unrecognized combination of options or no options
       else {

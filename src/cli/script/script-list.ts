@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Script, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { listScripts } from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
-const { listScripts } = Script;
 
 const program = new FrodoCommand('frodo script list');
 
