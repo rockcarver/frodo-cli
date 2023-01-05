@@ -27,11 +27,11 @@ const {
   getProviderMetadata,
   getProviderMetadataUrl,
   getSaml2ProviderStub,
-  getRawProviders,
-  getRawProvider,
+  getRawSaml2Providers,
+  getRawSaml2Provider,
   importSaml2Provider,
   importSaml2Providers,
-  putRawProvider,
+  putRawSaml2Provider,
 } = Saml2;
 const {
   getTypedFilename,
@@ -346,7 +346,7 @@ export async function importSaml2ProvidersFromFiles() {
  * List entity providers
  */
 export async function listRawSaml2Providers() {
-  const providerList = (await getRawProviders()).result;
+  const providerList = (await getRawSaml2Providers()).result;
   providerList.sort((a, b) => a._id.localeCompare(b._id));
   for (const provider of providerList) {
     printMessage(`${provider._id}`, 'data');
@@ -366,7 +366,7 @@ export async function exportRawSaml2ProviderToFile(entityId, file = null) {
   }
   createProgressBar(1, `Exporting raw entity provider: ${entityId}`);
   try {
-    const rawData = await getRawProvider(entityId);
+    const rawData = await getRawSaml2Provider(entityId);
     updateProgressBar(`Writing file ${fileName}`);
     saveTextToFile(JSON.stringify(rawData, null, 2), fileName);
     stopProgressBar(`Exported raw entity provider ${entityId} to ${fileName}.`);
@@ -389,7 +389,7 @@ export async function exportRawSaml2ProvidersToFile(file = null) {
     );
   }
   try {
-    const samlApplicationList = (await getRawProviders()).result;
+    const samlApplicationList = (await getRawSaml2Providers()).result;
 
     saveToFile('application', samlApplicationList, '_id', fileName);
     printMessage(
@@ -409,14 +409,14 @@ export async function exportRawSaml2ProvidersToFile(file = null) {
  * Export all entity providers to individual files
  */
 export async function exportRawSaml2ProvidersToFiles() {
-  const samlApplicationList = (await getRawProviders()).result;
+  const samlApplicationList = (await getRawSaml2Providers()).result;
   let hasError = false;
   createProgressBar(samlApplicationList.length, 'Exporting RAW providers');
   let exportedAmount = 0;
   for (const item of samlApplicationList) {
     updateProgressBar(`Exporting provider ${item.entityId}`);
     try {
-      const samlApplicationData = await getRawProvider(item._id);
+      const samlApplicationData = await getRawSaml2Provider(item._id);
       const fileName = getTypedFilename(
         `${item._id}${getRealmString()}ProviderRaw`,
         'raw.saml'
@@ -452,7 +452,7 @@ export async function importRawSaml2ProviderFromFile(
         // remove the "_rev" data before PUT
         delete samlEntityData.application[id]._rev;
         try {
-          await putRawProvider(id, samlEntityData.application[id]);
+          await putRawSaml2Provider(id, samlEntityData.application[id]);
         } catch (error) {
           printMessage(`Unable to import: ${id}`, 'error');
         }
@@ -477,7 +477,7 @@ export async function importFirstRawSaml2ProviderFromFile(file) {
         // remove the "_rev" data before PUT
         delete samlEntityData.application[id]._rev;
         try {
-          await putRawProvider(id, samlEntityData.application[id]);
+          await putRawSaml2Provider(id, samlEntityData.application[id]);
         } catch (error) {
           printMessage(`Unable to import: ${id}`, 'error');
         }
@@ -509,7 +509,7 @@ export async function importRawSaml2ProvidersFromFile(file: string) {
       for (const id in samlEntityData.application) {
         // remove the "_rev" data before PUT
         delete samlEntityData.application[id]._rev;
-        await putRawProvider(id, samlEntityData.application[id]).then(
+        await putRawSaml2Provider(id, samlEntityData.application[id]).then(
           (result) => {
             if (result === null) {
               printMessage(`Import validation failed for ${id}`, 'error');
@@ -548,7 +548,7 @@ export async function importRawSaml2ProvidersFromFiles(directory) {
         for (const id in samlEntityData.application) {
           // remove the "_rev" data before PUT
           delete samlEntityData.application[id]._rev;
-          await putRawProvider(id, samlEntityData.application[id]).then(
+          await putRawSaml2Provider(id, samlEntityData.application[id]).then(
             (result) => {
               if (result === null) {
                 printMessage(`Import validation failed for ${id}`, 'error');

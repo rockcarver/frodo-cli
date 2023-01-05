@@ -96,7 +96,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.17.3",
+    "@rockcarver/frodo-lib": "0.17.4",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
