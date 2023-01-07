@@ -29,10 +29,12 @@ const {
 export async function warnAboutOfflineConnectorServers() {
   try {
     const all = await testConnectorServers();
-    const offline = all.filter((status) => !status.ok);
+    const offline = all
+      .filter((status) => !status.ok)
+      .map((status) => status.name);
     if (offline.length) {
       printMessage(
-        `\n\nThe following connector server(s) are offline and their connectors and configuration unavailable:\n ${offline.join(
+        `\nThe following connector server(s) are offline and their connectors and configuration unavailable:\n${offline.join(
           '\n'
         )}`,
         'warn'
