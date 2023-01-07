@@ -3,7 +3,7 @@ import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import {
   listAllConfigEntities,
-  listOfflineConnectorServers,
+  warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
@@ -29,7 +29,7 @@ program
       if (await getTokens()) {
         verboseMessage('Listing all IDM configuration objects...');
         listAllConfigEntities();
-        listOfflineConnectorServers();
+        warnAboutOfflineConnectorServers();
       } else {
         process.exitCode = 1;
       }

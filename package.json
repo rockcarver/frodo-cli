@@ -96,13 +96,12 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.17.4",
+    "@rockcarver/frodo-lib": "0.17.5-0",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
     "commander": "^9.4.1",
     "compare-versions": "^5.0.1",
-    "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
     "properties-reader": "^2.2.0",

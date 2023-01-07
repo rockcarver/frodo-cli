@@ -20,32 +20,28 @@ const {
   getConfigEntity,
   putConfigEntity,
   queryAllManagedObjectsByType,
-  getAllConnectorServers,
+  testConnectorServers,
 } = Idm;
 
 /**
- * List all offline remote connector servers
+ * Warn about and list offline remote connector servers
  */
-export async function listOfflineConnectorServers() {
-  const offlineStatus = false;
+export async function warnAboutOfflineConnectorServers() {
   try {
-    const { openicf } = await getAllConnectorServers();
-    const entityPromises = [];
-    for (const connector of openicf) {
-      if (connector.ok === offlineStatus) {
-        entityPromises.push(connector.name);
-      }
-    }
-    if (entityPromises.length) {
+    const all = await testConnectorServers();
+    const offline = all.filter((status) => !status.ok);
+    if (offline.length) {
       printMessage(
-        `\n\nWARNING: \nprovisioner.openicf entries for the following offline connector server(s) and are missing from the output:\n ${entityPromises}`,
+        `\n\nThe following connector server(s) are offline and their connectors and configuration unavailable:\n ${offline.join(
+          '\n'
+        )}`,
         'warn'
       );
     }
-  } catch (listOfflineConnectorServers) {
-    printMessage(listOfflineConnectorServers, 'error');
+  } catch (error) {
+    printMessage(error, 'error');
     printMessage(
-      `Error getting config entities: ${listOfflineConnectorServers}`,
+      `Error getting offline connector servers: ${error.message}`,
       'error'
     );
   }
