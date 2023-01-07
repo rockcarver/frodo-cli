@@ -62,7 +62,7 @@ For those who want to contribute or are just curious about the build process.
   ```
 - Install via NPM
   ```console
-  cd frodo
+  cd frodo-cli
   npm install
   npm i -g
   ```
