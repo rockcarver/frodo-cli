@@ -57,6 +57,10 @@
       "email": "ali@falahi.com"
     },
     {
+      "name": "Nick Hangartner",
+      "email": "nhangartner@gmail.com"
+    },
+    {
       "name": "Marcel Maas",
       "email": "maas.marcel@gmail.com"
     },
@@ -96,7 +100,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.17.5-0",
+    "@rockcarver/frodo-lib": "0.17.5",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
