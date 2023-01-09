@@ -317,7 +317,11 @@ export async function importScriptsFromFile(
  *
  * @param watch whether or not to watch for file changes
  */
-export async function importScriptsFromFiles(reUuid = false, watch?: boolean) {
+export async function importScriptsFromFiles(
+  watch: boolean,
+  reUuid: boolean,
+  validateScripts: boolean
+) {
   // If watch is true, it doesn't make sense to reUuid.
   reUuid = watch ? false : reUuid;
 
@@ -325,7 +329,7 @@ export async function importScriptsFromFiles(reUuid = false, watch?: boolean) {
    * Run on file change detection, as well as on initial run.
    */
   function onChange(path: string, _stats?: fs.Stats): void {
-    handleScriptFileImport(path, reUuid);
+    handleScriptFileImport(path, reUuid, validateScripts);
   }
 
   // We watch json files and script files.
@@ -353,11 +357,15 @@ export async function importScriptsFromFiles(reUuid = false, watch?: boolean) {
  * @param file Either a script file or an extract file
  * @param reUuid whether or not to generate a new uuid for each script on import
  */
-async function handleScriptFileImport(file: string, reUuid: boolean) {
+async function handleScriptFileImport(
+  file: string,
+  reUuid: boolean,
+  validateScripts: boolean
+) {
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
-  await importScripts('', script, reUuid);
+  await importScripts('', script, reUuid, validateScripts);
   printMessage(`Imported script: ${file}`);
 }
 

@@ -68,7 +68,7 @@ program
             options.reUuid
           );
         } else if (options.allSeparate) {
-          await importScriptsFromFiles(options.watch);
+          await importScriptsFromFiles(options.watch, options.reUuid, true);
         }
       } else {
         process.exitCode = 1;
