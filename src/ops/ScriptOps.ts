@@ -135,8 +135,8 @@ export async function exportScriptToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${scriptId}' to '${fileName}'...`);
-    const exportData = await exportScript(scriptId);
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScript(scriptId);
+    saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${scriptId}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end [true]`);
     return true;
@@ -166,8 +166,8 @@ export async function exportScriptByNameToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${name}' to '${fileName}'...`);
-    const exportData = await exportScriptByName(name);
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScriptByName(name);
+    saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${name}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [true]`);
     return true;
@@ -194,8 +194,8 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
     if (file) {
       fileName = file;
     }
-    const exportData = await exportScripts();
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScripts();
+    saveJsonToFile(scriptExport, fileName);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
     return true;
   } catch (error) {
@@ -222,8 +222,8 @@ export async function exportScriptsToFiles(): Promise<boolean> {
     try {
       updateProgressBar(`Reading script ${script.name}`);
       const fileName = getTypedFilename(script.name, 'script');
-      const exportData = await exportScriptByName(script.name);
-      saveJsonToFile(exportData, fileName);
+      const scriptExport = await exportScriptByName(script.name);
+      saveJsonToFile(scriptExport, fileName);
     } catch (error) {
       outcome = false;
       printMessage(
@@ -257,16 +257,18 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
       );
       const fileName = getTypedFilename(script.name, 'script');
 
-      const exportData = await exportScriptByName(script.name);
+      const scriptExport = await exportScriptByName(script.name);
 
-      // That's a lot of scripts!
-      const scriptText = Array.isArray(exportData.script.script.script)
-        ? exportData.script.script.script.join('\n')
-        : exportData.script.script.script;
-      exportData.script.script.script = scriptFileName;
+      const scriptSkeleton = getScriptSkeleton(scriptExport);
+
+      const scriptText = Array.isArray(scriptSkeleton.script)
+        ? scriptSkeleton.script.join('\n')
+        : scriptSkeleton.script;
+
+      scriptSkeleton.script = scriptFileName;
 
       saveTextToFile(scriptText, scriptFileName);
-      saveJsonToFile(exportData, fileName);
+      saveJsonToFile(scriptExport, fileName);
     } catch (error) {
       outcome = false;
       printMessage(
