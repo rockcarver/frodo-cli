@@ -418,10 +418,10 @@ function getExtractFile(
   if (Array.isArray(extractFile)) {
     return null;
   }
-  if (!extractFile.endsWith('.js') && !extractFile.endsWith('.groovy')) {
-    return null;
+  if (extractFile.endsWith('.js') || extractFile.endsWith('.groovy')) {
+    return extractFile;
   }
-  return extractFile;
+  return null;
 }
 
 /**
