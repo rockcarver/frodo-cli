@@ -1,7 +1,7 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importScriptsFromFile,
   importScriptsFromFiles,
@@ -56,22 +56,24 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        verboseMessage(
-          `Importing script(s) into realm "${state.getRealm()}"...`
-        );
-
-        if (options.scriptName) {
-          importScriptsFromFile(
-            options.scriptName || options.script,
-            options.file,
-            options.reUuid
-          );
-        } else if (options.allSeparate) {
-          await importScriptsFromFiles(options.watch, options.reUuid, true);
-        }
-      } else {
+      const tokens = await getTokens();
+      if (!tokens) {
+        printMessage('Unable to get tokens. Exiting...', 'error');
+        program.help();
         process.exitCode = 1;
+        return;
+      }
+
+      verboseMessage(`Importing script(s) into realm "${state.getRealm()}"...`);
+
+      if (options.scriptName) {
+        await importScriptsFromFile(
+          options.scriptName || options.script,
+          options.file,
+          options.reUuid
+        );
+      } else if (options.allSeparate) {
+        await importScriptsFromFiles(options.watch, options.reUuid, true);
       }
     }
     // end command logic inside action handler

@@ -331,24 +331,34 @@ export async function importScriptsFromFiles(
    * Run on file change detection, as well as on initial run.
    */
   function onChange(path: string, _stats?: fs.Stats): void {
-    handleScriptFileImport(path, reUuid, validateScripts);
+    handleScriptFileImport(path, reUuid, validateScripts).catch((error) => {
+      printMessage(`Error importing script: ${error.message}`, 'error');
+      debugMessage(error);
+      process.exit(1);
+    });
   }
 
   // We watch json files and script files.
-  chokidar
-    .watch(
-      [`./**/*.script.json`, `./**/*.extract.js`, `./**/*.extract.groovy`],
-      {
-        persistent: watch,
-      }
-    )
+  const watcher = chokidar.watch(
+    [`./**/*.script.json`, `./**/*.extract.js`, `./**/*.extract.groovy`],
+    {
+      persistent: watch,
+    }
+  );
+
+  watcher
     .on('add', onChange)
     .on('change', onChange)
+    .on('error', (error) => {
+      printMessage(`Watcher error: ${error}`, 'error');
+      watcher.close();
+    })
     .on('ready', () => {
       if (watch) {
         printMessage('Watching for changes...');
       } else {
-        printMessage('Done');
+        watcher.close();
+        printMessage('Done.');
       }
     });
 }
@@ -364,11 +374,13 @@ async function handleScriptFileImport(
   reUuid: boolean,
   validateScripts: boolean
 ) {
+  debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
   await importScripts('', script, reUuid, validateScripts);
-  printMessage(`Imported script: ${file}`);
+
+  debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }
 
 /**

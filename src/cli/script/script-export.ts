@@ -64,7 +64,8 @@ program
         options,
         command
       );
-      if (!(await getTokens())) {
+      const tokens = await getTokens();
+      if (!tokens) {
         printMessage('Unable to get tokens. Exiting...', 'error');
         program.help();
         process.exitCode = 1;
