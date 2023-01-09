@@ -1,6 +1,12 @@
+import {
+  ExportImportUtils,
+  Script,
+  state,
+  Types,
+  TypesRaw,
+} from '@rockcarver/frodo-lib';
+import chokidar from 'chokidar';
 import fs from 'fs';
-import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Script, ExportImportUtils, state } from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   createTable,
@@ -13,12 +19,13 @@ import {
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
-import wordwrap from './utils/Wordwrap';
 import {
   getTypedFilename,
   saveJsonToFile,
+  saveTextToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
+import wordwrap from './utils/Wordwrap';
 
 const {
   getScripts,
@@ -30,10 +37,12 @@ const {
 
 /**
  * Get a one-line description of the script object
- * @param {ScriptSkeleton} scriptObj script object to describe
+ * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
  * @returns {string} a one-line description
  */
-export function getOneLineDescription(scriptObj: ScriptSkeleton): string {
+export function getOneLineDescription(
+  scriptObj: TypesRaw.ScriptSkeleton
+): string {
   const description = `[${scriptObj._id['brightCyan']}] ${scriptObj.context} - ${scriptObj.name}`;
   return description;
 }
@@ -51,10 +60,10 @@ export function getTableHeaderMd(): string {
 
 /**
  * Get a one-line description of the script object in markdown
- * @param {ScriptSkeleton} scriptObj script object to describe
+ * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
  * @returns {string} markdown table row
  */
-export function getTableRowMd(scriptObj: ScriptSkeleton): string {
+export function getTableRowMd(scriptObj: TypesRaw.ScriptSkeleton): string {
   const langMap = { JAVASCRIPT: 'JavaSscript', GROOVY: 'Groovy' };
   const description = `| ${scriptObj.name} | ${
     langMap[scriptObj.language]
@@ -229,6 +238,49 @@ export async function exportScriptsToFiles(): Promise<boolean> {
   return outcome;
 }
 
+export async function exportScriptsToFilesExtract(): Promise<boolean> {
+  let outcome = true;
+  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: start`);
+  const scriptList = await getScripts();
+  createProgressBar(
+    scriptList.length,
+    'Exporting scripts to individual files...'
+  );
+  for (const script of scriptList) {
+    try {
+      updateProgressBar(`Reading script ${script.name}`);
+      const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
+      const scriptFileName = getTypedFilename(
+        script.name,
+        'extract',
+        fileExtension
+      );
+      const fileName = getTypedFilename(script.name, 'script');
+
+      const exportData = await exportScriptByName(script.name);
+
+      // That's a lot of scripts!
+      const scriptText = Array.isArray(exportData.script.script.script)
+        ? exportData.script.script.script.join('\n')
+        : exportData.script.script.script;
+      exportData.script.script.script = scriptFileName;
+
+      saveTextToFile(scriptText, scriptFileName);
+      saveJsonToFile(exportData, fileName);
+    } catch (error) {
+      outcome = false;
+      printMessage(
+        `Error exporting script '${script.name}': ${error.message}`,
+        'error'
+      );
+      debugMessage(error);
+    }
+  }
+  stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
+  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: end [${outcome}]`);
+  return outcome;
+}
+
 /**
  * Import script(s) from file
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
@@ -258,4 +310,152 @@ export async function importScriptsFromFile(
   });
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: end [${outcome}]`);
   return outcome;
+}
+
+/**
+ * Import extracted scripts.
+ *
+ * @param watch whether or not to watch for file changes
+ */
+export async function importScriptsFromFiles(reUuid = false, watch?: boolean) {
+  // If watch is true, it doesn't make sense to reUuid.
+  reUuid = watch ? false : reUuid;
+
+  /**
+   * Run on file change detection, as well as on initial run.
+   */
+  function onChange(path: string, _stats?: fs.Stats): void {
+    handleScriptFileImport(path, reUuid);
+  }
+
+  // We watch json files and script files.
+  chokidar
+    .watch(
+      [`./**/*.script.json`, `./**/*.extract.js`, `./**/*.extract.groovy`],
+      {
+        persistent: watch,
+      }
+    )
+    .on('add', onChange)
+    .on('change', onChange)
+    .on('ready', () => {
+      if (watch) {
+        printMessage('Watching for changes...');
+      } else {
+        printMessage('Done');
+      }
+    });
+}
+
+/**
+ * Handle a script file import.
+ *
+ * @param file Either a script file or an extract file
+ * @param reUuid whether or not to generate a new uuid for each script on import
+ */
+async function handleScriptFileImport(file: string, reUuid: boolean) {
+  const scriptFile = getScriptFile(file);
+  const script = getScriptExportByScriptFile(scriptFile);
+
+  await importScripts('', script, reUuid);
+  printMessage(`Imported script: ${file}`);
+}
+
+/**
+ * Get a script file from a file.
+ *
+ * @param file Either a script file or an extract file
+ * @returns The script file
+ */
+function getScriptFile(file: string) {
+  if (file.endsWith('.script.json')) {
+    return file;
+  }
+  return file.replace(/\.extract\.(js|groovy)/, '.script.json');
+}
+
+/**
+ * Get a script export from a script file.
+ *
+ * @param scriptFile The path to the script file
+ * @returns The script export
+ */
+function getScriptExportByScriptFile(
+  scriptFile: string
+): Types.ScriptExportInterface {
+  const scriptExport = getScriptExport(scriptFile);
+  const scriptSkeleton = getScriptSkeleton(scriptExport);
+
+  const extractFile = getExtractFile(scriptSkeleton);
+  if (!extractFile) {
+    return scriptExport;
+  }
+
+  const scriptRaw = fs.readFileSync(extractFile, 'utf8');
+  scriptSkeleton.script = scriptRaw.split('\n');
+
+  return scriptExport;
+}
+
+/**
+ * Get an extract file from a script skeleton.
+ *
+ * @param scriptSkeleton The script skeleton
+ * @returns The extract file or null if there is no extract file
+ */
+function getExtractFile(
+  scriptSkeleton: TypesRaw.ScriptSkeleton
+): string | null {
+  const extractFile = scriptSkeleton.script;
+  if (Array.isArray(extractFile)) {
+    return null;
+  }
+  if (!extractFile.endsWith('.js') && !extractFile.endsWith('.groovy')) {
+    return null;
+  }
+  return extractFile;
+}
+
+/**
+ * Get a script export from a file.
+ *
+ * @param file The path to a script export file
+ * @returns The script export
+ */
+function getScriptExport(file: string): Types.ScriptExportInterface {
+  const scriptExportRaw = fs.readFileSync(file, 'utf8');
+  const scriptExport = JSON.parse(
+    scriptExportRaw
+  ) as Types.ScriptExportInterface;
+
+  return scriptExport;
+}
+
+/**
+ * Get the main script skeleton from a script export. If there is more than one
+ * script, an error is thrown.
+ *
+ * @param script Get the main script skeleton from a script export
+ * @returns The main script skeleton
+ */
+function getScriptSkeleton(
+  script: Types.ScriptExportInterface
+): TypesRaw.ScriptSkeleton {
+  const scriptId = getScriptId(script);
+  return script.script[scriptId];
+}
+
+/**
+ * Get the main script ID from a script export. If there is more than one
+ * script, an error is thrown.
+ *
+ * @param script The script export
+ * @returns The main script ID
+ */
+function getScriptId(script: Types.ScriptExportInterface): string {
+  const scriptIds = Object.keys(script.script);
+  if (scriptIds.length !== 1) {
+    throw new Error(`Expected 1 script, found ${scriptIds.length}`);
+  }
+  return scriptIds[0];
 }

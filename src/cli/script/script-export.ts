@@ -6,6 +6,7 @@ import {
   exportScriptByNameToFile,
   exportScriptsToFile,
   exportScriptsToFiles,
+  exportScriptsToFilesExtract,
 } from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
@@ -63,8 +64,14 @@ program
         options,
         command
       );
+      if (!(await getTokens())) {
+        printMessage('Unable to get tokens. Exiting...', 'error');
+        program.help();
+        process.exitCode = 1;
+        return;
+      }
       // export by name
-      if ((options.scriptName || options.script) && (await getTokens())) {
+      if (options.scriptName || options.script) {
         verboseMessage('Exporting script...');
         await exportScriptByNameToFile(
           options.scriptName || options.script,
@@ -72,15 +79,21 @@ program
         );
       }
       // -a / --all
-      else if (options.all && (await getTokens())) {
+      else if (options.all) {
         verboseMessage('Exporting all scripts to a single file...');
         await exportScriptsToFile(options.file);
       }
       // -A / --all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate) {
         verboseMessage('Exporting all scripts to separate files...');
-        await exportScriptsToFiles();
+        // -x / --extract
+        if (options.extract) {
+          await exportScriptsToFilesExtract();
+        } else {
+          await exportScriptsToFiles();
+        }
       }
+
       // unrecognized combination of options or no options
       else {
         printMessage(

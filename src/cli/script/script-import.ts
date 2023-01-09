@@ -2,7 +2,10 @@ import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
-import { importScriptsFromFile } from '../../ops/ScriptOps';
+import {
+  importScriptsFromFile,
+  importScriptsFromFiles,
+} from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
 
