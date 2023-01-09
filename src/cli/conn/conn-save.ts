@@ -72,7 +72,7 @@ program
       }
       if ((options.validate && (await getTokens())) || !options.validate) {
         verboseMessage(
-          `Saving connection profile for tenant ${state.getTenant()}...`
+          `Saving connection profile for tenant ${state.getHost()}...`
         );
         // if cloud deployment add service account
         if (
@@ -128,7 +128,7 @@ program
           );
         }
         if (await saveConnectionProfile(host)) {
-          printMessage(`Saved connection profile ${state.getTenant()}`);
+          printMessage(`Saved connection profile ${state.getHost()}`);
         } else {
           process.exitCode = 1;
         }
