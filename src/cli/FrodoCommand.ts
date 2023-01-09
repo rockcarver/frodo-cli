@@ -181,9 +181,20 @@ export class FrodoCommand extends FrodoStubCommand {
 
     // handle arguments first
     for (const [i, v] of command.args.entries()) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const handler: any = stateMap[command._args[i].name()];
-      handler(v);
+      const arg = command._args[i].name();
+      // handle only default arguments
+      if (Object.keys(stateMap).includes(arg)) {
+        debugMessage(
+          `FrodoCommand.handleDefaultArgsAndOpts: Handling default argument '${arg}'.`
+        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handler: any = stateMap[arg];
+        handler(v);
+      } else {
+        debugMessage(
+          `FrodoCommand.handleDefaultArgsAndOpts: Ignoring non-default argument '${arg}'.`
+        );
+      }
     }
 
     // handle options

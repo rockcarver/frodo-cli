@@ -20,7 +20,35 @@ const {
   getConfigEntity,
   putConfigEntity,
   queryAllManagedObjectsByType,
+  testConnectorServers,
 } = Idm;
+
+/**
+ * Warn about and list offline remote connector servers
+ */
+export async function warnAboutOfflineConnectorServers() {
+  try {
+    const all = await testConnectorServers();
+    const offline = all
+      .filter((status) => !status.ok)
+      .map((status) => status.name);
+    if (offline.length) {
+      printMessage(
+        `\nThe following connector server(s) are offline and their connectors and configuration unavailable:\n${offline.join(
+          '\n'
+        )}`,
+        'warn'
+      );
+    }
+  } catch (error) {
+    printMessage(error, 'error');
+    printMessage(
+      `Error getting offline connector servers: ${error.message}`,
+      'error'
+    );
+  }
+}
+
 /**
  * List all IDM configuration objects
  */

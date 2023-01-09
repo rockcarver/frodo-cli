@@ -1,7 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
-import { listAllConfigEntities } from '../../ops/IdmOps';
+import {
+  listAllConfigEntities,
+  warnAboutOfflineConnectorServers,
+} from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
 
@@ -26,6 +29,7 @@ program
       if (await getTokens()) {
         verboseMessage('Listing all IDM configuration objects...');
         listAllConfigEntities();
+        warnAboutOfflineConnectorServers();
       } else {
         process.exitCode = 1;
       }

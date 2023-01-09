@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.3] - 2023-01-07
+
+## [0.19.3-3] - 2023-01-07
+
+## [0.19.3-2] - 2023-01-05
+
+## [0.19.3-1] - 2022-12-31
+
+## [0.19.3-0] - 2022-12-31
+
+## [0.19.2] - 2022-12-30
+
+## [0.19.1] - 2022-12-20
+
+### Fixed
+
+-   \#161: Frodo now properly allows adding connection profiles with log credentials
+
 ## [0.19.0] - 2022-12-18
 
 ### Added
@@ -823,7 +841,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3...HEAD
+
+[0.19.3]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3-3...v0.19.3
+
+[0.19.3-3]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3-2...v0.19.3-3
+
+[0.19.3-2]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3-1...v0.19.3-2
+
+[0.19.3-1]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3-0...v0.19.3-1
+
+[0.19.3-0]: https://github.com/rockcarver/frodo-cli/compare/v0.19.2...v0.19.3-0
+
+[0.19.2]: https://github.com/rockcarver/frodo-cli/compare/v0.19.1...v0.19.2
+
+[0.19.1]: https://github.com/rockcarver/frodo-cli/compare/v0.19.0...v0.19.1
 
 [0.19.0]: https://github.com/rockcarver/frodo-cli/compare/v0.18.2-18...v0.19.0
 

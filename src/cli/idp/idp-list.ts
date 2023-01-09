@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Idp, state } from '@rockcarver/frodo-lib';
+import { Authenticate, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { listSocialProviders } from '../../ops/IdpOps';
 
 const { getTokens } = Authenticate;
-const { listSocialProviders } = Idp;
 
 const program = new FrodoCommand('frodo idp list');
 

@@ -39,7 +39,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Update npm, install dependencies, build frodo-cli, and install frodo-cli globally 
+      - name: Update npm, install dependencies, build frodo-cli, and install frodo-cli globally
         run: |
           npm install -g npm
           npm ci
@@ -76,14 +76,14 @@ jobs:
 
       - name: Proxy Tests
         env:
-          HTTPS_PROXY: "http://127.0.0.1:3128"
+          HTTPS_PROXY: 'http://127.0.0.1:3128'
           FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
           FIDC_TENANT_ADMIN_USERNAME: ${{ secrets.FIDC_TENANT_ADMIN_USERNAME }}
           FIDC_TENANT_ADMIN_PASSWORD: ${{ secrets.FIDC_TENANT_ADMIN_PASSWORD }}
         run: |
           frodo conn add "$FIDC_TENANT_URL" "$FIDC_TENANT_ADMIN_USERNAME" "$FIDC_TENANT_ADMIN_PASSWORD"
           frodo info "$FIDC_TENANT_URL"
-          
+
       - name: Security Audit
         run: |
           npm audit --omit=dev
@@ -213,9 +213,9 @@ jobs:
         id: extract-release-notes
         uses: 'dahlia/submark@main'
         with:
-          input-file: "CHANGELOG.md"
+          input-file: 'CHANGELOG.md'
           heading-level: 2
-          heading-title-text: "${{ steps.release-header.outputs.header }}"
+          heading-title-text: '${{ steps.release-header.outputs.header }}'
           ignore-case: true
           omit-heading: true
 
@@ -292,7 +292,7 @@ jobs:
         if: ${{ fromJSON(needs.bump-version.outputs.preRelease) }}
         uses: JS-DevTools/npm-publish@v1
         with:
-          tag: "next"
+          tag: 'next'
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
 
       - name: Release
@@ -450,6 +450,56 @@ jobs:
           name: ${{ needs.release.outputs.newVersion }}
           tag_name: ${{ needs.release.outputs.newTag }}
           files: dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip
+
+  linux-arm64-binary-release:
+    needs: [bump-version, release]
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [16]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.release.outputs.newTag }}
+
+      - name: 'cat package.json'
+        run: cat ./package.json
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install pkg
+        run: npm install -g pkg
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      #
+      # Fail early on failing tests.
+      #
+      - name: 'Test'
+        run: |
+          dist/bin/linux/frodo -v
+          dist/bin/linux/frodo journey -h
+          dist/bin/linux/frodo journey export -h
+
+      - name: Archive distribution binary
+        run: zip -r -Z bzip2 dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip . -i dist/bin/linux/frodo
+
+      - name: Release distribution binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ needs.release.outputs.newVersion }}
+          tag_name: ${{ needs.release.outputs.newTag }}
+          files: dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip
 
   windows-binary-release:
     needs: [bump-version, release]
