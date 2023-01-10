@@ -6,6 +6,7 @@ import {
   exportScriptByNameToFile,
   exportScriptsToFile,
   exportScriptsToFiles,
+  exportScriptsToFilesExtract,
 } from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
@@ -30,13 +31,13 @@ program
   .addOption(
     new Option(
       '-a, --all',
-      'Export all scripts to a single file. Ignored with -i.'
+      'Export all scripts to a single file. Ignored with -n.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -i or -a.'
+      'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -n or -a.'
     )
   )
   // deprecated option
@@ -44,6 +45,12 @@ program
     new Option(
       '-s, --script <script>',
       'DEPRECATED! Use -n/--script-name instead. Name of the script.'
+    )
+  )
+  .addOption(
+    new Option(
+      '-x, --extract',
+      'Extract the script from the exported file, and save it to a separate file. Ignored with -n or -a.'
     )
   )
   .action(
@@ -57,8 +64,15 @@ program
         options,
         command
       );
+      const tokens = await getTokens();
+      if (!tokens) {
+        printMessage('Unable to get tokens. Exiting...', 'error');
+        program.help();
+        process.exitCode = 1;
+        return;
+      }
       // export by name
-      if ((options.scriptName || options.script) && (await getTokens())) {
+      if (options.scriptName || options.script) {
         verboseMessage('Exporting script...');
         await exportScriptByNameToFile(
           options.scriptName || options.script,
@@ -66,15 +80,21 @@ program
         );
       }
       // -a / --all
-      else if (options.all && (await getTokens())) {
+      else if (options.all) {
         verboseMessage('Exporting all scripts to a single file...');
         await exportScriptsToFile(options.file);
       }
       // -A / --all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate) {
         verboseMessage('Exporting all scripts to separate files...');
-        await exportScriptsToFiles();
+        // -x / --extract
+        if (options.extract) {
+          await exportScriptsToFilesExtract();
+        } else {
+          await exportScriptsToFiles();
+        }
       }
+
       // unrecognized combination of options or no options
       else {
         printMessage(
