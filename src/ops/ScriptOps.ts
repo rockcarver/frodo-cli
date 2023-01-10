@@ -378,9 +378,10 @@ async function handleScriptFileImport(
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
-  await importScripts('', script, reUuid, validateScripts);
-
-  printMessage(`Imported '${scriptFile}'`);
+  const success = await importScripts('', script, reUuid, validateScripts);
+  if (success) {
+    printMessage(`Imported '${scriptFile}'`);
+  }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }
 
