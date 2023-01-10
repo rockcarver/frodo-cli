@@ -380,6 +380,7 @@ async function handleScriptFileImport(
 
   await importScripts('', script, reUuid, validateScripts);
 
+  printMessage(`Imported '${scriptFile}'`);
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }
 
