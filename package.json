@@ -39,6 +39,9 @@
     "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
   },
+  "jest": {
+    "testTimeout": 30000
+  },
   "contributors": [
     {
       "name": "Sandeep Chaturvedi",
@@ -100,7 +103,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.17.6",
+    "@rockcarver/frodo-lib": "0.17.7",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",

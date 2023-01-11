@@ -1,9 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { Authenticate, Info, state } from '@rockcarver/frodo-lib';
+import {
+  createObjectTable,
+  printMessage,
+  verboseMessage,
+} from '../../utils/Console';
 
 const { getTokens } = Authenticate;
+const { getInfo } = Info;
 
 export default function setup() {
   const info = new FrodoCommand('info', ['realm']);
@@ -17,30 +22,38 @@ export default function setup() {
     )
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-      if (!options.scriptFriendly) {
-        verboseMessage('Printing versions and tokens...');
-        if (await getTokens()) {
-          printMessage(`Cookie name: ${state.getCookieName()}`);
+      if (await getTokens()) {
+        const info = await getInfo();
+        if (!options.scriptFriendly) {
+          verboseMessage('Printing info, versions, and tokens...');
+          delete info.sessionToken;
+          delete info.bearerToken;
+          const labels = {
+            amVersion: 'AM Version',
+            authenticatedSubject: 'Subject (Type)',
+            config_promotion_done: 'Promotion Done',
+            cookieName: 'Cookie Name',
+            deploymentType: 'Deployment Type',
+            host: 'Host URL',
+            immutable: 'Immutable',
+            locked: 'Locked',
+            placeholder_management: 'Placeholder Management',
+            region: 'Region',
+            tier: 'Tier',
+          };
+          const table = createObjectTable(info, labels);
+          printMessage(`\n${table.toString()}`);
           if (state.getCookieValue()) {
-            printMessage(`Session token: ${state.getCookieValue()}`);
+            printMessage(`\nSession token:`, 'info');
+            printMessage(`${state.getCookieValue()}`);
           }
           if (state.getBearerToken()) {
-            printMessage(`Bearer token: ${state.getBearerToken()}`);
+            printMessage(`\nBearer token:`, 'info');
+            printMessage(`${state.getBearerToken()}`);
           }
         } else {
-          process.exitCode = 1;
+          printMessage(JSON.stringify(info, null, 2), 'data');
         }
-      } else if (await getTokens()) {
-        const output = {
-          cookieName: state.getCookieName(),
-        };
-        if (state.getCookieValue()) {
-          output['sessionToken'] = state.getCookieValue();
-        }
-        if (state.getBearerToken()) {
-          output['bearerToken'] = state.getBearerToken();
-        }
-        printMessage(JSON.stringify(output, null, 2), 'data');
       } else {
         process.exitCode = 1;
       }
