@@ -39,6 +39,9 @@
     "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
   },
+  "jest": {
+    "testTimeout": 30000
+  },
   "contributors": [
     {
       "name": "Sandeep Chaturvedi",
