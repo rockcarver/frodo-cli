@@ -1,5 +1,4 @@
 import fs from 'fs';
-import _ from 'lodash';
 import {
   NodeSkeleton,
   TreeSkeleton,
@@ -37,6 +36,7 @@ import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
 import wordwrap from './utils/Wordwrap';
+import { cloneDeep } from './utils/OpsUtils';
 
 const {
   getJourneys,
@@ -314,11 +314,11 @@ export async function importFirstJourneyFromFile(
   const verbose = state.default.session.getDebug();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
-    let journeyData = _.cloneDeep(JSON.parse(data));
+    let journeyData = cloneDeep(JSON.parse(data));
     let journeyId = null;
     // single tree
     if (journeyData.tree) {
-      journeyId = _.cloneDeep(journeyData.tree._id);
+      journeyId = cloneDeep(journeyData.tree._id);
     }
     // multiple trees, so get the first tree
     else if (journeyData.trees) {

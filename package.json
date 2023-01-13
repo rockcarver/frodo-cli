@@ -93,7 +93,8 @@
     ],
     "assets": [
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
-      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json"
+      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json",
+      "node_modules/@rockcarver/frodo-lib/mocks/**/*.har"
     ],
     "scripts": [
       "src/cli/**/*.js",
@@ -109,7 +110,6 @@
     "colors": "^1.4.0",
     "commander": "^9.4.1",
     "compare-versions": "^5.0.1",
-    "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
     "properties-reader": "^2.2.0",
     "replaceall": "^0.1.6",
