@@ -17,7 +17,7 @@ const { getTokens } = Authenticate;
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
-const LOG_TIME_WINDOW_INCREMENT = SECONDS_IN_1_HOUR;
+const LOG_TIME_WINDOW_INCREMENT = 1;
 
 const program = new FrodoCommand('frodo logs fetch', ['realm', 'type']);
 program
@@ -95,6 +95,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
       }
     }
     const now = Date.now() / 1000;
+    const nowString = new Date(now * 1000).toISOString();
     if (
       typeof options.beginTimestamp === 'undefined' ||
       !options.beginTimestamp
@@ -114,7 +115,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
     }
     if (typeof options.endTimestamp === 'undefined' || !options.endTimestamp) {
       // no endTimestamp value specified, default is now
-      options.endTimestamp = now * 1000;
+      options.endTimestamp = nowString;
       printMessage(
         'No end timestamp specified, defaulting end timestamp to "now"',
         'info'
@@ -142,6 +143,9 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
 
     do {
       intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;
+      console.error(new Date(beginTs * 1000).toISOString());
+      console.error(new Date(intermediateEndTs * 1000).toISOString());
+      console.error(new Date(options.endTimestamp).toISOString());
       await fetchLogs(
         command.opts().sources,
         new Date(beginTs * 1000).toISOString(),
@@ -153,6 +157,11 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         config.getNoiseFilters(options.defaults)
       );
       beginTs = intermediateEndTs;
+      console.error(
+        `${intermediateEndTs} : ${options.endTimestamp} : ${
+          Date.parse(options.endTimestamp) / 1000
+        }`
+      );
     } while (intermediateEndTs < Date.parse(options.endTimestamp) / 1000);
   });
 
