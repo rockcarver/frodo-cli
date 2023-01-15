@@ -143,9 +143,6 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
 
     do {
       intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;
-      console.error(new Date(beginTs * 1000).toISOString());
-      console.error(new Date(intermediateEndTs * 1000).toISOString());
-      console.error(new Date(options.endTimestamp).toISOString());
       await fetchLogs(
         command.opts().sources,
         new Date(beginTs * 1000).toISOString(),
@@ -157,11 +154,6 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         config.getNoiseFilters(options.defaults)
       );
       beginTs = intermediateEndTs;
-      console.error(
-        `${intermediateEndTs} : ${options.endTimestamp} : ${
-          Date.parse(options.endTimestamp) / 1000
-        }`
-      );
     } while (intermediateEndTs < Date.parse(options.endTimestamp) / 1000);
   });
 
