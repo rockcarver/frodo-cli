@@ -41,44 +41,48 @@ Following values are possible (values on the same line are equivalent): \
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
     const conn = await getConnectionProfile();
-    state.setHost(conn.tenant);
-    if (conn.logApiKey != null && conn.logApiSecret != null) {
-      credsFromParameters = false;
-      state.setLogApiKey(conn.logApiKey);
-      state.setLogApiSecret(conn.logApiSecret);
-    } else {
-      if (conn.username == null && conn.password == null) {
-        if (!state.getUsername() && !state.getPassword()) {
-          credsFromParameters = false;
-          printMessage(
-            'User credentials not specified as parameters and no saved API key and secret found!',
-            'warn'
-          );
-          return;
-        }
+    if (conn) {
+      state.setHost(conn.tenant);
+      if (conn.logApiKey != null && conn.logApiSecret != null) {
+        credsFromParameters = false;
+        state.setLogApiKey(conn.logApiKey);
+        state.setLogApiSecret(conn.logApiSecret);
       } else {
-        state.setUsername(conn.username);
-        state.setPassword(conn.password);
+        if (conn.username == null && conn.password == null) {
+          if (!state.getUsername() && !state.getPassword()) {
+            credsFromParameters = false;
+            printMessage(
+              'User credentials not specified as parameters and no saved API key and secret found!',
+              'warn'
+            );
+            return;
+          }
+        } else {
+          state.setUsername(conn.username);
+          state.setPassword(conn.password);
+        }
+        if (await getTokens()) {
+          const creds = await provisionCreds();
+          state.setLogApiKey(creds.api_key_id);
+          state.setLogApiSecret(creds.api_key_secret);
+        }
       }
-      if (await getTokens()) {
-        const creds = await provisionCreds();
-        state.setLogApiKey(creds.api_key_id);
-        state.setLogApiSecret(creds.api_key_secret);
-      }
+      printMessage(
+        `Tailing ID Cloud logs from the following sources: ${
+          command.opts().sources
+        } and levels [${resolveLevel(command.opts().level)}] of ${
+          conn.tenant
+        }...`
+      );
+      if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
+      await tailLogs(
+        command.opts().sources,
+        resolveLevel(command.opts().level),
+        command.opts().transactionId,
+        null,
+        config.getNoiseFilters(options.defaults)
+      );
     }
-    printMessage(
-      `Tailing ID Cloud logs from the following sources: ${
-        command.opts().sources
-      } and levels [${resolveLevel(command.opts().level)}]...`
-    );
-    if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
-    await tailLogs(
-      command.opts().sources,
-      resolveLevel(command.opts().level),
-      command.opts().transactionId,
-      null,
-      config.getNoiseFilters(options.defaults)
-    );
   });
 
 program.parse();
