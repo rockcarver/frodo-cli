@@ -5,7 +5,7 @@ import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = 'ON';
+process.env['FRODO_MOCK'] = '1';
 const env = {
   env: process.env,
 };
