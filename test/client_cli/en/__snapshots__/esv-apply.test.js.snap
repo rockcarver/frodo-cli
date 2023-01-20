@@ -45,7 +45,7 @@ Options:
                         MFA (choices: "classic", "cloud", "forgeops")
   --no-wait             Don't wait for the updates to finish applying.
   --sa-id <sa-id>       Service account id.
-  --sa-jwk-file <file>  File containing the java web key (jwk) associated with
+  --sa-jwk-file <file>  File containing the JSON Web Key (JWK) associated with
                         the the service account.
   --timeout <seconds>   Specify a timeout in seconds how long the tool should
                         wait for the apply command to finish. Only effective

@@ -28,7 +28,7 @@ Options:
   --no-validate                                Do not validate connection.
   --sa-id <sa-id>                              Service account id.
   --sa-id <uuid>                               Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa.
-  --sa-jwk-file <file>                         File containing the java web key (jwk) associated with the the service account.
+  --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --sa-jwk-file <file>                         File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
 "
@@ -62,7 +62,7 @@ Options:
   --no-validate                                Do not validate connection.
   --sa-id <sa-id>                              Service account id.
   --sa-id <uuid>                               Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa.
-  --sa-jwk-file <file>                         File containing the java web key (jwk) associated with the the service account.
+  --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --sa-jwk-file <file>                         File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
 "
@@ -96,7 +96,7 @@ Options:
   --no-validate                                Do not validate connection.
   --sa-id <sa-id>                              Service account id.
   --sa-id <uuid>                               Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa.
-  --sa-jwk-file <file>                         File containing the java web key (jwk) associated with the the service account.
+  --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --sa-jwk-file <file>                         File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
 "
@@ -130,7 +130,7 @@ Options:
   --no-validate                                Do not validate connection.
   --sa-id <sa-id>                              Service account id.
   --sa-id <uuid>                               Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa.
-  --sa-jwk-file <file>                         File containing the java web key (jwk) associated with the the service account.
+  --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --sa-jwk-file <file>                         File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
 "

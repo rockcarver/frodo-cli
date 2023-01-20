@@ -40,7 +40,7 @@ const serviceAccountIdOption = new Option(
 
 const serviceAccountJwkFileOption = new Option(
   '--sa-jwk-file <file>',
-  'File containing the java web key (jwk) associated with the the service account.'
+  'File containing the JSON Web Key (JWK) associated with the the service account.'
 );
 
 const deploymentOption = new Option(
@@ -181,6 +181,13 @@ export class FrodoCommand extends FrodoStubCommand {
 
     // handle arguments first
     for (const [i, v] of command.args.entries()) {
+      if (!command._args[i]) {
+        printMessage(
+          `${command.args.length} arguments supplied but command only supports ${command._args.length}.`,
+          'warn'
+        );
+        break;
+      }
       const arg = command._args[i].name();
       // handle only default arguments
       if (Object.keys(stateMap).includes(arg)) {
