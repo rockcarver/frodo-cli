@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Updated to frodo-lib 0.18.1
 -   Include service account name in `frodo conn list -l` and `frodo conn describe <host>` output.
 -   Add missing service account name when running `frodo conn save <host>`.
+-   Add tenant name to beginning of output of all `frodo logs` sub-commands: `fetch`, `list`, `tail`.
 
 ### Fixed
 
