@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Updated to frodo-lib 0.18.1
+-   Include service account name in `frodo conn list -l` and `frodo conn describe <host>` output.
+-   Add missing service account name when running `frodo conn save <host>`.
+-   Add tenant name to beginning of output of all `frodo logs` sub-commands: `fetch`, `list`, `tail`.
+
+### Fixed
+
+-   \#176: frodo logs fetch end timestamp ignored
+
 ## [0.20.1-1] - 2023-01-16
 
 ## [0.20.1-0] - 2023-01-15
@@ -109,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Updated list of contributors in package.json
 
--   Add linux arm64 binary builds
+-   \#166: Add linux arm64 binary builds
 
 ### Changed
 
@@ -118,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+-   \#164: Frodo now properly exports scripts with special chars in name
 -   \#161: Frodo now properly adds connection profiles with log credentials
 
 ## [0.19.5-2] - 2023-01-13
