@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Updated list of contributors in package.json
 
--   Add linux arm64 binary builds
+-   \#166: Add linux arm64 binary builds
 
 ### Changed
 
@@ -118,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+-   \#164: Frodo now properly exports scripts with special chars in name
 -   \#161: Frodo now properly adds connection profiles with log credentials
 
 ## [0.19.5-2] - 2023-01-13
