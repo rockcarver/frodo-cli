@@ -250,11 +250,7 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
     try {
       updateProgressBar(`Reading script ${script.name}`);
       const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
-      const scriptFileName = getTypedFilename(
-        script.name,
-        'extract',
-        fileExtension
-      );
+      const scriptFileName = getTypedFilename(script.name, '', fileExtension);
       const fileName = getTypedFilename(script.name, 'script');
 
       const scriptExport = await exportScriptByName(script.name);
@@ -340,7 +336,7 @@ export async function importScriptsFromFiles(
 
   // We watch json files and script files.
   const watcher = chokidar.watch(
-    [`./**/*.script.json`, `./**/*.extract.js`, `./**/*.extract.groovy`],
+    [`./**/*.script.json`, `./**/*.js`, `./**/*.groovy`],
     {
       persistent: watch,
     }
