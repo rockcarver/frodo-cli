@@ -51,7 +51,7 @@ Options:
                              Identity Cloud and handle MFA (choices: "classic",
                              "cloud", "forgeops")
   --sa-id <sa-id>            Service account id.
-  --sa-jwk-file <file>       File containing the java web key (jwk) associated
+  --sa-jwk-file <file>       File containing the JSON Web Key (JWK) associated
                              with the the service account.
   --verbose                  Verbose output during command execution. If
                              specified, may or may not produce additional

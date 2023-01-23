@@ -7,6 +7,139 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.1] - 2023-01-20
+
+### Changed
+
+-   Updated to frodo-lib 0.18.1
+-   Include service account name in `frodo conn list -l` and `frodo conn describe <host>` output.
+-   Add missing service account name when running `frodo conn save <host>`.
+-   Add tenant name to beginning of output of all `frodo logs` sub-commands: `fetch`, `list`, `tail`.
+
+### Fixed
+
+-   \#176: frodo logs fetch end timestamp ignored
+
+## [0.20.1-1] - 2023-01-16
+
+## [0.20.1-0] - 2023-01-15
+
+### Fixed
+
+-   \#176: frodo logs fetch end timestamp ignored
+
+## [0.20.0] - 2023-01-13
+
+### Added
+
+-   Full support for Identity Cloud Service Accounts across all commands. Three options to leverage service accounts:
+
+    1.  Connection profiles for daily CLI usage:
+
+        For daily admin and development tasks, using the new `frodo conn save` command (see details under next bullet) is the easiest way to get going with service accounts. To migrate an existing connection profile to service accounts and automatically create a service account for your tenant admin, simply issue the following command:
+
+            % frodo conn save service-accounts
+            Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
+            Created and added service account Frodo-SA-1673586189578 with id 99c04bba-7213-463b-9a27-ceafa8a95734 to profile.
+            Saved connection profile https://openam-service-accounts.forgeblocks.com/am
+            %
+
+        Then validate your connection profile is using the new service account:
+
+            % frodo info service-accounts
+            Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as service account Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734]
+
+            Host URL       │https://openam-service-accounts.forgeblocks.com/am                                            
+            AM Version     │7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)
+            Subject (Type) │Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734] (Service Account)               
+            Deployment Type│cloud                                                                                         
+            Cookie Name    │e8b2bd07d5440d3                                                                               
+            Immutable      │false                                                                                         
+            Locked         │false                                                                                         
+            Region         │us-west1                                                                                      
+            Tier           │other                                                                                         
+
+            Bearer token:
+            eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..JD1iu64iGZZoGNwEr-iF2w.af-0-UDDOdusAETjw9YE3YnjOPr6TrdQrBLcl1lxf5RpNThfRhD08xvu1WtJbUZgvjbWdajECEFJfnEinnrUdpe9l0tHU6gAxDrRmu9hAjt0AB3PFSk9BE5SlwvaGoW5vrF4oH0IYtuv4899hFF8KGNYUtou143xmSrsLH37862YiAeiRKtjaQsVUrdbDPAFnKgGRxJIiXp-UE0ZCQQGSqm-Gj0AqVvo-Piib9THrEbbJCzdc00RPaCU2Ra1DH9PDid7ix-zfuind5IgEXxA8XwBM7kSEkiDLUWZ8EaFhn6YXwIHjXetacgYvvDaUav2Fq5baIitnG_LIrCm32XzcDkVnph4mVklBwfbQbWE6BGXEVLK-QLdDupaQw-bic-yVs2d7PBk2y70gbChHCQOm6-MepkYznP4wKoRR1gkqCdl51QIp-tsFB5K2plrKXiwsfHlHKfFKmsbdQUmH7xJFZQRhAtR_pKm-vHPOrPfBh0VbAdLRSkSeOZUABFH56X3gwXIpG_zuH42bQQkM9AlkB-lZrLf4jN0zFq-2ZN-zDgRR9h6qiiD3p9BDmFfaorUDTfFSrfaKas7OIp5ooW8Kqpv28RRtRtvfex0vT_kRbWl5R08MPWZDKZbx4IMyuun-2pYJ-F2-dvfA4A-jRvWIvC6jTUTu-RZZ0Yw1F2lgwFOVbmpMmG2uGHp5GceWePsZ34FVtJuaTd5D-uq_FoAb3HQ7FGEgUMJN_q82hCCX3URv_ocbFMjYwctdUqV_Ed-__A_9lbHHr8D2Uw_Qo0mwku7qwNBTS0-OcrwDvBOJohzRbpbfim-Sq2UzV9SBzzXNK7sMft1pNfu2-saOwPfy6SE0u42-HDqxE9t4MkklSroPY0oDUxO58ET8LXnewGhC9Tt0XTk6WA2rNLcNirhFqdmtKgfrSMQ_t22_DQEDwXpXqtHGmDoltJe7x_6Ofh0W5l7_A71MoHeFpVa_AHpHybnaF4fvUbD284wOV8i22SqrUKuHoJ3o6_g5JlhvMCvb4OZQ-ltxSf98aPsB9nCSthYg5-GkiR_r5mK1w9gZkBTXfYs0qC8-zYEQb4WNiI9.2JGMj9iW6YD-RE_dGkL7_w
+            %
+
+        Once you have verified that your service account works, go ahead and enable MFA for your tenant admin account!
+
+    2.  CLI parameters:
+
+        All commands support the following new options to use service accounts:
+
+        -   `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`.
+        -   `--sa-jwk-file <file>` File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include `--sa-id`.
+
+        This is a great way to leverage the nice UI to create and manage service accounts and then use one of the accounts with Frodo.
+
+    3.  Environment variables for CI/CD
+
+        For CI/CD pipelines, environment variables are preferable over command line parameters, because they are not visible in system logs:
+
+        -   `FRODO_SA_ID`: Service account's uuid. If set, must also set `FRODO_SA_JWK`.
+        -   `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
+
+-   \#143: Support Identity Cloud Service Accounts in `frodo conn save|add` command
+
+    1.  The `frodo conn add` command is renamed to `frodo conn save` and `add` is added as an alias for backwards compatibility.
+    2.  The `frodo conn save` command supports the following new options to manage service accounts:
+        1.  `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`. Ignored with `--no-sa`.
+        2.  `--sa-jwk-file <file>` File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include `--sa-id`. Ignored with `--no-sa`.
+        3.  `--no-sa` Do not add service account.
+    3.  The existing `--no-validate` option also applies to service account operations, allowing to add service account configuration to a connection profile without validating it, typical use case is an offline situation.
+    4.  The `frodo conn save` command automatically creates a new service account and adds it to an existing ID Cloud profile without service account or to a new ID Cloud profile. It does not do that if the `--no-sa` option is supplied.
+        1.  If `--sa-id` and `--sa-jwk-file` are supplied, `frodo conn save` adds the existing service account specified by those two parameters to the profile instead of creating a new service account.
+        2.  The `frodo conn save` command checks if the ID Cloud tenant supports service accounts before performing any service account operations.
+    5.  The `frodo conn save` command validates service account configuration unless the `--no-validate` options is supplied.
+
+-   Add support for additional environment variables:
+
+    -   `FRODO_SA_ID`: Service account's uuid. If set, must also set `FRODO_SA_JWK`.
+    -   `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
+    -   `FRODO_AUTHENTICATION_SERVICE=journey`: Specify a login journey for frodo to use.
+    -   `FRODO_MOCK=1`: Enable mocking. If enabled, frodo-lib replays recorded API responses instead of connecting to a platform instance.
+    -   `FRODO_POLLY_LOG_LEVEL=info`: Frodo mock engine log level (`trace`, `debug`, `info`, `warn`, `error`, `silent`). This is helpful for troubleshooting the mock capability, only.
+
+    Environment variables added in 0.19.0:
+
+    -   `FRODO_HOST`
+    -   `FRODO_REALM`
+    -   `FRODO_USERNAME`
+    -   `FRODO_PASSWORD`
+    -   `FRODO_SA_ID`
+    -   `FRODO_SA_JWK`
+    -   `FRODO_LOG_KEY`
+    -   `FRODO_LOG_SECRET`
+    -   `FRODO_DEBUG`
+
+-   Enhanced the `frodo info` command to give more details for Identity Cloud tenants.
+
+-   Warn if IDM connector servers are offline
+
+-   Add mock mode for library to allow unit testing of clients using the library, like frodo-cli. This initial release contains minimal mock data. Enable mock mode using `FRODO_MOCK=1`.
+
+-   Updated list of contributors in package.json
+
+-   \#166: Add linux arm64 binary builds
+
+### Changed
+
+-   Updated to frodo-lib 0.18.0
+-   More automated testing
+
+### Fixed
+
+-   \#164: Frodo now properly exports scripts with special chars in name
+-   \#161: Frodo now properly adds connection profiles with log credentials
+
+## [0.19.5-2] - 2023-01-13
+
+## [0.19.5-1] - 2023-01-12
+
+## [0.19.5-0] - 2023-01-12
+
 ## [0.19.4] - 2023-01-09
 
 ## [0.19.3] - 2023-01-07
@@ -53,37 +186,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         2.  The `frodo conn save` command checks if the ID Cloud tenant supports service accounts before performing any service account operations.
     5.  The `frodo conn save` command validates service account configuration unless the `--no-validate` options is supplied.
 -   \#101: Added new `frodo service` set of commands to manage AM realm services (`baseurl`, `DataStoreService`, `oauth-oidc`, `policyconfiguration`, `selfServiceTrees`, `SocialIdentityProviders`, `validation`, etc.) and global services (e.g. `CorsService`, `dashboard`, etc.).
-        frodo service
-                      delete        Delete AM services.
-                      export        Export AM services.
-                      import        Import AM services.
-                      list          List AM services.
+    frodo service
+    delete Delete AM services.
+    export Export AM services.
+    import Import AM services.
+    list List AM services.
 -   Added new `frodo idm import` command.
 -   \#98: Add support for Agents / Gateways
-        frodo agent                  Manage agents.
-                    delete           Delete agents of any type.
-                    describe         Describe agents of any type.
-                    export           Export agents of any type.
-                    import           Import agents of any type.
-                    list             List agents of any type.
-                    gateway          Manage gateway agents.
-                            delete   Delete gateway agents.
-                            describe Describe gateway agents.
-                            export   Export gateway agents.
-                            import   Import gateway agents.
-                            list     List gateway agents.
-                    java             Manage java agents.
-                            delete   Delete java agents.
-                            describe Describe java agents.
-                            export   Export java agents.
-                            import   Import java agents.
-                            list     List java agents.
-                    web              Manage web agents.
-                            delete   Delete web agents.
-                            describe Describe web agents.
-                            export   Export web agents.
-                            import   Import web agents.
-                            list     List web agents.
+    frodo agent Manage agents.
+    delete Delete agents of any type.
+    describe Describe agents of any type.
+    export Export agents of any type.
+    import Import agents of any type.
+    list List agents of any type.
+    gateway Manage gateway agents.
+    delete Delete gateway agents.
+    describe Describe gateway agents.
+    export Export gateway agents.
+    import Import gateway agents.
+    list List gateway agents.
+    java Manage java agents.
+    delete Delete java agents.
+    describe Describe java agents.
+    export Export java agents.
+    import Import java agents.
+    list List java agents.
+    web Manage web agents.
+    delete Delete web agents.
+    describe Describe web agents.
+    export Export web agents.
+    import Import web agents.
+    list List web agents.
 -   Added `--raw` option to `frodo saml import` and `frodo saml export` commands. The new option uses the classic (pre 7.0.0) SAML REST APIs. This allows Frodo to export and import SAML entity providers from pre 7 platform instances.
 -   New default options `--verbose`, `--debug`, and `--curlirize` for all commands
 
@@ -182,7 +315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--   \#88: `frodo idm export` now properly regognizes  `-N`/`--name` option
+-   \#88: `frodo idm export` now properly regognizes `-N`/`--name` option
 
 ## [0.16.2-1] - 2022-10-11
 
@@ -321,9 +454,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Frodo now allows two new parameters when adding a connection profile:
 
-    \--authentication-service [service]           Name of the authentication service/tree to use.
+    \--authentication-service [service] Name of the authentication service/tree to use.
 
-    \--authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+    \--authentication-header-overrides [headers] Map of headers: {"host":"am.example.com:8081"}.
 
     These parameters are currently only supported in the `frodo conn add` command and the configuration elements will be automatically applied to commands issued using that connection profile.
 
@@ -333,13 +466,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         Saving creds in /Users/vscheuber/.frodo/.frodorc...
         Updating connection profile https://platform.example.com:9443/am
         Advanced setting: Authentication Service: ldapService
-        Advanced setting: Authentication Header Overrides: 
+        Advanced setting: Authentication Header Overrides:
         { host: 'am.example.com:8081' }
         %
 
     After the connection profile is created with the additional parameters, the environment can be accessed as usual. In this case it requires the `-k` parameter for every command, as the environment uses a self-signed certificate.
 
-        % frodo journey list platform alpha -k 
+        % frodo journey list platform alpha -k
         ForgeOps deployment detected.
         Connected to ForgeRock Access Management 7.2.0 Build 64ef7ebc01ed3df1a1264d7b0400351bc101361f (2022-June-27 08:15)
         Listing journeys in realm "alpha"...
@@ -616,9 +749,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Changed `idm` sub-commands to align with other commands:
     -   The sub-commands `export`, `exportAll`, and `exportAllRaw` have been collapsed into one: `export`
-        -   `idm export -A` (`--all-separate`) is now the way to export all idm configuration. 
+        -   `idm export -A` (`--all-separate`) is now the way to export all idm configuration.
             -   Options `-e` and `-E` select old `exportAll` functionality with variable replacement and filtering
-            -   Omitting options `-e` and `-E`,  selects the old `exportAllRaw` functionality without variable replacement and without filtering
+            -   Omitting options `-e` and `-E`, selects the old `exportAllRaw` functionality without variable replacement and without filtering
     -   Renamed sample resource files for `idm export` command:
         -   `<frodo home>/resources/sampleEntitiesFile.json`
         -   `<frodo home>/resources/sampleEnvFile.env`
@@ -843,7 +976,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.19.4...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.20.1...HEAD
+
+[0.20.1]: https://github.com/rockcarver/frodo-cli/compare/v0.20.1-1...v0.20.1
+
+[0.20.1-1]: https://github.com/rockcarver/frodo-cli/compare/v0.20.1-0...v0.20.1-1
+
+[0.20.1-0]: https://github.com/rockcarver/frodo-cli/compare/v0.20.0...v0.20.1-0
+
+[0.20.0]: https://github.com/rockcarver/frodo-cli/compare/v0.19.5-2...v0.20.0
+
+[0.19.5-2]: https://github.com/rockcarver/frodo-cli/compare/v0.19.5-1...v0.19.5-2
+
+[0.19.5-1]: https://github.com/rockcarver/frodo-cli/compare/v0.19.5-0...v0.19.5-1
+
+[0.19.5-0]: https://github.com/rockcarver/frodo-cli/compare/v0.19.4...v0.19.5-0
 
 [0.19.4]: https://github.com/rockcarver/frodo-cli/compare/v0.19.3...v0.19.4
 

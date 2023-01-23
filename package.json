@@ -1,6 +1,6 @@
 {
   "name": "@rockcarver/frodo-cli",
-  "version": "0.19.4",
+  "version": "0.20.1",
   "type": "module",
   "description": "A command line interface to manage ForgeRock Identity Cloud tenants, ForgeOps deployments, and classic deployments.",
   "keywords": [
@@ -38,6 +38,9 @@
     "build:local": "npx tsc && npx gulp build-local",
     "build:binary": "npx tsc && npx gulp build-binary",
     "watch": "npx gulp watch"
+  },
+  "jest": {
+    "testTimeout": 30000
   },
   "contributors": [
     {
@@ -90,7 +93,8 @@
     ],
     "assets": [
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
-      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json"
+      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json",
+      "node_modules/@rockcarver/frodo-lib/mocks/**/*.har"
     ],
     "scripts": [
       "src/cli/**/*.js",
@@ -100,14 +104,13 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "0.17.6",
+    "@rockcarver/frodo-lib": "0.18.1",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
     "commander": "^9.4.1",
     "compare-versions": "^5.0.1",
-    "lodash": "^4.17.21",
     "nanospinner": "^1.1.0",
     "properties-reader": "^2.2.0",
     "replaceall": "^0.1.6",

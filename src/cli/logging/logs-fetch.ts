@@ -17,7 +17,7 @@ const { getTokens } = Authenticate;
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
-const LOG_TIME_WINDOW_INCREMENT = SECONDS_IN_1_HOUR;
+const LOG_TIME_WINDOW_INCREMENT = 1;
 
 const program = new FrodoCommand('frodo logs fetch', ['realm', 'type']);
 program
@@ -69,91 +69,102 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
     const conn = await getConnectionProfile();
-    state.setHost(conn.tenant);
-    if (conn.logApiKey != null && conn.logApiSecret != null) {
-      credsFromParameters = false;
-      state.setLogApiKey(conn.logApiKey);
-      state.setLogApiSecret(conn.logApiSecret);
-    } else {
-      if (conn.username == null && conn.password == null) {
-        if (!state.getUsername() && !state.getPassword()) {
-          credsFromParameters = false;
-          printMessage(
-            'User credentials not specified as parameters and no saved API key and secret found!',
-            'warn'
-          );
-          return;
-        }
+    if (conn) {
+      state.setHost(conn.tenant);
+      if (conn.logApiKey != null && conn.logApiSecret != null) {
+        credsFromParameters = false;
+        state.setLogApiKey(conn.logApiKey);
+        state.setLogApiSecret(conn.logApiSecret);
       } else {
-        state.setUsername(conn.username);
-        state.setPassword(conn.password);
+        if (conn.username == null && conn.password == null) {
+          if (!state.getUsername() && !state.getPassword()) {
+            credsFromParameters = false;
+            printMessage(
+              'User credentials not specified as parameters and no saved API key and secret found!',
+              'warn'
+            );
+            return;
+          }
+        } else {
+          state.setUsername(conn.username);
+          state.setPassword(conn.password);
+        }
+        if (await getTokens()) {
+          const creds = await provisionCreds();
+          state.setLogApiKey(creds.api_key_id);
+          state.setLogApiSecret(creds.api_key_secret);
+        }
       }
-      if (await getTokens()) {
-        const creds = await provisionCreds();
-        state.setLogApiKey(creds.api_key_id);
-        state.setLogApiSecret(creds.api_key_secret);
+      const now = Date.now() / 1000;
+      const nowString = new Date(now * 1000).toISOString();
+      if (
+        typeof options.beginTimestamp === 'undefined' ||
+        !options.beginTimestamp
+      ) {
+        // no beginTimestamp value specified, default is 1 hour ago
+        const tempStartDate = new Date();
+        tempStartDate.setTime((now - SECONDS_IN_1_HOUR) * 1000);
+        options.beginTimestamp = tempStartDate.toISOString();
+        // also override endTimestamp to now
+        const tempEndDate = new Date();
+        tempEndDate.setTime(now * 1000);
+        options.endTimestamp = tempEndDate;
+        printMessage(
+          'No timestamps specified, defaulting to logs from 1 hour ago',
+          'info'
+        );
       }
-    }
-    const now = Date.now() / 1000;
-    if (
-      typeof options.beginTimestamp === 'undefined' ||
-      !options.beginTimestamp
-    ) {
-      // no beginTimestamp value specified, default is 1 hour ago
-      const tempStartDate = new Date();
-      tempStartDate.setTime((now - SECONDS_IN_1_HOUR) * 1000);
-      options.beginTimestamp = tempStartDate.toISOString();
-      // also override endTimestamp to now
-      const tempEndDate = new Date();
-      tempEndDate.setTime(now * 1000);
-      options.endTimestamp = tempEndDate;
+      if (
+        typeof options.endTimestamp === 'undefined' ||
+        !options.endTimestamp
+      ) {
+        // no endTimestamp value specified, default is now
+        options.endTimestamp = nowString;
+        printMessage(
+          'No end timestamp specified, defaulting end timestamp to "now"',
+          'info'
+        );
+      }
+      let beginTs = Date.parse(options.beginTimestamp) / 1000;
+      if (Date.parse(options.endTimestamp) / 1000 < beginTs) {
+        printMessage(
+          'End timestamp can not be before begin timestamp',
+          'error'
+        );
+        return;
+      }
+      if (now - beginTs > LOG_TIME_WINDOW_MAX) {
+        printMessage(
+          'Begin timestamp can not be more than 30 days in the past',
+          'error'
+        );
+        return;
+      }
+      let intermediateEndTs = 0;
       printMessage(
-        'No timestamps specified, defaulting to logs from 1 hour ago',
-        'info'
+        `Fetching ID Cloud logs from the following sources: ${
+          command.opts().sources
+        } and levels [${resolveLevel(command.opts().level)}] of ${
+          conn.tenant
+        }...`
       );
-    }
-    if (typeof options.endTimestamp === 'undefined' || !options.endTimestamp) {
-      // no endTimestamp value specified, default is now
-      options.endTimestamp = now * 1000;
-      printMessage(
-        'No end timestamp specified, defaulting end timestamp to "now"',
-        'info'
-      );
-    }
-    let beginTs = Date.parse(options.beginTimestamp) / 1000;
-    if (Date.parse(options.endTimestamp) / 1000 < beginTs) {
-      printMessage('End timestamp can not be before begin timestamp', 'error');
-      return;
-    }
-    if (now - beginTs > LOG_TIME_WINDOW_MAX) {
-      printMessage(
-        'Begin timestamp can not be more than 30 days in the past',
-        'error'
-      );
-      return;
-    }
-    let intermediateEndTs = 0;
-    printMessage(
-      `Fetching ID Cloud logs from the following sources: ${
-        command.opts().sources
-      } and levels [${resolveLevel(command.opts().level)}]...`
-    );
-    if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
+      if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
 
-    do {
-      intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;
-      await fetchLogs(
-        command.opts().sources,
-        new Date(beginTs * 1000).toISOString(),
-        new Date(intermediateEndTs * 1000).toISOString(),
-        resolveLevel(command.opts().level),
-        command.opts().transactionId,
-        command.opts().searchString,
-        null,
-        config.getNoiseFilters(options.defaults)
-      );
-      beginTs = intermediateEndTs;
-    } while (intermediateEndTs < Date.parse(options.endTimestamp) / 1000);
+      do {
+        intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;
+        await fetchLogs(
+          command.opts().sources,
+          new Date(beginTs * 1000).toISOString(),
+          new Date(intermediateEndTs * 1000).toISOString(),
+          resolveLevel(command.opts().level),
+          command.opts().transactionId,
+          command.opts().searchString,
+          null,
+          config.getNoiseFilters(options.defaults)
+        );
+        beginTs = intermediateEndTs;
+      } while (intermediateEndTs < Date.parse(options.endTimestamp) / 1000);
+    }
   });
 
 program.parse();

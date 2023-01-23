@@ -66,7 +66,7 @@ Options:
                                type/id: folders named by type with sub-folders
                                named by id
   --sa-id <sa-id>              Service account id.
-  --sa-jwk-file <file>         File containing the java web key (jwk)
+  --sa-jwk-file <file>         File containing the JSON Web Key (JWK)
                                associated with the the service account.
   --use-string-arrays          Where applicable, use string arrays to store
                                multi-line text (e.g. scripts). (default: off)
