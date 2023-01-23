@@ -261,7 +261,7 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
         ? scriptSkeleton.script.join('\n')
         : scriptSkeleton.script;
 
-      scriptSkeleton.script = scriptFileName;
+      scriptSkeleton.script = `file://${scriptFileName}`;
 
       saveTextToFile(scriptText, scriptFileName);
       saveJsonToFile(scriptExport, fileName);
