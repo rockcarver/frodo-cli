@@ -250,7 +250,11 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
     try {
       updateProgressBar(`Reading script ${script.name}`);
       const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
-      const scriptFileName = getTypedFilename(script.name, '', fileExtension);
+      const scriptFileName = getTypedFilename(
+        script.name,
+        'script',
+        fileExtension
+      );
       const fileName = getTypedFilename(script.name, 'script');
 
       const scriptExport = await exportScriptByName(script.name);
