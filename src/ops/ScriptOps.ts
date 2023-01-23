@@ -340,7 +340,7 @@ export async function importScriptsFromFiles(
 
   // We watch json files and script files.
   const watcher = chokidar.watch(
-    [`./**/*.script.json`, `./**/*.js`, `./**/*.groovy`],
+    [`./**/*.script.json`, `./**/*.script.js`, `./**/*.script.groovy`],
     {
       persistent: watch,
     }
@@ -395,7 +395,7 @@ function getScriptFile(file: string) {
   if (file.endsWith('.script.json')) {
     return file;
   }
-  return file.replace(/\.extract\.(js|groovy)/, '.script.json');
+  return file.replace(/\.script\.(js|groovy)/, '.script.json');
 }
 
 /**
