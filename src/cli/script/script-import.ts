@@ -1,8 +1,11 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { Authenticate, state } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console';
-import { importScriptsFromFile } from '../../ops/ScriptOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
+import {
+  importScriptsFromFile,
+  importScriptsFromFiles,
+} from '../../ops/ScriptOps';
 
 const { getTokens } = Authenticate;
 
@@ -30,6 +33,18 @@ program
       'DEPRECATED! Use -n/--script-name instead. Name of the script.'
     )
   )
+  .addOption(
+    new Option(
+      '-A, --all-separate',
+      'Import all scripts from separate files (*.script.json) in the current directory. Ignored with -n.'
+    )
+  )
+  .addOption(
+    new Option(
+      '-w, --watch',
+      'Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with -A.'
+    ).default(false, 'false')
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -41,17 +56,24 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        verboseMessage(
-          `Importing script(s) into realm "${state.getRealm()}"...`
-        );
-        importScriptsFromFile(
+      const tokens = await getTokens();
+      if (!tokens) {
+        printMessage('Unable to get tokens. Exiting...', 'error');
+        program.help();
+        process.exitCode = 1;
+        return;
+      }
+
+      verboseMessage(`Importing script(s) into realm "${state.getRealm()}"...`);
+
+      if (options.scriptName) {
+        await importScriptsFromFile(
           options.scriptName || options.script,
           options.file,
           options.reUuid
         );
-      } else {
-        process.exitCode = 1;
+      } else if (options.allSeparate) {
+        await importScriptsFromFiles(options.watch, options.reUuid, true);
       }
     }
     // end command logic inside action handler

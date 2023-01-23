@@ -1,6 +1,12 @@
+import {
+  ExportImportUtils,
+  Script,
+  state,
+  Types,
+  TypesRaw,
+} from '@rockcarver/frodo-lib';
+import chokidar from 'chokidar';
 import fs from 'fs';
-import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Script, ExportImportUtils, state } from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   createTable,
@@ -13,12 +19,13 @@ import {
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
-import wordwrap from './utils/Wordwrap';
 import {
   getTypedFilename,
   saveJsonToFile,
+  saveTextToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
+import wordwrap from './utils/Wordwrap';
 
 const {
   getScripts,
@@ -30,10 +37,12 @@ const {
 
 /**
  * Get a one-line description of the script object
- * @param {ScriptSkeleton} scriptObj script object to describe
+ * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
  * @returns {string} a one-line description
  */
-export function getOneLineDescription(scriptObj: ScriptSkeleton): string {
+export function getOneLineDescription(
+  scriptObj: TypesRaw.ScriptSkeleton
+): string {
   const description = `[${scriptObj._id['brightCyan']}] ${scriptObj.context} - ${scriptObj.name}`;
   return description;
 }
@@ -51,10 +60,10 @@ export function getTableHeaderMd(): string {
 
 /**
  * Get a one-line description of the script object in markdown
- * @param {ScriptSkeleton} scriptObj script object to describe
+ * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
  * @returns {string} markdown table row
  */
-export function getTableRowMd(scriptObj: ScriptSkeleton): string {
+export function getTableRowMd(scriptObj: TypesRaw.ScriptSkeleton): string {
   const langMap = { JAVASCRIPT: 'JavaSscript', GROOVY: 'Groovy' };
   const description = `| ${scriptObj.name} | ${
     langMap[scriptObj.language]
@@ -126,8 +135,8 @@ export async function exportScriptToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${scriptId}' to '${fileName}'...`);
-    const exportData = await exportScript(scriptId);
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScript(scriptId);
+    saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${scriptId}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end [true]`);
     return true;
@@ -157,8 +166,8 @@ export async function exportScriptByNameToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${name}' to '${fileName}'...`);
-    const exportData = await exportScriptByName(name);
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScriptByName(name);
+    saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${name}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [true]`);
     return true;
@@ -185,8 +194,8 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
     if (file) {
       fileName = file;
     }
-    const exportData = await exportScripts();
-    saveJsonToFile(exportData, fileName);
+    const scriptExport = await exportScripts();
+    saveJsonToFile(scriptExport, fileName);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
     return true;
   } catch (error) {
@@ -213,8 +222,8 @@ export async function exportScriptsToFiles(): Promise<boolean> {
     try {
       updateProgressBar(`Reading script ${script.name}`);
       const fileName = getTypedFilename(script.name, 'script');
-      const exportData = await exportScriptByName(script.name);
-      saveJsonToFile(exportData, fileName);
+      const scriptExport = await exportScriptByName(script.name);
+      saveJsonToFile(scriptExport, fileName);
     } catch (error) {
       outcome = false;
       printMessage(
@@ -226,6 +235,51 @@ export async function exportScriptsToFiles(): Promise<boolean> {
   }
   stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end [${outcome}]`);
+  return outcome;
+}
+
+export async function exportScriptsToFilesExtract(): Promise<boolean> {
+  let outcome = true;
+  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: start`);
+  const scriptList = await getScripts();
+  createProgressBar(
+    scriptList.length,
+    'Exporting scripts to individual files...'
+  );
+  for (const script of scriptList) {
+    try {
+      updateProgressBar(`Reading script ${script.name}`);
+      const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
+      const scriptFileName = getTypedFilename(
+        script.name,
+        'script',
+        fileExtension
+      );
+      const fileName = getTypedFilename(script.name, 'script');
+
+      const scriptExport = await exportScriptByName(script.name);
+
+      const scriptSkeleton = getScriptSkeleton(scriptExport);
+
+      const scriptText = Array.isArray(scriptSkeleton.script)
+        ? scriptSkeleton.script.join('\n')
+        : scriptSkeleton.script;
+
+      scriptSkeleton.script = `file://${scriptFileName}`;
+
+      saveTextToFile(scriptText, scriptFileName);
+      saveJsonToFile(scriptExport, fileName);
+    } catch (error) {
+      outcome = false;
+      printMessage(
+        `Error exporting script '${script.name}': ${error.message}`,
+        'error'
+      );
+      debugMessage(error);
+    }
+  }
+  stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
+  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: end [${outcome}]`);
   return outcome;
 }
 
@@ -258,4 +312,174 @@ export async function importScriptsFromFile(
   });
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: end [${outcome}]`);
   return outcome;
+}
+
+/**
+ * Import extracted scripts.
+ *
+ * @param watch whether or not to watch for file changes
+ */
+export async function importScriptsFromFiles(
+  watch: boolean,
+  reUuid: boolean,
+  validateScripts: boolean
+) {
+  // If watch is true, it doesn't make sense to reUuid.
+  reUuid = watch ? false : reUuid;
+
+  /**
+   * Run on file change detection, as well as on initial run.
+   */
+  function onChange(path: string, _stats?: fs.Stats): void {
+    handleScriptFileImport(path, reUuid, validateScripts).catch((error) => {
+      printMessage(`Error importing script: ${error.message}`, 'error');
+      debugMessage(error);
+      process.exit(1);
+    });
+  }
+
+  // We watch json files and script files.
+  const watcher = chokidar.watch(
+    [`./**/*.script.json`, `./**/*.script.js`, `./**/*.script.groovy`],
+    {
+      persistent: watch,
+    }
+  );
+
+  watcher
+    .on('add', onChange)
+    .on('change', onChange)
+    .on('error', (error) => {
+      printMessage(`Watcher error: ${error}`, 'error');
+      watcher.close();
+    })
+    .on('ready', () => {
+      if (watch) {
+        printMessage('Watching for changes...');
+      } else {
+        watcher.close();
+        printMessage('Done.');
+      }
+    });
+}
+
+/**
+ * Handle a script file import.
+ *
+ * @param file Either a script file or an extract file
+ * @param reUuid whether or not to generate a new uuid for each script on import
+ */
+async function handleScriptFileImport(
+  file: string,
+  reUuid: boolean,
+  validateScripts: boolean
+) {
+  debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
+  const scriptFile = getScriptFile(file);
+  const script = getScriptExportByScriptFile(scriptFile);
+
+  const success = await importScripts('', script, reUuid, validateScripts);
+  if (success) {
+    printMessage(`Imported '${scriptFile}'`);
+  }
+  debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
+}
+
+/**
+ * Get a script file from a file.
+ *
+ * @param file Either a script file or an extract file
+ * @returns The script file
+ */
+function getScriptFile(file: string) {
+  if (file.endsWith('.script.json')) {
+    return file;
+  }
+  return file.replace(/\.script\.(js|groovy)/, '.script.json');
+}
+
+/**
+ * Get a script export from a script file.
+ *
+ * @param scriptFile The path to the script file
+ * @returns The script export
+ */
+function getScriptExportByScriptFile(
+  scriptFile: string
+): Types.ScriptExportInterface {
+  const scriptExport = getScriptExport(scriptFile);
+  const scriptSkeleton = getScriptSkeleton(scriptExport);
+
+  const extractFile = getExtractFile(scriptSkeleton);
+  if (!extractFile) {
+    return scriptExport;
+  }
+
+  const scriptRaw = fs.readFileSync(extractFile, 'utf8');
+  scriptSkeleton.script = scriptRaw.split('\n');
+
+  return scriptExport;
+}
+
+/**
+ * Get an extract file from a script skeleton.
+ *
+ * @param scriptSkeleton The script skeleton
+ * @returns The extract file or null if there is no extract file
+ */
+function getExtractFile(
+  scriptSkeleton: TypesRaw.ScriptSkeleton
+): string | null {
+  const extractFile = scriptSkeleton.script;
+  if (Array.isArray(extractFile)) {
+    return null;
+  }
+  if (extractFile.endsWith('.js') || extractFile.endsWith('.groovy')) {
+    return extractFile;
+  }
+  return null;
+}
+
+/**
+ * Get a script export from a file.
+ *
+ * @param file The path to a script export file
+ * @returns The script export
+ */
+function getScriptExport(file: string): Types.ScriptExportInterface {
+  const scriptExportRaw = fs.readFileSync(file, 'utf8');
+  const scriptExport = JSON.parse(
+    scriptExportRaw
+  ) as Types.ScriptExportInterface;
+
+  return scriptExport;
+}
+
+/**
+ * Get the main script skeleton from a script export. If there is more than one
+ * script, an error is thrown.
+ *
+ * @param script Get the main script skeleton from a script export
+ * @returns The main script skeleton
+ */
+function getScriptSkeleton(
+  script: Types.ScriptExportInterface
+): TypesRaw.ScriptSkeleton {
+  const scriptId = getScriptId(script);
+  return script.script[scriptId];
+}
+
+/**
+ * Get the main script ID from a script export. If there is more than one
+ * script, an error is thrown.
+ *
+ * @param script The script export
+ * @returns The main script ID
+ */
+function getScriptId(script: Types.ScriptExportInterface): string {
+  const scriptIds = Object.keys(script.script);
+  if (scriptIds.length !== 1) {
+    throw new Error(`Expected 1 script, found ${scriptIds.length}`);
+  }
+  return scriptIds[0];
 }
