@@ -55,7 +55,7 @@ Individuals who do not intend to develop or contribute to frodo should use this 
 
 For those who want to contribute or are just curious about the build process.
 
-- Make sure you have Node.js v14 or newer installed.
+- Make sure you have Node.js v14, v16, or v18 installed ([support for node 19](https://github.com/rockcarver/frodo-cli/issues/186) is pending).
 - Clone this repo
   ```console
   git clone https://github.com/rockcarver/frodo-cli.git
