@@ -17,6 +17,7 @@ import {
   stopSpinner,
   updateProgressBar,
 } from '../utils/Console';
+import { saveTextToFile } from '../utils/ExportImportUtils';
 
 const {
   roleMap,
@@ -36,7 +37,6 @@ const {
 const {
   getTypedFilename,
   saveJsonToFile,
-  saveTextToFile,
   getRealmString,
   saveToFile,
   validateImport,

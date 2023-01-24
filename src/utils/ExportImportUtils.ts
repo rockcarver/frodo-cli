@@ -5,19 +5,34 @@ import { printMessage } from './Console';
 
 const { getMetadata } = ExportImportUtils;
 
-export function getTypedFilename(name: string, type: string, suffix = 'json') {
+/**
+ * Get a typed filename. E.g. "my-script.script.json"
+ *
+ * @param name The name of the file
+ * @param type The type of the file, e.g. script, idp, etc.
+ * @param suffix The suffix of the file, e.g. json, xml, etc. Defaults to json.
+ * @returns The typed filename
+ */
+export function getTypedFilename(
+  name: string,
+  type: string,
+  suffix = 'json'
+): string {
   const slug = slugify(name.replace(/^http(s?):\/\//, ''));
   return `${slug}.${type}.${suffix}`;
 }
 
 /**
  * Save JSON object to file
- * @param {Object} data data object
- * @param {String} filename file name
+ *
+ * @param data data object
+ * @param filename file name
  */
-export function saveJsonToFile(data, filename) {
+export function saveJsonToFile(data: any, filename: string) {
   const exportData = data;
-  if (!exportData.meta) exportData.meta = getMetadata();
+  if (!exportData.meta) {
+    exportData.meta = getMetadata();
+  }
   fs.writeFile(filename, JSON.stringify(exportData, null, 2), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${filename}`, 'error');
@@ -44,6 +59,22 @@ export function saveToFile(type, data, identifier, filename) {
     }
     return '';
   });
+}
+
+/**
+ * Save text data to file
+ * @param data text data
+ * @param filename file name
+ * @return true if successful, false otherwise
+ */
+export function saveTextToFile(data: string, filename: string): boolean {
+  try {
+    fs.writeFileSync(filename, data);
+    return true;
+  } catch (error) {
+    printMessage(`ERROR - can't save ${filename}`, 'error');
+    return false;
+  }
 }
 
 /*
