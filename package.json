@@ -18,7 +18,7 @@
     "devops"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/rockcarver/frodo-cli/issues"
   },
-  "main": "esm/app.js",
+  "main": "esm/launch.js",
   "scripts": {
     "test": "npx tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:local": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
@@ -78,7 +78,7 @@
   ],
   "license": "MIT",
   "bin": {
-    "frodo": "./esm/app.js"
+    "frodo": "./esm/launch.js"
   },
   "babel": {
     "plugins": [

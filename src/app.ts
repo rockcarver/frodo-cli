@@ -1,5 +1,3 @@
-#!/usr/bin/env -S node --no-warnings --enable-source-maps --experimental-specifier-resolution=node
-
 import { ConnectionProfile } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 
