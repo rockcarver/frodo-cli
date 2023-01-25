@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#52: Added new developer options for `script export` and `script import` commands:
+    -   `frodo script export`:
+        -   `-x`, `--extract`: Extract the script from the exported file, and save it to a separate file. Ignored with `-n` or `-a`.
+    -   `frodo script import`:
+        -   `-w`, `--watch`: Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with `-A`. (default: false)
+            
+            ***Note:*** This new option only applies if the export was generated with the new `--extract` option!
+
+### Changed
+
+-   Updated to frodo-lib 0.18.2
+
+### Fixed
+
+-   \#190: Frodo now properly imports previously exported saml providers.
+
 ## [0.20.2-0] - 2023-01-24
 
 ## [0.20.1] - 2023-01-20
