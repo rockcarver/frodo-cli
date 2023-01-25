@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Saml2, ExportImportUtils } from '@rockcarver/frodo-lib';
+import { Saml2, ExportImportUtils, Base64 } from '@rockcarver/frodo-lib';
 import {
   MultiOpStatusInterface,
   Saml2ExportInterface,
@@ -11,10 +11,11 @@ import {
   createProgressBar,
   createTable,
   debugMessage,
+  failSpinner,
   printMessage,
   showSpinner,
   stopProgressBar,
-  stopSpinner,
+  succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
@@ -250,16 +251,12 @@ export async function importSaml2ProviderFromFile(
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      showSpinner(`Importing ${entityId}...`);
-      try {
-        await importSaml2Provider(entityId, fileData);
-        stopSpinner(`Imported ${entityId}.`);
-      } catch (error) {
-        stopSpinner(`Error importing ${entityId}: ${error.message}`);
-      }
-    } else {
-      printMessage('Import validation failed...', 'error');
+    showSpinner(`Importing ${entityId}...`);
+    try {
+      await importSaml2Provider(entityId, fileData);
+      succeedSpinner(`Imported ${entityId}.`);
+    } catch (error) {
+      failSpinner(`Error importing ${entityId}: ${error.message}`);
     }
   });
 }
@@ -273,19 +270,16 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
     if (err) throw err;
     const fileData = JSON.parse(data) as Saml2ExportInterface;
     // pick the first provider and run with it
-    const entityId =
+    const entityId64 =
       Object.keys(fileData.saml.remote)[0] ||
       Object.keys(fileData.saml.hosted)[0];
-    if (validateImport(fileData.meta)) {
-      showSpinner(`Importing ${entityId}...`);
-      try {
-        await importSaml2Provider(entityId, fileData);
-        stopSpinner(`Imported ${entityId}.`);
-      } catch (error) {
-        stopSpinner(`Error importing ${entityId}: ${error.message}`);
-      }
-    } else {
-      printMessage('Import validation failed...', 'error');
+    const entityId = Base64.decode(entityId64);
+    showSpinner(`Importing ${entityId}...`);
+    try {
+      await importSaml2Provider(entityId, fileData);
+      succeedSpinner(`Imported ${entityId}.`);
+    } catch (error) {
+      failSpinner(`Error importing ${entityId}: ${error.message}`);
     }
   });
 }
