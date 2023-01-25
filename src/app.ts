@@ -19,7 +19,8 @@ import realm from './cli/realm/realm';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
 import service from './cli/service/service';
-import something from './cli/_template/something';
+// enable sample command template.
+// import something from './cli/_template/something';
 import theme from './cli/theme/theme';
 import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
