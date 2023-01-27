@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1] - 2023-01-27
+
 ### Changed
 
 -   Update to frodo-lib 0.18.3
@@ -17,9 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   \#52: Added new developer options for `script export` and `script import` commands:
+
     -   `frodo script export`:
         -   `-x`, `--extract`: Extract the script from the exported file, and save it to a separate file. Ignored with `-n` or `-a`.
     -   `frodo script import`:
+
         -   `-w`, `--watch`: Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with `-A`. (default: false)
 
             **_Note:_** This new option only applies if the export was generated with the new `--extract` option!
@@ -1003,7 +1007,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.21.1...HEAD
+
+[0.21.1]: https://github.com/rockcarver/frodo-cli/compare/v0.21.0...v0.21.1
 
 [0.21.0]: https://github.com/rockcarver/frodo-cli/compare/v0.20.2-0...v0.21.0
 
