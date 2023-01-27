@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { SingleBar, Presets } from 'cli-progress';
+import { MultiBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
 import { ExportImportUtils, state } from '@rockcarver/frodo-lib';
@@ -9,6 +9,7 @@ Color.enable();
 
 const { appendTextToFile } = ExportImportUtils;
 
+let multiBarContainer = null;
 let progressBar = null;
 let spinner = null;
 
@@ -209,8 +210,12 @@ export function createProgressBar(
       noTTYOutput: true,
     };
   }
-  progressBar = new SingleBar(opt, Presets.legacy); // create only when needed
-  progressBar.start(total, 0, {
+  // progressBar = new SingleBar(opt, Presets.legacy); // create only when needed
+  // progressBar.start(total, 0, {
+  //   data: message,
+  // });
+  multiBarContainer = new MultiBar(opt, Presets.legacy);
+  progressBar = multiBarContainer.create(total, 0, {
     data: message,
   });
 }
@@ -237,7 +242,9 @@ export function stopProgressBar(message = null) {
     progressBar.update({
       data: message,
     });
-  progressBar.stop();
+  // progressBar.stop();
+  multiBarContainer.stop();
+  multiBarContainer = null;
 }
 
 /**
