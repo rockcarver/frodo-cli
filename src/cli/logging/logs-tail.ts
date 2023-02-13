@@ -61,7 +61,7 @@ Following values are possible (values on the same line are equivalent): \
           state.setUsername(conn.username);
           state.setPassword(conn.password);
         }
-        if (await getTokens()) {
+        if (await getTokens(true)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id);
           state.setLogApiSecret(creds.api_key_secret);
