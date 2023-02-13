@@ -89,7 +89,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           state.setUsername(conn.username);
           state.setPassword(conn.password);
         }
-        if (await getTokens()) {
+        if (await getTokens(true)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id);
           state.setLogApiSecret(creds.api_key_secret);

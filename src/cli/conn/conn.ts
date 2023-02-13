@@ -1,16 +1,8 @@
 import { FrodoStubCommand } from '../FrodoCommand';
-import { Argument } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export const apiKeyArgument = new Argument('[key]', 'API key for logging API.');
-
-export const apiSecretArgument = new Argument(
-  '[secret]',
-  'API secret for logging API.'
-);
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')

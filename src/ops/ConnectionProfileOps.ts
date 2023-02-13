@@ -34,7 +34,6 @@ export async function addExistingServiceAccount(
     failSpinner(
       `Failed to validate service account ${serviceAccountId}: ${err}.`
     );
-    return false;
   }
   return false;
 }
