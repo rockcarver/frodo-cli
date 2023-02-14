@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 0.18.5
+
+### Fixed
+
+-   \#196 and \#197: Frodo now properly detects Encore environments as ForgeOps environments and obtains an access token for IDM APIs.
+
 ## [0.22.0] - 2023-02-13
 
 ### Added
