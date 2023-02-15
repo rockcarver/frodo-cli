@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.2] - 2023-02-15
+
 ### Fixed
 
 -   \#203: Frodo no longer outputs cosmetic error messages when exporting IDM config.
@@ -1039,7 +1041,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.22.1...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.22.2...HEAD
+
+[0.22.2]: https://github.com/rockcarver/frodo-cli/compare/v0.22.1...v0.22.2
 
 [0.22.1]: https://github.com/rockcarver/frodo-cli/compare/v0.22.0...v0.22.1
 
