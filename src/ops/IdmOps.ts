@@ -111,6 +111,28 @@ export async function exportAllRawConfigEntities(directory) {
               getConfigEntityError.response?.data?.message ===
                 'This operation is not available in ForgeRock Identity Cloud.'
             ) &&
+            !(
+              // list of config entities, which do not exist by default or ever.
+              (
+                [
+                  'script',
+                  'notificationFactory',
+                  'apiVersion',
+                  'metrics',
+                  'repo.init',
+                  'endpoint/validateQueryFilter',
+                  'endpoint/oauthproxy',
+                  'external.rest',
+                  'scheduler',
+                  'org.apache.felix.fileinstall/openidm',
+                  'cluster',
+                  'endpoint/mappingDetails',
+                  'fieldPolicy/teammember',
+                ].includes(configEntity._id) &&
+                getConfigEntityError.response?.status === 404 &&
+                getConfigEntityError.response?.data?.reason === 'Not Found'
+              )
+            ) &&
             // https://bugster.forgerock.org/jira/browse/OPENIDM-18270
             !(
               getConfigEntityError.response?.status === 404 &&
