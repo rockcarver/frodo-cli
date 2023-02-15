@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#203: Frodo no longer outputs cosmetic error messages when exporting IDM config.
+
 ## [0.22.1] - 2023-02-14
 
 ### Changed
