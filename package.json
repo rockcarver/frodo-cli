@@ -86,11 +86,6 @@
     ]
   },
   "pkg": {
-    "options": [
-      "experimental-specifier-resolution=node",
-      "enable-source-maps",
-      "no-warnings"
-    ],
     "assets": [
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json",
@@ -114,6 +109,7 @@
     "nanospinner": "^1.1.0",
     "properties-reader": "^2.2.0",
     "replaceall": "^0.1.6",
+    "resolve": "^1.22.1",
     "slugify": "^1.6.5",
     "uuid": "^9.0.0",
     "yesno": "^0.4.0"
