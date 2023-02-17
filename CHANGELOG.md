@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   \#186: Support node 19 when running as npm and when developing. Binaries are still built using node 18 until our package manager supports node 19.
 
+### Changed
+
+-   Update to frodo-lib 0.18.8
+
 ### Fixed
 
 -   \#115: Running frodo as an npm package no longer requires the `-S` option of the `env` shell command, which caused issued on Linux distributions with older version of `coreutils` like `CentOS Linux 7` and other Redhat-based distributions.
