@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2023-02-17
+
 ### Added
 
 -   \#186: Support node 19 when running as npm and when developing. Binaries are still built using node 18 until our package manager supports node 19.
@@ -1060,7 +1062,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.22.3...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.0...HEAD
+
+[0.23.0]: https://github.com/rockcarver/frodo-cli/compare/v0.22.3...v0.23.0
 
 [0.22.3]: https://github.com/rockcarver/frodo-cli/compare/v0.22.2...v0.22.3
 
