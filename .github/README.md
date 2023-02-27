@@ -15,35 +15,82 @@ ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platfo
 
 ## Quick start
 
-1. Download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory.
-2. Open a terminal and change to the above directory. Create $PATH for frodo in `.bash` or `.zshrc` if you haven't already.
+### Install
 
-   **NOTE: MacOS and Windows may not let you run `frodo` right after you download (and unzip) and execute it for the very first time. Please refer to [this page](../docs/BINARIES.md) if this happens.**
+#### Homebrew (preferred for Mac OS (x86 and M1) and linux)
+Make sure you have a working [homebrew](https://brew.sh/). Then, to install frodo binary:
+```console
+$ brew tap rockcarver/frodo-cli
+==> Tapping rockcarver/frodo-cli
+Cloning into '/opt/homebrew/Library/Taps/rockcarver/homebrew-frodo-cli'...
+remote: Enumerating objects: 8, done.
+.
+.
+```
+```console
+$ brew install frodo-cli
+==> Fetching rockcarver/frodo-cli/frodo-cli
+==> Cloning https://github.com/rockcarver/frodo-cli.git
+.
+.
+```
+This will build the frodo binary locally and add it to the path (homebrew bin). To verify the installation, run `frodo -v`, it should print something like:
+```console
+$ frodo -v
+You seem to be running the binary package
+Installed versions:
+cli: v0.23.0
+lib: v0.18.8
+node: v18.5.0
+```
 
-3. Run `frodo conn add` (example below) to setup `frodo` for your ForgeRock environment. If all parameters are correct, `frodo` creates a new [connection profile](#connection-profiles). If you are offline and don't want to validate the data you enter, you can use the --no-validate paramter and frodo stores the [connection profile](#connection-profiles) without validating it.
+To upgrade to latest frodo
+```console
+$ brew upgrade frodo-cli
+==> Downloading https://formulae.brew.sh/api/formula.jws.json
+######################################################################## 100.0%
+==> Downloading https://formulae.brew.sh/api/cask.jws.json
+######################################################################## 100.0%
+Warning: rockcarver/frodo-cli/frodo-cli 0.23.0 already installed
+```
+
+#### Alternate method - download precompiled binary
+Alternatively, for MacOS (x86 only), linux and Windows, you can also download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory. For MacOS (x86 only) and Windows, you may have to allow running unsigned binaries on those platforms. How to do that is out of scope for this README.
+
+#### Run
+1. Run `frodo conn add` (example below) to setup `frodo` for your ForgeRock environment. If all parameters are correct, `frodo` creates a new [connection profile](#connection-profiles). If you are offline and don't want to validate the data you enter, you can use the --no-validate paramter and frodo stores the [connection profile](#connection-profiles) without validating it.
 
    ```console
-   $ frodo conn add https://openam-tenant-name.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'
-   ForgeRock Identity Cloud detected.
-   Connected to ForgeRock Access Management 7.2.0-2022-6-SNAPSHOT Build ee394dde039e790642653a516d498c16759876c1 (2022-July-07 19:49)
-   Saving creds in /Users/john.doe/.frodo/.frodorc...
+   $ frodo conn add https://openam-my-tenant.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'
+   Connected to https://openam-my-tenant.forgeblocks.com/am [alpha] as user john.doe@company.com
+   Created and added service account Frodo-SA-1677517618855 with id af5eadc7-d59a-450a-967d-090b377b4eaf to profile.
+   Created log API key 7683791888e2c7740eb91abd988b65f7 and secret.
+   Saved connection profile https://openam-my-tenant.forgeblocks.com/am
    ```
 
-4. Test your connection profile using a simple convenience feature in frodo:
+2. Test your connection profile using a simple convenience feature in frodo:
 
    ```console
-   $ frodo info tenant-name
-   Printing versions and tokens...
-   ForgeRock Identity Cloud detected.
-   Connected to ForgeRock Access Management 7.2.0-2022-6-SNAPSHOT Build ee394dde039e790642653a516d498c16759876c1 (2022-July-07 19:49)
-   Cookie name: 6ac6499e9da2071
-   Session token: g9CMhj7k9Asq...
-   Bearer token: eyJ0eXAiOiJKV...
+   $ frodo info my-tenant
+   Connected to https://openam-my-tenant.forgeblocks.com/am [alpha] as service account Frodo-SA-1677517618855 [af5eadc7-d59a-450a-967d-090b377b4eaf]
+
+   Host URL       │https://openam-my-tenant.forgeblocks.com/am
+   AM Version     │7.3.0-SNAPSHOT Build 3cee5f270ed80b0354b709e8685e2681617e9c5a (2023-February-06 13:57)
+   Subject (Type) │Frodo-SA-1677517618855 [af5eadc7-d59a-450a-967d-090b377b4eaf] (Service Account)       
+   Deployment Type│cloud                                                                                 
+   Cookie Name    │27e1d6427df2a07                                                                       
+   Immutable      │false                                                                                 
+   Locked         │false                                                                                 
+   Region         │us-west1                                                                              
+   Tier           │other                                                                                 
+
+   Bearer token:
+   eyJ0eXAiOiJKV......
    ```
 
    Note how the command does not specify the complete tenant URL nor username nor password. I only uses a unique substring that matches the tenant URL and frodo looks up and uses the right [connection profile](#connection-profiles).
 
-5. Now you can use other frodo commands, like `journey`, `logs`, `applications` etc. as desired. **For detailed usage, refer to [this](#usage)**
+3. Now you can use other frodo commands, like `journey`, `logs`, `applications` etc. as desired. **For detailed usage, refer to [this](#usage)**
 
 ## Installing
 
@@ -125,31 +172,33 @@ frodo help
 Usage: frodo [options] [command]
 
 Options:
-  -v, --version                            output the version number
-  -h, --help                               display help for command
+  -v, --version                                output the version number
+  -h, --help                                   display help for command
 
 Commands:
-  admin                                    Platform admin tasks.
-  application                              Manage applications.
-  conn|connection                          Manage connection profiles.
-  email                                    Manage email templates and configuration.
-  esv                                      Manage Environment-Specific Variables (ESVs).
-  idm                                      Manage IDM configuration.
-  idp                                      Manage (social) identity providers.
-  info [options] <host> [user] [password]  Print versions and tokens.
-  journey                                  Manage journeys/trees.
-  logs                                     List/View Identity Cloud logs
-  realm                                    Manage realms.
-  saml                                     Manage SAML entity providers and circles of trust.
-  script                                   Manage scripts.
-  theme                                    Manages themes.
-  help [command]                           display help for command
+  admin                                        Platform admin tasks.
+  agent                                        Manage agents.
+  app|application                              Manage OAuth2 applications.
+  conn|connection                              Manage connection profiles.
+  email                                        Manage email templates and configuration.
+  esv                                          Manage environment secrets and variables (ESVs).
+  idm                                          Manage IDM configuration.
+  idp                                          Manage (social) identity providers.
+  info [options] [host] [username] [password]  Print versions and tokens.
+  journey                                      Manage journeys/trees.
+  logs                                         List/View Identity Cloud logs
+  realm                                        Manage realms.
+  saml                                         Manage SAML entity providers and circles of trust.
+  script                                       Manage scripts.
+  service                                      Manage AM services.
+  theme                                        Manage themes.
+  help [command]                               display help for command
 ```
 
 Or to view options for a specific command
 
 ```console
-frodo help journey
+frodo journey help
 ```
 
 ```console
@@ -161,13 +210,17 @@ Options:
   -h, --help      Help
 
 Commands:
-  list            List journeys/trees.
-  describe        If host argument is supplied, describe the journey/tree indicated by -t, or all journeys/trees in the realm if no -t is supplied, otherwise describe the journey/tree export file indicated by -f.
-  export          Export journeys/trees.
-  import          Import journeys/trees.
   delete          Delete journeys/trees.
-  prune           Prune orphaned configuration artifacts left behind after deleting authentication trees. You will be prompted before any destructive operations are performed.
+  describe        If host argument is supplied, describe the journey/tree indicated by -t, or all journeys/trees in the realm if no
+                  -t is supplied, otherwise describe the journey/tree export file indicated by -f.
+  disable         Disable journeys/trees.
+  enable          Enable journeys/trees.
+  export          Export journeys/trees.
   help [command]  display help for command
+  import          Import journeys/trees.
+  list            List journeys/trees.
+  prune           Prune orphaned configuration artifacts left behind after deleting authentication trees. You will be prompted
+                  before any destructive operations are performed.
 ```
 
 ```console
@@ -175,30 +228,51 @@ frodo journey help export
 ```
 
 ```console
-Usage: frodo journey export [options] <host> [realm] [user] [password]
+Usage: frodo journey export [options] [host] [realm] [username] [password]
 
 Export journeys/trees.
 
 Arguments:
-  host                        Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
-  realm                       Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
-  user                        Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
-  password                    Password.
+  host                         Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just
+                               specify a unique substring.
+  realm                        Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default:
+                               "alpha" for Identity Cloud tenants, "/" otherwise.)
+  username                     Username to login with. Must be an admin user with appropriate rights to manage authentication
+                               journeys/trees.
+  password                     Password.
 
 Options:
-  -m, --type <type>           Override auto-detected deployment type. Valid values for type:
-                              classic:  A classic Access Management-only deployment with custom layout and configuration.
-                              cloud:    A ForgeRock Identity Cloud environment.
-                              forgeops: A ForgeOps CDK or CDM deployment.
-                              The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to
-                              walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
-  -k, --insecure              Allow insecure connections when using SSL/TLS (default: Don't allow insecure connections)
-  -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A are ignored.
-  -f, --file <file>           Name of the file to write the exported journey(s) to. Ignored with -A.
-  -a, --all                   Export all the journeys/trees in a realm. Ignored with -i.
-  -A, --all-separate          Export all the journeys/trees in a realm as separate files <journey/tree name>.json. Ignored with -i or -a.
-  --use-string-arrays         Where applicable, use string arrays to store multi-line text (e.g. scripts). (default: off)
-  -h, --help                  Help
+  -a, --all                    Export all the journeys/trees in a realm. Ignored with -i.
+  -A, --all-separate           Export all the journeys/trees in a realm as separate files <journey/tree name>.json. Ignored with -i
+                               or -a.
+  --curlirize                  Output all network calls in curl format.
+  -D, --directory <directory>  Destination directory.
+  --debug                      Debug output during command execution. If specified, may or may not produce additional output helpful
+                               for troubleshooting.
+  -f, --file <file>            Name of the file to write the exported journey(s) to. Ignored with -A.
+  -h, --help                   Help
+  -i, --journey-id <journey>   Name of a journey/tree. If specified, -a and -A are ignored.
+  -k, --insecure               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https
+                               (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default:
+                               Don't allow insecure connections)
+  -m, --type <type>            Override auto-detected deployment type. Valid values for type:
+                               classic:  A classic Access Management-only deployment with custom layout and configuration.
+                               cloud:    A ForgeRock Identity Cloud environment.
+                               forgeops: A ForgeOps CDK or CDM deployment.
+                               The detected or provided deployment type controls certain behavior like obtaining an Identity
+                               Management admin token or not and whether to export/import referenced email templates or how to walk
+                               through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud",
+                               "forgeops")
+  --no-deps                    Do not include any dependencies (scripts, email templates, SAML entity providers and circles of
+                               trust, social identity providers, themes).
+  -O, --organize <method>      Organize exports into folders using the indicated method. Valid values for method:
+                               id: folders named by id of exported object
+                               type: folders named by type (e.g. script, journey, idp)
+                               type/id: folders named by type with sub-folders named by id
+  --sa-id <sa-id>              Service account id.
+  --sa-jwk-file <file>         File containing the JSON Web Key (JWK) associated with the the service account.
+  --use-string-arrays          Where applicable, use string arrays to store multi-line text (e.g. scripts). (default: off)
+  --verbose                    Verbose output during command execution. If specified, may or may not produce additional output.
 ```
 
 ## Feature requests
