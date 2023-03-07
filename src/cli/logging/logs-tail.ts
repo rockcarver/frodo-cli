@@ -37,6 +37,9 @@ Following values are possible (values on the same line are equivalent): \
       `Use custom logging noise filters defined in $HOME/${config.FRODO_LOG_NOISEFILTER_FILENAME}`
     )
   )
+  .addOption(
+    new Option('-j, --json', 'Enforce JSON output').default(false, 'Disabled')
+  )
   .action(async (host, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
@@ -72,7 +75,7 @@ Following values are possible (values on the same line are equivalent): \
           command.opts().sources
         } and levels [${resolveLevel(command.opts().level)}] of ${
           conn.tenant
-        }...`
+        } [json: ${command.opts().json}]...`
       );
       if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
       await tailLogs(
@@ -80,7 +83,8 @@ Following values are possible (values on the same line are equivalent): \
         resolveLevel(command.opts().level),
         command.opts().transactionId,
         null,
-        config.getNoiseFilters(options.defaults)
+        config.getNoiseFilters(options.defaults),
+        command.opts().json
       );
     }
   });
