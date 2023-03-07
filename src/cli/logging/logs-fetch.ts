@@ -126,7 +126,8 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         );
       }
       let beginTs = Date.parse(options.beginTimestamp) / 1000;
-      if (Date.parse(options.endTimestamp) / 1000 < beginTs) {
+      let endTs = Date.parse(options.endTimestamp) / 1000;
+      if (endTs < beginTs) {
         printMessage(
           'End timestamp can not be before begin timestamp',
           'error'
@@ -150,8 +151,12 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
       );
       if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
 
+      let timeIncrement = LOG_TIME_WINDOW_INCREMENT;
+      if (endTs - beginTs > 30) {
+        timeIncrement = timeIncrement * 30;
+      }
       do {
-        intermediateEndTs = beginTs + LOG_TIME_WINDOW_INCREMENT;
+        intermediateEndTs = beginTs + timeIncrement;
         await fetchLogs(
           command.opts().sources,
           new Date(beginTs * 1000).toISOString(),
@@ -163,7 +168,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           config.getNoiseFilters(options.defaults)
         );
         beginTs = intermediateEndTs;
-      } while (intermediateEndTs < Date.parse(options.endTimestamp) / 1000);
+      } while (intermediateEndTs < endTs);
     }
   });
 
