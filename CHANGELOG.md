@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1-1] - 2023-03-23
+
 ### Added
 
 -   \#213: More debug logging for connection profile lookup by a unique substring. Use --debug to see the additional output. This is not yet a solution for rockcarver/frodo-cli#213 but should help identify the root cause.
@@ -1073,7 +1075,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-1...HEAD
+
+[0.23.1-1]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-0...v0.23.1-1
 
 [0.23.1-0]: https://github.com/rockcarver/frodo-cli/compare/v0.23.0...v0.23.1-0
 
