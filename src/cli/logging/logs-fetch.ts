@@ -126,7 +126,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         );
       }
       let beginTs = Date.parse(options.beginTimestamp) / 1000;
-      let endTs = Date.parse(options.endTimestamp) / 1000;
+      const endTs = Date.parse(options.endTimestamp) / 1000;
       if (endTs < beginTs) {
         printMessage(
           'End timestamp can not be before begin timestamp',
