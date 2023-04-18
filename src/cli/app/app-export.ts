@@ -1,14 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, OAuth2Client } from '@rockcarver/frodo-lib';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
-
-const { getTokens } = Authenticate;
-const {
+import {
   exportOAuth2ClientsToFile,
   exportOAuth2ClientsToFiles,
   exportOAuth2ClientToFile,
-} = OAuth2Client;
+} from '../../ops/OAuth2ClientOps';
+
+const { getTokens } = Authenticate;
 
 const program = new FrodoCommand('frodo app export');
 
@@ -33,6 +33,9 @@ program
       'Export all OAuth2 apps to separate files (*.oauth2.app.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(
+    new Option('--no-deps', 'Do not include any dependencies (scripts).')
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -47,17 +50,33 @@ program
       // export
       if (options.appId && (await getTokens())) {
         verboseMessage('Exporting OAuth2 application...');
-        exportOAuth2ClientToFile(options.appId, options.file);
+        const status = await exportOAuth2ClientToFile(
+          options.appId,
+          options.file,
+          {
+            useStringArrays: true,
+            deps: options.deps,
+          }
+        );
+        if (!status) process.exitCode = 1;
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all OAuth2 applications to file...');
-        exportOAuth2ClientsToFile(options.file);
+        const status = await exportOAuth2ClientsToFile(options.file, {
+          useStringArrays: true,
+          deps: options.deps,
+        });
+        if (!status) process.exitCode = 1;
       }
       // -A/--all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
-        exportOAuth2ClientsToFiles();
+        const status = await exportOAuth2ClientsToFiles({
+          useStringArrays: true,
+          deps: options.deps,
+        });
+        if (!status) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

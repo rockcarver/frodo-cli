@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 0.18.9-3
+-   Changes based on rockcarver/frodo-lib#234 (code refactoring) and updated frodo-lib:
+    -   Added support for `-A` and `-a` options to `frodo app import` command
+    -   Added support for `--no-deps` option to `frodo app export` and `frodo app import` commands
+
+### Fixed
+
+-    \#214: Fixed a regression introduced in \#186, which 'swallowed' `frodo` command exit codes and resulted in always exiting with 0 even if a `frodo` command returned with a different exit code.
+
 ## [0.23.1-2] - 2023-03-28
 
 ### Changed
@@ -17,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   \#213: More debug logging for connection profile lookup by a unique substring. Use --debug to see the additional output. This is not yet a solution for rockcarver/frodo-cli#213 but should help identify the root cause.
+-   \#213: More debug logging for connection profile lookup by a unique substring. Use --debug to see the additional output. This is not yet a solution for #213 but should help identify the root cause.
 -   \#216: More debug logging for the 2fa process and proper detection of unsupported webauthn factor.
 
 ### Changed

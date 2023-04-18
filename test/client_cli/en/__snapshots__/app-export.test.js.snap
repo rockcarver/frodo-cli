@@ -47,6 +47,7 @@ Options:
                          referenced email templates or how to walk through the
                          tenant admin login flow of Identity Cloud and handle
                          MFA (choices: "classic", "cloud", "forgeops")
+  --no-deps              Do not include any dependencies (scripts).
   --sa-id <sa-id>        Service account id.
   --sa-jwk-file <file>   File containing the JSON Web Key (JWK) associated with
                          the the service account.
