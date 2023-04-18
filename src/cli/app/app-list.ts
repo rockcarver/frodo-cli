@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, OAuth2Client } from '@rockcarver/frodo-lib';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
+import { listOAuth2Clients } from '../../ops/OAuth2ClientOps';
 
 const { getTokens } = Authenticate;
-const { listOAuth2Clients } = OAuth2Client;
 
 const program = new FrodoCommand('frodo app list');
 
