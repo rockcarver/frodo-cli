@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1-3] - 2023-04-18
+
 ### Changed
 
 -   Update to frodo-lib 0.18.9-3
@@ -16,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    \#214: Fixed a regression introduced in \#186, which 'swallowed' `frodo` command exit codes and resulted in always exiting with 0 even if a `frodo` command returned with a different exit code.
+-   \#214: Fixed a regression introduced in #186, which 'swallowed' `frodo` command exit codes and resulted in always exiting with 0 even if a `frodo` command returned with a different exit code.
 
 ## [0.23.1-2] - 2023-03-28
 
@@ -1092,7 +1094,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-2...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-3...HEAD
+
+[0.23.1-3]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-2...v0.23.1-3
 
 [0.23.1-2]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-1...v0.23.1-2
 
