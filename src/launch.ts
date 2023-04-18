@@ -13,7 +13,11 @@ const launchArgs = [
 ];
 const frodoArgs = process.argv.slice(2);
 
-spawn(process.execPath, [...launchArgs, ...frodoArgs], {
+const frodo = spawn(process.execPath, [...launchArgs, ...frodoArgs], {
   stdio: 'inherit',
   shell: false,
+});
+
+frodo.on('exit', (code) => {
+  process.exitCode = code;
 });
