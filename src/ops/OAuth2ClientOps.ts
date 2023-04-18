@@ -18,10 +18,10 @@ import {
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
 import {
+  OAuth2ClientExportInterface,
   OAuth2ClientExportOptions,
   OAuth2ClientImportOptions,
-  OAuth2ClientExportInterface,
-} from '../../../frodo-lib/types/ops/OAuth2ClientOps';
+} from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 
 const { getTypedFilename, titleCase } = ExportImportUtils;
 const {
