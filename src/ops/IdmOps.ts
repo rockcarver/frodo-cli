@@ -252,11 +252,12 @@ export async function exportAllConfigEntities(
 }
 
 /**
- * Import an IDM configuration object.
+ * Import an IDM configuration object by id from file.
  * @param entityId the configuration object to import
  * @param file optional file to import
+ * @param validate validate script hooks
  */
-export async function importConfigEntity(
+export async function importConfigEntityByIdFromFile(
   entityId: string,
   file?: string,
   validate?: boolean
@@ -276,6 +277,32 @@ export async function importConfigEntity(
 
   try {
     await putConfigEntity(entityId, entityData);
+  } catch (putConfigEntityError) {
+    printMessage(putConfigEntityError, 'error');
+    printMessage(`Error: ${putConfigEntityError}`, 'error');
+  }
+}
+
+/**
+ * Import IDM configuration object from file.
+ * @param file optional file to import
+ * @param validate validate script hooks
+ */
+export async function importConfigEntityFromFile(
+  file: string,
+  validate?: boolean
+) {
+  const importData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const jsObject = JSON.parse(importData);
+  const entityId = jsObject._id;
+  const isValid = validateScriptHooks(jsObject);
+  if (validate && !isValid) {
+    printMessage('Invalid IDM configuration object', 'error');
+    return;
+  }
+
+  try {
+    await putConfigEntity(entityId, importData);
   } catch (putConfigEntityError) {
     printMessage(putConfigEntityError, 'error');
     printMessage(`Error: ${putConfigEntityError}`, 'error');
