@@ -451,6 +451,7 @@ function hasValues(object) {
  * @param {number} depth total depth of initial object
  * @param {number} level current level
  * @param {any} table the object table to add the rows to
+ * @param {Object} keyMap optional JSON map to map raw config names to human readable names {'raw': 'readable'}
  * @returns the updated object table
  */
 function addRows(object, depth, level, table, keyMap) {
@@ -497,6 +498,7 @@ function addRows(object, depth, level, table, keyMap) {
 /**
  * Create and populate an object table from any JSON object. Use for describe commands.
  * @param {Object} object JSON object to create
+ * @param {Object} keyMap optional JSON map to map raw config names to human readable names {'raw': 'readable'}
  * @returns {any} a table that can be printed to the console
  */
 export function createObjectTable(object, keyMap = {}) {

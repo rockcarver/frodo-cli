@@ -5,7 +5,8 @@ import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importAllConfigEntities,
   importAllRawConfigEntities,
-  importConfigEntity,
+  importConfigEntityByIdFromFile,
+  importConfigEntityFromFile,
 } from '../../ops/IdmOps';
 
 const { getTokens } = Authenticate;
@@ -81,7 +82,12 @@ program
       // import by id/name
       if (options.name && (await getTokens())) {
         verboseMessage(`Importing object "${options.name}"...`);
-        await importConfigEntity(options.name, options.file);
+        await importConfigEntityByIdFromFile(options.name, options.file);
+      }
+      // import from file
+      if (options.file && (await getTokens())) {
+        verboseMessage(`Importing object from file...`);
+        await importConfigEntityFromFile(options.file);
       }
       // --all-separate -A
       else if (
@@ -107,7 +113,7 @@ program
         (await getTokens())
       ) {
         verboseMessage(
-          `Importing all IDM configuration objects into separate files in ${options.directory}...`
+          `Importing all IDM configuration objects from separate files in ${options.directory}...`
         );
         await importAllRawConfigEntities(options.directory);
       }

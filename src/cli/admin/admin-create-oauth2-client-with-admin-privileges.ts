@@ -36,6 +36,12 @@ program
   )
   .addOption(
     new Option(
+      '--no-llt-esv',
+      "Don't store the token in a secret and output to console instead. This option only applies if used with the --llt option."
+    )
+  )
+  .addOption(
+    new Option(
       '--llt-ttl [ttl]',
       'Token lifetime (seconds). This option only applies if used with the --llt option.'
     ).default(315360000, '315,360,000 seconds (10 years)')
@@ -67,6 +73,7 @@ program
           await createOAuth2ClientWithAdminPrivileges(clientId, clientSecret);
         } catch (error) {
           printMessage(error, 'error');
+          process.exitCode = 1;
         }
         const table = new Table({
           chars: {
@@ -88,6 +95,8 @@ program
           style: { 'padding-left': 0, 'padding-right': 0 },
           wordWrap: true,
         });
+        table.push(['Client ID'['brightCyan'], clientId]);
+        table.push(['Client Secret'['brightCyan'], clientSecret]);
         if (options.llt) {
           try {
             const response = await createLongLivedToken(
@@ -97,17 +106,22 @@ program
               options.lltEsv,
               options.lltTtl
             );
-            table.push(['Secret Name'['brightCyan'], response.secret]);
+            if (options.lltEsv)
+              table.push(['Secret Name'['brightCyan'], response.secret]);
             table.push(['Scope'['brightCyan'], response.scope]);
-            // table.push(['Token Lifetime'.brightCyan, response.expires_in]);
             table.push(['Expires'['brightCyan'], response.expires_on]);
+            printMessage(table.toString());
+            if (options.lltEsv === false) {
+              printMessage(`\nBearer token:`, 'info');
+              printMessage(`${response.access_token}`, 'data');
+            }
           } catch (error) {
             printMessage(error, 'error');
+            process.exitCode = 1;
           }
+        } else {
+          printMessage(table.toString());
         }
-        table.push(['Client ID'['brightCyan'], clientId]);
-        table.push(['Client Secret'['brightCyan'], clientSecret]);
-        printMessage(table.toString());
       } else {
         process.exitCode = 1;
       }
