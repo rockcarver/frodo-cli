@@ -8,8 +8,13 @@ import {
   stopProgressIndicator,
   printMessage,
   createTable,
+  showSpinner,
+  succeedSpinner,
+  failSpinner,
+  debugMessage,
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
+import path from 'path';
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
 const {
@@ -230,23 +235,31 @@ export async function exportEmailTemplatesToFiles() {
 
 /**
  * Import email template by id from file
- * @param {String} templateId email template id
- * @param {String} file optional filename
+ * @param {string} templateId email template id
+ * @param {string} file optional filename
+ * @param {boolean} raw import raw data file lacking frodo export envelop
  */
-export async function importEmailTemplateFromFile(templateId, file) {
+export async function importEmailTemplateFromFile(
+  templateId: string,
+  file: string,
+  raw = false
+) {
   // eslint-disable-next-line no-param-reassign
   templateId = templateId.replaceAll(`${EMAIL_TEMPLATE_TYPE}/`, '');
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
+    if (raw || validateImport(fileData.meta)) {
       createProgressIndicator('determinate', 1, `Importing ${templateId}`);
-      if (fileData.emailTemplate[templateId]) {
+      if (
+        fileData.emailTemplate[templateId] ||
+        (raw && fileData._id === templateId)
+      ) {
         try {
-          await putEmailTemplate(
-            templateId,
-            fileData.emailTemplate[templateId]
-          );
+          const emailTemplateData = raw
+            ? fileData
+            : fileData.emailTemplate[templateId];
+          await putEmailTemplate(templateId, emailTemplateData);
           updateProgressIndicator(`Importing ${templateId}`);
           stopProgressIndicator(`Imported ${templateId}`);
         } catch (putEmailTemplateError) {
@@ -255,10 +268,10 @@ export async function importEmailTemplateFromFile(templateId, file) {
         }
       } else {
         stopProgressIndicator(
-          `Email template ${templateId.brightCyan} not found in ${file.brightCyan}!`
+          `Email template ${templateId} not found in ${file}!`
         );
         printMessage(
-          `Email template ${templateId.brightCyan} not found in ${file.brightCyan}!`,
+          `Email template ${templateId} not found in ${file}!`,
           'error'
         );
       }
@@ -270,9 +283,9 @@ export async function importEmailTemplateFromFile(templateId, file) {
 
 /**
  * Import all email templates from file
- * @param {String} file optional filename
+ * @param {string} file optional filename
  */
-export async function importEmailTemplatesFromFile(file) {
+export async function importEmailTemplatesFromFile(file: string) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
@@ -306,13 +319,34 @@ export async function importEmailTemplatesFromFile(file) {
 }
 
 /**
- * Import all email templates from separate files
+ * Helper function to get email template id from file name
+ * @param {string} file file name
+ * @returns {string} email template id/name
  */
-export async function importEmailTemplatesFromFiles() {
-  const names = fs.readdirSync('.');
-  const jsonFiles = names.filter((name) =>
-    name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
+function getEmailTemplateIdFromFile(file: string) {
+  debugMessage(`cli.EmailTemplateOps.getEmailTemplateIdFromFile: file=${file}`);
+  const fileName = path.basename(file);
+  const templateId = fileName.substring(14, fileName.indexOf('.'));
+  debugMessage(
+    `cli.EmailTemplateOps.getEmailTemplateIdFromFile: templateId=${templateId}`
   );
+  return templateId;
+}
+
+/**
+ * Import all email templates from separate files
+ * @param {boolean} raw import raw data file lacking frodo export envelop
+ */
+export async function importEmailTemplatesFromFiles(raw = false) {
+  const names = fs.readdirSync('.');
+  const jsonFiles = raw
+    ? names.filter(
+        (name) =>
+          name.startsWith(`${EMAIL_TEMPLATE_TYPE}-`) && name.endsWith(`.json`)
+      )
+    : names.filter((name) =>
+        name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
+      );
   createProgressIndicator(
     'determinate',
     jsonFiles.length,
@@ -323,22 +357,37 @@ export async function importEmailTemplatesFromFiles() {
   for (const file of jsonFiles) {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      total += Object.keys(fileData.emailTemplate).length;
+    if (
+      (raw && file.startsWith('emailTemplate-')) ||
+      validateImport(fileData.meta)
+    ) {
       let errors = 0;
-      for (const id in fileData.emailTemplate) {
-        if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
-          const templateId = id.replace(regexEmailTemplateType, '');
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            await putEmailTemplate(
-              templateId,
-              fileData.emailTemplate[templateId]
-            );
-          } catch (putEmailTemplateError) {
-            errors += 1;
-            printMessage(`\nError importing ${templateId}`, 'error');
-            printMessage(putEmailTemplateError.response.data, 'error');
+      if (raw) {
+        total++;
+        const templateId = getEmailTemplateIdFromFile(file);
+        try {
+          await putEmailTemplate(templateId, fileData);
+        } catch (putEmailTemplateError) {
+          errors += 1;
+          printMessage(`\nError importing ${templateId}`, 'error');
+          printMessage(putEmailTemplateError, 'error');
+          printMessage(putEmailTemplateError.response?.data, 'error');
+        }
+      } else {
+        total += Object.keys(fileData.emailTemplate).length;
+        for (const id in fileData.emailTemplate) {
+          if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
+            const templateId = id.replace(regexEmailTemplateType, '');
+            try {
+              await putEmailTemplate(
+                templateId,
+                fileData.emailTemplate[templateId]
+              );
+            } catch (putEmailTemplateError) {
+              errors += 1;
+              printMessage(`\nError importing ${templateId}`, 'error');
+              printMessage(putEmailTemplateError.response.data, 'error');
+            }
           }
         }
       }
@@ -359,31 +408,42 @@ export async function importEmailTemplatesFromFiles() {
  * Import first email template from file
  * @param {String} file optional filename
  */
-export async function importFirstEmailTemplateFromFile(file) {
+export async function importFirstEmailTemplateFromFile(
+  file: string,
+  raw = false
+) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      createProgressIndicator(
-        'determinate',
-        1,
-        `Importing first email template`
-      );
-      for (const id in fileData.emailTemplate) {
-        if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
-          try {
-            await putEmailTemplate(
-              id.replace(regexEmailTemplateType, ''),
-              fileData.emailTemplate[id]
-            );
-            updateProgressIndicator(`Imported ${id}`);
-            stopProgressIndicator(`Imported ${id}`);
-          } catch (putEmailTemplateError) {
-            stopProgressIndicator(`Error importing email template ${id}`);
-            printMessage(`\nError importing email template ${id}`, 'error');
-            printMessage(putEmailTemplateError.response.data, 'error');
+    if (
+      (raw && file.startsWith('emailTemplate-')) ||
+      validateImport(fileData.meta)
+    ) {
+      showSpinner(`Importing first email template`);
+      if (raw) {
+        const templateId = getEmailTemplateIdFromFile(file);
+        try {
+          await putEmailTemplate(templateId, fileData);
+          succeedSpinner(`Imported ${templateId}`);
+        } catch (putEmailTemplateError) {
+          failSpinner(`Error importing ${templateId}`);
+          printMessage(putEmailTemplateError.response?.data, 'error');
+        }
+      } else {
+        for (const id in fileData.emailTemplate) {
+          if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
+            try {
+              await putEmailTemplate(
+                id.replace(regexEmailTemplateType, ''),
+                fileData.emailTemplate[id]
+              );
+              succeedSpinner(`Imported ${id}`);
+            } catch (putEmailTemplateError) {
+              failSpinner(`Error importing ${id}`);
+              printMessage(putEmailTemplateError.response?.data, 'error');
+            }
+            break;
           }
-          break;
         }
       }
     } else {
