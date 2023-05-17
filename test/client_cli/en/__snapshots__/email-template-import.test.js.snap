@@ -55,6 +55,13 @@ Options:
                                    admin login flow of Identity Cloud and
                                    handle MFA (choices: "classic", "cloud",
                                    "forgeops")
+  --raw                            Import raw email template files. Raw
+                                   templates do not contain the id/name,
+                                   therefore when using -A or -f without -i,
+                                   the email template id/name is parsed from
+                                   the file name; Make sure your template files
+                                   are named 'emailTemplate-<id/name>.json' or
+                                   use -f with -i. Ignored with -a.
   --sa-id <sa-id>                  Service account id.
   --sa-jwk-file <file>             File containing the JSON Web Key (JWK)
                                    associated with the the service account.

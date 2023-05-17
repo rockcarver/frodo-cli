@@ -34,6 +34,12 @@ program
       'Import all email templates from separate files (*.template.email.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(
+    new Option(
+      '--raw',
+      "Import raw email template files. Raw templates do not contain the id/name, therefore when using -A or -f without -i, the email template id/name is parsed from the file name; Make sure your template files are named 'emailTemplate-<id/name>.json' or use -f with -i. Ignored with -a."
+    )
+  )
   .action(
     // implement program logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -48,7 +54,11 @@ program
       // import by id
       if (options.file && options.templateId && (await getTokens())) {
         verboseMessage(`Importing email template "${options.templateId}"...`);
-        importEmailTemplateFromFile(options.templateId, options.file);
+        importEmailTemplateFromFile(
+          options.templateId,
+          options.file,
+          options.raw
+        );
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
@@ -62,14 +72,14 @@ program
         verboseMessage(
           'Importing all email templates from separate files (*.template.email.json) in current directory...'
         );
-        importEmailTemplatesFromFiles();
+        importEmailTemplatesFromFiles(options.raw);
       }
       // import first template from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first email template from file "${options.file}"...`
         );
-        importFirstEmailTemplateFromFile(options.file);
+        importFirstEmailTemplateFromFile(options.file, options.raw);
       }
       // unrecognized combination of options or no options
       else {
