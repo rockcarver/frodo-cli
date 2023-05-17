@@ -4,6 +4,7 @@ import { Command } from 'commander';
 // commands
 import admin from './cli/admin/admin';
 import agent from './cli/agent/agent';
+import authz from './cli/authz/authz';
 import app from './cli/app/app';
 import conn from './cli/conn/conn';
 import email from './cli/email/email';
@@ -38,6 +39,7 @@ const { initConnectionProfiles } = ConnectionProfile;
 
     program.addCommand(admin());
     program.addCommand(agent());
+    program.addCommand(authz());
     program.addCommand(app());
     program.addCommand(conn());
     program.addCommand(email());
