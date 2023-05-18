@@ -15,6 +15,7 @@ import {
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
 import path from 'path';
+import { cloneDeep } from './utils/OpsUtils';
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
 const {
@@ -257,7 +258,7 @@ export async function importEmailTemplateFromFile(
       ) {
         try {
           const emailTemplateData = raw
-            ? fileData
+            ? s2sConvert(fileData)
             : fileData.emailTemplate[templateId];
           await putEmailTemplate(templateId, emailTemplateData);
           updateProgressIndicator(`Importing ${templateId}`);
@@ -334,6 +335,26 @@ function getEmailTemplateIdFromFile(file: string) {
 }
 
 /**
+ * Convert template for s2s purposes (software-to-saas migration)
+ * @param {EmailTemplateSkeleton} templateData template object
+ * @returns {EmailTemplateSkeleton} converted template object
+ */
+function s2sConvert(
+  templateData: EmailTemplateSkeleton
+): EmailTemplateSkeleton {
+  if (templateData.message && !templateData.html) {
+    const convertedData = cloneDeep(templateData);
+    convertedData.html = cloneDeep(templateData.message);
+    debugMessage(`cli.EmailTemplateOps.s2sConvert: templateData:`);
+    debugMessage(templateData);
+    debugMessage(`cli.EmailTemplateOps.s2sConvert: convertedData:`);
+    debugMessage(convertedData);
+    return convertedData;
+  }
+  return templateData;
+}
+
+/**
  * Import all email templates from separate files
  * @param {boolean} raw import raw data file lacking frodo export envelop
  */
@@ -366,7 +387,8 @@ export async function importEmailTemplatesFromFiles(raw = false) {
         total++;
         const templateId = getEmailTemplateIdFromFile(file);
         try {
-          await putEmailTemplate(templateId, fileData);
+          const templateData = s2sConvert(fileData);
+          await putEmailTemplate(templateId, templateData);
         } catch (putEmailTemplateError) {
           errors += 1;
           printMessage(`\nError importing ${templateId}`, 'error');
@@ -423,7 +445,8 @@ export async function importFirstEmailTemplateFromFile(
       if (raw) {
         const templateId = getEmailTemplateIdFromFile(file);
         try {
-          await putEmailTemplate(templateId, fileData);
+          const templateData = s2sConvert(fileData);
+          await putEmailTemplate(templateId, templateData);
           succeedSpinner(`Imported ${templateId}`);
         } catch (putEmailTemplateError) {
           failSpinner(`Error importing ${templateId}`);
