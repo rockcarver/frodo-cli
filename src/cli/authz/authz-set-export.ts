@@ -36,9 +36,10 @@ program
   .addOption(
     new Option(
       '--no-deps',
-      'Do not include any dependencies (policies, scripts, resource types).'
+      'Do not include any dependencies (policies, scripts).'
     )
   )
+  .addOption(new Option('--prereqs', 'Include prerequisites (resource types).'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -56,6 +57,7 @@ program
         const outcome = exportPolicySetToFile(options.setId, options.file, {
           useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -65,6 +67,7 @@ program
         const outcome = await exportPolicySetsToFile(options.file, {
           useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -76,6 +79,7 @@ program
         const outcome = await exportPolicySetsToFiles({
           useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
