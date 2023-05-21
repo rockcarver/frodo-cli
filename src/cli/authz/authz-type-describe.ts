@@ -2,7 +2,10 @@ import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { Authenticate } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
-import { describeResourceType } from '../../ops/ResourceTypeOps';
+import {
+  describeResourceType,
+  describeResourceTypeByName,
+} from '../../ops/ResourceTypeOps';
 
 const { getTokens } = Authenticate;
 
@@ -10,12 +13,8 @@ const program = new FrodoCommand('frodo authz type describe');
 
 program
   .description('Describe authorization resource types.')
-  .addOption(
-    new Option(
-      '-i, --type-id <type-id>',
-      'Resource type id.'
-    ).makeOptionMandatory()
-  )
+  .addOption(new Option('-i, --type-id <type-uuid>', 'Resource type uuid.'))
+  .addOption(new Option('-n, --type-name <type-name>', 'Resource type name.'))
   .addOption(new Option('--json', 'Output in JSON format.'))
   .action(
     // implement command logic inside action handler
@@ -29,11 +28,16 @@ program
         command
       );
       if (options.typeId && (await getTokens())) {
-        verboseMessage(
-          `Describing authorization resource type ${options.typeId}...`
-        );
+        verboseMessage(`Describing authorization resource type by uuid...`);
         const outcome = await describeResourceType(
           options.typeId,
+          options.json
+        );
+        if (!outcome) process.exitCode = 1;
+      } else if (options.typeName && (await getTokens())) {
+        verboseMessage(`Describing authorization resource type by name...`);
+        const outcome = await describeResourceTypeByName(
+          options.typeName,
           options.json
         );
         if (!outcome) process.exitCode = 1;

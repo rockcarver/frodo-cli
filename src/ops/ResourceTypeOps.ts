@@ -4,6 +4,7 @@ import { ResourceType, Utils, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressBar,
+  createTable,
   debugMessage,
   failSpinner,
   printMessage,
@@ -21,11 +22,15 @@ import { ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/Res
 
 const {
   deleteResourceType: _deleteResourceType,
+  deleteResourceTypeByName: _deleteResourceTypeByName,
   getResourceTypes,
+  getResourceType,
   getResourceTypeByName,
   exportResourceType,
+  exportResourceTypeByName,
   exportResourceTypes,
   importResourceType,
+  importResourceTypeByName,
   importFirstResourceType,
   importResourceTypes,
 } = ResourceType;
@@ -33,15 +38,28 @@ const { getRealmName } = Utils;
 
 /**
  * List resource types
+ * @param {boolean} long more fields
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listResourceTypes(): Promise<boolean> {
+export async function listResourceTypes(long = false): Promise<boolean> {
   let outcome = false;
   try {
     const resourceTypes = await getResourceTypes();
     resourceTypes.sort((a, b) => a.name.localeCompare(b.name));
-    for (const resourceType of resourceTypes) {
-      printMessage(`${resourceType.name}`, 'data');
+    if (long) {
+      const table = createTable(['Name', 'Description', 'Uuid']);
+      for (const resourceType of resourceTypes) {
+        table.push([
+          `${resourceType.name}`,
+          `${resourceType.description}`,
+          `${resourceType.uuid}`,
+        ]);
+      }
+      printMessage(table.toString(), 'data');
+    } else {
+      for (const resourceType of resourceTypes) {
+        printMessage(`${resourceType.name}`, 'data');
+      }
     }
     outcome = true;
   } catch (err) {
@@ -52,12 +70,45 @@ export async function listResourceTypes(): Promise<boolean> {
 }
 
 /**
- * Describe resource type
- * @param {string} resourceTypeName resource type name
+ * Describe resource type by uuid
+ * @param {string} resourceTypeUuid resource type uuid
  * @param {boolean} json JSON output
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeResourceType(
+  resourceTypeUuid: string,
+  json = false
+): Promise<boolean> {
+  let outcome = false;
+  try {
+    const resourceType = await getResourceType(resourceTypeUuid);
+    if (json) {
+      printMessage(resourceType, 'data');
+    } else {
+      const table = createObjectTable(resourceType);
+      printMessage(table.toString(), 'data');
+    }
+    outcome = true;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      printMessage(
+        `Resource Type with uuid ${resourceTypeUuid} does not exist in realm ${state.getRealm()}`,
+        'error'
+      );
+    } else {
+      printMessage(error.response?.data?.message || error.message, 'error');
+    }
+  }
+  return outcome;
+}
+
+/**
+ * Describe resource type by name
+ * @param {string} resourceTypeName resource type name
+ * @param {boolean} json JSON output
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function describeResourceTypeByName(
   resourceTypeName: string,
   json = false
 ): Promise<boolean> {
@@ -72,41 +123,80 @@ export async function describeResourceType(
     }
     outcome = true;
   } catch (error) {
-    printMessage(error.message, 'error');
+    if (error.response?.status === 404) {
+      printMessage(
+        `Resource Type with name ${resourceTypeName} does not exist in realm ${state.getRealm()}`,
+        'error'
+      );
+    } else {
+      printMessage(error.response?.data?.message || error.message, 'error');
+    }
   }
   return outcome;
 }
 
 /**
- * Delete resource type
- * @param {string} resourceTypeId resource type id
+ * Delete resource type by uuid
+ * @param {string} resourceTypeUuid resource type uuid
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteResourceType(
-  resourceTypeId: string
+  resourceTypeUuid: string
 ): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceType: begin`);
-  showSpinner(`Deleting ${resourceTypeId}...`);
+  showSpinner(`Deleting ${resourceTypeUuid}...`);
   let outcome = false;
   const errors = [];
   try {
-    debugMessage(`Deleting resource type ${resourceTypeId}`);
-    await _deleteResourceType(resourceTypeId);
+    debugMessage(`Deleting resource type ${resourceTypeUuid}`);
+    await _deleteResourceType(resourceTypeUuid);
   } catch (error) {
-    printMessage(
-      `Error deleting resource type ${resourceTypeId}: ${error}`,
-      'error'
-    );
+    errors.push(error);
   }
   if (errors.length) {
-    const errorMessages = errors.map((error) => error.message).join('\n');
-    failSpinner(`Error deleting ${resourceTypeId}: ${errorMessages}`);
+    const errorMessages = errors
+      .map((error) => error.response?.data?.message || error.message)
+      .join('\n');
+    failSpinner(`Error deleting ${resourceTypeUuid}: ${errorMessages}`);
   } else {
-    succeedSpinner(`Deleted ${resourceTypeId}.`);
+    succeedSpinner(`Deleted ${resourceTypeUuid}.`);
     outcome = true;
   }
   debugMessage(
     `cli.ResourceTypeOps.deleteResourceType: end [outcome=${outcome}]`
+  );
+  return outcome;
+}
+
+/**
+ * Delete resource type by name
+ * @param {string} resourceTypeName resource type name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteResourceTypeByName(
+  resourceTypeName: string
+): Promise<boolean | ResourceTypeSkeleton> {
+  debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: begin`);
+  showSpinner(`Deleting ${resourceTypeName}...`);
+  let outcome = false;
+  const errors = [];
+  try {
+    debugMessage(`Deleting resource type ${resourceTypeName}`);
+    await _deleteResourceTypeByName(resourceTypeName);
+  } catch (error) {
+    errors.push(error);
+  }
+  if (errors.length) {
+    const errorMessages = errors
+      .map((error) => error.response?.data?.message || error.message)
+      .join('\n');
+    failSpinner(`Error deleting ${resourceTypeName}: ${errorMessages}`);
+  } else {
+    succeedSpinner(`Deleted ${resourceTypeName}.`);
+    outcome = true;
+  }
+  debugMessage(
+    `cli.ResourceTypeOps.deleteResourceTypeByName: end [outcome=${outcome}]`
   );
   return outcome;
 }
@@ -171,30 +261,59 @@ export async function deleteResourceTypes(): Promise<
 
 /**
  * Export resource type to file
- * @param {string} resourceTypeId resource type id
+ * @param {string} resourceTypeUuid resource type uuid
  * @param {string} file file name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeToFile(
-  resourceTypeId: string,
+  resourceTypeUuid: string,
   file: string
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: begin`);
-  showSpinner(`Exporting ${resourceTypeId}...`);
+  showSpinner(`Exporting ${resourceTypeUuid}...`);
   try {
-    let fileName = getTypedFilename(resourceTypeId, 'resourcetype.authz');
+    let fileName = getTypedFilename(resourceTypeUuid, 'resourcetype.authz');
     if (file) {
       fileName = file;
     }
-    const exportData = await exportResourceType(resourceTypeId);
+    const exportData = await exportResourceType(resourceTypeUuid);
     saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${resourceTypeId} to ${fileName}.`);
+    succeedSpinner(`Exported ${resourceTypeUuid} to ${fileName}.`);
     outcome = true;
   } catch (error) {
-    failSpinner(`Error exporting ${resourceTypeId}: ${error.message}`);
+    failSpinner(`Error exporting ${resourceTypeUuid}: ${error.message}`);
   }
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: end`);
+  return outcome;
+}
+
+/**
+ * Export resource type by name to file
+ * @param {string} resourceTypeName resource type name
+ * @param {string} file file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function exportResourceTypeByNameToFile(
+  resourceTypeName: string,
+  file: string
+): Promise<boolean> {
+  let outcome = false;
+  debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: begin`);
+  showSpinner(`Exporting ${resourceTypeName}...`);
+  try {
+    let fileName = getTypedFilename(resourceTypeName, 'resourcetype.authz');
+    if (file) {
+      fileName = file;
+    }
+    const exportData = await exportResourceTypeByName(resourceTypeName);
+    saveJsonToFile(exportData, fileName);
+    succeedSpinner(`Exported ${resourceTypeName} to ${fileName}.`);
+    outcome = true;
+  } catch (error) {
+    failSpinner(`Error exporting ${resourceTypeName}: ${error.message}`);
+  }
+  debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: end`);
   return outcome;
 }
 
@@ -279,10 +398,37 @@ export async function importResourceTypeFromFile(
     outcome = true;
     succeedSpinner(`Imported ${resourceTypeId}.`);
   } catch (error) {
-    failSpinner(`Error importing ${resourceTypeId}.`);
+    failSpinner(`Error importing ${resourceTypeId}: ${error.message}`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: end`);
+  return outcome;
+}
+
+/**
+ * Import resource type by name from file
+ * @param {string} resourceTypeName resource type name
+ * @param {string} file file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importResourceTypeByNameFromFile(
+  resourceTypeName: string,
+  file: string
+): Promise<boolean> {
+  let outcome = false;
+  debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: begin`);
+  showSpinner(`Importing ${resourceTypeName}...`);
+  try {
+    const data = fs.readFileSync(file, 'utf8');
+    const fileData = JSON.parse(data);
+    await importResourceTypeByName(resourceTypeName, fileData);
+    outcome = true;
+    succeedSpinner(`Imported ${resourceTypeName}.`);
+  } catch (error) {
+    failSpinner(`Error importing ${resourceTypeName}: ${error.message}`);
+    printMessage(error, 'error');
+  }
+  debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: end`);
   return outcome;
 }
 

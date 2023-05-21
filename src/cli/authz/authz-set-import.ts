@@ -51,7 +51,7 @@ program
         options,
         command
       );
-      // export
+      // import
       if (options.setId && (await getTokens())) {
         verboseMessage('Importing authorization policy set from file...');
         const outcome = importPolicySetFromFile(options.setId, options.file, {

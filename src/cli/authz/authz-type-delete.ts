@@ -1,28 +1,35 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Variables } from '@rockcarver/frodo-lib';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import {
+  deleteResourceType,
+  deleteResourceTypeByName,
+  deleteResourceTypes,
+} from '../../ops/ResourceTypeOps';
 
 const { getTokens } = Authenticate;
-const { deleteVariableCmd, deleteVariablesCmd } = Variables;
 
-const program = new FrodoCommand('frodo cmd sub2 delete');
+const program = new FrodoCommand('frodo authz type delete');
 
 program
-  .description('Delete variables.')
+  .description('Delete authorization resource types.')
   .addOption(
     new Option(
-      '-i, --variable-id <variable-id>',
+      '-i, --type-id <type-id>',
       'Variable id. If specified, -a is ignored.'
     )
   )
   .addOption(
-    new Option('-a, --all', 'Delete all variable in a realm. Ignored with -i.')
+    new Option(
+      '-n, --type-name <type-name>',
+      'Resource type name. If specified, -a is ignored.'
+    )
   )
   .addOption(
     new Option(
-      '--no-deep',
-      'No deep delete. This leaves orphaned configuration artifacts behind.'
+      '-a, --all',
+      'Delete all resource types in a realm. Ignored with -i and -n.'
     )
   )
   .action(
@@ -36,15 +43,23 @@ program
         options,
         command
       );
-      // delete by id
-      if (options.variableId && (await getTokens())) {
-        verboseMessage('Deleting variable...');
-        deleteVariableCmd(options.variableId);
+      // delete by uuid
+      if (options.typeId && (await getTokens())) {
+        verboseMessage('Deleting authorization resource type...');
+        const outcome = deleteResourceType(options.typeId);
+        if (!outcome) process.exitCode = 1;
+      }
+      // delete by name
+      else if (options.typeName && (await getTokens())) {
+        verboseMessage('Deleting authorization resource type...');
+        const outcome = deleteResourceTypeByName(options.typeName);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
-        verboseMessage('Deleting all variables...');
-        deleteVariablesCmd();
+        verboseMessage('Deleting all authorization resource types...');
+        const outcome = deleteResourceTypes();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {
