@@ -23,7 +23,10 @@ program
     )
   )
   .addOption(
-    new Option('--set-id <set-id>', 'Policy set id/name. Ignored with -i.')
+    new Option(
+      '--set-id <set-id>',
+      'Export policies in policy set only. Ignored with -i.'
+    )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
@@ -38,10 +41,11 @@ program
       'Export policies to separate files (*.policy.authz.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(new Option('--no-deps', 'Do not include dependencies (scripts).'))
   .addOption(
     new Option(
-      '--no-deps',
-      'Do not include any dependencies (policy sets, scripts, resource types).'
+      '--prereqs',
+      'Include prerequisites (policy sets, resource types).'
     )
   )
   .action(
@@ -59,8 +63,9 @@ program
       if (options.policyId && (await getTokens())) {
         verboseMessage('Exporting authorization policy to file...');
         const outcome = exportPolicyToFile(options.policyId, options.file, {
-          useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
+          useStringArrays: true,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -73,8 +78,9 @@ program
           options.setId,
           options.file,
           {
-            useStringArrays: true,
             deps: options.deps,
+            prereqs: options.prereqs,
+            useStringArrays: true,
           }
         );
         if (!outcome) process.exitCode = 1;
@@ -83,8 +89,9 @@ program
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all authorization policies to file...');
         const outcome = await exportPoliciesToFile(options.file, {
-          useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
+          useStringArrays: true,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -94,8 +101,9 @@ program
           `Exporting all authorization policies in policy set ${options.setId} to separate files...`
         );
         const outcome = await exportPoliciesByPolicySetToFiles(options.setId, {
-          useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
+          useStringArrays: true,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -105,8 +113,9 @@ program
           'Exporting all authorization policies to separate files...'
         );
         const outcome = await exportPoliciesToFiles({
-          useStringArrays: true,
           deps: options.deps,
+          prereqs: options.prereqs,
+          useStringArrays: true,
         });
         if (!outcome) process.exitCode = 1;
       }

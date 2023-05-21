@@ -200,7 +200,11 @@ export async function deletePolicySets(): Promise<boolean> {
 export async function exportPolicySetToFile(
   policySetId: string,
   file: string,
-  options: PolicySetExportOptions = { useStringArrays: true, deps: true }
+  options: PolicySetExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetToFile: begin`);
@@ -229,7 +233,11 @@ export async function exportPolicySetToFile(
  */
 export async function exportPolicySetsToFile(
   file: string,
-  options: PolicySetExportOptions = { useStringArrays: true, deps: true }
+  options: PolicySetExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: begin`);
@@ -259,7 +267,11 @@ export async function exportPolicySetsToFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicySetsToFiles(
-  options: PolicySetExportOptions = { useStringArrays: true, deps: true }
+  options: PolicySetExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: begin`);
   const errors = [];
@@ -299,7 +311,7 @@ export async function exportPolicySetsToFiles(
 export async function importPolicySetFromFile(
   policySetId: string,
   file: string,
-  options: PolicySetImportOptions = { deps: true }
+  options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetFromFile: begin`);
@@ -326,7 +338,7 @@ export async function importPolicySetFromFile(
  */
 export async function importFirstPolicySetFromFile(
   file: string,
-  options: PolicySetImportOptions = { deps: true }
+  options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: begin`);
@@ -353,7 +365,7 @@ export async function importFirstPolicySetFromFile(
  */
 export async function importPolicySetsFromFile(
   file: string,
-  options: PolicySetImportOptions = { deps: true }
+  options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: begin`);
@@ -378,7 +390,7 @@ export async function importPolicySetsFromFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPolicySetsFromFiles(
-  options: PolicySetImportOptions = { deps: true }
+  options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   const errors = [];
   try {

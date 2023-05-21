@@ -21,6 +21,9 @@ program
       'Policy id. If specified, only one policy is imported and the options -a and -A are ignored.'
     )
   )
+  .addOption(
+    new Option('--set-id <set-id>', 'Import policies into this policy set.')
+  )
   .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
   .addOption(
     new Option(
@@ -32,6 +35,18 @@ program
     new Option(
       '-A, --all-separate',
       'Import all policies from separate files (*.policy.authz.json) in the current directory. Ignored with -i or -a.'
+    )
+  )
+  .addOption(
+    new Option(
+      '--no-deps',
+      'Do not import dependencies (scripts) even if they are available in the import file.'
+    )
+  )
+  .addOption(
+    new Option(
+      '--prereqs',
+      'Import prerequisites (policy sets, resource types) if they are available in the import file.'
     )
   )
   .action(
@@ -50,6 +65,8 @@ program
         verboseMessage('Importing authorization policy from file...');
         const outcome = importPolicyFromFile(options.policyId, options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
+          policySetName: options.setId,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -58,6 +75,8 @@ program
         verboseMessage('Importing all authorization policies from file...');
         const outcome = await importPoliciesFromFile(options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
+          policySetName: options.setId,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -68,6 +87,8 @@ program
         );
         const outcome = await importPoliciesFromFiles({
           deps: options.deps,
+          prereqs: options.prereqs,
+          policySetName: options.setId,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -78,6 +99,8 @@ program
         );
         const outcome = await importFirstPolicyFromFile(options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
+          policySetName: options.setId,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -85,14 +108,6 @@ program
       else {
         verboseMessage('Unrecognized combination of options or no options...');
         program.help();
-        process.exitCode = 1;
-      }
-      if (await getTokens()) {
-        const outcome = importPolicyFromFile(options.policyId, options.file, {
-          deps: options.deps,
-        });
-        if (!outcome) process.exitCode = 1;
-      } else {
         process.exitCode = 1;
       }
     }
