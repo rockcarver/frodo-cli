@@ -263,7 +263,11 @@ export async function deletePoliciesByPolicySet(
 export async function exportPolicyToFile(
   policyId: string,
   file: string,
-  options: PolicyExportOptions = { useStringArrays: true, deps: true }
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicyOps.exportPolicyToFile: begin`);
@@ -292,7 +296,11 @@ export async function exportPolicyToFile(
  */
 export async function exportPoliciesToFile(
   file: string,
-  options: PolicyExportOptions = { useStringArrays: true, deps: true }
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicyOps.exportPoliciesToFile: begin`);
@@ -326,14 +334,20 @@ export async function exportPoliciesToFile(
 export async function exportPoliciesByPolicySetToFile(
   policySetId: string,
   file: string,
-  options: PolicyExportOptions = { useStringArrays: true, deps: true }
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicyOps.exportPoliciesToFile: begin`);
   showSpinner(`Exporting all policy sets...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(getRealmName(state.getRealm()))}Policies`,
+      `all${
+        titleCase(getRealmName(state.getRealm())) + titleCase(policySetId)
+      }Policies`,
       'policy.authz'
     );
     if (file) {
@@ -356,7 +370,11 @@ export async function exportPoliciesByPolicySetToFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesToFiles(
-  options: PolicyExportOptions = { useStringArrays: true, deps: true }
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
@@ -393,7 +411,11 @@ export async function exportPoliciesToFiles(
  */
 export async function exportPoliciesByPolicySetToFiles(
   policySetId: string,
-  options: PolicyExportOptions = { useStringArrays: true, deps: true }
+  options: PolicyExportOptions = {
+    deps: true,
+    prereqs: false,
+    useStringArrays: true,
+  }
 ): Promise<boolean> {
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
@@ -438,7 +460,7 @@ export async function exportPoliciesByPolicySetToFiles(
 export async function importPolicyFromFile(
   policyId: string,
   file: string,
-  options: PolicyImportOptions = { deps: true }
+  options: PolicyImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicyOps.importPolicyFromFile: begin`);
@@ -465,7 +487,7 @@ export async function importPolicyFromFile(
  */
 export async function importFirstPolicyFromFile(
   file: string,
-  options: PolicyImportOptions = { deps: true }
+  options: PolicyImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: begin`);
@@ -492,7 +514,7 @@ export async function importFirstPolicyFromFile(
  */
 export async function importPoliciesFromFile(
   file: string,
-  options: PolicyImportOptions = { deps: true }
+  options: PolicyImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicyOps.importPoliciesFromFile: begin`);
@@ -502,9 +524,21 @@ export async function importPoliciesFromFile(
     const fileData = JSON.parse(data);
     await importPolicies(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(
+      `Imported ${file}${
+        options.policySetName
+          ? ' into policy set ' + options.policySetName
+          : '.'
+      }`
+    );
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(
+      `Error importing ${file}${
+        options.policySetName
+          ? ' into policy set ' + options.policySetName
+          : '.'
+      }`
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicyOps.importPoliciesFromFile: end`);
@@ -517,7 +551,7 @@ export async function importPoliciesFromFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importPoliciesFromFiles(
-  options: PolicyImportOptions = { deps: true }
+  options: PolicyImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   const errors = [];
   try {
