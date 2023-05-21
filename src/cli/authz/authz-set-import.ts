@@ -37,9 +37,10 @@ program
   .addOption(
     new Option(
       '--no-deps',
-      'Do not include any dependencies (policies, scripts, resource types).'
+      'Do not include any dependencies (policies, scripts).'
     )
   )
+  .addOption(new Option('--prereqs', 'Include prerequisites (resource types).'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -56,6 +57,7 @@ program
         verboseMessage('Importing authorization policy set from file...');
         const outcome = importPolicySetFromFile(options.setId, options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -64,6 +66,7 @@ program
         verboseMessage('Importing all authorization policy sets from file...');
         const outcome = await importPolicySetsFromFile(options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -74,6 +77,7 @@ program
         );
         const outcome = await importPolicySetsFromFiles({
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -84,6 +88,7 @@ program
         );
         const outcome = await importFirstPolicySetFromFile(options.file, {
           deps: options.deps,
+          prereqs: options.prereqs,
         });
         if (!outcome) process.exitCode = 1;
       }
