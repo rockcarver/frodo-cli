@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2023-05-21
+
 ### Added
 
 -   Support for authorization policies, policy sets, and resource types through new `authz` commands:
+
     -   `frodo authz type`    Manage authorization resource types.
         -   `delete`          Delete authorization resource types.
         -   `describe`        Describe authorization resource types.
@@ -28,8 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         -   `export`          Export authorization policies.
         -   `import`          Import authorization policies.
         -   `list`            List authorization policies.
-    
+
     Examples:
+
     -   Export a whole policy set including policies and resource types:<br>
         `frodo authz set export -i <myPolicySet> <myTenant>`
     -   Import a whole policy set including dependencies exported using the previous example:<br>
@@ -40,9 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         `frodo authz policy export -a --set-id <myPolicySet> <myTenant>`
     -   Import all policies into another policy set in another tenant:<br>
         `frodo authz policy import -a --set-id <myOtherPolicySet> -f <>.policy.authz.json <myOtherTenant>`<br>
-        ***Note***: Policy IDs/names have to be unique within the realm. Therefore you cannot export all policies from one policy set and import them into another policy set in the same realm without deleting the original policy set first.
+        **_Note_**: Policy IDs/names have to be unique within the realm. Therefore you cannot export all policies from one policy set and import them into another policy set in the same realm without deleting the original policy set first.
 
     Notes:
+
     -   Use the new `--prereqs` option with the `authz set/policy import/export` commands to include structural prerequisites like resource types and policy sets.
     -   Use the new `--json` option with all `describe` sub-commands:<br>
         `frodo authz type describe --json -n URL <myTenant>`<br>
@@ -1165,7 +1170,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-8...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.0...HEAD
+
+[0.24.0]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-8...v0.24.0
 
 [0.23.1-8]: https://github.com/rockcarver/frodo-cli/compare/v0.23.1-7...v0.23.1-8
 
