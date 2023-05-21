@@ -32,6 +32,8 @@ const {
   exportPolicies,
   exportPoliciesByPolicySet,
   importPolicy,
+  importFirstPolicy,
+  importPolicies,
 } = Policy;
 const { getRealmName } = Utils;
 
@@ -427,8 +429,8 @@ export async function exportPoliciesByPolicySetToFiles(
 }
 
 /**
- * Import policy set from file
- * @param {string} policyId policy set name
+ * Import policy from file
+ * @param {string} policyId policy id/name
  * @param {string} file file name
  * @param {PolicyImportOptions} options import options
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -453,4 +455,101 @@ export async function importPolicyFromFile(
   }
   debugMessage(`cli.PolicyOps.importPolicyFromFile: end`);
   return outcome;
+}
+
+/**
+ * Import first policy from file
+ * @param {string} file file name
+ * @param {PolicyImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importFirstPolicyFromFile(
+  file: string,
+  options: PolicyImportOptions = { deps: true }
+): Promise<boolean> {
+  let outcome = false;
+  debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: begin`);
+  showSpinner(`Importing ${file}...`);
+  try {
+    const data = fs.readFileSync(file, 'utf8');
+    const fileData = JSON.parse(data);
+    await importFirstPolicy(fileData, options);
+    outcome = true;
+    succeedSpinner(`Imported ${file}.`);
+  } catch (error) {
+    failSpinner(`Error importing ${file}.`);
+    printMessage(error, 'error');
+  }
+  debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: end`);
+  return outcome;
+}
+
+/**
+ * Import policies from file
+ * @param {string} file file name
+ * @param {PolicyImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importPoliciesFromFile(
+  file: string,
+  options: PolicyImportOptions = { deps: true }
+): Promise<boolean> {
+  let outcome = false;
+  debugMessage(`cli.PolicyOps.importPoliciesFromFile: begin`);
+  showSpinner(`Importing ${file}...`);
+  try {
+    const data = fs.readFileSync(file, 'utf8');
+    const fileData = JSON.parse(data);
+    await importPolicies(fileData, options);
+    outcome = true;
+    succeedSpinner(`Imported ${file}.`);
+  } catch (error) {
+    failSpinner(`Error importing ${file}.`);
+    printMessage(error, 'error');
+  }
+  debugMessage(`cli.PolicyOps.importPoliciesFromFile: end`);
+  return outcome;
+}
+
+/**
+ * Import policies from files
+ * @param {PolicyImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importPoliciesFromFiles(
+  options: PolicyImportOptions = { deps: true }
+): Promise<boolean> {
+  const errors = [];
+  try {
+    debugMessage(`cli.PolicyOps.importPoliciesFromFiles: begin`);
+    const names = fs.readdirSync('.');
+    const files = names.filter((name) =>
+      name.toLowerCase().endsWith('.policy.authz.json')
+    );
+    createProgressBar(files.length, 'Importing policies...');
+    let total = 0;
+    for (const file of files) {
+      try {
+        const data = fs.readFileSync(file, 'utf8');
+        const fileData: PolicyExportInterface = JSON.parse(data);
+        const count = Object.keys(fileData.policyset).length;
+        total += count;
+        await importPolicies(fileData, options);
+        updateProgressBar(`Imported ${count} policies from ${file}`);
+      } catch (error) {
+        errors.push(error);
+        updateProgressBar(`Error importing policies from ${file}`);
+        printMessage(error, 'error');
+      }
+    }
+    stopProgressBar(
+      `Finished importing ${total} policies from ${files.length} files.`
+    );
+  } catch (error) {
+    errors.push(error);
+    stopProgressBar(`Error importing policies from files.`);
+    printMessage(error, 'error');
+  }
+  debugMessage(`cli.PolicyOps.importPoliciesFromFiles: end`);
+  return 0 === errors.length;
 }
