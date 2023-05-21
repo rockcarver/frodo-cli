@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Update to frodo-lib 0.19.1
+-   Update dependencies
 -   Changes based on rockcarver/frodo-lib#234 (code refactoring) and updated frodo-lib:
     -   Added support for `-A` and `-a` options to `frodo app import` command
     -   Added support for `--no-deps` option to `frodo app export` and `frodo app import` commands
