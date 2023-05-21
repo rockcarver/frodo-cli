@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Support for authorization policies, policy sets, and resource types through new `authz` commands:
+    -   `frodo authz type`    Manage authorization resource types.
+        -   `delete`          Delete authorization resource types.
+        -   `describe`        Describe authorization resource types.
+        -   `export`          Export authorization resource types.
+        -   `import`          Import authorization resource types.
+        -   `list`            List authorization resource types.
+    -   `frodo authz set`     Manage authorization policy sets.
+        -   `delete`          Delete authorization policy sets.
+        -   `describe`        Describe authorization policy sets.
+        -   `export`          Export authorization policy sets.
+        -   `import`          Import authorization policy sets.
+        -   `list`            List authorization policy sets.
+    -   `frodo authz policy`  Manage authorization policies.
+        -   `delete`          Delete authorization policies.
+        -   `describe`        Describe authorization policies.
+        -   `export`          Export authorization policies.
+        -   `import`          Import authorization policies.
+        -   `list`            List authorization policies.
+    
+    Examples:
+    -   Export a whole policy set including policies and resource types:<br>
+        `frodo authz set export -i <myPolicySet> <myTenant>`
+    -   Import a whole policy set including dependencies exported using the previous example:<br>
+        `frodo authz set import -f <myPolicySet>.policyset.authz.json <myTenant>`
+    -   Remove a whole policy set with all its policies:<br>
+        `frodo authz set delete -i <myPolicySet> <myTenant>`
+    -   Export all policies in a policy set including dependencies:<br>
+        `frodo authz policy export -a --set-id <myPolicySet> <myTenant>`
+    -   Import all policies into another policy set in another tenant:<br>
+        `frodo authz policy import -a --set-id <myOtherPolicySet> -f <>.policy.authz.json <myOtherTenant>`<br>
+        ***Note***: Policy IDs/names have to be unique within the realm. Therefore you cannot export all policies from one policy set and import them into another policy set in the same realm without deleting the original policy set first.
+
+    Notes:
+    -   Use the new `--prereqs` option with the `authz set/policy import/export` commands to include structural prerequisites like resource types and policy sets.
+    -   Use the new `--json` option with all `describe` sub-commands:<br>
+        `frodo authz type describe --json -n URL <myTenant>`<br>
+        `frodo authz type describe --json -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 <myTenant>`<br>
+        `frodo authz set describe --json -i <myPolicySet> <myTenant>`<br>
+        `frodo authz policy describe --json -i <myPolicy> <myTenant>`
+
+### Changed
+
+-   Update to frodo-lib 0.19.1
+-   Changes based on rockcarver/frodo-lib#234 (code refactoring) and updated frodo-lib:
+    -   Added support for `-A` and `-a` options to `frodo app import` command
+    -   Added support for `--no-deps` option to `frodo app export` and `frodo app import` commands
+
+### Fixed
+
+-   \#214: Fixed a regression introduced in #186, which 'swallowed' `frodo` command exit codes and resulted in always exiting with 0 even if a `frodo` command returned with a different exit code.
+
 ## [0.23.1-8] - 2023-05-21
 
 ## [0.23.1-7] - 2023-05-18
@@ -29,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Changes based on rockcarver/frodo-lib#234 (code refactoring) and updated frodo-lib:
     -   Added support for `-A` and `-a` options to `frodo app import` command
     -   Added support for `--no-deps` option to `frodo app export` and `frodo app import` commands
+-   \#213: More debug logging for connection profile lookup by a unique substring. Use --debug to see the additional output. This is not yet a solution for #213 but should help identify the root cause.
+-   \#216: More debug logging for the 2fa process and proper detection of unsupported webauthn factor.
 
 ### Fixed
 
