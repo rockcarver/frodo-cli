@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 16, 14]
+        node-version: [20, 18, 16, 14]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Service containers to run with `smoke-tests`
@@ -278,7 +278,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 18
 
       - name: Install dependencies
         run: |
@@ -456,7 +456,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        node-version: [16]
+        node-version: [18]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - name: Checkout repository
