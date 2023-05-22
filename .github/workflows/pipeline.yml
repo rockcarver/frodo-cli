@@ -309,7 +309,7 @@ jobs:
           npm dist-tag add @rockcarver/frodo-cli@${{ needs.bump-version.outputs.newVersion }} next
 
   macos-binary-release:
-    needs: [bump-version, release]
+    needs: [bump-version, release, npm-release]
     runs-on: macos-latest
     strategy:
       matrix:
@@ -402,7 +402,7 @@ jobs:
           files: dist/frodo-macos-${{ needs.release.outputs.newVersion }}.zip
 
   linux-binary-release:
-    needs: [bump-version, release]
+    needs: [bump-version, release, npm-release]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -452,7 +452,7 @@ jobs:
           files: dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
-    needs: [bump-version, release]
+    needs: [bump-version, release, npm-release]
     runs-on: self-hosted
     strategy:
       matrix:
@@ -502,7 +502,7 @@ jobs:
           files: dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip
 
   windows-binary-release:
-    needs: [bump-version, release]
+    needs: [bump-version, release, npm-release]
     runs-on: windows-latest
     strategy:
       matrix:
