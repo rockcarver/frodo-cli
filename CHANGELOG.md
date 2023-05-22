@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.1-0] - 2023-05-22
+
 ### Added
 
 -   Support for authorization policies, policy sets, and resource types through new `authz` commands:
@@ -1170,7 +1172,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.1...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.1-0...HEAD
+
+[0.24.1-0]: https://github.com/rockcarver/frodo-cli/compare/v0.24.1...v0.24.1-0
 
 [0.24.1]: https://github.com/rockcarver/frodo-cli/compare/v0.24.0...v0.24.1
 
