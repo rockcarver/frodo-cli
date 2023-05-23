@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.24.1] - 2023-05-22
+## [0.24.2] - 2023-05-22
 
 ### Added
 
@@ -66,6 +66,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   \#214: Fixed a regression introduced in #186, which 'swallowed' `frodo` command exit codes and resulted in always exiting with 0 even if a `frodo` command returned with a different exit code.
+
+## [0.24.1] - 2023-05-22 [YANKED]
+
+## [0.24.1-0] - 2023-05-22 [YANKED]
 
 ## [0.24.0] - 2023-05-21 [YANKED]
 
