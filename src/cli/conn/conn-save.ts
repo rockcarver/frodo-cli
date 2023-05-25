@@ -3,14 +3,13 @@ import { Option } from 'commander';
 import {
   Authenticate,
   ConnectionProfile,
-  Log,
   ServiceAccount,
   state,
   constants,
 } from '@rockcarver/frodo-lib';
-const { provisionCreds } = Log;
 import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
+import { provisionCreds } from '../../ops/LogOps';
 
 const { getTokens } = Authenticate;
 const { saveConnectionProfile, addNewServiceAccount } = ConnectionProfile;
