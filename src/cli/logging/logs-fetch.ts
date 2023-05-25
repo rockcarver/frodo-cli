@@ -9,8 +9,9 @@ import {
 } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
+import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 
-const { provisionCreds, fetchLogs, resolveLevel } = Log;
+const { resolveLevel } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
 const { getTokens } = Authenticate;
 
