@@ -4,7 +4,7 @@ import { Log } from '@rockcarver/frodo-lib';
 
 import { printMessage } from './Console';
 
-const { defaultNoiseFilter } = Log;
+const { getDefaultNoiseFilter } = Log;
 
 export const FRODO_CONFIG_PATH_KEY = 'FRODO_CONFIG_PATH';
 export const FRODO_LOG_NOISEFILTER_FILENAME = 'LoggingNoiseFilter.json';
@@ -29,12 +29,12 @@ export function getNoiseFilters(defaults: boolean): Array<string> {
   const filename = `${getConfigPath()}/${FRODO_LOG_NOISEFILTER_FILENAME}`;
   if (defaults) {
     printMessage(`Using default logging noise filters.`, 'info');
-    return defaultNoiseFilter();
+    return getDefaultNoiseFilter();
   }
   let noiseFilter = getCustomNoiseFilters();
   if (noiseFilter.length == 0) {
     printMessage(`No custom noise filters defined. Using defaults.`, 'info');
-    noiseFilter = defaultNoiseFilter();
+    noiseFilter = getDefaultNoiseFilter();
     try {
       fs.writeFileSync(filename, JSON.stringify(noiseFilter, null, 2));
       printMessage(

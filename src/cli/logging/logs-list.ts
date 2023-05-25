@@ -6,8 +6,9 @@ import {
   state,
 } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
+import { provisionCreds } from '../../ops/LogOps';
 
-const { provisionCreds, getLogSources } = Log;
+const { getLogSources } = Log;
 const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
 const { getTokens } = Authenticate;
 
