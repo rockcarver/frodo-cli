@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.4] - 2023-05-30
+
 ### Added
 
-- Build pipeline for automatically updating homebrew formula for frodo-cli
+-   Build pipeline for automatically updating homebrew formula for frodo-cli
 
 ## [0.24.4-2] - 2023-05-30
 
@@ -1192,7 +1194,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.4-2...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.4...HEAD
+
+[0.24.4]: https://github.com/rockcarver/frodo-cli/compare/v0.24.4-2...v0.24.4
 
 [0.24.4-2]: https://github.com/rockcarver/frodo-cli/compare/v0.24.4-1...v0.24.4-2
 
