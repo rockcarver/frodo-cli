@@ -308,6 +308,23 @@ jobs:
           npm whoami
           npm dist-tag add @rockcarver/frodo-cli@${{ needs.bump-version.outputs.newVersion }} next
 
+  homebrew-formula-update:
+    name: Bump Homebrew formula
+    needs: [bump-version, release, npm-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v2
+        if: "!contains(github.ref, '-')"
+        with:
+          formula-name: frodo-cli
+          formula-path: Formula/frodo-cli.rb
+          homebrew-tap: rockcarver/homebrew-frodo-cli
+          push-to: rockcarver/homebrew-frodo-cli
+          tag-name: ${{ needs.bump-version.outputs.newTag }}
+          download-url: https://github.com/rockcarver/frodo-cli.git
+        env:
+          COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
+
   macos-binary-release:
     needs: [bump-version, release, npm-release]
     runs-on: macos-latest
