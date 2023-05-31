@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Fixed build pipeline for automatically updating homebrew formula
+
 ## [0.24.4] - 2023-05-30
 
 ### Added
