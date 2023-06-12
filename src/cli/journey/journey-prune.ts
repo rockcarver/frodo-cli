@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
-const { getTokens } = Authenticate;
-const { findOrphanedNodes, removeOrphanedNodes } = Journey;
+const { getTokens } = frodo.login;
+const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey prune');
 

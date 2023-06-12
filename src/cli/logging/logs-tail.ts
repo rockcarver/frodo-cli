@@ -1,19 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { sourcesOptionM } from './logs';
 import { Option } from 'commander';
-import {
-  Authenticate,
-  ConnectionProfile,
-  Log,
-  state,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 import { provisionCreds, tailLogs } from '../../ops/LogOps';
 
-const { resolveLevel } = Log;
-const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
-const { getTokens } = Authenticate;
+const { resolveLevel } = frodo.cloud.log;
+const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo logs tail', ['realm', 'type']);
 program
@@ -64,8 +59,8 @@ Following values are possible (values on the same line are equivalent): \
         }
         if (await getTokens(true)) {
           const creds = await provisionCreds();
-          state.setLogApiKey(creds.api_key_id);
-          state.setLogApiSecret(creds.api_key_secret);
+          state.setLogApiKey(creds.api_key_id as string);
+          state.setLogApiSecret(creds.api_key_secret as string);
         }
       }
       printMessage(

@@ -1,4 +1,4 @@
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 
 // commands
@@ -24,8 +24,6 @@ import theme from './cli/theme/theme';
 import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
 
-const { initConnectionProfiles } = ConnectionProfile;
-
 (async () => {
   try {
     const program = new Command('frodo').version(
@@ -35,7 +33,7 @@ const { initConnectionProfiles } = ConnectionProfile;
 
     printMessage(await getVersions(true), 'text', false);
 
-    await initConnectionProfiles();
+    await frodo.conn.initConnectionProfiles();
 
     program.addCommand(admin());
     program.addCommand(agent());

@@ -1,7 +1,7 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 
-const { deleteConnectionProfile } = ConnectionProfile;
+const { deleteConnectionProfile } = frodo.conn;
 
 const program = new FrodoCommand('frodo conn delete', [
   'realm',

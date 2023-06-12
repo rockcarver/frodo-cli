@@ -1,19 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import {
-  Authenticate,
-  ConnectionProfile,
-  ServiceAccount,
-  state,
-  constants,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 
-const { getTokens } = Authenticate;
-const { saveConnectionProfile, addNewServiceAccount } = ConnectionProfile;
-const { isServiceAccountsFeatureAvailable } = ServiceAccount;
+const { getTokens } = frodo.login;
+const { saveConnectionProfile, addNewServiceAccount } = frodo.conn;
+const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
+const constants = frodo.helper.constants;
 
 const program = new FrodoCommand('frodo conn save', ['realm']);
 
@@ -165,8 +160,8 @@ program
           else if (!state.getLogApiKey()) {
             try {
               const creds = await provisionCreds();
-              state.setLogApiKey(creds.api_key_id);
-              state.setLogApiSecret(creds.api_key_secret);
+              state.setLogApiKey(creds.api_key_id as string);
+              state.setLogApiSecret(creds.api_key_secret as string);
               printMessage(
                 `Created log API key ${creds.api_key_id} and secret.`
               );

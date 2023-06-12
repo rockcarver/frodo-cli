@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { grantOAuth2ClientAdminPrivileges } = Admin;
+const { getTokens } = frodo.login;
+const { grantOAuth2ClientAdminPrivileges } = frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin grant-oauth2-client-admin-privileges'

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { ResourceType, Utils, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressBar,
@@ -33,8 +33,8 @@ const {
   importResourceTypeByName,
   importFirstResourceType,
   importResourceTypes,
-} = ResourceType;
-const { getRealmName } = Utils;
+} = frodo.authz.resourceType;
+const { getRealmName } = frodo.helper.utils;
 
 /**
  * List resource types

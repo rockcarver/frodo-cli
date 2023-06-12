@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Theme, ExportImportUtils } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   printMessage,
@@ -20,8 +20,8 @@ const {
   deleteTheme,
   deleteThemeByName,
   deleteThemes,
-} = Theme;
-const { getRealmString, validateImport } = ExportImportUtils;
+} = frodo.theme;
+const { getRealmString, validateImport } = frodo.utils.impex;
 /**
  * Get a one-line description of the theme
  * @param {ThemeSkeleton} themeObj theme object to describe

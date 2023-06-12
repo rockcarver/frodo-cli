@@ -1,17 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
-  exportRawSaml2ProvidersToFile,
-  exportRawSaml2ProvidersToFiles,
-  exportRawSaml2ProviderToFile,
   exportSaml2ProviderToFile,
   exportSaml2ProvidersToFile,
   exportSaml2ProvidersToFiles,
 } from '../../ops/Saml2Ops';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml export');
 
@@ -41,7 +38,6 @@ program
       'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
     )
   )
-  .addOption(new Option('--raw', 'Include raw XML in export.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -55,41 +51,22 @@ program
       );
       // export by id/name
       if (options.entityId && (await getTokens())) {
-        if (!options.raw) {
-          verboseMessage(
-            `Exporting provider "${
-              options.entityId
-            }" from realm "${state.getRealm()}"...`
-          );
-          await exportSaml2ProviderToFile(options.entityId, options.file);
-        } else {
-          verboseMessage(
-            `Exporting raw provider "${
-              options.entityId
-            }" from realm "${state.getRealm()}"...`
-          );
-          await exportRawSaml2ProviderToFile(options.entityId, options.file);
-        }
+        verboseMessage(
+          `Exporting provider "${
+            options.entityId
+          }" from realm "${state.getRealm()}"...`
+        );
+        await exportSaml2ProviderToFile(options.entityId, options.file);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
-        if (!options.raw) {
-          verboseMessage('Exporting all providers to a single file...');
-          await exportSaml2ProvidersToFile(options.file);
-        } else {
-          verboseMessage('Exporting all providers raw to a single file...');
-          await exportRawSaml2ProvidersToFile(options.file);
-        }
+        verboseMessage('Exporting all providers to a single file...');
+        await exportSaml2ProvidersToFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
-        if (!options.raw) {
-          verboseMessage('Exporting all providers to separate files...');
-          await exportSaml2ProvidersToFiles();
-        } else {
-          verboseMessage('Exporting all providers raw to separate files...');
-          await exportRawSaml2ProvidersToFiles();
-        }
+        verboseMessage('Exporting all providers to separate files...');
+        await exportSaml2ProvidersToFiles();
       }
       // unrecognized combination of options or no options
       else {

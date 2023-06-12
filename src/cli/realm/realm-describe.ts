@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Realm, Utils, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { describeRealm } from '../../ops/RealmOps';
 
-const { getRealmName } = Utils;
-const { getTokens } = Authenticate;
-const { describe } = Realm;
+const { getRealmName } = frodo.helper.utils;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo realm describe');
 
@@ -21,7 +21,7 @@ program.description('Describe realms.').action(
     );
     if (await getTokens()) {
       verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
-      describe(getRealmName(state.getRealm()));
+      describeRealm(getRealmName(state.getRealm()));
     } else {
       process.exitCode = 1;
     }

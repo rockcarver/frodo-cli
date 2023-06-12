@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Realm } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { listRealms } from '../../ops/RealmOps';
 
-const { listRealms } = Realm;
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo realm list');
 

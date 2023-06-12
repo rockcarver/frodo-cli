@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Agent, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { deleteWebAgent, deleteWebAgents } = Agent;
+const { getTokens } = frodo.login;
+const { deleteWebAgent, deleteWebAgents } = frodo.agent;
 
 const program = new FrodoCommand('frodo agent web delete');
 
