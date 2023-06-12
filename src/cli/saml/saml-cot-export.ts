@@ -1,14 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-const {
-  exportCircleOfTrust,
+import {
+  exportCircleOfTrustToFile,
   exportCirclesOfTrustToFile,
   exportCirclesOfTrustToFiles,
-} = CirclesOfTrust;
+} from '../../ops/CirclesOfTrustOps';
+
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml cot export');
 
@@ -56,17 +56,20 @@ program
             options.cotId
           }" from realm "${state.getRealm()}"...`
         );
-        exportCircleOfTrust(options.cotId, options.file);
+        const outcome = exportCircleOfTrustToFile(options.cotId, options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to a single file...');
-        exportCirclesOfTrustToFile(options.file);
+        const outcome = exportCirclesOfTrustToFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to separate files...');
-        exportCirclesOfTrustToFiles();
+        const outcome = exportCirclesOfTrustToFiles();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

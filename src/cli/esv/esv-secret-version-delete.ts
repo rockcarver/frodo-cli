@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Secrets } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { deleteVersionOfSecret } from '../../ops/SecretsOps';
 
-const { getTokens } = Authenticate;
-const { deleteVersionOfSecretCmd } = Secrets;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv secret version delete');
 
@@ -34,7 +34,7 @@ program
       // delete by id
       if (options.secretId && options.version && (await getTokens())) {
         verboseMessage(`Deleting version of secret...`);
-        deleteVersionOfSecretCmd(options.secretId, options.version);
+        deleteVersionOfSecret(options.secretId, options.version);
       }
       // --all -a
       // else if (options.all && (await getTokens())) {

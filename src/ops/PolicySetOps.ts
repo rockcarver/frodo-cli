@@ -3,7 +3,7 @@ import {
   PolicySetSkeleton,
   PolicySkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Policy, PolicySet, Utils, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressBar,
@@ -35,9 +35,9 @@ const {
   importPolicySet,
   importFirstPolicySet,
   importPolicySets,
-} = PolicySet;
-const { getPoliciesByPolicySet, deletePolicy } = Policy;
-const { getRealmName } = Utils;
+} = frodo.authz.policySet;
+const { getPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
+const { getRealmName } = frodo.helper.utils;
 
 /**
  * List policy sets

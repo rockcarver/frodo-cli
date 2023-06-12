@@ -1,6 +1,6 @@
 import { LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { printMessage, verboseMessage } from '../utils/Console';
-import { Log, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 
 const {
   getDefaultNoiseFilter,
@@ -8,8 +8,8 @@ const {
   fetch,
   getLogApiKeys,
   resolvePayloadLevel,
-  createAPIKeyAndSecret,
-} = Log;
+  createLogApiKeyAndSecret,
+} = frodo.cloud.log;
 
 export async function tailLogs(
   source: string,
@@ -64,7 +64,7 @@ export async function provisionCreds() {
         }
       }
       try {
-        const resp = await createAPIKeyAndSecret(keyName);
+        const resp = await createLogApiKeyAndSecret(keyName);
         if (resp.name !== keyName) {
           printMessage(
             `create keys ERROR: could not create log API key ${keyName}`,

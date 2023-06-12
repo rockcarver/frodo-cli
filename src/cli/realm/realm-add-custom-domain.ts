@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Realm, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { addCustomDomain } from '../../ops/RealmOps';
 
-const { getTokens } = Authenticate;
-const { addCustomDomain } = Realm;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo realm add-custom-domain');
 

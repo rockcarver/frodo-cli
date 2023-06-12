@@ -2,11 +2,12 @@ import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
 import Table from 'cli-table3';
-import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { createLongLivedToken, createOAuth2ClientWithAdminPrivileges } = Admin;
+const { getTokens } = frodo.login;
+const { createLongLivedToken, createOAuth2ClientWithAdminPrivileges } =
+  frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin create-oauth2-client-with-admin-privileges'

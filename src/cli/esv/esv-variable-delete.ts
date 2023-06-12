@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Variables } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { deleteVariable, deleteVariables } from '../../ops/VariablesOps';
 
-const { getTokens } = Authenticate;
-const { deleteVariableCmd, deleteVariablesCmd } = Variables;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo cmd sub2 delete');
 
@@ -39,12 +39,12 @@ program
       // delete by id
       if (options.variableId && (await getTokens())) {
         verboseMessage('Deleting variable...');
-        deleteVariableCmd(options.variableId);
+        deleteVariable(options.variableId);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all variables...');
-        deleteVariablesCmd();
+        deleteVariables();
       }
       // unrecognized combination of options or no options
       else {
