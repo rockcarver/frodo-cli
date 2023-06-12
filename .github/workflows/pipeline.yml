@@ -3,7 +3,7 @@ name: 'Frodo CLI Release Pipeline'
 on:
   push:
     branches:
-      - 'main'
+      - 'next'
 
 jobs:
   smoke-tests:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 18, 16, 14]
+        node-version: [20, 18, 16]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Service containers to run with `smoke-tests`
