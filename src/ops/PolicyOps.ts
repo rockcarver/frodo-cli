@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Policy, Utils, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressBar,
@@ -34,8 +34,8 @@ const {
   importPolicy,
   importFirstPolicy,
   importPolicies,
-} = Policy;
-const { getRealmName } = Utils;
+} = frodo.authz.policy;
+const { getRealmName } = frodo.helper.utils;
 
 /**
  * List policies

@@ -3,7 +3,8 @@ import {
   NodeRefSkeletonInterface,
   NodeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Node, Types } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
+import { NodeClassification } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 /**
  * Get node classification
@@ -11,18 +12,18 @@ import { Node, Types } from '@rockcarver/frodo-lib';
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassification(nodeType: string): string[] {
-  return Node.getNodeClassification(nodeType).map((it) => {
+  return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case Types.NodeClassification.STANDARD:
+      case NodeClassification.STANDARD:
         return it.toString()['brightGreen'];
 
-      case Types.NodeClassification.CLOUD:
+      case NodeClassification.CLOUD:
         return it.toString()['brightMagenta'];
 
-      case Types.NodeClassification.CUSTOM:
+      case NodeClassification.CUSTOM:
         return it.toString()['brightRed'];
 
-      case Types.NodeClassification.PREMIUM:
+      case NodeClassification.PREMIUM:
         return it.toString()['brightYellow'];
     }
   });
@@ -34,18 +35,18 @@ export function getNodeClassification(nodeType: string): string[] {
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassificationMd(nodeType: string): string[] {
-  return Node.getNodeClassification(nodeType).map((it) => {
+  return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case Types.NodeClassification.STANDARD:
+      case NodeClassification.STANDARD:
         return `:green_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.CLOUD:
+      case NodeClassification.CLOUD:
         return `:purple_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.CUSTOM:
+      case NodeClassification.CUSTOM:
         return `:red_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.PREMIUM:
+      case NodeClassification.PREMIUM:
         return `:yellow_circle: \`${it.toString()}\``;
     }
   });

@@ -1,14 +1,11 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Info, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   printMessage,
   verboseMessage,
 } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-const { getInfo } = Info;
 
 export default function setup() {
   const info = new FrodoCommand('info', ['realm']);
@@ -22,8 +19,8 @@ export default function setup() {
     )
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-      if (await getTokens()) {
-        const info = await getInfo();
+      if (await frodo.login.getTokens()) {
+        const info = await frodo.info.getInfo();
         if (!options.scriptFriendly) {
           verboseMessage('Printing info, versions, and tokens...');
           delete info.sessionToken;

@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Secrets } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
+import { setSecretDescription } from '../../ops/SecretsOps';
 
-const { getTokens } = Authenticate;
-const { setDescriptionOfSecret } = Secrets;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv secret set');
 
@@ -25,7 +25,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Setting secret description...');
-        setDescriptionOfSecret(options.secretId, options.description);
+        setSecretDescription(options.secretId, options.description);
       } else {
         process.exitCode = 1;
       }

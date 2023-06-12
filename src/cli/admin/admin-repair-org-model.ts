@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { repairOrgModel } = Admin;
+const { getTokens } = frodo.login;
+const { repairOrgModel } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin repair-org-model');
 

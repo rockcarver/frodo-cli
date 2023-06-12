@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Admin } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { removeStaticUserMapping } = Admin;
+const { getTokens } = frodo.login;
+const { removeStaticUserMapping } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin remove-static-user-mapping');
 

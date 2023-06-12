@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Variables } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { setVariableDescription, updateVariable } from '../../ops/VariablesOps';
 
-const { getTokens } = Authenticate;
-const { setDescriptionOfVariable, updateVariable } = Variables;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv variable set');
 
@@ -37,7 +37,7 @@ program
         (await getTokens())
       ) {
         verboseMessage('Updating variable...');
-        setDescriptionOfVariable(options.variableId, options.description);
+        setVariableDescription(options.variableId, options.description);
       }
       // unrecognized combination of options or no options
       else {

@@ -5,7 +5,7 @@ import path from 'path';
 import propertiesReader from 'properties-reader';
 import replaceall from 'replaceall';
 
-import { Idm, Utils, ValidationUtils } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printMessage,
@@ -13,15 +13,15 @@ import {
 } from '../utils/Console';
 import { getTypedFilename } from '../utils/ExportImportUtils';
 
-const { readFiles, unSubstituteEnvParams } = Utils;
-const { validateScriptHooks } = ValidationUtils;
+const { readFiles, unSubstituteEnvParams } = frodo.helper.utils;
+const { validateScriptHooks } = frodo.helper.script;
 const {
   getAllConfigEntities,
   getConfigEntity,
   putConfigEntity,
   queryAllManagedObjectsByType,
   testConnectorServers,
-} = Idm;
+} = frodo.idm.config;
 
 /**
  * Warn about and list offline remote connector servers
@@ -266,10 +266,10 @@ export async function importConfigEntityByIdFromFile(
     file = getTypedFilename(entityId, 'idm');
   }
 
-  const entityData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
 
-  const jsObject = JSON.parse(entityData);
-  const isValid = validateScriptHooks(jsObject);
+  const entityData = JSON.parse(fileData);
+  const isValid = validateScriptHooks(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
@@ -292,17 +292,17 @@ export async function importConfigEntityFromFile(
   file: string,
   validate?: boolean
 ) {
-  const importData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
-  const jsObject = JSON.parse(importData);
-  const entityId = jsObject._id;
-  const isValid = validateScriptHooks(jsObject);
+  const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const entityData = JSON.parse(fileData);
+  const entityId = entityData._id;
+  const isValid = validateScriptHooks(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
   }
 
   try {
-    await putConfigEntity(entityId, importData);
+    await putConfigEntity(entityId, entityData);
   } catch (putConfigEntityError) {
     printMessage(putConfigEntityError, 'error');
     printMessage(`Error: ${putConfigEntityError}`, 'error');

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { EmailTemplate, ExportImportUtils } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 import {
   createProgressIndicator,
@@ -16,15 +16,12 @@ import {
 import wordwrap from './utils/Wordwrap';
 import path from 'path';
 import { cloneDeep } from './utils/OpsUtils';
+import { EMAIL_TEMPLATE_TYPE } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
-const {
-  EMAIL_TEMPLATE_TYPE,
-  getEmailTemplate,
-  getEmailTemplates,
-  putEmailTemplate,
-} = EmailTemplate;
-const { validateImport } = ExportImportUtils;
+const { getEmailTemplate, getEmailTemplates, putEmailTemplate } =
+  frodo.email.template;
+const { validateImport } = frodo.utils.impex;
 
 const regexEmailTemplateType = new RegExp(`${EMAIL_TEMPLATE_TYPE}/`, 'g');
 

@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
-const { getTokens } = Authenticate;
-const { deleteJourney, deleteJourneys } = Journey;
+const { getTokens } = frodo.login;
+const { deleteJourney, deleteJourneys } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey delete');
 

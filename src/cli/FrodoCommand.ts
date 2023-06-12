@@ -92,12 +92,13 @@ const defaultOpts = [
 ];
 
 const stateMap = {
-  [hostArgument.name()]: state.setHost,
-  [realmArgument.name()]: state.setRealm,
-  [usernameArgument.name()]: state.setUsername,
-  [passwordArgument.name()]: state.setPassword,
-  [serviceAccountIdOption.attributeName()]: state.setServiceAccountId,
-  [serviceAccountJwkFileOption.attributeName()]: (file) => {
+  [hostArgument.name()]: (host: string) => state.setHost(host),
+  [realmArgument.name()]: (realm: string) => state.setRealm(realm),
+  [usernameArgument.name()]: (username: string) => state.setUsername(username),
+  [passwordArgument.name()]: (password: string) => state.setPassword(password),
+  [serviceAccountIdOption.attributeName()]: (saId: string) =>
+    state.setServiceAccountId(saId),
+  [serviceAccountJwkFileOption.attributeName()]: (file: string) => {
     try {
       const data = fs.readFileSync(file);
       const jwk = JSON.parse(data.toString());
@@ -109,11 +110,15 @@ const stateMap = {
       );
     }
   },
-  [deploymentOption.attributeName()]: state.setDeploymentType,
-  [insecureOption.attributeName()]: state.setAllowInsecureConnection,
-  [verboseOption.attributeName()]: state.setVerbose,
-  [debugOption.attributeName()]: state.setDebug,
-  [curlirizeOption.attributeName()]: state.setCurlirize,
+  [deploymentOption.attributeName()]: (type: string) =>
+    state.setDeploymentType(type),
+  [insecureOption.attributeName()]: (insecure: boolean) =>
+    state.setAllowInsecureConnection(insecure),
+  [verboseOption.attributeName()]: (verbose: boolean) =>
+    state.setVerbose(verbose),
+  [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
+  [curlirizeOption.attributeName()]: (curlirize: boolean) =>
+    state.setCurlirize(curlirize),
 };
 
 /**

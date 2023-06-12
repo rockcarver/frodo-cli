@@ -1,6 +1,6 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import {
   importJourneyFromFile,
   importJourneysFromFile,
@@ -9,7 +9,7 @@ import {
 } from '../../ops/JourneyOps';
 import { printMessage } from '../../utils/Console';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo journey import');
 

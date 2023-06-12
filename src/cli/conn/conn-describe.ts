@@ -1,8 +1,6 @@
+import { describeConnectionProfile } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
-
-const { describeConnectionProfile } = ConnectionProfile;
 
 const program = new FrodoCommand('frodo conn describe', [
   'realm',

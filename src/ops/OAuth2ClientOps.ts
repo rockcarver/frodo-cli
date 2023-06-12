@@ -1,10 +1,5 @@
 import fs from 'fs';
-import {
-  OAuth2Client,
-  ExportImportUtils,
-  Utils,
-  state,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   createTable,
@@ -23,7 +18,7 @@ import {
   OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 
-const { getTypedFilename, titleCase } = ExportImportUtils;
+const { getTypedFilename, titleCase } = frodo.utils.impex;
 const {
   getOAuth2Clients,
   exportOAuth2Client,
@@ -31,8 +26,8 @@ const {
   importOAuth2Client,
   importFirstOAuth2Client,
   importOAuth2Clients,
-} = OAuth2Client;
-const { getRealmName } = Utils;
+} = frodo.oauth2oidc.client;
+const { getRealmName } = frodo.helper.utils;
 
 /**
  * List OAuth2 clients
