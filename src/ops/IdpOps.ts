@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Idp } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   failSpinner,
@@ -23,7 +23,7 @@ const {
   importSocialProvider,
   importFirstSocialProvider,
   importSocialProviders,
-} = Idp;
+} = frodo.oauth2oidc.external;
 
 /**
  * Get a one-line description of the social idp object

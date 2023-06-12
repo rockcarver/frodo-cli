@@ -1,19 +1,14 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { sourcesOptionM } from './logs';
 import { Option } from 'commander';
-import {
-  Authenticate,
-  ConnectionProfile,
-  Log,
-  state,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 
-const { resolveLevel } = Log;
-const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
-const { getTokens } = Authenticate;
+const { resolveLevel } = frodo.cloud.log;
+const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
+const { getTokens } = frodo.login;
 
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
@@ -92,8 +87,8 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         }
         if (await getTokens(true)) {
           const creds = await provisionCreds();
-          state.setLogApiKey(creds.api_key_id);
-          state.setLogApiSecret(creds.api_key_secret);
+          state.setLogApiKey(creds.api_key_id as string);
+          state.setLogApiSecret(creds.api_key_secret as string);
         }
       }
       const now = Date.now() / 1000;

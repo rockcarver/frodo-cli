@@ -1,6 +1,6 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Journey } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import {
   showSpinner,
   failSpinner,
@@ -8,8 +8,8 @@ import {
   printMessage,
 } from '../../utils/Console';
 
-const { getTokens } = Authenticate;
-const { disableJourney } = Journey;
+const { getTokens } = frodo.login;
+const { disableJourney } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey disable');
 
