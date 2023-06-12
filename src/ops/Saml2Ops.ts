@@ -13,12 +13,12 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
-import { Saml2ProviderSkeleton } from '../../../frodo-lib/types/api/ApiTypes';
 import { roleMap } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import {
   MultiOpStatusInterface,
   Saml2ExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
 const {
   exportSaml2Provider,
