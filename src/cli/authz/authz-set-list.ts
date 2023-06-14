@@ -3,8 +3,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listPolicySets } from '../../ops/PolicySetOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz set list');
 
 program.description('List authorization policy sets.').action(
@@ -18,7 +16,7 @@ program.description('List authorization policy sets.').action(
       options,
       command
     );
-    if (await getTokens()) {
+    if (await frodo.login.getTokens()) {
       verboseMessage('Listing authorization policy sets...');
       const outcome = listPolicySets();
       if (!outcome) process.exitCode = 1;
