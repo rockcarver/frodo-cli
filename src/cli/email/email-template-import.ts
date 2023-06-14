@@ -9,8 +9,6 @@ import {
   importFirstEmailTemplateFromFile,
 } from '../../ops/EmailTemplateOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo email template import');
 
 program
@@ -52,7 +50,11 @@ program
         command
       );
       // import by id
-      if (options.file && options.templateId && (await getTokens())) {
+      if (
+        options.file &&
+        options.templateId &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(`Importing email template "${options.templateId}"...`);
         importEmailTemplateFromFile(
           options.templateId,
@@ -61,21 +63,25 @@ program
         );
       }
       // --all -a
-      else if (options.all && options.file && (await getTokens())) {
+      else if (options.all && options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing all email templates from a single file (${options.file})...`
         );
         importEmailTemplatesFromFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && !options.file && (await getTokens())) {
+      else if (
+        options.allSeparate &&
+        !options.file &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           'Importing all email templates from separate files (*.template.email.json) in current directory...'
         );
         importEmailTemplatesFromFiles(options.raw);
       }
       // import first template from file
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing first email template from file "${options.file}"...`
         );
