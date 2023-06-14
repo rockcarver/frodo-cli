@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listOAuth2Clients } from '../../ops/OAuth2ClientOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo app list');
 
 program
@@ -24,9 +22,9 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(`Listing OAuth2 applications...`);
-        listOAuth2Clients(options.long);
+        await listOAuth2Clients(options.long);
       } else {
         process.exitCode = 1;
       }
