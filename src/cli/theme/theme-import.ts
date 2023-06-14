@@ -10,8 +10,6 @@ import {
   importThemesFromFiles,
 } from '../../ops/ThemeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo theme import');
 
 program
@@ -58,7 +56,11 @@ program
         command
       );
       // import by name
-      if (options.file && options.themeName && (await getTokens())) {
+      if (
+        options.file &&
+        options.themeName &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           `Importing theme with name "${
             options.themeName
@@ -67,7 +69,11 @@ program
         importThemeByName(options.themeName, options.file);
       }
       // import by id
-      else if (options.file && options.themeId && (await getTokens())) {
+      else if (
+        options.file &&
+        options.themeId &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           `Importing theme with id "${
             options.themeId
@@ -76,21 +82,25 @@ program
         importThemeById(options.themeId, options.file);
       }
       // --all -a
-      else if (options.all && options.file && (await getTokens())) {
+      else if (options.all && options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing all themes from a single file (${options.file})...`
         );
         importThemesFromFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && !options.file && (await getTokens())) {
+      else if (
+        options.allSeparate &&
+        !options.file &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           'Importing all themes from separate files in current directory...'
         );
         importThemesFromFiles();
       }
       // import single theme from file
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing first theme from file "${
             options.file
