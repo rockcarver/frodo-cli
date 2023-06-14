@@ -4,8 +4,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { addCustomDomain } from '../../ops/RealmOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo realm add-custom-domain');
 
 program
@@ -27,7 +25,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(
           `Adding custom DNS domain ${
             options.domain
