@@ -3,9 +3,6 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
-const { getTokens } = frodo.login;
-const { deleteJavaAgent, deleteJavaAgents } = frodo.agent;
-
 const program = new FrodoCommand('frodo agent java delete');
 
 program
@@ -30,7 +27,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         // delete by id
         if (options.agentId) {
           verboseMessage(
@@ -39,7 +36,7 @@ program
             }' in realm "${state.getRealm()}"...`
           );
           try {
-            await deleteJavaAgent(options.agentId);
+            await frodo.agent.deleteJavaAgent(options.agentId);
           } catch (error) {
             printMessage(error.message, 'error');
             process.exitCode = 1;
@@ -50,7 +47,7 @@ program
         else if (options.all) {
           verboseMessage('Deleting all agents...');
           try {
-            await deleteJavaAgents();
+            await frodo.agent.deleteJavaAgents();
           } catch (error) {
             printMessage(error.message, 'error');
             process.exitCode = 1;
