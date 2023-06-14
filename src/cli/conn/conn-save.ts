@@ -5,11 +5,6 @@ import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
 
-const { getTokens } = frodo.login;
-const { saveConnectionProfile, addNewServiceAccount } = frodo.conn;
-const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
-const constants = frodo.helper.constants;
-
 const program = new FrodoCommand('frodo conn save', ['realm']);
 
 program
@@ -70,18 +65,11 @@ program
           JSON.parse(options.authenticationHeaderOverrides)
         );
       }
-      const needSa =
-        options.sa &&
-        !state.getServiceAccountId() &&
-        !state.getServiceAccountJwk();
-      const needLogApiKey =
-        options.logApi &&
-        !state.getLogApiKey() &&
-        !state.getLogApiSecret() &&
-        needSa;
-      const forceLoginAsUser = needSa || needLogApiKey;
+      const forceLoginAsUser =
+        !options.sa ||
+        (state.getLogApiKey() && state.getLogApiSecret() ? false : true);
       if (
-        (options.validate && (await getTokens(forceLoginAsUser))) ||
+        (options.validate && (await frodo.login.getTokens(forceLoginAsUser))) ||
         !options.validate
       ) {
         verboseMessage(
@@ -90,9 +78,10 @@ program
         // if cloud deployment add service account
         if (
           options.validate &&
-          state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
+          state.getDeploymentType() ===
+            frodo.helper.constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
           options.sa &&
-          (await isServiceAccountsFeatureAvailable())
+          (await frodo.cloud.serviceAccount.isServiceAccountsFeatureAvailable())
         ) {
           // validate and add existing service account
           if (options.saId && options.saJwkFile) {
@@ -113,7 +102,7 @@ program
           else if (!state.getServiceAccountId()) {
             try {
               verboseMessage(`Creating service account...`);
-              const sa = await addNewServiceAccount();
+              const sa = await frodo.conn.addNewServiceAccount();
               printMessage(
                 `Created and added service account ${sa.name} with id ${sa._id} to profile.`
               );
@@ -145,8 +134,9 @@ program
         verboseMessage(state);
         if (
           options.validate &&
-          state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
-          needLogApiKey
+          state.getDeploymentType() ===
+            frodo.helper.constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
+          options.logApi
         ) {
           // validate and add existing log api key and secret
           if (options.logApiKey && options.logApiSecret) {
@@ -184,7 +174,7 @@ program
         }
         // add existing log api key and secret without validation
         // storing log API key and secret in the connection profile is happening default, therefore no code required here
-        if (await saveConnectionProfile(host)) {
+        if (await frodo.conn.saveConnectionProfile(host)) {
           printMessage(`Saved connection profile ${state.getHost()}`);
         } else {
           process.exitCode = 1;
