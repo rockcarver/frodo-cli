@@ -9,8 +9,6 @@ import {
   exportResourceTypesToFiles,
 } from '../../ops/ResourceTypeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz type export');
 
 program
@@ -52,13 +50,13 @@ program
         command
       );
       // export by uuid
-      if (options.typeId && (await getTokens())) {
+      if (options.typeId && (await frodo.login.getTokens())) {
         verboseMessage('Exporting authorization resource type to file...');
         const outcome = exportResourceTypeToFile(options.typeId, options.file);
         if (!outcome) process.exitCode = 1;
       }
       // export by name
-      else if (options.typeName && (await getTokens())) {
+      else if (options.typeName && (await frodo.login.getTokens())) {
         verboseMessage('Exporting authorization resource type to file...');
         const outcome = exportResourceTypeByNameToFile(
           options.typeName,
@@ -67,13 +65,13 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Exporting all authorization resource types to file...');
         const outcome = await exportResourceTypesToFile(options.file);
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage(
           'Exporting all authorization resource types to separate files...'
         );

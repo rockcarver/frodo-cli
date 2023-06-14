@@ -9,8 +9,6 @@ import {
 } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz policy import');
 
 program
@@ -61,7 +59,7 @@ program
         command
       );
       // import
-      if (options.policyId && (await getTokens())) {
+      if (options.policyId && (await frodo.login.getTokens())) {
         verboseMessage('Importing authorization policy from file...');
         const outcome = importPolicyFromFile(options.policyId, options.file, {
           deps: options.deps,
@@ -71,7 +69,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Importing all authorization policies from file...');
         const outcome = await importPoliciesFromFile(options.file, {
           deps: options.deps,
@@ -81,7 +79,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage(
           'Importing all authorization policies from separate files...'
         );
@@ -93,7 +91,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // import first policy set from file
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing first authorization policy from file "${options.file}"...`
         );

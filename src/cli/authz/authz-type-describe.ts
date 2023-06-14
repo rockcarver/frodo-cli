@@ -7,8 +7,6 @@ import {
   describeResourceTypeByName,
 } from '../../ops/ResourceTypeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz type describe');
 
 program
@@ -27,14 +25,14 @@ program
         options,
         command
       );
-      if (options.typeId && (await getTokens())) {
+      if (options.typeId && (await frodo.login.getTokens())) {
         verboseMessage(`Describing authorization resource type by uuid...`);
         const outcome = await describeResourceType(
           options.typeId,
           options.json
         );
         if (!outcome) process.exitCode = 1;
-      } else if (options.typeName && (await getTokens())) {
+      } else if (options.typeName && (await frodo.login.getTokens())) {
         verboseMessage(`Describing authorization resource type by name...`);
         const outcome = await describeResourceTypeByName(
           options.typeName,
