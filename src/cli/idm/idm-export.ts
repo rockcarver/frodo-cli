@@ -9,8 +9,6 @@ import {
   warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo idm export');
 
 program
@@ -64,7 +62,7 @@ program
         command
       );
       // export by id/name
-      if (options.name && (await getTokens())) {
+      if (options.name && (await frodo.login.getTokens())) {
         verboseMessage(`Exporting object "${options.name}"...`);
         exportConfigEntity(options.name, options.file);
       }
@@ -74,7 +72,7 @@ program
         options.directory &&
         options.entitiesFile &&
         options.envFile &&
-        (await getTokens())
+        (await frodo.login.getTokens())
       ) {
         verboseMessage(
           `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
@@ -90,7 +88,7 @@ program
       else if (
         options.allSeparate &&
         options.directory &&
-        (await getTokens())
+        (await frodo.login.getTokens())
       ) {
         verboseMessage(
           `Exporting all IDM configuration objects into separate files in ${options.directory}...`
