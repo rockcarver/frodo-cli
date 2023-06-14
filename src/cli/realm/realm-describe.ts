@@ -3,9 +3,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { describeRealm } from '../../ops/RealmOps';
 
-const { getRealmName } = frodo.helper.utils;
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo realm describe');
 
 program.description('Describe realms.').action(
@@ -19,9 +16,9 @@ program.description('Describe realms.').action(
       options,
       command
     );
-    if (await getTokens()) {
+    if (await frodo.login.getTokens()) {
       verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
-      describeRealm(getRealmName(state.getRealm()));
+      describeRealm(frodo.helper.utils.getRealmName(state.getRealm()));
     } else {
       process.exitCode = 1;
     }

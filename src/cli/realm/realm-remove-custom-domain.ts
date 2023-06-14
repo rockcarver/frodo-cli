@@ -3,9 +3,6 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 
-const { getTokens } = frodo.login;
-const { removeCustomDomain } = frodo.realm;
-
 const program = new FrodoCommand('frodo realm remove-custom-domain');
 
 program
@@ -27,13 +24,13 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(
           `Removing custom DNS domain ${
             options.domain
           } from realm ${state.getRealm()}...`
         );
-        await removeCustomDomain(state.getRealm(), options.domain);
+        await frodo.realm.removeCustomDomain(state.getRealm(), options.domain);
       } else {
         process.exitCode = 1;
       }
