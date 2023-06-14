@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listEmailTemplates } from '../../ops/EmailTemplateOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo email template list');
 
 program
@@ -24,7 +22,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(`Listing email templates ...`);
         listEmailTemplates(options.long);
       } else {
