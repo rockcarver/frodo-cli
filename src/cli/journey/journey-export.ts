@@ -8,8 +8,6 @@ import {
 } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo journey export');
 
 program
@@ -75,7 +73,7 @@ program
       );
       if (options.directory) state.setDirectory(options.directory);
       // export
-      if (options.journeyId && (await getTokens())) {
+      if (options.journeyId && (await frodo.login.getTokens())) {
         verboseMessage('Exporting journey...');
         await exportJourneyToFile(options.journeyId, options.file, {
           useStringArrays: options.useStringArrays,
@@ -83,7 +81,7 @@ program
         });
       }
       // --all -a
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Exporting all journeys to a single file...');
         await exportJourneysToFile(options.file, {
           useStringArrays: options.useStringArrays,
@@ -91,7 +89,7 @@ program
         });
       }
       // --all-separate -A
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage('Exporting all journeys to separate files...');
         await exportJourneysToFiles({
           useStringArrays: options.useStringArrays,
