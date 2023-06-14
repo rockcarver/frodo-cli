@@ -6,8 +6,6 @@ import {
   warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo idm list');
 
 program
@@ -26,7 +24,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage('Listing all IDM configuration objects...');
         listAllConfigEntities();
         warnAboutOfflineConnectorServers();
