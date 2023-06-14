@@ -3,9 +3,6 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = frodo.login;
-const { repairOrgModel } = frodo.admin;
-
 const program = new FrodoCommand('frodo admin repair-org-model');
 
 program
@@ -34,9 +31,9 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         printMessage(`Repairing org model in realm "${state.getRealm()}"...`);
-        await repairOrgModel(
+        await frodo.admin.repairOrgModel(
           options.excludeCustomized,
           options.extendPermissions,
           options.dryRun
