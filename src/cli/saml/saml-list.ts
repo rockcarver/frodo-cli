@@ -4,8 +4,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { listSaml2Providers } from '../../ops/Saml2Ops';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo saml list');
 
 program
@@ -24,7 +22,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(
           `Listing SAML entity providers in realm "${state.getRealm()}"...`
         );
