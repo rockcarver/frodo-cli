@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listSecretVersions } from '../../ops/SecretsOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo esv secret version list');
 
 program
@@ -25,7 +23,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage('Listing versions...');
         listSecretVersions(options.secretId);
       } else {

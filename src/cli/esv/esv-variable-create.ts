@@ -3,8 +3,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { createVariable } from '../../ops/VariablesOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo esv variable create');
 
 program
@@ -23,7 +21,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage('Creating variable...');
         createVariable(options.variableId, options.value, options.description);
       } else {
