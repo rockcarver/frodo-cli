@@ -2,15 +2,6 @@ import { LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/ApiType
 import { printMessage, verboseMessage } from '../utils/Console';
 import { frodo, state } from '@rockcarver/frodo-lib';
 
-const {
-  getDefaultNoiseFilter,
-  tail,
-  fetch,
-  getLogApiKeys,
-  resolvePayloadLevel,
-  createLogApiKeyAndSecret,
-} = frodo.cloud.log;
-
 export async function tailLogs(
   source: string,
   levels: string[],
@@ -19,9 +10,10 @@ export async function tailLogs(
   nf: string[]
 ) {
   try {
-    const logsObject = await tail(source, cookie);
+    const logsObject = await frodo.cloud.log.tail(source, cookie);
     let filteredLogs = [];
-    const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
+    const noiseFilter =
+      nf == null ? frodo.cloud.log.getDefaultNoiseFilter() : nf;
     if (Array.isArray(logsObject.result)) {
       filteredLogs = logsObject.result.filter(
         (el) =>
@@ -29,7 +21,8 @@ export async function tailLogs(
             (el.payload as LogEventPayloadSkeleton).logger
           ) &&
           !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
+          (levels[0] === 'ALL' ||
+            levels.includes(frodo.cloud.log.resolvePayloadLevel(el))) &&
           (typeof txid === 'undefined' ||
             txid === null ||
             (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
@@ -56,7 +49,7 @@ export async function provisionCreds() {
   try {
     let keyName = `frodo-${state.getUsername()}`;
     try {
-      const keys = await getLogApiKeys();
+      const keys = await frodo.cloud.log.getLogApiKeys();
       for (const key of keys) {
         if (key.name === keyName) {
           // append current timestamp to name if the named key already exists
@@ -64,7 +57,7 @@ export async function provisionCreds() {
         }
       }
       try {
-        const resp = await createLogApiKeyAndSecret(keyName);
+        const resp = await frodo.cloud.log.createLogApiKeyAndSecret(keyName);
         if (resp.name !== keyName) {
           printMessage(
             `create keys ERROR: could not create log API key ${keyName}`,
@@ -103,9 +96,15 @@ export async function fetchLogs(
   nf: string[]
 ) {
   try {
-    const logsObject = await fetch(source, startTs, endTs, cookie);
+    const logsObject = await frodo.cloud.log.fetch(
+      source,
+      startTs,
+      endTs,
+      cookie
+    );
     let filteredLogs = [];
-    const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
+    const noiseFilter =
+      nf == null ? frodo.cloud.log.getDefaultNoiseFilter() : nf;
     if (Array.isArray(logsObject.result)) {
       filteredLogs = logsObject.result.filter(
         (el) =>
@@ -113,7 +112,8 @@ export async function fetchLogs(
             (el.payload as LogEventPayloadSkeleton).logger
           ) &&
           !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
+          (levels[0] === 'ALL' ||
+            levels.includes(frodo.cloud.log.resolvePayloadLevel(el))) &&
           (typeof txid === 'undefined' ||
             txid === null ||
             (el.payload as LogEventPayloadSkeleton).transactionId?.includes(

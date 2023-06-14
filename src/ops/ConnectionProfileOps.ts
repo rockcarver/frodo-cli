@@ -10,16 +10,13 @@ import {
   succeedSpinner,
 } from '../utils/Console';
 
-const { getAccessTokenForServiceAccount } = frodo.login;
-const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
-
 /**
  * List connection profiles
  * @param {boolean} long Long list format with details
  * @param {State} state library state
  */
 export function listConnectionProfiles(long = false) {
-  const filename = getConnectionProfilesPath();
+  const filename = frodo.conn.getConnectionProfilesPath();
   try {
     const data = fs.readFileSync(filename, 'utf8');
     const connectionsData = JSON.parse(data);
@@ -68,7 +65,7 @@ export async function describeConnectionProfile(
   showSecrets: boolean
 ) {
   debugMessage(`ConnectionProfileOps.describeConnectionProfile: start`);
-  const profile = await getConnectionProfileByHost(host);
+  const profile = await frodo.conn.getConnectionProfileByHost(host);
   if (profile) {
     debugMessage(profile);
     const present = '[present]';
@@ -130,7 +127,7 @@ export async function addExistingServiceAccount(
     const jwk = JSON.parse(data.toString());
     if (validate) {
       showSpinner(`Validating service account ${serviceAccountId}...`);
-      const token = await getAccessTokenForServiceAccount(
+      const token = await frodo.login.getAccessTokenForServiceAccount(
         serviceAccountId,
         jwk
       );
