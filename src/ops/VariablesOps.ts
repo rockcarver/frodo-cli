@@ -12,10 +12,6 @@ import {
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
 
-const { resolveUserName } = frodo.idm.managed;
-
-const { decode } = frodo.helper.base64;
-
 /**
  * List variables
  * @param {boolean} long Long version, all the fields
@@ -41,11 +37,14 @@ export async function listVariables(long) {
     for (const variable of variables) {
       table.push([
         variable._id,
-        wordwrap(decode(variable.valueBase64), 40),
+        wordwrap(frodo.helper.base64.decode(variable.valueBase64), 40),
         variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(variable.description, 40),
         // eslint-disable-next-line no-await-in-loop
-        await resolveUserName('teammember', variable.lastChangedBy),
+        await frodo.idm.managed.resolveUserName(
+          'teammember',
+          variable.lastChangedBy
+        ),
         new Date(variable.lastChangeDate).toLocaleString(),
       ]);
     }
@@ -167,7 +166,7 @@ export async function describeVariable(variableId) {
   table.push(['Name'['brightCyan'], variable._id]);
   table.push([
     'Value'['brightCyan'],
-    wordwrap(decode(variable.valueBase64), 40),
+    wordwrap(frodo.helper.base64.decode(variable.valueBase64), 40),
   ]);
   table.push([
     'Status'['brightCyan'],
@@ -180,7 +179,10 @@ export async function describeVariable(variableId) {
   ]);
   table.push([
     'Modifier'['brightCyan'],
-    await resolveUserName('teammember', variable.lastChangedBy),
+    await frodo.idm.managed.resolveUserName(
+      'teammember',
+      variable.lastChangedBy
+    ),
   ]);
   table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
   printMessage(table.toString());
