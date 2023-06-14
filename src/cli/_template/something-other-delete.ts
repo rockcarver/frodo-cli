@@ -2,8 +2,6 @@ import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo something other delete');
 
 program
@@ -32,7 +30,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         // code goes here
       } else {
         process.exitCode = 1;
