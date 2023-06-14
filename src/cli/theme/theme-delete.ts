@@ -8,8 +8,6 @@ import {
   deleteAllThemes,
 } from '../../ops/ThemeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo theme delete');
 
 program
@@ -44,7 +42,7 @@ program
         command
       );
       // delete by name
-      if (options.themeName && (await getTokens())) {
+      if (options.themeName && (await frodo.login.getTokens())) {
         verboseMessage(
           `Deleting theme with name "${
             options.themeName
@@ -53,7 +51,7 @@ program
         deleteThemeByNameCmd(options.themeName);
       }
       // delete by id
-      else if (options.themeId && (await getTokens())) {
+      else if (options.themeId && (await frodo.login.getTokens())) {
         verboseMessage(
           `Deleting theme with id "${
             options.themeId
@@ -62,7 +60,7 @@ program
         deleteThemeCmd(options.themeId);
       }
       // --all -a
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage(
           `Deleting all themes from realm "${state.getRealm()}"...`
         );
