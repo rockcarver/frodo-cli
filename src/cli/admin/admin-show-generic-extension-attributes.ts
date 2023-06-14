@@ -3,9 +3,6 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { showGenericExtensionAttributes } = frodo.admin;
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand(
   'frodo admin show-generic-extension-attributes'
 );
@@ -35,11 +32,11 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         printMessage(
           `Showing generic extension attributes in realm "${state.getRealm()}"...`
         );
-        await showGenericExtensionAttributes(
+        await frodo.admin.showGenericExtensionAttributes(
           options.includeCustomized,
           options.dryRun
         );
