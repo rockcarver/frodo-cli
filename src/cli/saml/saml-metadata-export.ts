@@ -4,8 +4,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console';
 import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo saml metadata export');
 
 program
@@ -40,7 +38,7 @@ program
         command
       );
       // export by id/name
-      if (options.entityId && (await getTokens())) {
+      if (options.entityId && (await frodo.login.getTokens())) {
         printMessage(
           `Exporting metadata for provider "${
             options.entityId
@@ -49,7 +47,7 @@ program
         exportSaml2MetadataToFile(options.entityId, options.file);
       }
       // // --all-separate -A
-      // else if (options.allSeparate && (await getTokens())) {
+      // else if (options.allSeparate && (await frodo.login.getTokens())) {
       //   printMessage('Exporting all providers to separate files...');
       //   exportProvidersToFiles();
       // }
