@@ -23,14 +23,6 @@ import wordwrap from './utils/Wordwrap';
 import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
-const {
-  getScripts,
-  exportScripts,
-  exportScript,
-  exportScriptByName,
-  importScripts,
-} = frodo.script;
-
 /**
  * Get a one-line description of the script object
  * @param {ScriptSkeleton} scriptObj script object to describe
@@ -76,7 +68,7 @@ export async function listScripts(long = false): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.listScripts: start`);
   try {
-    const scripts = await getScripts();
+    const scripts = await frodo.script.getScripts();
     scripts.sort((a, b) => a.name.localeCompare(b.name));
     if (long) {
       const table = createTable([
@@ -129,7 +121,7 @@ export async function exportScriptToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${scriptId}' to '${fileName}'...`);
-    const scriptExport = await exportScript(scriptId);
+    const scriptExport = await frodo.script.exportScript(scriptId);
     saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${scriptId}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end [true]`);
@@ -160,7 +152,7 @@ export async function exportScriptByNameToFile(
       fileName = file;
     }
     spinSpinner(`Exporting script '${name}' to '${fileName}'...`);
-    const scriptExport = await exportScriptByName(name);
+    const scriptExport = await frodo.script.exportScriptByName(name);
     saveJsonToFile(scriptExport, fileName);
     succeedSpinner(`Exported script '${name}' to '${fileName}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [true]`);
@@ -188,7 +180,7 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts();
+    const scriptExport = await frodo.script.exportScripts();
     saveJsonToFile(scriptExport, fileName);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
     return true;
@@ -207,7 +199,7 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
 export async function exportScriptsToFiles(): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
-  const scriptList = await getScripts();
+  const scriptList = await frodo.script.getScripts();
   createProgressBar(
     scriptList.length,
     'Exporting scripts to individual files...'
@@ -216,7 +208,7 @@ export async function exportScriptsToFiles(): Promise<boolean> {
     try {
       updateProgressBar(`Reading script ${script.name}`);
       const fileName = getTypedFilename(script.name, 'script');
-      const scriptExport = await exportScriptByName(script.name);
+      const scriptExport = await frodo.script.exportScriptByName(script.name);
       saveJsonToFile(scriptExport, fileName);
     } catch (error) {
       outcome = false;
@@ -235,7 +227,7 @@ export async function exportScriptsToFiles(): Promise<boolean> {
 export async function exportScriptsToFilesExtract(): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: start`);
-  const scriptList = await getScripts();
+  const scriptList = await frodo.script.getScripts();
   createProgressBar(
     scriptList.length,
     'Exporting scripts to individual files...'
@@ -251,7 +243,7 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
       );
       const fileName = getTypedFilename(script.name, 'script');
 
-      const scriptExport = await exportScriptByName(script.name);
+      const scriptExport = await frodo.script.exportScriptByName(script.name);
 
       const scriptSkeleton = getScriptSkeleton(scriptExport);
 
@@ -295,7 +287,7 @@ export async function importScriptsFromFile(
     try {
       if (err) throw err;
       const importData = JSON.parse(data);
-      outcome = await importScripts(name, importData, reUuid);
+      outcome = await frodo.script.importScripts(name, importData, reUuid);
     } catch (error) {
       printMessage(
         `Error exporting script '${name}': ${error.message}`,
@@ -373,7 +365,12 @@ async function handleScriptFileImport(
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
-  const success = await importScripts('', script, reUuid, validateScripts);
+  const success = await frodo.script.importScripts(
+    '',
+    script,
+    reUuid,
+    validateScripts
+  );
   if (success) {
     printMessage(`Imported '${scriptFile}'`);
   }

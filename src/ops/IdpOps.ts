@@ -16,15 +16,6 @@ import {
   saveJsonToFile,
 } from '../utils/ExportImportUtils';
 
-const {
-  getSocialIdentityProviders,
-  exportSocialProvider,
-  exportSocialProviders,
-  importSocialProvider,
-  importFirstSocialProvider,
-  importSocialProviders,
-} = frodo.oauth2oidc.external;
-
 /**
  * Get a one-line description of the social idp object
  * @param {SocialIdpSkeleton} socialIdpObj social idp object to describe
@@ -65,7 +56,8 @@ export function getTableRowMd(socialIdpObj: SocialIdpSkeleton): string {
  */
 export async function listSocialProviders() {
   try {
-    const providers = await getSocialIdentityProviders();
+    const providers =
+      await frodo.oauth2oidc.external.getSocialIdentityProviders();
     providers.sort((a, b) => a._id.localeCompare(b._id));
     providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
@@ -92,7 +84,9 @@ export async function exportSocialProviderToFile(
   createProgressBar(1, `Exporting ${providerId}`);
   try {
     updateProgressBar(`Writing file ${fileName}`);
-    const fileData = await exportSocialProvider(providerId);
+    const fileData = await frodo.oauth2oidc.external.exportSocialProvider(
+      providerId
+    );
     saveJsonToFile(fileData, fileName);
     stopProgressBar(
       `Exported ${providerId['brightCyan']} to ${fileName['brightCyan']}.`
@@ -112,7 +106,7 @@ export async function exportSocialProvidersToFile(file = '') {
   if (!fileName) {
     fileName = getTypedFilename(`all${getRealmString()}Providers`, 'idp');
   }
-  const fileData = await exportSocialProviders();
+  const fileData = await frodo.oauth2oidc.external.exportSocialProviders();
   saveJsonToFile(fileData, fileName);
 }
 
@@ -120,13 +114,16 @@ export async function exportSocialProvidersToFile(file = '') {
  * Export all providers to individual files
  */
 export async function exportSocialProvidersToFiles() {
-  const allIdpsData = await getSocialIdentityProviders();
+  const allIdpsData =
+    await frodo.oauth2oidc.external.getSocialIdentityProviders();
   // printMessage(allIdpsData, 'data');
   createProgressBar(allIdpsData.length, 'Exporting providers');
   for (const idpData of allIdpsData) {
     updateProgressBar(`Writing provider ${idpData._id}`);
     const fileName = getTypedFilename(idpData._id, 'idp');
-    const fileData = await exportSocialProvider(idpData._id);
+    const fileData = await frodo.oauth2oidc.external.exportSocialProvider(
+      idpData._id
+    );
     saveJsonToFile(fileData, fileName);
   }
   stopProgressBar(`${allIdpsData.length} providers exported.`);
@@ -148,7 +145,10 @@ export async function importSocialProviderFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importSocialProvider(providerId, fileData);
+      outcome = await frodo.oauth2oidc.external.importSocialProvider(
+        providerId,
+        fileData
+      );
       succeedSpinner(
         `Successfully imported provider ${providerId} from ${file}.`
       );
@@ -174,7 +174,9 @@ export async function importFirstSocialProviderFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importFirstSocialProvider(fileData);
+      outcome = await frodo.oauth2oidc.external.importFirstSocialProvider(
+        fileData
+      );
       succeedSpinner(`Successfully imported first provider from ${file}.`);
     } catch (error) {
       failSpinner(`Error importing first provider from ${file}.`);
@@ -198,7 +200,7 @@ export async function importSocialProvidersFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importSocialProviders(fileData);
+      outcome = await frodo.oauth2oidc.external.importSocialProviders(fileData);
       succeedSpinner(`Successfully imported providers from ${file}.`);
     } catch (error) {
       failSpinner(`Error importing providers from ${file}.`);
@@ -224,7 +226,7 @@ export async function importSocialProvidersFromFiles() {
     const fileData = JSON.parse(data);
     const count = Object.keys(fileData.idp).length;
     total += count;
-    await importSocialProviders(fileData);
+    await frodo.oauth2oidc.external.importSocialProviders(fileData);
     updateProgressBar(`Imported ${count} provider(s) from ${file}`);
   }
   stopProgressBar(

@@ -5,15 +5,13 @@ import {
   printMessage,
 } from '../utils/Console';
 
-const { getRealmByName, getRealms, putRealm } = frodo.realm;
-
 /**
  * List realms
  * @param {boolean} long Long list format with details
  */
 export async function listRealms(long = false) {
   try {
-    const realms = (await getRealms()).data.result;
+    const realms = (await frodo.realm.getRealms()).data.result;
     if (long) {
       const table = createTable([
         'Name'['brightCyan'],
@@ -49,7 +47,7 @@ export async function listRealms(long = false) {
  */
 export async function describeRealm(realm: string) {
   try {
-    const realmConfig = await getRealmByName(realm);
+    const realmConfig = await frodo.realm.getRealmByName(realm);
     const table = createKeyValueTable();
     table.push(['Name'['brightCyan'], realmConfig.name]);
     table.push([
@@ -75,7 +73,7 @@ export async function describeRealm(realm: string) {
  */
 export async function addCustomDomain(realm: string, domain: string) {
   try {
-    let realmConfig = await getRealmByName(realm);
+    let realmConfig = await frodo.realm.getRealmByName(realm);
     let exists = false;
     realmConfig.aliases.forEach((alias) => {
       if (domain.toLowerCase() === alias.toLowerCase()) {
@@ -85,7 +83,8 @@ export async function addCustomDomain(realm: string, domain: string) {
     if (!exists) {
       try {
         realmConfig.aliases.push(domain.toLowerCase());
-        realmConfig = (await putRealm(realmConfig._id, realmConfig)).data;
+        realmConfig = (await frodo.realm.putRealm(realmConfig._id, realmConfig))
+          .data;
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([
@@ -117,14 +116,15 @@ export async function addCustomDomain(realm: string, domain: string) {
  */
 export async function removeCustomDomain(realm: string, domain: string) {
   try {
-    let realmConfig = await getRealmByName(realm);
+    let realmConfig = await frodo.realm.getRealmByName(realm);
     const aliases = realmConfig.aliases.filter(
       (alias) => domain.toLowerCase() !== alias.toLowerCase()
     );
     if (aliases.length < realmConfig.aliases.length) {
       try {
         realmConfig.aliases = aliases;
-        realmConfig = (await putRealm(realmConfig._id, realmConfig)).data;
+        realmConfig = (await frodo.realm.putRealm(realmConfig._id, realmConfig))
+          .data;
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([
