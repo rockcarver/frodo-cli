@@ -8,8 +8,6 @@ import {
 } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz set export');
 
 program
@@ -52,7 +50,7 @@ program
         command
       );
       // export
-      if (options.setId && (await getTokens())) {
+      if (options.setId && (await frodo.login.getTokens())) {
         verboseMessage('Exporting authorization policy set to file...');
         const outcome = exportPolicySetToFile(options.setId, options.file, {
           useStringArrays: true,
@@ -62,7 +60,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Exporting all authorization policy sets to file...');
         const outcome = await exportPolicySetsToFile(options.file, {
           useStringArrays: true,
@@ -72,7 +70,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage(
           'Exporting all authorization policy sets to separate files...'
         );

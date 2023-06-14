@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listResourceTypes } from '../../ops/ResourceTypeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz type list');
 
 program
@@ -24,7 +22,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage('Listing resource types...');
         const outcome = listResourceTypes(options.long);
         if (!outcome) process.exitCode = 1;

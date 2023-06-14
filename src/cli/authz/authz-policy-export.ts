@@ -10,8 +10,6 @@ import {
 } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz policy export');
 
 program
@@ -60,7 +58,7 @@ program
         command
       );
       // export
-      if (options.policyId && (await getTokens())) {
+      if (options.policyId && (await frodo.login.getTokens())) {
         verboseMessage('Exporting authorization policy to file...');
         const outcome = exportPolicyToFile(options.policyId, options.file, {
           deps: options.deps,
@@ -70,7 +68,11 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all by policy set
-      else if (options.setId && options.all && (await getTokens())) {
+      else if (
+        options.setId &&
+        options.all &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           `Exporting all authorization policies in policy set ${options.setId} to file...`
         );
@@ -86,7 +88,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Exporting all authorization policies to file...');
         const outcome = await exportPoliciesToFile(options.file, {
           deps: options.deps,
@@ -96,7 +98,11 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate by policy set
-      else if (options.setId && options.allSeparate && (await getTokens())) {
+      else if (
+        options.setId &&
+        options.allSeparate &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           `Exporting all authorization policies in policy set ${options.setId} to separate files...`
         );
@@ -108,7 +114,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage(
           'Exporting all authorization policies to separate files...'
         );
