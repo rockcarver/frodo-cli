@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { deleteVariable, deleteVariables } from '../../ops/VariablesOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo cmd sub2 delete');
 
 program
@@ -37,12 +35,12 @@ program
         command
       );
       // delete by id
-      if (options.variableId && (await getTokens())) {
+      if (options.variableId && (await frodo.login.getTokens())) {
         verboseMessage('Deleting variable...');
         deleteVariable(options.variableId);
       }
       // --all -a
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Deleting all variables...');
         deleteVariables();
       }

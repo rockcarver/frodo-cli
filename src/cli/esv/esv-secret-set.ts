@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { setSecretDescription } from '../../ops/SecretsOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo esv secret set');
 
 program
@@ -23,7 +21,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage('Setting secret description...');
         setSecretDescription(options.secretId, options.description);
       } else {
