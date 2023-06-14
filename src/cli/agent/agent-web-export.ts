@@ -8,8 +8,6 @@ import {
   exportWebAgentToFile,
 } from '../../ops/AgentOps.js';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo agent web export');
 
 program
@@ -44,7 +42,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         // export
         if (options.agentId) {
           verboseMessage('Exporting web agent...');
