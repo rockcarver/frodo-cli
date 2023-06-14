@@ -6,10 +6,6 @@ import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 
-const { resolveLevel } = frodo.cloud.log;
-const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
-const { getTokens } = frodo.login;
-
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
@@ -30,7 +26,7 @@ Following values are possible (values on the same line are equivalent): \
 \n0, SEVERE, FATAL, or ERROR\n1, WARNING, WARN or CONFIG\
 \n2, INFO or INFORMATION\n3, DEBUG, FINE, FINER or FINEST\
 \n4 or ALL'
-    ).default('ERROR', `${resolveLevel('ERROR')}`)
+    ).default('ERROR', `${frodo.cloud.log.resolveLevel('ERROR')}`)
   )
   .addOption(
     new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
@@ -64,7 +60,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
   .action(async (host, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
-    const conn = await getConnectionProfile();
+    const conn = await frodo.conn.getConnectionProfile();
     if (conn) {
       state.setHost(conn.tenant);
       if (conn.logApiKey != null && conn.logApiSecret != null) {
@@ -85,7 +81,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           state.setUsername(conn.username);
           state.setPassword(conn.password);
         }
-        if (await getTokens(true)) {
+        if (await frodo.login.getTokens(true)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
@@ -141,11 +137,11 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
       printMessage(
         `Fetching ID Cloud logs from the following sources: ${
           command.opts().sources
-        } and levels [${resolveLevel(command.opts().level)}] of ${
-          conn.tenant
-        }...`
+        } and levels [${frodo.cloud.log.resolveLevel(
+          command.opts().level
+        )}] of ${conn.tenant}...`
       );
-      if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
+      if (credsFromParameters) await frodo.conn.saveConnectionProfile(host); // save new values if they were specified on CLI
 
       let timeIncrement = LOG_TIME_WINDOW_INCREMENT;
       if (endTs - beginTs > 30) {
@@ -157,7 +153,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           command.opts().sources,
           new Date(beginTs * 1000).toISOString(),
           new Date(intermediateEndTs * 1000).toISOString(),
-          resolveLevel(command.opts().level),
+          frodo.cloud.log.resolveLevel(command.opts().level),
           command.opts().transactionId,
           command.opts().searchString,
           null,
