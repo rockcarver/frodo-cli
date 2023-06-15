@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import type { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createObjectTable,
   createProgressBar,

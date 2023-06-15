@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import type { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createObjectTable,
   createProgressBar,
@@ -17,7 +17,7 @@ import {
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import {
+import type {
   PolicyExportOptions,
   PolicyImportOptions,
   PolicyExportInterface,

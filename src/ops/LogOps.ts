@@ -1,6 +1,6 @@
-import { LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { printMessage, verboseMessage } from '../utils/Console';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import type { LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import { printMessage, verboseMessage } from '../utils/Console';
 
 export async function tailLogs(
   source: string,

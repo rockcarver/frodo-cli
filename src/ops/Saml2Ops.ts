@@ -13,11 +13,11 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
-import {
+import type {
   MultiOpStatusInterface,
   Saml2ExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
 const roleMap = {
   identityProvider: 'IDP',

@@ -1,10 +1,9 @@
-import {
+import type {
   InnerNodeRefSkeletonInterface,
   NodeRefSkeletonInterface,
   NodeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { frodo } from '@rockcarver/frodo-lib';
-import { NodeClassification } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 /**
  * Get node classification
@@ -14,16 +13,16 @@ import { NodeClassification } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 export function getNodeClassification(nodeType: string): string[] {
   return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case NodeClassification.STANDARD:
+      case 'standard':
         return it.toString()['brightGreen'];
 
-      case NodeClassification.CLOUD:
+      case 'cloud':
         return it.toString()['brightMagenta'];
 
-      case NodeClassification.CUSTOM:
+      case 'custom':
         return it.toString()['brightRed'];
 
-      case NodeClassification.PREMIUM:
+      case 'premium':
         return it.toString()['brightYellow'];
     }
   });
@@ -37,16 +36,16 @@ export function getNodeClassification(nodeType: string): string[] {
 export function getNodeClassificationMd(nodeType: string): string[] {
   return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case NodeClassification.STANDARD:
+      case 'standard':
         return `:green_circle: \`${it.toString()}\``;
 
-      case NodeClassification.CLOUD:
+      case 'cloud':
         return `:purple_circle: \`${it.toString()}\``;
 
-      case NodeClassification.CUSTOM:
+      case 'custom':
         return `:red_circle: \`${it.toString()}\``;
 
-      case NodeClassification.PREMIUM:
+      case 'premium':
         return `:yellow_circle: \`${it.toString()}\``;
     }
   });

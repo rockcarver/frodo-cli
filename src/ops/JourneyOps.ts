@@ -1,10 +1,11 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import {
+import type {
   NodeSkeleton,
   TreeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import {
-  JourneyClassification,
+import type {
+  JourneyClassificationType,
   MultiTreeExportInterface,
   SingleTreeExportInterface,
   TreeDependencyMapInterface,
@@ -23,7 +24,6 @@ import {
   createTable,
   debugMessage,
 } from '../utils/Console';
-import { frodo, state } from '@rockcarver/frodo-lib';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
 import * as Idp from './IdpOps';
@@ -412,19 +412,19 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
  */
 export function getJourneyClassification(
   journey: SingleTreeExportInterface
-): string[] {
+): JourneyClassificationType[] {
   return getJourneyClassification(journey).map((it) => {
     switch (it) {
-      case JourneyClassification.STANDARD:
+      case 'standard':
         return it.toString()['brightGreen'];
 
-      case JourneyClassification.CLOUD:
+      case 'cloud':
         return it.toString()['brightMagenta'];
 
-      case JourneyClassification.CUSTOM:
+      case 'custom':
         return it.toString()['brightRed'];
 
-      case JourneyClassification.PREMIUM:
+      case 'premium':
         return it.toString()['brightYellow'];
     }
   });
@@ -440,16 +440,16 @@ export function getJourneyClassificationMd(
 ): string[] {
   return getJourneyClassification(journey).map((it) => {
     switch (it) {
-      case JourneyClassification.STANDARD:
+      case 'standard':
         return `:green_circle: \`${it.toString()}\``;
 
-      case JourneyClassification.CLOUD:
+      case 'cloud':
         return `:purple_circle: \`${it.toString()}\``;
 
-      case JourneyClassification.CUSTOM:
+      case 'custom':
         return `:red_circle: \`${it.toString()}\``;
 
-      case JourneyClassification.PREMIUM:
+      case 'premium':
         return `:yellow_circle: \`${it.toString()}\``;
     }
   });
