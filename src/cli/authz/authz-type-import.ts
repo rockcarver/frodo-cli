@@ -10,8 +10,6 @@ import {
   importResourceTypesFromFiles,
 } from '../../ops/ResourceTypeOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz type import');
 
 program
@@ -53,7 +51,7 @@ program
         command
       );
       // import by uuid
-      if (options.typeId && (await getTokens())) {
+      if (options.typeId && (await frodo.login.getTokens())) {
         verboseMessage(
           'Importing authorization resource type by uuid from file...'
         );
@@ -64,7 +62,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // import by name
-      else if (options.typeName && (await getTokens())) {
+      else if (options.typeName && (await frodo.login.getTokens())) {
         verboseMessage(
           'Importing authorization resource type by name from file...'
         );
@@ -75,7 +73,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage(
           'Importing all authorization resource types from file...'
         );
@@ -83,7 +81,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
+      else if (options.allSeparate && (await frodo.login.getTokens())) {
         verboseMessage(
           'Importing all authorization resource types from separate files...'
         );
@@ -91,7 +89,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // import first
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing first authorization resource type from file "${options.file}"...`
         );

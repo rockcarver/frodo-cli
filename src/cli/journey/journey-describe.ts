@@ -6,10 +6,6 @@ import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { saveTextToFile } from '../../utils/ExportImportUtils';
 
-const { getTokens } = frodo.login;
-const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
-  frodo.authn.journey;
-
 const program = new FrodoCommand('frodo journey describe');
 
 program
@@ -110,7 +106,9 @@ program
           if (!options.markdown) {
             await describeJourney(
               journeyData,
-              createFileParamTreeExportResolver(options.file)
+              frodo.authn.journey.createFileParamTreeExportResolver(
+                options.file
+              )
             );
           }
           // Markdown output
@@ -119,14 +117,16 @@ program
             if (options.outputFile) saveTextToFile('', options.outputFile);
             await describeJourneyMd(
               journeyData,
-              createFileParamTreeExportResolver(options.file)
+              frodo.authn.journey.createFileParamTreeExportResolver(
+                options.file
+              )
             );
           }
         } catch (error) {
           printMessage(error.message, 'error');
           process.exitCode = 1;
         }
-      } else if (await getTokens()) {
+      } else if (await frodo.login.getTokens()) {
         verboseMessage(
           `Describing journey(s) in realm "${state.getRealm()}"...`
         );
@@ -136,11 +136,13 @@ program
         }
         if (typeof options.journeyId === 'undefined') {
           let journeys = [];
-          journeys = await getJourneys();
+          journeys = await frodo.authn.journey.getJourneys();
           for (const journey of journeys) {
             try {
               // eslint-disable-next-line no-await-in-loop, dot-notation
-              const treeData = await exportJourney(journey['_id']);
+              const treeData = await frodo.authn.journey.exportJourney(
+                journey['_id']
+              );
               // ANSI text output
               if (!options.markdown) {
                 await describeJourney(treeData);
@@ -158,7 +160,9 @@ program
           }
         } else {
           try {
-            const treeData = await exportJourney(options.journeyId);
+            const treeData = await frodo.authn.journey.exportJourney(
+              options.journeyId
+            );
             // ANSI text output
             if (!options.markdown) {
               await describeJourney(treeData);

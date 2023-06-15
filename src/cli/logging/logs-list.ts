@@ -3,10 +3,6 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { provisionCreds } from '../../ops/LogOps';
 
-const { getLogSources } = frodo.cloud.log;
-const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo logs list', ['realm', 'type']);
 program
   .description('List available ID Cloud log sources.')
@@ -14,7 +10,7 @@ program
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
     verboseMessage('Listing available ID Cloud log sources...');
-    const conn = await getConnectionProfile();
+    const conn = await frodo.conn.getConnectionProfile();
     if (conn) {
       state.setHost(conn.tenant);
       if (conn.logApiKey != null && conn.logApiSecret != null) {
@@ -35,21 +31,21 @@ program
           state.setUsername(conn.username);
           state.setPassword(conn.password);
         }
-        if (await getTokens(true)) {
+        if (await frodo.login.getTokens(true)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }
       }
 
-      const sources = await getLogSources();
+      const sources = await frodo.cloud.log.getLogSources();
       if (sources.length === 0) {
         printMessage(
           "Can't get sources, possible cause - wrong API key or secret",
           'error'
         );
       } else {
-        if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
+        if (credsFromParameters) await frodo.conn.saveConnectionProfile(host); // save new values if they were specified on CLI
         printMessage(`Log sources from ${conn.tenant}`);
         sources.forEach((source) => {
           printMessage(`${source}`, 'data');

@@ -3,9 +3,6 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = frodo.login;
-const { grantOAuth2ClientAdminPrivileges } = frodo.admin;
-
 const program = new FrodoCommand(
   'frodo admin grant-oauth2-client-admin-privileges'
 );
@@ -26,13 +23,13 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         printMessage(
           `Granting oauth2 client "${
             options.target
           }" in realm "${state.getRealm()}" admin privileges...`
         );
-        await grantOAuth2ClientAdminPrivileges(options.target);
+        await frodo.admin.grantOAuth2ClientAdminPrivileges(options.target);
         printMessage('Done.');
       } else {
         process.exitCode = 1;

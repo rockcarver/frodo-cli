@@ -3,8 +3,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { setVariableDescription, updateVariable } from '../../ops/VariablesOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo esv variable set');
 
 program
@@ -27,14 +25,14 @@ program
         options.variableId &&
         options.value &&
         options.description &&
-        (await getTokens())
+        (await frodo.login.getTokens())
       ) {
         verboseMessage('Updating variable...');
         updateVariable(options.variableId, options.value, options.description);
       } else if (
         options.variableId &&
         options.description &&
-        (await getTokens())
+        (await frodo.login.getTokens())
       ) {
         verboseMessage('Updating variable...');
         setVariableDescription(options.variableId, options.description);

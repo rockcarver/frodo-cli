@@ -9,8 +9,6 @@ import {
   importSocialProvidersFromFiles,
 } from '../../ops/IdpOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo idp import');
 
 program
@@ -51,7 +49,7 @@ program
         command
       );
       // import by id
-      if (options.file && options.idpId && (await getTokens())) {
+      if (options.file && options.idpId && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing provider "${
             options.idpId
@@ -60,21 +58,25 @@ program
         importSocialProviderFromFile(options.idpId, options.file);
       }
       // --all -a
-      else if (options.all && options.file && (await getTokens())) {
+      else if (options.all && options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
         importSocialProvidersFromFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && !options.file && (await getTokens())) {
+      else if (
+        options.allSeparate &&
+        !options.file &&
+        (await frodo.login.getTokens())
+      ) {
         verboseMessage(
           'Importing all providers from separate files in current directory...'
         );
         importSocialProvidersFromFiles();
       }
       // import first provider from file
-      else if (options.file && (await getTokens())) {
+      else if (options.file && (await frodo.login.getTokens())) {
         verboseMessage(
           `Importing first provider from file "${
             options.file

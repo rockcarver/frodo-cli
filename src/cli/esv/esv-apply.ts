@@ -4,10 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
 import { createTable, printMessage } from '../../utils/Console.js';
 
-const { getTokens } = frodo.login;
-const { applyUpdates, checkForUpdates } = frodo.cloud.startup;
-const { resolveUserName } = frodo.idm.managed;
-
 const program = new FrodoCommand('frodo esv apply');
 
 program
@@ -44,8 +40,8 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        const updates = await checkForUpdates();
+      if (await frodo.login.getTokens()) {
+        const updates = await frodo.cloud.startup.checkForUpdates();
         const updatesTable = createTable([
           'Type',
           'Name',
@@ -59,7 +55,10 @@ program
               secret['_id'],
               new Date(secret['lastChangeDate']).toLocaleString(),
               // eslint-disable-next-line no-await-in-loop
-              await resolveUserName('teammember', secret['lastChangedBy']),
+              await frodo.idm.managed.resolveUserName(
+                'teammember',
+                secret['lastChangedBy']
+              ),
             ]);
           }
         }
@@ -70,7 +69,10 @@ program
               variable['_id'],
               new Date(variable['lastChangeDate']).toLocaleString(),
               // eslint-disable-next-line no-await-in-loop
-              await resolveUserName('teammember', variable['lastChangedBy']),
+              await frodo.idm.managed.resolveUserName(
+                'teammember',
+                variable['lastChangedBy']
+              ),
             ]);
           }
         }
@@ -89,7 +91,12 @@ program
                 question: `\nChanges may take up to 10 minutes to propagate, during which time you will not be able to make further updates.\n\nApply updates? (y|n):`,
               }));
             if (ok) {
-              if (!(await applyUpdates(options.wait, options.timeout * 1000))) {
+              if (
+                !(await frodo.cloud.startup.applyUpdates(
+                  options.wait,
+                  options.timeout * 1000
+                ))
+              ) {
                 process.exitCode = 1;
               }
             }

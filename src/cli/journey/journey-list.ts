@@ -1,10 +1,8 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { frodo, state } from '@rockcarver/frodo-lib';
 import { listJourneys } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo journey list');
 
@@ -25,7 +23,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         verboseMessage(`Listing journeys in realm "${state.getRealm()}"...`);
         listJourneys(options.long, options.analyze);
       } else {

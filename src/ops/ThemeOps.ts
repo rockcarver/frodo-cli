@@ -1,6 +1,6 @@
-import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
-import { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import fs from 'fs';
+import type { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   printMessage,
   createTable,
@@ -9,19 +9,6 @@ import {
   stopProgressIndicator,
 } from '../utils/Console';
 import { saveToFile, getTypedFilename } from '../utils/ExportImportUtils';
-
-const {
-  getTheme,
-  getThemes,
-  getThemeByName,
-  putThemeByName,
-  putTheme,
-  putThemes,
-  deleteTheme,
-  deleteThemeByName,
-  deleteThemes,
-} = frodo.theme;
-const { getRealmString, validateImport } = frodo.utils.impex;
 /**
  * Get a one-line description of the theme
  * @param {ThemeSkeleton} themeObj theme object to describe
@@ -64,7 +51,7 @@ export function getTableRowMd(themeObj: ThemeSkeleton): string {
  * @param {boolean} long Long version, more fields
  */
 export async function listThemes(long = false) {
-  const themeList = await getThemes();
+  const themeList = await frodo.theme.getThemes();
   themeList.sort((a, b) => a.name.localeCompare(b.name));
   if (!long) {
     themeList.forEach((theme) => {
@@ -102,7 +89,7 @@ export async function exportThemeByName(name, file) {
   }
   createProgressIndicator('determinate', 1, `Exporting ${name}`);
   try {
-    const themeData = await getThemeByName(name);
+    const themeData = await frodo.theme.getThemeByName(name);
     updateProgressIndicator(`Writing file ${fileName}`);
     saveToFile('theme', [themeData], '_id', fileName);
     stopProgressIndicator(`Successfully exported theme ${name}.`);
@@ -124,7 +111,7 @@ export async function exportThemeById(id, file) {
   }
   createProgressIndicator('determinate', 1, `Exporting ${id}`);
   try {
-    const themeData = await getTheme(id);
+    const themeData = await frodo.theme.getTheme(id);
     updateProgressIndicator(`Writing file ${fileName}`);
     saveToFile('theme', [themeData], '_id', fileName);
     stopProgressIndicator(`Successfully exported theme ${id}.`);
@@ -139,11 +126,14 @@ export async function exportThemeById(id, file) {
  * @param {String} file optional export file name
  */
 export async function exportThemesToFile(file) {
-  let fileName = getTypedFilename(`all${getRealmString()}Themes`, 'theme');
+  let fileName = getTypedFilename(
+    `all${frodo.utils.impex.getRealmString()}Themes`,
+    'theme'
+  );
   if (file) {
     fileName = file;
   }
-  const allThemesData = await getThemes();
+  const allThemesData = await frodo.theme.getThemes();
   createProgressIndicator(
     'determinate',
     allThemesData.length,
@@ -162,7 +152,7 @@ export async function exportThemesToFile(file) {
  * Export all themes to separate files
  */
 export async function exportThemesToFiles() {
-  const allThemesData = await getThemes();
+  const allThemesData = await frodo.theme.getThemes();
   createProgressIndicator(
     'determinate',
     allThemesData.length,
@@ -185,7 +175,7 @@ export async function importThemeByName(name, file) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
-    if (validateImport(themeData.meta)) {
+    if (frodo.utils.impex.validateImport(themeData.meta)) {
       createProgressIndicator('determinate', 1, 'Importing theme...');
       let found = false;
       for (const id in themeData.theme) {
@@ -194,7 +184,7 @@ export async function importThemeByName(name, file) {
             found = true;
             updateProgressIndicator(`Importing ${themeData.theme[id].name}`);
             try {
-              await putThemeByName(name, themeData.theme[id]);
+              await frodo.theme.putThemeByName(name, themeData.theme[id]);
               stopProgressIndicator(`Successfully imported theme ${name}.`);
             } catch (error) {
               stopProgressIndicator(
@@ -227,7 +217,7 @@ export async function importThemeById(id, file) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
-    if (validateImport(themeData.meta)) {
+    if (frodo.utils.impex.validateImport(themeData.meta)) {
       createProgressIndicator('determinate', 1, 'Importing theme...');
       let found = false;
       for (const themeId in themeData.theme) {
@@ -238,7 +228,7 @@ export async function importThemeById(id, file) {
               `Importing ${themeData.theme[themeId]._id}`
             );
             try {
-              await putTheme(themeId, themeData.theme[themeId]);
+              await frodo.theme.putTheme(themeId, themeData.theme[themeId]);
               stopProgressIndicator(`Successfully imported theme ${id}.`);
             } catch (error) {
               stopProgressIndicator(
@@ -270,7 +260,7 @@ export async function importThemesFromFile(file) {
   fs.readFile(file, 'utf8', (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
+    if (frodo.utils.impex.validateImport(fileData.meta)) {
       createProgressIndicator(
         'determinate',
         Object.keys(fileData.theme).length,
@@ -281,7 +271,7 @@ export async function importThemesFromFile(file) {
           updateProgressIndicator(`Importing ${fileData.theme[id].name}`);
         }
       }
-      putThemes(fileData.theme).then((result) => {
+      frodo.theme.putThemes(fileData.theme).then((result) => {
         if (result == null) {
           stopProgressIndicator(
             `Error importing ${Object.keys(fileData.theme).length} themes!`
@@ -327,10 +317,10 @@ export async function importThemesFromFiles() {
   for (const file of jsonFiles) {
     const data = fs.readFileSync(file, 'utf8');
     fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
+    if (frodo.utils.impex.validateImport(fileData.meta)) {
       count = Object.keys(fileData.theme).length;
       // eslint-disable-next-line no-await-in-loop
-      const result = await putThemes(fileData.theme);
+      const result = await frodo.theme.putThemes(fileData.theme);
       if (result == null) {
         printMessage(`Error importing ${count} themes from ${file}`, 'error');
       } else {
@@ -355,12 +345,12 @@ export async function importFirstThemeFromFile(file) {
   fs.readFile(file, 'utf8', (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
-    if (validateImport(themeData.meta)) {
+    if (frodo.utils.impex.validateImport(themeData.meta)) {
       createProgressIndicator('determinate', 1, 'Importing theme...');
       for (const id in themeData.theme) {
         if ({}.hasOwnProperty.call(themeData.theme, id)) {
           updateProgressIndicator(`Importing ${themeData.theme[id].name}`);
-          putTheme(id, themeData.theme[id]).then((result) => {
+          frodo.theme.putTheme(id, themeData.theme[id]).then((result) => {
             if (result == null) {
               stopProgressIndicator(
                 `Error importing theme ${themeData.theme[id].name}`
@@ -391,7 +381,7 @@ export async function importFirstThemeFromFile(file) {
 export async function deleteThemeCmd(id) {
   createProgressIndicator('indeterminate', undefined, `Deleting ${id}...`);
   try {
-    await deleteTheme(id);
+    await frodo.theme.deleteTheme(id);
     stopProgressIndicator(`Deleted ${id}.`, 'success');
   } catch (error) {
     stopProgressIndicator(`Error: ${error.message}`, 'fail');
@@ -405,7 +395,7 @@ export async function deleteThemeCmd(id) {
 export async function deleteThemeByNameCmd(name) {
   createProgressIndicator('indeterminate', undefined, `Deleting ${name}...`);
   try {
-    await deleteThemeByName(name);
+    await frodo.theme.deleteThemeByName(name);
     stopProgressIndicator(`Deleted ${name}.`, 'success');
   } catch (error) {
     stopProgressIndicator(`Error: ${error.message}`, 'fail');
@@ -422,7 +412,7 @@ export async function deleteAllThemes() {
     `Deleting all realm themes...`
   );
   try {
-    await deleteThemes();
+    await frodo.theme.deleteThemes();
     stopProgressIndicator(`Deleted all realm themes.`, 'success');
   } catch (error) {
     stopProgressIndicator(`Error: ${error.message}`, 'fail');

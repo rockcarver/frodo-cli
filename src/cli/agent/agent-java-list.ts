@@ -3,8 +3,6 @@ import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 import { listJavaAgents } from '../../ops/AgentOps.js';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo agent java list');
 
 program
@@ -23,7 +21,7 @@ program
         options,
         command
       );
-      if (await getTokens()) {
+      if (await frodo.login.getTokens()) {
         await listJavaAgents(options.long);
       } else {
         process.exitCode = 1;

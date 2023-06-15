@@ -6,10 +6,6 @@ import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 import { provisionCreds, tailLogs } from '../../ops/LogOps';
 
-const { resolveLevel } = frodo.cloud.log;
-const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo logs tail', ['realm', 'type']);
 program
   .description('Tail Identity Cloud logs.')
@@ -22,7 +18,7 @@ Following values are possible (values on the same line are equivalent): \
 \n0, SEVERE, FATAL, or ERROR\n1, WARNING, WARN or CONFIG\
 \n2, INFO or INFORMATION\n3, DEBUG, FINE, FINER or FINEST\
 \n4 or ALL'
-    ).default('ERROR', `${resolveLevel('ERROR')}`)
+    ).default('ERROR', `${frodo.cloud.log.resolveLevel('ERROR')}`)
   )
   .addOption(
     new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
@@ -36,7 +32,7 @@ Following values are possible (values on the same line are equivalent): \
   .action(async (host, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
     let credsFromParameters = true;
-    const conn = await getConnectionProfile();
+    const conn = await frodo.conn.getConnectionProfile();
     if (conn) {
       state.setHost(conn.tenant);
       if (conn.logApiKey != null && conn.logApiSecret != null) {
@@ -57,7 +53,7 @@ Following values are possible (values on the same line are equivalent): \
           state.setUsername(conn.username);
           state.setPassword(conn.password);
         }
-        if (await getTokens(true)) {
+        if (await frodo.login.getTokens(true)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
@@ -66,14 +62,14 @@ Following values are possible (values on the same line are equivalent): \
       printMessage(
         `Tailing ID Cloud logs from the following sources: ${
           command.opts().sources
-        } and levels [${resolveLevel(command.opts().level)}] of ${
-          conn.tenant
-        }...`
+        } and levels [${frodo.cloud.log.resolveLevel(
+          command.opts().level
+        )}] of ${conn.tenant}...`
       );
-      if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
+      if (credsFromParameters) await frodo.conn.saveConnectionProfile(host); // save new values if they were specified on CLI
       await tailLogs(
         command.opts().sources,
-        resolveLevel(command.opts().level),
+        frodo.cloud.log.resolveLevel(command.opts().level),
         command.opts().transactionId,
         null,
         config.getNoiseFilters(options.defaults)

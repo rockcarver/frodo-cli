@@ -29,8 +29,8 @@
   },
   "main": "esm/launch.js",
   "scripts": {
-    "test": "npx tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:local": "npm run build && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "npx tsc && node --experimental-vm-modules --experimental-specifier-resolution=node node_modules/jest/bin/jest.js",
+    "test:local": "npm run build && node --experimental-vm-modules --experimental-specifier-resolution=node node_modules/jest/bin/jest.js",
     "test:debug": "node --no-warnings --experimental-vm-modules --experimental-specifier-resolution=node node_modules/jest/bin/jest.js --verbose=true --silent=false",
     "lint": "npx eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "npx eslint --fix --ext .ts --ignore-path .gitignore .",
@@ -99,7 +99,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-2",
+    "@rockcarver/frodo-lib": "2.0.0-4",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",

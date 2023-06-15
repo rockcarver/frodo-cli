@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import type { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createObjectTable,
   createProgressBar,
@@ -20,22 +20,6 @@ import {
 } from '../utils/ExportImportUtils';
 import { ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 
-const {
-  deleteResourceType: _deleteResourceType,
-  deleteResourceTypeByName: _deleteResourceTypeByName,
-  getResourceTypes,
-  getResourceType,
-  getResourceTypeByName,
-  exportResourceType,
-  exportResourceTypeByName,
-  exportResourceTypes,
-  importResourceType,
-  importResourceTypeByName,
-  importFirstResourceType,
-  importResourceTypes,
-} = frodo.authz.resourceType;
-const { getRealmName } = frodo.helper.utils;
-
 /**
  * List resource types
  * @param {boolean} long more fields
@@ -44,7 +28,7 @@ const { getRealmName } = frodo.helper.utils;
 export async function listResourceTypes(long = false): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceTypes = await getResourceTypes();
+    const resourceTypes = await frodo.authz.resourceType.getResourceTypes();
     resourceTypes.sort((a, b) => a.name.localeCompare(b.name));
     if (long) {
       const table = createTable(['Name', 'Description', 'Uuid']);
@@ -81,7 +65,9 @@ export async function describeResourceType(
 ): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceType = await getResourceType(resourceTypeUuid);
+    const resourceType = await frodo.authz.resourceType.getResourceType(
+      resourceTypeUuid
+    );
     if (json) {
       printMessage(resourceType, 'data');
     } else {
@@ -114,7 +100,9 @@ export async function describeResourceTypeByName(
 ): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceType = await getResourceTypeByName(resourceTypeName);
+    const resourceType = await frodo.authz.resourceType.getResourceTypeByName(
+      resourceTypeName
+    );
     if (json) {
       printMessage(resourceType, 'data');
     } else {
@@ -149,7 +137,7 @@ export async function deleteResourceType(
   const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeUuid}`);
-    await _deleteResourceType(resourceTypeUuid);
+    await frodo.authz.resourceType.deleteResourceType(resourceTypeUuid);
   } catch (error) {
     errors.push(error);
   }
@@ -182,7 +170,7 @@ export async function deleteResourceTypeByName(
   const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeName}`);
-    await _deleteResourceTypeByName(resourceTypeName);
+    await frodo.authz.resourceType.deleteResourceTypeByName(resourceTypeName);
   } catch (error) {
     errors.push(error);
   }
@@ -215,7 +203,7 @@ export async function deleteResourceTypes(): Promise<
   try {
     showSpinner(`Retrieving all resource types...`);
     try {
-      resourceTypes = await getResourceTypes();
+      resourceTypes = await frodo.authz.resourceType.getResourceTypes();
       succeedSpinner(`Found ${resourceTypes.length} resource types.`);
     } catch (error) {
       error.message = `Error retrieving all resource types: ${error.message}`;
@@ -231,7 +219,7 @@ export async function deleteResourceTypes(): Promise<
       const resourceTypeId = resourceType.uuid;
       try {
         debugMessage(`Deleting resource type ${resourceTypeId}`);
-        await _deleteResourceType(resourceTypeId);
+        await frodo.authz.resourceType.deleteResourceType(resourceTypeId);
         updateProgressBar(`Deleted ${resourceTypeId}`);
       } catch (error) {
         error.message = `Error deleting resource type ${resourceTypeId}: ${error}`;
@@ -277,7 +265,9 @@ export async function exportResourceTypeToFile(
     if (file) {
       fileName = file;
     }
-    const exportData = await exportResourceType(resourceTypeUuid);
+    const exportData = await frodo.authz.resourceType.exportResourceType(
+      resourceTypeUuid
+    );
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported ${resourceTypeUuid} to ${fileName}.`);
     outcome = true;
@@ -306,7 +296,9 @@ export async function exportResourceTypeByNameToFile(
     if (file) {
       fileName = file;
     }
-    const exportData = await exportResourceTypeByName(resourceTypeName);
+    const exportData = await frodo.authz.resourceType.exportResourceTypeByName(
+      resourceTypeName
+    );
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported ${resourceTypeName} to ${fileName}.`);
     outcome = true;
@@ -330,13 +322,15 @@ export async function exportResourceTypesToFile(
   showSpinner(`Exporting all resource types...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(getRealmName(state.getRealm()))}ResourceTypes`,
+      `all${titleCase(
+        frodo.helper.utils.getRealmName(state.getRealm())
+      )}ResourceTypes`,
       'resourcetype.authz'
     );
     if (file) {
       fileName = file;
     }
-    const exportData = await exportResourceTypes();
+    const exportData = await frodo.authz.resourceType.exportResourceTypes();
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported all resource types to ${fileName}.`);
     outcome = true;
@@ -355,13 +349,14 @@ export async function exportResourceTypesToFiles(): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
   try {
-    const resourceTypes: ResourceTypeSkeleton[] = await getResourceTypes();
+    const resourceTypes: ResourceTypeSkeleton[] =
+      await frodo.authz.resourceType.getResourceTypes();
     createProgressBar(resourceTypes.length, 'Exporting resource types...');
     for (const resourceType of resourceTypes) {
       const file = getTypedFilename(resourceType.name, 'resourcetype.authz');
       try {
         const exportData: ResourceTypeExportInterface =
-          await exportResourceType(resourceType.uuid);
+          await frodo.authz.resourceType.exportResourceType(resourceType.uuid);
         saveJsonToFile(exportData, file);
         updateProgressBar(`Exported ${resourceType.name}.`);
       } catch (error) {
@@ -394,7 +389,7 @@ export async function importResourceTypeFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceType(resourceTypeId, fileData);
+    await frodo.authz.resourceType.importResourceType(resourceTypeId, fileData);
     outcome = true;
     succeedSpinner(`Imported ${resourceTypeId}.`);
   } catch (error) {
@@ -421,7 +416,10 @@ export async function importResourceTypeByNameFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceTypeByName(resourceTypeName, fileData);
+    await frodo.authz.resourceType.importResourceTypeByName(
+      resourceTypeName,
+      fileData
+    );
     outcome = true;
     succeedSpinner(`Imported ${resourceTypeName}.`);
   } catch (error) {
@@ -446,7 +444,7 @@ export async function importFirstResourceTypeFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importFirstResourceType(fileData);
+    await frodo.authz.resourceType.importFirstResourceType(fileData);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -471,7 +469,7 @@ export async function importResourceTypesFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importResourceTypes(fileData);
+    await frodo.authz.resourceType.importResourceTypes(fileData);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -502,7 +500,7 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
         const fileData: ResourceTypeExportInterface = JSON.parse(data);
         const count = Object.keys(fileData.resourcetype).length;
         total += count;
-        await importResourceTypes(fileData);
+        await frodo.authz.resourceType.importResourceTypes(fileData);
         updateProgressBar(`Imported ${count} resource types from ${file}`);
       } catch (error) {
         errors.push(error);

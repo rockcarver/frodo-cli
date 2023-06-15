@@ -4,8 +4,6 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { deletePolicySet, deletePolicySets } from '../../ops/PolicySetOps';
 
-const { getTokens } = frodo.login;
-
 const program = new FrodoCommand('frodo authz set delete');
 
 program
@@ -29,13 +27,13 @@ program
         command
       );
       // delete by id
-      if (options.setId && (await getTokens())) {
+      if (options.setId && (await frodo.login.getTokens())) {
         verboseMessage('Deleting authorization policy set...');
         const outcome = deletePolicySet(options.setId);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && (await getTokens())) {
+      else if (options.all && (await frodo.login.getTokens())) {
         verboseMessage('Deleting all authorization policy sets...');
         const outcome = deletePolicySets();
         if (!outcome) process.exitCode = 1;

@@ -1,5 +1,5 @@
-import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import fs from 'fs';
 import {
   createProgressBar,
   createTable,
@@ -12,29 +12,18 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
-import {
+import type {
   OAuth2ClientExportInterface,
   OAuth2ClientExportOptions,
   OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
-
-const { getTypedFilename, titleCase } = frodo.utils.impex;
-const {
-  getOAuth2Clients,
-  exportOAuth2Client,
-  exportOAuth2Clients,
-  importOAuth2Client,
-  importFirstOAuth2Client,
-  importOAuth2Clients,
-} = frodo.oauth2oidc.client;
-const { getRealmName } = frodo.helper.utils;
 
 /**
  * List OAuth2 clients
  */
 export async function listOAuth2Clients(long = false) {
   try {
-    const clients = await getOAuth2Clients();
+    const clients = await frodo.oauth2oidc.client.getOAuth2Clients();
     clients.sort((a, b) => a._id.localeCompare(b._id));
     if (long) {
       const table = createTable([
@@ -101,11 +90,14 @@ export async function exportOAuth2ClientToFile(
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientToFile: begin`);
   showSpinner(`Exporting ${clientId}...`);
   try {
-    let fileName = getTypedFilename(clientId, 'oauth2.app');
+    let fileName = frodo.utils.impex.getTypedFilename(clientId, 'oauth2.app');
     if (file) {
       fileName = file;
     }
-    const exportData = await exportOAuth2Client(clientId, options);
+    const exportData = await frodo.oauth2oidc.client.exportOAuth2Client(
+      clientId,
+      options
+    );
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported ${clientId} to ${fileName}.`);
     outcome = true;
@@ -130,14 +122,18 @@ export async function exportOAuth2ClientsToFile(
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFile: begin`);
   showSpinner(`Exporting all clients...`);
   try {
-    let fileName = getTypedFilename(
-      `all${titleCase(getRealmName(state.getRealm()))}Applications`,
+    let fileName = frodo.utils.impex.getTypedFilename(
+      `all${frodo.utils.impex.titleCase(
+        frodo.helper.utils.getRealmName(state.getRealm())
+      )}Applications`,
       'oauth2.app'
     );
     if (file) {
       fileName = file;
     }
-    const exportData = await exportOAuth2Clients(options);
+    const exportData = await frodo.oauth2oidc.client.exportOAuth2Clients(
+      options
+    );
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported all clients to ${fileName}.`);
     outcome = true;
@@ -162,13 +158,13 @@ export async function exportOAuth2ClientsToFiles(
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: begin`);
   const errors = [];
   try {
-    const clients = await getOAuth2Clients();
+    const clients = await frodo.oauth2oidc.client.getOAuth2Clients();
     createProgressBar(clients.length, 'Exporting clients...');
     for (const client of clients) {
-      const file = getTypedFilename(client._id, 'oauth2.app');
+      const file = frodo.utils.impex.getTypedFilename(client._id, 'oauth2.app');
       try {
         const exportData: OAuth2ClientExportInterface =
-          await exportOAuth2Client(client._id, options);
+          await frodo.oauth2oidc.client.exportOAuth2Client(client._id, options);
         saveJsonToFile(exportData, file);
         updateProgressBar(`Exported ${client._id}.`);
       } catch (error) {
@@ -203,7 +199,11 @@ export async function importOAuth2ClientFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importOAuth2Client(clientId, fileData, options);
+    await frodo.oauth2oidc.client.importOAuth2Client(
+      clientId,
+      fileData,
+      options
+    );
     outcome = true;
     succeedSpinner(`Imported ${clientId}.`);
   } catch (error) {
@@ -230,7 +230,7 @@ export async function importFirstOAuth2ClientFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importFirstOAuth2Client(fileData, options);
+    await frodo.oauth2oidc.client.importFirstOAuth2Client(fileData, options);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -257,7 +257,7 @@ export async function importOAuth2ClientsFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const applicationData = JSON.parse(data);
-    await importOAuth2Clients(applicationData, options);
+    await frodo.oauth2oidc.client.importOAuth2Clients(applicationData, options);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -291,7 +291,7 @@ export async function importOAuth2ClientsFromFiles(
         const fileData: OAuth2ClientExportInterface = JSON.parse(data);
         const count = Object.keys(fileData.application).length;
         total += count;
-        await importOAuth2Clients(fileData, options);
+        await frodo.oauth2oidc.client.importOAuth2Clients(fileData, options);
         updateProgressBar(`Imported ${count} client(s) from ${file}`);
       } catch (error) {
         errors.push(error);
