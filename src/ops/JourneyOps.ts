@@ -413,19 +413,19 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
 export function getJourneyClassification(
   journey: SingleTreeExportInterface
 ): JourneyClassificationType[] {
-  return getJourneyClassification(journey).map((it) => {
+  return frodo.authn.journey.getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
-        return it.toString()['brightGreen'];
+        return it['brightGreen'];
 
       case 'cloud':
-        return it.toString()['brightMagenta'];
+        return it['brightMagenta'];
 
       case 'custom':
-        return it.toString()['brightRed'];
+        return it['brightRed'];
 
       case 'premium':
-        return it.toString()['brightYellow'];
+        return it['brightYellow'];
     }
   });
 }
@@ -438,19 +438,19 @@ export function getJourneyClassification(
 export function getJourneyClassificationMd(
   journey: SingleTreeExportInterface
 ): string[] {
-  return getJourneyClassification(journey).map((it) => {
+  return frodo.authn.journey.getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
-        return `:green_circle: \`${it.toString()}\``;
+        return `:green_circle: \`${it}\``;
 
       case 'cloud':
-        return `:purple_circle: \`${it.toString()}\``;
+        return `:purple_circle: \`${it}\``;
 
       case 'custom':
-        return `:red_circle: \`${it.toString()}\``;
+        return `:red_circle: \`${it}\``;
 
       case 'premium':
-        return `:yellow_circle: \`${it.toString()}\``;
+        return `:yellow_circle: \`${it}\``;
     }
   });
 }
