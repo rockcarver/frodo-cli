@@ -1,6 +1,6 @@
-import fs from 'fs';
 import { frodo } from '@rockcarver/frodo-lib';
-import { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import fs from 'fs';
+import type { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   printMessage,
   createTable,

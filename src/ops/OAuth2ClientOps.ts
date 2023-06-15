@@ -1,5 +1,5 @@
-import fs from 'fs';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import fs from 'fs';
 import {
   createProgressBar,
   createTable,
@@ -12,7 +12,7 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
-import {
+import type {
   OAuth2ClientExportInterface,
   OAuth2ClientExportOptions,
   OAuth2ClientImportOptions,

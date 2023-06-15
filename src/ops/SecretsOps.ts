@@ -11,7 +11,6 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
-import { VersionOfSecretStatus } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
 
 /**
  * List secrets
@@ -247,7 +246,7 @@ export async function activateVersionOfSecret(secretId, version) {
     await frodo.cloud.secret.setStatusOfVersionOfSecret(
       secretId,
       version,
-      VersionOfSecretStatus.ENABLED
+      'ENABLED'
     );
     succeedSpinner(`Activated version ${version} of secret ${secretId}`);
   } catch (error) {
@@ -268,7 +267,7 @@ export async function deactivateVersionOfSecret(secretId, version) {
     await frodo.cloud.secret.setStatusOfVersionOfSecret(
       secretId,
       version,
-      VersionOfSecretStatus.DISABLED
+      'DISABLED'
     );
     succeedSpinner(`Deactivated version ${version} of secret ${secretId}`);
   } catch (error) {

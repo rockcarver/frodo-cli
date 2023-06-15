@@ -11,13 +11,13 @@ import {
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
-import { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   getTypedFilename,
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import type { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 /**
  * Get a one-line description of the circle of trust object
@@ -64,7 +64,7 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
   let outcome = false;
   let cotList = [];
   try {
-    cotList = (await frodo.saml2.circlesOfTrust.getCirclesOfTrust()).result;
+    cotList = await frodo.saml2.circlesOfTrust.getCirclesOfTrust();
   } catch (error) {
     printMessage(`getCirclesOfTrust ERROR: ${error}`, 'error');
     printMessage(error, 'data');
