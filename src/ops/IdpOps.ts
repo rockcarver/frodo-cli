@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import type { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createProgressBar,
   failSpinner,

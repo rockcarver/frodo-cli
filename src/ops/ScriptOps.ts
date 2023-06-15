@@ -20,8 +20,8 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
-import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import type { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 /**
  * Get a one-line description of the script object

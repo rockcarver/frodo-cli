@@ -1,3 +1,4 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import {
   printMessage,
@@ -7,13 +8,7 @@ import {
   succeedSpinner,
   failSpinner,
 } from '../utils/Console';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import {
-  AGENT_TYPE_IG,
-  AGENT_TYPE_JAVA,
-  AGENT_TYPE_WEB,
-} from '@rockcarver/frodo-lib/types/ops/AgentOps';
+import type { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import {
   getTypedFilename,
   saveJsonToFile,
@@ -21,9 +16,9 @@ import {
 } from '../utils/ExportImportUtils';
 
 const agentTypeToFileIdMap = {
-  [AGENT_TYPE_IG]: 'gateway.agent',
-  [AGENT_TYPE_JAVA]: 'java.agent',
-  [AGENT_TYPE_WEB]: 'web.agent',
+  IdentityGatewayAgent: 'gateway.agent',
+  J2EEAgent: 'java.agent',
+  WebAgent: 'web.agent',
 };
 
 /**
@@ -173,7 +168,7 @@ export async function exportIdentityGatewayAgentsToFile(file) {
   const exportData = await frodo.agent.exportIdentityGatewayAgents();
   let fileName = getTypedFilename(
     `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_IG]
+    agentTypeToFileIdMap['IdentityGatewayAgent']
   );
   if (file) {
     fileName = file;
@@ -189,7 +184,7 @@ export async function exportJavaAgentsToFile(file) {
   const exportData = await frodo.agent.exportJavaAgents();
   let fileName = getTypedFilename(
     `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_JAVA]
+    agentTypeToFileIdMap['J2EEAgent']
   );
   if (file) {
     fileName = file;
@@ -205,7 +200,7 @@ export async function exportWebAgentsToFile(file) {
   const exportData = await frodo.agent.exportWebAgents();
   let fileName = getTypedFilename(
     `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_WEB]
+    agentTypeToFileIdMap['WebAgent']
   );
   if (file) {
     fileName = file;

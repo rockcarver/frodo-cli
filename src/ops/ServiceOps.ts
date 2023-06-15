@@ -1,3 +1,4 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import {
   printMessage,
@@ -7,8 +8,7 @@ import {
   succeedSpinner,
   failSpinner,
 } from '../utils/Console';
-import { frodo, state } from '@rockcarver/frodo-lib';
-import { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import type { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 /**
  * List services
