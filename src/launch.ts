@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const launchArgs = [
+  // '--inspect-brk=2000',
   '--no-warnings',
   '--enable-source-maps',
   '--experimental-loader',
-  require.resolve('./loader.js'),
-  require.resolve('./app.js'),
+  new URL('./loader.js', import.meta.url).href,
+  fileURLToPath(new URL('./app.js', import.meta.url)),
 ];
 const frodoArgs = process.argv.slice(2);
 
