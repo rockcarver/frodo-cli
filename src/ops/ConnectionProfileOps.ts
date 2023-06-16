@@ -109,7 +109,7 @@ export async function describeConnectionProfile(
     const table = createObjectTable(profile, keyMap);
     printMessage(table.toString(), 'data');
     if (showSecrets && jwk) {
-      printMessage(jwk, 'data');
+      printMessage(JSON.stringify(jwk), 'data');
     }
   } else {
     printMessage(`No connection profile ${host} found`);
