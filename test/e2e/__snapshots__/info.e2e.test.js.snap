@@ -1,62 +1,219 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo info "frodo info --scriptFriendly": should output cookie name, session id, and access token in json 1`] = `
+exports[`frodo info "frodo info --json" (service account): display env info, versions, and tokens in json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)",
-  "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "authenticatedSubject": "Frodo-SA-1673636532787 [8d9723a9-a439-4cbf-beb4-30e52811789d] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "sessionToken": "s3Jxv0wxx0kvSdPzVkUqbE1tlsQ.*AAJTSQACMDIAAlNLABxoaWpIMVA2em5pc1ZHdkR0YjV5LytXc1VUc3c9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiMzhkY2Y4YzUtMDUzZS00ZjVkLWExYmItM2Y5NjcyYTEzNWQ2LTg2OTIwMSIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ1X1dPSlNBMVZRbkdlM3Uxcm53NkMtTHZxbEkiLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY3NDE3MjY3NSwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY3NDE3MjY3MiwicmVhbG0iOiIvIiwiZXhwIjoxNjc0MTc2Mjc1LCJpYXQiOjE2NzQxNzI2NzUsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6ImlXVFBMMFpvTWJSYS1HRER6WmRVRHBBeTVFbyJ9.cROAUkEdmwbcieOygkEAH0Ko7xqCxip812IEwpF6KOWwn5YsA05LlfBh1my_TjyvOg4LZL1MyQSJfp0Pn-gW3qmrnpSodA1cD4a4jVBNA_V6M47rhHs9H6LmygVhnngdX6iGJkb8RbIOURmCqIGCb4u0-4kbw1gkoHRLe3RyvRc4_LZWjeYt6o87897L4lJ-sU1316LZlloOX8rshO0y23cXeRntN0s1-7VDro4V-nPUuOjfwhpzTOoIYk8m17pl_AndUXtJ7OXkLSQWe_h0F_8S8nziES6bOt4JdT6gJKxIjbP41z-Ftca8sB1Zo5x18aTQQ9i05XBdi6eeK8j8Kw",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
   "immutable": false,
   "locked": false,
   "region": "us-central1",
   "tier": "other",
   "config_promotion_done": false,
-  "placeholder_management": "SRE"
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
 }
 "
 `;
 
-exports[`frodo info "frodo info -s": should output cookie name, session id, and access token in json 1`] = `
+exports[`frodo info "frodo info --json" (user): display env info, versions, and tokens in json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "sessionToken": "s3Jxv0wxx0kvSdPzVkUqbE1tlsQ.*AAJTSQACMDIAAlNLABxoaWpIMVA2em5pc1ZHdkR0YjV5LytXc1VUc3c9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiMzhkY2Y4YzUtMDUzZS00ZjVkLWExYmItM2Y5NjcyYTEzNWQ2LTg2OTIwMSIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ1X1dPSlNBMVZRbkdlM3Uxcm53NkMtTHZxbEkiLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY3NDE3MjY3NSwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY3NDE3MjY3MiwicmVhbG0iOiIvIiwiZXhwIjoxNjc0MTc2Mjc1LCJpYXQiOjE2NzQxNzI2NzUsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6ImlXVFBMMFpvTWJSYS1HRER6WmRVRHBBeTVFbyJ9.cROAUkEdmwbcieOygkEAH0Ko7xqCxip812IEwpF6KOWwn5YsA05LlfBh1my_TjyvOg4LZL1MyQSJfp0Pn-gW3qmrnpSodA1cD4a4jVBNA_V6M47rhHs9H6LmygVhnngdX6iGJkb8RbIOURmCqIGCb4u0-4kbw1gkoHRLe3RyvRc4_LZWjeYt6o87897L4lJ-sU1316LZlloOX8rshO0y23cXeRntN0s1-7VDro4V-nPUuOjfwhpzTOoIYk8m17pl_AndUXtJ7OXkLSQWe_h0F_8S8nziES6bOt4JdT6gJKxIjbP41z-Ftca8sB1Zo5x18aTQQ9i05XBdi6eeK8j8Kw",
+  "sessionToken": "55oLXQUTniBUknHWONitBfwWZE8.*AAJTSQACMDIAAlNLABxxdW9GRHdXcEtyYnN5ZVVMa1NnUnhIMlJxQ0k9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
   "immutable": false,
   "locked": false,
   "region": "us-central1",
   "tier": "other",
   "config_promotion_done": false,
-  "placeholder_management": "SRE"
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
 }
 "
 `;
 
-exports[`frodo info "frodo info": should display cookie name, session id, and access token 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
+exports[`frodo info "frodo info --scriptFriendly" (service account): display env info, versions, and tokens in json 1`] = `
+"{
+  "host": "https://openam-frodo-dev.forgeblocks.com/am",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "authenticatedSubject": "Frodo-SA-1673636532787 [8d9723a9-a439-4cbf-beb4-30e52811789d] (Service Account)",
+  "deploymentType": "cloud",
+  "cookieName": "6ac6499e9da2071",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
+  "immutable": false,
+  "locked": false,
+  "region": "us-central1",
+  "tier": "other",
+  "config_promotion_done": false,
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
+}
+"
+`;
 
-Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                                   
-AM Version            │7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)
-Subject (Type)        │volker.scheuber@forgerock.com (User)                                                          
-Deployment Type       │cloud                                                                                         
-Cookie Name           │6ac6499e9da2071                                                                               
-Immutable             │false                                                                                         
-Locked                │false                                                                                         
-Region                │us-central1                                                                                   
-Tier                  │other                                                                                         
-Promotion Done        │false                                                                                         
-Placeholder Management│SRE                                                                                           
+exports[`frodo info "frodo info --scriptFriendly" (user): display env info, versions, and tokens in json 1`] = `
+"{
+  "host": "https://openam-frodo-dev.forgeblocks.com/am",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
+  "deploymentType": "cloud",
+  "cookieName": "6ac6499e9da2071",
+  "sessionToken": "55oLXQUTniBUknHWONitBfwWZE8.*AAJTSQACMDIAAlNLABxxdW9GRHdXcEtyYnN5ZVVMa1NnUnhIMlJxQ0k9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
+  "immutable": false,
+  "locked": false,
+  "region": "us-central1",
+  "tier": "other",
+  "config_promotion_done": false,
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
+}
+"
+`;
 
-Session token:
-s3Jxv0wxx0kvSdPzVkUqbE1tlsQ.*AAJTSQACMDIAAlNLABxoaWpIMVA2em5pc1ZHdkR0YjV5LytXc1VUc3c9AAR0eXBlAANDVFMAAlMxAAIwMQ..*
+exports[`frodo info "frodo info -s" (service account): display env info, versions, and tokens in json 1`] = `
+"{
+  "host": "https://openam-frodo-dev.forgeblocks.com/am",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "authenticatedSubject": "Frodo-SA-1673636532787 [8d9723a9-a439-4cbf-beb4-30e52811789d] (Service Account)",
+  "deploymentType": "cloud",
+  "cookieName": "6ac6499e9da2071",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
+  "immutable": false,
+  "locked": false,
+  "region": "us-central1",
+  "tier": "other",
+  "config_promotion_done": false,
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
+}
+"
+`;
+
+exports[`frodo info "frodo info -s" (user): display env info, versions, and tokens in json 1`] = `
+"{
+  "host": "https://openam-frodo-dev.forgeblocks.com/am",
+  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
+  "deploymentType": "cloud",
+  "cookieName": "6ac6499e9da2071",
+  "sessionToken": "55oLXQUTniBUknHWONitBfwWZE8.*AAJTSQACMDIAAlNLABxxdW9GRHdXcEtyYnN5ZVVMa1NnUnhIMlJxQ0k9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
+  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg",
+  "immutable": false,
+  "locked": false,
+  "region": "us-central1",
+  "tier": "other",
+  "config_promotion_done": false,
+  "placeholder_management": "CUSTOMER",
+  "promotionTierInfo": {
+    "tierDisplayName": "other",
+    "tiers": [
+      "other"
+    ],
+    "upperTierDisplayName": null,
+    "lowerTierDisplayName": null
+  }
+}
+"
+`;
+
+exports[`frodo info "frodo info" (service account): display env info, versions, and tokens 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1673636532787 [8d9723a9-a439-4cbf-beb4-30e52811789d]
+
+Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                      
+AM Version            │7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)
+Subject (Type)        │Frodo-SA-1673636532787 [8d9723a9-a439-4cbf-beb4-30e52811789d] (Service Account)  
+Deployment Type       │cloud                                                                            
+Cookie Name           │6ac6499e9da2071                                                                  
+Immutable             │false                                                                            
+Locked                │false                                                                            
+Region                │us-central1                                                                      
+Tier                  │other                                                                            
+Promotion Done        │false                                                                            
+Placeholder Management│CUSTOMER                                                                         
+                      │                                                                                 
+  promotionTierInfo   │                                                                                 
+       tierDisplayName│other                                                                            
+  upperTierDisplayName│                                                                                 
+  lowerTierDisplayName│                                                                                 
+                      │                                                                                 
+    tiers             │                                                                                 
+                     0│other                                                                            
 
 Bearer token:
-eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiMzhkY2Y4YzUtMDUzZS00ZjVkLWExYmItM2Y5NjcyYTEzNWQ2LTg2OTIwMSIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ1X1dPSlNBMVZRbkdlM3Uxcm53NkMtTHZxbEkiLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY3NDE3MjY3NSwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY3NDE3MjY3MiwicmVhbG0iOiIvIiwiZXhwIjoxNjc0MTc2Mjc1LCJpYXQiOjE2NzQxNzI2NzUsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6ImlXVFBMMFpvTWJSYS1HRER6WmRVRHBBeTVFbyJ9.cROAUkEdmwbcieOygkEAH0Ko7xqCxip812IEwpF6KOWwn5YsA05LlfBh1my_TjyvOg4LZL1MyQSJfp0Pn-gW3qmrnpSodA1cD4a4jVBNA_V6M47rhHs9H6LmygVhnngdX6iGJkb8RbIOURmCqIGCb4u0-4kbw1gkoHRLe3RyvRc4_LZWjeYt6o87897L4lJ-sU1316LZlloOX8rshO0y23cXeRntN0s1-7VDro4V-nPUuOjfwhpzTOoIYk8m17pl_AndUXtJ7OXkLSQWe_h0F_8S8nziES6bOt4JdT6gJKxIjbP41z-Ftca8sB1Zo5x18aTQQ9i05XBdi6eeK8j8Kw
+eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg
+"
+`;
+
+exports[`frodo info "frodo info" (user): display env info, versions, and tokens 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
+
+Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                      
+AM Version            │7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)
+Subject (Type)        │volker.scheuber@forgerock.com (User)                                             
+Deployment Type       │cloud                                                                            
+Cookie Name           │6ac6499e9da2071                                                                  
+Immutable             │false                                                                            
+Locked                │false                                                                            
+Region                │us-central1                                                                      
+Tier                  │other                                                                            
+Promotion Done        │false                                                                            
+Placeholder Management│CUSTOMER                                                                         
+                      │                                                                                 
+  promotionTierInfo   │                                                                                 
+       tierDisplayName│other                                                                            
+  upperTierDisplayName│                                                                                 
+  lowerTierDisplayName│                                                                                 
+                      │                                                                                 
+    tiers             │                                                                                 
+                     0│other                                                                            
+
+Session token:
+55oLXQUTniBUknHWONitBfwWZE8.*AAJTSQACMDIAAlNLABxxdW9GRHdXcEtyYnN5ZVVMa1NnUnhIMlJxQ0k9AAR0eXBlAANDVFMAAlMxAAIwMQ..*
+
+Bearer token:
+eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjEyMTI2MzQtMDg4Yi00YjZkLWIwODQtMThhN2IzMGQwYTljLTkxOTkzMyIsInN1Ym5hbWUiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJpc3MiOiJodHRwczovL29wZW5hbS1mcm9kby1kZXYuZm9yZ2VibG9ja3MuY29tOjQ0My9hbS9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJ4OFhSX09PWXRHWjFFbVNUbWxLQWZlVWNEcmciLCJhdWQiOiJpZG1BZG1pbkNsaWVudCIsIm5iZiI6MTY4Njg2NTE5NiwiZ3JhbnRfdHlwZSI6ImF1dGhvcml6YXRpb25fY29kZSIsInNjb3BlIjpbIm9wZW5pZCIsImZyOmlkYzplc3Y6KiIsImZyOmlkbToqIl0sImF1dGhfdGltZSI6MTY4Njg2NTE5NiwicmVhbG0iOiIvIiwiZXhwIjoxNjg2ODY4Nzk2LCJpYXQiOjE2ODY4NjUxOTYsImV4cGlyZXNfaW4iOjM2MDAsImp0aSI6IjF4S0R6c0U1VFRoRmdvYkNtMU5jenlPTXFCQSJ9.CjD9_WhXDVmQHQwca4Fe0C5htJSTGLdcp-3EeKa7Ya0dobsbXSF9ZkQV204JIP2dJnCCL6x6Bs0AfGWEWFGHDiPrr13uOEouEIU0nwLsWFlIGqglAz5bUsyDHvY_b4KLahaLy9Sr-G2wr9n3nPY5hRuPFprKcH5hl7mKPIrDW-EQy2kW6AmiOVUtPNYrwP945B5VXNz3sper1L-VoyArhLKA1yJue6IcbfcEPJx-ThuE4BP3P4JuFWP1yx1Uc9gv0YmuILsvU3qJfg3ScFH72kRbaTAoA7CIEugABSREppn_CHDqlK-ujnF-4X6DP2IWGrvac_LT9ISZ0qEJAKbCLg
 "
 `;

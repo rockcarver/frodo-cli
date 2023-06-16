@@ -50,5 +50,16 @@ Options:
   --verbose                   Verbose output during command execution. If
                               specified, may or may not produce additional
                               output.
+
+Evironment Variables:
+  FRODO_HOST: Access Management base URL. Overrides 'host' argument.
+  FRODO_REALM: Realm. Overrides 'realm' argument.
+  FRODO_USERNAME: Username. Overrides 'username' argument.
+  FRODO_PASSWORD: Password. Overrides 'password' argument.
+  FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
+  FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+
 "
 `;
