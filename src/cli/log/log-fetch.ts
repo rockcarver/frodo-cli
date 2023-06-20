@@ -4,14 +4,14 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
-import { fetchLogs, provisionCreds } from '../../ops/LogOps';
+import { fetchLogs, provisionCredentials } from '../../ops/LogOps';
 
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
 const LOG_TIME_WINDOW_INCREMENT = 1;
 
-const program = new FrodoCommand('frodo logs fetch', ['realm', 'type']);
+const program = new FrodoCommand('frodo log fetch', ['realm', 'type']);
 program
   .description(
     'Fetch Identity Cloud logs between a specified begin and end time period.\
@@ -82,7 +82,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCreds();
+          const creds = await provisionCredentials();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }
