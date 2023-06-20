@@ -28,5 +28,7 @@ export default function setup() {
 
   program.command('fetch', 'Fetch Identity Cloud logs for a time window.');
 
+  program.command('key', 'Manage Identity Cloud log API keys.');
+
   return program;
 }

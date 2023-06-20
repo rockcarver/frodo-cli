@@ -4,9 +4,9 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
-import { provisionCreds, tailLogs } from '../../ops/LogOps';
+import { provisionCredentials, tailLogs } from '../../ops/LogOps';
 
-const program = new FrodoCommand('frodo logs tail', ['realm', 'type']);
+const program = new FrodoCommand('frodo log tail', ['realm', 'type']);
 program
   .description('Tail Identity Cloud logs.')
   .addOption(sourcesOptionM)
@@ -54,7 +54,7 @@ Following values are possible (values on the same line are equivalent): \
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCreds();
+          const creds = await provisionCredentials();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }

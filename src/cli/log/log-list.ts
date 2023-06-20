@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
-import { provisionCreds } from '../../ops/LogOps';
+import { provisionCredentials } from '../../ops/LogOps';
 
-const program = new FrodoCommand('frodo logs list', ['realm', 'type']);
+const program = new FrodoCommand('frodo log list', ['realm', 'type']);
 program
   .description('List available ID Cloud log sources.')
   .action(async (host, user, password, options, command) => {
@@ -32,7 +32,7 @@ program
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCreds();
+          const creds = await provisionCredentials();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }
