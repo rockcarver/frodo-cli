@@ -6,6 +6,7 @@ import {
   printMessage,
   verboseMessage,
 } from '../../utils/Console';
+import * as s from '../../help/SampleData';
 
 export default function setup() {
   const program = new FrodoCommand('info', ['realm']);
@@ -19,6 +20,20 @@ export default function setup() {
       )
         .default(false, 'Output as plain text')
         .hideHelp()
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Show human-readable output and login using AM base URL, username, and password (note the quotes around password to allow special characters):\n` +
+        `  $ frodo info ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
+        `  Show human-readable output and login using a connection profile (identified by the full AM base URL):\n` +
+        `  $ frodo info ${s.amBaseUrl}'\n`['brightCyan'] +
+        `  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL):\n` +
+        `  $ frodo info ${s.connId}'\n`['brightCyan'] +
+        `  Show JSON output and login using the AM base URL's unique substring to identify the connection profile:\n` +
+        `  $ frodo info --json ${s.connId}'\n`['brightCyan']
     )
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
@@ -56,9 +71,7 @@ export default function setup() {
         }
       } else {
         process.exitCode = 1;
-        program.help();
       }
     });
-  program.showHelpAfterError();
   return program;
 }
