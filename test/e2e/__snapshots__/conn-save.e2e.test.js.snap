@@ -8,3 +8,11 @@ Validated and added service account with id b672336b-41ef-428d-ae4a-e0c082875377
 Saved connection profile https://openam-frodo-dev.forgeblocks.com/am
 "
 `;
+
+exports[`frodo conn save "frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!": save new connection profile with existing service account and without admin account. 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
+Created and added service account Frodo-SA-1687293271764 with id 17051145-f82a-47b0-8e73-91f27e2cb622 to profile.
+Created log API key 2e3e7162c6861fdc50a10b6353ada65a and secret.
+Saved connection profile https://openam-frodo-dev.forgeblocks.com/am
+"
+`;
