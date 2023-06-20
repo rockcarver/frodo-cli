@@ -4,24 +4,13 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
+import * as s from '../../help/SampleData';
 
 const program = new FrodoCommand('frodo conn save', ['realm']);
 
 program
   .alias('add')
   .description('Save connection profiles.')
-  .addOption(
-    new Option(
-      '--sa-id <uuid>',
-      "Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa."
-    )
-  )
-  .addOption(
-    new Option(
-      '--sa-jwk-file <file>',
-      "File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa."
-    )
-  )
   .addOption(new Option('--no-sa', 'Do not create and add service account.'))
   .addOption(
     new Option(
@@ -51,6 +40,22 @@ program
       'Map of headers: {"host":"am.example.com:8081"}.'
     )
   )
+  .addHelpText(
+    'after',
+    `Usage Examples:\n` +
+      `  Create a connection profile with a new log API key and secret and a new service account:\n` +
+      `  $ frodo conn save ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+        'brightCyan'
+      ] +
+      `  Save an existing service account to an existing or new connection profile:\n` +
+      `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}'\n`[
+        'brightCyan'
+      ] +
+      `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
+      `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}'\n`[
+        'brightCyan'
+      ]
+  )
   .action(
     // implement command logic inside action handler
     async (host, user, password, options, command) => {
@@ -65,9 +70,16 @@ program
           JSON.parse(options.authenticationHeaderOverrides)
         );
       }
-      const forceLoginAsUser =
-        !options.sa ||
-        (state.getLogApiKey() && state.getLogApiSecret() ? false : true);
+      const needSa =
+        options.sa &&
+        !state.getServiceAccountId() &&
+        !state.getServiceAccountJwk();
+      const needLogApiKey =
+        options.logApi &&
+        !state.getLogApiKey() &&
+        !state.getLogApiSecret() &&
+        needSa;
+      const forceLoginAsUser = needSa || needLogApiKey;
       if (
         (options.validate && (await frodo.login.getTokens(forceLoginAsUser))) ||
         !options.validate
@@ -136,7 +148,7 @@ program
           options.validate &&
           state.getDeploymentType() ===
             frodo.helper.constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
-          options.logApi
+          needLogApiKey
         ) {
           // validate and add existing log api key and secret
           if (options.logApiKey && options.logApiSecret) {
