@@ -1,5 +1,5 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { sourcesOptionM } from './logs';
+import { sourcesOptionM } from './log';
 import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';

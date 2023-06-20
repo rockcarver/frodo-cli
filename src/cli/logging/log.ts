@@ -13,7 +13,9 @@ export const sourcesOptionM = new Option(
   .default('am-everything,idm-everything', 'Log everything');
 
 export default function setup() {
-  const program = new FrodoStubCommand('logs')
+  const program = new FrodoStubCommand('log')
+    // for backwards compatibility
+    .alias('logs')
     .summary('List/View Identity Cloud logs')
     .description(
       `View Identity Cloud logs. If valid tenant admin credentials are specified, a log API key and secret are automatically created for that admin user.`
