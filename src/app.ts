@@ -13,7 +13,7 @@ import idm from './cli/idm/idm';
 import idp from './cli/idp/idp';
 import info from './cli/info/info';
 import journey from './cli/journey/journey';
-import log from './cli/logging/log';
+import log from './cli/log/log';
 import realm from './cli/realm/realm';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
