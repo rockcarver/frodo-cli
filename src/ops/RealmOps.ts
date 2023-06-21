@@ -11,7 +11,7 @@ import {
  */
 export async function listRealms(long = false) {
   try {
-    const realms = (await frodo.realm.getRealms()).data.result;
+    const realms = (await frodo.realm.getRealms()).result;
     if (long) {
       const table = createTable([
         'Name'['brightCyan'],
@@ -36,8 +36,9 @@ export async function listRealms(long = false) {
       });
     }
   } catch (error) {
+    printMessage(error, 'error');
     printMessage(`Error listing realms: ${error.rmessage}`, 'error');
-    printMessage(error.response.data, 'error');
+    printMessage(error.response?.data, 'error');
   }
 }
 
@@ -83,8 +84,7 @@ export async function addCustomDomain(realm: string, domain: string) {
     if (!exists) {
       try {
         realmConfig.aliases.push(domain.toLowerCase());
-        realmConfig = (await frodo.realm.putRealm(realmConfig._id, realmConfig))
-          .data;
+        realmConfig = await frodo.realm.putRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([
@@ -123,8 +123,7 @@ export async function removeCustomDomain(realm: string, domain: string) {
     if (aliases.length < realmConfig.aliases.length) {
       try {
         realmConfig.aliases = aliases;
-        realmConfig = (await frodo.realm.putRealm(realmConfig._id, realmConfig))
-          .data;
+        realmConfig = await frodo.realm.putRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([
