@@ -4,7 +4,7 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
-import { provisionCredentials, tailLogs } from '../../ops/LogOps';
+import { provisionCreds, tailLogs } from '../../ops/LogOps';
 
 const program = new FrodoCommand('frodo log tail', ['realm', 'type']);
 program
@@ -54,7 +54,7 @@ Following values are possible (values on the same line are equivalent): \
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCredentials();
+          const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }

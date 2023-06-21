@@ -3,6 +3,7 @@ import fs from 'fs';
 import type { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createProgressBar,
+  debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
@@ -77,6 +78,7 @@ export async function exportSocialProviderToFile(
   providerId: string,
   file = ''
 ) {
+  debugMessage(`cli.IdpOps.exportSocialProviderToFile: start`);
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(providerId, 'idp');
@@ -95,6 +97,7 @@ export async function exportSocialProviderToFile(
     stopProgressBar(`${err}`);
     printMessage(`${err}`, 'error');
   }
+  debugMessage(`cli.IdpOps.exportSocialProviderToFile: end`);
 }
 
 /**
@@ -114,19 +117,29 @@ export async function exportSocialProvidersToFile(file = '') {
  * Export all providers to individual files
  */
 export async function exportSocialProvidersToFiles() {
-  const allIdpsData =
-    await frodo.oauth2oidc.external.getSocialIdentityProviders();
-  // printMessage(allIdpsData, 'data');
-  createProgressBar(allIdpsData.length, 'Exporting providers');
-  for (const idpData of allIdpsData) {
-    updateProgressBar(`Writing provider ${idpData._id}`);
-    const fileName = getTypedFilename(idpData._id, 'idp');
-    const fileData = await frodo.oauth2oidc.external.exportSocialProvider(
-      idpData._id
-    );
-    saveJsonToFile(fileData, fileName);
+  debugMessage(`cli.IdpOps.exportSocialProvidersToFiles: start`);
+  try {
+    const allIdpsData =
+      await frodo.oauth2oidc.external.getSocialIdentityProviders();
+    createProgressBar(allIdpsData.length, 'Exporting providers');
+    for (const idpData of allIdpsData) {
+      try {
+        const fileName = getTypedFilename(idpData._id, 'idp');
+        const fileData = await frodo.oauth2oidc.external.exportSocialProvider(
+          idpData._id
+        );
+        saveJsonToFile(fileData, fileName);
+        updateProgressBar(`Exported provider ${idpData._id}`);
+      } catch (error) {
+        printMessage(`Error exporting ${idpData._id}: ${error}`, 'error');
+      }
+    }
+    stopProgressBar(`${allIdpsData.length} providers exported.`);
+  } catch (error) {
+    stopProgressBar(`${error}`);
+    printMessage(`${error}`, 'error');
   }
-  stopProgressBar(`${allIdpsData.length} providers exported.`);
+  debugMessage(`cli.IdpOps.exportSocialProvidersToFiles: end`);
 }
 
 /**
