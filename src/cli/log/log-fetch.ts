@@ -4,7 +4,7 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
-import { fetchLogs, provisionCredentials } from '../../ops/LogOps';
+import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
@@ -82,7 +82,7 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCredentials();
+          const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }
