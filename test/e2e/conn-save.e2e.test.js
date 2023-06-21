@@ -45,16 +45,11 @@
  *    Your tests are likely going to reside outside the frodo-lib project but
  *    the recordings must be committed to the frodo-lib project.
  */
-
-/*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list -l
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list --long
- */
 import cp from 'child_process';
 import { promisify } from 'util';
 import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
+import { writeFileSync, rmSync } from 'fs';
 
 const exec = promisify(cp.exec);
 
@@ -63,31 +58,26 @@ const env = {
   env: process.env,
 };
 
-describe('frodo journey list', () => {
-  test('"frodo journey list": should list the names of the default journeys', async () => {
-    const CMD = `frodo journey list`;
-    env.env.FRODO_HOST = c.host;
-    env.env.FRODO_SA_ID = c.saId;
-    env.env.FRODO_SA_JWK = c.saJwk;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+const jwkFile = 'test/fs_tmp/conn-save-jwk.json';
+
+beforeAll(() => {
+  writeFileSync(jwkFile, c.saJwk);
+});
+
+afterAll(() => {
+  rmSync(jwkFile);
+});
+
+describe('frodo conn save', () => {
+  test(`"frodo conn save ${c.host} ${c.user} ${c.pass}": save new connection profile with existing service account and without admin account.`, async () => {
+    const CMD = `frodo conn save ${c.host} ${c.user} ${c.pass}`;
+    const { stderr } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
   });
 
-  test('"frodo journey list -l": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list -l`;
-    env.env.FRODO_HOST = c.host;
-    env.env.FRODO_SA_ID = c.saId;
-    env.env.FRODO_SA_JWK = c.saJwk;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
-
-  test('"frodo journey list --long": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list --long`;
-    env.env.FRODO_HOST = c.host;
-    env.env.FRODO_SA_ID = c.saId;
-    env.env.FRODO_SA_JWK = c.saJwk;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  test(`"frodo conn save --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}": save new connection profile with existing service account and without admin account.`, async () => {
+    const CMD = `frodo conn save --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}`;
+    const { stderr } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
   });
 });

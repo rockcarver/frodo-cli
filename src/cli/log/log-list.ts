@@ -3,7 +3,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { provisionCreds } from '../../ops/LogOps';
 
-const program = new FrodoCommand('frodo logs list', ['realm', 'type']);
+const program = new FrodoCommand('frodo log list', ['realm', 'type']);
 program
   .description('List available ID Cloud log sources.')
   .action(async (host, user, password, options, command) => {

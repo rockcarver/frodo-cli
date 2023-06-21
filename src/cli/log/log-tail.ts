@@ -1,12 +1,12 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { sourcesOptionM } from './logs';
+import { sourcesOptionM } from './log';
 import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
 import { provisionCreds, tailLogs } from '../../ops/LogOps';
 
-const program = new FrodoCommand('frodo logs tail', ['realm', 'type']);
+const program = new FrodoCommand('frodo log tail', ['realm', 'type']);
 program
   .description('Tail Identity Cloud logs.')
   .addOption(sourcesOptionM)

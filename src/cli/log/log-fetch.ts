@@ -1,5 +1,5 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { sourcesOptionM } from './logs';
+import { sourcesOptionM } from './log';
 import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import * as config from '../../utils/Config';
@@ -11,7 +11,7 @@ const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
 const LOG_TIME_WINDOW_INCREMENT = 1;
 
-const program = new FrodoCommand('frodo logs fetch', ['realm', 'type']);
+const program = new FrodoCommand('frodo log fetch', ['realm', 'type']);
 program
   .description(
     'Fetch Identity Cloud logs between a specified begin and end time period.\
