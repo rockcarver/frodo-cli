@@ -75,9 +75,16 @@ program
           JSON.parse(options.authenticationHeaderOverrides)
         );
       }
-      const forceLoginAsUser =
-        !options.sa ||
-        (state.getLogApiKey() && state.getLogApiSecret() ? false : true);
+      const needSa =
+        options.sa &&
+        !state.getServiceAccountId() &&
+        !state.getServiceAccountJwk();
+      const needLogApiKey =
+        options.logApi &&
+        !state.getLogApiKey() &&
+        !state.getLogApiSecret() &&
+        needSa;
+      const forceLoginAsUser = needSa || needLogApiKey;
       if (
         (options.validate && (await getTokens(forceLoginAsUser))) ||
         !options.validate
@@ -144,7 +151,7 @@ program
         if (
           options.validate &&
           state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
-          options.logApi
+          needLogApiKey
         ) {
           // validate and add existing log api key and secret
           if (options.logApiKey && options.logApiSecret) {
