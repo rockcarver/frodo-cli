@@ -1,7 +1,7 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
-import { provisionCredentials } from '../../ops/LogOps';
+import { provisionCreds } from '../../ops/LogOps';
 
 const program = new FrodoCommand('frodo log list', ['realm', 'type']);
 program
@@ -32,7 +32,7 @@ program
           state.setPassword(conn.password);
         }
         if (await frodo.login.getTokens(true)) {
-          const creds = await provisionCredentials();
+          const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);
         }

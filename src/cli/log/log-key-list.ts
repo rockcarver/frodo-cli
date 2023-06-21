@@ -1,6 +1,8 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { listLogApiKeys } from '../../ops/LogOps';
+import { verboseMessage } from '../../utils/Console';
 
 const program = new FrodoCommand('frodo log key list');
 
@@ -20,8 +22,10 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
-        // code goes here
+      if (await frodo.login.getTokens(true)) {
+        verboseMessage(`Listing log API keys...`);
+        const outcome = await listLogApiKeys(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }
