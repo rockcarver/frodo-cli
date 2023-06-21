@@ -1,350 +1,66 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo journey list "frodo journey list --long": should list the names, status, and tags of the default journeys 1`] = `
-"Name                          │Status  │Tags                                                       
-AA-Login                      │enabled │Authentication, Social Authentication, Adaptive, Autonomous
-                              │        │Access                                                     
-AA-Registration               │enabled │Registration, Autonomous Access, Adaptive                  
-AccessRestrictions            │enabled │                                                           
-ADFSOIDC                      │enabled │Federation, ADFS                                           
-Anonymous                     │enabled │Tracking                                                   
-APIProtection                 │enabled │API Protection                                             
-AutoAccess                    │enabled │Adaptive, Prototype                                        
-Azure                         │enabled │Authentication, SAML, Azure                                
-AzureADPassthru               │enabled │Authentication, Azure, Trickle Migration                   
-AzureOIDC                     │enabled │Authentication, Azure                                      
-ClearLockout                  │enabled │Self-Service, Proof Of Concept, Prototype                  
-CollectReplayCredentials      │enabled │Proof Of Concept, Prototype, Helper                        
-ConnectSocial                 │enabled │Self-Service                                               
-CookieConsent                 │enabled │Authentication, Proof Of Concept, Prototype                
-Country                       │enabled │Proof Of Concept, Adaptive, Prototype                      
-Crypto                        │enabled │Proof Of Concept                                           
-CustomerIdentityUpdateUsername│enabled │Proof Of Concept, Self-Service                             
-CustomHostedUILogin           │enabled │Prototype                                                  
-DefaultSuccessURL             │enabled │Proof Of Concept, Prototype, Helper                        
-DelegatedProfileUpdate        │enabled │                                                           
-DevicePrint                   │enabled │Adaptive, Helper                                           
-Disabled                      │disabled│Prototype                                                  
-Dispatcher                    │enabled │Prototype                                                  
-Dropdown                      │enabled │Prototype                                                  
-DynamicConfiguration          │enabled │                                                           
-EmailValidation               │enabled │Adaptive, Helper                                           
-FindUser                      │enabled │Prototype                                                  
-FindUserFromSession           │enabled │Helper, Proof Of Concept, Prototype                        
-foo2                          │enabled │                                                           
-ForgottenUsername             │enabled │Self-Service                                               
-FRAAS-7955                    │enabled │Prototype, Jira                                            
-FraudRisk                     │enabled │Adaptive, Helper, Proof Of Concept                         
-FrodoTest                     │enabled │Frodo, Prototype                                           
-FrodoTestJourney1             │enabled │Frodo, Prototype                                           
-FrodoTestJourney2             │enabled │Frodo, Prototype                                           
-FrodoTestJourney3             │enabled │Frodo, Prototype                                           
-FrodoTestJourney4             │enabled │Frodo, Prototype                                           
-FrodoTestJourney5             │enabled │Frodo, Prototype                                           
-FrodoTestJourney6             │enabled │Frodo, Prototype                                           
-FrodoTestJourney7             │enabled │Frodo, Prototype                                           
-FrodoTestJourney8             │disabled│Frodo, Prototype                                           
-FrodoTestJourney9             │disabled│Frodo, Prototype                                           
-Hash                          │enabled │Proof Of Concept, Prototype                                
-iAA-FraudRisk                 │enabled │Adaptive, Helper, Proof Of Concept, Autonomous Access      
-iAA-LoginRisk                 │enabled │Autonomous Access, Helper                                  
-iAA-RegistrationRisk          │enabled │Autonomous Access, Helper                                  
-IdentityProofing              │enabled │                                                           
-Impersonate                   │enabled │Proof Of Concept                                           
-Impersonation                 │enabled │                                                           
-iPasswordBreachDetection      │enabled │Adaptive                                                   
-iSocialLogin                  │enabled │Social Authentication                                      
-iUsernamePasswordLogin        │enabled │                                                           
-KerberosLogin                 │enabled │                                                           
-LanguageSwitcher              │enabled │Prototype                                                  
-Launcher                      │enabled │Helper                                                     
-Login                         │enabled │Authentication, Social Authentication                      
-logintest                     │enabled │                                                           
-Metrics                       │enabled │                                                           
-MFAAutoSelect                 │enabled │MFA, Adaptive, Helper, OTP                                 
-MFAWithEmailLink              │enabled │Helper, MFA                                                
-MFAWithEmailOTP               │enabled │MFA, OTP                                                   
-MFAWithSMSOTP                 │enabled │MFA, OTP                                                   
-MFAWithVoiceOTP               │enabled │MFA, OTP                                                   
-MobileGenerateEmailOTP        │enabled │                                                           
-MobileValidateEmailOTP        │enabled │                                                           
-nester                        │enabled │                                                           
-NodeStateIssue                │enabled │Jira, Prototype                                            
-Oath                          │enabled │MFA, OTP                                                   
-OathJoker                     │enabled │Prototype                                                  
-Okta_SAML                     │enabled │                                                           
-OTPEndpoint                   │enabled │Helper, OTP                                                
-Passthru                      │enabled │Authentication                                             
-PasswordBreachDetection       │enabled │                                                           
-PasswordGrant                 │enabled │                                                           
-PostBody                      │enabled │                                                           
-ProgressiveProfile            │enabled │Progressive Profile, Helper                                
-ProtectedLogin                │enabled │API Protection, Authentication, Proof Of Concept, Prototype
-Push                          │enabled │MFA                                                        
-PushRegistration              │enabled │MFA                                                        
-Registration                  │enabled │Registration                                               
-ResendOTPTest                 │enabled │                                                           
-ResetPassword                 │enabled │                                                           
-ResetPassword-Choice          │enabled │                                                           
-ResetReplayCredentials        │enabled │Proof Of Concept, Prototype, Helper                        
-Routed_OIDC                   │enabled │Authentication, IDP Discovery                              
-Routed_SAML                   │enabled │IDP Discovery, SAML                                        
-Router                        │enabled │IDP Discovery                                              
-SendEmailTest                 │enabled │Prototype                                                  
-SessionInfo                   │enabled │                                                           
-SetupMFA                      │enabled │                                                           
-SocialLogin-stoyan            │enabled │                                                           
-StudentLogin                  │enabled │                                                           
-Suspend                       │enabled │Prototype                                                  
-TandC                         │enabled │                                                           
-temp                          │enabled │                                                           
-TermsAndConditions            │enabled │                                                           
-test                          │enabled │                                                           
-ThemeByLanguage               │enabled │                                                           
-ThemeByLanguageMulti          │enabled │                                                           
-ThemeByPreference             │enabled │                                                           
-ThemeByProfileData            │enabled │                                                           
-ThemedMFALogin                │enabled │                                                           
-Themes                        │enabled │                                                           
-TwilioIVR                     │enabled │                                                           
-TxAuthZ                       │enabled │Helper, Proof Of Concept, TxAuthZ                          
-UpdatePassword                │enabled │                                                           
-UpdatePersonalData            │enabled │                                                           
-UpdateUsername                │enabled │                                                           
-username                      │enabled │                                                           
-WebAuthN                      │enabled │MFA                                                        
-WebAuthNRegistration          │enabled │MFA                                                        
+"Name              │Status │Tags                                                       
+APIProtection     │enabled│API Protection                                             
+ConnectSocial     │enabled│Self-Service                                               
+DevicePrint       │enabled│Adaptive, Helper                                           
+ForgottenUsername │enabled│Self-Service                                               
+FraudRisk         │enabled│Adaptive, Helper, Proof Of Concept                         
+iSocialLogin      │enabled│Social Authentication                                      
+Login             │enabled│Authentication, Social Authentication                      
+MFAAutoSelect     │enabled│MFA, Adaptive, Helper, OTP                                 
+MFAWithEmailOTP   │enabled│MFA, OTP                                                   
+MFAWithSMSOTP     │enabled│MFA, OTP                                                   
+MFAWithVoiceOTP   │enabled│MFA, OTP                                                   
+ProgressiveProfile│enabled│Progressive Profile, Helper                                
+ProtectedLogin    │enabled│API Protection, Authentication, Proof Of Concept, Prototype
+Registration      │enabled│Registration                                               
+ResetPassword     │enabled│                                                           
+UpdatePassword    │enabled│                                                           
+UpdateUsername    │enabled│                                                           
 "
 `;
 
 exports[`frodo journey list "frodo journey list -l": should list the names, status, and tags of the default journeys 1`] = `
-"Name                          │Status  │Tags                                                       
-AA-Login                      │enabled │Authentication, Social Authentication, Adaptive, Autonomous
-                              │        │Access                                                     
-AA-Registration               │enabled │Registration, Autonomous Access, Adaptive                  
-AccessRestrictions            │enabled │                                                           
-ADFSOIDC                      │enabled │Federation, ADFS                                           
-Anonymous                     │enabled │Tracking                                                   
-APIProtection                 │enabled │API Protection                                             
-AutoAccess                    │enabled │Adaptive, Prototype                                        
-Azure                         │enabled │Authentication, SAML, Azure                                
-AzureADPassthru               │enabled │Authentication, Azure, Trickle Migration                   
-AzureOIDC                     │enabled │Authentication, Azure                                      
-ClearLockout                  │enabled │Self-Service, Proof Of Concept, Prototype                  
-CollectReplayCredentials      │enabled │Proof Of Concept, Prototype, Helper                        
-ConnectSocial                 │enabled │Self-Service                                               
-CookieConsent                 │enabled │Authentication, Proof Of Concept, Prototype                
-Country                       │enabled │Proof Of Concept, Adaptive, Prototype                      
-Crypto                        │enabled │Proof Of Concept                                           
-CustomerIdentityUpdateUsername│enabled │Proof Of Concept, Self-Service                             
-CustomHostedUILogin           │enabled │Prototype                                                  
-DefaultSuccessURL             │enabled │Proof Of Concept, Prototype, Helper                        
-DelegatedProfileUpdate        │enabled │                                                           
-DevicePrint                   │enabled │Adaptive, Helper                                           
-Disabled                      │disabled│Prototype                                                  
-Dispatcher                    │enabled │Prototype                                                  
-Dropdown                      │enabled │Prototype                                                  
-DynamicConfiguration          │enabled │                                                           
-EmailValidation               │enabled │Adaptive, Helper                                           
-FindUser                      │enabled │Prototype                                                  
-FindUserFromSession           │enabled │Helper, Proof Of Concept, Prototype                        
-foo2                          │enabled │                                                           
-ForgottenUsername             │enabled │Self-Service                                               
-FRAAS-7955                    │enabled │Prototype, Jira                                            
-FraudRisk                     │enabled │Adaptive, Helper, Proof Of Concept                         
-FrodoTest                     │enabled │Frodo, Prototype                                           
-FrodoTestJourney1             │enabled │Frodo, Prototype                                           
-FrodoTestJourney2             │enabled │Frodo, Prototype                                           
-FrodoTestJourney3             │enabled │Frodo, Prototype                                           
-FrodoTestJourney4             │enabled │Frodo, Prototype                                           
-FrodoTestJourney5             │enabled │Frodo, Prototype                                           
-FrodoTestJourney6             │enabled │Frodo, Prototype                                           
-FrodoTestJourney7             │enabled │Frodo, Prototype                                           
-FrodoTestJourney8             │disabled│Frodo, Prototype                                           
-FrodoTestJourney9             │disabled│Frodo, Prototype                                           
-Hash                          │enabled │Proof Of Concept, Prototype                                
-iAA-FraudRisk                 │enabled │Adaptive, Helper, Proof Of Concept, Autonomous Access      
-iAA-LoginRisk                 │enabled │Autonomous Access, Helper                                  
-iAA-RegistrationRisk          │enabled │Autonomous Access, Helper                                  
-IdentityProofing              │enabled │                                                           
-Impersonate                   │enabled │Proof Of Concept                                           
-Impersonation                 │enabled │                                                           
-iPasswordBreachDetection      │enabled │Adaptive                                                   
-iSocialLogin                  │enabled │Social Authentication                                      
-iUsernamePasswordLogin        │enabled │                                                           
-KerberosLogin                 │enabled │                                                           
-LanguageSwitcher              │enabled │Prototype                                                  
-Launcher                      │enabled │Helper                                                     
-Login                         │enabled │Authentication, Social Authentication                      
-logintest                     │enabled │                                                           
-Metrics                       │enabled │                                                           
-MFAAutoSelect                 │enabled │MFA, Adaptive, Helper, OTP                                 
-MFAWithEmailLink              │enabled │Helper, MFA                                                
-MFAWithEmailOTP               │enabled │MFA, OTP                                                   
-MFAWithSMSOTP                 │enabled │MFA, OTP                                                   
-MFAWithVoiceOTP               │enabled │MFA, OTP                                                   
-MobileGenerateEmailOTP        │enabled │                                                           
-MobileValidateEmailOTP        │enabled │                                                           
-nester                        │enabled │                                                           
-NodeStateIssue                │enabled │Jira, Prototype                                            
-Oath                          │enabled │MFA, OTP                                                   
-OathJoker                     │enabled │Prototype                                                  
-Okta_SAML                     │enabled │                                                           
-OTPEndpoint                   │enabled │Helper, OTP                                                
-Passthru                      │enabled │Authentication                                             
-PasswordBreachDetection       │enabled │                                                           
-PasswordGrant                 │enabled │                                                           
-PostBody                      │enabled │                                                           
-ProgressiveProfile            │enabled │Progressive Profile, Helper                                
-ProtectedLogin                │enabled │API Protection, Authentication, Proof Of Concept, Prototype
-Push                          │enabled │MFA                                                        
-PushRegistration              │enabled │MFA                                                        
-Registration                  │enabled │Registration                                               
-ResendOTPTest                 │enabled │                                                           
-ResetPassword                 │enabled │                                                           
-ResetPassword-Choice          │enabled │                                                           
-ResetReplayCredentials        │enabled │Proof Of Concept, Prototype, Helper                        
-Routed_OIDC                   │enabled │Authentication, IDP Discovery                              
-Routed_SAML                   │enabled │IDP Discovery, SAML                                        
-Router                        │enabled │IDP Discovery                                              
-SendEmailTest                 │enabled │Prototype                                                  
-SessionInfo                   │enabled │                                                           
-SetupMFA                      │enabled │                                                           
-SocialLogin-stoyan            │enabled │                                                           
-StudentLogin                  │enabled │                                                           
-Suspend                       │enabled │Prototype                                                  
-TandC                         │enabled │                                                           
-temp                          │enabled │                                                           
-TermsAndConditions            │enabled │                                                           
-test                          │enabled │                                                           
-ThemeByLanguage               │enabled │                                                           
-ThemeByLanguageMulti          │enabled │                                                           
-ThemeByPreference             │enabled │                                                           
-ThemeByProfileData            │enabled │                                                           
-ThemedMFALogin                │enabled │                                                           
-Themes                        │enabled │                                                           
-TwilioIVR                     │enabled │                                                           
-TxAuthZ                       │enabled │Helper, Proof Of Concept, TxAuthZ                          
-UpdatePassword                │enabled │                                                           
-UpdatePersonalData            │enabled │                                                           
-UpdateUsername                │enabled │                                                           
-username                      │enabled │                                                           
-WebAuthN                      │enabled │MFA                                                        
-WebAuthNRegistration          │enabled │MFA                                                        
+"Name              │Status │Tags                                                       
+APIProtection     │enabled│API Protection                                             
+ConnectSocial     │enabled│Self-Service                                               
+DevicePrint       │enabled│Adaptive, Helper                                           
+ForgottenUsername │enabled│Self-Service                                               
+FraudRisk         │enabled│Adaptive, Helper, Proof Of Concept                         
+iSocialLogin      │enabled│Social Authentication                                      
+Login             │enabled│Authentication, Social Authentication                      
+MFAAutoSelect     │enabled│MFA, Adaptive, Helper, OTP                                 
+MFAWithEmailOTP   │enabled│MFA, OTP                                                   
+MFAWithSMSOTP     │enabled│MFA, OTP                                                   
+MFAWithVoiceOTP   │enabled│MFA, OTP                                                   
+ProgressiveProfile│enabled│Progressive Profile, Helper                                
+ProtectedLogin    │enabled│API Protection, Authentication, Proof Of Concept, Prototype
+Registration      │enabled│Registration                                               
+ResetPassword     │enabled│                                                           
+UpdatePassword    │enabled│                                                           
+UpdateUsername    │enabled│                                                           
 "
 `;
 
 exports[`frodo journey list "frodo journey list": should list the names of the default journeys 1`] = `
-"AA-Login
-AA-Registration
-AccessRestrictions
-ADFSOIDC
-Anonymous
-APIProtection
-AutoAccess
-Azure
-AzureADPassthru
-AzureOIDC
-ClearLockout
-CollectReplayCredentials
+"APIProtection
 ConnectSocial
-CookieConsent
-Country
-Crypto
-CustomerIdentityUpdateUsername
-CustomHostedUILogin
-DefaultSuccessURL
-DelegatedProfileUpdate
 DevicePrint
-Disabled
-Dispatcher
-Dropdown
-DynamicConfiguration
-EmailValidation
-FindUser
-FindUserFromSession
-foo2
 ForgottenUsername
-FRAAS-7955
 FraudRisk
-FrodoTest
-FrodoTestJourney1
-FrodoTestJourney2
-FrodoTestJourney3
-FrodoTestJourney4
-FrodoTestJourney5
-FrodoTestJourney6
-FrodoTestJourney7
-FrodoTestJourney8
-FrodoTestJourney9
-Hash
-iAA-FraudRisk
-iAA-LoginRisk
-iAA-RegistrationRisk
-IdentityProofing
-Impersonate
-Impersonation
-iPasswordBreachDetection
 iSocialLogin
-iUsernamePasswordLogin
-KerberosLogin
-LanguageSwitcher
-Launcher
 Login
-logintest
-Metrics
 MFAAutoSelect
-MFAWithEmailLink
 MFAWithEmailOTP
 MFAWithSMSOTP
 MFAWithVoiceOTP
-MobileGenerateEmailOTP
-MobileValidateEmailOTP
-nester
-NodeStateIssue
-Oath
-OathJoker
-Okta_SAML
-OTPEndpoint
-Passthru
-PasswordBreachDetection
-PasswordGrant
-PostBody
 ProgressiveProfile
 ProtectedLogin
-Push
-PushRegistration
 Registration
-ResendOTPTest
 ResetPassword
-ResetPassword-Choice
-ResetReplayCredentials
-Routed_OIDC
-Routed_SAML
-Router
-SendEmailTest
-SessionInfo
-SetupMFA
-SocialLogin-stoyan
-StudentLogin
-Suspend
-TandC
-temp
-TermsAndConditions
-test
-ThemeByLanguage
-ThemeByLanguageMulti
-ThemeByPreference
-ThemeByProfileData
-ThemedMFALogin
-Themes
-TwilioIVR
-TxAuthZ
 UpdatePassword
-UpdatePersonalData
 UpdateUsername
-username
-WebAuthN
-WebAuthNRegistration
 "
 `;
