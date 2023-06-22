@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import fs from 'fs';
 import { AdminFederation } from '@rockcarver/frodo-lib';
+=======
+import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
 import {
   createProgressBar,
   debugMessage,
@@ -12,6 +17,7 @@ import {
 } from '../utils/Console';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 
+<<<<<<< HEAD
 const {
   getAdminFederationProviders,
   exportAdminFederationProvider,
@@ -21,6 +27,8 @@ const {
   importAdminFederationProviders,
 } = AdminFederation;
 
+=======
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
 /**
  * List providers
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -28,7 +36,11 @@ const {
 export async function listAdminFederationProviders(): Promise<boolean> {
   let outcome = false;
   try {
+<<<<<<< HEAD
     const providers = await getAdminFederationProviders();
+=======
+    const providers = await frodo.cloud.adminFed.getAdminFederationProviders();
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     providers.sort((a, b) => a._id.localeCompare(b._id));
     providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
@@ -59,7 +71,13 @@ export async function exportAdminFederationProviderToFile(
   createProgressBar(1, `Exporting ${providerId}`);
   try {
     updateProgressBar(`Writing file ${fileName}`);
+<<<<<<< HEAD
     const fileData = await exportAdminFederationProvider(providerId);
+=======
+    const fileData = await frodo.cloud.adminFed.exportAdminFederationProvider(
+      providerId
+    );
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     saveJsonToFile(fileData, fileName);
     stopProgressBar(
       `Exported ${providerId['brightCyan']} to ${fileName['brightCyan']}.`
@@ -87,7 +105,12 @@ export async function exportAdminFederationProvidersToFile(
     if (!fileName) {
       fileName = getTypedFilename(`allProviders`, 'admin.federation');
     }
+<<<<<<< HEAD
     const fileData = await exportAdminFederationProviders();
+=======
+    const fileData =
+      await frodo.cloud.adminFed.exportAdminFederationProviders();
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     saveJsonToFile(fileData, fileName);
     succeedSpinner(`Exported all providers to ${fileName}`);
     outcome = true;
@@ -105,12 +128,23 @@ export async function exportAdminFederationProvidersToFile(
 export async function exportAdminFederationProvidersToFiles(): Promise<boolean> {
   let outcome = false;
   try {
+<<<<<<< HEAD
     const allIdpsData = await getAdminFederationProviders();
+=======
+    const allIdpsData =
+      await frodo.cloud.adminFed.getAdminFederationProviders();
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     createProgressBar(allIdpsData.length, 'Exporting providers');
     for (const idpData of allIdpsData) {
       updateProgressBar(`Writing provider ${idpData._id}`);
       const fileName = getTypedFilename(idpData._id, 'admin.federation');
+<<<<<<< HEAD
       const fileData = await exportAdminFederationProvider(idpData._id);
+=======
+      const fileData = await frodo.cloud.adminFed.exportAdminFederationProvider(
+        idpData._id
+      );
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
       saveJsonToFile(fileData, fileName);
     }
     stopProgressBar(`${allIdpsData.length} providers exported.`);
@@ -137,7 +171,14 @@ export async function importAdminFederationProviderFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
+<<<<<<< HEAD
     await importAdminFederationProvider(providerId, fileData);
+=======
+    await frodo.cloud.adminFed.importAdminFederationProvider(
+      providerId,
+      fileData
+    );
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     succeedSpinner(
       `Successfully imported provider ${providerId} from ${file}.`
     );
@@ -165,7 +206,11 @@ export async function importFirstAdminFederationProviderFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
+<<<<<<< HEAD
     await importFirstAdminFederationProvider(fileData);
+=======
+    await frodo.cloud.adminFed.importFirstAdminFederationProvider(fileData);
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     succeedSpinner(`Successfully imported first provider from ${file}.`);
     outcome = true;
   } catch (error) {
@@ -194,7 +239,11 @@ export async function importAdminFederationProvidersFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
+<<<<<<< HEAD
     await importAdminFederationProviders(fileData);
+=======
+    await frodo.cloud.adminFed.importAdminFederationProviders(fileData);
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
     succeedSpinner(`Imported providers from ${file}.`);
     outcome = true;
   } catch (error) {
@@ -229,7 +278,11 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
         const fileData = JSON.parse(data);
         const count = Object.keys(fileData.idp).length;
         total += count;
+<<<<<<< HEAD
         await importAdminFederationProviders(fileData);
+=======
+        await frodo.cloud.adminFed.importAdminFederationProviders(fileData);
+>>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
         updateProgressBar(`Imported ${count} provider(s) from ${file}`);
       } catch (error) {
         errors.push(error);
