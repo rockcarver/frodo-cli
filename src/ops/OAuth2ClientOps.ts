@@ -17,6 +17,7 @@ import type {
   OAuth2ClientExportOptions,
   OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
+import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
 /**
  * List OAuth2 clients
@@ -53,13 +54,15 @@ export async function listOAuth2Clients(long = false) {
           client._id,
           client.coreOAuth2ClientConfig.status === 'Active'
             ? 'Active'['brightGreen']
-            : client.coreOAuth2ClientConfig.status.brightRed,
+            : (client.coreOAuth2ClientConfig.status as string)['brightRed'],
           client.coreOAuth2ClientConfig.clientType,
-          client.advancedOAuth2ClientConfig.grantTypes
+          (client.advancedOAuth2ClientConfig.grantTypes as ReadableStrings)
             .map((type) => grantTypesMap[type])
             .join('\n'),
-          client.coreOAuth2ClientConfig.scopes.join('\n'),
-          client.coreOAuth2ClientConfig.redirectionUris.join('\n'),
+          (client.coreOAuth2ClientConfig.scopes as ReadableStrings).join('\n'),
+          (client.coreOAuth2ClientConfig.redirectionUris as string[]).join(
+            '\n'
+          ),
           // wordwrap(client.description, 30),
         ]);
       });
