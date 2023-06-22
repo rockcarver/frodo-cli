@@ -11,6 +11,7 @@ Options:
 Commands:
   add-autoid-static-user-mapping              Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.
   create-oauth2-client-with-admin-privileges  Create an oauth2 client with admin privileges.
+  federation                                  Manage admin federation configuration.
   get-access-token                            Get an access token using client credentials grant type.
   grant-oauth2-client-admin-privileges        Grant an oauth2 client admin privileges.
   help [command]                              display help for command

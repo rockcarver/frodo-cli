@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#251: Support for Identity Cloud admin federation configuration:
+
+    -   `frodo admin federation` Manage admin federation configuration.
+        -   `export`             Export admin federation providers.
+        -   `import`             Import admin federation providers.
+        -   `list`               List admin federation providers.
+
+    Examples:
+
+    -   List all configured admin federation providers:<br>
+        `frodo admin federation list <myTenant>`
+
+        `frodo admin federation list <myTenant> <username> <password>`
+    -   Export all admin federation providers to a single file:<br>
+        `frodo admin federation export -a <myTenant>`
+
+        `frodo admin federation export -a <myTenant> <username> <password>`
+    -   Import all admin federation providers from a single file:<br>
+        `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
+        
+        `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant> <username> <password>`<br>
+        
+    **_Note_**: Only tenant admins can perform admin federation operations, service accounts do not have the required privileges. Therefore, the connection profile used must contain username and password or they must be provided through command arguments.
+
+### Changed
+
+-   Update to frodo-lib 1.0.1-0
+
 ## [0.24.6-0] - 2023-06-21
 
 ## [0.24.5] - 2023-05-31
