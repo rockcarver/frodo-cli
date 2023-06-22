@@ -1,6 +1,6 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importAdminFederationProviderFromFile,
@@ -45,19 +45,22 @@ program
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
       // import by id
       if (options.file && options.idpId && (await getTokens(true))) {
-        verboseMessage(
-          `Importing provider "${
-            options.idpId
-          }" into realm "${state.getRealm()}"...`
+        verboseMessage(`Importing provider "${options.idpId}"...`);
+        const outcome = await importAdminFederationProviderFromFile(
+          options.idpId,
+          options.file
         );
-        importAdminFederationProviderFromFile(options.idpId, options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens(true))) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        importAdminFederationProvidersFromFile(options.file);
+        const outcome = await importAdminFederationProvidersFromFile(
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (
@@ -68,16 +71,18 @@ program
         verboseMessage(
           'Importing all providers from separate files in current directory...'
         );
-        importAdminFederationProvidersFromFiles();
+        const outcome = await importAdminFederationProvidersFromFiles();
+        if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
       else if (options.file && (await getTokens(true))) {
         verboseMessage(
-          `Importing first provider from file "${
-            options.file
-          }" into realm "${state.getRealm()}"...`
+          `Importing first provider from file "${options.file}"...`
         );
-        importFirstAdminFederationProviderFromFile(options.file);
+        const outcome = await importFirstAdminFederationProviderFromFile(
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

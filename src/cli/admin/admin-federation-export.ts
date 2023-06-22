@@ -46,17 +46,25 @@ program
         // export by id/name
         if (options.idpId) {
           verboseMessage(`Exporting provider "${options.idpId}...`);
-          exportAdminFederationProviderToFile(options.idpId, options.file);
+          const outcome = await exportAdminFederationProviderToFile(
+            options.idpId,
+            options.file
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all providers to a single file...');
-          exportAdminFederationProvidersToFile(options.file);
+          const outcome = await exportAdminFederationProvidersToFile(
+            options.file
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all providers to separate files...');
-          exportAdminFederationProvidersToFiles();
+          const outcome = await exportAdminFederationProvidersToFiles();
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

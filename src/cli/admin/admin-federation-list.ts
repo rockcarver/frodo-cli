@@ -18,7 +18,8 @@ program
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (await getTokens(true)) {
         verboseMessage(`Listing admin federation providers...`);
-        listAdminFederationProviders();
+        const outcome = await listAdminFederationProviders();
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }
