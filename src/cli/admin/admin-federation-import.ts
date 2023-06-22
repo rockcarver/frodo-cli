@@ -11,7 +11,7 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new FrodoCommand('frodo admin federation import');
+const program = new FrodoCommand('frodo admin federation import', ['realm']);
 
 program
   .description('Import admin federation providers.')
@@ -41,15 +41,8 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
+    async (host, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(host, user, password, options, command);
       // import by id
       if (options.file && options.idpId && (await getTokens(true))) {
         verboseMessage(

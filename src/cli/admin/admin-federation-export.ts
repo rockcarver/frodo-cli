@@ -10,7 +10,7 @@ import {
 
 const { getTokens } = Authenticate;
 
-const program = new FrodoCommand('frodo admin federation export');
+const program = new FrodoCommand('frodo admin federation export', ['realm']);
 
 program
   .description('Export admin federation providers.')
@@ -40,15 +40,8 @@ program
   )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
+    async (host, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (await getTokens(true)) {
         // export by id/name
         if (options.idpId) {
