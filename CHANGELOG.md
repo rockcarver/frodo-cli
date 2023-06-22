@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.6-1] - 2023-06-22
+
 ### Added
 
 -   \#251: Support for Identity Cloud admin federation configuration:
@@ -28,9 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         `frodo admin federation export -a <myTenant> <username> <password>`
     -   Import all admin federation providers from a single file:<br>
         `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
-        
+
         `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant> <username> <password>`<br>
-        
+
     **_Note_**: Only tenant admins can perform admin federation operations, service accounts do not have the required privileges. Therefore, the connection profile used must contain username and password or they must be provided through command arguments.
 
 ### Changed
@@ -1232,7 +1234,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.6-0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v0.24.6-1...HEAD
+
+[0.24.6-1]: https://github.com/rockcarver/frodo-cli/compare/v0.24.6-0...v0.24.6-1
 
 [0.24.6-0]: https://github.com/rockcarver/frodo-cli/compare/v0.24.5...v0.24.6-0
 
