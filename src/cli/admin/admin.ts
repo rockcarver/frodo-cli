@@ -9,6 +9,8 @@ export default function setup() {
     .description('Platform admin tasks.')
     .executableDir(__dirname);
 
+  program.command('federation', 'Manage admin federation configuration.');
+
   program.command(
     'create-oauth2-client-with-admin-privileges',
     'Create an oauth2 client with admin privileges.'
