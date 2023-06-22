@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-6] - 2023-06-22
+
 ### Added
 
 -   \#251: Support for Identity Cloud admin federation configuration:
@@ -1240,7 +1242,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-5...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-6...HEAD
+
+[2.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-5...v2.0.0-6
 
 [2.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-4...v2.0.0-5
 
