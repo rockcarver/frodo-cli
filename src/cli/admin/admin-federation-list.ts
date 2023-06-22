@@ -5,7 +5,7 @@ import { listAdminFederationProviders } from '../../ops/AdminFederationOps';
 
 const { getTokens } = Authenticate;
 
-const program = new FrodoCommand('frodo admin federation list');
+const program = new FrodoCommand('frodo admin federation list', ['realm']);
 
 program
   .description('List admin federation providers.')
@@ -14,15 +14,8 @@ program
   // )
   .action(
     // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
+    async (host, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(host, user, password, options, command);
       if (await getTokens(true)) {
         verboseMessage(`Listing admin federation providers...`);
         listAdminFederationProviders();
