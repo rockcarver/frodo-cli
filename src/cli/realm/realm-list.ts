@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { listRealms } from '../../ops/RealmOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo realm list');
 
 program
@@ -22,7 +24,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage('Listing all realms...');
         await listRealms(options.long);
       } else {

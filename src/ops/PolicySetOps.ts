@@ -26,6 +26,18 @@ import {
   PolicySetImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/PolicySetOps';
 
+const { getRealmName } = frodo.helper.utils;
+const { getPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
+const {
+  getPolicySets,
+  getPolicySet,
+  exportPolicySet,
+  exportPolicySets,
+  importPolicySet,
+  importFirstPolicySet,
+  importPolicySets,
+} = frodo.authz.policySet;
+
 /**
  * List policy sets
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -33,7 +45,7 @@ import {
 export async function listPolicySets(): Promise<boolean> {
   let outcome = false;
   try {
-    const policySets = await frodo.authz.policySet.getPolicySets();
+    const policySets = await getPolicySets();
     policySets.sort((a, b) => a.name.localeCompare(b.name));
     for (const policySet of policySets) {
       printMessage(`${policySet.name}`, 'data');
@@ -57,7 +69,7 @@ export async function describePolicySet(
   json = false
 ): Promise<boolean> {
   let outcome = false;
-  const policySet = await frodo.authz.policySet.getPolicySet(policySetId);
+  const policySet = await getPolicySet(policySetId);
   outcome = true;
   if (json) {
     printMessage(policySet, 'data');
@@ -78,12 +90,11 @@ export async function deletePolicySet(policySetId: string): Promise<boolean> {
   showSpinner(`Deleting ${policySetId}...`);
   let outcome = false;
   const errors = [];
-  const policies: PolicySkeleton[] =
-    await frodo.authz.policy.getPoliciesByPolicySet(policySetId);
+  const policies: PolicySkeleton[] = await getPoliciesByPolicySet(policySetId);
   for (const policy of policies) {
     try {
       debugMessage(`Deleting policy ${policy._id}`);
-      await frodo.authz.policy.deletePolicy(policy._id);
+      await deletePolicy(policy._id);
     } catch (error) {
       error.message = `Error deleting policy ${policy._id} in policy set ${policySetId}: ${error}`;
       printMessage(error.message, 'error');
@@ -92,7 +103,7 @@ export async function deletePolicySet(policySetId: string): Promise<boolean> {
   }
   try {
     debugMessage(`Deleting policy set ${policySetId}`);
-    await frodo.authz.policySet.deletePolicySet(policySetId);
+    await deletePolicySet(policySetId);
   } catch (error) {
     printMessage(`Error deleting policy set ${policySetId}: ${error}`, 'error');
   }
@@ -119,7 +130,7 @@ export async function deletePolicySets(): Promise<boolean> {
   try {
     showSpinner(`Retrieving all policy sets...`);
     try {
-      policySets = await frodo.authz.policySet.getPolicySets();
+      policySets = await getPolicySets();
       succeedSpinner(`Found ${policySets.length} policy sets.`);
     } catch (error) {
       error.message = `Error retrieving all policy sets: ${error.message}`;
@@ -134,12 +145,13 @@ export async function deletePolicySets(): Promise<boolean> {
     for (const policySet of policySets) {
       const policySetId = policySet.name;
       try {
-        const policies: PolicySkeleton[] =
-          await frodo.authz.policy.getPoliciesByPolicySet(policySetId);
+        const policies: PolicySkeleton[] = await getPoliciesByPolicySet(
+          policySetId
+        );
         for (const policy of policies) {
           try {
             debugMessage(`Deleting policy ${policy._id}`);
-            await frodo.authz.policy.deletePolicy(policy._id);
+            await deletePolicy(policy._id);
           } catch (error) {
             error.message = `Error deleting policy ${policy._id} in policy set ${policySetId}: ${error}`;
             printMessage(error.message, 'error');
@@ -151,7 +163,7 @@ export async function deletePolicySets(): Promise<boolean> {
       }
       try {
         debugMessage(`Deleting policy set ${policySetId}`);
-        await frodo.authz.policySet.deletePolicySet(policySetId);
+        await deletePolicySet(policySetId);
         updateProgressBar(`Deleted ${policySetId}`);
       } catch (error) {
         error.message = `Error deleting policy set ${policySetId}: ${error}`;
@@ -201,10 +213,7 @@ export async function exportPolicySetToFile(
     if (file) {
       fileName = file;
     }
-    const exportData = await frodo.authz.policySet.exportPolicySet(
-      policySetId,
-      options
-    );
+    const exportData = await exportPolicySet(policySetId, options);
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported ${policySetId} to ${fileName}.`);
     outcome = true;
@@ -234,15 +243,13 @@ export async function exportPolicySetsToFile(
   showSpinner(`Exporting all policy sets...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(
-        frodo.helper.utils.getRealmName(state.getRealm())
-      )}PolicySets`,
+      `all${titleCase(getRealmName(state.getRealm()))}PolicySets`,
       'policyset.authz'
     );
     if (file) {
       fileName = file;
     }
-    const exportData = await frodo.authz.policySet.exportPolicySets(options);
+    const exportData = await exportPolicySets(options);
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported all policy sets to ${fileName}.`);
     outcome = true;
@@ -268,14 +275,15 @@ export async function exportPolicySetsToFiles(
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: begin`);
   const errors = [];
   try {
-    const policySets: PolicySetSkeleton[] =
-      await frodo.authz.policySet.getPolicySets();
+    const policySets: PolicySetSkeleton[] = await getPolicySets();
     createProgressBar(policySets.length, 'Exporting policy sets...');
     for (const policySet of policySets) {
       const file = getTypedFilename(policySet.name, 'policyset.authz');
       try {
-        const exportData: PolicySetExportInterface =
-          await frodo.authz.policySet.exportPolicySet(policySet.name, options);
+        const exportData: PolicySetExportInterface = await exportPolicySet(
+          policySet.name,
+          options
+        );
         saveJsonToFile(exportData, file);
         updateProgressBar(`Exported ${policySet.name}.`);
       } catch (error) {
@@ -310,7 +318,7 @@ export async function importPolicySetFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await frodo.authz.policySet.importPolicySet(policySetId, fileData, options);
+    await importPolicySet(policySetId, fileData, options);
     outcome = true;
     succeedSpinner(`Imported ${policySetId}.`);
   } catch (error) {
@@ -337,7 +345,7 @@ export async function importFirstPolicySetFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await frodo.authz.policySet.importFirstPolicySet(fileData, options);
+    await importFirstPolicySet(fileData, options);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -364,7 +372,7 @@ export async function importPolicySetsFromFile(
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await frodo.authz.policySet.importPolicySets(fileData, options);
+    await importPolicySets(fileData, options);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
@@ -398,7 +406,7 @@ export async function importPolicySetsFromFiles(
         const fileData: PolicySetExportInterface = JSON.parse(data);
         const count = Object.keys(fileData.policyset).length;
         total += count;
-        await frodo.authz.policySet.importPolicySets(fileData, options);
+        await importPolicySets(fileData, options);
         updateProgressBar(`Imported ${count} policy sets from ${file}`);
       } catch (error) {
         errors.push(error);

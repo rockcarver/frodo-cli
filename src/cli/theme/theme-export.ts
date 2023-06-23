@@ -9,6 +9,8 @@ import {
   exportThemesToFiles,
 } from '../../ops/ThemeOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo theme export');
 
 program
@@ -55,7 +57,7 @@ program
         command
       );
       // export by name
-      if (options.themeName && (await frodo.login.getTokens())) {
+      if (options.themeName && (await getTokens())) {
         verboseMessage(
           `Exporting theme "${
             options.themeName
@@ -64,7 +66,7 @@ program
         exportThemeByName(options.themeName, options.file);
       }
       // export by id
-      else if (options.themeId && (await frodo.login.getTokens())) {
+      else if (options.themeId && (await getTokens())) {
         verboseMessage(
           `Exporting theme "${
             options.themeId
@@ -73,12 +75,12 @@ program
         exportThemeById(options.themeId, options.file);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all themes to a single file...');
         exportThemesToFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all themes to separate files...');
         exportThemesToFiles();
       }

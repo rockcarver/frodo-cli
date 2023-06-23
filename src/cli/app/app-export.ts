@@ -8,6 +8,8 @@ import {
   exportOAuth2ClientToFile,
 } from '../../ops/OAuth2ClientOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo app export');
 
 program
@@ -46,7 +48,7 @@ program
         command
       );
       // export
-      if (options.appId && (await frodo.login.getTokens())) {
+      if (options.appId && (await getTokens())) {
         verboseMessage('Exporting OAuth2 application...');
         const status = await exportOAuth2ClientToFile(
           options.appId,
@@ -59,7 +61,7 @@ program
         if (!status) process.exitCode = 1;
       }
       // -a/--all
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all OAuth2 applications to file...');
         const status = await exportOAuth2ClientsToFile(options.file, {
           useStringArrays: true,
@@ -68,7 +70,7 @@ program
         if (!status) process.exitCode = 1;
       }
       // -A/--all-separate
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
         const status = await exportOAuth2ClientsToFiles({
           useStringArrays: true,

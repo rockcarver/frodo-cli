@@ -3,6 +3,9 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { revokeOAuth2ClientAdminPrivileges } = frodo.admin;
+
 const program = new FrodoCommand(
   'frodo admin revoke-oauth2-client-admin-privileges'
 );
@@ -23,13 +26,13 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         printMessage(
           `Revoking admin privileges from oauth2 client "${
             options.target
           }" in realm "${state.getRealm()}"...`
         );
-        await frodo.admin.revokeOAuth2ClientAdminPrivileges(options.target);
+        await revokeOAuth2ClientAdminPrivileges(options.target);
         printMessage('Done.');
       } else {
         process.exitCode = 1;

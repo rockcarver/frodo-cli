@@ -9,6 +9,8 @@ import {
 } from '../../ops/ServiceOps.js';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo service import');
 
 interface ServiceImportOptions {
@@ -75,11 +77,7 @@ program
       const globalConfig = options.global ?? false;
 
       // import by id
-      if (
-        options.serviceId &&
-        options.file &&
-        (await frodo.login.getTokens())
-      ) {
+      if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
         await importServiceFromFile(
           options.serviceId,
@@ -89,17 +87,17 @@ program
         );
       }
       // -a / --all
-      else if (options.all && options.file && (await frodo.login.getTokens())) {
+      else if (options.all && options.file && (await getTokens())) {
         verboseMessage('Importing all services from a single file...');
         await importServicesFromFile(options.file, clean, globalConfig);
       }
       // -A / --all-separate
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
         await importServicesFromFiles(clean, globalConfig);
       }
       // import file
-      else if (options.file && (await frodo.login.getTokens())) {
+      else if (options.file && (await getTokens())) {
         verboseMessage('Importing service...');
         await importFirstServiceFromFile(options.file, clean, globalConfig);
       }

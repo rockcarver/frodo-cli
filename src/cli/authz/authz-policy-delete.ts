@@ -8,6 +8,8 @@ import {
   deletePoliciesByPolicySet,
 } from '../../ops/PolicyOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo authz policy delete');
 
 program
@@ -36,17 +38,13 @@ program
         command
       );
       // delete by id
-      if (options.policyId && (await frodo.login.getTokens())) {
+      if (options.policyId && (await getTokens())) {
         verboseMessage('Deleting authorization policy...');
         const outcome = await deletePolicy(options.policyId);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a by policy set
-      else if (
-        options.setId &&
-        options.all &&
-        (await frodo.login.getTokens())
-      ) {
+      else if (options.setId && options.all && (await getTokens())) {
         verboseMessage(
           `Deleting all authorization policies in policy set ${options.setId}...`
         );
@@ -54,7 +52,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all authorization policies...');
         const outcome = await deletePolicies();
         if (!outcome) process.exitCode = 1;

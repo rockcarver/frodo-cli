@@ -7,6 +7,8 @@ import {
   importScriptsFromFiles,
 } from '../../ops/ScriptOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo script import');
 
 program
@@ -54,7 +56,7 @@ program
         options,
         command
       );
-      const tokens = await frodo.login.getTokens();
+      const tokens = await getTokens();
       if (!tokens) {
         printMessage('Unable to get tokens. Exiting...', 'error');
         program.help();

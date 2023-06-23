@@ -9,6 +9,8 @@ import {
   importFirstCircleOfTrustFromFile,
 } from '../../ops/CirclesOfTrustOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo saml cot import');
 
 program
@@ -49,7 +51,7 @@ program
         command
       );
       // import by id
-      if (options.file && options.cotId && (await frodo.login.getTokens())) {
+      if (options.file && options.cotId && (await getTokens())) {
         verboseMessage(
           `Importing circle of trust "${
             options.cotId
@@ -62,7 +64,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && options.file && (await frodo.login.getTokens())) {
+      else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all circles of trust from a single file (${options.file})...`
         );
@@ -70,11 +72,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
-      else if (
-        options.allSeparate &&
-        !options.file &&
-        (await frodo.login.getTokens())
-      ) {
+      else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all circles of trust from separate files (*.saml.json) in current directory...'
         );
@@ -82,7 +80,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // import first from file
-      else if (options.file && (await frodo.login.getTokens())) {
+      else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first circle of trust from file "${
             options.file

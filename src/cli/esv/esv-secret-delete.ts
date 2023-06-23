@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { deleteSecret, deleteSecrets } from '../../ops/SecretsOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo esv secret delete');
 
 program
@@ -29,12 +31,12 @@ program
         command
       );
       // delete by id
-      if (options.secretId && (await frodo.login.getTokens())) {
+      if (options.secretId && (await getTokens())) {
         verboseMessage('Deleting secret...');
         deleteSecret(options.secretId);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all secrets...');
         deleteSecrets();
       }

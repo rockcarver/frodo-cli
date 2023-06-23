@@ -3,6 +3,8 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo journey delete');
 
 program
@@ -43,7 +45,7 @@ program
         command
       );
       // delete by id
-      if (options.journeyId && (await frodo.login.getTokens())) {
+      if (options.journeyId && (await getTokens())) {
         verboseMessage(
           `Deleting journey ${
             options.journeyId
@@ -52,7 +54,7 @@ program
         frodo.authn.journey.deleteJourney(options.journeyId, options);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all journeys...');
         frodo.authn.journey.deleteJourneys(options);
       }

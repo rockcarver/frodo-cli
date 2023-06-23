@@ -8,6 +8,8 @@ import {
   exportAdminFederationProvidersToFiles,
 } from '../../ops/AdminFederationOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo admin federation export', ['realm']);
 
 program
@@ -40,7 +42,7 @@ program
     // implement command logic inside action handler
     async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-      if (await frodo.login.getTokens(true)) {
+      if (await getTokens(true)) {
         // export by id/name
         if (options.idpId) {
           verboseMessage(`Exporting provider "${options.idpId}...`);

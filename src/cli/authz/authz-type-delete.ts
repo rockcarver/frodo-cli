@@ -8,6 +8,8 @@ import {
   deleteResourceTypes,
 } from '../../ops/ResourceTypeOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo authz type delete');
 
 program
@@ -42,19 +44,19 @@ program
         command
       );
       // delete by uuid
-      if (options.typeId && (await frodo.login.getTokens())) {
+      if (options.typeId && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
         const outcome = deleteResourceType(options.typeId);
         if (!outcome) process.exitCode = 1;
       }
       // delete by name
-      else if (options.typeName && (await frodo.login.getTokens())) {
+      else if (options.typeName && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
         const outcome = deleteResourceTypeByName(options.typeName);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all authorization resource types...');
         const outcome = deleteResourceTypes();
         if (!outcome) process.exitCode = 1;

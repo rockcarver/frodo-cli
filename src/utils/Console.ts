@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { MultiBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
-import { frodo, state } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 
 Color.enable();
+
+const { appendTextToFile } = frodo.utils.impex;
 
 let multiBarContainer = null;
 let progressBar = null;
@@ -24,7 +26,7 @@ function data(message: string | object, newline = true) {
     if (newline) {
       message += '\n';
     }
-    frodo.utils.impex.appendTextToFile(message, state.getOutputFile());
+    appendTextToFile(message, state.getOutputFile());
   } else if (typeof message === 'object') {
     console.dir(message, { depth: 3 });
   } else if (newline) {

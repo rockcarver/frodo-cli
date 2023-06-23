@@ -2,6 +2,9 @@ import { FrodoCommand } from '../FrodoCommand';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { listOAuth2CustomClients } = frodo.admin;
+
 const program = new FrodoCommand(
   'frodo admin list-oauth2-clients-with-custom-privileges'
 );
@@ -17,11 +20,11 @@ program.description('List oauth2 clients with custom privileges.').action(
       options,
       command
     );
-    if (await frodo.login.getTokens()) {
+    if (await getTokens()) {
       printMessage(
         `Listing oauth2 clients with custom privileges in realm "${state.getRealm()}"...`
       );
-      const adminClients = await frodo.admin.listOAuth2CustomClients();
+      const adminClients = await listOAuth2CustomClients();
       adminClients.sort((a, b) => a.localeCompare(b));
       adminClients.forEach((item) => {
         printMessage(`${item}`);
