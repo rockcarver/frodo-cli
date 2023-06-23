@@ -10,12 +10,27 @@ import {
 } from '../utils/Console';
 import type { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
+const { getRealmName } = frodo.helper.utils;
+const { getTypedFilename, titleCase, saveJsonToFile, getWorkingDirectory } =
+  frodo.utils.impex;
+const {
+  getListOfServices,
+  exportServices,
+  exportService,
+  getFullServices,
+  createServiceExportTemplate,
+  importService,
+  importServices,
+  deleteFullService,
+  deleteFullServices,
+} = frodo.service;
+
 /**
  * List services
  */
 export async function listServices(long = false, globalConfig = false) {
   try {
-    const services = await frodo.service.getListOfServices(globalConfig);
+    const services = await getListOfServices(globalConfig);
     services.sort((a, b) => a._id.localeCompare(b._id));
     if (long) {
       const table = createTable(['Service Id', 'Service Name']);
@@ -39,17 +54,15 @@ export async function listServices(long = false, globalConfig = false) {
  * @param {string} file file name
  */
 export async function exportServicesToFile(file, globalConfig = false) {
-  const exportData = await frodo.service.exportServices(globalConfig);
-  let fileName = frodo.utils.impex.getTypedFilename(
-    `all${frodo.utils.impex.titleCase(
-      frodo.helper.utils.getRealmName(state.getRealm())
-    )}Services`,
+  const exportData = await exportServices(globalConfig);
+  let fileName = getTypedFilename(
+    `all${titleCase(getRealmName(state.getRealm()))}Services`,
     `service`
   );
   if (file) {
     fileName = file;
   }
-  frodo.utils.impex.saveJsonToFile(exportData, fileName);
+  saveJsonToFile(exportData, fileName);
 }
 
 /**
@@ -62,12 +75,12 @@ export async function exportServiceToFile(
   file: string,
   globalConfig = false
 ) {
-  const exportData = await frodo.service.exportService(serviceId, globalConfig);
-  let fileName = frodo.utils.impex.getTypedFilename(serviceId, `service`);
+  const exportData = await exportService(serviceId, globalConfig);
+  let fileName = getTypedFilename(serviceId, `service`);
   if (file) {
     fileName = file;
   }
-  frodo.utils.impex.saveJsonToFile(exportData, fileName);
+  saveJsonToFile(exportData, fileName);
 }
 
 /**
@@ -75,18 +88,15 @@ export async function exportServiceToFile(
  */
 export async function exportServicesToFiles(globalConfig = false) {
   debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
-  const services = await frodo.service.getFullServices(globalConfig);
+  const services = await getFullServices(globalConfig);
   for (const service of services) {
-    const fileName = frodo.utils.impex.getTypedFilename(
-      service._type._id,
-      `service`
-    );
-    const exportData = frodo.service.createServiceExportTemplate();
+    const fileName = getTypedFilename(service._type._id, `service`);
+    const exportData = createServiceExportTemplate();
     exportData.service[service._type._id] = service;
     debugMessage(
       `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${fileName}`
     );
-    frodo.utils.impex.saveJsonToFile(exportData, fileName);
+    saveJsonToFile(exportData, fileName);
   }
   debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
 }
@@ -114,12 +124,7 @@ export async function importServiceFromFile(
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await frodo.service.importService(
-          serviceId,
-          importData,
-          clean,
-          globalConfig
-        );
+        await importService(serviceId, importData, clean, globalConfig);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -159,12 +164,7 @@ export async function importFirstServiceFromFile(
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await frodo.service.importService(
-          serviceId,
-          importData,
-          clean,
-          globalConfig
-        );
+        await importService(serviceId, importData, clean, globalConfig);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -198,7 +198,7 @@ export async function importServicesFromFile(
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${file}`);
     const importData = JSON.parse(data) as ServiceExportInterface;
     try {
-      await frodo.service.importServices(importData, clean, globalConfig);
+      await importServices(importData, clean, globalConfig);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -216,7 +216,7 @@ export async function importServicesFromFiles(
   globalConfig = false
 ) {
   debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
-  const names = fs.readdirSync(frodo.utils.impex.getWorkingDirectory());
+  const names = fs.readdirSync(getWorkingDirectory());
   const agentFiles = names.filter((name) =>
     name.toLowerCase().endsWith('.service.json')
   );
@@ -232,7 +232,7 @@ export async function importServicesFromFiles(
  */
 export async function deleteService(serviceId: string, globalConfig = false) {
   try {
-    await frodo.service.deleteFullService(serviceId, globalConfig);
+    await deleteFullService(serviceId, globalConfig);
   } catch (error) {
     const message = error.response?.data?.message;
     printMessage(`Delete service '${serviceId}': ${message}`, 'error');
@@ -243,5 +243,5 @@ export async function deleteService(serviceId: string, globalConfig = false) {
  * Delete all services
  */
 export async function deleteServices(globalConfig = false) {
-  await frodo.service.deleteFullServices(globalConfig);
+  await deleteFullServices(globalConfig);
 }

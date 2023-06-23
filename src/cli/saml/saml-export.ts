@@ -8,6 +8,8 @@ import {
   exportSaml2ProvidersToFiles,
 } from '../../ops/Saml2Ops';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo saml export');
 
 program
@@ -48,7 +50,7 @@ program
         command
       );
       // export by id/name
-      if (options.entityId && (await frodo.login.getTokens())) {
+      if (options.entityId && (await getTokens())) {
         verboseMessage(
           `Exporting provider "${
             options.entityId
@@ -57,12 +59,12 @@ program
         await exportSaml2ProviderToFile(options.entityId, options.file);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all providers to a single file...');
         await exportSaml2ProvidersToFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all providers to separate files...');
         await exportSaml2ProvidersToFiles();
       }

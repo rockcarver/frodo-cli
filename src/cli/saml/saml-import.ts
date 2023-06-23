@@ -9,6 +9,8 @@ import {
   importSaml2ProvidersFromFiles,
 } from '../../ops/Saml2Ops';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo saml import');
 
 program
@@ -49,7 +51,7 @@ program
         command
       );
       // import by id
-      if (options.file && options.entityId && (await frodo.login.getTokens())) {
+      if (options.file && options.entityId && (await getTokens())) {
         verboseMessage(
           `Importing provider "${
             options.entityId
@@ -58,25 +60,21 @@ program
         importSaml2ProviderFromFile(options.entityId, options.file);
       }
       // --all -a
-      else if (options.all && options.file && (await frodo.login.getTokens())) {
+      else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
         importSaml2ProvidersFromFile(options.file);
       }
       // --all-separate -A
-      else if (
-        options.allSeparate &&
-        !options.file &&
-        (await frodo.login.getTokens())
-      ) {
+      else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files (*.saml.json) in current directory...'
         );
         importSaml2ProvidersFromFiles();
       }
       // import first provider from file
-      else if (options.file && (await frodo.login.getTokens())) {
+      else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first provider from file "${
             options.file

@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listSecrets } from '../../ops/SecretsOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo esv secret list');
 
 program
@@ -22,7 +24,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage('Listing secrets...');
         listSecrets(options.long);
       } else {

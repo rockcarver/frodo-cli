@@ -8,6 +8,8 @@ import {
 } from '../../ops/ServiceOps.js';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo service export');
 
 interface ServiceExportOptions {
@@ -61,7 +63,7 @@ program
       const globalConfig = options.global ?? false;
 
       // export by name
-      if (options.serviceId && (await frodo.login.getTokens())) {
+      if (options.serviceId && (await getTokens())) {
         verboseMessage('Exporting service...');
         await exportServiceToFile(
           options.serviceId,
@@ -70,12 +72,12 @@ program
         );
       }
       // -a / --all
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all services to a single file...');
         await exportServicesToFile(options.file, globalConfig);
       }
       // -A / --all-separate
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all services to separate files...');
         await exportServicesToFiles(globalConfig);
       }

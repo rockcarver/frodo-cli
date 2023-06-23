@@ -3,6 +3,8 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { listSocialProviders } from '../../ops/IdpOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo idp list');
 
 program
@@ -21,7 +23,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Listing providers in realm "${state.getRealm()}"...`);
         listSocialProviders();
       } else {

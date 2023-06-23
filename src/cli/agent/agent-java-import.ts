@@ -9,6 +9,8 @@ import {
   importJavaAgentsFromFiles,
 } from '../../ops/AgentOps.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo agent java import');
 
 program
@@ -43,7 +45,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         // import
         if (options.agentId) {
           verboseMessage(`Importing web agent ${options.agentId} from file...`);

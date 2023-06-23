@@ -4,6 +4,8 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { listCirclesOfTrust } from '../../ops/CirclesOfTrustOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo saml cot list');
 
 program
@@ -22,7 +24,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(
           `Listing SAML circles of trust in realm "${state.getRealm()}"...`
         );

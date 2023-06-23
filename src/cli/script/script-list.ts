@@ -4,6 +4,8 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { listScripts } from '../../ops/ScriptOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo script list');
 
 program
@@ -22,7 +24,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Listing scripts in realm "${state.getRealm()}"...`);
         const outcome = await listScripts(options.long);
         if (!outcome) process.exitCode = 1;

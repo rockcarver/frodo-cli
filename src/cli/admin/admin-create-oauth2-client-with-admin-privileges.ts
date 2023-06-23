@@ -5,6 +5,10 @@ import Table from 'cli-table3';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { createOAuth2ClientWithAdminPrivileges, createLongLivedToken } =
+  frodo.admin;
+
 const program = new FrodoCommand(
   'frodo admin create-oauth2-client-with-admin-privileges'
 );
@@ -54,7 +58,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         printMessage(
           `Creating oauth2 client with admin privileges in realm "${state.getRealm()}"...`
         );
@@ -67,10 +71,7 @@ program
           clientSecret = options.clientSecret;
         }
         try {
-          await frodo.admin.createOAuth2ClientWithAdminPrivileges(
-            clientId,
-            clientSecret
-          );
+          await createOAuth2ClientWithAdminPrivileges(clientId, clientSecret);
         } catch (error) {
           printMessage(error, 'error');
           process.exitCode = 1;
@@ -99,7 +100,7 @@ program
         table.push(['Client Secret'['brightCyan'], clientSecret]);
         if (options.llt) {
           try {
-            const response = await frodo.admin.createLongLivedToken(
+            const response = await createLongLivedToken(
               clientId,
               clientSecret,
               options.scope,

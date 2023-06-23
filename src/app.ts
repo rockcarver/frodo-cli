@@ -24,6 +24,8 @@ import theme from './cli/theme/theme';
 import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
 
+const { initConnectionProfiles } = frodo.conn;
+
 (async () => {
   try {
     const program = new Command('frodo').version(
@@ -33,7 +35,7 @@ import { getVersions } from './utils/Version';
 
     printMessage(await getVersions(true), 'text', false);
 
-    await frodo.conn.initConnectionProfiles();
+    await initConnectionProfiles();
 
     program.addCommand(admin());
     program.addCommand(agent());

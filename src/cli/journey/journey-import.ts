@@ -9,6 +9,8 @@ import {
 } from '../../ops/JourneyOps';
 import { printMessage } from '../../utils/Console';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo journey import');
 
 program
@@ -61,7 +63,7 @@ program
         command
       );
       // import
-      if (options.journeyId && (await frodo.login.getTokens())) {
+      if (options.journeyId && (await getTokens())) {
         printMessage(`Importing journey ${options.journeyId}...`);
         importJourneyFromFile(options.journeyId, options.file, {
           reUuid: options.reUuid,
@@ -69,7 +71,7 @@ program
         });
       }
       // --all -a
-      else if (options.all && options.file && (await frodo.login.getTokens())) {
+      else if (options.all && options.file && (await getTokens())) {
         printMessage(
           `Importing all journeys from a single file (${options.file})...`
         );
@@ -79,11 +81,7 @@ program
         });
       }
       // --all-separate -A
-      else if (
-        options.allSeparate &&
-        !options.file &&
-        (await frodo.login.getTokens())
-      ) {
+      else if (options.allSeparate && !options.file && (await getTokens())) {
         printMessage(
           'Importing all journeys from separate files in current directory...'
         );
@@ -93,7 +91,7 @@ program
         });
       }
       // import first journey in file
-      else if (options.file && (await frodo.login.getTokens())) {
+      else if (options.file && (await getTokens())) {
         printMessage('Importing first journey in file...');
         importFirstJourneyFromFile(options.file, {
           reUuid: options.reUuid,

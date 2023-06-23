@@ -8,6 +8,9 @@ import {
   printMessage,
 } from '../../utils/Console';
 
+const { getTokens } = frodo.login;
+const { enableJourney } = frodo.authn.journey;
+
 const program = new FrodoCommand('frodo journey enable');
 
 program
@@ -33,9 +36,9 @@ program
         command
       );
       // enable
-      if (options.journeyId && (await frodo.login.getTokens())) {
+      if (options.journeyId && (await getTokens())) {
         showSpinner(`Enabling journey ${options.journeyId}...`);
-        if (await frodo.authn.journey.enableJourney(options.journeyId)) {
+        if (await enableJourney(options.journeyId)) {
           succeedSpinner(`Enabled journey ${options.journeyId}.`);
         } else {
           failSpinner(`Enabling journey ${options.journeyId} failed.`);

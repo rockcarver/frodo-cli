@@ -3,6 +3,9 @@ import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { clientCredentialsGrant } = frodo.oauth2oidc.endpoint;
+
 const program = new FrodoCommand('frodo admin get-access-token');
 
 program
@@ -31,12 +34,12 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         printMessage(
           `Getting an access token using client "${options.clientId}"...`
         );
         const response = (
-          await frodo.oauth2oidc.endpoint.clientCredentialsGrant(
+          await clientCredentialsGrant(
             state.getHost(),
             options.clientId,
             options.clientSecret,
