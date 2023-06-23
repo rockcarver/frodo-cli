@@ -34,6 +34,19 @@ import * as Theme from './ThemeOps';
 import wordwrap from './utils/Wordwrap';
 import { cloneDeep } from './utils/OpsUtils';
 
+const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils.impex;
+const {
+  getJourneys,
+  exportJourney,
+  createMultiTreeExportTemplate,
+  resolveDependencies,
+  importAllJourneys,
+  importJourney,
+  getTreeDescendents,
+  getNodeRef,
+  onlineTreeExportResolver,
+} = frodo.authn.journey;
+
 /**
  * List all the journeys/trees
  * @param {boolean} long Long version, all the fields
@@ -46,7 +59,7 @@ export async function listJourneys(
 ): Promise<TreeSkeleton[]> {
   let journeys = [];
   try {
-    journeys = await frodo.authn.journey.getJourneys();
+    journeys = await getJourneys();
     if (!long && !analyze) {
       for (const journeyStub of journeys) {
         printMessage(`${journeyStub['_id']}`, 'data');
@@ -75,7 +88,7 @@ export async function listJourneys(
         try {
           for (const journeyStub of journeys) {
             exportPromises.push(
-              frodo.authn.journey.exportJourney(journeyStub['_id'], {
+              exportJourney(journeyStub['_id'], {
                 useStringArrays: false,
                 deps: false,
               })
@@ -133,7 +146,7 @@ export async function exportJourneyToFile(
   debugMessage(`exportJourneyToFile: start`);
   const verbose = state.getDebug();
   if (!file) {
-    file = frodo.utils.impex.getTypedFilename(journeyId, 'journey');
+    file = getTypedFilename(journeyId, 'journey');
   }
   if (state.getDirectory()) {
     const dir = state.getDirectory().replace(/\/$/, '');
@@ -147,10 +160,12 @@ export async function exportJourneyToFile(
   }
   if (!verbose) showSpinner(`${journeyId}`);
   try {
-    const fileData: SingleTreeExportInterface =
-      await frodo.authn.journey.exportJourney(journeyId, options);
+    const fileData: SingleTreeExportInterface = await exportJourney(
+      journeyId,
+      options
+    );
     if (verbose) showSpinner(`${journeyId}`);
-    frodo.utils.impex.saveJsonToFile(fileData, file);
+    saveJsonToFile(fileData, file);
     succeedSpinner(
       `Exported ${journeyId['brightCyan']} to ${file['brightCyan']}.`
     );
@@ -174,29 +189,22 @@ export async function exportJourneysToFile(
 ): Promise<void> {
   let fileName = file;
   if (!fileName) {
-    fileName = frodo.utils.impex.getTypedFilename(
-      `all${frodo.utils.impex.getRealmString()}Journeys`,
-      'journeys'
-    );
+    fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journeys');
   }
-  const trees = await frodo.authn.journey.getJourneys();
-  const fileData: MultiTreeExportInterface =
-    frodo.authn.journey.createMultiTreeExportTemplate();
+  const trees = await getJourneys();
+  const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
     updateProgressBar(`${tree._id}`);
     try {
-      const exportData = await frodo.authn.journey.exportJourney(
-        tree._id,
-        options
-      );
+      const exportData = await exportJourney(tree._id, options);
       delete exportData.meta;
       fileData.trees[tree._id] = exportData;
     } catch (error) {
       printMessage(`Error exporting journey ${tree._id}: ${error}`, 'error');
     }
   }
-  frodo.utils.impex.saveJsonToFile(fileData, fileName);
+  saveJsonToFile(fileData, fileName);
   stopProgressBar(`Exported to ${fileName}`);
 }
 
@@ -207,18 +215,17 @@ export async function exportJourneysToFile(
 export async function exportJourneysToFiles(
   options: TreeExportOptions
 ): Promise<void> {
-  const trees = await frodo.authn.journey.getJourneys();
+  const trees = await getJourneys();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
     updateProgressBar(`${tree._id}`);
-    const fileName = frodo.utils.impex.getTypedFilename(
-      `${tree._id}`,
-      'journey'
-    );
+    const fileName = getTypedFilename(`${tree._id}`, 'journey');
     try {
-      const exportData: SingleTreeExportInterface =
-        await frodo.authn.journey.exportJourney(tree._id, options);
-      frodo.utils.impex.saveJsonToFile(exportData, fileName);
+      const exportData: SingleTreeExportInterface = await exportJourney(
+        tree._id,
+        options
+      );
+      saveJsonToFile(exportData, fileName);
     } catch (error) {
       // do we need to report status here?
     }
@@ -251,13 +258,11 @@ export async function importJourneyFromFile(
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId === journeyData.tree._id) {
       // attempt dependency resolution for single tree import
-      const installedJourneys = (await frodo.authn.journey.getJourneys()).map(
-        (x) => x._id
-      );
+      const installedJourneys = (await getJourneys()).map((x) => x._id);
       const unresolvedJourneys = {};
       const resolvedJourneys = [];
       showSpinner('Resolving dependencies');
-      await frodo.authn.journey.resolveDependencies(
+      await resolveDependencies(
         installedJourneys,
         { [journeyId]: journeyData },
         unresolvedJourneys,
@@ -267,8 +272,7 @@ export async function importJourneyFromFile(
         succeedSpinner(`Resolved all dependencies.`);
 
         if (!verbose) showSpinner(`Importing ${journeyId}...`);
-        frodo.authn.journey
-          .importJourney(journeyData, options)
+        importJourney(journeyData, options)
           .then(() => {
             if (verbose) showSpinner(`Importing ${journeyId}...`);
             succeedSpinner(`Imported ${journeyId}.`);
@@ -326,13 +330,11 @@ export async function importFirstJourneyFromFile(
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId) {
       // attempt dependency resolution for single tree import
-      const installedJourneys = (await frodo.authn.journey.getJourneys()).map(
-        (x) => x._id
-      );
+      const installedJourneys = (await getJourneys()).map((x) => x._id);
       const unresolvedJourneys = {};
       const resolvedJourneys = [];
       showSpinner('Resolving dependencies');
-      await frodo.authn.journey.resolveDependencies(
+      await resolveDependencies(
         installedJourneys,
         { [journeyId]: journeyData },
         unresolvedJourneys,
@@ -342,8 +344,7 @@ export async function importFirstJourneyFromFile(
         succeedSpinner(`Resolved all dependencies.`);
 
         if (!verbose) showSpinner(`Importing ${journeyId}...`);
-        frodo.authn.journey
-          .importJourney(journeyData, options)
+        importJourney(journeyData, options)
           .then(() => {
             if (verbose) showSpinner(`Importing ${journeyId}...`);
             succeedSpinner(`Imported ${journeyId}.`);
@@ -381,7 +382,7 @@ export async function importJourneysFromFile(
   fs.readFile(file, 'utf8', (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    frodo.authn.journey.importAllJourneys(fileData.trees, options);
+    importAllJourneys(fileData.trees, options);
   });
 }
 
@@ -399,10 +400,7 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
     const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
     allJourneysData.trees[journeyData.tree._id] = journeyData;
   }
-  frodo.authn.journey.importAllJourneys(
-    allJourneysData.trees as MultiTreeExportInterface,
-    options
-  );
+  importAllJourneys(allJourneysData.trees as MultiTreeExportInterface, options);
 }
 
 /**
@@ -413,7 +411,7 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
 export function getJourneyClassification(
   journey: SingleTreeExportInterface
 ): JourneyClassificationType[] {
-  return frodo.authn.journey.getJourneyClassification(journey).map((it) => {
+  return getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
         return it['brightGreen'];
@@ -438,7 +436,7 @@ export function getJourneyClassification(
 export function getJourneyClassificationMd(
   journey: SingleTreeExportInterface
 ): string[] {
-  return frodo.authn.journey.getJourneyClassification(journey).map((it) => {
+  return getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
         return `:green_circle: \`${it}\``;
@@ -550,8 +548,7 @@ function describeTreeDescendentsMd(
  */
 export async function describeJourney(
   journeyData: SingleTreeExportInterface,
-  resolveTreeExport: TreeExportResolverInterface = frodo.authn.journey
-    .onlineTreeExportResolver
+  resolveTreeExport: TreeExportResolverInterface = onlineTreeExportResolver
 ): Promise<void> {
   const allNodes = {
     ...journeyData.nodes,
@@ -611,10 +608,7 @@ export async function describeJourney(
   }
 
   // Dependency Tree
-  const descendents = await frodo.authn.journey.getTreeDescendents(
-    journeyData,
-    resolveTreeExport
-  );
+  const descendents = await getTreeDescendents(journeyData, resolveTreeExport);
   describeTreeDescendents(descendents);
 
   // Node Types
@@ -640,7 +634,7 @@ export async function describeJourney(
       printMessage(
         `- ${Node.getOneLineDescription(
           nodeObj,
-          frodo.authn.journey.getNodeRef(nodeObj, journeyData)
+          getNodeRef(nodeObj, journeyData)
         )}`,
         'data'
       );
@@ -747,8 +741,7 @@ export async function describeJourney(
  */
 export async function describeJourneyMd(
   journeyData: SingleTreeExportInterface,
-  resolveTreeExport: TreeExportResolverInterface = frodo.authn.journey
-    .onlineTreeExportResolver
+  resolveTreeExport: TreeExportResolverInterface = onlineTreeExportResolver
 ) {
   const allNodes = {
     ...journeyData.nodes,
@@ -799,10 +792,7 @@ export async function describeJourneyMd(
   printMessage(`\n[![](./${journeyData.tree._id}.png)]()\n`, 'data');
 
   // Dependency Tree
-  const descendents = await frodo.authn.journey.getTreeDescendents(
-    journeyData,
-    resolveTreeExport
-  );
+  const descendents = await getTreeDescendents(journeyData, resolveTreeExport);
   printMessage(describeTreeDescendentsMd(descendents), 'data');
 
   // Node Types
@@ -829,10 +819,7 @@ export async function describeJourneyMd(
     printMessage(Node.getTableHeaderMd(), 'data');
     for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
       printMessage(
-        `${Node.getTableRowMd(
-          nodeObj,
-          frodo.authn.journey.getNodeRef(nodeObj, journeyData)
-        )}`,
+        `${Node.getTableRowMd(nodeObj, getNodeRef(nodeObj, journeyData))}`,
         'data'
       );
     }

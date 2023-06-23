@@ -9,6 +9,8 @@ import {
   importConfigEntityFromFile,
 } from '../../ops/IdmOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo idm import');
 
 interface IdmImportOptions {
@@ -78,12 +80,12 @@ program
         command
       );
       // import by id/name
-      if (options.name && (await frodo.login.getTokens())) {
+      if (options.name && (await getTokens())) {
         verboseMessage(`Importing object "${options.name}"...`);
         await importConfigEntityByIdFromFile(options.name, options.file);
       }
       // import from file
-      if (options.file && (await frodo.login.getTokens())) {
+      if (options.file && (await getTokens())) {
         verboseMessage(`Importing object from file...`);
         await importConfigEntityFromFile(options.file);
       }
@@ -93,7 +95,7 @@ program
         options.directory &&
         options.entitiesFile &&
         options.envFile &&
-        (await frodo.login.getTokens())
+        (await getTokens())
       ) {
         verboseMessage(
           `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
@@ -108,7 +110,7 @@ program
       else if (
         options.allSeparate &&
         options.directory &&
-        (await frodo.login.getTokens())
+        (await getTokens())
       ) {
         verboseMessage(
           `Importing all IDM configuration objects from separate files in ${options.directory}...`

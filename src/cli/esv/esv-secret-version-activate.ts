@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { activateVersionOfSecret } from '../../ops/SecretsOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo esv secret version activate');
 
 program
@@ -22,11 +24,7 @@ program
         command
       );
       // activate by id
-      if (
-        options.secretId &&
-        options.version &&
-        (await frodo.login.getTokens())
-      ) {
+      if (options.secretId && options.version && (await getTokens())) {
         verboseMessage(`Activating version of secret...`);
         activateVersionOfSecret(options.secretId, options.version);
       }

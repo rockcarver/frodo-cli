@@ -3,6 +3,10 @@ import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { deleteSaml2Provider, deleteSaml2Providers } =
+  frodo.saml2.entityProvider;
+
 const program = new FrodoCommand('frodo saml delete');
 
 program
@@ -28,14 +32,14 @@ program
         command
       );
       // -i / --entity-id
-      if (options.entityId && (await frodo.login.getTokens())) {
+      if (options.entityId && (await getTokens())) {
         verboseMessage(`Deleting entity provider '${options.entityId}'...`);
-        await frodo.saml2.entityProvider.deleteSaml2Provider(options.entityId);
+        await deleteSaml2Provider(options.entityId);
       }
       // -a / --all
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage(`Deleting all entity providers...`);
-        await frodo.saml2.entityProvider.deleteSaml2Providers();
+        await deleteSaml2Providers();
       }
       // unrecognized combination of options or no options
       else {

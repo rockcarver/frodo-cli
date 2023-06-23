@@ -8,6 +8,8 @@ import {
   exportCirclesOfTrustToFiles,
 } from '../../ops/CirclesOfTrustOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo saml cot export');
 
 program
@@ -48,7 +50,7 @@ program
         command
       );
       // export by id/name
-      if (options.cotId && (await frodo.login.getTokens())) {
+      if (options.cotId && (await getTokens())) {
         verboseMessage(
           `Exporting circle of trust "${
             options.cotId
@@ -58,13 +60,13 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to a single file...');
         const outcome = exportCirclesOfTrustToFile(options.file);
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to separate files...');
         const outcome = exportCirclesOfTrustToFiles();
         if (!outcome) process.exitCode = 1;

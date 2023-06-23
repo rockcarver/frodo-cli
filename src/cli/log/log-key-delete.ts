@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { deleteLogApiKey, deleteLogApiKeys } from '../../ops/LogOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo log key delete');
 
 program
@@ -29,12 +31,12 @@ program
         command
       );
       // delete by id
-      if (options.keyId && (await frodo.login.getTokens(true))) {
+      if (options.keyId && (await getTokens(true))) {
         verboseMessage(`Deleting key ${options.keyId}`);
         deleteLogApiKey(options.keyId);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens(true))) {
+      else if (options.all && (await getTokens(true))) {
         verboseMessage('Deleting keys...');
         deleteLogApiKeys();
       }

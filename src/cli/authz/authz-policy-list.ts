@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listPolicies, listPoliciesByPolicySet } from '../../ops/PolicyOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo authz policy list');
 
 program
@@ -24,7 +26,7 @@ program
         command
       );
       // by policy set
-      if (options.setId && (await frodo.login.getTokens())) {
+      if (options.setId && (await getTokens())) {
         verboseMessage(
           `Listing authorization policies in policy set ${options.setId}...`
         );
@@ -32,7 +34,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // all policies
-      else if (await frodo.login.getTokens()) {
+      else if (await getTokens()) {
         verboseMessage(`Listing authorization policies...`);
         const outcome = listPolicies(options.long);
         if (!outcome) process.exitCode = 1;

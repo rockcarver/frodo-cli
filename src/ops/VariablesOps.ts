@@ -12,6 +12,10 @@ import {
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
 
+const { decode } = frodo.helper.base64;
+const { resolveUserName } = frodo.idm.managed;
+const { getVariables, getVariable, putVariable } = frodo.cloud.variable;
+
 /**
  * List variables
  * @param {boolean} long Long version, all the fields
@@ -19,7 +23,7 @@ import wordwrap from './utils/Wordwrap';
 export async function listVariables(long) {
   let variables = [];
   try {
-    variables = (await frodo.cloud.variable.getVariables()).result;
+    variables = (await getVariables()).result;
     variables.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -37,14 +41,11 @@ export async function listVariables(long) {
     for (const variable of variables) {
       table.push([
         variable._id,
-        wordwrap(frodo.helper.base64.decode(variable.valueBase64), 40),
+        wordwrap(decode(variable.valueBase64), 40),
         variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(variable.description, 40),
         // eslint-disable-next-line no-await-in-loop
-        await frodo.idm.managed.resolveUserName(
-          'teammember',
-          variable.lastChangedBy
-        ),
+        await resolveUserName('teammember', variable.lastChangedBy),
         new Date(variable.lastChangeDate).toLocaleString(),
       ]);
     }
@@ -65,7 +66,7 @@ export async function listVariables(long) {
 export async function createVariable(variableId, value, description) {
   showSpinner(`Creating variable ${variableId}...`);
   try {
-    await frodo.cloud.variable.putVariable(variableId, value, description);
+    await putVariable(variableId, value, description);
     succeedSpinner(`Created variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -83,7 +84,7 @@ export async function createVariable(variableId, value, description) {
 export async function updateVariable(variableId, value, description) {
   showSpinner(`Updating variable ${variableId}...`);
   try {
-    await frodo.cloud.variable.putVariable(variableId, value, description);
+    await putVariable(variableId, value, description);
     succeedSpinner(`Updated variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -100,7 +101,7 @@ export async function updateVariable(variableId, value, description) {
 export async function setVariableDescription(variableId, description) {
   showSpinner(`Setting description of variable ${variableId}...`);
   try {
-    await frodo.cloud.variable.setVariableDescription(variableId, description);
+    await setVariableDescription(variableId, description);
     succeedSpinner(`Set description of variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -116,7 +117,7 @@ export async function setVariableDescription(variableId, description) {
 export async function deleteVariable(variableId) {
   showSpinner(`Deleting variable ${variableId}...`);
   try {
-    await frodo.cloud.variable.deleteVariable(variableId);
+    await deleteVariable(variableId);
     succeedSpinner(`Deleted variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -130,12 +131,12 @@ export async function deleteVariable(variableId) {
  */
 export async function deleteVariables() {
   try {
-    const variables = (await frodo.cloud.variable.getVariables()).result;
+    const variables = (await getVariables()).result;
     createProgressBar(variables.length, `Deleting variable...`);
     for (const variable of variables) {
       try {
         // eslint-disable-next-line no-await-in-loop
-        await frodo.cloud.variable.deleteVariable(variable._id);
+        await deleteVariable(variable._id);
         updateProgressBar(`Deleted variable ${variable._id}`);
       } catch (error) {
         printMessage(
@@ -161,12 +162,12 @@ export async function deleteVariables() {
  * @param {String} variableId variable id
  */
 export async function describeVariable(variableId) {
-  const variable = await frodo.cloud.variable.getVariable(variableId);
+  const variable = await getVariable(variableId);
   const table = createKeyValueTable();
   table.push(['Name'['brightCyan'], variable._id]);
   table.push([
     'Value'['brightCyan'],
-    wordwrap(frodo.helper.base64.decode(variable.valueBase64), 40),
+    wordwrap(decode(variable.valueBase64), 40),
   ]);
   table.push([
     'Status'['brightCyan'],
@@ -179,10 +180,7 @@ export async function describeVariable(variableId) {
   ]);
   table.push([
     'Modifier'['brightCyan'],
-    await frodo.idm.managed.resolveUserName(
-      'teammember',
-      variable.lastChangedBy
-    ),
+    await resolveUserName('teammember', variable.lastChangedBy),
   ]);
   table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
   printMessage(table.toString());

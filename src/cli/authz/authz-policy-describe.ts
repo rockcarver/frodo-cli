@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { describePolicy } from '../../ops/PolicyOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo authz policy describe');
 
 program
@@ -26,7 +28,7 @@ program
         options,
         command
       );
-      if (options.policyId && (await frodo.login.getTokens())) {
+      if (options.policyId && (await getTokens())) {
         verboseMessage(
           `Describing authorization policy ${options.policyId}...`
         );

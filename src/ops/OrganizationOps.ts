@@ -1,6 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage } from '../utils/Console';
 
+const { queryAllManagedObjectsByType } = frodo.idm.config;
+const { getRealmManagedOrganization } = frodo.idm.organization;
+
 // unfinished work
 export async function listOrganizationsTopDown() {
   const orgs = [];
@@ -15,15 +18,15 @@ export async function listOrganizationsTopDown() {
   do {
     try {
       // eslint-disable-next-line no-await-in-loop
-      result = await frodo.idm.config.queryAllManagedObjectsByType(
-        frodo.idm.organization.getRealmManagedOrganization(),
+      result = await queryAllManagedObjectsByType(
+        getRealmManagedOrganization(),
         ['name', 'parent/*/name', 'children/*/name'],
         result.pagedResultsCookie
       );
     } catch (queryAllManagedObjectsByTypeError) {
       printMessage(queryAllManagedObjectsByTypeError, 'error');
       printMessage(
-        `Error querying ${frodo.idm.organization.getRealmManagedOrganization()} objects: ${queryAllManagedObjectsByTypeError}`,
+        `Error querying ${getRealmManagedOrganization()} objects: ${queryAllManagedObjectsByTypeError}`,
         'error'
       );
     }

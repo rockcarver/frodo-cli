@@ -4,6 +4,8 @@ import { Option } from 'commander';
 import { listJourneys } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo journey list');
 
 program
@@ -23,7 +25,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Listing journeys in realm "${state.getRealm()}"...`);
         listJourneys(options.long, options.analyze);
       } else {

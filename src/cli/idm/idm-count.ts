@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
 import { countManagedObjects } from '../../ops/IdmOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo idm count');
 
 program
@@ -25,7 +27,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Counting managed ${options.managedObject} objects...`);
         countManagedObjects(options.managedObject);
       } else {

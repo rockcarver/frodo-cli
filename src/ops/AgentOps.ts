@@ -15,6 +15,31 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 
+const { getRealmName } = frodo.helper.utils;
+const {
+  createAgentExportTemplate,
+  getAgents,
+  getIdentityGatewayAgents,
+  getJavaAgents,
+  getWebAgents,
+  exportAgents,
+  exportIdentityGatewayAgents,
+  exportJavaAgents,
+  exportWebAgents,
+  exportAgent,
+  exportIdentityGatewayAgent,
+  exportJavaAgent,
+  exportWebAgent,
+  importAgent,
+  importIdentityGatewayAgent,
+  importJavaAgent,
+  importWebAgent,
+  importAgents,
+  importIdentityGatewayAgents,
+  importJavaAgents,
+  importWebAgents,
+} = frodo.agent;
+
 const agentTypeToFileIdMap = {
   IdentityGatewayAgent: 'gateway.agent',
   J2EEAgent: 'java.agent',
@@ -26,7 +51,7 @@ const agentTypeToFileIdMap = {
  */
 export async function listAgents(long = false) {
   try {
-    const agents = await frodo.agent.getAgents();
+    const agents = await getAgents();
     if (long) {
       const table = createTable(['Agent Id', 'Status', 'Agent Type']);
       for (const agent of agents) {
@@ -65,7 +90,7 @@ export async function listAgents(long = false) {
  */
 export async function listIdentityGatewayAgents(long = false) {
   try {
-    const agents = await frodo.agent.getIdentityGatewayAgents();
+    const agents = await getIdentityGatewayAgents();
     if (long) {
       const table = createTable(['Gateway Agent Id', 'Status']);
       for (const agent of agents) {
@@ -93,7 +118,7 @@ export async function listIdentityGatewayAgents(long = false) {
  */
 export async function listJavaAgents(long = false) {
   try {
-    const agents = await frodo.agent.getJavaAgents();
+    const agents = await getJavaAgents();
     if (long) {
       const table = createTable(['Java Agent Id', 'Status']);
       for (const agent of agents) {
@@ -121,7 +146,7 @@ export async function listJavaAgents(long = false) {
  */
 export async function listWebAgents(long = false) {
   try {
-    const agents = await frodo.agent.getWebAgents();
+    const agents = await getWebAgents();
     if (long) {
       const table = createTable(['Web Agent Id', 'Status']);
       for (const agent of agents) {
@@ -149,9 +174,9 @@ export async function listWebAgents(long = false) {
  * @param {string} file file name
  */
 export async function exportAgentsToFile(file) {
-  const exportData = await frodo.agent.exportAgents();
+  const exportData = await exportAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
     'agent'
   );
   if (file) {
@@ -165,9 +190,9 @@ export async function exportAgentsToFile(file) {
  * @param {string} file file name
  */
 export async function exportIdentityGatewayAgentsToFile(file) {
-  const exportData = await frodo.agent.exportIdentityGatewayAgents();
+  const exportData = await exportIdentityGatewayAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
     agentTypeToFileIdMap['IdentityGatewayAgent']
   );
   if (file) {
@@ -181,9 +206,9 @@ export async function exportIdentityGatewayAgentsToFile(file) {
  * @param {string} file file name
  */
 export async function exportJavaAgentsToFile(file) {
-  const exportData = await frodo.agent.exportJavaAgents();
+  const exportData = await exportJavaAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
     agentTypeToFileIdMap['J2EEAgent']
   );
   if (file) {
@@ -197,9 +222,9 @@ export async function exportJavaAgentsToFile(file) {
  * @param {string} file file name
  */
 export async function exportWebAgentsToFile(file) {
-  const exportData = await frodo.agent.exportWebAgents();
+  const exportData = await exportWebAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(frodo.helper.utils.getRealmName(state.getRealm()))}Agents`,
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
     agentTypeToFileIdMap['WebAgent']
   );
   if (file) {
@@ -214,7 +239,7 @@ export async function exportWebAgentsToFile(file) {
  * @param {string} file file name
  */
 export async function exportAgentToFile(agentId, file) {
-  const exportData = await frodo.agent.exportAgent(agentId);
+  const exportData = await exportAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
     agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
@@ -231,7 +256,7 @@ export async function exportAgentToFile(agentId, file) {
  * @param {string} file file name
  */
 export async function exportIdentityGatewayAgentToFile(agentId, file) {
-  const exportData = await frodo.agent.exportIdentityGatewayAgent(agentId);
+  const exportData = await exportIdentityGatewayAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
     agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
@@ -248,7 +273,7 @@ export async function exportIdentityGatewayAgentToFile(agentId, file) {
  * @param {string} file file name
  */
 export async function exportJavaAgentToFile(agentId, file) {
-  const exportData = await frodo.agent.exportJavaAgent(agentId);
+  const exportData = await exportJavaAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
     agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
@@ -265,7 +290,7 @@ export async function exportJavaAgentToFile(agentId, file) {
  * @param {string} file file name
  */
 export async function exportWebAgentToFile(agentId, file) {
-  const exportData = await frodo.agent.exportWebAgent(agentId);
+  const exportData = await exportWebAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
     agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
@@ -280,14 +305,14 @@ export async function exportWebAgentToFile(agentId, file) {
  * Export all agents to separate files
  */
 export async function exportAgentsToFiles() {
-  const agents = await frodo.agent.getAgents();
+  const agents = await getAgents();
   debugMessage(`exportAgentsToFiles: ${agents.length} agents`);
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
       agentTypeToFileIdMap[agent._type._id]
     );
-    const exportData = frodo.agent.createAgentExportTemplate();
+    const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
     debugMessage(`exportAgentsToFiles: exporting ${agent._id} to ${fileName}`);
     saveJsonToFile(exportData, fileName);
@@ -299,13 +324,13 @@ export async function exportAgentsToFiles() {
  * Export all identity gateway agents to separate files
  */
 export async function exportIdentityGatewayAgentsToFiles() {
-  const agents = await frodo.agent.getIdentityGatewayAgents();
+  const agents = await getIdentityGatewayAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
       agentTypeToFileIdMap[agent._type._id]
     );
-    const exportData = frodo.agent.createAgentExportTemplate();
+    const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
     saveJsonToFile(exportData, fileName);
   }
@@ -315,13 +340,13 @@ export async function exportIdentityGatewayAgentsToFiles() {
  * Export all java agents to separate files
  */
 export async function exportJavaAgentsToFiles() {
-  const agents = await frodo.agent.getJavaAgents();
+  const agents = await getJavaAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
       agentTypeToFileIdMap[agent._type._id]
     );
-    const exportData = frodo.agent.createAgentExportTemplate();
+    const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
     saveJsonToFile(exportData, fileName);
   }
@@ -331,13 +356,13 @@ export async function exportJavaAgentsToFiles() {
  * Export all web agents to separate files
  */
 export async function exportWebAgentsToFiles() {
-  const agents = await frodo.agent.getWebAgents();
+  const agents = await getWebAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
       agentTypeToFileIdMap[agent._type._id]
     );
-    const exportData = frodo.agent.createAgentExportTemplate();
+    const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
     saveJsonToFile(exportData, fileName);
   }
@@ -364,7 +389,7 @@ export async function importAgentFromFile(agentId: string, file: string) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
-        await frodo.agent.importAgent(agentId, importData);
+        await importAgent(agentId, importData);
         succeedSpinner(`Imported ${agentId}.`);
       } catch (importError) {
         if (verbose) showSpinner(`Importing ${agentId}...`);
@@ -391,7 +416,7 @@ export async function importFirstAgentFromFile(file: string) {
         if (!verbose) showSpinner(`Importing ${agent['_id']}...`);
         try {
           if (verbose) showSpinner(`Importing ${agent['_id']}...`);
-          await frodo.agent.importAgent(agent['_id'], importData);
+          await importAgent(agent['_id'], importData);
           succeedSpinner(`Imported ${agent['_id']}.`);
         } catch (importError) {
           if (verbose) showSpinner(`Importing ${agent['_id']}...`);
@@ -417,7 +442,7 @@ export async function importAgentsFromFile(file) {
     debugMessage(`importAgentsFromFile: importing ${file}`);
     const importData = JSON.parse(data) as AgentExportInterface;
     try {
-      await frodo.agent.importAgents(importData);
+      await importAgents(importData);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -464,7 +489,7 @@ export async function importIdentityGatewayAgentFromFile(
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
-        await frodo.agent.importIdentityGatewayAgent(agentId, importData);
+        await importIdentityGatewayAgent(agentId, importData);
         succeedSpinner(`Imported ${agentId}.`);
       } catch (importError) {
         failSpinner(`${importError}`);
@@ -492,10 +517,7 @@ export async function importFirstIdentityGatewayAgentFromFile(file: string) {
         if (!verbose) showSpinner(`Importing ${agent['_id']}...`);
         try {
           if (verbose) showSpinner(`Importing ${agent['_id']}...`);
-          await frodo.agent.importIdentityGatewayAgent(
-            agent['_id'],
-            importData
-          );
+          await importIdentityGatewayAgent(agent['_id'], importData);
           succeedSpinner(`Imported ${agent['_id']}.`);
         } catch (importError) {
           failSpinner(`${importError}`);
@@ -523,7 +545,7 @@ export async function importIdentityGatewayAgentsFromFile(file) {
     );
     const importData = JSON.parse(data) as AgentExportInterface;
     try {
-      await frodo.agent.importIdentityGatewayAgents(importData);
+      await importIdentityGatewayAgents(importData);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -569,7 +591,7 @@ export async function importJavaAgentFromFile(agentId: string, file: string) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
-        await frodo.agent.importJavaAgent(agentId, importData);
+        await importJavaAgent(agentId, importData);
         succeedSpinner(`Imported ${agentId}.`);
       } catch (importError) {
         failSpinner(`${importError}`);
@@ -597,7 +619,7 @@ export async function importFirstJavaAgentFromFile(file: string) {
         if (!verbose) showSpinner(`Importing ${agent['_id']}...`);
         try {
           if (verbose) showSpinner(`Importing ${agent['_id']}...`);
-          await frodo.agent.importJavaAgent(agent['_id'], importData);
+          await importJavaAgent(agent['_id'], importData);
           succeedSpinner(`Imported ${agent['_id']}.`);
         } catch (importError) {
           failSpinner(`${importError}`);
@@ -623,7 +645,7 @@ export async function importJavaAgentsFromFile(file) {
     debugMessage(`cli.AgentOps.importJavaAgentsFromFile: importing ${file}`);
     const importData = JSON.parse(data) as AgentExportInterface;
     try {
-      await frodo.agent.importJavaAgents(importData);
+      await importJavaAgents(importData);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -669,7 +691,7 @@ export async function importWebAgentFromFile(agentId: string, file: string) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
-        await frodo.agent.importWebAgent(agentId, importData);
+        await importWebAgent(agentId, importData);
         succeedSpinner(`Imported ${agentId}.`);
       } catch (importError) {
         failSpinner(`${importError}`);
@@ -697,7 +719,7 @@ export async function importFirstWebAgentFromFile(file: string) {
         if (!verbose) showSpinner(`Importing ${agent['_id']}...`);
         try {
           if (verbose) showSpinner(`Importing ${agent['_id']}...`);
-          await frodo.agent.importWebAgent(agent['_id'], importData);
+          await importWebAgent(agent['_id'], importData);
           succeedSpinner(`Imported ${agent['_id']}.`);
         } catch (importError) {
           failSpinner(`caught it here ${importError}`);
@@ -723,7 +745,7 @@ export async function importWebAgentsFromFile(file) {
     debugMessage(`cli.AgentOps.importWebAgentsFromFile: importing ${file}`);
     const importData = JSON.parse(data) as AgentExportInterface;
     try {
-      await frodo.agent.importWebAgents(importData);
+      await importWebAgents(importData);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');

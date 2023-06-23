@@ -8,6 +8,8 @@ import {
   exportIdentityGatewayAgentToFile,
 } from '../../ops/AgentOps.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo agent gateway export');
 
 program
@@ -42,7 +44,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         // export
         if (options.agentId) {
           verboseMessage('Exporting identity gateway agent...');

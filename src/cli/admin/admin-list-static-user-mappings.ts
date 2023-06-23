@@ -3,6 +3,9 @@ import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+const { listNonOAuth2AdminStaticUserMappings } = frodo.admin;
+
 const program = new FrodoCommand('frodo admin list-static-user-mappings');
 
 program
@@ -26,11 +29,11 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         printMessage(
           'Listing all non-oauth2 client subjects of static user mappings...'
         );
-        const subjects = await frodo.admin.listNonOAuth2AdminStaticUserMappings(
+        const subjects = await listNonOAuth2AdminStaticUserMappings(
           options.showProtected
         );
         subjects.sort((a, b) => a.localeCompare(b));

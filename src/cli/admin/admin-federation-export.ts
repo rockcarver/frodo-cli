@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
-import { Authenticate } from '@rockcarver/frodo-lib';
-=======
 import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
->>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   exportAdminFederationProviderToFile,
@@ -14,11 +8,8 @@ import {
   exportAdminFederationProvidersToFiles,
 } from '../../ops/AdminFederationOps';
 
-<<<<<<< HEAD
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
-=======
->>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
 const program = new FrodoCommand('frodo admin federation export', ['realm']);
 
 program
@@ -51,11 +42,7 @@ program
     // implement command logic inside action handler
     async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-<<<<<<< HEAD
       if (await getTokens(true)) {
-=======
-      if (await frodo.login.getTokens(true)) {
->>>>>>> 4d75d27... update to frodo-lib 2.0.0-8 and resolves #251
         // export by id/name
         if (options.idpId) {
           verboseMessage(`Exporting provider "${options.idpId}...`);

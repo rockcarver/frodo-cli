@@ -1,9 +1,11 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import type {
   InnerNodeRefSkeletonInterface,
   NodeRefSkeletonInterface,
   NodeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { frodo } from '@rockcarver/frodo-lib';
+
+const { getNodeClassification: _getNodeClassification } = frodo.authn.node;
 
 /**
  * Get node classification
@@ -11,7 +13,7 @@ import { frodo } from '@rockcarver/frodo-lib';
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassification(nodeType: string): string[] {
-  return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
+  return _getNodeClassification(nodeType).map((it) => {
     switch (it) {
       case 'standard':
         return it.toString()['brightGreen'];
@@ -34,7 +36,7 @@ export function getNodeClassification(nodeType: string): string[] {
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassificationMd(nodeType: string): string[] {
-  return frodo.authn.node.getNodeClassification(nodeType).map((it) => {
+  return _getNodeClassification(nodeType).map((it) => {
     switch (it) {
       case 'standard':
         return `:green_circle: \`${it.toString()}\``;

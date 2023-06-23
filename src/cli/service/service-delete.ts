@@ -3,6 +3,8 @@ import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo service delete');
 
 interface ServiceDeleteOptions {
@@ -41,9 +43,9 @@ program
 
       const globalConfig = options.global ?? false;
 
-      if (options.id && (await frodo.login.getTokens())) {
+      if (options.id && (await getTokens())) {
         await deleteService(options.id, globalConfig);
-      } else if (options.all && (await frodo.login.getTokens())) {
+      } else if (options.all && (await getTokens())) {
         await deleteServices(globalConfig);
       } else {
         program.help();

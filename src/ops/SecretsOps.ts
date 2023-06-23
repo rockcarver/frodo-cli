@@ -12,6 +12,19 @@ import {
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
 
+const { resolveUserName } = frodo.idm.managed;
+const {
+  getSecrets,
+  putSecret,
+  getSecretVersions,
+  getSecret,
+  setStatusOfVersionOfSecret,
+  createNewVersionOfSecret: _createNewVersionOfSecret,
+  setSecretDescription: _setSecretDescription,
+  deleteSecret: _deleteSecret,
+  deleteVersionOfSecret: _deleteVersionOfSecret,
+} = frodo.cloud.secret;
+
 /**
  * List secrets
  * @param {boolean} long Long version, all the fields
@@ -19,7 +32,7 @@ import wordwrap from './utils/Wordwrap';
 export async function listSecrets(long) {
   let secrets = [];
   try {
-    secrets = (await frodo.cloud.secret.getSecrets()).result;
+    secrets = (await getSecrets()).result;
     secrets.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -42,10 +55,7 @@ export async function listSecrets(long) {
         { hAlign: 'right', content: secret.loadedVersion },
         secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(secret.description, 40),
-        await frodo.idm.managed.resolveUserName(
-          'teammember',
-          secret.lastChangedBy
-        ),
+        await resolveUserName('teammember', secret.lastChangedBy),
         new Date(secret.lastChangeDate).toLocaleString(),
       ]);
     }
@@ -74,13 +84,7 @@ export async function createSecret(
 ) {
   showSpinner(`Creating secret ${id}...`);
   try {
-    await frodo.cloud.secret.putSecret(
-      id,
-      value,
-      description,
-      encoding,
-      useInPlaceholders
-    );
+    await putSecret(id, value, description, encoding, useInPlaceholders);
     succeedSpinner(`Created secret ${id}`);
   } catch (error) {
     failSpinner(
@@ -97,7 +101,7 @@ export async function createSecret(
 export async function setSecretDescription(secretId, description) {
   showSpinner(`Setting description of secret ${secretId}...`);
   try {
-    await frodo.cloud.secret.setSecretDescription(secretId, description);
+    await _setSecretDescription(secretId, description);
     succeedSpinner(`Set description of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -113,7 +117,7 @@ export async function setSecretDescription(secretId, description) {
 export async function deleteSecret(secretId) {
   showSpinner(`Deleting secret ${secretId}...`);
   try {
-    await frodo.cloud.secret.deleteSecret(secretId);
+    await _deleteSecret(secretId);
     succeedSpinner(`Deleted secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -127,11 +131,11 @@ export async function deleteSecret(secretId) {
  */
 export async function deleteSecrets() {
   try {
-    const secrets = (await frodo.cloud.secret.getSecrets()).result;
+    const secrets = (await getSecrets()).result;
     createProgressBar(secrets.length, `Deleting secrets...`);
     for (const secret of secrets) {
       try {
-        await frodo.cloud.secret.deleteSecret(secret._id);
+        await _deleteSecret(secret._id);
         updateProgressBar(`Deleted secret ${secret._id}`);
       } catch (error) {
         printMessage(
@@ -156,7 +160,7 @@ export async function deleteSecrets() {
 export async function listSecretVersions(secretId) {
   let versions = [];
   try {
-    versions = await frodo.cloud.secret.getSecretVersions(secretId);
+    versions = await getSecretVersions(secretId);
   } catch (error) {
     printMessage(`${error.message}`, 'error');
     printMessage(error.response.data, 'error');
@@ -189,7 +193,7 @@ export async function listSecretVersions(secretId) {
  * @param {String} secretId Secret id
  */
 export async function describeSecret(secretId) {
-  const secret = await frodo.cloud.secret.getSecret(secretId);
+  const secret = await getSecret(secretId);
   const table = createKeyValueTable();
   table.push(['Name'['brightCyan'], secret._id]);
   table.push(['Active Version'['brightCyan'], secret.activeVersion]);
@@ -205,7 +209,7 @@ export async function describeSecret(secretId) {
   ]);
   table.push([
     'Modifier'['brightCyan'],
-    await frodo.idm.managed.resolveUserName('teammember', secret.lastChangedBy),
+    await resolveUserName('teammember', secret.lastChangedBy),
   ]);
   table.push(['Modifier UUID'['brightCyan'], secret.lastChangedBy]);
   table.push(['Encoding'['brightCyan'], secret.encoding]);
@@ -223,10 +227,7 @@ export async function describeSecret(secretId) {
 export async function createNewVersionOfSecret(secretId, value) {
   showSpinner(`Creating new version of secret ${secretId}...`);
   try {
-    const version = await frodo.cloud.secret.createNewVersionOfSecret(
-      secretId,
-      value
-    );
+    const version = await _createNewVersionOfSecret(secretId, value);
     succeedSpinner(`Created version ${version.version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -243,11 +244,7 @@ export async function createNewVersionOfSecret(secretId, value) {
 export async function activateVersionOfSecret(secretId, version) {
   showSpinner(`Activating version ${version} of secret ${secretId}...`);
   try {
-    await frodo.cloud.secret.setStatusOfVersionOfSecret(
-      secretId,
-      version,
-      'ENABLED'
-    );
+    await setStatusOfVersionOfSecret(secretId, version, 'ENABLED');
     succeedSpinner(`Activated version ${version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -264,11 +261,7 @@ export async function activateVersionOfSecret(secretId, version) {
 export async function deactivateVersionOfSecret(secretId, version) {
   showSpinner(`Deactivating version ${version} of secret ${secretId}...`);
   try {
-    await frodo.cloud.secret.setStatusOfVersionOfSecret(
-      secretId,
-      version,
-      'DISABLED'
-    );
+    await setStatusOfVersionOfSecret(secretId, version, 'DISABLED');
     succeedSpinner(`Deactivated version ${version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -285,7 +278,7 @@ export async function deactivateVersionOfSecret(secretId, version) {
 export async function deleteVersionOfSecret(secretId, version) {
   showSpinner(`Deleting version ${version} of secret ${secretId}...`);
   try {
-    await frodo.cloud.secret.deleteVersionOfSecret(secretId, version);
+    await _deleteVersionOfSecret(secretId, version);
     succeedSpinner(`Deleted version ${version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(

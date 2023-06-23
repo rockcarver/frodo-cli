@@ -8,6 +8,8 @@ import {
   exportEmailTemplatesToFiles,
 } from '../../ops/EmailTemplateOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo email template export');
 
 program
@@ -48,7 +50,7 @@ program
         command
       );
       // export by id/name
-      if (options.templateId && (await frodo.login.getTokens())) {
+      if (options.templateId && (await getTokens())) {
         verboseMessage(
           `Exporting email template "${
             options.templateId
@@ -57,12 +59,12 @@ program
         exportEmailTemplateToFile(options.templateId, options.file);
       }
       // --all -a
-      else if (options.all && (await frodo.login.getTokens())) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all email templates to a single file...');
         exportEmailTemplatesToFile(options.file);
       }
       // --all-separate -A
-      else if (options.allSeparate && (await frodo.login.getTokens())) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all email templates to separate files...');
         exportEmailTemplatesToFiles();
       }
