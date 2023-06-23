@@ -9,6 +9,8 @@ import {
   importFirstAdminFederationProviderFromFile,
 } from '../../ops/AdminFederationOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo admin federation import', ['realm']);
 
 program
@@ -42,11 +44,7 @@ program
     async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
       // import by id
-      if (
-        options.file &&
-        options.idpId &&
-        (await frodo.login.getTokens(true))
-      ) {
+      if (options.file && options.idpId && (await getTokens(true))) {
         verboseMessage(`Importing provider "${options.idpId}"...`);
         const outcome = await importAdminFederationProviderFromFile(
           options.idpId,
@@ -55,11 +53,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
-      else if (
-        options.all &&
-        options.file &&
-        (await frodo.login.getTokens(true))
-      ) {
+      else if (options.all && options.file && (await getTokens(true))) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
@@ -72,7 +66,7 @@ program
       else if (
         options.allSeparate &&
         !options.file &&
-        (await frodo.login.getTokens(true))
+        (await getTokens(true))
       ) {
         verboseMessage(
           'Importing all providers from separate files in current directory...'
@@ -81,7 +75,7 @@ program
         if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
-      else if (options.file && (await frodo.login.getTokens(true))) {
+      else if (options.file && (await getTokens(true))) {
         verboseMessage(
           `Importing first provider from file "${options.file}"...`
         );

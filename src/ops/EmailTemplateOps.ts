@@ -17,7 +17,14 @@ import wordwrap from './utils/Wordwrap';
 import path from 'path';
 import { cloneDeep } from './utils/OpsUtils';
 
-const EMAIL_TEMPLATE_TYPE = frodo.email.template.EMAIL_TEMPLATE_TYPE;
+const { validateImport } = frodo.utils.impex;
+const {
+  EMAIL_TEMPLATE_TYPE,
+  getEmailTemplates,
+  getEmailTemplate,
+  putEmailTemplate,
+} = frodo.email.template;
+
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
 
 const regexEmailTemplateType = new RegExp(`${EMAIL_TEMPLATE_TYPE}/`, 'g');
@@ -89,7 +96,7 @@ export function getTableRowMd(templateObj: EmailTemplateSkeleton): string {
 export async function listEmailTemplates(long = false): Promise<unknown[]> {
   let emailTemplates = [];
   try {
-    emailTemplates = (await frodo.email.template.getEmailTemplates()).result;
+    emailTemplates = (await getEmailTemplates()).result;
   } catch (error) {
     printMessage(`Error retrieving email templates: ${error.message}`, 'error');
   }
@@ -154,9 +161,7 @@ export async function exportEmailTemplateToFile(
   }
   createProgressIndicator('determinate', 1, `Exporting ${templateId}`);
   try {
-    const templateData = await frodo.email.template.getEmailTemplate(
-      templateId
-    );
+    const templateData = await getEmailTemplate(templateId);
     updateProgressIndicator(`Writing file ${fileName}`);
     const fileData = getFileDataTemplate();
     fileData.emailTemplate[templateId] = templateData;
@@ -181,7 +186,7 @@ export async function exportEmailTemplatesToFile(file) {
   }
   try {
     const fileData = getFileDataTemplate();
-    const response = await frodo.email.template.getEmailTemplates();
+    const response = await getEmailTemplates();
     const templates = response.result;
     createProgressIndicator(
       'determinate',
@@ -208,7 +213,7 @@ export async function exportEmailTemplatesToFile(file) {
  */
 export async function exportEmailTemplatesToFiles() {
   try {
-    const response = await frodo.email.template.getEmailTemplates();
+    const response = await getEmailTemplates();
     const templates = response.result;
     createProgressIndicator(
       'determinate',
@@ -246,7 +251,7 @@ export async function importEmailTemplateFromFile(
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (raw || frodo.utils.impex.validateImport(fileData.meta)) {
+    if (raw || validateImport(fileData.meta)) {
       createProgressIndicator('determinate', 1, `Importing ${templateId}`);
       if (
         fileData.emailTemplate[templateId] ||
@@ -256,10 +261,7 @@ export async function importEmailTemplateFromFile(
           const emailTemplateData = raw
             ? s2sConvert(fileData)
             : fileData.emailTemplate[templateId];
-          await frodo.email.template.putEmailTemplate(
-            templateId,
-            emailTemplateData
-          );
+          await putEmailTemplate(templateId, emailTemplateData);
           updateProgressIndicator(`Importing ${templateId}`);
           stopProgressIndicator(`Imported ${templateId}`);
         } catch (putEmailTemplateError) {
@@ -289,7 +291,7 @@ export async function importEmailTemplatesFromFile(file: string) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (frodo.utils.impex.validateImport(fileData.meta)) {
+    if (validateImport(fileData.meta)) {
       createProgressIndicator(
         'determinate',
         Object.keys(fileData.emailTemplate).length,
@@ -299,7 +301,7 @@ export async function importEmailTemplatesFromFile(file: string) {
         if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
           const templateId = id.replace(regexEmailTemplateType, '');
           try {
-            await frodo.email.template.putEmailTemplate(
+            await putEmailTemplate(
               templateId,
               fileData.emailTemplate[templateId]
             );
@@ -378,7 +380,7 @@ export async function importEmailTemplatesFromFiles(raw = false) {
     const fileData = JSON.parse(data);
     if (
       (raw && file.startsWith('emailTemplate-')) ||
-      frodo.utils.impex.validateImport(fileData.meta)
+      validateImport(fileData.meta)
     ) {
       let errors = 0;
       if (raw) {
@@ -386,7 +388,7 @@ export async function importEmailTemplatesFromFiles(raw = false) {
         const templateId = getEmailTemplateIdFromFile(file);
         try {
           const templateData = s2sConvert(fileData);
-          await frodo.email.template.putEmailTemplate(templateId, templateData);
+          await putEmailTemplate(templateId, templateData);
         } catch (putEmailTemplateError) {
           errors += 1;
           printMessage(`\nError importing ${templateId}`, 'error');
@@ -399,7 +401,7 @@ export async function importEmailTemplatesFromFiles(raw = false) {
           if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
             const templateId = id.replace(regexEmailTemplateType, '');
             try {
-              await frodo.email.template.putEmailTemplate(
+              await putEmailTemplate(
                 templateId,
                 fileData.emailTemplate[templateId]
               );
@@ -437,14 +439,14 @@ export async function importFirstEmailTemplateFromFile(
     const fileData = JSON.parse(data);
     if (
       (raw && file.startsWith('emailTemplate-')) ||
-      frodo.utils.impex.validateImport(fileData.meta)
+      validateImport(fileData.meta)
     ) {
       showSpinner(`Importing first email template`);
       if (raw) {
         const templateId = getEmailTemplateIdFromFile(file);
         try {
           const templateData = s2sConvert(fileData);
-          await frodo.email.template.putEmailTemplate(templateId, templateData);
+          await putEmailTemplate(templateId, templateData);
           succeedSpinner(`Imported ${templateId}`);
         } catch (putEmailTemplateError) {
           failSpinner(`Error importing ${templateId}`);
@@ -454,7 +456,7 @@ export async function importFirstEmailTemplateFromFile(
         for (const id in fileData.emailTemplate) {
           if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
             try {
-              await frodo.email.template.putEmailTemplate(
+              await putEmailTemplate(
                 id.replace(regexEmailTemplateType, ''),
                 fileData.emailTemplate[id]
               );

@@ -8,6 +8,9 @@ import {
 } from '../../utils/Console';
 import * as s from '../../help/SampleData';
 
+const { getTokens } = frodo.login;
+const { getInfo } = frodo.info;
+
 export default function setup() {
   const program = new FrodoCommand('info', ['realm']);
   program
@@ -37,8 +40,8 @@ export default function setup() {
     )
     .action(async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-      if (await frodo.login.getTokens()) {
-        const info = await frodo.info.getInfo();
+      if (await getTokens()) {
+        const info = await getInfo();
         if (!options.scriptFriendly && !options.json) {
           verboseMessage('Printing info, versions, and tokens...');
           delete info.sessionToken;

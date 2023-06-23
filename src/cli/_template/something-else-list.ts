@@ -2,6 +2,8 @@ import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo something else list');
 
 program
@@ -20,7 +22,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         // code goes here
       } else {
         process.exitCode = 1;

@@ -10,10 +10,21 @@ import {
   verboseMessage,
 } from '../utils/Console';
 
+const {
+  getLogApiKeys,
+  createLogApiKey,
+  fetch,
+  tail,
+  getDefaultNoiseFilter,
+  resolvePayloadLevel,
+  deleteLogApiKey: _deleteLogApiKey,
+  deleteLogApiKeys: _deleteLogApiKeys,
+} = frodo.cloud.log;
+
 export async function listLogApiKeys(long = false): Promise<boolean> {
   let outcome = false;
   try {
-    const keys = await frodo.cloud.log.getLogApiKeys();
+    const keys = await getLogApiKeys();
     if (long) {
       const table = createTable(['Key Id', 'Name', 'Created at']);
       for (const key of keys) {
@@ -36,7 +47,7 @@ export async function provisionCreds() {
   try {
     let keyName = `frodo-${state.getUsername()}`;
     try {
-      const keys = await frodo.cloud.log.getLogApiKeys();
+      const keys = await getLogApiKeys();
       for (const key of keys) {
         if (key.name === keyName) {
           // append current timestamp to name if the named key already exists
@@ -44,7 +55,7 @@ export async function provisionCreds() {
         }
       }
       try {
-        const resp = await frodo.cloud.log.createLogApiKey(keyName);
+        const resp = await createLogApiKey(keyName);
         // if (resp.name !== keyName) {
         //   printMessage(
         //     `create keys ERROR: could not create log API key ${keyName} [new key name: ${resp.name}]`,
@@ -77,7 +88,7 @@ export async function deleteLogApiKey(keyId) {
   debugMessage(`cli.LogOps.deleteKey: start`);
   showSpinner(`Deleting ${keyId}...`);
   try {
-    await frodo.cloud.log.deleteLogApiKey(keyId);
+    await _deleteLogApiKey(keyId);
     succeedSpinner(`Deleted ${keyId}.`);
     outcome = true;
   } catch (error) {
@@ -92,7 +103,7 @@ export async function deleteLogApiKeys() {
   debugMessage(`cli.LogOps.deleteKeys: start`);
   showSpinner(`Deleting all keys...`);
   try {
-    const response = await frodo.cloud.log.deleteLogApiKeys();
+    const response = await _deleteLogApiKeys();
     succeedSpinner(`Deleted ${response.length} keys.`);
     outcome = true;
   } catch (error) {
@@ -110,10 +121,9 @@ export async function tailLogs(
   nf: string[]
 ) {
   try {
-    const logsObject = await frodo.cloud.log.tail(source, cookie);
+    const logsObject = await tail(source, cookie);
     let filteredLogs = [];
-    const noiseFilter =
-      nf == null ? frodo.cloud.log.getDefaultNoiseFilter() : nf;
+    const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
     if (Array.isArray(logsObject.result)) {
       filteredLogs = logsObject.result.filter(
         (el) =>
@@ -121,8 +131,7 @@ export async function tailLogs(
             (el.payload as LogEventPayloadSkeleton).logger
           ) &&
           !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' ||
-            levels.includes(frodo.cloud.log.resolvePayloadLevel(el))) &&
+          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
           (typeof txid === 'undefined' ||
             txid === null ||
             (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
@@ -156,15 +165,9 @@ export async function fetchLogs(
   nf: string[]
 ) {
   try {
-    const logsObject = await frodo.cloud.log.fetch(
-      source,
-      startTs,
-      endTs,
-      cookie
-    );
+    const logsObject = await fetch(source, startTs, endTs, cookie);
     let filteredLogs = [];
-    const noiseFilter =
-      nf == null ? frodo.cloud.log.getDefaultNoiseFilter() : nf;
+    const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
     if (Array.isArray(logsObject.result)) {
       filteredLogs = logsObject.result.filter(
         (el) =>
@@ -172,8 +175,7 @@ export async function fetchLogs(
             (el.payload as LogEventPayloadSkeleton).logger
           ) &&
           !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' ||
-            levels.includes(frodo.cloud.log.resolvePayloadLevel(el))) &&
+          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
           (typeof txid === 'undefined' ||
             txid === null ||
             (el.payload as LogEventPayloadSkeleton).transactionId?.includes(

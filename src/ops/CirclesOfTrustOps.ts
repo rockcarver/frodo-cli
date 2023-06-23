@@ -19,6 +19,16 @@ import {
 } from '../utils/ExportImportUtils';
 import type { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
+const { getRealmName } = frodo.helper.utils;
+const {
+  getCirclesOfTrust,
+  exportCircleOfTrust,
+  exportCirclesOfTrust,
+  importCircleOfTrust,
+  importCirclesOfTrust,
+  importFirstCircleOfTrust,
+} = frodo.saml2.circlesOfTrust;
+
 /**
  * Get a one-line description of the circle of trust object
  * @param {CircleOfTrustSkeleton} cotObj circle of trust object to describe
@@ -64,7 +74,7 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
   let outcome = false;
   let cotList = [];
   try {
-    cotList = await frodo.saml2.circlesOfTrust.getCirclesOfTrust();
+    cotList = await getCirclesOfTrust();
   } catch (error) {
     printMessage(`getCirclesOfTrust ERROR: ${error}`, 'error');
     printMessage(error, 'data');
@@ -115,9 +125,7 @@ export async function exportCircleOfTrustToFile(
     if (file) {
       fileName = file;
     }
-    const exportData = await frodo.saml2.circlesOfTrust.exportCircleOfTrust(
-      cotId
-    );
+    const exportData = await exportCircleOfTrust(cotId);
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported ${cotId} to ${fileName}.`);
     outcome = true;
@@ -140,15 +148,13 @@ export async function exportCirclesOfTrustToFile(
   showSpinner(`Exporting all circles of trust...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(
-        frodo.helper.utils.getRealmName(state.getRealm())
-      )}CirclesOfTrust`,
+      `all${titleCase(getRealmName(state.getRealm()))}CirclesOfTrust`,
       'cot.saml'
     );
     if (file) {
       fileName = file;
     }
-    const exportData = await frodo.saml2.circlesOfTrust.exportCirclesOfTrust();
+    const exportData = await exportCirclesOfTrust();
     saveJsonToFile(exportData, fileName);
     succeedSpinner(`Exported all circles of trust to ${fileName}.`);
     outcome = true;
@@ -166,14 +172,13 @@ export async function exportCirclesOfTrustToFiles(): Promise<boolean> {
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: begin`);
   const errors = [];
   try {
-    const cots: CircleOfTrustSkeleton[] =
-      await frodo.saml2.circlesOfTrust.getCirclesOfTrust();
+    const cots: CircleOfTrustSkeleton[] = await getCirclesOfTrust();
     createProgressBar(cots.length, 'Exporting circles of trust...');
     for (const cot of cots) {
       const file = getTypedFilename(cot._id, 'cot.saml');
       try {
         const exportData: CirclesOfTrustExportInterface =
-          await frodo.saml2.circlesOfTrust.exportCircleOfTrust(cot._id);
+          await exportCircleOfTrust(cot._id);
         saveJsonToFile(exportData, file);
         updateProgressBar(`Exported ${cot.name}.`);
       } catch (error) {
@@ -205,7 +210,7 @@ export async function importCircleOfTrustFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      await frodo.saml2.circlesOfTrust.importCircleOfTrust(cotId, fileData);
+      await importCircleOfTrust(cotId, fileData);
       outcome = true;
       succeedSpinner(`Imported circle of trust ${cotId} from ${file}.`);
     } catch (error) {
@@ -229,7 +234,7 @@ export async function importFirstCircleOfTrustFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      await frodo.saml2.circlesOfTrust.importFirstCircleOfTrust(fileData);
+      await importFirstCircleOfTrust(fileData);
       outcome = true;
       succeedSpinner(`Imported first circle of trust from ${file}.`);
     } catch (error) {
@@ -253,7 +258,7 @@ export async function importCirclesOfTrustFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      await frodo.saml2.circlesOfTrust.importCirclesOfTrust(fileData);
+      await importCirclesOfTrust(fileData);
       outcome = true;
       succeedSpinner(`Imported circles of trust from ${file}.`);
     } catch (error) {
@@ -283,7 +288,7 @@ export async function importCirclesOfTrustFromFiles(): Promise<boolean> {
         const fileData: CirclesOfTrustExportInterface = JSON.parse(data);
         const count = Object.keys(fileData.saml.cot).length;
         total += count;
-        await frodo.saml2.circlesOfTrust.importCirclesOfTrust(fileData);
+        await importCirclesOfTrust(fileData);
         updateProgressBar(`Imported ${count} circles of trust from ${file}`);
       } catch (error) {
         errors.push(error);

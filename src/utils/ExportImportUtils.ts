@@ -1,7 +1,9 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import slugify from 'slugify';
-import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from './Console';
+
+const { getMetadata } = frodo.utils.impex;
 
 /**
  * Get a typed filename. E.g. "my-script.script.json"
@@ -30,7 +32,7 @@ export function getTypedFilename(
 export function saveJsonToFile(data: any, filename: string) {
   const exportData = data;
   if (!exportData.meta) {
-    exportData.meta = frodo.utils.impex.getMetadata();
+    exportData.meta = getMetadata();
   }
   fs.writeFile(filename, JSON.stringify(exportData, null, 2), (err) => {
     if (err) {
@@ -42,7 +44,7 @@ export function saveJsonToFile(data: any, filename: string) {
 
 export function saveToFile(type, data, identifier, filename) {
   const exportData = {};
-  exportData['meta'] = frodo.utils.impex.getMetadata();
+  exportData['meta'] = getMetadata();
   exportData[type] = {};
 
   if (Array.isArray(data)) {

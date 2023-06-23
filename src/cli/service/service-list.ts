@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { listServices } from '../../ops/ServiceOps.js';
 import { verboseMessage } from '../../utils/Console.js';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo service list');
 
 program
@@ -21,7 +23,7 @@ program
       options,
       command
     );
-    if (await frodo.login.getTokens()) {
+    if (await getTokens()) {
       verboseMessage(`Listing all AM services for realm: ${realm}`);
       await listServices(options.long, options.global);
     } else {

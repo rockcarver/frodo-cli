@@ -1,11 +1,9 @@
-/* eslint-disable no-await-in-loop */
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
 import propertiesReader from 'properties-reader';
 import replaceall from 'replaceall';
-
-import { frodo } from '@rockcarver/frodo-lib';
 import {
   createProgressIndicator,
   printMessage,
@@ -13,12 +11,22 @@ import {
 } from '../utils/Console';
 import { getTypedFilename } from '../utils/ExportImportUtils';
 
+const { validateScriptHooks } = frodo.helper.script;
+const { readFiles, unSubstituteEnvParams } = frodo.helper.utils;
+const {
+  testConnectorServers,
+  getAllConfigEntities,
+  getConfigEntity,
+  putConfigEntity,
+  queryAllManagedObjectsByType,
+} = frodo.idm.config;
+
 /**
  * Warn about and list offline remote connector servers
  */
 export async function warnAboutOfflineConnectorServers() {
   try {
-    const all = await frodo.idm.config.testConnectorServers();
+    const all = await testConnectorServers();
     const offline = all
       .filter((status) => !status.ok)
       .map((status) => status.name);
@@ -44,7 +52,7 @@ export async function warnAboutOfflineConnectorServers() {
  */
 export async function listAllConfigEntities() {
   try {
-    const { configurations } = await frodo.idm.config.getAllConfigEntities();
+    const { configurations } = await getAllConfigEntities();
     for (const configEntity of configurations) {
       printMessage(`${configEntity._id}`, 'data');
     }
@@ -67,7 +75,7 @@ export async function exportConfigEntity(id, file) {
   if (!fileName) {
     fileName = getTypedFilename(`${id}`, 'idm');
   }
-  const configEntity = await frodo.idm.config.getConfigEntity(id);
+  const configEntity = await getConfigEntity(id);
   fs.writeFile(fileName, JSON.stringify(configEntity, null, 2), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${id} export to file`, 'error');
@@ -82,7 +90,7 @@ export async function exportConfigEntity(id, file) {
  */
 export async function exportAllRawConfigEntities(directory) {
   try {
-    const { configurations } = await frodo.idm.config.getAllConfigEntities();
+    const { configurations } = await getAllConfigEntities();
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory);
     }
@@ -94,51 +102,49 @@ export async function exportAllRawConfigEntities(directory) {
     const entityPromises = [];
     for (const configEntity of configurations) {
       entityPromises.push(
-        frodo.idm.config
-          .getConfigEntity(configEntity._id)
-          .catch((getConfigEntityError) => {
-            if (
-              !(
-                getConfigEntityError.response?.status === 403 &&
-                getConfigEntityError.response?.data?.message ===
-                  'This operation is not available in ForgeRock Identity Cloud.'
-              ) &&
-              !(
-                // list of config entities, which do not exist by default or ever.
-                (
-                  [
-                    'script',
-                    'notificationFactory',
-                    'apiVersion',
-                    'metrics',
-                    'repo.init',
-                    'endpoint/validateQueryFilter',
-                    'endpoint/oauthproxy',
-                    'external.rest',
-                    'scheduler',
-                    'org.apache.felix.fileinstall/openidm',
-                    'cluster',
-                    'endpoint/mappingDetails',
-                    'fieldPolicy/teammember',
-                  ].includes(configEntity._id) &&
-                  getConfigEntityError.response?.status === 404 &&
-                  getConfigEntityError.response?.data?.reason === 'Not Found'
-                )
-              ) &&
-              // https://bugster.forgerock.org/jira/browse/OPENIDM-18270
-              !(
+        getConfigEntity(configEntity._id).catch((getConfigEntityError) => {
+          if (
+            !(
+              getConfigEntityError.response?.status === 403 &&
+              getConfigEntityError.response?.data?.message ===
+                'This operation is not available in ForgeRock Identity Cloud.'
+            ) &&
+            !(
+              // list of config entities, which do not exist by default or ever.
+              (
+                [
+                  'script',
+                  'notificationFactory',
+                  'apiVersion',
+                  'metrics',
+                  'repo.init',
+                  'endpoint/validateQueryFilter',
+                  'endpoint/oauthproxy',
+                  'external.rest',
+                  'scheduler',
+                  'org.apache.felix.fileinstall/openidm',
+                  'cluster',
+                  'endpoint/mappingDetails',
+                  'fieldPolicy/teammember',
+                ].includes(configEntity._id) &&
                 getConfigEntityError.response?.status === 404 &&
-                getConfigEntityError.response?.data?.message ===
-                  'No configuration exists for id org.apache.felix.fileinstall/openidm'
+                getConfigEntityError.response?.data?.reason === 'Not Found'
               )
-            ) {
-              printMessage(getConfigEntityError.response?.data, 'error');
-              printMessage(
-                `Error getting config entity ${configEntity._id}: ${getConfigEntityError}`,
-                'error'
-              );
-            }
-          })
+            ) &&
+            // https://bugster.forgerock.org/jira/browse/OPENIDM-18270
+            !(
+              getConfigEntityError.response?.status === 404 &&
+              getConfigEntityError.response?.data?.message ===
+                'No configuration exists for id org.apache.felix.fileinstall/openidm'
+            )
+          ) {
+            printMessage(getConfigEntityError.response?.data, 'error');
+            printMessage(
+              `Error getting config entity ${configEntity._id}: ${getConfigEntityError}`,
+              'error'
+            );
+          }
+        })
       );
     }
     const results = await Promise.all(entityPromises);
@@ -191,7 +197,7 @@ export async function exportAllConfigEntities(
     const envParams = propertiesReader(envFile);
 
     try {
-      const { configurations } = await frodo.idm.config.getAllConfigEntities();
+      const { configurations } = await getAllConfigEntities();
       // create export directory if not exist
       if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
@@ -204,9 +210,7 @@ export async function exportAllConfigEntities(
       const entityPromises = [];
       for (const configEntity of configurations) {
         if (entriesToExport.includes(configEntity._id)) {
-          entityPromises.push(
-            frodo.idm.config.getConfigEntity(configEntity._id)
-          );
+          entityPromises.push(getConfigEntity(configEntity._id));
         }
       }
       const results = await Promise.all(entityPromises);
@@ -263,14 +267,14 @@ export async function importConfigEntityByIdFromFile(
   const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
 
   const entityData = JSON.parse(fileData);
-  const isValid = frodo.helper.script.validateScriptHooks(entityData);
+  const isValid = validateScriptHooks(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
   }
 
   try {
-    await frodo.idm.config.putConfigEntity(entityId, entityData);
+    await putConfigEntity(entityId, entityData);
   } catch (putConfigEntityError) {
     printMessage(putConfigEntityError, 'error');
     printMessage(`Error: ${putConfigEntityError}`, 'error');
@@ -289,14 +293,14 @@ export async function importConfigEntityFromFile(
   const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
   const entityData = JSON.parse(fileData);
   const entityId = entityData._id;
-  const isValid = frodo.helper.script.validateScriptHooks(entityData);
+  const isValid = validateScriptHooks(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
   }
 
   try {
-    await frodo.idm.config.putConfigEntity(entityId, entityData);
+    await putConfigEntity(entityId, entityData);
   } catch (putConfigEntityError) {
     printMessage(putConfigEntityError, 'error');
     printMessage(`Error: ${putConfigEntityError}`, 'error');
@@ -315,7 +319,7 @@ export async function importAllRawConfigEntities(
   if (!fs.existsSync(baseDirectory)) {
     return;
   }
-  const files = await frodo.helper.utils.readFiles(baseDirectory);
+  const files = await readFiles(baseDirectory);
   const jsonFiles = files
     .filter(({ path }) => path.toLowerCase().endsWith('.json'))
     .map(({ path, content }) => ({
@@ -328,7 +332,7 @@ export async function importAllRawConfigEntities(
   let everyScriptValid = true;
   for (const file of jsonFiles) {
     const jsObject = JSON.parse(file.content);
-    const isScriptValid = frodo.helper.script.validateScriptHooks(jsObject);
+    const isScriptValid = validateScriptHooks(jsObject);
     if (!isScriptValid) {
       printMessage(`Invalid script hook in ${file.path}`, 'error');
       everyScriptValid = false;
@@ -346,7 +350,7 @@ export async function importAllRawConfigEntities(
   );
 
   const entityPromises = jsonFiles.map((file) => {
-    return frodo.idm.config.putConfigEntity(file.entityId, file.content);
+    return putConfigEntity(file.entityId, file.content);
   });
 
   const results = await Promise.allSettled(entityPromises);
@@ -389,7 +393,7 @@ export async function importAllConfigEntities(
 
   const envReader = propertiesReader(envFile);
 
-  const files = await frodo.helper.utils.readFiles(baseDirectory);
+  const files = await readFiles(baseDirectory);
   const jsonFiles = files
     .filter(({ path }) => path.toLowerCase().endsWith('.json'))
     .map(({ content, path }) => ({
@@ -402,7 +406,7 @@ export async function importAllConfigEntities(
   let everyScriptValid = true;
   for (const file of jsonFiles) {
     const jsObject = JSON.parse(file.content);
-    const isScriptValid = frodo.helper.script.validateScriptHooks(jsObject);
+    const isScriptValid = validateScriptHooks(jsObject);
     if (!isScriptValid) {
       printMessage(`Invalid script hook in ${file.path}`, 'error');
       everyScriptValid = false;
@@ -424,11 +428,8 @@ export async function importAllConfigEntities(
       return entriesToImport.includes(entityId);
     })
     .map(({ entityId, content }) => {
-      const unsubstituted = frodo.helper.utils.unSubstituteEnvParams(
-        content,
-        envReader
-      );
-      return frodo.idm.config.putConfigEntity(entityId, unsubstituted);
+      const unsubstituted = unSubstituteEnvParams(content, envReader);
+      return putConfigEntity(entityId, unsubstituted);
     });
 
   const results = await Promise.allSettled(entityPromises);
@@ -467,7 +468,7 @@ export async function countManagedObjects(type) {
   };
   try {
     do {
-      result = await frodo.idm.config.queryAllManagedObjectsByType(
+      result = await queryAllManagedObjectsByType(
         type,
         [],
         result.pagedResultsCookie

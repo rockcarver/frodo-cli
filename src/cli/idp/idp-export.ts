@@ -8,6 +8,8 @@ import {
   exportSocialProviderToFile,
 } from '../../ops/IdpOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo idp export');
 
 program
@@ -47,7 +49,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         // export by id/name
         if (options.idpId) {
           verboseMessage(

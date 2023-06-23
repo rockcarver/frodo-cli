@@ -19,6 +19,21 @@ import type {
 } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import type { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
+const { decode } = frodo.helper.base64;
+const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
+  frodo.utils.impex;
+const {
+  getSaml2ProviderStubs,
+  getProviderByLocationAndId,
+  getSaml2ProviderStub,
+  getProviderMetadataUrl,
+  getProviderMetadata,
+  exportSaml2Provider,
+  exportSaml2Providers,
+  importSaml2Provider,
+  importSaml2Providers,
+} = frodo.saml2.entityProvider;
+
 const roleMap = {
   identityProvider: 'IDP',
   serviceProvider: 'SP',
@@ -80,7 +95,7 @@ export function getTableRowMd(saml2ProviderObj: Saml2ProviderSkeleton): string {
  * @param {boolean} long Long list format with details
  */
 export async function listSaml2Providers(long = false) {
-  const providerList = await frodo.saml2.entityProvider.getSaml2ProviderStubs();
+  const providerList = await getSaml2ProviderStubs();
   providerList.sort((a, b) => a._id.localeCompare(b._id));
   if (!long) {
     for (const provider of providerList) {
@@ -109,21 +124,17 @@ export async function listSaml2Providers(long = false) {
  */
 export async function describeSaml2Provider(entityId) {
   try {
-    const stub = await frodo.saml2.entityProvider.getSaml2ProviderStub(
-      entityId
-    );
+    const stub = await getSaml2ProviderStub(entityId);
     printMessage(stub);
     const { location } = stub;
     const id = stub._id;
     const roles = stub.roles.map((role: string) => roleMap[role]).join(', ');
-    const rawProviderData =
-      await frodo.saml2.entityProvider.getProviderByLocationAndId(location, id);
+    const rawProviderData = await getProviderByLocationAndId(location, id);
     delete rawProviderData._id;
     delete rawProviderData._rev;
     rawProviderData.location = location;
     rawProviderData.roles = roles;
-    rawProviderData.metadataUrl =
-      frodo.saml2.entityProvider.getProviderMetadataUrl(entityId);
+    rawProviderData.metadataUrl = getProviderMetadataUrl(entityId);
     const table = createObjectTable(rawProviderData);
     printMessage(table.toString());
   } catch (error) {
@@ -139,14 +150,12 @@ export async function describeSaml2Provider(entityId) {
 export async function exportSaml2MetadataToFile(entityId, file = null) {
   let fileName = file;
   if (!fileName) {
-    fileName = frodo.utils.impex.getTypedFilename(entityId, 'metadata', 'xml');
+    fileName = getTypedFilename(entityId, 'metadata', 'xml');
   }
   createProgressBar(1, `Exporting metadata for: ${entityId}`);
   try {
     updateProgressBar(`Writing file ${fileName}`);
-    const metaData = await frodo.saml2.entityProvider.getProviderMetadata(
-      entityId
-    );
+    const metaData = await getProviderMetadata(entityId);
     saveTextToFile(metaData, fileName);
     updateProgressBar(`Exported provider ${entityId}`);
     stopProgressBar(
@@ -169,14 +178,12 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
   );
   let fileName = file;
   if (!fileName) {
-    fileName = frodo.utils.impex.getTypedFilename(entityId, 'saml');
+    fileName = getTypedFilename(entityId, 'saml');
   }
   try {
     createProgressBar(1, `Exporting provider ${entityId}`);
-    const fileData = await frodo.saml2.entityProvider.exportSaml2Provider(
-      entityId
-    );
-    frodo.utils.impex.saveJsonToFile(fileData, fileName);
+    const fileData = await exportSaml2Provider(entityId);
+    saveJsonToFile(fileData, fileName);
     updateProgressBar(`Exported provider ${entityId}`);
     stopProgressBar(
       `Exported ${entityId.brightCyan} to ${fileName.brightCyan}.`
@@ -198,14 +205,11 @@ export async function exportSaml2ProvidersToFile(file = null) {
   debugMessage(`cli.Saml2Ops.exportSaml2ProviderToFile: start [file=${file}]`);
   let fileName = file;
   if (!fileName) {
-    fileName = frodo.utils.impex.getTypedFilename(
-      `all${frodo.utils.impex.getRealmString()}Providers`,
-      'saml'
-    );
+    fileName = getTypedFilename(`all${getRealmString()}Providers`, 'saml');
   }
   try {
-    const exportData = await frodo.saml2.entityProvider.exportSaml2Providers();
-    frodo.utils.impex.saveJsonToFile(exportData, fileName);
+    const exportData = await exportSaml2Providers();
+    saveJsonToFile(exportData, fileName);
   } catch (error) {
     printMessage(error.message, 'error');
     printMessage(
@@ -220,18 +224,13 @@ export async function exportSaml2ProvidersToFile(file = null) {
  * Export all entity providers to individual files
  */
 export async function exportSaml2ProvidersToFiles() {
-  const stubs = await frodo.saml2.entityProvider.getSaml2ProviderStubs();
+  const stubs = await getSaml2ProviderStubs();
   if (stubs.length > 0) {
     createProgressBar(stubs.length, 'Exporting providers');
     for (const stub of stubs) {
-      const fileName = frodo.utils.impex.getTypedFilename(
-        stub.entityId,
-        'saml'
-      );
-      const fileData = await frodo.saml2.entityProvider.exportSaml2Provider(
-        stub.entityId
-      );
-      frodo.utils.impex.saveJsonToFile(fileData, fileName);
+      const fileName = getTypedFilename(stub.entityId, 'saml');
+      const fileData = await exportSaml2Provider(stub.entityId);
+      saveJsonToFile(fileData, fileName);
       updateProgressBar(`Exported provider ${stub.entityId}`);
     }
     stopProgressBar(`${stubs.length} providers exported.`);
@@ -254,7 +253,7 @@ export async function importSaml2ProviderFromFile(
     const fileData = JSON.parse(data);
     showSpinner(`Importing ${entityId}...`);
     try {
-      await frodo.saml2.entityProvider.importSaml2Provider(entityId, fileData);
+      await importSaml2Provider(entityId, fileData);
       succeedSpinner(`Imported ${entityId}.`);
     } catch (error) {
       failSpinner(`Error importing ${entityId}: ${error.message}`);
@@ -274,10 +273,10 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
     const entityId64 =
       Object.keys(fileData.saml.remote)[0] ||
       Object.keys(fileData.saml.hosted)[0];
-    const entityId = frodo.helper.base64.decode(entityId64);
+    const entityId = decode(entityId64);
     showSpinner(`Importing ${entityId}...`);
     try {
-      await frodo.saml2.entityProvider.importSaml2Provider(entityId, fileData);
+      await importSaml2Provider(entityId, fileData);
       succeedSpinner(`Imported ${entityId}.`);
     } catch (error) {
       failSpinner(`Error importing ${entityId}: ${error.message}`);
@@ -293,8 +292,8 @@ export async function importSaml2ProvidersFromFile(file: string) {
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (frodo.utils.impex.validateImport(fileData.meta)) {
-      await frodo.saml2.entityProvider.importSaml2Providers(fileData);
+    if (validateImport(fileData.meta)) {
+      await importSaml2Providers(fileData);
     } else {
       printMessage('Import validation failed...', 'error');
     }
@@ -319,10 +318,8 @@ export async function importSaml2ProvidersFromFiles() {
   for (const file of jsonFiles) {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    if (frodo.utils.impex.validateImport(fileData.meta)) {
-      const myStatus = await frodo.saml2.entityProvider.importSaml2Providers(
-        fileData
-      );
+    if (validateImport(fileData.meta)) {
+      const myStatus = await importSaml2Providers(fileData);
       totalStatus.total += myStatus.total;
       totalStatus.successes += myStatus.successes;
       totalStatus.warnings += myStatus.warnings;

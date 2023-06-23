@@ -4,6 +4,8 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { listThemes } from '../../ops/ThemeOps';
 import { verboseMessage } from '../../utils/Console';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo theme list');
 
 program
@@ -22,7 +24,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Listing themes in realm "${state.getRealm()}"...`);
         listThemes(options.long);
       } else {

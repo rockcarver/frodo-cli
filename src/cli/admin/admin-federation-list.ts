@@ -3,6 +3,8 @@ import { FrodoCommand } from '../FrodoCommand';
 import { verboseMessage } from '../../utils/Console';
 import { listAdminFederationProviders } from '../../ops/AdminFederationOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo admin federation list', ['realm']);
 
 program
@@ -14,7 +16,7 @@ program
     // implement command logic inside action handler
     async (host, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(host, user, password, options, command);
-      if (await frodo.login.getTokens(true)) {
+      if (await getTokens(true)) {
         verboseMessage(`Listing admin federation providers...`);
         const outcome = await listAdminFederationProviders();
         if (!outcome) process.exitCode = 1;

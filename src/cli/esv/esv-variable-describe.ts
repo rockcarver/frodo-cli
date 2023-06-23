@@ -4,6 +4,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { describeVariable } from '../../ops/VariablesOps';
 
+const { getTokens } = frodo.login;
+
 const program = new FrodoCommand('frodo esv variable describe');
 
 program
@@ -25,7 +27,7 @@ program
         options,
         command
       );
-      if (await frodo.login.getTokens()) {
+      if (await getTokens()) {
         verboseMessage(`Describing variable ${options.variableId}...`);
         describeVariable(options.variableId);
       } else {
