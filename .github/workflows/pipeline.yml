@@ -224,6 +224,7 @@ jobs:
             Release.txt
             frodo-linux-${{ needs.build.outputs.newVersion }}.zip
             frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-${{ needs.build.outputs.newVersion }}.dmg
             frodo-win-${{ needs.build.outputs.newVersion }}.zip
             frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -335,13 +336,6 @@ jobs:
         run: npm run dist-pkg
 
       #
-      # Re-sign the application with the "Developer ID" certificate.
-      #
-      - name: Sign distribution binary
-        run: "codesign -f -s 'Rock Carver' --timestamp --deep frodo"
-        # run: "codesign -f -s 'Developer ID Application: Volker Scheuber (AV6L99G8W9)' --timestamp --deep frodo"
-
-      #
       # Fail early on failing tests.
       #
       - name: 'Test'
@@ -350,18 +344,53 @@ jobs:
           ./frodo journey -h
           ./frodo journey export -h
 
-      #
-      # Zip up the app and add it to the GitHub Release as a
-      # downloadable asset.
-      #
+      - name: Install gon via HomeBrew for code signing and app notarization
+        run: |
+          brew tap mitchellh/gon
+          brew install mitchellh/gon/gon
 
-      - name: Package for Distribution
-        run: ditto -V -c -k --keepParent "frodo" "frodo-macos-${{ needs.build.outputs.newVersion }}.zip"
+      - name: Notorize
+        env:
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+        run: |
+          cat > entitlements.plist <<DELIM
+          <dict>
+            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <true/>
+          </dict>
+          DELIM
+          cat > ./gon.json <<DELIM
+          {
+            "source" : ["./frodo"],
+            "bundle_id" : "com.forgerock.frodo.frodo",
+            "apple_id": {
+              "username" : "${{ secrets.AC_USERNAME }}",
+              "password":  "@env:AC_PASSWORD"
+            },
+            "sign" :{
+              "application_identity" : "Developer ID Application",
+              "entitlements_file" : "entitlements.plist"
+            },
+            "dmg" :{
+              "output_path":  "frodo-macos-${{ needs.build.outputs.newVersion }}.dmg",
+              "volume_name":  "frodo"
+            },
+            "zip" :{
+              "output_path" : "frodo-macos-${{ needs.build.outputs.newVersion }}.zip"
+            }
+          }
+          DELIM
+          gon -log-level=debug -log-json gon.json
 
       - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: frodo-macos-${{ needs.build.outputs.newVersion }}.dmg
 
   linux-binary-release:
     needs: [build, smoke-tests]
