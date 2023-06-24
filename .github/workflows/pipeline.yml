@@ -1,13 +1,91 @@
 name: 'Frodo CLI Release Pipeline'
 
 on:
+  pull_request:
+    branches:
+      - 'main'
   push:
     branches:
       - 'main'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 18
 
 jobs:
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          # Need to specify ref and repository for PRs from forked repos
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: 'Prepare Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          major-wording: 'MAJOR RELEASE'
+          minor-wording: 'MINOR RELEASE'
+          patch-wording: 'PATCH RELEASE'
+          rc-wording: ''
+          tag-prefix: 'v'
+          default: prerelease
+          preid: ''
+          bump-policy: 'ignore'
+          skip-commit: 'true'
+          skip-tag: 'true'
+          skip-push: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Version From Tag'
+        id: version-from-tag
+        run: echo "version=$(echo '${{ steps.version-bump.outputs.newTag }}' | sed 's/v//')" >> "$GITHUB_OUTPUT"
+
+      - name: Build frodo-cli esm
+        run: npm run transpile-esm
+
+      - name: Build frodo-cli cjs
+        run: npm run transpile-cjs
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npx tsc
+
+      - name: Security Audit
+        run: npm audit --omit=dev
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            package.json
+            package-lock.json
+            esm
+            cjs
+
+    outputs:
+      newTag: ${{ steps.version-bump.outputs.newTag }}
+      newVersion: ${{ steps.version-from-tag.outputs.version }}
+      preRelease: ${{ contains(steps.version-bump.outputs.newTag, '-') }}
+
   smoke-tests:
     name: 'Smoke Tests'
+    needs: build
     # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
     strategy:
@@ -19,51 +97,46 @@ jobs:
     services:
       # Label used to access the service container
       squid:
-        # Docker Hub image
         image: ubuntu/squid
-        #
         ports:
           # Maps tcp port 3128 on the host to the same port in the service container
           - 3128:3128
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          # Need to specify ref and repository for PRs from forked repos
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Update npm, install dependencies, build frodo-cli, and install frodo-cli globally
-        run: |
-          npm install -g npm
-          npm ci
-          npm run build:local
-          npm i -g
+      # Update npm for older node versions to avoid errors with npm ci due to newer package-lock.json format
+      # TODO: conditionally update npm when it is older than the required version
+      - name: Update npm
+        run: npm install -g npm
 
-      #
-      # Run tests.
-      #
-      - name: Lint
-        run: |
-          npm run lint
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
 
-      - name: Type Check
-        run: |
-          npx tsc
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install frodo-cli globally
+        run: npm i -g
 
       - name: CLI Help Tests
-        run: |
-          npm test
+        run: npm test
 
       - name: Version Test
-        run: |
-          frodo -v
+        run: frodo -v
 
       - name: Direct Tests
         env:
@@ -84,130 +157,39 @@ jobs:
           frodo conn add "$FIDC_TENANT_URL" "$FIDC_TENANT_ADMIN_USERNAME" "$FIDC_TENANT_ADMIN_PASSWORD"
           frodo info "$FIDC_TENANT_URL"
 
-      - name: Security Audit
-        run: |
-          npm audit --omit=dev
-
-  update-changelog:
-    needs: smoke-tests
-    name: 'Update Changelog'
+  release:
+    if: github.event_name != 'pull_request'
+    needs: [build, linux-binary-release, linux-arm64-binary-release, macos-binary-release, npm-release, windows-binary-release]
+    name: 'Release'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Checkout source code'
-        uses: 'actions/checkout@v2'
-        with:
-          ref: ${{ github.ref }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: 'cat package.json'
-        run: cat ./package.json
-
-      - name: 'Prepare Version Bump'
-        id: prepare-version-bump
-        uses: 'phips28/gh-action-bump-version@master'
+      - uses: actions/download-artifact@v3
         with:
-          major-wording: 'MAJOR RELEASE'
-          minor-wording: 'MINOR RELEASE'
-          patch-wording: 'PATCH RELEASE'
-          rc-wording: ''
-          tag-prefix: 'v'
-          default: prerelease
-          preid: ''
-          bump-policy: 'ignore'
-          skip-commit: 'true'
-          skip-tag: 'true'
-          skip-push: 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: build
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: dist
+
+      - name: 'Github SHA'
+        id: github-sha
+        run: echo ${{ github.sha }} > Release.txt
 
       - name: Update Changelog
         uses: thomaseizinger/keep-a-changelog-new-release@1.3.0
         with:
-          tag: ${{ steps.prepare-version-bump.outputs.newTag }}
+          tag: ${{ needs.build.outputs.newTag }}
 
       - name: 'Output Changelog'
         run: cat CHANGELOG.md
 
-      - name: Commit updated changelog
-        id: commit-changelog
-        run: |
-          git add CHANGELOG.md
-          git commit --message "Updated changelog for release ${{ steps.prepare-version-bump.outputs.newTag }}"
-          git push
-
-      - name: 'Output Version'
-        env:
-          NEW_VERSION: ${{ steps.prepare-version-bump.outputs.newTag }}
-        run: echo "new tag $NEW_VERSION"
-
-  bump-version:
-    needs: update-changelog
-    name: 'Bump Version'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 'Checkout Source Code'
-        uses: 'actions/checkout@v2'
-        with:
-          ref: ${{ github.ref }}
-
-      - name: 'cat package.json'
-        run: cat ./package.json
-
-      - name: 'Automated Version Bump'
-        id: version-bump
-        uses: 'phips28/gh-action-bump-version@master'
-        with:
-          major-wording: 'MAJOR RELEASE'
-          minor-wording: 'MINOR RELEASE'
-          patch-wording: 'PATCH RELEASE'
-          rc-wording: ''
-          tag-prefix: 'v'
-          default: prerelease
-          preid: ''
-          bump-policy: 'ignore'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 'cat package.json'
-        run: cat ./package.json
-
-      - name: 'Output Tag'
-        env:
-          NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
-        run: echo "new tag $NEW_TAG"
-
-      - name: 'Version From Tag'
-        id: version-from-tag
-        run: echo "::set-output name=version::$(echo '${{ steps.version-bump.outputs.newTag }}' | sed 's/v//')"
-
-      - name: 'Output Version'
-        id: output-version
-        run: echo "Version = ${{ steps.version-from-tag.outputs.version }}"
-
-    outputs:
-      newTag: ${{ steps.version-bump.outputs.newTag }}
-      newVersion: ${{ steps.version-from-tag.outputs.version }}
-      preRelease: ${{ contains(steps.version-bump.outputs.newTag, '-') }}
-
-  release-notes:
-    needs: bump-version
-    name: 'Release Notes'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 'Checkout Source Code'
-        uses: 'actions/checkout@v2'
-        with:
-          ref: ${{ github.ref }}
-
       - name: 'Release Header'
         id: release-header
-        run: echo "::set-output name=header::$(echo `grep '## \\[${{ needs.bump-version.outputs.newVersion }}] -' CHANGELOG.md | sed 's/## //' | sed 's/\\[//' | sed 's/]//'`)"
-
-      - name: 'Output Release Header'
-        id: output-release-header
-        run: echo "Release Header = ${{ steps.release-header.outputs.header }}"
+        run: echo "header=$(echo `grep '## \\[${{ needs.build.outputs.newVersion }}] -' CHANGELOG.md | sed 's/## //' | sed 's/\\[//' | sed 's/]//'`)" >> "$GITHUB_OUTPUT"
 
       - name: 'Extract Release Notes'
         id: extract-release-notes
@@ -219,98 +201,79 @@ jobs:
           ignore-case: true
           omit-heading: true
 
-      # The output-file refers to the path of the temporary file which contains
-      # the only extracted part:
-      - name: 'Output Extracted Release Notes File'
-        run: cat ${{ steps.extract-release-notes.outputs.output-file }}
-
-      # The output-text contains the text of the extracted part.
-      - name: 'Output Extracted Release Notes'
-        run: echo "${{ steps.extract-release-notes.outputs.output-text }}"
-
-    outputs:
-      notes: ${{ steps.extract-release-notes.outputs.output-text }}
-
-  release:
-    needs: [bump-version, release-notes]
-    name: 'Release'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 'Checkout Source Code'
-        uses: 'actions/checkout@v2'
-        with:
-          ref: ${{ github.ref }}
-
-      - name: 'Github SHA'
-        id: github-sha
-        run: echo ${{ github.sha }} > Release.txt
-
-      - name: 'Test Github SHA'
-        id: test-github-sha
-        run: cat Release.txt
+      - name: Commit updated changelog and version
+        id: commit-changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md package.json
+          git commit --message "Updated changelog and version for release ${{ needs.build.outputs.newTag }}"
+          git push
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Frodo CLI ${{ needs.bump-version.outputs.newVersion }}
-          tag_name: ${{ needs.bump-version.outputs.newTag }}
-          body: ${{ needs.release-notes.outputs.notes }}
-          prerelease: ${{ needs.bump-version.outputs.preRelease }}
-          generate_release_notes: ${{ contains(needs.bump-version.outputs.newTag, '-') }}
+          name: Frodo CLI ${{ needs.build.outputs.newVersion }}
+          tag_name: ${{ needs.build.outputs.newTag }}
+          body: ${{ steps.extract-release-notes.outputs.output-text }}
+          prerelease: ${{ needs.build.outputs.preRelease }}
+          generate_release_notes: ${{ contains(needs.build.outputs.newTag, '-') }}
           files: |
             CHANGELOG.md
             LICENSE
             Release.txt
+            frodo-linux-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+            frodo-win-${{ needs.build.outputs.newVersion }}.zip
+            frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
 
-    outputs:
-      newTag: ${{ needs.bump-version.outputs.newTag }}
-      newVersion: ${{ needs.bump-version.outputs.newVersion }}
-
   npm-release:
-    needs: [bump-version, release]
+    if: github.event_name != 'pull_request'
+    # npm-release only needs the build job but since it is inconvenient to unpublish an npm we want this job to run last
+    needs: [build, linux-binary-release, linux-arm64-binary-release, macos-binary-release, windows-binary-release]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
 
       - name: Install dependencies
-        run: |
-          npm ci
-
-      - name: Build
-        run: |
-          npm run build:local
+        run: npm ci
 
       - name: Pre-Release
-        if: ${{ fromJSON(needs.bump-version.outputs.preRelease) }}
+        if: ${{ fromJSON(needs.build.outputs.preRelease) }}
         uses: JS-DevTools/npm-publish@v1
         with:
+          access: public
           tag: 'next'
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
 
       - name: Release
-        if: ${{ ! fromJSON(needs.bump-version.outputs.preRelease) }}
+        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         uses: JS-DevTools/npm-publish@v1
         with:
+          access: public
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
 
       - name: Add next tag
-        if: ${{ ! fromJSON(needs.bump-version.outputs.preRelease) }}
+        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         run: |
           export INPUT_TOKEN=${{ secrets.NPM_ACCESS_TOKEN }}
           npm whoami
-          npm dist-tag add @rockcarver/frodo-cli@${{ needs.bump-version.outputs.newVersion }} next
+          npm dist-tag add @rockcarver/frodo-cli@${{ needs.build.outputs.newVersion }} next
 
   homebrew-formula-update:
     name: Bump Homebrew formula
-    needs: [bump-version, release, npm-release]
+    needs: [npm-release]
     runs-on: ubuntu-latest
     steps:
       - uses: mislav/bump-homebrew-formula-action@v2
@@ -326,22 +289,10 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
 
   macos-binary-release:
-    needs: [bump-version, release, npm-release]
+    needs: [build, smoke-tests]
     runs-on: macos-latest
-    strategy:
-      matrix:
-        node-version: [18]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     timeout-minutes: 15
     steps:
-      - name: 'Checkout Project'
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ needs.release.outputs.newTag }}
-
-      - name: 'cat package.json'
-        run: cat ./package.json
-
       - name: Install the Apple certificate
         env:
           DEVELOPMENT_CERTIFICATE_DATA: ${{ secrets.DEVELOPMENT_CERTIFICATE_DATA }}
@@ -368,40 +319,36 @@ jobs:
           #security import $INTERMEDIATE_CERTIFICATE_PATH -P "$DEVELOPMENT_CERTIFICATE_PASSPHRASE" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Install pkg
-        run: npm install -g pkg
-
-      - name: Install gulp
-        run: npm install -g gulp
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/download-artifact@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          name: build
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run dist-pkg
+
+      #
+      # Re-sign the application with the "Developer ID" certificate.
+      #
+      - name: Sign distribution binary
+        run: "codesign -f -s 'Rock Carver' --timestamp --deep frodo"
+        # run: "codesign -f -s 'Developer ID Application: Volker Scheuber (AV6L99G8W9)' --timestamp --deep frodo"
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          dist/bin/macos/frodo -v
-          dist/bin/macos/frodo journey -h
-          dist/bin/macos/frodo journey export -h
-
-      #
-      # Re-sign the application with the "Developer ID" certificate.
-      #
-      - name: Sign distribution binary
-        working-directory: ./dist/bin/macos
-        run: "codesign -f -s 'Rock Carver' --timestamp --deep frodo"
-        # run: "codesign -f -s 'Developer ID Application: Volker Scheuber (AV6L99G8W9)' --timestamp --deep frodo"
+          ./frodo -v
+          ./frodo journey -h
+          ./frodo journey export -h
 
       #
       # Zip up the app and add it to the GitHub Release as a
@@ -409,161 +356,117 @@ jobs:
       #
 
       - name: Package for Distribution
-        run: ditto -V -c -k --keepParent "dist/bin/macos/frodo" "dist/frodo-macos-${{ needs.release.outputs.newVersion }}.zip"
+        run: ditto -V -c -k --keepParent "frodo" "frodo-macos-${{ needs.build.outputs.newVersion }}.zip"
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.release.outputs.newVersion }}
-          tag_name: ${{ needs.release.outputs.newTag }}
-          files: dist/frodo-macos-${{ needs.release.outputs.newVersion }}.zip
+          name: dist
+          path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
 
   linux-binary-release:
-    needs: [bump-version, release, npm-release]
+    needs: [build, smoke-tests]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
         with:
-          ref: ${{ needs.release.outputs.newTag }}
+          name: build
 
-      - name: 'cat package.json'
-        run: cat ./package.json
-
-      - name: Install pkg
-        run: npm install -g pkg
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run dist-pkg
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          dist/bin/linux/frodo -v
-          dist/bin/linux/frodo journey -h
-          dist/bin/linux/frodo journey export -h
+          ./frodo -v
+          ./frodo journey -h
+          ./frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -r -Z bzip2 dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip . -i dist/bin/linux/frodo
+        run: zip -Z bzip2 frodo-linux-${{ needs.build.outputs.newVersion }}.zip frodo
 
-      - name: Release distribution binaries
-        uses: softprops/action-gh-release@v1
+      - uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.release.outputs.newVersion }}
-          tag_name: ${{ needs.release.outputs.newTag }}
-          files: dist/frodo-linux-${{ needs.release.outputs.newVersion }}.zip
+          name: dist
+          path: frodo-linux-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
-    needs: [bump-version, release, npm-release]
+    needs: [build, smoke-tests]
     runs-on: self-hosted
-    strategy:
-      matrix:
-        node-version: [16]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
         with:
-          ref: ${{ needs.release.outputs.newTag }}
+          name: build
 
-      - name: 'cat package.json'
-        run: cat ./package.json
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install pkg
-        run: npm install -g pkg
-
-      - name: Install root dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run dist-pkg
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          dist/bin/linux/frodo -v
-          dist/bin/linux/frodo journey -h
-          dist/bin/linux/frodo journey export -h
+          ./frodo -v
+          ./frodo journey -h
+          ./frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -r -Z bzip2 dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip . -i dist/bin/linux/frodo
+        run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip . -i frodo
 
-      - name: Release distribution binaries
-        uses: softprops/action-gh-release@v1
+      - uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.release.outputs.newVersion }}
-          tag_name: ${{ needs.release.outputs.newTag }}
-          files: dist/frodo-linux-arm64-${{ needs.release.outputs.newVersion }}.zip
+          name: dist
+          path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
 
   windows-binary-release:
-    needs: [bump-version, release, npm-release]
+    needs: [build, smoke-tests]
     runs-on: windows-latest
-    strategy:
-      matrix:
-        node-version: [18]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
         with:
-          ref: ${{ needs.release.outputs.newTag }}
+          name: build
 
-      - name: 'type package.json'
-        run: type package.json
-
-      - name: Install pkg
-        run: npm install -g pkg
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run dist-pkg
 
       #
       # Fail early on failing tests.
       #
       - name: 'Test'
         run: |
-          dist/bin/win/frodo.exe -v
-          dist/bin/win/frodo.exe journey -h
-          dist/bin/win/frodo.exe journey export -h
+          ./frodo.exe -v
+          ./frodo.exe journey -h
+          ./frodo.exe journey export -h
 
       - name: Archive distribution binary
-        run: 7z a -tzip dist/frodo-win-${{ needs.release.outputs.newVersion }}.zip dist/bin/win/frodo.exe
+        run: 7z a -tzip frodo-win-${{ needs.build.outputs.newVersion }}.zip frodo.exe
 
-      - name: Release distribution binaries
-        uses: softprops/action-gh-release@v1
+      - uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.release.outputs.newVersion }}
-          tag_name: ${{ needs.release.outputs.newTag }}
-          files: dist/frodo-win-${{ needs.release.outputs.newVersion }}.zip
+          name: dist
+          path: frodo-win-${{ needs.build.outputs.newVersion }}.zip

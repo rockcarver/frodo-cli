@@ -1,11 +1,13 @@
 .eslintrc
 .github/
 .prettierrc
+babel.config.cjs.json
 babel.config.esm.json
 CODE_OF_CONDUCT.md
-dist/
+cjs/
 docs/
-gulpfile.js
+frodo
+frodo.exe
 jsconfig.json
 node_modules/
 resources/
