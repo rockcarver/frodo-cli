@@ -1,0 +1,186 @@
+{
+  "name": "testObject",
+  "onCreate": {
+    "file": "testObject.onCreate.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onRead": {
+    "globals": {},
+    "source": "//groovy export",
+    "type": "groovy"
+  },
+  "onSync": {
+    "globals": {
+      "test": 8
+    },
+    "source": "//test",
+    "type": "groovy"
+  },
+  "onUpdate": {
+    "file": "testObject.onUpdate.js",
+    "globals": {
+      "test": [
+        "test"
+      ]
+    },
+    "type": "text/javascript"
+  },
+  "onValidate": {
+    "file": "testObject.onValidate.js",
+    "globals": {
+      "test": "test"
+    },
+    "type": "text/javascript"
+  },
+  "postCreate": {
+    "file": "testObject.postCreate.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "postDelete": {
+    "file": "testObject.postDelete.js",
+    "globals": {
+      "test": "test"
+    },
+    "type": "text/javascript"
+  },
+  "postUpdate": {
+    "globals": {
+      "test": 1
+    },
+    "source": "//test",
+    "type": "groovy"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "test",
+    "icon": "fa-anchor",
+    "mat-icon": "",
+    "order": [
+      "testObj",
+      "testString"
+    ],
+    "properties": {
+      "testObj": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {
+            "four": false,
+            "one": null,
+            "three": 3,
+            "two": "number"
+          },
+          "source": "//second",
+          "type": "groovy"
+        },
+        "onStore": {
+          "file": "testObject.testObj.onStore.js",
+          "globals": {
+            "test": {}
+          },
+          "type": "text/javascript"
+        },
+        "onValidate": {
+          "globals": {
+            "test": null
+          },
+          "source": "//groovy script test",
+          "type": "groovy"
+        },
+        "order": [
+          "testObject",
+          "testString"
+        ],
+        "properties": {
+          "testObject": {
+            "description": null,
+            "isVirtual": false,
+            "onRetrieve": {
+              "globals": {
+                "test": null
+              },
+              "source": "//test",
+              "type": "text/javascript"
+            },
+            "onStore": {
+              "globals": {
+                "test": null
+              },
+              "source": "//test",
+              "type": "groovy"
+            },
+            "order": [],
+            "properties": {},
+            "required": [],
+            "searchable": false,
+            "title": "test",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true
+          },
+          "testString": {
+            "description": null,
+            "format": null,
+            "isVirtual": false,
+            "onRetrieve": {
+              "globals": {
+                "test": 1
+              },
+              "source": "//test",
+              "type": "groovy"
+            },
+            "onStore": {
+              "globals": {
+                "test": [
+                  "test",
+                  1,
+                  false
+                ]
+              },
+              "source": "//test",
+              "type": "text/javascript"
+            },
+            "searchable": false,
+            "title": "test",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [],
+        "searchable": false,
+        "title": "TestObj",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "testString": {
+        "description": null,
+        "format": null,
+        "isVirtual": false,
+        "onStore": {
+          "globals": {
+            "test": null
+          },
+          "source": "//test",
+          "type": "groovy"
+        },
+        "searchable": false,
+        "title": "test",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      }
+    },
+    "required": [],
+    "title": "Test",
+    "type": "object"
+  }
+}

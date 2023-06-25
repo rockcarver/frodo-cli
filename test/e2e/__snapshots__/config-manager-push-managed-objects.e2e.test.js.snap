@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push managed-objects "frodo config-manager push managed-objects -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the managed-objects into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push managed-objects "frodo config-manager push managed-objects -n testObject -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific managed-object by name into forgeops" 1`] = `""`;

@@ -20,6 +20,7 @@ Commands:
   internal-roles        [Experimental] Import internal roles.
   kba                   [Experimental] Import kba configuration.
   locales               [Experimental] Import custom locales objects.
+  managed-objects       [Experimental] Import managed objects.
   org-privileges        [Experimental] Import organization privileges config.
   password-policy       [Experimental] Import password-policy objects.
   schedules             [Experimental] Import schedules.
