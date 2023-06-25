@@ -7,15 +7,16 @@ exports[`CLI help interface for 'config-manager push' should be expected english
 compatible with fr-config-manager).
 
 Options:
-  -h, --help            Help
-  -hh, --help-more      Help with all options.
-  -hhh, --help-all      Help with all options, environment variables, and usage
-                        examples.
+  -h, --help             Help
+  -hh, --help-more       Help with all options.
+  -hhh, --help-all       Help with all options, environment variables, and usage
+                         examples.
 
 Commands:
   access-config         [Experimental] Import access configuration.
   audit                 [Experimental] Import audit configuration.
   authentication        [Experimental] Import authentication objects.
+  connector-definitions  [Experimental] Import connector definitions.
   cookie-domains        [Experimental] Import cookie domains.
   email-provider        [Experimental] Import email provider configuration.
   email-templates       [Experimental] Import email template objects.
