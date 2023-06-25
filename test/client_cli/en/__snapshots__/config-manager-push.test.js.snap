@@ -13,6 +13,7 @@ Options:
                         examples.
 
 Commands:
+  access-config         [Experimental] Import access configuration.
   email-provider        [Experimental] Import email provider configuration.
   email-templates       [Experimental] Import email template objects.
   endpoints             [Experimental] Import custom endpoints objects.
