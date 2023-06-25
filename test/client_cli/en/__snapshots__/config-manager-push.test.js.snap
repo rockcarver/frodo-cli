@@ -17,6 +17,7 @@ Commands:
   kba                   Import kba configuration.
   locales               Import custom locales objects.
   password-policy       Import password-policy objects.
+  schedules             Import schedules.
   terms-and-conditions  Import terms and conditions.
   themes                Import themes.
 "
