@@ -7,29 +7,30 @@ exports[`CLI help interface for 'config-manager push' should be expected english
 compatible with fr-config-manager).
 
 Options:
-  -h, --help            Help
-  -hh, --help-more      Help with all options.
-  -hhh, --help-all      Help with all options, environment variables, and usage
-                        examples.
+  -h, --help             Help
+  -hh, --help-more       Help with all options.
+  -hhh, --help-all       Help with all options, environment variables, and usage
+                         examples.
 
 Commands:
-  access-config         [Experimental] Import access configuration.
-  audit                 [Experimental] Import audit configuration.
-  cookie-domains        [Experimental] Import cookie domains.
-  email-provider        [Experimental] Import email provider configuration.
-  email-templates       [Experimental] Import email template objects.
-  endpoints             [Experimental] Import custom endpoints objects.
-  help                  display help for command
-  internal-roles        [Experimental] Import internal roles.
-  kba                   [Experimental] Import kba configuration.
-  locales               [Experimental] Import custom locales objects.
-  managed-objects       [Experimental] Import managed objects.
-  org-privileges        [Experimental] Import organization privileges config.
-  password-policy       [Experimental] Import password-policy objects.
-  schedules             [Experimental] Import schedules.
-  service-objects       [Experimental] Import service objects.
-  terms-and-conditions  [Experimental] Import terms and conditions.
-  themes                [Experimental] Import themes.
-  ui-config             [Experimental] Import UI configuration.
+  access-config          [Experimental] Import access configuration.
+  audit                  [Experimental] Import audit configuration.
+  connector-definitions  [Experimental] Import connector definitions.
+  cookie-domains         [Experimental] Import cookie domains.
+  email-provider         [Experimental] Import email provider configuration.
+  email-templates        [Experimental] Import email template objects.
+  endpoints              [Experimental] Import custom endpoints objects.
+  help                   display help for command
+  internal-roles         [Experimental] Import internal roles.
+  kba                    [Experimental] Import kba configuration.
+  locales                [Experimental] Import custom locales objects.
+  managed-objects        [Experimental] Import managed objects.
+  org-privileges         [Experimental] Import organization privileges config.
+  password-policy        [Experimental] Import password-policy objects.
+  schedules              [Experimental] Import schedules.
+  service-objects        [Experimental] Import service objects.
+  terms-and-conditions   [Experimental] Import terms and conditions.
+  themes                 [Experimental] Import themes.
+  ui-config              [Experimental] Import UI configuration.
 "
 `;

@@ -1,6 +1,7 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
 import Audit from './config-manager-push-audit';
+import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import CookieDomains from './config-manager-push-cookie-domain';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
@@ -39,6 +40,7 @@ export default function setup() {
   program.addCommand(CookieDomains().name('cookie-domains'));
   program.addCommand(ServiceObjects().name('service-objects'));
   program.addCommand(UiConfig().name('ui-config'));
+  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
 
   return program;
 }
