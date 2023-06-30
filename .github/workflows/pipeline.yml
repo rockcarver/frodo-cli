@@ -5,7 +5,6 @@ on:
     branches:
       - 'main'
     paths-ignore:
-      - '**/pipeline.yml'
       - '**/README.md'
       - '**/CODE_OF_CONDUCT.md'
       - 'docs/**'
