@@ -148,6 +148,8 @@ jobs:
         run: frodo -v
 
       - name: Direct Tests
+        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
+        if: github.event_name != 'pull_request'
         env:
           FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
           FIDC_TENANT_ADMIN_USERNAME: ${{ secrets.FIDC_TENANT_ADMIN_USERNAME }}
@@ -157,6 +159,8 @@ jobs:
           frodo info "$FIDC_TENANT_URL"
 
       - name: Proxy Tests
+        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
+        if: github.event_name != 'pull_request'
         env:
           HTTPS_PROXY: 'http://127.0.0.1:3128'
           FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
