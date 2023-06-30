@@ -283,12 +283,13 @@ jobs:
           npm dist-tag add @rockcarver/frodo-cli@${{ needs.build.outputs.newVersion }} next
 
   homebrew-formula-update:
-    if: github.event_name != 'pull_request' && ${{ ! fromJSON(needs.build.outputs.preRelease) }}
+    if: github.event_name != 'pull_request'
     name: Bump Homebrew formula
-    needs: [npm-release]
+    needs: [build, npm-release]
     runs-on: ubuntu-latest
     steps:
       - uses: mislav/bump-homebrew-formula-action@v2
+        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli
           formula-path: Formula/frodo-cli.rb
