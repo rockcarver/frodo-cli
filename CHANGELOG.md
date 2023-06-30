@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2023-06-30
+
 ### Added
 
 -   MacOS binaries are now signed and notarized and run without security exceptions.
@@ -1271,7 +1273,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0-1...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...HEAD
+
+[1.0.0]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0-1...v1.0.0
 
 [1.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v0.24.6-3...v1.0.0-1
 
