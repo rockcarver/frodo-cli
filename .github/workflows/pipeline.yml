@@ -5,7 +5,6 @@ on:
     branches:
       - 'main'
     paths-ignore:
-      - '**/pipeline.yml'
       - '**/README.md'
       - '**/CODE_OF_CONDUCT.md'
       - 'docs/**'
@@ -149,6 +148,8 @@ jobs:
         run: frodo -v
 
       - name: Direct Tests
+        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
+        if: github.event_name != 'pull_request'
         env:
           FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
           FIDC_TENANT_ADMIN_USERNAME: ${{ secrets.FIDC_TENANT_ADMIN_USERNAME }}
@@ -158,6 +159,8 @@ jobs:
           frodo info "$FIDC_TENANT_URL"
 
       - name: Proxy Tests
+        # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
+        if: github.event_name != 'pull_request'
         env:
           HTTPS_PROXY: 'http://127.0.0.1:3128'
           FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
@@ -301,6 +304,8 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
 
   macos-binary-release:
+    # don't run on PRs, since secrets are not available
+    if: github.event_name != 'pull_request'
     needs: [build, smoke-tests]
     runs-on: macos-latest
     timeout-minutes: 15
@@ -404,6 +409,7 @@ jobs:
           path: frodo-macos-${{ needs.build.outputs.newVersion }}.dmg
 
   linux-binary-release:
+    # run on PRs for e2e testing binary builds as linux builds do not require secrets.
     needs: [build, smoke-tests]
     runs-on: ubuntu-latest
     steps:
@@ -440,6 +446,8 @@ jobs:
           path: frodo-linux-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
+    # don't run on PRs to speed up the checks
+    if: github.event_name != 'pull_request'
     needs: [build, smoke-tests]
     runs-on: self-hosted
     steps:
@@ -449,6 +457,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
+          # runner currently only supports 16 due to GLIBC_2.28 dependency in node 18
           node-version: 16
           cache: 'npm'
 
@@ -476,6 +485,8 @@ jobs:
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
 
   windows-binary-release:
+    # don't run on PRs to speed up the checks
+    if: github.event_name != 'pull_request'
     needs: [build, smoke-tests]
     runs-on: windows-latest
     steps:
