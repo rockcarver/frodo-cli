@@ -368,7 +368,7 @@ jobs:
               "password":  "@env:AC_PASSWORD"
             },
             "sign" :{
-              "application_identity" : "Developer ID Application",
+              "application_identity" : "Developer ID Application: Volker Scheuber (AV6L99G8W9)",
               "entitlements_file" : "entitlements.plist"
             },
             "dmg" :{
