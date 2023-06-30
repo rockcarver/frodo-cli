@@ -36,7 +36,7 @@ jobs:
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
         with:
-          major-wording: 'MAJOR RELEASE'
+          major-wording: 'NO MAJOR RELEASES IN THIS BRANCH! Capped at 1.x to avoid version collisions.'
           minor-wording: 'MINOR RELEASE'
           patch-wording: 'PATCH RELEASE'
           rc-wording: ''
@@ -362,7 +362,7 @@ jobs:
           cat > ./gon.json <<DELIM
           {
             "source" : ["./frodo"],
-            "bundle_id" : "com.forgerock.frodo.frodo",
+            "bundle_id" : "rockcarver.frodo.cli",
             "apple_id": {
               "username" : "${{ secrets.AC_USERNAME }}",
               "password":  "@env:AC_PASSWORD"
