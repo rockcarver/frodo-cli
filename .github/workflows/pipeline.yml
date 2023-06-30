@@ -4,9 +4,19 @@ on:
   pull_request:
     branches:
       - 'main'
+    paths-ignore:
+      - '**/pipeline.yml'
+      - '**/README.md'
+      - '**/CODE_OF_CONDUCT.md'
+      - 'docs/**'
   push:
     branches:
       - 'main'
+    paths-ignore:
+      - '**/pipeline.yml'
+      - '**/README.md'
+      - '**/CODE_OF_CONDUCT.md'
+      - 'docs/**'
   workflow_dispatch:
 
 env:
@@ -273,18 +283,19 @@ jobs:
           npm dist-tag add @rockcarver/frodo-cli@${{ needs.build.outputs.newVersion }} next
 
   homebrew-formula-update:
+    if: github.event_name != 'pull_request'
     name: Bump Homebrew formula
-    needs: [npm-release]
+    needs: [build, npm-release]
     runs-on: ubuntu-latest
     steps:
       - uses: mislav/bump-homebrew-formula-action@v2
-        if: "!contains(github.ref, '-')"
+        if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli
           formula-path: Formula/frodo-cli.rb
           homebrew-tap: rockcarver/homebrew-frodo-cli
           push-to: rockcarver/homebrew-frodo-cli
-          tag-name: ${{ needs.bump-version.outputs.newTag }}
+          tag-name: ${{ needs.build.outputs.newTag }}
           download-url: https://github.com/rockcarver/frodo-cli.git
         env:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
