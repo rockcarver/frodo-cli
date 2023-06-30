@@ -1,14 +1,13 @@
 build/
-dist/
+cjs/
 esm/
 
 *.cer
 *.p12
 *.developerprofile
 
-frodo-linux
-frodo-macos
-frodo-win.exe
+frodo
+frodo.exe
 
 connections.json
 journey-*.json
