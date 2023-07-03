@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#267: Frodo CLI should now detect running in binary mode on Windows.
+-   \#266: Frodo CLI now properly detects latest GitHub and NPM releases and correctly reports if updates areavailable instead of reporting an error like this: `ERROR: exception running frodo - Error: Invalid argument not valid semver ('Frodo CLI 1.0.0' received)`.
+
 ## [1.0.0] - 2023-06-30
 
 ### Added
