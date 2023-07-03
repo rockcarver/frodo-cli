@@ -53,12 +53,12 @@ function getLibVersion() {
 function extractGithubReleaseInfo(data) {
   const release = {
     type: 'github',
-    name: '',
+    version: '',
     published_at: '',
   };
   // find first stable release
   const r = data.find((rel) => rel.prerelease == false);
-  release.name = r.name;
+  release.version = r.tag_name.replace('v', '');
   release.published_at = r.published_at;
   return release;
 }
@@ -66,11 +66,11 @@ function extractGithubReleaseInfo(data) {
 function extractNpmReleaseInfo(data) {
   const release = {
     type: 'npm',
-    name: '',
+    version: '',
     published_at: '',
   };
   // stable release
-  release.name = data[`dist-tags`].latest;
+  release.version = data[`dist-tags`].latest;
   release.published_at = data.time[data[`dist-tags`].latest];
   return release;
 }
@@ -100,13 +100,12 @@ async function getRemoteVersionData() {
         allVersions.push(extractNpmReleaseInfo(item['value'].data));
       }
     });
-    // const allVersions = await LibVersion.getAllVersions(ENDPOINTS);
     allVersions.forEach((element) => {
       // cli
       if (element.type == 'github') {
-        versionObject.github = element.name;
+        versionObject.github = element.version;
       } else {
-        versionObject.npm = element.name;
+        versionObject.npm = element.version;
       }
     });
     versionObject.last_checked = Math.floor(Date.now() / 1000);
@@ -124,7 +123,7 @@ function getBinaryName() {
 export async function getVersions(checkOnly: boolean) {
   let updateAvailable = false;
   let usingBinary = false;
-  if (getBinaryName() == 'frodo') {
+  if (getBinaryName() === 'frodo' || getBinaryName() === 'frodo.exe') {
     usingBinary = true;
   }
   try {
@@ -139,9 +138,9 @@ export async function getVersions(checkOnly: boolean) {
     };
   }
 
-  let versionString = `You seem to be running the ${
-    usingBinary ? 'binary' : 'NPM'
-  } package`;
+  let versionString = `You are running the ${
+    usingBinary ? 'binary release' : 'NPM package'
+  }.`;
 
   versionString += `\nInstalled versions:`;
   versionString += `\ncli: v${getCliVersion()}\nlib: v${getLibVersion()}\nnode: ${
