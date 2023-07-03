@@ -61,6 +61,8 @@ const { initConnectionProfiles } = ConnectionProfile;
     program.enablePositionalOptions();
     program.parse();
   } catch (e) {
+    process.exitCode = 1;
     printMessage(`ERROR: exception running frodo - ${e}`, 'error');
+    printMessage(e.stack, 'error');
   }
 })();
