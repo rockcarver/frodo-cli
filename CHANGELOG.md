@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2023-07-03
+
 ### Fixed
 
 -   \#267: Frodo CLI should now detect running in binary mode on Windows.
@@ -1278,7 +1280,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v1.0.1...HEAD
+
+[1.0.1]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...v1.0.1
 
 [1.0.0]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0-1...v1.0.0
 
