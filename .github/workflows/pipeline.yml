@@ -288,7 +288,7 @@ jobs:
   homebrew-formula-update:
     if: github.event_name != 'pull_request'
     name: Bump Homebrew formula
-    needs: [build, npm-release]
+    needs: [release, build, npm-release]
     runs-on: ubuntu-latest
     steps:
       - uses: mislav/bump-homebrew-formula-action@v2
