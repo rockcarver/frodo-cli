@@ -3,14 +3,14 @@ name: 'Frodo CLI Release Pipeline'
 on:
   pull_request:
     branches:
-      - 'next'
+      - 'main'
     paths-ignore:
       - '**/README.md'
       - '**/CODE_OF_CONDUCT.md'
       - 'docs/**'
   push:
     branches:
-      - 'next'
+      - 'main'
     paths-ignore:
       - '**/pipeline.yml'
       - '**/README.md'
