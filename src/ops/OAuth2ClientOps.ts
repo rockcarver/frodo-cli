@@ -1,10 +1,5 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import {
-  OAuth2Client,
-  ExportImportUtils,
-  Utils,
-  state,
-} from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   createTable,
@@ -17,13 +12,14 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
-import {
+import type {
   OAuth2ClientExportInterface,
   OAuth2ClientExportOptions,
   OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
+import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
-const { getTypedFilename, titleCase } = ExportImportUtils;
+const { getTypedFilename, titleCase } = frodo.utils.impex;
 const {
   getOAuth2Clients,
   exportOAuth2Client,
@@ -31,8 +27,7 @@ const {
   importOAuth2Client,
   importFirstOAuth2Client,
   importOAuth2Clients,
-} = OAuth2Client;
-const { getRealmName } = Utils;
+} = frodo.oauth2oidc.client;
 
 /**
  * List OAuth2 clients
@@ -69,13 +64,15 @@ export async function listOAuth2Clients(long = false) {
           client._id,
           client.coreOAuth2ClientConfig.status === 'Active'
             ? 'Active'['brightGreen']
-            : client.coreOAuth2ClientConfig.status.brightRed,
+            : (client.coreOAuth2ClientConfig.status as string)['brightRed'],
           client.coreOAuth2ClientConfig.clientType,
-          client.advancedOAuth2ClientConfig.grantTypes
+          (client.advancedOAuth2ClientConfig.grantTypes as ReadableStrings)
             .map((type) => grantTypesMap[type])
             .join('\n'),
-          client.coreOAuth2ClientConfig.scopes.join('\n'),
-          client.coreOAuth2ClientConfig.redirectionUris.join('\n'),
+          (client.coreOAuth2ClientConfig.scopes as ReadableStrings).join('\n'),
+          (client.coreOAuth2ClientConfig.redirectionUris as string[]).join(
+            '\n'
+          ),
           // wordwrap(client.description, 30),
         ]);
       });
@@ -136,7 +133,9 @@ export async function exportOAuth2ClientsToFile(
   showSpinner(`Exporting all clients...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(getRealmName(state.getRealm()))}Applications`,
+      `all${titleCase(
+        frodo.helper.utils.getRealmName(state.getRealm())
+      )}Applications`,
       'oauth2.app'
     );
     if (file) {

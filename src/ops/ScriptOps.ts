@@ -1,10 +1,4 @@
-import {
-  ExportImportUtils,
-  Script,
-  state,
-  Types,
-  TypesRaw,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import {
@@ -26,23 +20,23 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
+import type { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 const {
   getScripts,
-  exportScripts,
   exportScript,
   exportScriptByName,
+  exportScripts,
   importScripts,
-} = Script;
+} = frodo.script;
 
 /**
  * Get a one-line description of the script object
- * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
+ * @param {ScriptSkeleton} scriptObj script object to describe
  * @returns {string} a one-line description
  */
-export function getOneLineDescription(
-  scriptObj: TypesRaw.ScriptSkeleton
-): string {
+export function getOneLineDescription(scriptObj: ScriptSkeleton): string {
   const description = `[${scriptObj._id['brightCyan']}] ${scriptObj.context} - ${scriptObj.name}`;
   return description;
 }
@@ -63,13 +57,13 @@ export function getTableHeaderMd(): string {
  * @param {TypesRaw.ScriptSkeleton} scriptObj script object to describe
  * @returns {string} markdown table row
  */
-export function getTableRowMd(scriptObj: TypesRaw.ScriptSkeleton): string {
+export function getTableRowMd(scriptObj: ScriptSkeleton): string {
   const langMap = { JAVASCRIPT: 'JavaSscript', GROOVY: 'Groovy' };
   const description = `| ${scriptObj.name} | ${
     langMap[scriptObj.language]
-  } | ${ExportImportUtils.titleCase(
-    scriptObj.context.split('_').join(' ')
-  )} | \`${scriptObj._id}\` |`;
+  } | ${titleCase(scriptObj.context.split('_').join(' '))} | \`${
+    scriptObj._id
+  }\` |`;
   return description;
 }
 
@@ -330,6 +324,7 @@ export async function importScriptsFromFiles(
   /**
    * Run on file change detection, as well as on initial run.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function onChange(path: string, _stats?: fs.Stats): void {
     handleScriptFileImport(path, reUuid, validateScripts).catch((error) => {
       printMessage(`Error importing script: ${error.message}`, 'error');
@@ -406,7 +401,7 @@ function getScriptFile(file: string) {
  */
 function getScriptExportByScriptFile(
   scriptFile: string
-): Types.ScriptExportInterface {
+): ScriptExportInterface {
   const scriptExport = getScriptExport(scriptFile);
   const scriptSkeleton = getScriptSkeleton(scriptExport);
 
@@ -427,9 +422,7 @@ function getScriptExportByScriptFile(
  * @param scriptSkeleton The script skeleton
  * @returns The extract file or null if there is no extract file
  */
-function getExtractFile(
-  scriptSkeleton: TypesRaw.ScriptSkeleton
-): string | null {
+function getExtractFile(scriptSkeleton: ScriptSkeleton): string | null {
   const extractFile = scriptSkeleton.script;
   if (Array.isArray(extractFile)) {
     return null;
@@ -449,11 +442,9 @@ function getExtractFile(
  * @param file The path to a script export file
  * @returns The script export
  */
-function getScriptExport(file: string): Types.ScriptExportInterface {
+function getScriptExport(file: string): ScriptExportInterface {
   const scriptExportRaw = fs.readFileSync(file, 'utf8');
-  const scriptExport = JSON.parse(
-    scriptExportRaw
-  ) as Types.ScriptExportInterface;
+  const scriptExport = JSON.parse(scriptExportRaw) as ScriptExportInterface;
 
   return scriptExport;
 }
@@ -465,9 +456,7 @@ function getScriptExport(file: string): Types.ScriptExportInterface {
  * @param script Get the main script skeleton from a script export
  * @returns The main script skeleton
  */
-function getScriptSkeleton(
-  script: Types.ScriptExportInterface
-): TypesRaw.ScriptSkeleton {
+function getScriptSkeleton(script: ScriptExportInterface): ScriptSkeleton {
   const scriptId = getScriptId(script);
   return script.script[scriptId];
 }
@@ -479,7 +468,7 @@ function getScriptSkeleton(
  * @param script The script export
  * @returns The main script ID
  */
-function getScriptId(script: Types.ScriptExportInterface): string {
+function getScriptId(script: ScriptExportInterface): string {
   const scriptIds = Object.keys(script.script);
   if (scriptIds.length !== 1) {
     throw new Error(`Expected 1 script, found ${scriptIds.length}`);

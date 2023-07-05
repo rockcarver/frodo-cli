@@ -1,3 +1,4 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import {
   printMessage,
@@ -7,13 +8,15 @@ import {
   succeedSpinner,
   failSpinner,
 } from '../utils/Console';
-import { ExportImportUtils, Agent, Utils, state } from '@rockcarver/frodo-lib';
-import { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import type { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import {
+  getTypedFilename,
+  saveJsonToFile,
+  titleCase,
+} from '../utils/ExportImportUtils';
 
+const { getRealmName } = frodo.helper.utils;
 const {
-  AGENT_TYPE_IG,
-  AGENT_TYPE_JAVA,
-  AGENT_TYPE_WEB,
   createAgentExportTemplate,
   getAgents,
   getIdentityGatewayAgents,
@@ -27,22 +30,20 @@ const {
   exportIdentityGatewayAgent,
   exportJavaAgent,
   exportWebAgent,
-  importAgents,
-  importIdentityGatewayAgents,
-  importJavaAgents,
-  importWebAgents,
   importAgent,
   importIdentityGatewayAgent,
   importJavaAgent,
   importWebAgent,
-} = Agent;
-const { getTypedFilename, saveJsonToFile, titleCase } = ExportImportUtils;
-const { getRealmName } = Utils;
+  importAgents,
+  importIdentityGatewayAgents,
+  importJavaAgents,
+  importWebAgents,
+} = frodo.agent;
 
 const agentTypeToFileIdMap = {
-  [AGENT_TYPE_IG]: 'gateway.agent',
-  [AGENT_TYPE_JAVA]: 'java.agent',
-  [AGENT_TYPE_WEB]: 'web.agent',
+  IdentityGatewayAgent: 'gateway.agent',
+  J2EEAgent: 'java.agent',
+  WebAgent: 'web.agent',
 };
 
 /**
@@ -175,7 +176,7 @@ export async function listWebAgents(long = false) {
 export async function exportAgentsToFile(file) {
   const exportData = await exportAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.default.session.getRealm()))}Agents`,
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
     'agent'
   );
   if (file) {
@@ -191,8 +192,8 @@ export async function exportAgentsToFile(file) {
 export async function exportIdentityGatewayAgentsToFile(file) {
   const exportData = await exportIdentityGatewayAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.default.session.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_IG]
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
+    agentTypeToFileIdMap['IdentityGatewayAgent']
   );
   if (file) {
     fileName = file;
@@ -207,8 +208,8 @@ export async function exportIdentityGatewayAgentsToFile(file) {
 export async function exportJavaAgentsToFile(file) {
   const exportData = await exportJavaAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.default.session.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_JAVA]
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
+    agentTypeToFileIdMap['J2EEAgent']
   );
   if (file) {
     fileName = file;
@@ -223,8 +224,8 @@ export async function exportJavaAgentsToFile(file) {
 export async function exportWebAgentsToFile(file) {
   const exportData = await exportWebAgents();
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.default.session.getRealm()))}Agents`,
-    agentTypeToFileIdMap[AGENT_TYPE_WEB]
+    `all${titleCase(getRealmName(state.getRealm()))}Agents`,
+    agentTypeToFileIdMap['WebAgent']
   );
   if (file) {
     fileName = file;
@@ -373,7 +374,7 @@ export async function exportWebAgentsToFiles() {
  * @param {string} file import file name
  */
 export async function importAgentFromFile(agentId: string, file: string) {
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let importData = JSON.parse(data);
@@ -406,7 +407,7 @@ export async function importAgentFromFile(agentId: string, file: string) {
  * @param {string} file import file name
  */
 export async function importFirstAgentFromFile(file: string) {
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);
@@ -473,7 +474,7 @@ export async function importIdentityGatewayAgentFromFile(
   file: string
 ) {
   debugMessage(`cli.AgentOps.importIdentityGatewayAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let importData = JSON.parse(data);
@@ -507,7 +508,7 @@ export async function importIdentityGatewayAgentFromFile(
  */
 export async function importFirstIdentityGatewayAgentFromFile(file: string) {
   debugMessage(`cli.AgentOps.importFirstIdentityGatewayAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);
@@ -575,7 +576,7 @@ export async function importIdentityGatewayAgentsFromFiles() {
  */
 export async function importJavaAgentFromFile(agentId: string, file: string) {
   debugMessage(`cli.AgentOps.importJavaAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let importData = JSON.parse(data);
@@ -609,7 +610,7 @@ export async function importJavaAgentFromFile(agentId: string, file: string) {
  */
 export async function importFirstJavaAgentFromFile(file: string) {
   debugMessage(`cli.AgentOps.importFirstJavaAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);
@@ -675,7 +676,7 @@ export async function importJavaAgentsFromFiles() {
  */
 export async function importWebAgentFromFile(agentId: string, file: string) {
   debugMessage(`cli.AgentOps.importWebAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let importData = JSON.parse(data);
@@ -709,7 +710,7 @@ export async function importWebAgentFromFile(agentId: string, file: string) {
  */
 export async function importFirstWebAgentFromFile(file: string) {
   debugMessage(`cli.AgentOps.importFirstWebAgentFromFile: start`);
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);

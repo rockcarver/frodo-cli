@@ -1,37 +1,21 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import {
-  Authenticate,
-  ConnectionProfile,
-  ServiceAccount,
-  state,
-  constants,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage, printMessage } from '../../utils/Console';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
+import * as s from '../../help/SampleData';
 
-const { getTokens } = Authenticate;
-const { saveConnectionProfile, addNewServiceAccount } = ConnectionProfile;
-const { isServiceAccountsFeatureAvailable } = ServiceAccount;
+const { getTokens } = frodo.login;
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.helper.constants;
+const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
+const { addNewServiceAccount, saveConnectionProfile } = frodo.conn;
 
 const program = new FrodoCommand('frodo conn save', ['realm']);
 
 program
   .alias('add')
   .description('Save connection profiles.')
-  .addOption(
-    new Option(
-      '--sa-id <uuid>',
-      "Service account's uuid. If specified, must also include --sa-jwk-file. Ignored with --no-sa."
-    )
-  )
-  .addOption(
-    new Option(
-      '--sa-jwk-file <file>',
-      "File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include --sa-id. Ignored with --no-sa."
-    )
-  )
   .addOption(new Option('--no-sa', 'Do not create and add service account.'))
   .addOption(
     new Option(
@@ -60,6 +44,22 @@ program
       '--authentication-header-overrides [headers]',
       'Map of headers: {"host":"am.example.com:8081"}.'
     )
+  )
+  .addHelpText(
+    'after',
+    `Usage Examples:\n` +
+      `  Create a connection profile with a new log API key and secret and a new service account:\n` +
+      `  $ frodo conn save ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+        'brightCyan'
+      ] +
+      `  Save an existing service account to an existing or new connection profile:\n` +
+      `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}'\n`[
+        'brightCyan'
+      ] +
+      `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
+      `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}'\n`[
+        'brightCyan'
+      ]
   )
   .action(
     // implement command logic inside action handler
@@ -95,7 +95,7 @@ program
         // if cloud deployment add service account
         if (
           options.validate &&
-          state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
+          state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
           options.sa &&
           (await isServiceAccountsFeatureAvailable())
         ) {
@@ -150,7 +150,7 @@ program
         verboseMessage(state);
         if (
           options.validate &&
-          state.getDeploymentType() === constants.CLOUD_DEPLOYMENT_TYPE_KEY &&
+          state.getDeploymentType() === CLOUD_DEPLOYMENT_TYPE_KEY &&
           needLogApiKey
         ) {
           // validate and add existing log api key and secret
@@ -172,8 +172,8 @@ program
           else if (!state.getLogApiKey()) {
             try {
               const creds = await provisionCreds();
-              state.setLogApiKey(creds.api_key_id);
-              state.setLogApiSecret(creds.api_key_secret);
+              state.setLogApiKey(creds.api_key_id as string);
+              state.setLogApiSecret(creds.api_key_secret as string);
               printMessage(
                 `Created log API key ${creds.api_key_id} and secret.`
               );

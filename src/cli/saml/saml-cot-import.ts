@@ -1,15 +1,15 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
-
-const { getTokens } = Authenticate;
-const {
-  importCircleOfTrust,
+import {
+  importCircleOfTrustFromFile,
   importCirclesOfTrustFromFile,
   importCirclesOfTrustFromFiles,
-  importFirstCircleOfTrust,
-} = CirclesOfTrust;
+  importFirstCircleOfTrustFromFile,
+} from '../../ops/CirclesOfTrustOps';
+
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml cot import');
 
@@ -57,30 +57,37 @@ program
             options.cotId
           }" into realm "${state.getRealm()}"...`
         );
-        importCircleOfTrust(options.cotId, options.file);
+        const outcome = importCircleOfTrustFromFile(
+          options.cotId,
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all circles of trust from a single file (${options.file})...`
         );
-        importCirclesOfTrustFromFile(options.file);
+        const outcome = importCirclesOfTrustFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all circles of trust from separate files (*.saml.json) in current directory...'
         );
-        importCirclesOfTrustFromFiles();
+        const outcome = importCirclesOfTrustFromFiles();
+        if (!outcome) process.exitCode = 1;
       }
-      // import first provider from file
+      // import first from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first circle of trust from file "${
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        importFirstCircleOfTrust(options.file);
+        const outcome = importFirstCircleOfTrustFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

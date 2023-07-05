@@ -7,12 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1] - 2023-07-03
+## [2.0.0-9] - 2023-07-05
 
-### Fixed
+## [2.0.0-8] - 2023-07-05
 
--   \#267: Frodo CLI should now detect running in binary mode on Windows.
--   \#266: Frodo CLI now properly detects latest GitHub and NPM releases and correctly reports if updates areavailable instead of reporting an error like this: `ERROR: exception running frodo - Error: Invalid argument not valid semver ('Frodo CLI 1.0.0' received)`.
+## [2.0.0-7] - 2023-06-23
+
+## [2.0.0-6] - 2023-06-22
+
+### Added
+
+-   \#251: Support for Identity Cloud admin federation configuration:
+
+    -   `frodo admin federation` Manage admin federation configuration.
+        -   `export`             Export admin federation providers.
+        -   `import`             Import admin federation providers.
+        -   `list`               List admin federation providers.
+
+    Examples:
+
+    -   List all configured admin federation providers:<br>
+        `frodo admin federation list <myTenant>`
+
+        `frodo admin federation list <myTenant> <username> <password>`
+    -   Export all admin federation providers to a single file:<br>
+        `frodo admin federation export -a <myTenant>`
+
+        `frodo admin federation export -a <myTenant> <username> <password>`
+    -   Import all admin federation providers from a single file:<br>
+        `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
+
+        `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant> <username> <password>`<br>
+
+    **_Note_**: Only tenant admins can perform admin federation operations, service accounts do not have the required privileges. Therefore, the connection profile used must contain username and password or they must be provided through command arguments.
+
+### Changed
+
+-   Update to frodo-lib 2.0.0-8
+
+## [2.0.0-5] - 2023-06-21
+
+## [2.0.0-4] - 2023-06-16
+
+## [2.0.0-3] - 2023-06-15
+
+## [2.0.0-2] - 2023-06-15
+
+## [2.0.0-1] - 2023-06-15
 
 ## [1.0.0] - 2023-06-30
 
@@ -1280,9 +1321,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-9...HEAD
 
-[1.0.1]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...v1.0.1
+[2.0.0-9]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...v2.0.0-9
 
 [1.0.0]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0-1...v1.0.0
 

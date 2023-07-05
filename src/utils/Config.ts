@@ -1,10 +1,9 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import os from 'os';
-import { Log } from '@rockcarver/frodo-lib';
-
 import { printMessage } from './Console';
 
-const { getDefaultNoiseFilter } = Log;
+const { getDefaultNoiseFilter } = frodo.cloud.log;
 
 export const FRODO_CONFIG_PATH_KEY = 'FRODO_CONFIG_PATH';
 export const FRODO_LOG_NOISEFILTER_FILENAME = 'LoggingNoiseFilter.json';

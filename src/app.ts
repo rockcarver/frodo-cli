@@ -1,4 +1,4 @@
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 
 // commands
@@ -13,7 +13,7 @@ import idm from './cli/idm/idm';
 import idp from './cli/idp/idp';
 import info from './cli/info/info';
 import journey from './cli/journey/journey';
-import logging from './cli/logging/logs';
+import log from './cli/log/log';
 import realm from './cli/realm/realm';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
@@ -24,7 +24,7 @@ import theme from './cli/theme/theme';
 import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
 
-const { initConnectionProfiles } = ConnectionProfile;
+const { initConnectionProfiles } = frodo.conn;
 
 (async () => {
   try {
@@ -48,7 +48,7 @@ const { initConnectionProfiles } = ConnectionProfile;
     program.addCommand(idp());
     program.addCommand(info());
     program.addCommand(journey());
-    program.addCommand(logging());
+    program.addCommand(log());
     program.addCommand(realm());
     program.addCommand(saml());
     program.addCommand(script());

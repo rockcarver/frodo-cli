@@ -1,14 +1,14 @@
 import fs from 'fs';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Journey, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { saveTextToFile } from '../../utils/ExportImportUtils';
 
-const { getTokens } = Authenticate;
-const { getJourneys, exportJourney, createFileParamTreeExportResolver } =
-  Journey;
+const { getTokens } = frodo.login;
+const { createFileParamTreeExportResolver, getJourneys, exportJourney } =
+  frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey describe');
 

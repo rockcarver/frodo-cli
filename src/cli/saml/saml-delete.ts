@@ -1,10 +1,11 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Saml2 } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { deleteSaml2Provider, deleteSaml2Providers } = Saml2;
+const { getTokens } = frodo.login;
+const { deleteSaml2Provider, deleteSaml2Providers } =
+  frodo.saml2.entityProvider;
 
 const program = new FrodoCommand('frodo saml delete');
 

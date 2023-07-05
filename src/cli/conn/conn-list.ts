@@ -1,8 +1,6 @@
+import { listConnectionProfiles } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { ConnectionProfile } from '@rockcarver/frodo-lib';
-
-const { listConnectionProfiles } = ConnectionProfile;
 
 const program = new FrodoCommand('frodo conn list', [
   'host',

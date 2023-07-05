@@ -92,12 +92,13 @@ const defaultOpts = [
 ];
 
 const stateMap = {
-  [hostArgument.name()]: state.setHost,
-  [realmArgument.name()]: state.setRealm,
-  [usernameArgument.name()]: state.setUsername,
-  [passwordArgument.name()]: state.setPassword,
-  [serviceAccountIdOption.attributeName()]: state.setServiceAccountId,
-  [serviceAccountJwkFileOption.attributeName()]: (file) => {
+  [hostArgument.name()]: (host: string) => state.setHost(host),
+  [realmArgument.name()]: (realm: string) => state.setRealm(realm),
+  [usernameArgument.name()]: (username: string) => state.setUsername(username),
+  [passwordArgument.name()]: (password: string) => state.setPassword(password),
+  [serviceAccountIdOption.attributeName()]: (saId: string) =>
+    state.setServiceAccountId(saId),
+  [serviceAccountJwkFileOption.attributeName()]: (file: string) => {
     try {
       const data = fs.readFileSync(file);
       const jwk = JSON.parse(data.toString());
@@ -109,11 +110,15 @@ const stateMap = {
       );
     }
   },
-  [deploymentOption.attributeName()]: state.setDeploymentType,
-  [insecureOption.attributeName()]: state.setAllowInsecureConnection,
-  [verboseOption.attributeName()]: state.setVerbose,
-  [debugOption.attributeName()]: state.setDebug,
-  [curlirizeOption.attributeName()]: state.setCurlirize,
+  [deploymentOption.attributeName()]: (type: string) =>
+    state.setDeploymentType(type),
+  [insecureOption.attributeName()]: (insecure: boolean) =>
+    state.setAllowInsecureConnection(insecure),
+  [verboseOption.attributeName()]: (verbose: boolean) =>
+    state.setVerbose(verbose),
+  [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
+  [curlirizeOption.attributeName()]: (curlirize: boolean) =>
+    state.setCurlirize(curlirize),
 };
 
 /**
@@ -168,6 +173,28 @@ export class FrodoCommand extends FrodoStubCommand {
     for (const opt of defaultOpts) {
       if (!omits.includes(opt.name())) this.addOption(opt);
     }
+
+    // additional help
+    this.addHelpText(
+      'after',
+      `\nEvironment Variables:\n` +
+        `  FRODO_HOST: Access Management base URL. Overrides 'host' argument.\n` +
+        `  FRODO_REALM: Realm. Overrides 'realm' argument.\n` +
+        `  FRODO_USERNAME: Username. Overrides 'username' argument.\n` +
+        `  FRODO_PASSWORD: Password. Overrides 'password' argument.\n` +
+        `  FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.\n` +
+        `  FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
+        ('frodo conn save' === this.name()
+          ? `  FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.\n` +
+            `  FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.\n`
+          : ``) +
+        (this.name().startsWith('frodo logs')
+          ? `  FRODO_LOG_KEY: Log API key. Overrides 'username' argument.\n` +
+            `  FRODO_LOG_SECRET: Log API secret. Overrides 'password' argument.\n`
+          : ``) +
+        `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.\n` +
+        `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n`
+    );
   }
 
   /**

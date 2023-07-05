@@ -1,6 +1,6 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { ResourceType, Utils, state } from '@rockcarver/frodo-lib';
+import type { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createObjectTable,
   createProgressBar,
@@ -20,9 +20,8 @@ import {
 } from '../utils/ExportImportUtils';
 import { ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 
+const { getRealmName } = frodo.helper.utils;
 const {
-  deleteResourceType: _deleteResourceType,
-  deleteResourceTypeByName: _deleteResourceTypeByName,
   getResourceTypes,
   getResourceType,
   getResourceTypeByName,
@@ -33,8 +32,7 @@ const {
   importResourceTypeByName,
   importFirstResourceType,
   importResourceTypes,
-} = ResourceType;
-const { getRealmName } = Utils;
+} = frodo.authz.resourceType;
 
 /**
  * List resource types
@@ -149,7 +147,7 @@ export async function deleteResourceType(
   const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeUuid}`);
-    await _deleteResourceType(resourceTypeUuid);
+    await deleteResourceType(resourceTypeUuid);
   } catch (error) {
     errors.push(error);
   }
@@ -182,7 +180,7 @@ export async function deleteResourceTypeByName(
   const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeName}`);
-    await _deleteResourceTypeByName(resourceTypeName);
+    await deleteResourceTypeByName(resourceTypeName);
   } catch (error) {
     errors.push(error);
   }
@@ -231,7 +229,7 @@ export async function deleteResourceTypes(): Promise<
       const resourceTypeId = resourceType.uuid;
       try {
         debugMessage(`Deleting resource type ${resourceTypeId}`);
-        await _deleteResourceType(resourceTypeId);
+        await deleteResourceType(resourceTypeId);
         updateProgressBar(`Deleted ${resourceTypeId}`);
       } catch (error) {
         error.message = `Error deleting resource type ${resourceTypeId}: ${error}`;

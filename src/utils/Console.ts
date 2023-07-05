@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { MultiBar, Presets } from 'cli-progress';
 import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
-import { ExportImportUtils, state } from '@rockcarver/frodo-lib';
 import Color from 'colors';
 
 Color.enable();
 
-const { appendTextToFile } = ExportImportUtils;
+const { appendTextToFile } = frodo.utils.impex;
 
 let multiBarContainer = null;
 let progressBar = null;

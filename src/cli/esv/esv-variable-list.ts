@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Variables } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
+import { listVariables } from '../../ops/VariablesOps';
 
-const { getTokens } = Authenticate;
-const { listVariables } = Variables;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv variable list');
 
