@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, CirclesOfTrust, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
+import { listCirclesOfTrust } from '../../ops/CirclesOfTrustOps';
 
-const { getTokens } = Authenticate;
-const { listCirclesOfTrust } = CirclesOfTrust;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml cot list');
 
@@ -28,7 +28,8 @@ program
         verboseMessage(
           `Listing SAML circles of trust in realm "${state.getRealm()}"...`
         );
-        listCirclesOfTrust(options.long);
+        const outcome = listCirclesOfTrust(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -1,6 +1,6 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importAdminFederationProviderFromFile,
@@ -9,7 +9,7 @@ import {
   importFirstAdminFederationProviderFromFile,
 } from '../../ops/AdminFederationOps';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo admin federation import', ['realm']);
 

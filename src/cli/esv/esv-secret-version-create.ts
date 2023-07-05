@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Secrets } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
+import { createNewVersionOfSecret } from '../../ops/SecretsOps';
 
-const { getTokens } = Authenticate;
-const { createNewVersionOfSecretCmd } = Secrets;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv secret version create');
 
@@ -25,7 +25,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Creating new version of secret...');
-        createNewVersionOfSecretCmd(options.secretId, options.value);
+        createNewVersionOfSecret(options.secretId, options.value);
       } else {
         process.exitCode = 1;
       }

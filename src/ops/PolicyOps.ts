@@ -1,6 +1,6 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Policy, Utils, state } from '@rockcarver/frodo-lib';
+import type { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   createObjectTable,
   createProgressBar,
@@ -17,25 +17,24 @@ import {
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import {
+import type {
   PolicyExportOptions,
   PolicyImportOptions,
   PolicyExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/PolicyOps';
 
+const { getRealmName } = frodo.helper.utils;
 const {
-  deletePolicy: _deletePolicy,
-  getPolicy,
   getPolicies,
   getPoliciesByPolicySet,
+  getPolicy,
   exportPolicy,
   exportPolicies,
   exportPoliciesByPolicySet,
   importPolicy,
   importFirstPolicy,
   importPolicies,
-} = Policy;
-const { getRealmName } = Utils;
+} = frodo.authz.policy;
 
 /**
  * List policies
@@ -121,7 +120,7 @@ export async function deletePolicy(policyId: string): Promise<boolean> {
   const errors = [];
   try {
     debugMessage(`Deleting policy ${policyId}`);
-    await _deletePolicy(policyId);
+    await deletePolicy(policyId);
   } catch (error) {
     printMessage(`Error deleting policy ${policyId}: ${error}`, 'error');
   }
@@ -164,7 +163,7 @@ export async function deletePolicies(): Promise<boolean> {
       const policyId = policy._id;
       try {
         debugMessage(`Deleting policy ${policyId}`);
-        await _deletePolicy(policyId);
+        await deletePolicy(policyId);
         updateProgressBar(`Deleted ${policyId}`);
       } catch (error) {
         error.message = `Error deleting policy ${policyId}: ${error}`;
@@ -223,7 +222,7 @@ export async function deletePoliciesByPolicySet(
       const policyId = policy._id;
       try {
         debugMessage(`Deleting policy ${policyId}`);
-        await _deletePolicy(policyId);
+        await deletePolicy(policyId);
         updateProgressBar(`Deleted ${policyId}`);
       } catch (error) {
         error.message = `Error deleting policy ${policyId} from policy set ${policySetId}: ${error}`;

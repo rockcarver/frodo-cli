@@ -1,5 +1,5 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import { AdminFederation } from '@rockcarver/frodo-lib';
 import {
   createProgressBar,
   debugMessage,
@@ -17,9 +17,9 @@ const {
   exportAdminFederationProvider,
   exportAdminFederationProviders,
   importAdminFederationProvider,
-  importFirstAdminFederationProvider,
   importAdminFederationProviders,
-} = AdminFederation;
+  importFirstAdminFederationProvider,
+} = frodo.cloud.adminFed;
 
 /**
  * List providers

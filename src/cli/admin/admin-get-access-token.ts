@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, OAuth2OIDCApi } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { clientCredentialsGrant } = OAuth2OIDCApi;
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
+const { clientCredentialsGrant } = frodo.oauth2oidc.endpoint;
 
 const program = new FrodoCommand('frodo admin get-access-token');
 
@@ -40,6 +40,7 @@ program
         );
         const response = (
           await clientCredentialsGrant(
+            state.getHost(),
             options.clientId,
             options.clientSecret,
             options.scope

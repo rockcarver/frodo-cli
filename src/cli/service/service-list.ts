@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { listServices } from '../../ops/ServiceOps.js';
 import { verboseMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo service list');
 

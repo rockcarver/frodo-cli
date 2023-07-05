@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Admin, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { showGenericExtensionAttributes } = Admin;
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
+const { showGenericExtensionAttributes } = frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin show-generic-extension-attributes'

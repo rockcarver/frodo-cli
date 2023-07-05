@@ -1,13 +1,13 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import {
   importScriptsFromFile,
   importScriptsFromFiles,
 } from '../../ops/ScriptOps';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo script import');
 
@@ -67,11 +67,12 @@ program
       verboseMessage(`Importing script(s) into realm "${state.getRealm()}"...`);
 
       if (options.scriptName) {
-        await importScriptsFromFile(
+        const outcome = await importScriptsFromFile(
           options.scriptName || options.script,
           options.file,
           options.reUuid
         );
+        if (!outcome) process.exitCode = 1;
       } else if (options.allSeparate) {
         await importScriptsFromFiles(options.watch, options.reUuid, true);
       }

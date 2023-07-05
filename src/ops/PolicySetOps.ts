@@ -1,9 +1,9 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import {
+import type {
   PolicySetSkeleton,
   PolicySkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Policy, PolicySet, Utils, state } from '@rockcarver/frodo-lib';
 import {
   createObjectTable,
   createProgressBar,
@@ -26,8 +26,9 @@ import {
   PolicySetImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/PolicySetOps';
 
+const { getRealmName } = frodo.helper.utils;
+const { getPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
 const {
-  deletePolicySet: _deletePolicySet,
   getPolicySets,
   getPolicySet,
   exportPolicySet,
@@ -35,9 +36,7 @@ const {
   importPolicySet,
   importFirstPolicySet,
   importPolicySets,
-} = PolicySet;
-const { getPoliciesByPolicySet, deletePolicy } = Policy;
-const { getRealmName } = Utils;
+} = frodo.authz.policySet;
 
 /**
  * List policy sets
@@ -104,7 +103,7 @@ export async function deletePolicySet(policySetId: string): Promise<boolean> {
   }
   try {
     debugMessage(`Deleting policy set ${policySetId}`);
-    await _deletePolicySet(policySetId);
+    await deletePolicySet(policySetId);
   } catch (error) {
     printMessage(`Error deleting policy set ${policySetId}: ${error}`, 'error');
   }
@@ -164,7 +163,7 @@ export async function deletePolicySets(): Promise<boolean> {
       }
       try {
         debugMessage(`Deleting policy set ${policySetId}`);
-        await _deletePolicySet(policySetId);
+        await deletePolicySet(policySetId);
         updateProgressBar(`Deleted ${policySetId}`);
       } catch (error) {
         error.message = `Error deleting policy set ${policySetId}: ${error}`;

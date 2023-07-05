@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console.js';
 import { listPolicySets } from '../../ops/PolicySetOps';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo authz set list');
 

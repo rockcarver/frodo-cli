@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { verboseMessage } from '../../utils/Console';
-import { listRawSaml2Providers, listSaml2Providers } from '../../ops/Saml2Ops';
+import { listSaml2Providers } from '../../ops/Saml2Ops';
 
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml list');
 
@@ -13,7 +13,6 @@ program
   .addOption(
     new Option('-l, --long', 'Long with all fields.').default(false, 'false')
   )
-  .addOption(new Option('--raw', 'List raw entity providers.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -26,17 +25,10 @@ program
         command
       );
       if (await getTokens()) {
-        if (!options.raw) {
-          verboseMessage(
-            `Listing SAML entity providers in realm "${state.getRealm()}"...`
-          );
-          listSaml2Providers(options.long);
-        } else {
-          verboseMessage(
-            `Listing raw SAML entity providers in realm "${state.getRealm()}"...`
-          );
-          listRawSaml2Providers();
-        }
+        verboseMessage(
+          `Listing SAML entity providers in realm "${state.getRealm()}"...`
+        );
+        listSaml2Providers(options.long);
       } else {
         process.exitCode = 1;
       }

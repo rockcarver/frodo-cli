@@ -1,18 +1,13 @@
 import { FrodoCommand } from '../FrodoCommand';
-import {
-  Authenticate,
-  ConnectionProfile,
-  Log,
-  state,
-} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { provisionCreds } from '../../ops/LogOps';
 
-const { getLogSources } = Log;
-const { getConnectionProfile, saveConnectionProfile } = ConnectionProfile;
-const { getTokens } = Authenticate;
+const { getTokens } = frodo.login;
+const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
+const { getLogSources } = frodo.cloud.log;
 
-const program = new FrodoCommand('frodo logs list', ['realm', 'type']);
+const program = new FrodoCommand('frodo log list', ['realm', 'type']);
 program
   .description('List available ID Cloud log sources.')
   .action(async (host, user, password, options, command) => {
@@ -42,8 +37,8 @@ program
         }
         if (await getTokens(true)) {
           const creds = await provisionCreds();
-          state.setLogApiKey(creds.api_key_id);
-          state.setLogApiSecret(creds.api_key_secret);
+          state.setLogApiKey(creds.api_key_id as string);
+          state.setLogApiSecret(creds.api_key_secret as string);
         }
       }
 

@@ -1,12 +1,12 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { compareVersions } from 'compare-versions';
-
 import Color from 'colors';
 
-import { LibVersion } from '@rockcarver/frodo-lib';
+const { getVersion, getAllVersions } = frodo.utils.version;
 
 const VERSION_CACHE_FILE = `${os.homedir()}/.frodo/Versions.json`;
 const VERSION_CHECK_INTERVAL = 3600;
@@ -47,7 +47,7 @@ function getCliVersion() {
 }
 
 function getLibVersion() {
-  return LibVersion.getVersion();
+  return getVersion();
 }
 
 function extractGithubReleaseInfo(data) {
@@ -92,7 +92,7 @@ async function getRemoteVersionData() {
 
   if (!useCache) {
     const allVersions = [];
-    const result = await LibVersion.getAllVersions(ENDPOINTS);
+    const result = await getAllVersions(ENDPOINTS);
     result.forEach((item) => {
       if (Array.isArray(item['value'].data)) {
         allVersions.push(extractGithubReleaseInfo(item['value'].data));

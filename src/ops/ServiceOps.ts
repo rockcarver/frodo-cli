@@ -1,3 +1,4 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import {
   printMessage,
@@ -7,28 +8,22 @@ import {
   succeedSpinner,
   failSpinner,
 } from '../utils/Console';
-import {
-  ExportImportUtils,
-  Service,
-  Utils,
-  state,
-} from '@rockcarver/frodo-lib';
-import { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import type { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
+const { getRealmName } = frodo.helper.utils;
+const { getTypedFilename, titleCase, saveJsonToFile, getWorkingDirectory } =
+  frodo.utils.impex;
 const {
-  createServiceExportTemplate,
-  deleteFullServices,
-  deleteFullService,
   getListOfServices,
-  getFullServices,
   exportServices,
   exportService,
-  importServices,
+  getFullServices,
+  createServiceExportTemplate,
   importService,
-} = Service;
-const { getTypedFilename, getWorkingDirectory, saveJsonToFile, titleCase } =
-  ExportImportUtils;
-const { getRealmName } = Utils;
+  importServices,
+  deleteFullService,
+  deleteFullServices,
+} = frodo.service;
 
 /**
  * List services
@@ -61,7 +56,7 @@ export async function listServices(long = false, globalConfig = false) {
 export async function exportServicesToFile(file, globalConfig = false) {
   const exportData = await exportServices(globalConfig);
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.default.session.getRealm()))}Services`,
+    `all${titleCase(getRealmName(state.getRealm()))}Services`,
     `service`
   );
   if (file) {
@@ -121,7 +116,7 @@ export async function importServiceFromFile(
   debugMessage(
     `cli.ServiceOps.importServiceFromFile: start [serviceId=${serviceId}, file=${file}]`
   );
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);
@@ -160,7 +155,7 @@ export async function importFirstServiceFromFile(
   debugMessage(
     `cli.ServiceOps.importFirstServiceFromFile: start [file=${file}]`
   );
-  const verbose = state.default.session.getVerbose();
+  const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     const importData = JSON.parse(data);

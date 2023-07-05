@@ -1,12 +1,12 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Startup, ManagedObject } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
 import { createTable, printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { applyUpdates, checkForUpdates } = Startup;
-const { resolveUserName } = ManagedObject;
+const { getTokens } = frodo.login;
+const { checkForUpdates, applyUpdates } = frodo.cloud.startup;
+const { resolveUserName } = frodo.idm.managed;
 
 const program = new FrodoCommand('frodo esv apply');
 

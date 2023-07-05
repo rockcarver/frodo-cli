@@ -1,9 +1,9 @@
 import { FrodoCommand } from '../FrodoCommand';
-import { Authenticate, Admin } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage } from '../../utils/Console.js';
 
-const { getTokens } = Authenticate;
-const { addAutoIdStaticUserMapping } = Admin;
+const { getTokens } = frodo.login;
+const { addAutoIdStaticUserMapping } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin add-autoid-static-user-mapping');
 

@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Secrets } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { deleteSecret, deleteSecrets } from '../../ops/SecretsOps';
 
-const { getTokens } = Authenticate;
-const { deleteSecretCmd, deleteSecretsCmd } = Secrets;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv secret delete');
 
@@ -33,12 +33,12 @@ program
       // delete by id
       if (options.secretId && (await getTokens())) {
         verboseMessage('Deleting secret...');
-        deleteSecretCmd(options.secretId);
+        deleteSecret(options.secretId);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all secrets...');
-        deleteSecretsCmd();
+        deleteSecrets();
       }
       // unrecognized combination of options or no options
       else {

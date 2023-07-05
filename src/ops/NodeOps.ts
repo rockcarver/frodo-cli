@@ -1,9 +1,11 @@
-import {
+import { frodo } from '@rockcarver/frodo-lib';
+import type {
   InnerNodeRefSkeletonInterface,
   NodeRefSkeletonInterface,
   NodeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { Node, Types } from '@rockcarver/frodo-lib';
+
+const { getNodeClassification: _getNodeClassification } = frodo.authn.node;
 
 /**
  * Get node classification
@@ -11,18 +13,18 @@ import { Node, Types } from '@rockcarver/frodo-lib';
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassification(nodeType: string): string[] {
-  return Node.getNodeClassification(nodeType).map((it) => {
+  return _getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case Types.NodeClassification.STANDARD:
+      case 'standard':
         return it.toString()['brightGreen'];
 
-      case Types.NodeClassification.CLOUD:
+      case 'cloud':
         return it.toString()['brightMagenta'];
 
-      case Types.NodeClassification.CUSTOM:
+      case 'custom':
         return it.toString()['brightRed'];
 
-      case Types.NodeClassification.PREMIUM:
+      case 'premium':
         return it.toString()['brightYellow'];
     }
   });
@@ -34,18 +36,18 @@ export function getNodeClassification(nodeType: string): string[] {
  * @returns {stringp[]} Colored string array of classifications
  */
 export function getNodeClassificationMd(nodeType: string): string[] {
-  return Node.getNodeClassification(nodeType).map((it) => {
+  return _getNodeClassification(nodeType).map((it) => {
     switch (it) {
-      case Types.NodeClassification.STANDARD:
+      case 'standard':
         return `:green_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.CLOUD:
+      case 'cloud':
         return `:purple_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.CUSTOM:
+      case 'custom':
         return `:red_circle: \`${it.toString()}\``;
 
-      case Types.NodeClassification.PREMIUM:
+      case 'premium':
         return `:yellow_circle: \`${it.toString()}\``;
     }
   });

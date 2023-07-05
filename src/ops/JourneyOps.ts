@@ -1,9 +1,11 @@
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import {
+import type {
   NodeSkeleton,
   TreeSkeleton,
 } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import {
+import type {
+  JourneyClassificationType,
   MultiTreeExportInterface,
   SingleTreeExportInterface,
   TreeDependencyMapInterface,
@@ -22,12 +24,6 @@ import {
   createTable,
   debugMessage,
 } from '../utils/Console';
-import {
-  ExportImportUtils,
-  Journey,
-  Types,
-  state,
-} from '@rockcarver/frodo-lib';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
 import * as Idp from './IdpOps';
@@ -38,18 +34,18 @@ import * as Theme from './ThemeOps';
 import wordwrap from './utils/Wordwrap';
 import { cloneDeep } from './utils/OpsUtils';
 
+const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils.impex;
 const {
   getJourneys,
+  exportJourney,
+  createMultiTreeExportTemplate,
+  resolveDependencies,
   importAllJourneys,
   importJourney,
-  resolveDependencies,
-  createMultiTreeExportTemplate,
-  exportJourney,
-  onlineTreeExportResolver,
   getTreeDescendents,
   getNodeRef,
-} = Journey;
-const { getTypedFilename, saveJsonToFile, getRealmString } = ExportImportUtils;
+  onlineTreeExportResolver,
+} = frodo.authn.journey;
 
 /**
  * List all the journeys/trees
@@ -148,12 +144,12 @@ export async function exportJourneyToFile(
   options: TreeExportOptions
 ): Promise<void> {
   debugMessage(`exportJourneyToFile: start`);
-  const verbose = state.default.session.getDebug();
+  const verbose = state.getDebug();
   if (!file) {
     file = getTypedFilename(journeyId, 'journey');
   }
-  if (state.default.session.getDirectory()) {
-    const dir = state.default.session.getDirectory().replace(/\/$/, '');
+  if (state.getDirectory()) {
+    const dir = state.getDirectory().replace(/\/$/, '');
     debugMessage(`exportJourneyToFile: directory='${dir}'`);
     file = `${dir}/${file}`;
     // create directory if it doesn't exist
@@ -248,7 +244,7 @@ export async function importJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const verbose = state.default.session.getDebug();
+  const verbose = state.getDebug();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = JSON.parse(data);
@@ -311,7 +307,7 @@ export async function importFirstJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const verbose = state.default.session.getDebug();
+  const verbose = state.getDebug();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = cloneDeep(JSON.parse(data));
@@ -414,20 +410,20 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
  */
 export function getJourneyClassification(
   journey: SingleTreeExportInterface
-): string[] {
-  return Journey.getJourneyClassification(journey).map((it) => {
+): JourneyClassificationType[] {
+  return getJourneyClassification(journey).map((it) => {
     switch (it) {
-      case Types.JourneyClassification.STANDARD:
-        return it.toString()['brightGreen'];
+      case 'standard':
+        return it['brightGreen'];
 
-      case Types.JourneyClassification.CLOUD:
-        return it.toString()['brightMagenta'];
+      case 'cloud':
+        return it['brightMagenta'];
 
-      case Types.JourneyClassification.CUSTOM:
-        return it.toString()['brightRed'];
+      case 'custom':
+        return it['brightRed'];
 
-      case Types.JourneyClassification.PREMIUM:
-        return it.toString()['brightYellow'];
+      case 'premium':
+        return it['brightYellow'];
     }
   });
 }
@@ -440,19 +436,19 @@ export function getJourneyClassification(
 export function getJourneyClassificationMd(
   journey: SingleTreeExportInterface
 ): string[] {
-  return Journey.getJourneyClassification(journey).map((it) => {
+  return getJourneyClassification(journey).map((it) => {
     switch (it) {
-      case Types.JourneyClassification.STANDARD:
-        return `:green_circle: \`${it.toString()}\``;
+      case 'standard':
+        return `:green_circle: \`${it}\``;
 
-      case Types.JourneyClassification.CLOUD:
-        return `:purple_circle: \`${it.toString()}\``;
+      case 'cloud':
+        return `:purple_circle: \`${it}\``;
 
-      case Types.JourneyClassification.CUSTOM:
-        return `:red_circle: \`${it.toString()}\``;
+      case 'custom':
+        return `:red_circle: \`${it}\``;
 
-      case Types.JourneyClassification.PREMIUM:
-        return `:yellow_circle: \`${it.toString()}\``;
+      case 'premium':
+        return `:yellow_circle: \`${it}\``;
     }
   });
 }
@@ -569,11 +565,8 @@ export async function describeJourney(
   }
 
   // initialize AM version from file
-  if (
-    !state.default.session.getAmVersion() &&
-    journeyData.meta?.originAmVersion
-  ) {
-    state.default.session.setAmVersion(journeyData.meta.originAmVersion);
+  if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
+    state.setAmVersion(journeyData.meta.originAmVersion);
   }
 
   // Journey Name
@@ -595,7 +588,7 @@ export async function describeJourney(
   );
 
   // Classification
-  if (state.default.session.getAmVersion()) {
+  if (state.getAmVersion()) {
     printMessage(
       `\nClassification\n${getJourneyClassification(journeyData).join(', ')}`,
       'data'
@@ -765,11 +758,8 @@ export async function describeJourneyMd(
   }
 
   // initialize AM version from file
-  if (
-    !state.default.session.getAmVersion() &&
-    journeyData.meta?.originAmVersion
-  ) {
-    state.default.session.setAmVersion(journeyData.meta.originAmVersion);
+  if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
+    state.setAmVersion(journeyData.meta.originAmVersion);
   }
 
   // Journey Name

@@ -1,10 +1,10 @@
 import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
-import { Authenticate, Secrets } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { activateVersionOfSecret } from '../../ops/SecretsOps';
 
-const { getTokens } = Authenticate;
-const { activateVersionOfSecret } = Secrets;
+const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo esv secret version activate');
 

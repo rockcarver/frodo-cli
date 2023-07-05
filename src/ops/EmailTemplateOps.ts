@@ -1,6 +1,6 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { EmailTemplate, ExportImportUtils } from '@rockcarver/frodo-lib';
+import type { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 import {
   createProgressIndicator,
@@ -17,14 +17,15 @@ import wordwrap from './utils/Wordwrap';
 import path from 'path';
 import { cloneDeep } from './utils/OpsUtils';
 
-const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
+const { validateImport } = frodo.utils.impex;
 const {
   EMAIL_TEMPLATE_TYPE,
-  getEmailTemplate,
   getEmailTemplates,
+  getEmailTemplate,
   putEmailTemplate,
-} = EmailTemplate;
-const { validateImport } = ExportImportUtils;
+} = frodo.email.template;
+
+const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
 
 const regexEmailTemplateType = new RegExp(`${EMAIL_TEMPLATE_TYPE}/`, 'g');
 
@@ -300,7 +301,6 @@ export async function importEmailTemplatesFromFile(file: string) {
         if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
           const templateId = id.replace(regexEmailTemplateType, '');
           try {
-            // eslint-disable-next-line no-await-in-loop
             await putEmailTemplate(
               templateId,
               fileData.emailTemplate[templateId]
