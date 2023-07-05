@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-8] - 2023-07-05
+
 ## [2.0.0-7] - 2023-06-23
 
 ## [2.0.0-6] - 2023-06-22
@@ -50,13 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-2] - 2023-06-15
 
 ## [2.0.0-1] - 2023-06-15
-
-## [1.0.1] - 2023-07-03
-
-### Fixed
-
--   \#267: Frodo CLI should now detect running in binary mode on Windows.
--   \#266: Frodo CLI now properly detects latest GitHub and NPM releases and correctly reports if updates areavailable instead of reporting an error like this: `ERROR: exception running frodo - Error: Invalid argument not valid semver ('Frodo CLI 1.0.0' received)`.
 
 ## [1.0.0] - 2023-06-30
 
@@ -1324,23 +1319,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-7...HEAD
-
-[2.0.0-7]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-6...v2.0.0-7
-
-[2.0.0-6]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-5...v2.0.0-6
-
-[2.0.0-5]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-4...v2.0.0-5
-
-[2.0.0-4]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-3...v2.0.0-4
-
-[2.0.0-3]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-2...v2.0.0-3
-
-[2.0.0-2]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-1...v2.0.0-2
-
-[2.0.0-1]: https://github.com/rockcarver/frodo-cli/compare/v0.24.5...v2.0.0-1
-
-[1.0.1]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0...v1.0.1
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-8...HEAD
 
 [1.0.0]: https://github.com/rockcarver/frodo-cli/compare/v1.0.0-1...v1.0.0
 
