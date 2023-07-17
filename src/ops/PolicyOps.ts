@@ -23,7 +23,7 @@ import type {
   PolicyExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/PolicyOps';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const {
   getPolicies,
   getPoliciesByPolicySet,

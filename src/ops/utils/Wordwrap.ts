@@ -1,4 +1,8 @@
-export default function wordwrap(str, len, indent = undefined) {
+export default function wordwrap(
+  str: string,
+  len: number,
+  indent: string = undefined
+) {
   if (!str) return '';
   return (
     str.match(

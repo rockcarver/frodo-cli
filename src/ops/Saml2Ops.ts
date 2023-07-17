@@ -17,11 +17,11 @@ import type {
   MultiOpStatusInterface,
   Saml2ExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import type { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
 
-const { decode } = frodo.helper.base64;
+const { decodeBase64 } = frodo.utils;
 const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
-  frodo.utils.impex;
+  frodo.utils;
 const {
   getSaml2ProviderStubs,
   getProviderByLocationAndId,
@@ -273,7 +273,7 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
     const entityId64 =
       Object.keys(fileData.saml.remote)[0] ||
       Object.keys(fileData.saml.hosted)[0];
-    const entityId = decode(entityId64);
+    const entityId = decodeBase64(entityId64);
     showSpinner(`Importing ${entityId}...`);
     try {
       await importSaml2Provider(entityId, fileData);

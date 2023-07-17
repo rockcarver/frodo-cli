@@ -46,7 +46,10 @@
     "watch": "npm run link-frodo-lib && babel --watch --out-dir esm --extensions \".ts\" --source-maps --config-file ./babel.config.esm.json src"
   },
   "jest": {
-    "testTimeout": 30000
+    "testTimeout": 30000,
+    "testMatch": [
+      "**/?(*.)(test).js"
+    ]
   },
   "contributors": [
     {
@@ -101,7 +104,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-12",
+    "@rockcarver/frodo-lib": "2.0.0-16",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",

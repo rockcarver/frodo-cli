@@ -7,7 +7,7 @@ import { provisionCreds } from '../../ops/LogOps';
 import * as s from '../../help/SampleData';
 
 const { getTokens } = frodo.login;
-const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.helper.constants;
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const { isServiceAccountsFeatureAvailable } = frodo.cloud.serviceAccount;
 const { addNewServiceAccount, saveConnectionProfile } = frodo.conn;
 

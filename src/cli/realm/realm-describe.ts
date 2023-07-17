@@ -20,7 +20,7 @@ program.description('Describe realms.').action(
     );
     if (await getTokens()) {
       verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
-      describeRealm(frodo.helper.utils.getRealmName(state.getRealm()));
+      describeRealm(frodo.utils.getRealmName(state.getRealm()));
     } else {
       process.exitCode = 1;
     }

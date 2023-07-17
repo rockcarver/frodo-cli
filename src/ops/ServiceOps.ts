@@ -10,9 +10,9 @@ import {
 } from '../utils/Console';
 import type { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const { getTypedFilename, titleCase, saveJsonToFile, getWorkingDirectory } =
-  frodo.utils.impex;
+  frodo.utils;
 const {
   getListOfServices,
   exportServices,

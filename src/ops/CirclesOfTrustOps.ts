@@ -19,7 +19,7 @@ import {
 } from '../utils/ExportImportUtils';
 import type { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const {
   getCirclesOfTrust,
   exportCircleOfTrust,

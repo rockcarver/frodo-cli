@@ -34,7 +34,7 @@ import * as Theme from './ThemeOps';
 import wordwrap from './utils/Wordwrap';
 import { cloneDeep } from './utils/OpsUtils';
 
-const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils.impex;
+const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils;
 const {
   getJourneys,
   exportJourney,
