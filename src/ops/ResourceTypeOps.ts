@@ -20,7 +20,7 @@ import {
 } from '../utils/ExportImportUtils';
 import { ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const {
   getResourceTypes,
   getResourceType,

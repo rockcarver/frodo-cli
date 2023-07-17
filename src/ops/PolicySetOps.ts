@@ -26,7 +26,7 @@ import {
   PolicySetImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/PolicySetOps';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const { getPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
 const {
   getPolicySets,

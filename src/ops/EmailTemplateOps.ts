@@ -17,7 +17,7 @@ import wordwrap from './utils/Wordwrap';
 import path from 'path';
 import { cloneDeep } from './utils/OpsUtils';
 
-const { validateImport } = frodo.utils.impex;
+const { validateImport } = frodo.utils;
 const {
   EMAIL_TEMPLATE_TYPE,
   getEmailTemplates,

@@ -19,7 +19,7 @@ import type {
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
-const { getTypedFilename, titleCase } = frodo.utils.impex;
+const { getTypedFilename, titleCase } = frodo.utils;
 const {
   getOAuth2Clients,
   exportOAuth2Client,
@@ -133,9 +133,7 @@ export async function exportOAuth2ClientsToFile(
   showSpinner(`Exporting all clients...`);
   try {
     let fileName = getTypedFilename(
-      `all${titleCase(
-        frodo.helper.utils.getRealmName(state.getRealm())
-      )}Applications`,
+      `all${titleCase(frodo.utils.getRealmName(state.getRealm()))}Applications`,
       'oauth2.app'
     );
     if (file) {

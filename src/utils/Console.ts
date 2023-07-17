@@ -7,7 +7,7 @@ import Color from 'colors';
 
 Color.enable();
 
-const { appendTextToFile } = frodo.utils.impex;
+const { appendTextToFile } = frodo.utils;
 
 let multiBarContainer = null;
 let progressBar = null;

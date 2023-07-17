@@ -10,7 +10,7 @@ import {
 } from '../utils/Console';
 import { saveToFile, getTypedFilename } from '../utils/ExportImportUtils';
 
-const { getRealmString, validateImport } = frodo.utils.impex;
+const { getRealmString, validateImport } = frodo.utils;
 const {
   getThemes,
   getThemeByName,

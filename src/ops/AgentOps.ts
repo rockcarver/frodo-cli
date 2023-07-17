@@ -15,7 +15,7 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 
-const { getRealmName } = frodo.helper.utils;
+const { getRealmName } = frodo.utils;
 const {
   createAgentExportTemplate,
   getAgents,

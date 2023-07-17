@@ -12,7 +12,7 @@ import {
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
 
-const { decode } = frodo.helper.base64;
+const { decodeBase64 } = frodo.utils;
 const { resolveUserName } = frodo.idm.managed;
 const { getVariables, getVariable, putVariable } = frodo.cloud.variable;
 
@@ -41,7 +41,7 @@ export async function listVariables(long) {
     for (const variable of variables) {
       table.push([
         variable._id,
-        wordwrap(decode(variable.valueBase64), 40),
+        wordwrap(decodeBase64(variable.valueBase64), 40),
         variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(variable.description, 40),
         // eslint-disable-next-line no-await-in-loop
@@ -167,7 +167,7 @@ export async function describeVariable(variableId) {
   table.push(['Name'['brightCyan'], variable._id]);
   table.push([
     'Value'['brightCyan'],
-    wordwrap(decode(variable.valueBase64), 40),
+    wordwrap(decodeBase64(variable.valueBase64), 40),
   ]);
   table.push([
     'Status'['brightCyan'],
