@@ -1,4 +1,4 @@
-import wordwrap from './Wordwrap';
+import wordwrap from '../../src/ops/utils/Wordwrap';
 
 describe('wordwrap', () => {
   test('wraps long strings with spaces correctly', () => {
