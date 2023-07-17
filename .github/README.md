@@ -2,7 +2,7 @@
 
 # Frodo CLI - @rockcarver/frodo-cli
 
-ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platform deployments supporting Identity Cloud tenants, ForgeOps deployments, and classic deployments.
+ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platform deployments supporting Identity Cloud tenants, ForgeOps deployments, and classic deployments. Frodo-cli is powered by [frodo-lib](https://github.com/rockcarver/frodo-lib), a hybrid (ESM and CJS) library to manage ForgeRock deployments.
 
 ## Quick Nav
 
