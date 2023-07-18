@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   rockcarver/frodo-lib#272: Added new `--variable-type` parameter to `frodo esv variable create` command.
+
 ## [2.0.0-11] - 2023-07-17
 
 ## [2.0.0-10] - 2023-07-05

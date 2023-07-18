@@ -11,6 +11,7 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
+import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
 const { decodeBase64 } = frodo.utils;
 const { resolveUserName } = frodo.idm.managed;
@@ -59,14 +60,20 @@ export async function listVariables(long) {
 
 /**
  * Create variable
- * @param {String} variableId variable id
- * @param {String} value variable value
- * @param {String} description variable description
+ * @param {string} variableId variable id
+ * @param {string} value variable value
+ * @param {string} description variable description
+ * @param {VariableExpressionType} type variable type
  */
-export async function createVariable(variableId, value, description) {
+export async function createVariable(
+  variableId: string,
+  value: string,
+  description: string,
+  type: VariableExpressionType = 'string'
+) {
   showSpinner(`Creating variable ${variableId}...`);
   try {
-    await putVariable(variableId, value, description);
+    await putVariable(variableId, value, description, type);
     succeedSpinner(`Created variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -77,9 +84,9 @@ export async function createVariable(variableId, value, description) {
 
 /**
  * Update variable
- * @param {String} variableId variable id
- * @param {String} value variable value
- * @param {String} description variable description
+ * @param {string} variableId variable id
+ * @param {string} value variable value
+ * @param {string} description variable description
  */
 export async function updateVariable(variableId, value, description) {
   showSpinner(`Updating variable ${variableId}...`);
@@ -95,8 +102,8 @@ export async function updateVariable(variableId, value, description) {
 
 /**
  * Set description of variable
- * @param {String} variableId variable id
- * @param {String} description variable description
+ * @param {string} variableId variable id
+ * @param {string} description variable description
  */
 export async function setVariableDescription(variableId, description) {
   showSpinner(`Setting description of variable ${variableId}...`);
@@ -112,7 +119,7 @@ export async function setVariableDescription(variableId, description) {
 
 /**
  * Delete a variable
- * @param {String} variableId variable id
+ * @param {string} variableId variable id
  */
 export async function deleteVariable(variableId) {
   showSpinner(`Deleting variable ${variableId}...`);
@@ -159,7 +166,7 @@ export async function deleteVariables() {
 
 /**
  * Describe a variable
- * @param {String} variableId variable id
+ * @param {string} variableId variable id
  */
 export async function describeVariable(variableId) {
   const variable = await getVariable(variableId);
