@@ -24,7 +24,7 @@ Options:
   --debug                          Debug output during command execution. If
                                    specified, may or may not produce additional
                                    output helpful for troubleshooting.
-  --description [description]      Secret description.
+  --description [description]      Variable description.
   -h, --help                       Help
   -i, --variable-id <variable-id>  Variable id.
   -k, --insecure                   Allow insecure connections when using
@@ -52,7 +52,10 @@ Options:
   --sa-id <sa-id>                  Service account id.
   --sa-jwk-file <file>             File containing the JSON Web Key (JWK)
                                    associated with the the service account.
-  --value <value>                  Secret value.
+  --value <value>                  Variable value.
+  --variable-type [variable-type]  Variable type. Must be one of "string",
+                                   "list", "array", "object", "bool", "int", or
+                                   "number". (default: "string")
   --verbose                        Verbose output during command execution. If
                                    specified, may or may not produce additional
                                    output.
@@ -67,5 +70,17 @@ Evironment Variables:
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
 
+Usage Examples:
+  Create an ESV variable using implied default type "string":
+[96m  $ frodo esv variable create --variable-id "esv-trinity-phone" --value "(312)-555-0690" --description "Trinity's phone number." matrix
+[39m  Create an ESV variable of type "array":
+[96m  $ frodo esv variable create --variable-id "esv-nebuchadnezzar-crew" --variable-type array --value '["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]' --description "The crew of the Nebuchadnezzar hovercraft." matrix
+[39m  Create an ESV variable of type "object":
+[96m  $ frodo esv variable create --variable-id "esv-nebuchadnezzar-crew-structure" --variable-type object --value '{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}' --description "The structure of the crew of the Nebuchadnezzar hovercraft." matrix
+[39m  Create an ESV variable of type "int":
+[96m  $ frodo esv variable create --variable-id "esv-neo-age" --variable-type int --value '28' --description "Neo's age in the matrix." matrix
+[39m  Create an ESV variable of type "bool":
+[96m  $ frodo esv variable create --variable-id "esv-blue-piller" --variable-type bool --value 'false' --description "Zion membership criteria." matrix
+[39m
 "
 `;
