@@ -125,7 +125,6 @@ export async function listSaml2Providers(long = false) {
 export async function describeSaml2Provider(entityId) {
   try {
     const stub = await getSaml2ProviderStub(entityId);
-    printMessage(stub);
     const { location } = stub;
     const id = stub._id;
     const roles = stub.roles.map((role: string) => roleMap[role]).join(', ');
