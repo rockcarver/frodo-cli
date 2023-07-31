@@ -28,7 +28,7 @@ function data(message: string | object, newline = true) {
     }
     appendTextToFile(message, state.getOutputFile());
   } else if (typeof message === 'object') {
-    console.dir(message, { depth: 3 });
+    console.dir(message, { depth: 10 });
   } else if (newline) {
     console.log(message);
   } else {
