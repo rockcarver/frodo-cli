@@ -6,9 +6,10 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "requireConfigFile": false
+    "requireConfigFile": false,
+    "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "prettier", "jest"],
+  "plugins": ["@typescript-eslint", "prettier", "jest", "deprecation"],
   "root": true,
   "rules": {
     "prettier/prettier": ["warn"],
@@ -22,11 +23,18 @@
       "LabeledStatement",
       "WithStatement"
     ],
-    "no-multi-str": "off"
+    "no-multi-str": "off",
+    "deprecation/deprecation": "warn"
   },
   "env": {
     "jest": true,
     "jest/globals": true,
     "node": true
-  }
+  },
+  "ignorePatterns": [
+    "src/**/*.test.ts",
+    "src/**/*.test_.ts",
+    "test/**/*.test.ts",
+    "test/**/*.test_.ts"
+  ]
 }
