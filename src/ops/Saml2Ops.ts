@@ -24,7 +24,7 @@ const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
   frodo.utils;
 const {
   getSaml2ProviderStubs,
-  getProviderByLocationAndId,
+  getSaml2Provider,
   getSaml2ProviderStub,
   getProviderMetadataUrl,
   getProviderMetadata,
@@ -126,9 +126,8 @@ export async function describeSaml2Provider(entityId) {
   try {
     const stub = await getSaml2ProviderStub(entityId);
     const { location } = stub;
-    const id = stub._id;
     const roles = stub.roles.map((role: string) => roleMap[role]).join(', ');
-    const rawProviderData = await getProviderByLocationAndId(location, id);
+    const rawProviderData = await getSaml2Provider(entityId);
     delete rawProviderData._id;
     delete rawProviderData._rev;
     rawProviderData.location = location;
