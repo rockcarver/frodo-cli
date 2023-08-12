@@ -23,7 +23,7 @@ function searchFunctions(_answers, input = '') {
 }
 
 export default function setup() {
-  const program = new FrodoCommand('shell', ['realm']);
+  const program = new FrodoCommand('shell');
   program
     .description('Launch the frodo interactive shell.')
     .addHelpText(
@@ -38,8 +38,15 @@ export default function setup() {
         `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL):\n` +
         `  $ frodo shell ${s.connId}'\n`['brightCyan']
     )
-    .action(async (host, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(host, user, password, options, command);
+    .action(async (host, realm, user, password, options, command) => {
+      command.handleDefaultArgsAndOpts(
+        host,
+        realm,
+        user,
+        password,
+        options,
+        command
+      );
       if (host) await getTokens();
       let exit = false;
       do {
