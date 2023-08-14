@@ -381,8 +381,20 @@ export async function importJourneysFromFile(
 ) {
   fs.readFile(file, 'utf8', (err, data) => {
     if (err) throw err;
-    const fileData = JSON.parse(data);
-    importAllJourneys(fileData.trees, options);
+    try {
+      const fileData = JSON.parse(data);
+      importAllJourneys(fileData.trees, options);
+    } catch (error) {
+      if (error.name === 'UnresolvedDependenciesError') {
+        for (const journey of Object.keys(error.unresolvedJourneys)) {
+          printMessage({
+            message: `  - ${journey} requires ${error.unresolvedJourneys[journey]}`,
+            type: 'info',
+            state,
+          });
+        }
+      }
+    }
   });
 }
 

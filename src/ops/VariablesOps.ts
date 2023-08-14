@@ -24,7 +24,7 @@ const { getVariables, getVariable, putVariable } = frodo.cloud.variable;
 export async function listVariables(long) {
   let variables = [];
   try {
-    variables = (await getVariables()).result;
+    variables = await getVariables();
     variables.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -45,7 +45,6 @@ export async function listVariables(long) {
         wordwrap(decodeBase64(variable.valueBase64), 40),
         variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(variable.description, 40),
-        // eslint-disable-next-line no-await-in-loop
         await resolveUserName('teammember', variable.lastChangedBy),
         new Date(variable.lastChangeDate).toLocaleString(),
       ]);
@@ -138,11 +137,10 @@ export async function deleteVariable(variableId) {
  */
 export async function deleteVariables() {
   try {
-    const variables = (await getVariables()).result;
+    const variables = await getVariables();
     createProgressBar(variables.length, `Deleting variable...`);
     for (const variable of variables) {
       try {
-        // eslint-disable-next-line no-await-in-loop
         await deleteVariable(variable._id);
         updateProgressBar(`Deleted variable ${variable._id}`);
       } catch (error) {

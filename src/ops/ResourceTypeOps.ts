@@ -37,9 +37,9 @@ const {
 /**
  * List resource types
  * @param {boolean} long more fields
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
-export async function listResourceTypes(long = false): Promise<boolean> {
+export async function listResourceTypes(long = false): readScripts<boolean> {
   let outcome = false;
   try {
     const resourceTypes = await getResourceTypes();
@@ -71,12 +71,12 @@ export async function listResourceTypes(long = false): Promise<boolean> {
  * Describe resource type by uuid
  * @param {string} resourceTypeUuid resource type uuid
  * @param {boolean} json JSON output
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function describeResourceType(
   resourceTypeUuid: string,
   json = false
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   try {
     const resourceType = await getResourceType(resourceTypeUuid);
@@ -104,12 +104,12 @@ export async function describeResourceType(
  * Describe resource type by name
  * @param {string} resourceTypeName resource type name
  * @param {boolean} json JSON output
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function describeResourceTypeByName(
   resourceTypeName: string,
   json = false
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   try {
     const resourceType = await getResourceTypeByName(resourceTypeName);
@@ -136,11 +136,11 @@ export async function describeResourceTypeByName(
 /**
  * Delete resource type by uuid
  * @param {string} resourceTypeUuid resource type uuid
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function deleteResourceType(
   resourceTypeUuid: string
-): Promise<boolean | ResourceTypeSkeleton> {
+): readScripts<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceType: begin`);
   showSpinner(`Deleting ${resourceTypeUuid}...`);
   let outcome = false;
@@ -169,11 +169,11 @@ export async function deleteResourceType(
 /**
  * Delete resource type by name
  * @param {string} resourceTypeName resource type name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function deleteResourceTypeByName(
   resourceTypeName: string
-): Promise<boolean | ResourceTypeSkeleton> {
+): readScripts<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: begin`);
   showSpinner(`Deleting ${resourceTypeName}...`);
   let outcome = false;
@@ -201,9 +201,9 @@ export async function deleteResourceTypeByName(
 
 /**
  * Delete all resource types
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
-export async function deleteResourceTypes(): Promise<
+export async function deleteResourceTypes(): readScripts<
   boolean | ResourceTypeSkeleton
 > {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypes: begin`);
@@ -261,12 +261,12 @@ export async function deleteResourceTypes(): Promise<
  * Export resource type to file
  * @param {string} resourceTypeUuid resource type uuid
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeToFile(
   resourceTypeUuid: string,
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: begin`);
   showSpinner(`Exporting ${resourceTypeUuid}...`);
@@ -290,12 +290,12 @@ export async function exportResourceTypeToFile(
  * Export resource type by name to file
  * @param {string} resourceTypeName resource type name
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeByNameToFile(
   resourceTypeName: string,
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: begin`);
   showSpinner(`Exporting ${resourceTypeName}...`);
@@ -318,11 +318,11 @@ export async function exportResourceTypeByNameToFile(
 /**
  * Export resource types to file
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFile(
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: begin`);
   showSpinner(`Exporting all resource types...`);
@@ -347,9 +347,9 @@ export async function exportResourceTypesToFile(
 
 /**
  * Export all resource types to separate files
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
-export async function exportResourceTypesToFiles(): Promise<boolean> {
+export async function exportResourceTypesToFiles(): readScripts<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
   try {
@@ -380,12 +380,12 @@ export async function exportResourceTypesToFiles(): Promise<boolean> {
  * Import resource type from file
  * @param {string} resourceTypeId resource type id
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function importResourceTypeFromFile(
   resourceTypeId: string,
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: begin`);
   showSpinner(`Importing ${resourceTypeId}...`);
@@ -407,12 +407,12 @@ export async function importResourceTypeFromFile(
  * Import resource type by name from file
  * @param {string} resourceTypeName resource type name
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function importResourceTypeByNameFromFile(
   resourceTypeName: string,
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: begin`);
   showSpinner(`Importing ${resourceTypeName}...`);
@@ -433,11 +433,11 @@ export async function importResourceTypeByNameFromFile(
 /**
  * Import first resource type from file
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function importFirstResourceTypeFromFile(
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: begin`);
   showSpinner(`Importing ${file}...`);
@@ -458,11 +458,11 @@ export async function importFirstResourceTypeFromFile(
 /**
  * Import resource types from file
  * @param {string} file file name
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
 export async function importResourceTypesFromFile(
   file: string
-): Promise<boolean> {
+): readScripts<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: begin`);
   showSpinner(`Importing ${file}...`);
@@ -482,9 +482,9 @@ export async function importResourceTypesFromFile(
 
 /**
  * Import resource types from files
- * @returns {Promise<boolean>} true if successful, false otherwise
+ * @returns {readScripts<boolean>} true if successful, false otherwise
  */
-export async function importResourceTypesFromFiles(): Promise<boolean> {
+export async function importResourceTypesFromFiles(): readScripts<boolean> {
   const errors = [];
   try {
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: begin`);

@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import type { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 import {
   createProgressIndicator,
@@ -16,6 +15,7 @@ import {
 import wordwrap from './utils/Wordwrap';
 import path from 'path';
 import { cloneDeep } from './utils/OpsUtils';
+import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 
 const { validateImport } = frodo.utils;
 const {
@@ -96,7 +96,7 @@ export function getTableRowMd(templateObj: EmailTemplateSkeleton): string {
 export async function listEmailTemplates(long = false): Promise<unknown[]> {
   let emailTemplates = [];
   try {
-    emailTemplates = (await getEmailTemplates()).result;
+    emailTemplates = await getEmailTemplates();
   } catch (error) {
     printMessage(`Error retrieving email templates: ${error.message}`, 'error');
   }
@@ -186,11 +186,10 @@ export async function exportEmailTemplatesToFile(file) {
   }
   try {
     const fileData = getFileDataTemplate();
-    const response = await getEmailTemplates();
-    const templates = response.result;
+    const templates = await getEmailTemplates();
     createProgressIndicator(
       'determinate',
-      response.resultCount,
+      templates.length,
       'Exporting email templates'
     );
     for (const template of templates) {
@@ -200,7 +199,7 @@ export async function exportEmailTemplatesToFile(file) {
     }
     saveJsonToFile(fileData, fileName);
     stopProgressIndicator(
-      `${response.resultCount} templates exported to ${fileName}.`
+      `${templates.length} templates exported to ${fileName}.`
     );
   } catch (err) {
     stopProgressIndicator(`${err}`);
@@ -213,11 +212,10 @@ export async function exportEmailTemplatesToFile(file) {
  */
 export async function exportEmailTemplatesToFiles() {
   try {
-    const response = await getEmailTemplates();
-    const templates = response.result;
+    const templates = await getEmailTemplates();
     createProgressIndicator(
       'determinate',
-      response.resultCount,
+      templates.length,
       'Exporting email templates'
     );
     for (const template of templates) {
@@ -228,7 +226,7 @@ export async function exportEmailTemplatesToFiles() {
       fileData.emailTemplate[templateId] = template;
       saveJsonToFile(fileData, fileName);
     }
-    stopProgressIndicator(`${response.resultCount} templates exported.`);
+    stopProgressIndicator(`${templates.length} templates exported.`);
   } catch (err) {
     stopProgressIndicator(`${err}`);
     printMessage(err, 'error');

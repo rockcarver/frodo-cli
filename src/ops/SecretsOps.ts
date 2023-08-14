@@ -32,7 +32,7 @@ const {
 export async function listSecrets(long) {
   let secrets = [];
   try {
-    secrets = (await getSecrets()).result;
+    secrets = await getSecrets();
     secrets.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -131,7 +131,7 @@ export async function deleteSecret(secretId) {
  */
 export async function deleteSecrets() {
   try {
-    const secrets = (await getSecrets()).result;
+    const secrets = await getSecrets();
     createProgressBar(secrets.length, `Deleting secrets...`);
     for (const secret of secrets) {
       try {
