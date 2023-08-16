@@ -1,9 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import type {
-  InnerNodeRefSkeletonInterface,
-  NodeRefSkeletonInterface,
-  NodeSkeleton,
-} from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import {
+  type InnerNodeRefSkeletonInterface,
+  type NodeRefSkeletonInterface,
+  type NodeSkeleton,
+} from '@rockcarver/frodo-lib/types/api/NodeApi';
 
 const { getNodeClassification: _getNodeClassification } = frodo.authn.node;
 

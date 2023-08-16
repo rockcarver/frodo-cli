@@ -1,10 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { fileURLToPath } from 'url';
-import { compareVersions } from 'compare-versions';
 import Color from 'colors';
+import { compareVersions } from 'compare-versions';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const { getVersion, getAllVersions } = frodo.utils.version;
 

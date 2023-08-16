@@ -1,13 +1,14 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { Option } from 'commander';
+
 import {
   importEmailTemplateFromFile,
   importEmailTemplatesFromFile,
   importEmailTemplatesFromFiles,
   importFirstEmailTemplateFromFile,
 } from '../../ops/EmailTemplateOps';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

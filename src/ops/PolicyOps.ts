@@ -1,6 +1,12 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type PolicySkeleton } from '@rockcarver/frodo-lib/types/api/PoliciesApi';
+import type {
+  PolicyExportInterface,
+  PolicyExportOptions,
+  PolicyImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/PolicyOps';
 import fs from 'fs';
-import type { PolicySkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+
 import {
   createObjectTable,
   createProgressBar,
@@ -17,17 +23,12 @@ import {
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import type {
-  PolicyExportOptions,
-  PolicyImportOptions,
-  PolicyExportInterface,
-} from '@rockcarver/frodo-lib/types/ops/PolicyOps';
 
 const { getRealmName } = frodo.utils;
 const {
-  getPolicies,
-  getPoliciesByPolicySet,
-  getPolicy,
+  readPolicies,
+  readPoliciesByPolicySet,
+  readPolicy,
   exportPolicy,
   exportPolicies,
   exportPoliciesByPolicySet,
@@ -44,7 +45,7 @@ const {
 export async function listPolicies(long = false): Promise<boolean> {
   let outcome = false;
   try {
-    const policies = await getPolicies();
+    const policies = await readPolicies();
     policies.sort((a, b) => a._id.localeCompare(b._id));
     for (const policy of policies) {
       if (!long) {
@@ -71,7 +72,7 @@ export async function listPoliciesByPolicySet(
 ): Promise<boolean> {
   let outcome = false;
   try {
-    const policies = await getPoliciesByPolicySet(policySetId);
+    const policies = await readPoliciesByPolicySet(policySetId);
     policies.sort((a, b) => a._id.localeCompare(b._id));
     for (const policy of policies) {
       if (!long) {
@@ -97,7 +98,7 @@ export async function describePolicy(
   json = false
 ): Promise<boolean> {
   let outcome = false;
-  const policySet = await getPolicy(policyId);
+  const policySet = await readPolicy(policyId);
   outcome = true;
   if (json) {
     printMessage(policySet, 'data');
@@ -147,7 +148,7 @@ export async function deletePolicies(): Promise<boolean> {
   try {
     showSpinner(`Retrieving all policies...`);
     try {
-      policies = await getPolicies();
+      policies = await readPolicies();
       succeedSpinner(`Found ${policies.length} policies.`);
     } catch (error) {
       error.message = `Error retrieving all policies: ${error.message}`;
@@ -204,7 +205,7 @@ export async function deletePoliciesByPolicySet(
   try {
     showSpinner(`Retrieving all policies from policy set ${policySetId}...`);
     try {
-      policies = await getPoliciesByPolicySet(policySetId);
+      policies = await readPoliciesByPolicySet(policySetId);
       succeedSpinner(
         `Found ${policies.length} policies in policy set ${policySetId}.`
       );
@@ -378,7 +379,7 @@ export async function exportPoliciesToFiles(
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
   try {
-    const policies: PolicySkeleton[] = await getPolicies();
+    const policies: PolicySkeleton[] = await readPolicies();
     createProgressBar(policies.length, 'Exporting policy sets...');
     for (const policy of policies) {
       const file = getTypedFilename(policy._id, 'policy.authz');
@@ -419,7 +420,7 @@ export async function exportPoliciesByPolicySetToFiles(
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
   try {
-    const policies: PolicySkeleton[] = await getPoliciesByPolicySet(
+    const policies: PolicySkeleton[] = await readPoliciesByPolicySet(
       policySetId
     );
     createProgressBar(

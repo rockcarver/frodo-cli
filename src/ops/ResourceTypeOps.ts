@@ -1,6 +1,8 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ResourceTypesApi';
+import { type ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 import fs from 'fs';
-import type { ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+
 import {
   createObjectTable,
   createProgressBar,
@@ -18,13 +20,12 @@ import {
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import { ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 
 const { getRealmName } = frodo.utils;
 const {
-  getResourceTypes,
-  getResourceType,
-  getResourceTypeByName,
+  readResourceTypes,
+  readResourceType,
+  readResourceTypeByName,
   exportResourceType,
   exportResourceTypeByName,
   exportResourceTypes,
@@ -42,7 +43,7 @@ const {
 export async function listResourceTypes(long = false): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceTypes = await getResourceTypes();
+    const resourceTypes = await readResourceTypes();
     resourceTypes.sort((a, b) => a.name.localeCompare(b.name));
     if (long) {
       const table = createTable(['Name', 'Description', 'Uuid']);
@@ -79,7 +80,7 @@ export async function describeResourceType(
 ): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceType = await getResourceType(resourceTypeUuid);
+    const resourceType = await readResourceType(resourceTypeUuid);
     if (json) {
       printMessage(resourceType, 'data');
     } else {
@@ -112,7 +113,7 @@ export async function describeResourceTypeByName(
 ): Promise<boolean> {
   let outcome = false;
   try {
-    const resourceType = await getResourceTypeByName(resourceTypeName);
+    const resourceType = await readResourceTypeByName(resourceTypeName);
     if (json) {
       printMessage(resourceType, 'data');
     } else {
@@ -213,7 +214,7 @@ export async function deleteResourceTypes(): Promise<
   try {
     showSpinner(`Retrieving all resource types...`);
     try {
-      resourceTypes = await getResourceTypes();
+      resourceTypes = await readResourceTypes();
       succeedSpinner(`Found ${resourceTypes.length} resource types.`);
     } catch (error) {
       error.message = `Error retrieving all resource types: ${error.message}`;
@@ -353,7 +354,7 @@ export async function exportResourceTypesToFiles(): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
   try {
-    const resourceTypes: ResourceTypeSkeleton[] = await getResourceTypes();
+    const resourceTypes: ResourceTypeSkeleton[] = await readResourceTypes();
     createProgressBar(resourceTypes.length, 'Exporting resource types...');
     for (const resourceType of resourceTypes) {
       const file = getTypedFilename(resourceType.name, 'resourcetype.authz');

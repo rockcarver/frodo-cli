@@ -1,9 +1,10 @@
-import { FrodoCommand } from '../FrodoCommand';
+import { frodo, state } from '@rockcarver/frodo-lib';
+import Table from 'cli-table3';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
-import Table from 'cli-table3';
-import { frodo, state } from '@rockcarver/frodo-lib';
+
 import { printMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { createOAuth2ClientWithAdminPrivileges, createLongLivedToken } =

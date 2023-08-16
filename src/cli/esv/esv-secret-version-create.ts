@@ -1,8 +1,9 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
+import { createVersionOfSecret } from '../../ops/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
-import { createNewVersionOfSecret } from '../../ops/SecretsOps';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
@@ -25,7 +26,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Creating new version of secret...');
-        createNewVersionOfSecret(options.secretId, options.value);
+        createVersionOfSecret(options.secretId, options.value);
       } else {
         process.exitCode = 1;
       }

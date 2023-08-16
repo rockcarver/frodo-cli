@@ -1,10 +1,11 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { sourcesOptionM } from './log';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
+import { provisionCreds, tailLogs } from '../../ops/LogOps';
 import * as config from '../../utils/Config';
 import { printMessage } from '../../utils/Console';
-import { provisionCreds, tailLogs } from '../../ops/LogOps';
+import { FrodoCommand } from '../FrodoCommand';
+import { sourcesOptionM } from './log';
 
 const { getTokens } = frodo.login;
 const { resolveLevel } = frodo.cloud.log;

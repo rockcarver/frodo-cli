@@ -1,6 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/SocialIdentityProvidersApi';
 import fs from 'fs';
-import type { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+
 import {
   createProgressBar,
   debugMessage,
@@ -18,12 +19,12 @@ import {
 } from '../utils/ExportImportUtils';
 
 const {
-  getSocialIdentityProviders,
-  exportSocialProvider,
-  exportSocialProviders,
-  importFirstSocialProvider,
-  importSocialProvider,
-  importSocialProviders,
+  readSocialIdentityProviders,
+  exportSocialIdentityProvider,
+  exportSocialIdentityProviders,
+  importFirstSocialIdentityProvider,
+  importSocialIdentityProvider,
+  importSocialIdentityProviders,
 } = frodo.oauth2oidc.external;
 
 /**
@@ -66,7 +67,7 @@ export function getTableRowMd(socialIdpObj: SocialIdpSkeleton): string {
  */
 export async function listSocialProviders() {
   try {
-    const providers = await getSocialIdentityProviders();
+    const providers = await readSocialIdentityProviders();
     providers.sort((a, b) => a._id.localeCompare(b._id));
     providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
@@ -82,11 +83,11 @@ export async function listSocialProviders() {
  * @param {string} providerId provider id/name
  * @param {string} file optional export file name
  */
-export async function exportSocialProviderToFile(
+export async function exportSocialIdentityProviderToFile(
   providerId: string,
   file = ''
 ) {
-  debugMessage(`cli.IdpOps.exportSocialProviderToFile: start`);
+  debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: start`);
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(providerId, 'idp');
@@ -94,7 +95,7 @@ export async function exportSocialProviderToFile(
   createProgressBar(1, `Exporting ${providerId}`);
   try {
     updateProgressBar(`Writing file ${fileName}`);
-    const fileData = await exportSocialProvider(providerId);
+    const fileData = await exportSocialIdentityProvider(providerId);
     saveJsonToFile(fileData, fileName);
     stopProgressBar(
       `Exported ${providerId['brightCyan']} to ${fileName['brightCyan']}.`
@@ -103,34 +104,34 @@ export async function exportSocialProviderToFile(
     stopProgressBar(`${err}`);
     printMessage(`${err}`, 'error');
   }
-  debugMessage(`cli.IdpOps.exportSocialProviderToFile: end`);
+  debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: end`);
 }
 
 /**
  * Export all providers
  * @param {string} file optional export file name
  */
-export async function exportSocialProvidersToFile(file = '') {
+export async function exportSocialIdentityProvidersToFile(file = '') {
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(`all${getRealmString()}Providers`, 'idp');
   }
-  const fileData = await exportSocialProviders();
+  const fileData = await exportSocialIdentityProviders();
   saveJsonToFile(fileData, fileName);
 }
 
 /**
  * Export all providers to individual files
  */
-export async function exportSocialProvidersToFiles() {
-  debugMessage(`cli.IdpOps.exportSocialProvidersToFiles: start`);
+export async function exportSocialIdentityProvidersToFiles() {
+  debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: start`);
   try {
-    const allIdpsData = await getSocialIdentityProviders();
+    const allIdpsData = await readSocialIdentityProviders();
     createProgressBar(allIdpsData.length, 'Exporting providers');
     for (const idpData of allIdpsData) {
       try {
         const fileName = getTypedFilename(idpData._id, 'idp');
-        const fileData = await exportSocialProvider(idpData._id);
+        const fileData = await exportSocialIdentityProvider(idpData._id);
         saveJsonToFile(fileData, fileName);
         updateProgressBar(`Exported provider ${idpData._id}`);
       } catch (error) {
@@ -142,7 +143,7 @@ export async function exportSocialProvidersToFiles() {
     stopProgressBar(`${error}`);
     printMessage(`${error}`, 'error');
   }
-  debugMessage(`cli.IdpOps.exportSocialProvidersToFiles: end`);
+  debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: end`);
 }
 
 /**
@@ -151,7 +152,7 @@ export async function exportSocialProvidersToFiles() {
  * @param {string} file import file name
  * @returns {Promise<boolean>} true if provider was imported successfully, false otherwise
  */
-export async function importSocialProviderFromFile(
+export async function importSocialIdentityProviderFromFile(
   providerId: string,
   file: string
 ): Promise<boolean> {
@@ -161,7 +162,8 @@ export async function importSocialProviderFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importSocialProvider(providerId, fileData);
+      await importSocialIdentityProvider(providerId, fileData);
+      outcome = true;
       succeedSpinner(
         `Successfully imported provider ${providerId} from ${file}.`
       );
@@ -178,7 +180,7 @@ export async function importSocialProviderFromFile(
  * @param {String} file import file name
  * @returns {Promise<boolean>} true if first provider was imported successfully, false otherwise
  */
-export async function importFirstSocialProviderFromFile(
+export async function importFirstSocialIdentityProviderFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
@@ -187,7 +189,8 @@ export async function importFirstSocialProviderFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importFirstSocialProvider(fileData);
+      await importFirstSocialIdentityProvider(fileData);
+      outcome = true;
       succeedSpinner(`Successfully imported first provider from ${file}.`);
     } catch (error) {
       failSpinner(`Error importing first provider from ${file}.`);
@@ -202,7 +205,7 @@ export async function importFirstSocialProviderFromFile(
  * @param {string} file import file name
  * @returns {Promise<boolean>} true if all providers were imported successfully, false otherwise
  */
-export async function importSocialProvidersFromFile(
+export async function importSocialIdentityProvidersFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
@@ -211,7 +214,8 @@ export async function importSocialProvidersFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      outcome = await importSocialProviders(fileData);
+      await importSocialIdentityProviders(fileData);
+      outcome = true;
       succeedSpinner(`Successfully imported providers from ${file}.`);
     } catch (error) {
       failSpinner(`Error importing providers from ${file}.`);
@@ -224,7 +228,7 @@ export async function importSocialProvidersFromFile(
 /**
  * Import providers from *.idp.json files in current working directory
  */
-export async function importSocialProvidersFromFiles() {
+export async function importSocialIdentityProvidersFromFiles() {
   const names = fs.readdirSync('.');
   const jsonFiles = names.filter((name) =>
     name.toLowerCase().endsWith('.idp.json')
@@ -237,7 +241,7 @@ export async function importSocialProvidersFromFiles() {
     const fileData = JSON.parse(data);
     const count = Object.keys(fileData.idp).length;
     total += count;
-    await importSocialProviders(fileData);
+    await importSocialIdentityProviders(fileData);
     updateProgressBar(`Imported ${count} provider(s) from ${file}`);
   }
   stopProgressBar(

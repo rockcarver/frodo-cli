@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
+
 import {
   createProgressBar,
   debugMessage,
@@ -13,7 +14,7 @@ import {
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 
 const {
-  getAdminFederationProviders,
+  readAdminFederationProviders,
   exportAdminFederationProvider,
   exportAdminFederationProviders,
   importAdminFederationProvider,
@@ -28,7 +29,7 @@ const {
 export async function listAdminFederationProviders(): Promise<boolean> {
   let outcome = false;
   try {
-    const providers = await getAdminFederationProviders();
+    const providers = await readAdminFederationProviders();
     providers.sort((a, b) => a._id.localeCompare(b._id));
     providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
@@ -105,7 +106,7 @@ export async function exportAdminFederationProvidersToFile(
 export async function exportAdminFederationProvidersToFiles(): Promise<boolean> {
   let outcome = false;
   try {
-    const allIdpsData = await getAdminFederationProviders();
+    const allIdpsData = await readAdminFederationProviders();
     createProgressBar(allIdpsData.length, 'Exporting providers');
     for (const idpData of allIdpsData) {
       updateProgressBar(`Writing provider ${idpData._id}`);

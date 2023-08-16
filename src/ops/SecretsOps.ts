@@ -1,4 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
+
 import {
   createKeyValueTable,
   createProgressBar,
@@ -14,13 +15,14 @@ import wordwrap from './utils/Wordwrap';
 
 const { resolveUserName } = frodo.idm.managed;
 const {
-  getSecrets,
-  putSecret,
-  getSecretVersions,
-  getSecret,
-  setStatusOfVersionOfSecret,
-  createNewVersionOfSecret: _createNewVersionOfSecret,
-  setSecretDescription: _setSecretDescription,
+  readSecrets,
+  createSecret: _createSecret,
+  readVersionsOfSecret,
+  readSecret,
+  enableVersionOfSecret,
+  disableVersionOfSecret,
+  createVersionOfSecret: _createVersionOfSecret,
+  updateSecretDescription,
   deleteSecret: _deleteSecret,
   deleteVersionOfSecret: _deleteVersionOfSecret,
 } = frodo.cloud.secret;
@@ -32,7 +34,7 @@ const {
 export async function listSecrets(long) {
   let secrets = [];
   try {
-    secrets = (await getSecrets()).result;
+    secrets = await readSecrets();
     secrets.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -84,7 +86,7 @@ export async function createSecret(
 ) {
   showSpinner(`Creating secret ${id}...`);
   try {
-    await putSecret(id, value, description, encoding, useInPlaceholders);
+    await _createSecret(id, value, description, encoding, useInPlaceholders);
     succeedSpinner(`Created secret ${id}`);
   } catch (error) {
     failSpinner(
@@ -101,7 +103,7 @@ export async function createSecret(
 export async function setSecretDescription(secretId, description) {
   showSpinner(`Setting description of secret ${secretId}...`);
   try {
-    await _setSecretDescription(secretId, description);
+    await updateSecretDescription(secretId, description);
     succeedSpinner(`Set description of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -131,7 +133,7 @@ export async function deleteSecret(secretId) {
  */
 export async function deleteSecrets() {
   try {
-    const secrets = (await getSecrets()).result;
+    const secrets = await readSecrets();
     createProgressBar(secrets.length, `Deleting secrets...`);
     for (const secret of secrets) {
       try {
@@ -160,7 +162,7 @@ export async function deleteSecrets() {
 export async function listSecretVersions(secretId) {
   let versions = [];
   try {
-    versions = await getSecretVersions(secretId);
+    versions = await readVersionsOfSecret(secretId);
   } catch (error) {
     printMessage(`${error.message}`, 'error');
     printMessage(error.response.data, 'error');
@@ -193,7 +195,7 @@ export async function listSecretVersions(secretId) {
  * @param {String} secretId Secret id
  */
 export async function describeSecret(secretId) {
-  const secret = await getSecret(secretId);
+  const secret = await readSecret(secretId);
   const table = createKeyValueTable();
   table.push(['Name'['brightCyan'], secret._id]);
   table.push(['Active Version'['brightCyan'], secret.activeVersion]);
@@ -224,10 +226,10 @@ export async function describeSecret(secretId) {
  * @param {String} secretId secret id
  * @param {String} value secret value
  */
-export async function createNewVersionOfSecret(secretId, value) {
+export async function createVersionOfSecret(secretId, value) {
   showSpinner(`Creating new version of secret ${secretId}...`);
   try {
-    const version = await _createNewVersionOfSecret(secretId, value);
+    const version = await _createVersionOfSecret(secretId, value);
     succeedSpinner(`Created version ${version.version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -244,7 +246,7 @@ export async function createNewVersionOfSecret(secretId, value) {
 export async function activateVersionOfSecret(secretId, version) {
   showSpinner(`Activating version ${version} of secret ${secretId}...`);
   try {
-    await setStatusOfVersionOfSecret(secretId, version, 'ENABLED');
+    await enableVersionOfSecret(secretId, version);
     succeedSpinner(`Activated version ${version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(
@@ -261,7 +263,7 @@ export async function activateVersionOfSecret(secretId, version) {
 export async function deactivateVersionOfSecret(secretId, version) {
   showSpinner(`Deactivating version ${version} of secret ${secretId}...`);
   try {
-    await setStatusOfVersionOfSecret(secretId, version, 'DISABLED');
+    await disableVersionOfSecret(secretId, version);
     succeedSpinner(`Deactivated version ${version} of secret ${secretId}`);
   } catch (error) {
     failSpinner(

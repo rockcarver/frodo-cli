@@ -1,5 +1,6 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import type { LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import { type LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
+
 import {
   createTable,
   debugMessage,

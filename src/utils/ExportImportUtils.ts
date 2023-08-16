@@ -1,9 +1,10 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
-import slugify from 'slugify';
-import { printMessage } from './Console';
 import { lstat, readdir, readFile } from 'fs/promises';
 import { join } from 'path';
+import slugify from 'slugify';
+
+import { printMessage } from './Console';
 
 /**
  * find all (nested) files in a directory

@@ -1,12 +1,13 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
 import {
-  showSpinner,
   failSpinner,
-  succeedSpinner,
   printMessage,
+  showSpinner,
+  succeedSpinner,
 } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { enableJourney } = frodo.authn.journey;

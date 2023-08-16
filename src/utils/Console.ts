@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { MultiBar, Presets } from 'cli-progress';
-import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
 import Color from 'colors';
+import { createSpinner } from 'nanospinner';
 
 Color.enable();
 
@@ -28,7 +28,7 @@ function data(message: string | object, newline = true) {
     }
     appendTextToFile(message, state.getOutputFile());
   } else if (typeof message === 'object') {
-    console.dir(message, { depth: 10 });
+    console.dir(message, { depth: 10, maxArrayLength: null });
   } else if (newline) {
     console.log(message);
   } else {

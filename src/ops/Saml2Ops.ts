@@ -1,5 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { type Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
+import { type Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
+
 import {
   createObjectTable,
   createProgressBar,
@@ -13,21 +16,16 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
-import type {
-  MultiOpStatusInterface,
-  Saml2ExportInterface,
-} from '@rockcarver/frodo-lib/types/ops/OpsTypes';
-import type { Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
 
 const { decodeBase64 } = frodo.utils;
 const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
   frodo.utils;
 const {
-  getSaml2ProviderStubs,
-  getProviderByLocationAndId,
-  getSaml2ProviderStub,
-  getProviderMetadataUrl,
-  getProviderMetadata,
+  readSaml2ProviderStubs,
+  readSaml2Provider,
+  readSaml2ProviderStub,
+  getSaml2ProviderMetadataUrl,
+  getSaml2ProviderMetadata,
   exportSaml2Provider,
   exportSaml2Providers,
   importSaml2Provider,
@@ -95,7 +93,7 @@ export function getTableRowMd(saml2ProviderObj: Saml2ProviderSkeleton): string {
  * @param {boolean} long Long list format with details
  */
 export async function listSaml2Providers(long = false) {
-  const providerList = await getSaml2ProviderStubs();
+  const providerList = await readSaml2ProviderStubs();
   providerList.sort((a, b) => a._id.localeCompare(b._id));
   if (!long) {
     for (const provider of providerList) {
@@ -124,16 +122,15 @@ export async function listSaml2Providers(long = false) {
  */
 export async function describeSaml2Provider(entityId) {
   try {
-    const stub = await getSaml2ProviderStub(entityId);
+    const stub = await readSaml2ProviderStub(entityId);
     const { location } = stub;
-    const id = stub._id;
     const roles = stub.roles.map((role: string) => roleMap[role]).join(', ');
-    const rawProviderData = await getProviderByLocationAndId(location, id);
+    const rawProviderData = await readSaml2Provider(entityId);
     delete rawProviderData._id;
     delete rawProviderData._rev;
     rawProviderData.location = location;
     rawProviderData.roles = roles;
-    rawProviderData.metadataUrl = getProviderMetadataUrl(entityId);
+    rawProviderData.metadataUrl = getSaml2ProviderMetadataUrl(entityId);
     const table = createObjectTable(rawProviderData);
     printMessage(table.toString());
   } catch (error) {
@@ -154,7 +151,7 @@ export async function exportSaml2MetadataToFile(entityId, file = null) {
   createProgressBar(1, `Exporting metadata for: ${entityId}`);
   try {
     updateProgressBar(`Writing file ${fileName}`);
-    const metaData = await getProviderMetadata(entityId);
+    const metaData = await getSaml2ProviderMetadata(entityId);
     saveTextToFile(metaData, fileName);
     updateProgressBar(`Exported provider ${entityId}`);
     stopProgressBar(
@@ -223,7 +220,7 @@ export async function exportSaml2ProvidersToFile(file = null) {
  * Export all entity providers to individual files
  */
 export async function exportSaml2ProvidersToFiles() {
-  const stubs = await getSaml2ProviderStubs();
+  const stubs = await readSaml2ProviderStubs();
   if (stubs.length > 0) {
     createProgressBar(stubs.length, 'Exporting providers');
     for (const stub of stubs) {
@@ -308,29 +305,28 @@ export async function importSaml2ProvidersFromFiles() {
     name.toLowerCase().endsWith('.saml.json')
   );
   createProgressBar(jsonFiles.length, 'Importing providers...');
-  const totalStatus: MultiOpStatusInterface = {
-    total: 0,
-    successes: 0,
-    warnings: 0,
-    failures: 0,
-  };
+  let total = 0;
   for (const file of jsonFiles) {
-    const data = fs.readFileSync(file, 'utf8');
-    const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      const myStatus = await importSaml2Providers(fileData);
-      totalStatus.total += myStatus.total;
-      totalStatus.successes += myStatus.successes;
-      totalStatus.warnings += myStatus.warnings;
-      totalStatus.failures += myStatus.failures;
-      updateProgressBar(
-        `Imported ${myStatus.successes}/${myStatus.total} provider(s) from ${file}.`
+    try {
+      const data = fs.readFileSync(file, 'utf8');
+      const fileData = JSON.parse(data);
+      if (validateImport(fileData.meta)) {
+        const result = await importSaml2Providers(fileData);
+        total += result.length;
+        updateProgressBar(
+          `Imported ${result.length} provider(s) from ${file}.`
+        );
+      } else {
+        printMessage(`Validation of ${file} failed!`, 'error');
+      }
+    } catch (error) {
+      printMessage(
+        `Error importing providers from ${file}: ${error.message}`,
+        'error'
       );
-    } else {
-      printMessage(`Validation of ${file} failed!`, 'error');
     }
   }
   stopProgressBar(
-    `Imported ${totalStatus.successes} of ${totalStatus.total} provider(s) from ${jsonFiles.length} file(s).`
+    `Imported ${total} provider(s) from ${jsonFiles.length} file(s).`
   );
 }

@@ -1,10 +1,11 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo, state } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
+
 import { printMessage, verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
-const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.journey;
+const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 const program = new FrodoCommand('frodo journey prune');
 
@@ -27,16 +28,23 @@ program
         verboseMessage(
           `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
         );
-        const orphanedNodes = await findOrphanedNodes();
-        if (orphanedNodes.length > 0) {
-          const ok = await yesno({
-            question: 'Prune (permanently delete) orphaned nodes? (y|n):',
-          });
-          if (ok) {
-            await removeOrphanedNodes(orphanedNodes);
+        try {
+          const orphanedNodes = await findOrphanedNodes();
+          if (orphanedNodes.length > 0) {
+            const ok = await yesno({
+              question: 'Prune (permanently delete) orphaned nodes? (y|n):',
+            });
+            if (ok) {
+              await removeOrphanedNodes(orphanedNodes);
+            }
+          } else {
+            printMessage('No orphaned nodes found.');
           }
-        } else {
-          printMessage('No orphaned nodes found.');
+        } catch (error) {
+          printMessage(
+            `Error pruning orphaned nodes: ${error.message}`,
+            'error'
+          );
         }
       } else {
         process.exitCode = 1;

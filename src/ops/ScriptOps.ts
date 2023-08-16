@@ -1,6 +1,9 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
+import { type ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import chokidar from 'chokidar';
 import fs from 'fs';
+
 import {
   createProgressBar,
   createTable,
@@ -20,11 +23,9 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
-import type { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import type { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 const {
-  getScripts,
+  readScripts,
   exportScript,
   exportScriptByName,
   exportScripts,
@@ -76,7 +77,7 @@ export async function listScripts(long = false): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.listScripts: start`);
   try {
-    const scripts = await getScripts();
+    const scripts = await readScripts();
     scripts.sort((a, b) => a.name.localeCompare(b.name));
     if (long) {
       const table = createTable([
@@ -207,7 +208,7 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
 export async function exportScriptsToFiles(): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
-  const scriptList = await getScripts();
+  const scriptList = await readScripts();
   createProgressBar(
     scriptList.length,
     'Exporting scripts to individual files...'
@@ -235,7 +236,7 @@ export async function exportScriptsToFiles(): Promise<boolean> {
 export async function exportScriptsToFilesExtract(): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: start`);
-  const scriptList = await getScripts();
+  const scriptList = await readScripts();
   createProgressBar(
     scriptList.length,
     'Exporting scripts to individual files...'
@@ -295,7 +296,8 @@ export async function importScriptsFromFile(
     try {
       if (err) throw err;
       const importData = JSON.parse(data);
-      outcome = await importScripts(name, importData, reUuid);
+      await importScripts(name, importData, reUuid);
+      outcome = true;
     } catch (error) {
       printMessage(
         `Error exporting script '${name}': ${error.message}`,

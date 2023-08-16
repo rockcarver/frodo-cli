@@ -1,11 +1,12 @@
 import { frodo } from '@rockcarver/frodo-lib';
+
 import {
   createKeyValueTable,
   createTable,
   printMessage,
 } from '../utils/Console';
 
-const { getRealms, getRealmByName, putRealm } = frodo.realm;
+const { readRealms, readRealmByName, updateRealm } = frodo.realm;
 
 /**
  * List realms
@@ -13,7 +14,7 @@ const { getRealms, getRealmByName, putRealm } = frodo.realm;
  */
 export async function listRealms(long = false) {
   try {
-    const realms = (await getRealms()).result;
+    const realms = await readRealms();
     if (long) {
       const table = createTable([
         'Name'['brightCyan'],
@@ -50,7 +51,7 @@ export async function listRealms(long = false) {
  */
 export async function describeRealm(realm: string) {
   try {
-    const realmConfig = await getRealmByName(realm);
+    const realmConfig = await readRealmByName(realm);
     const table = createKeyValueTable();
     table.push(['Name'['brightCyan'], realmConfig.name]);
     table.push([
@@ -76,7 +77,7 @@ export async function describeRealm(realm: string) {
  */
 export async function addCustomDomain(realm: string, domain: string) {
   try {
-    let realmConfig = await getRealmByName(realm);
+    let realmConfig = await readRealmByName(realm);
     let exists = false;
     realmConfig.aliases.forEach((alias) => {
       if (domain.toLowerCase() === alias.toLowerCase()) {
@@ -86,7 +87,7 @@ export async function addCustomDomain(realm: string, domain: string) {
     if (!exists) {
       try {
         realmConfig.aliases.push(domain.toLowerCase());
-        realmConfig = await putRealm(realmConfig._id, realmConfig);
+        realmConfig = await updateRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([
@@ -118,14 +119,14 @@ export async function addCustomDomain(realm: string, domain: string) {
  */
 export async function removeCustomDomain(realm: string, domain: string) {
   try {
-    let realmConfig = await getRealmByName(realm);
+    let realmConfig = await readRealmByName(realm);
     const aliases = realmConfig.aliases.filter(
       (alias) => domain.toLowerCase() !== alias.toLowerCase()
     );
     if (aliases.length < realmConfig.aliases.length) {
       try {
         realmConfig.aliases = aliases;
-        realmConfig = await putRealm(realmConfig._id, realmConfig);
+        realmConfig = await updateRealm(realmConfig._id, realmConfig);
         const table = createKeyValueTable();
         table.push(['Name'['brightCyan'], realmConfig.name]);
         table.push([

@@ -1,10 +1,11 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { verboseMessage, printMessage } from '../../utils/Console';
+import { Option } from 'commander';
+
+import * as s from '../../help/SampleData';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
-import * as s from '../../help/SampleData';
+import { printMessage, verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;

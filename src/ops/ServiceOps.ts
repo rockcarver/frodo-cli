@@ -1,14 +1,15 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/ServiceOps';
 import fs from 'fs';
+
 import {
-  printMessage,
   createTable,
   debugMessage,
+  failSpinner,
+  printMessage,
   showSpinner,
   succeedSpinner,
-  failSpinner,
 } from '../utils/Console';
-import type { ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 const { getRealmName } = frodo.utils;
 const { getTypedFilename, titleCase, saveJsonToFile, getWorkingDirectory } =

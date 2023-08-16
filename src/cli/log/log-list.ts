@@ -1,7 +1,8 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { printMessage, verboseMessage } from '../../utils/Console';
+
 import { provisionCreds } from '../../ops/LogOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;

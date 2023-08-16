@@ -1,14 +1,15 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/AgentOps';
 import fs from 'fs';
+
 import {
-  printMessage,
   createTable,
   debugMessage,
+  failSpinner,
+  printMessage,
   showSpinner,
   succeedSpinner,
-  failSpinner,
 } from '../utils/Console';
-import type { AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import {
   getTypedFilename,
   saveJsonToFile,
@@ -18,10 +19,10 @@ import {
 const { getRealmName } = frodo.utils;
 const {
   createAgentExportTemplate,
-  getAgents,
-  getIdentityGatewayAgents,
-  getJavaAgents,
-  getWebAgents,
+  readAgents,
+  readIdentityGatewayAgents,
+  readJavaAgents,
+  readWebAgents,
   exportAgents,
   exportIdentityGatewayAgents,
   exportJavaAgents,
@@ -51,7 +52,7 @@ const agentTypeToFileIdMap = {
  */
 export async function listAgents(long = false) {
   try {
-    const agents = await getAgents();
+    const agents = await readAgents();
     if (long) {
       const table = createTable(['Agent Id', 'Status', 'Agent Type']);
       for (const agent of agents) {
@@ -90,7 +91,7 @@ export async function listAgents(long = false) {
  */
 export async function listIdentityGatewayAgents(long = false) {
   try {
-    const agents = await getIdentityGatewayAgents();
+    const agents = await readIdentityGatewayAgents();
     if (long) {
       const table = createTable(['Gateway Agent Id', 'Status']);
       for (const agent of agents) {
@@ -118,7 +119,7 @@ export async function listIdentityGatewayAgents(long = false) {
  */
 export async function listJavaAgents(long = false) {
   try {
-    const agents = await getJavaAgents();
+    const agents = await readJavaAgents();
     if (long) {
       const table = createTable(['Java Agent Id', 'Status']);
       for (const agent of agents) {
@@ -146,7 +147,7 @@ export async function listJavaAgents(long = false) {
  */
 export async function listWebAgents(long = false) {
   try {
-    const agents = await getWebAgents();
+    const agents = await readWebAgents();
     if (long) {
       const table = createTable(['Web Agent Id', 'Status']);
       for (const agent of agents) {
@@ -305,7 +306,7 @@ export async function exportWebAgentToFile(agentId, file) {
  * Export all agents to separate files
  */
 export async function exportAgentsToFiles() {
-  const agents = await getAgents();
+  const agents = await readAgents();
   debugMessage(`exportAgentsToFiles: ${agents.length} agents`);
   for (const agent of agents) {
     const fileName = getTypedFilename(
@@ -324,7 +325,7 @@ export async function exportAgentsToFiles() {
  * Export all identity gateway agents to separate files
  */
 export async function exportIdentityGatewayAgentsToFiles() {
-  const agents = await getIdentityGatewayAgents();
+  const agents = await readIdentityGatewayAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
@@ -340,7 +341,7 @@ export async function exportIdentityGatewayAgentsToFiles() {
  * Export all java agents to separate files
  */
 export async function exportJavaAgentsToFiles() {
-  const agents = await getJavaAgents();
+  const agents = await readJavaAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
@@ -356,7 +357,7 @@ export async function exportJavaAgentsToFiles() {
  * Export all web agents to separate files
  */
 export async function exportWebAgentsToFiles() {
-  const agents = await getWebAgents();
+  const agents = await readWebAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
       agent._id,
