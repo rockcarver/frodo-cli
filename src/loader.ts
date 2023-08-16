@@ -1,10 +1,10 @@
 import { builtinModules } from 'node:module';
+
 import { dirname } from 'path';
 import { cwd } from 'process';
+import resolveCallback from 'resolve/async.js';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { promisify } from 'util';
-
-import resolveCallback from 'resolve/async.js';
 
 const resolveAsync = promisify(resolveCallback);
 

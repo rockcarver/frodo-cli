@@ -1,23 +1,24 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { type ThemeSkeleton } from '@rockcarver/frodo-lib/types/ops/ThemeOps';
 import fs from 'fs';
-import type { ThemeSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+
 import {
-  printMessage,
-  createTable,
   createProgressIndicator,
-  updateProgressIndicator,
+  createTable,
+  printMessage,
   stopProgressIndicator,
+  updateProgressIndicator,
 } from '../utils/Console';
-import { saveToFile, getTypedFilename } from '../utils/ExportImportUtils';
+import { getTypedFilename, saveToFile } from '../utils/ExportImportUtils';
 
 const { getRealmString, validateImport } = frodo.utils;
 const {
-  getThemes,
-  getThemeByName,
-  getTheme,
-  putThemeByName,
-  putTheme,
-  putThemes,
+  readThemes,
+  readThemeByName,
+  readTheme,
+  updateThemeByName,
+  updateTheme,
+  updateThemes,
   deleteTheme,
   deleteThemeByName,
   deleteThemes,
@@ -65,7 +66,7 @@ export function getTableRowMd(themeObj: ThemeSkeleton): string {
  * @param {boolean} long Long version, more fields
  */
 export async function listThemes(long = false) {
-  const themeList = await getThemes();
+  const themeList = await readThemes();
   themeList.sort((a, b) => a.name.localeCompare(b.name));
   if (!long) {
     themeList.forEach((theme) => {
@@ -103,7 +104,7 @@ export async function exportThemeByName(name, file) {
   }
   createProgressIndicator('determinate', 1, `Exporting ${name}`);
   try {
-    const themeData = await getThemeByName(name);
+    const themeData = await readThemeByName(name);
     updateProgressIndicator(`Writing file ${fileName}`);
     saveToFile('theme', [themeData], '_id', fileName);
     stopProgressIndicator(`Successfully exported theme ${name}.`);
@@ -125,7 +126,7 @@ export async function exportThemeById(id, file) {
   }
   createProgressIndicator('determinate', 1, `Exporting ${id}`);
   try {
-    const themeData = await getTheme(id);
+    const themeData = await readTheme(id);
     updateProgressIndicator(`Writing file ${fileName}`);
     saveToFile('theme', [themeData], '_id', fileName);
     stopProgressIndicator(`Successfully exported theme ${id}.`);
@@ -144,7 +145,7 @@ export async function exportThemesToFile(file) {
   if (file) {
     fileName = file;
   }
-  const allThemesData = await getThemes();
+  const allThemesData = await readThemes();
   createProgressIndicator(
     'determinate',
     allThemesData.length,
@@ -163,7 +164,7 @@ export async function exportThemesToFile(file) {
  * Export all themes to separate files
  */
 export async function exportThemesToFiles() {
-  const allThemesData = await getThemes();
+  const allThemesData = await readThemes();
   createProgressIndicator(
     'determinate',
     allThemesData.length,
@@ -195,7 +196,7 @@ export async function importThemeByName(name, file) {
             found = true;
             updateProgressIndicator(`Importing ${themeData.theme[id].name}`);
             try {
-              await putThemeByName(name, themeData.theme[id]);
+              await updateThemeByName(name, themeData.theme[id]);
               stopProgressIndicator(`Successfully imported theme ${name}.`);
             } catch (error) {
               stopProgressIndicator(
@@ -239,7 +240,7 @@ export async function importThemeById(id, file) {
               `Importing ${themeData.theme[themeId]._id}`
             );
             try {
-              await putTheme(themeId, themeData.theme[themeId]);
+              await updateTheme(themeId, themeData.theme[themeId]);
               stopProgressIndicator(`Successfully imported theme ${id}.`);
             } catch (error) {
               stopProgressIndicator(
@@ -282,7 +283,7 @@ export async function importThemesFromFile(file) {
           updateProgressIndicator(`Importing ${fileData.theme[id].name}`);
         }
       }
-      putThemes(fileData.theme).then((result) => {
+      updateThemes(fileData.theme).then((result) => {
         if (result == null) {
           stopProgressIndicator(
             `Error importing ${Object.keys(fileData.theme).length} themes!`
@@ -331,7 +332,7 @@ export async function importThemesFromFiles() {
     if (validateImport(fileData.meta)) {
       count = Object.keys(fileData.theme).length;
       // eslint-disable-next-line no-await-in-loop
-      const result = await putThemes(fileData.theme);
+      const result = await updateThemes(fileData.theme);
       if (result == null) {
         printMessage(`Error importing ${count} themes from ${file}`, 'error');
       } else {
@@ -361,7 +362,7 @@ export async function importFirstThemeFromFile(file) {
       for (const id in themeData.theme) {
         if ({}.hasOwnProperty.call(themeData.theme, id)) {
           updateProgressIndicator(`Importing ${themeData.theme[id].name}`);
-          putTheme(id, themeData.theme[id]).then((result) => {
+          updateTheme(id, themeData.theme[id]).then((result) => {
             if (result == null) {
               stopProgressIndicator(
                 `Error importing theme ${themeData.theme[id].name}`

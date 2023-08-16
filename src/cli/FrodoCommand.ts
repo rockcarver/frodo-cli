@@ -1,15 +1,16 @@
-import { Argument, Command, Option } from 'commander';
-import * as globalConfig from '../storage/StaticStorage';
 import { state } from '@rockcarver/frodo-lib';
+import { Argument, Command, Option } from 'commander';
 import fs from 'fs';
+
+import * as globalConfig from '../storage/StaticStorage';
 import {
-  printMessage,
   createProgressIndicator,
-  updateProgressIndicator,
-  stopProgressIndicator,
-  verboseMessage,
-  debugMessage,
   curlirizeMessage,
+  debugMessage,
+  printMessage,
+  stopProgressIndicator,
+  updateProgressIndicator,
+  verboseMessage,
 } from '../utils/Console.js';
 
 const hostArgument = new Argument(

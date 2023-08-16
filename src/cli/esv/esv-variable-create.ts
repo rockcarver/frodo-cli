@@ -1,8 +1,9 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console.js';
-import { createVariable } from '../../ops/VariablesOps';
+
 import * as s from '../../help/SampleData';
+import { createVariable } from '../../ops/VariablesOps';
+import { verboseMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

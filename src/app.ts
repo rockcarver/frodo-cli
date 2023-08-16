@@ -4,8 +4,8 @@ import { Command } from 'commander';
 // commands
 import admin from './cli/admin/admin';
 import agent from './cli/agent/agent';
-import authz from './cli/authz/authz';
 import app from './cli/app/app';
+import authz from './cli/authz/authz';
 import conn from './cli/conn/conn';
 import email from './cli/email/email';
 import esv from './cli/esv/esv';

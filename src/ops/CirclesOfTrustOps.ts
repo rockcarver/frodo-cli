@@ -1,5 +1,8 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { type CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
+import { type CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import fs from 'fs';
+
 import {
   createProgressBar,
   createTable,
@@ -11,17 +14,15 @@ import {
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
-import type { CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   getTypedFilename,
   saveJsonToFile,
   titleCase,
 } from '../utils/ExportImportUtils';
-import type { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 
 const { getRealmName } = frodo.utils;
 const {
-  getCirclesOfTrust,
+  readCirclesOfTrust,
   exportCircleOfTrust,
   exportCirclesOfTrust,
   importCircleOfTrust,
@@ -74,9 +75,9 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
   let outcome = false;
   let cotList = [];
   try {
-    cotList = await getCirclesOfTrust();
+    cotList = await readCirclesOfTrust();
   } catch (error) {
-    printMessage(`getCirclesOfTrust ERROR: ${error}`, 'error');
+    printMessage(`readCirclesOfTrust ERROR: ${error}`, 'error');
     printMessage(error, 'data');
   }
   cotList.sort((a, b) => a._id.localeCompare(b._id));
@@ -172,7 +173,7 @@ export async function exportCirclesOfTrustToFiles(): Promise<boolean> {
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: begin`);
   const errors = [];
   try {
-    const cots: CircleOfTrustSkeleton[] = await getCirclesOfTrust();
+    const cots: CircleOfTrustSkeleton[] = await readCirclesOfTrust();
     createProgressBar(cots.length, 'Exporting circles of trust...');
     for (const cot of cots) {
       const file = getTypedFilename(cot._id, 'cot.saml');

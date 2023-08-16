@@ -1,5 +1,6 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo } from '@rockcarver/frodo-lib';
+
+import { FrodoCommand } from '../FrodoCommand';
 
 const program = new FrodoCommand('frodo conn delete', [
   'realm',

@@ -1,10 +1,11 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo } from '@rockcarver/frodo-lib';
+import fuzzy from 'fuzzy';
+import inquirer from 'inquirer';
+import inquirerPrompt from 'inquirer-autocomplete-prompt';
+
 import * as s from '../../help/SampleData';
 import { printMessage } from '../../utils/Console';
-import inquirer from 'inquirer';
-import fuzzy from 'fuzzy';
-import inquirerPrompt from 'inquirer-autocomplete-prompt';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

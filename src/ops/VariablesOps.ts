@@ -1,4 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
+
 import {
   createKeyValueTable,
   createProgressBar,
@@ -11,11 +13,14 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
-import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
 const { decodeBase64 } = frodo.utils;
 const { resolveUserName } = frodo.idm.managed;
-const { getVariables, getVariable, putVariable } = frodo.cloud.variable;
+const {
+  readVariables,
+  readVariable,
+  updateVariable: _updateVariable,
+} = frodo.cloud.variable;
 
 /**
  * List variables
@@ -24,7 +29,7 @@ const { getVariables, getVariable, putVariable } = frodo.cloud.variable;
 export async function listVariables(long) {
   let variables = [];
   try {
-    variables = await getVariables();
+    variables = await readVariables();
     variables.sort((a, b) => a._id.localeCompare(b._id));
   } catch (error) {
     printMessage(`${error.message}`, 'error');
@@ -72,7 +77,7 @@ export async function createVariable(
 ) {
   showSpinner(`Creating variable ${variableId}...`);
   try {
-    await putVariable(variableId, value, description, type);
+    await _updateVariable(variableId, value, description, type);
     succeedSpinner(`Created variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -90,7 +95,7 @@ export async function createVariable(
 export async function updateVariable(variableId, value, description) {
   showSpinner(`Updating variable ${variableId}...`);
   try {
-    await putVariable(variableId, value, description);
+    await _updateVariable(variableId, value, description);
     succeedSpinner(`Updated variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -137,7 +142,7 @@ export async function deleteVariable(variableId) {
  */
 export async function deleteVariables() {
   try {
-    const variables = await getVariables();
+    const variables = await readVariables();
     createProgressBar(variables.length, `Deleting variable...`);
     for (const variable of variables) {
       try {
@@ -167,7 +172,7 @@ export async function deleteVariables() {
  * @param {string} variableId variable id
  */
 export async function describeVariable(variableId) {
-  const variable = await getVariable(variableId);
+  const variable = await readVariable(variableId);
   const table = createKeyValueTable();
   table.push(['Name'['brightCyan'], variable._id]);
   table.push([

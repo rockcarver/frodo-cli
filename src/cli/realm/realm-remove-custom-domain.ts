@@ -1,7 +1,8 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
 import { verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { removeCustomDomain } = frodo.realm;

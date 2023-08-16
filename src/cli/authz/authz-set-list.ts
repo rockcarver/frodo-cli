@@ -1,7 +1,8 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console.js';
+
 import { listPolicySets } from '../../ops/PolicySetOps';
+import { verboseMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

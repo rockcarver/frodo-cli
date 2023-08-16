@@ -1,28 +1,29 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 import fs from 'fs';
-import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
+import path from 'path';
+
 import {
   createProgressIndicator,
-  updateProgressIndicator,
-  stopProgressIndicator,
-  printMessage,
   createTable,
-  showSpinner,
-  succeedSpinner,
-  failSpinner,
   debugMessage,
+  failSpinner,
+  printMessage,
+  showSpinner,
+  stopProgressIndicator,
+  succeedSpinner,
+  updateProgressIndicator,
 } from '../utils/Console';
-import wordwrap from './utils/Wordwrap';
-import path from 'path';
+import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 import { cloneDeep } from './utils/OpsUtils';
-import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
+import wordwrap from './utils/Wordwrap';
 
 const { validateImport } = frodo.utils;
 const {
   EMAIL_TEMPLATE_TYPE,
-  getEmailTemplates,
-  getEmailTemplate,
-  putEmailTemplate,
+  readEmailTemplates,
+  readEmailTemplate,
+  updateEmailTemplate,
 } = frodo.email.template;
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
@@ -96,7 +97,7 @@ export function getTableRowMd(templateObj: EmailTemplateSkeleton): string {
 export async function listEmailTemplates(long = false): Promise<unknown[]> {
   let emailTemplates = [];
   try {
-    emailTemplates = await getEmailTemplates();
+    emailTemplates = await readEmailTemplates();
   } catch (error) {
     printMessage(`Error retrieving email templates: ${error.message}`, 'error');
   }
@@ -161,7 +162,7 @@ export async function exportEmailTemplateToFile(
   }
   createProgressIndicator('determinate', 1, `Exporting ${templateId}`);
   try {
-    const templateData = await getEmailTemplate(templateId);
+    const templateData = await readEmailTemplate(templateId);
     updateProgressIndicator(`Writing file ${fileName}`);
     const fileData = getFileDataTemplate();
     fileData.emailTemplate[templateId] = templateData;
@@ -186,7 +187,7 @@ export async function exportEmailTemplatesToFile(file) {
   }
   try {
     const fileData = getFileDataTemplate();
-    const templates = await getEmailTemplates();
+    const templates = await readEmailTemplates();
     createProgressIndicator(
       'determinate',
       templates.length,
@@ -212,7 +213,7 @@ export async function exportEmailTemplatesToFile(file) {
  */
 export async function exportEmailTemplatesToFiles() {
   try {
-    const templates = await getEmailTemplates();
+    const templates = await readEmailTemplates();
     createProgressIndicator(
       'determinate',
       templates.length,
@@ -259,12 +260,12 @@ export async function importEmailTemplateFromFile(
           const emailTemplateData = raw
             ? s2sConvert(fileData)
             : fileData.emailTemplate[templateId];
-          await putEmailTemplate(templateId, emailTemplateData);
+          await updateEmailTemplate(templateId, emailTemplateData);
           updateProgressIndicator(`Importing ${templateId}`);
           stopProgressIndicator(`Imported ${templateId}`);
-        } catch (putEmailTemplateError) {
-          stopProgressIndicator(`${putEmailTemplateError}`);
-          printMessage(putEmailTemplateError, 'error');
+        } catch (updateEmailTemplateError) {
+          stopProgressIndicator(`${updateEmailTemplateError}`);
+          printMessage(updateEmailTemplateError, 'error');
         }
       } else {
         stopProgressIndicator(
@@ -299,14 +300,14 @@ export async function importEmailTemplatesFromFile(file: string) {
         if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
           const templateId = id.replace(regexEmailTemplateType, '');
           try {
-            await putEmailTemplate(
+            await updateEmailTemplate(
               templateId,
               fileData.emailTemplate[templateId]
             );
             updateProgressIndicator(`Imported ${templateId}`);
-          } catch (putEmailTemplateError) {
+          } catch (updateEmailTemplateError) {
             printMessage(`\nError importing ${templateId}`, 'error');
-            printMessage(putEmailTemplateError.response.data, 'error');
+            printMessage(updateEmailTemplateError.response.data, 'error');
           }
         }
       }
@@ -322,12 +323,14 @@ export async function importEmailTemplatesFromFile(file: string) {
  * @param {string} file file name
  * @returns {string} email template id/name
  */
-function getEmailTemplateIdFromFile(file: string) {
-  debugMessage(`cli.EmailTemplateOps.getEmailTemplateIdFromFile: file=${file}`);
+function readEmailTemplateIdFromFile(file: string) {
+  debugMessage(
+    `cli.EmailTemplateOps.readEmailTemplateIdFromFile: file=${file}`
+  );
   const fileName = path.basename(file);
   const templateId = fileName.substring(14, fileName.indexOf('.'));
   debugMessage(
-    `cli.EmailTemplateOps.getEmailTemplateIdFromFile: templateId=${templateId}`
+    `cli.EmailTemplateOps.readEmailTemplateIdFromFile: templateId=${templateId}`
   );
   return templateId;
 }
@@ -383,15 +386,15 @@ export async function importEmailTemplatesFromFiles(raw = false) {
       let errors = 0;
       if (raw) {
         total++;
-        const templateId = getEmailTemplateIdFromFile(file);
+        const templateId = readEmailTemplateIdFromFile(file);
         try {
           const templateData = s2sConvert(fileData);
-          await putEmailTemplate(templateId, templateData);
-        } catch (putEmailTemplateError) {
+          await updateEmailTemplate(templateId, templateData);
+        } catch (updateEmailTemplateError) {
           errors += 1;
           printMessage(`\nError importing ${templateId}`, 'error');
-          printMessage(putEmailTemplateError, 'error');
-          printMessage(putEmailTemplateError.response?.data, 'error');
+          printMessage(updateEmailTemplateError, 'error');
+          printMessage(updateEmailTemplateError.response?.data, 'error');
         }
       } else {
         total += Object.keys(fileData.emailTemplate).length;
@@ -399,14 +402,14 @@ export async function importEmailTemplatesFromFiles(raw = false) {
           if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
             const templateId = id.replace(regexEmailTemplateType, '');
             try {
-              await putEmailTemplate(
+              await updateEmailTemplate(
                 templateId,
                 fileData.emailTemplate[templateId]
               );
-            } catch (putEmailTemplateError) {
+            } catch (updateEmailTemplateError) {
               errors += 1;
               printMessage(`\nError importing ${templateId}`, 'error');
-              printMessage(putEmailTemplateError.response.data, 'error');
+              printMessage(updateEmailTemplateError.response.data, 'error');
             }
           }
         }
@@ -441,27 +444,27 @@ export async function importFirstEmailTemplateFromFile(
     ) {
       showSpinner(`Importing first email template`);
       if (raw) {
-        const templateId = getEmailTemplateIdFromFile(file);
+        const templateId = readEmailTemplateIdFromFile(file);
         try {
           const templateData = s2sConvert(fileData);
-          await putEmailTemplate(templateId, templateData);
+          await updateEmailTemplate(templateId, templateData);
           succeedSpinner(`Imported ${templateId}`);
-        } catch (putEmailTemplateError) {
+        } catch (updateEmailTemplateError) {
           failSpinner(`Error importing ${templateId}`);
-          printMessage(putEmailTemplateError.response?.data, 'error');
+          printMessage(updateEmailTemplateError.response?.data, 'error');
         }
       } else {
         for (const id in fileData.emailTemplate) {
           if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
             try {
-              await putEmailTemplate(
+              await updateEmailTemplate(
                 id.replace(regexEmailTemplateType, ''),
                 fileData.emailTemplate[id]
               );
               succeedSpinner(`Imported ${id}`);
-            } catch (putEmailTemplateError) {
+            } catch (updateEmailTemplateError) {
               failSpinner(`Error importing ${id}`);
-              printMessage(putEmailTemplateError.response?.data, 'error');
+              printMessage(updateEmailTemplateError.response?.data, 'error');
             }
             break;
           }

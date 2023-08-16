@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { MultiBar, Presets } from 'cli-progress';
-import { createSpinner } from 'nanospinner';
 import Table from 'cli-table3';
 import Color from 'colors';
+import { createSpinner } from 'nanospinner';
 
 Color.enable();
 

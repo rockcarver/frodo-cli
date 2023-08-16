@@ -1,10 +1,11 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { frodo } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console';
+
 import {
   listAllConfigEntities,
   warnAboutOfflineConnectorServers,
 } from '../../ops/IdmOps';
+import { verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

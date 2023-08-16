@@ -1,8 +1,9 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import yesno from 'yesno';
+
 import { createTable, printMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 const { checkForUpdates, applyUpdates } = frodo.cloud.startup;

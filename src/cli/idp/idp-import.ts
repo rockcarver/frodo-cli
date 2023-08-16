@@ -1,13 +1,14 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { Option } from 'commander';
+
 import {
-  importFirstSocialProviderFromFile,
-  importSocialProviderFromFile,
-  importSocialProvidersFromFile,
-  importSocialProvidersFromFiles,
+  importFirstSocialIdentityProviderFromFile,
+  importSocialIdentityProviderFromFile,
+  importSocialIdentityProvidersFromFile,
+  importSocialIdentityProvidersFromFiles,
 } from '../../ops/IdpOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
@@ -57,21 +58,21 @@ program
             options.idpId
           }" into realm "${state.getRealm()}"...`
         );
-        importSocialProviderFromFile(options.idpId, options.file);
+        importSocialIdentityProviderFromFile(options.idpId, options.file);
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        importSocialProvidersFromFile(options.file);
+        importSocialIdentityProvidersFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files in current directory...'
         );
-        importSocialProvidersFromFiles();
+        importSocialIdentityProvidersFromFiles();
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -80,7 +81,7 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        importFirstSocialProviderFromFile(options.file);
+        importFirstSocialIdentityProviderFromFile(options.file);
       }
       // unrecognized combination of options or no options
       else {

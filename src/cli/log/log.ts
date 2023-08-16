@@ -1,7 +1,8 @@
-import { FrodoStubCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import { FrodoStubCommand } from '../FrodoCommand';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

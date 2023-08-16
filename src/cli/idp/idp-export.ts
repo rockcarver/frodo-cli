@@ -1,12 +1,13 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { Option } from 'commander';
+
 import {
-  exportSocialProvidersToFile,
-  exportSocialProvidersToFiles,
-  exportSocialProviderToFile,
+  exportSocialIdentityProvidersToFile,
+  exportSocialIdentityProvidersToFiles,
+  exportSocialIdentityProviderToFile,
 } from '../../ops/IdpOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
@@ -57,17 +58,17 @@ program
               options.idpId
             }" from realm "${state.getRealm()}"...`
           );
-          exportSocialProviderToFile(options.idpId, options.file);
+          exportSocialIdentityProviderToFile(options.idpId, options.file);
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all providers to a single file...');
-          exportSocialProvidersToFile(options.file);
+          exportSocialIdentityProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all providers to separate files...');
-          exportSocialProvidersToFiles();
+          exportSocialIdentityProvidersToFiles();
         }
         // unrecognized combination of options or no options
         else {

@@ -1,6 +1,6 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
 import {
   importFirstServiceFromFile,
   importServiceFromFile,
@@ -8,6 +8,7 @@ import {
   importServicesFromFiles,
 } from '../../ops/ServiceOps.js';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

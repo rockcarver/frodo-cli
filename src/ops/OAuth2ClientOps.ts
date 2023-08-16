@@ -1,5 +1,12 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import type {
+  OAuth2ClientExportInterface,
+  OAuth2ClientExportOptions,
+  OAuth2ClientImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 import fs from 'fs';
+
 import {
   createProgressBar,
   createTable,
@@ -12,16 +19,10 @@ import {
   updateProgressBar,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
-import type {
-  OAuth2ClientExportInterface,
-  OAuth2ClientExportOptions,
-  OAuth2ClientImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
-import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 
 const { getTypedFilename, titleCase } = frodo.utils;
 const {
-  getOAuth2Clients,
+  readOAuth2Clients,
   exportOAuth2Client,
   exportOAuth2Clients,
   importOAuth2Client,
@@ -34,7 +35,7 @@ const {
  */
 export async function listOAuth2Clients(long = false) {
   try {
-    const clients = await getOAuth2Clients();
+    const clients = await readOAuth2Clients();
     clients.sort((a, b) => a._id.localeCompare(b._id));
     if (long) {
       const table = createTable([
@@ -164,7 +165,7 @@ export async function exportOAuth2ClientsToFiles(
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: begin`);
   const errors = [];
   try {
-    const clients = await getOAuth2Clients();
+    const clients = await readOAuth2Clients();
     createProgressBar(clients.length, 'Exporting clients...');
     for (const client of clients) {
       const file = getTypedFilename(client._id, 'oauth2.app');

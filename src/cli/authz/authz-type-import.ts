@@ -1,7 +1,6 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console';
+import { Option } from 'commander';
+
 import {
   importFirstResourceTypeFromFile,
   importResourceTypeByNameFromFile,
@@ -9,6 +8,8 @@ import {
   importResourceTypesFromFile,
   importResourceTypesFromFiles,
 } from '../../ops/ResourceTypeOps';
+import { verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

@@ -1,6 +1,7 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

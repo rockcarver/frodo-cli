@@ -1,13 +1,14 @@
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
-import { verboseMessage } from '../../utils/Console';
+import { Option } from 'commander';
+
 import {
   exportResourceTypeByNameToFile,
-  exportResourceTypeToFile,
   exportResourceTypesToFile,
   exportResourceTypesToFiles,
+  exportResourceTypeToFile,
 } from '../../ops/ResourceTypeOps';
+import { verboseMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 

@@ -1,13 +1,14 @@
-import fs from 'fs';
-import { FrodoCommand } from '../FrodoCommand';
-import { Option } from 'commander';
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+import fs from 'fs';
+
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { saveTextToFile } from '../../utils/ExportImportUtils';
+import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
-const { createFileParamTreeExportResolver, getJourneys, exportJourney } =
+const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
   frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey describe');
@@ -136,7 +137,7 @@ program
         }
         if (typeof options.journeyId === 'undefined') {
           let journeys = [];
-          journeys = await getJourneys();
+          journeys = await readJourneys();
           for (const journey of journeys) {
             try {
               // eslint-disable-next-line no-await-in-loop, dot-notation

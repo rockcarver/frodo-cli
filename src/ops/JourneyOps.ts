@@ -1,28 +1,27 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import fs from 'fs';
-import type {
-  NodeSkeleton,
-  TreeSkeleton,
-} from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import type {
-  JourneyClassificationType,
-  MultiTreeExportInterface,
-  SingleTreeExportInterface,
-  TreeDependencyMapInterface,
-  TreeExportOptions,
-  TreeExportResolverInterface,
-  TreeImportOptions,
-} from '@rockcarver/frodo-lib/types/ops/OpsTypes';
+import { type NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
+import { type TreeSkeleton } from '@rockcarver/frodo-lib/types/api/TreeApi';
 import {
-  printMessage,
+  type JourneyClassificationType,
+  type MultiTreeExportInterface,
+  type SingleTreeExportInterface,
+  type TreeDependencyMapInterface,
+  type TreeExportOptions,
+  type TreeExportResolverInterface,
+  type TreeImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/JourneyOps';
+import fs from 'fs';
+
+import {
   createProgressBar,
-  updateProgressBar,
-  stopProgressBar,
-  showSpinner,
-  succeedSpinner,
-  failSpinner,
   createTable,
   debugMessage,
+  failSpinner,
+  printMessage,
+  showSpinner,
+  stopProgressBar,
+  succeedSpinner,
+  updateProgressBar,
 } from '../utils/Console';
 import * as CirclesOfTrust from './CirclesOfTrustOps';
 import * as EmailTemplate from './EmailTemplateOps';
@@ -31,20 +30,21 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import wordwrap from './utils/Wordwrap';
 import { cloneDeep } from './utils/OpsUtils';
+import wordwrap from './utils/Wordwrap';
 
 const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils;
 const {
-  getJourneys,
+  readJourneys,
   exportJourney,
   createMultiTreeExportTemplate,
   resolveDependencies,
-  importAllJourneys,
+  importJourneys,
   importJourney,
   getTreeDescendents,
   getNodeRef,
   onlineTreeExportResolver,
+  getJourneyClassification: _getJourneyClassification,
 } = frodo.authn.journey;
 
 /**
@@ -59,7 +59,7 @@ export async function listJourneys(
 ): Promise<TreeSkeleton[]> {
   let journeys = [];
   try {
-    journeys = await getJourneys();
+    journeys = await readJourneys();
     if (!long && !analyze) {
       for (const journeyStub of journeys) {
         printMessage(`${journeyStub['_id']}`, 'data');
@@ -191,7 +191,7 @@ export async function exportJourneysToFile(
   if (!fileName) {
     fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journeys');
   }
-  const trees = await getJourneys();
+  const trees = await readJourneys();
   const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
@@ -215,7 +215,7 @@ export async function exportJourneysToFile(
 export async function exportJourneysToFiles(
   options: TreeExportOptions
 ): Promise<void> {
-  const trees = await getJourneys();
+  const trees = await readJourneys();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
     updateProgressBar(`${tree._id}`);
@@ -258,7 +258,7 @@ export async function importJourneyFromFile(
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId === journeyData.tree._id) {
       // attempt dependency resolution for single tree import
-      const installedJourneys = (await getJourneys()).map((x) => x._id);
+      const installedJourneys = (await readJourneys()).map((x) => x._id);
       const unresolvedJourneys = {};
       const resolvedJourneys = [];
       showSpinner('Resolving dependencies');
@@ -330,7 +330,7 @@ export async function importFirstJourneyFromFile(
     // if a journeyId was specified, only import the matching journey
     if (journeyData && journeyId) {
       // attempt dependency resolution for single tree import
-      const installedJourneys = (await getJourneys()).map((x) => x._id);
+      const installedJourneys = (await readJourneys()).map((x) => x._id);
       const unresolvedJourneys = {};
       const resolvedJourneys = [];
       showSpinner('Resolving dependencies');
@@ -383,7 +383,7 @@ export async function importJourneysFromFile(
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
-      importAllJourneys(fileData.trees, options);
+      importJourneys(fileData.trees, options);
     } catch (error) {
       if (error.name === 'UnresolvedDependenciesError') {
         for (const journey of Object.keys(error.unresolvedJourneys)) {
@@ -393,6 +393,8 @@ export async function importJourneysFromFile(
             state,
           });
         }
+      } else {
+        printMessage(`${error.message}`, 'error');
       }
     }
   });
@@ -412,7 +414,14 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
     const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
     allJourneysData.trees[journeyData.tree._id] = journeyData;
   }
-  importAllJourneys(allJourneysData.trees as MultiTreeExportInterface, options);
+  try {
+    await importJourneys(
+      allJourneysData.trees as MultiTreeExportInterface,
+      options
+    );
+  } catch (error) {
+    printMessage(`${error.response?.data?.message || error.message}`, 'error');
+  }
 }
 
 /**
@@ -423,7 +432,7 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
 export function getJourneyClassification(
   journey: SingleTreeExportInterface
 ): JourneyClassificationType[] {
-  return getJourneyClassification(journey).map((it) => {
+  return _getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
         return it['brightGreen'];
@@ -448,7 +457,7 @@ export function getJourneyClassification(
 export function getJourneyClassificationMd(
   journey: SingleTreeExportInterface
 ): string[] {
-  return getJourneyClassification(journey).map((it) => {
+  return _getJourneyClassification(journey).map((it) => {
     switch (it) {
       case 'standard':
         return `:green_circle: \`${it}\``;
@@ -620,8 +629,16 @@ export async function describeJourney(
   }
 
   // Dependency Tree
-  const descendents = await getTreeDescendents(journeyData, resolveTreeExport);
-  describeTreeDescendents(descendents);
+  try {
+    const descendents = await getTreeDescendents(
+      journeyData,
+      resolveTreeExport
+    );
+    describeTreeDescendents(descendents);
+  } catch (error) {
+    printMessage(`Error resolving inner tree dependencies:`, 'error');
+    printMessage(error.stack, 'error');
+  }
 
   // Node Types
   if (Object.entries(nodeTypeMap).length) {

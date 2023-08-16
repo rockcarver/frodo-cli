@@ -4,6 +4,7 @@ import fse from 'fs-extra';
 import path from 'path';
 import propertiesReader from 'properties-reader';
 import replaceall from 'replaceall';
+
 import {
   createProgressIndicator,
   printMessage,
@@ -14,11 +15,11 @@ import { getTypedFilename, readFiles } from '../utils/ExportImportUtils';
 const { unSubstituteEnvParams, validateScriptHooks } = frodo.utils;
 const {
   testConnectorServers,
-  getAllConfigEntities,
-  getConfigEntity,
-  putConfigEntity,
-  queryAllManagedObjectsByType,
+  readConfigEntities,
+  readConfigEntity,
+  updateConfigEntity,
 } = frodo.idm.config;
+const { queryManagedObjects } = frodo.idm.managed;
 
 /**
  * Warn about and list offline remote connector servers
@@ -51,14 +52,14 @@ export async function warnAboutOfflineConnectorServers() {
  */
 export async function listAllConfigEntities() {
   try {
-    const { configurations } = await getAllConfigEntities();
+    const configurations = await readConfigEntities();
     for (const configEntity of configurations) {
       printMessage(`${configEntity._id}`, 'data');
     }
-  } catch (getAllConfigEntitiesError) {
-    printMessage(getAllConfigEntitiesError, 'error');
+  } catch (readConfigEntitiesError) {
+    printMessage(readConfigEntitiesError, 'error');
     printMessage(
-      `Error getting config entities: ${getAllConfigEntitiesError}`,
+      `Error getting config entities: ${readConfigEntitiesError}`,
       'error'
     );
   }
@@ -74,7 +75,7 @@ export async function exportConfigEntity(id, file) {
   if (!fileName) {
     fileName = getTypedFilename(`${id}`, 'idm');
   }
-  const configEntity = await getConfigEntity(id);
+  const configEntity = await readConfigEntity(id);
   fs.writeFile(fileName, JSON.stringify(configEntity, null, 2), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${id} export to file`, 'error');
@@ -89,7 +90,7 @@ export async function exportConfigEntity(id, file) {
  */
 export async function exportAllRawConfigEntities(directory) {
   try {
-    const { configurations } = await getAllConfigEntities();
+    const configurations = await readConfigEntities();
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory);
     }
@@ -101,11 +102,11 @@ export async function exportAllRawConfigEntities(directory) {
     const entityPromises = [];
     for (const configEntity of configurations) {
       entityPromises.push(
-        getConfigEntity(configEntity._id).catch((getConfigEntityError) => {
+        readConfigEntity(configEntity._id).catch((readConfigEntityError) => {
           if (
             !(
-              getConfigEntityError.response?.status === 403 &&
-              getConfigEntityError.response?.data?.message ===
+              readConfigEntityError.response?.status === 403 &&
+              readConfigEntityError.response?.data?.message ===
                 'This operation is not available in ForgeRock Identity Cloud.'
             ) &&
             !(
@@ -126,20 +127,20 @@ export async function exportAllRawConfigEntities(directory) {
                   'endpoint/mappingDetails',
                   'fieldPolicy/teammember',
                 ].includes(configEntity._id) &&
-                getConfigEntityError.response?.status === 404 &&
-                getConfigEntityError.response?.data?.reason === 'Not Found'
+                readConfigEntityError.response?.status === 404 &&
+                readConfigEntityError.response?.data?.reason === 'Not Found'
               )
             ) &&
             // https://bugster.forgerock.org/jira/browse/OPENIDM-18270
             !(
-              getConfigEntityError.response?.status === 404 &&
-              getConfigEntityError.response?.data?.message ===
+              readConfigEntityError.response?.status === 404 &&
+              readConfigEntityError.response?.data?.message ===
                 'No configuration exists for id org.apache.felix.fileinstall/openidm'
             )
           ) {
-            printMessage(getConfigEntityError.response?.data, 'error');
+            printMessage(readConfigEntityError.response?.data, 'error');
             printMessage(
-              `Error getting config entity ${configEntity._id}: ${getConfigEntityError}`,
+              `Error getting config entity ${configEntity._id}: ${readConfigEntityError}`,
               'error'
             );
           }
@@ -164,10 +165,10 @@ export async function exportAllRawConfigEntities(directory) {
       }
     }
     stopProgressIndicator('Exported config objects.', 'success');
-  } catch (getAllConfigEntitiesError) {
-    printMessage(getAllConfigEntitiesError, 'error');
+  } catch (readConfigEntitiesError) {
+    printMessage(readConfigEntitiesError, 'error');
     printMessage(
-      `Error getting config entities: ${getAllConfigEntitiesError}`,
+      `Error getting config entities: ${readConfigEntitiesError}`,
       'error'
     );
   }
@@ -196,7 +197,7 @@ export async function exportAllConfigEntities(
     const envParams = propertiesReader(envFile);
 
     try {
-      const { configurations } = await getAllConfigEntities();
+      const configurations = await readConfigEntities();
       // create export directory if not exist
       if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
@@ -209,7 +210,7 @@ export async function exportAllConfigEntities(
       const entityPromises = [];
       for (const configEntity of configurations) {
         if (entriesToExport.includes(configEntity._id)) {
-          entityPromises.push(getConfigEntity(configEntity._id));
+          entityPromises.push(readConfigEntity(configEntity._id));
         }
       }
       const results = await Promise.all(entityPromises);
@@ -238,10 +239,10 @@ export async function exportAllConfigEntities(
         }
       }
       stopProgressIndicator(null, 'success');
-    } catch (getAllConfigEntitiesError) {
-      printMessage(getAllConfigEntitiesError, 'error');
+    } catch (readConfigEntitiesError) {
+      printMessage(readConfigEntitiesError, 'error');
       printMessage(
-        `Error getting config entities: ${getAllConfigEntitiesError}`,
+        `Error getting config entities: ${readConfigEntitiesError}`,
         'error'
       );
     }
@@ -273,10 +274,10 @@ export async function importConfigEntityByIdFromFile(
   }
 
   try {
-    await putConfigEntity(entityId, entityData);
-  } catch (putConfigEntityError) {
-    printMessage(putConfigEntityError, 'error');
-    printMessage(`Error: ${putConfigEntityError}`, 'error');
+    await updateConfigEntity(entityId, entityData);
+  } catch (updateConfigEntityError) {
+    printMessage(updateConfigEntityError, 'error');
+    printMessage(`Error: ${updateConfigEntityError}`, 'error');
   }
 }
 
@@ -299,10 +300,10 @@ export async function importConfigEntityFromFile(
   }
 
   try {
-    await putConfigEntity(entityId, entityData);
-  } catch (putConfigEntityError) {
-    printMessage(putConfigEntityError, 'error');
-    printMessage(`Error: ${putConfigEntityError}`, 'error');
+    await updateConfigEntity(entityId, entityData);
+  } catch (updateConfigEntityError) {
+    printMessage(updateConfigEntityError, 'error');
+    printMessage(`Error: ${updateConfigEntityError}`, 'error');
   }
 }
 
@@ -349,7 +350,7 @@ export async function importAllRawConfigEntities(
   );
 
   const entityPromises = jsonFiles.map((file) => {
-    return putConfigEntity(file.entityId, file.content);
+    return updateConfigEntity(file.entityId, JSON.parse(file.content));
   });
 
   const results = await Promise.allSettled(entityPromises);
@@ -428,7 +429,7 @@ export async function importAllConfigEntities(
     })
     .map(({ entityId, content }) => {
       const unsubstituted = unSubstituteEnvParams(content, envReader);
-      return putConfigEntity(entityId, unsubstituted);
+      return updateConfigEntity(entityId, JSON.parse(unsubstituted));
     });
 
   const results = await Promise.allSettled(entityPromises);
@@ -455,26 +456,10 @@ export async function importAllConfigEntities(
  * Count number of managed objects of a given type
  * @param {String} type managed object type, e.g. alpha_user
  */
-export async function countManagedObjects(type) {
-  let count = 0;
-  let result = {
-    result: [],
-    resultCount: 0,
-    pagedResultsCookie: null,
-    totalPagedResultsPolicy: 'NONE',
-    totalPagedResults: -1,
-    remainingPagedResults: -1,
-  };
+export async function countManagedObjects(type: string) {
   try {
-    do {
-      result = await queryAllManagedObjectsByType(
-        type,
-        [],
-        result.pagedResultsCookie
-      );
-      count += result.resultCount;
-    } while (result.pagedResultsCookie);
-    printMessage(`${type}: ${count}`);
+    const result = await queryManagedObjects(type);
+    printMessage(`${type}: ${result.length}`);
   } catch (error) {
     printMessage(error.response.data, 'error');
     printMessage(`Error querying managed objects by type: ${error}`, 'error');
