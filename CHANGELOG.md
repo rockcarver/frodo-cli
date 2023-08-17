@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-15] - 2023-08-17
+
 ### Fixed
 
 -   \#276: `frodo script import -A --watch <tenant>` (preceeded by `frodo script export -A --extract <tenant>`) now properly reports errors like scripts not compiling or any REST errors but won't exit the watch thread but keep on watching and pushing local changes to `<tenant>`.
@@ -1343,7 +1345,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-14...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-15...HEAD
+
+[2.0.0-15]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-14...v2.0.0-15
 
 [2.0.0-14]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-13...v2.0.0-14
 
