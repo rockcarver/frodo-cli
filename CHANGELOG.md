@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#276: `frodo script import -A --watch <tenant>` (preceeded by `frodo script export -A --extract <tenant>`) now properly reports errors like scripts not compiling or any REST errors but won't exit the watch thread but keep on watching and pushing local changes to `<tenant>`.
+
 ## [2.0.0-14] - 2023-08-16
 
 ### Changed
