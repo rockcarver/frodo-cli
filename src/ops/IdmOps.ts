@@ -12,7 +12,7 @@ import {
 } from '../utils/Console';
 import { getTypedFilename, readFiles } from '../utils/ExportImportUtils';
 
-const { unSubstituteEnvParams, validateScriptHooks } = frodo.utils;
+const { unSubstituteEnvParams, areScriptHooksValid } = frodo.utils;
 const {
   testConnectorServers,
   readConfigEntities,
@@ -267,7 +267,7 @@ export async function importConfigEntityByIdFromFile(
   const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
 
   const entityData = JSON.parse(fileData);
-  const isValid = validateScriptHooks(entityData);
+  const isValid = areScriptHooksValid(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
@@ -293,7 +293,7 @@ export async function importConfigEntityFromFile(
   const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
   const entityData = JSON.parse(fileData);
   const entityId = entityData._id;
-  const isValid = validateScriptHooks(entityData);
+  const isValid = areScriptHooksValid(entityData);
   if (validate && !isValid) {
     printMessage('Invalid IDM configuration object', 'error');
     return;
@@ -332,7 +332,7 @@ export async function importAllRawConfigEntities(
   let everyScriptValid = true;
   for (const file of jsonFiles) {
     const jsObject = JSON.parse(file.content);
-    const isScriptValid = validateScriptHooks(jsObject);
+    const isScriptValid = areScriptHooksValid(jsObject);
     if (!isScriptValid) {
       printMessage(`Invalid script hook in ${file.path}`, 'error');
       everyScriptValid = false;
@@ -406,7 +406,7 @@ export async function importAllConfigEntities(
   let everyScriptValid = true;
   for (const file of jsonFiles) {
     const jsObject = JSON.parse(file.content);
-    const isScriptValid = validateScriptHooks(jsObject);
+    const isScriptValid = areScriptHooksValid(jsObject);
     if (!isScriptValid) {
       printMessage(`Invalid script hook in ${file.path}`, 'error');
       everyScriptValid = false;

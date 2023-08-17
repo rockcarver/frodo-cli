@@ -327,12 +327,12 @@ export async function importScriptsFromFiles(
    * Run on file change detection, as well as on initial run.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function onChange(path: string, _stats?: fs.Stats): void {
-    handleScriptFileImport(path, reUuid, validateScripts).catch((error) => {
-      printMessage(`Error importing script: ${error.message}`, 'error');
-      debugMessage(error);
-      process.exit(1);
-    });
+  async function onChange(path: string, _stats?: fs.Stats): Promise<void> {
+    try {
+      await handleScriptFileImport(path, reUuid, validateScripts);
+    } catch (error) {
+      printMessage(`${path}: ${error.message}`, 'error');
+    }
   }
 
   // We watch json files and script files.
@@ -375,8 +375,8 @@ async function handleScriptFileImport(
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
-  const success = await importScripts('', script, reUuid, validateScripts);
-  if (success) {
+  const imported = await importScripts('', script, reUuid, validateScripts);
+  if (imported) {
     printMessage(`Imported '${scriptFile}'`);
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
