@@ -1,17 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'app' should be expected english 1`] = `
-"Usage: frodo app|application [options] [command]
+"Usage: frodo app [options] [command]
 
-Manage OAuth2 applications.
+Manage applications.
 
 Options:
   -h, --help      Help
 
 Commands:
-  export          Export OAuth2 applications.
+  delete          Delete applications.
+  export          Export applications.
   help [command]  display help for command
-  import          Import OAuth2 applications.
-  list            List OAuth2 applications.
+  import          Import applications.
+  list            List applications.
+[93m
+Important Note:
+[39m  The [96mfrodo app[39m command to manage OAuth2 clients in v1.x has been renamed to [96mfrodo oauth client[39m in v2.x
+  The [96mfrodo app[39m command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the [96mfrodo oauth client[39m command.
+
+
 "
 `;

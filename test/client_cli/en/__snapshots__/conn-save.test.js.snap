@@ -42,6 +42,8 @@ Evironment Variables:
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
@@ -96,6 +98,8 @@ Evironment Variables:
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
@@ -150,6 +154,8 @@ Evironment Variables:
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
@@ -204,6 +210,8 @@ Evironment Variables:
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:

@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'log fetch' Usage should be expected english 1`] = `
 "Usage: frodo log fetch [options] [host] [username] [password]
 
-Fetch Identity Cloud logs between a specified begin and end time period. WARNING: depending on filters and time period specified, this could take substantial time to complete.
+Fetch Identity Cloud logs between a specified begin and end time period.
+WARNING: depending on filters and time period specified, this could take
+substantial time to complete.
 
 Arguments:
   host                             Access Management base URL, e.g.:
@@ -66,6 +68,8 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;
@@ -73,7 +77,9 @@ Evironment Variables:
 exports[`CLI help interface for 'logs fetch' Usage should be expected english 1`] = `
 "Usage: frodo log fetch [options] [host] [username] [password]
 
-Fetch Identity Cloud logs between a specified begin and end time period. WARNING: depending on filters and time period specified, this could take substantial time to complete.
+Fetch Identity Cloud logs between a specified begin and end time period.
+WARNING: depending on filters and time period specified, this could take
+substantial time to complete.
 
 Arguments:
   host                             Access Management base URL, e.g.:
@@ -136,6 +142,8 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;
