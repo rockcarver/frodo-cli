@@ -84,7 +84,7 @@ export async function listOAuth2Clients(long = false) {
       });
     }
   } catch (error) {
-    printMessage(`Error listing applications - ${error}`, 'error');
+    printMessage(`Error listing oauth2 clients - ${error}`, 'error');
   }
 }
 
@@ -259,8 +259,8 @@ export async function importOAuth2ClientsFromFile(
   showSpinner(`Importing ${file}...`);
   try {
     const data = fs.readFileSync(file, 'utf8');
-    const applicationData = JSON.parse(data);
-    await importOAuth2Clients(applicationData, options);
+    const clientData = JSON.parse(data);
+    await importOAuth2Clients(clientData, options);
     outcome = true;
     succeedSpinner(`Imported ${file}.`);
   } catch (error) {
