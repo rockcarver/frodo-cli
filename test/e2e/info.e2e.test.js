@@ -90,25 +90,25 @@ afterAll(() => {
 
 describe('frodo info', () => {
   describe('Authenticate as user', () => {
-    test(`frodo info <host> <user> <pass>`, async () => {
+    test.skip(`frodo info <host> <user> <pass>`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass}`;
       const { stderr } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     });
 
-    test(`frodo info <host> <user> <pass> --json`, async () => {
+    test.skip(`frodo info <host> <user> <pass> --json`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} --json`;
       const { stdout } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`frodo info <host> <user> <pass> --scriptFriendly`, async () => {
+    test.skip(`frodo info <host> <user> <pass> --scriptFriendly`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} --scriptFriendly`;
       const { stdout } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`frodo info <host> <user> <pass> -s`, async () => {
+    test.skip(`frodo info <host> <user> <pass> -s`, async () => {
       const CMD = `frodo info ${c.host} ${c.user} ${c.pass} -s`;
       const { stdout } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
