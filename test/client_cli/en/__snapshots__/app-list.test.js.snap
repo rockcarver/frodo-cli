@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'app list' should be expected english 1`] = `
 "Usage: frodo app list [options] [host] [realm] [username] [password]
 
-List OAuth2 applications.
+List applications.
 
 Arguments:
   host                  Access Management base URL, e.g.:
@@ -56,6 +56,20 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
+[93mImportant Note:
+[39m  The [96mfrodo app[39m command to manage OAuth2 clients in v1.x has been renamed to [96mfrodo oauth client[39m in v2.x
+  The [96mfrodo app[39m command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the [96mfrodo oauth client[39m command.
+
+Usage Examples:
+  List applications using AM base URL, username, and password (note the quotes around password to allow special characters):
+[96m  $ frodo app list https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  List applications using a connection profile (identified by the full AM base URL):
+[96m  $ frodo app list https://openam-matrix.id.forgerock.io/am
+[39m  List applications using a connection profile (identified by a unique substring of the AM base URL):
+[96m  $ frodo app list matrix
+[39m
 "
 `;

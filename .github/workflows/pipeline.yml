@@ -126,11 +126,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      # Update npm for older node versions to avoid errors with npm ci due to newer package-lock.json format
-      # TODO: conditionally update npm when it is older than the required version
-      - name: Update npm
-        run: npm install -g npm
-
       - uses: actions/download-artifact@v3
         with:
           name: build

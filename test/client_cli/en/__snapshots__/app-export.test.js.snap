@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'app export' should be expected english 1`] = `
 "Usage: frodo app export [options] [host] [realm] [username] [password]
 
-Export OAuth2 applications.
+Export applications.
 
 Arguments:
   host                   Access Management base URL, e.g.:
@@ -18,10 +18,10 @@ Arguments:
   password               Password.
 
 Options:
-  -a, --all              Export all OAuth2 apps to a single file. Ignored with
+  -a, --all              Export all applications to a single file. Ignored with
                          -i.
-  -A, --all-separate     Export all OAuth2 apps to separate files
-                         (*.oauth2.app.json) in the current directory. Ignored
+  -A, --all-separate     Export all applications to separate files
+                         (*.application.json) in the current directory. Ignored
                          with -i or -a.
   --curlirize            Output all network calls in curl format.
   --debug                Debug output during command execution. If specified,
@@ -29,7 +29,7 @@ Options:
                          troubleshooting.
   -f, --file <file>      Name of the export file.
   -h, --help             Help
-  -i, --app-id <app-id>  App id. If specified, -a and -A are ignored.
+  -i, --app-id <app-id>  Application name. If specified, -a and -A are ignored.
   -k, --insecure         Allow insecure connections when using SSL/TLS. Has no
                          effect when using a network proxy for https
                          (HTTPS_PROXY=http://<host>:<port>), in that case the
@@ -63,6 +63,24 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
+[93mImportant Note:
+[39m  The [96mfrodo app[39m command to manage OAuth2 clients in v1.x has been renamed to [96mfrodo oauth client[39m in v2.x
+  The [96mfrodo app[39m command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the [96mfrodo oauth client[39m command.
+
+Usage Examples:
+  Export all applications to a single export file with an auto-generated filename using a connection profile:
+[96m  $ frodo app export -a matrix
+[39m  Export the first application to a single export file with a custom filename:
+[96m  $ frodo app export -f ./allMyApplications.application.json matrix
+[39m  Export all applications to separate export files with an auto-generated filenames:
+[96m  $ frodo app export -A matrix
+[39m  Export all applications without dependencies to a single export file:
+[96m  $ frodo app export --no-deps -a matrix
+[39m  Export the application 'myApp' to a file with an auto-generated filename of 'myApp.application.json':
+[96m  $ frodo app export -i myApp matrix
+[39m
 "
 `;

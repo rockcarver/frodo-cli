@@ -11,7 +11,7 @@ Commands:
   admin                                                 Platform admin tasks.
   agent                                                 Manage agents.
   authz                                                 Manage authotiztion policies, policy sets, and resource types.
-  app|application                                       Manage OAuth2 applications.
+  app                                                   Manage applications.
   conn|connection                                       Manage connection profiles.
   email                                                 Manage email templates and configuration.
   esv                                                   Manage environment secrets and variables (ESVs).
@@ -20,6 +20,7 @@ Commands:
   info [options] [host] [username] [password]           Print versions and tokens.
   journey                                               Manage journeys/trees.
   log|logs                                              List/View Identity Cloud logs
+  oauth                                                 Manage OAuth2 clients and providers.
   realm                                                 Manage realms.
   saml                                                  Manage SAML entity providers and circles of trust.
   script                                                Manage scripts.

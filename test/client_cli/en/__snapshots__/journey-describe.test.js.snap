@@ -3,7 +3,9 @@
 exports[`CLI help interface for 'journey describe' should be expected english 1`] = `
 "Usage: frodo journey describe [options] [host] [realm] [username] [password]
 
-If -h is supplied, describe the journey/tree indicated by -i, or all journeys/trees in the realm if no -i is supplied, otherwise describe the journey/tree export file indicated by -f.
+If -h is supplied, describe the journey/tree indicated by -i, or all
+journeys/trees in the realm if no -i is supplied, otherwise describe the
+journey/tree export file indicated by -f.
 
 Arguments:
   host                              Access Management base URL, e.g.:
@@ -46,6 +48,7 @@ Options:
                                     cloud:    A ForgeRock Identity Cloud
                                     environment.
                                     forgeops: A ForgeOps CDK or CDM deployment.
+  
                                     The detected or provided deployment type
                                     controls certain behavior like obtaining an
                                     Identity Management admin token or not and
@@ -79,6 +82,8 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;

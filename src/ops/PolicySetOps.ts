@@ -144,9 +144,8 @@ export async function deletePolicySets(): Promise<boolean> {
     for (const policySet of policySets) {
       const policySetId = policySet.name;
       try {
-        const policies: PolicySkeleton[] = await readPoliciesByPolicySet(
-          policySetId
-        );
+        const policies: PolicySkeleton[] =
+          await readPoliciesByPolicySet(policySetId);
         for (const policy of policies) {
           try {
             debugMessage(`Deleting policy ${policy._id}`);

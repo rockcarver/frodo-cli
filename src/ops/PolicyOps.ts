@@ -420,9 +420,8 @@ export async function exportPoliciesByPolicySetToFiles(
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
   try {
-    const policies: PolicySkeleton[] = await readPoliciesByPolicySet(
-      policySetId
-    );
+    const policies: PolicySkeleton[] =
+      await readPoliciesByPolicySet(policySetId);
     createProgressBar(
       policies.length,
       `Exporting policies in policy set ${policySetId}...`

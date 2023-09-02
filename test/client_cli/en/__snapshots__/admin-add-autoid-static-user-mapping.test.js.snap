@@ -3,7 +3,8 @@
 exports[`CLI help interface for 'admin add-autoid-static-user-mapping' should be expected english 1`] = `
 "Usage: frodo admin add-autoid-static-user-mapping [options] [host] [realm] [username] [password]
 
-Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.
+Add AutoId static user mapping to enable dashboards and other AutoId-based
+functionality.
 
 Arguments:
   host                  Access Management base URL, e.g.:
@@ -55,6 +56,8 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;

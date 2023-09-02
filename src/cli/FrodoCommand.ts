@@ -194,7 +194,9 @@ export class FrodoCommand extends FrodoStubCommand {
             `  FRODO_LOG_SECRET: Log API secret. Overrides 'password' argument.\n`
           : ``) +
         `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.\n` +
-        `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n`
+        `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n` +
+        `  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.\n` +
+        `  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.\n`
     );
   }
 

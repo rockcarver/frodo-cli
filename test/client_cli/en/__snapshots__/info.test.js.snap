@@ -53,16 +53,18 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 Usage Examples:
   Show human-readable output and login using AM base URL, username, and password (note the quotes around password to allow special characters):
 [96m  $ frodo info https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Show human-readable output and login using a connection profile (identified by the full AM base URL):
-[96m  $ frodo info https://openam-matrix.id.forgerock.io/am'
+[96m  $ frodo info https://openam-matrix.id.forgerock.io/am
 [39m  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL):
-[96m  $ frodo info matrix'
+[96m  $ frodo info matrix
 [39m  Show JSON output and login using the AM base URL's unique substring to identify the connection profile:
-[96m  $ frodo info --json matrix'
+[96m  $ frodo info --json matrix
 [39m
 "
 `;

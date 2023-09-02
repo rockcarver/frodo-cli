@@ -1,7 +1,8 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { listOAuth2Clients } from '../../ops/OAuth2ClientOps';
+import * as s from '../../help/SampleData';
+import { listApplications } from '../../ops/ApplicationOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -10,9 +11,32 @@ const { getTokens } = frodo.login;
 const program = new FrodoCommand('frodo app list');
 
 program
-  .description('List OAuth2 applications.')
+  .description('List applications.')
   .addOption(
     new Option('-l, --long', 'Long with all fields.').default(false, 'false')
+  )
+  .addHelpText(
+    'after',
+    `Important Note:\n`['brightYellow'] +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command to manage OAuth2 clients in v1.x has been renamed to ${
+        'frodo oauth client'['brightCyan']
+      } in v2.x\n` +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${
+        'frodo oauth client'['brightCyan']
+      } command.\n\n` +
+      `Usage Examples:\n` +
+      `  List applications using AM base URL, username, and password (note the quotes around password to allow special characters):\n` +
+      `  $ frodo app list ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+        'brightCyan'
+      ] +
+      `  List applications using a connection profile (identified by the full AM base URL):\n` +
+      `  $ frodo app list ${s.amBaseUrl}\n`['brightCyan'] +
+      `  List applications using a connection profile (identified by a unique substring of the AM base URL):\n` +
+      `  $ frodo app list ${s.connId}\n`['brightCyan']
   )
   .action(
     // implement command logic inside action handler
@@ -26,8 +50,8 @@ program
         command
       );
       if (await getTokens()) {
-        verboseMessage(`Listing OAuth2 applications...`);
-        await listOAuth2Clients(options.long);
+        verboseMessage(`Listing applications...`);
+        await listApplications(options.long);
       } else {
         process.exitCode = 1;
       }

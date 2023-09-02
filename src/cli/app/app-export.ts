@@ -1,11 +1,12 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import * as s from '../../help/SampleData';
 import {
-  exportOAuth2ClientsToFile,
-  exportOAuth2ClientsToFiles,
-  exportOAuth2ClientToFile,
-} from '../../ops/OAuth2ClientOps';
+  exportApplicationsToFile,
+  exportApplicationsToFiles,
+  exportApplicationToFile,
+} from '../../ops/ApplicationOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -14,28 +15,55 @@ const { getTokens } = frodo.login;
 const program = new FrodoCommand('frodo app export');
 
 program
-  .description('Export OAuth2 applications.')
+  .description('Export applications.')
   .addOption(
     new Option(
       '-i, --app-id <app-id>',
-      'App id. If specified, -a and -A are ignored.'
+      'Application name. If specified, -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
   .addOption(
     new Option(
       '-a, --all',
-      'Export all OAuth2 apps to a single file. Ignored with -i.'
+      'Export all applications to a single file. Ignored with -i.'
     )
   )
   .addOption(
     new Option(
       '-A, --all-separate',
-      'Export all OAuth2 apps to separate files (*.oauth2.app.json) in the current directory. Ignored with -i or -a.'
+      'Export all applications to separate files (*.application.json) in the current directory. Ignored with -i or -a.'
     )
   )
   .addOption(
     new Option('--no-deps', 'Do not include any dependencies (scripts).')
+  )
+  .addHelpText(
+    'after',
+    `Important Note:\n`['brightYellow'] +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command to manage OAuth2 clients in v1.x has been renamed to ${
+        'frodo oauth client'['brightCyan']
+      } in v2.x\n` +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${
+        'frodo oauth client'['brightCyan']
+      } command.\n\n` +
+      `Usage Examples:\n` +
+      `  Export all applications to a single export file with an auto-generated filename using a connection profile:\n` +
+      `  $ frodo app export -a ${s.connId}\n`['brightCyan'] +
+      `  Export the first application to a single export file with a custom filename:\n` +
+      `  $ frodo app export -f ./allMyApplications.application.json ${s.connId}\n`[
+        'brightCyan'
+      ] +
+      `  Export all applications to separate export files with an auto-generated filenames:\n` +
+      `  $ frodo app export -A ${s.connId}\n`['brightCyan'] +
+      `  Export all applications without dependencies to a single export file:\n` +
+      `  $ frodo app export --no-deps -a ${s.connId}\n`['brightCyan'] +
+      `  Export the application 'myApp' to a file with an auto-generated filename of 'myApp.application.json':\n` +
+      `  $ frodo app export -i myApp ${s.connId}\n`['brightCyan']
   )
   .action(
     // implement command logic inside action handler
@@ -50,8 +78,8 @@ program
       );
       // export
       if (options.appId && (await getTokens())) {
-        verboseMessage('Exporting OAuth2 application...');
-        const status = await exportOAuth2ClientToFile(
+        verboseMessage('Exporting application...');
+        const status = await exportApplicationToFile(
           options.appId,
           options.file,
           {
@@ -63,8 +91,8 @@ program
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
-        verboseMessage('Exporting all OAuth2 applications to file...');
-        const status = await exportOAuth2ClientsToFile(options.file, {
+        verboseMessage('Exporting all applications to file...');
+        const status = await exportApplicationsToFile(options.file, {
           useStringArrays: true,
           deps: options.deps,
         });
@@ -73,7 +101,7 @@ program
       // -A/--all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
-        const status = await exportOAuth2ClientsToFiles({
+        const status = await exportApplicationsToFiles({
           useStringArrays: true,
           deps: options.deps,
         });

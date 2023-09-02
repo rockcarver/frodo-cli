@@ -1,12 +1,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import * as s from '../../help/SampleData';
 import {
-  importFirstOAuth2ClientFromFile,
-  importOAuth2ClientFromFile,
-  importOAuth2ClientsFromFile,
-  importOAuth2ClientsFromFiles,
-} from '../../ops/OAuth2ClientOps';
+  importApplicationFromFile,
+  importApplicationsFromFile,
+  importApplicationsFromFiles,
+  importFirstApplicationFromFile,
+} from '../../ops/ApplicationOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -15,11 +16,11 @@ const { getTokens } = frodo.login;
 const program = new FrodoCommand('frodo app import');
 
 program
-  .description('Import OAuth2 applications.')
+  .description('Import applications.')
   .addOption(
     new Option(
       '-i, --app-id <id>',
-      'Application id. If specified, only one application is imported and the options -a and -A are ignored.'
+      'Application name. If specified, only one application is imported and the options -a and -A are ignored.'
     )
   )
   .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
@@ -38,6 +39,39 @@ program
   .addOption(
     new Option('--no-deps', 'Do not include any dependencies (scripts).')
   )
+  .addHelpText(
+    'after',
+    `Important Note:\n`['brightYellow'] +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command to manage OAuth2 clients in v1.x has been renamed to ${
+        'frodo oauth client'['brightCyan']
+      } in v2.x\n` +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${
+        'frodo oauth client'['brightCyan']
+      } command.\n\n` +
+      `Usage Examples:\n` +
+      `  Import all applications from a single export file using a connection profile:\n` +
+      `  $ frodo app import -a -f ./allAlphaApplications.application.json ${s.connId}\n`[
+        'brightCyan'
+      ] +
+      `  Import the first application from a single export file:\n` +
+      `  $ frodo app import -f ./allAlphaApplications.application.json ${s.connId}\n`[
+        'brightCyan'
+      ] +
+      `  Import all applications from separate export files:\n` +
+      `  $ frodo app import -A ${s.connId}\n`['brightCyan'] +
+      `  Import all applications without dependencies from a single export file:\n` +
+      `  $ frodo app import --no-deps -a -f ./allAlphaApplications.application.json ${s.connId}\n`[
+        'brightCyan'
+      ] +
+      `  Import only the application 'myApp' from a file with an export file containing multiple applications:\n` +
+      `  $ frodo app import -i myApp -f ./allAlphaApplications.application.json ${s.connId}\n`[
+        'brightCyan'
+      ]
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -51,8 +85,8 @@ program
       );
       // import by id
       if (options.file && options.idpId && (await getTokens())) {
-        verboseMessage(`Importing OAuth2 application "${options.appId}"...`);
-        const status = await importOAuth2ClientFromFile(
+        verboseMessage(`Importing application "${options.appId}"...`);
+        const status = await importApplicationFromFile(
           options.appId,
           options.file,
           {
@@ -64,9 +98,9 @@ program
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
-          `Importing all OAuth2 applications from a single file (${options.file})...`
+          `Importing all applications from a single file (${options.file})...`
         );
-        const status = await importOAuth2ClientsFromFile(options.file, {
+        const status = await importApplicationsFromFile(options.file, {
           deps: options.deps,
         });
         if (!status) process.exitCode = 1;
@@ -74,9 +108,9 @@ program
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
-          'Importing all OAuth2 applications from separate files in current directory...'
+          'Importing all applications from separate files in current directory...'
         );
-        const status = await importOAuth2ClientsFromFiles({
+        const status = await importApplicationsFromFiles({
           deps: options.deps,
         });
         if (!status) process.exitCode = 1;
@@ -84,9 +118,9 @@ program
       // import first provider from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
-          `Importing first OAuth2 application from file "${options.file}"...`
+          `Importing first application from file "${options.file}"...`
         );
-        const status = await importFirstOAuth2ClientFromFile(options.file, {
+        const status = await importFirstApplicationFromFile(options.file, {
           deps: options.deps,
         });
         if (!status) process.exitCode = 1;
