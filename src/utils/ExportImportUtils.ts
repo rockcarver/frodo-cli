@@ -6,6 +6,8 @@ import slugify from 'slugify';
 
 import { printMessage } from './Console';
 
+const { stringify, deleteDeepByKey } = frodo.utils.json;
+
 /**
  * find all (nested) files in a directory
  *
@@ -76,7 +78,8 @@ export function saveJsonToFile(data: any, filename: string) {
   if (!exportData.meta) {
     exportData.meta = getMetadata();
   }
-  fs.writeFile(filename, JSON.stringify(exportData, null, 2), (err) => {
+  deleteDeepByKey(exportData, '_rev');
+  fs.writeFile(filename, stringify(exportData), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${filename}`, 'error');
     }
@@ -96,7 +99,8 @@ export function saveToFile(type, data, identifier, filename) {
   } else {
     exportData[type][data[identifier]] = data;
   }
-  fs.writeFile(filename, JSON.stringify(exportData, null, 2), (err) => {
+  deleteDeepByKey(exportData, '_rev');
+  fs.writeFile(filename, stringify(exportData), (err) => {
     if (err) {
       return printMessage(`ERROR - can't save ${type} to file`, 'error');
     }
