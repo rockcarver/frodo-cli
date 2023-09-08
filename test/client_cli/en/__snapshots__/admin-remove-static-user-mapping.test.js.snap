@@ -23,6 +23,7 @@ Options:
                         may or may not produce additional output helpful for
                         troubleshooting.
   -h, --help            Help
+  -i, --sub-id <id>     Subject identifier.
   -k, --insecure        Allow insecure connections when using SSL/TLS. Has no
                         effect when using a network proxy for https
                         (HTTPS_PROXY=http://<host>:<port>), in that case the
