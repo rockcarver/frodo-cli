@@ -146,11 +146,11 @@ jobs:
         # don't run this test on PRs -> secrets are not available as workflow runs in the context of the external repo
         if: github.event_name != 'pull_request'
         env:
-          FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
-          FIDC_TENANT_ADMIN_USERNAME: ${{ secrets.FIDC_TENANT_ADMIN_USERNAME }}
-          FIDC_TENANT_ADMIN_PASSWORD: ${{ secrets.FIDC_TENANT_ADMIN_PASSWORD }}
+          FIDC_TENANT_URL: ${{ vars.FIDC_TENANT_URL }}
+          FRODO_SA_ID: ${{ vars.FIDC_TENANT_SA_ID }}
+          FRODO_SA_JWK: ${{ secrets.FIDC_TENANT_SA_JWK }}
         run: |
-          frodo conn add "$FIDC_TENANT_URL" "$FIDC_TENANT_ADMIN_USERNAME" "$FIDC_TENANT_ADMIN_PASSWORD"
+          frodo conn save "$FIDC_TENANT_URL" --no-log-api
           frodo info "$FIDC_TENANT_URL"
 
       - name: Proxy Tests
@@ -158,11 +158,11 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           HTTPS_PROXY: 'http://127.0.0.1:3128'
-          FIDC_TENANT_URL: ${{ secrets.FIDC_TENANT_URL }}
-          FIDC_TENANT_ADMIN_USERNAME: ${{ secrets.FIDC_TENANT_ADMIN_USERNAME }}
-          FIDC_TENANT_ADMIN_PASSWORD: ${{ secrets.FIDC_TENANT_ADMIN_PASSWORD }}
+          FIDC_TENANT_URL: ${{ vars.FIDC_TENANT_URL }}
+          FRODO_SA_ID: ${{ vars.FIDC_TENANT_SA_ID }}
+          FRODO_SA_JWK: ${{ secrets.FIDC_TENANT_SA_JWK }}
         run: |
-          frodo conn add "$FIDC_TENANT_URL" "$FIDC_TENANT_ADMIN_USERNAME" "$FIDC_TENANT_ADMIN_PASSWORD"
+          frodo conn save "$FIDC_TENANT_URL" --no-log-api
           frodo info "$FIDC_TENANT_URL"
 
   release:

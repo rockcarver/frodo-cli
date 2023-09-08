@@ -11,10 +11,12 @@ const program = new FrodoCommand('frodo admin get-access-token');
 
 program
   .description('Get an access token using client credentials grant type.')
-  .addOption(new Option('--client-id [id]', 'Client id.').makeOptionMandatory())
+  .addOption(
+    new Option('-i, --client-id [id]', 'Client id.').makeOptionMandatory()
+  )
   .addOption(
     new Option(
-      '--client-secret [secret]',
+      '-s, --client-secret [secret]',
       'Client secret.'
     ).makeOptionMandatory()
   )
