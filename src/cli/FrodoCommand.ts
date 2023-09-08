@@ -134,6 +134,14 @@ export class FrodoStubCommand extends Command {
   constructor(name: string) {
     super(name);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    process.on('unhandledRejection', (error: any) => {
+      printMessage(error.config?.uri, 'error');
+      printMessage(error.response?.data, 'error');
+      printMessage(error.stack, 'error');
+      process.exitCode = 1;
+    });
+
     // other default settings
     this.helpOption('-h, --help', 'Help');
     this.showHelpAfterError();
