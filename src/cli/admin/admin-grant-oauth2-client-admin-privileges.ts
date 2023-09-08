@@ -13,8 +13,12 @@ const program = new FrodoCommand(
 
 program
   .description('Grant an oauth2 client admin privileges.')
+  .addOption(new Option('-i, --client-id <id>', 'OAuth2 client id.'))
   .addOption(
-    new Option('-t, --target <target name or id>', 'Name of the oauth2 client.')
+    new Option(
+      '-t, --target <target name or id>',
+      'Name of the oauth2 client.'
+    ).hideHelp()
   )
   .action(
     // implement command logic inside action handler
@@ -33,7 +37,9 @@ program
             options.target
           }" in realm "${state.getRealm()}" admin privileges...`
         );
-        await grantOAuth2ClientAdminPrivileges(options.target);
+        await grantOAuth2ClientAdminPrivileges(
+          options.clientId || options.target
+        );
         printMessage('Done.');
       } else {
         process.exitCode = 1;
