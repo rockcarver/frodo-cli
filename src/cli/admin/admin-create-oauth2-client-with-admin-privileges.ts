@@ -104,7 +104,7 @@ program
             const response = await createLongLivedToken(
               clientId,
               clientSecret,
-              options.scope,
+              options.lltScope,
               options.lltEsv,
               options.lltTtl
             );
