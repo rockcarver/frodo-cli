@@ -136,9 +136,18 @@ export class FrodoStubCommand extends Command {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     process.on('unhandledRejection', (error: any) => {
-      printMessage(error.config?.uri, 'error');
+      printMessage(
+        `${error.config?.method ? error.config.method + ' ' : ''}${
+          error.config?.url ? error.config.url : ''
+        }`,
+        'error'
+      );
       printMessage(error.response?.data, 'error');
       printMessage(error.stack, 'error');
+      printMessage(
+        `Please report this unhandled error here: https://github.com/rockcarver/frodo-cli/issues`,
+        'error'
+      );
       process.exitCode = 1;
     });
 
