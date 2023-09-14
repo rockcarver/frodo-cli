@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list -l
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list --long
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo conn list
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo conn list -l
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo conn list --long
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -60,28 +60,28 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-  env: process.env,
+    env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-describe('frodo journey list', () => {
-  test('"frodo journey list": should list the names of the default journeys', async () => {
-    const CMD = `frodo journey list`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+describe('frodo conn list', () => {
+    test('"frodo conn list": should list the connection hosts', async () => {
+        const CMD = `frodo conn list`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 
-  test('"frodo journey list -l": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list -l`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+    test('"frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys.', async () => {
+        const CMD = `frodo conn list -l`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 
-  test('"frodo journey list --long": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list --long`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+    test('"frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys.', async () => {
+        const CMD = `frodo conn list --long`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 });

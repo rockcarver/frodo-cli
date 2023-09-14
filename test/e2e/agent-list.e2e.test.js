@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list -l
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo journey list --long
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent list
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent list -l
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent list --long
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -60,28 +60,28 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-  env: process.env,
+    env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-describe('frodo journey list', () => {
-  test('"frodo journey list": should list the names of the default journeys', async () => {
-    const CMD = `frodo journey list`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+describe('frodo agent list', () => {
+    test('"frodo agent list": should list the ids of the agents', async () => {
+        const CMD = `frodo agent list`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 
-  test('"frodo journey list -l": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list -l`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+    test('"frodo agent list -l": should list the ids, statuses, and types of the agents', async () => {
+        const CMD = `frodo agent list -l`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 
-  test('"frodo journey list --long": should list the names, status, and tags of the default journeys', async () => {
-    const CMD = `frodo journey list --long`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  });
+    test('"frodo agent list --long": should list the ids, statuses, and types of the agents', async () => {
+        const CMD = `frodo agent list --long`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
 });
