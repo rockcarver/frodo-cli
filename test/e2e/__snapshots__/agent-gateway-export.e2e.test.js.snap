@@ -7,7 +7,6 @@ exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "1756830604",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -45,7 +44,6 @@ exports[`frodo agent gateway export "frodo agent gateway export --all": should e
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -72,7 +70,6 @@ exports[`frodo agent gateway export "frodo agent gateway export --all-separate":
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -99,7 +96,6 @@ exports[`frodo agent gateway export "frodo agent gateway export -A": should expo
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -126,7 +122,6 @@ exports[`frodo agent gateway export "frodo agent gateway export -a --file test.j
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -153,7 +148,6 @@ exports[`frodo agent gateway export "frodo agent gateway export -a": should expo
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -180,7 +174,6 @@ exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "1756830604",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -218,7 +211,6 @@ exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "1756830604",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,

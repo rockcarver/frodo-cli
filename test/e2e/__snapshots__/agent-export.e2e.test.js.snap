@@ -7,7 +7,6 @@ exports[`frodo agent export "frodo agent export --agent-id frodo-test-java-agent
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "227348581",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -684,7 +683,6 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -701,7 +699,6 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
     },
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -924,7 +921,6 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
     },
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1097,7 +1093,6 @@ exports[`frodo agent export "frodo agent export --all-separate": should export a
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -1122,7 +1117,6 @@ exports[`frodo agent export "frodo agent export --all-separate": should export a
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1353,7 +1347,6 @@ exports[`frodo agent export "frodo agent export --all-separate": should export a
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1526,7 +1519,6 @@ exports[`frodo agent export "frodo agent export -A": should export all agents to
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -1551,7 +1543,6 @@ exports[`frodo agent export "frodo agent export -A": should export all agents to
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1782,7 +1773,6 @@ exports[`frodo agent export "frodo agent export -A": should export all agents to
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1955,7 +1945,6 @@ exports[`frodo agent export "frodo agent export -a --file test.json": should exp
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -1972,7 +1961,6 @@ exports[`frodo agent export "frodo agent export -a --file test.json": should exp
     },
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -2195,7 +2183,6 @@ exports[`frodo agent export "frodo agent export -a --file test.json": should exp
     },
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -2368,7 +2355,6 @@ exports[`frodo agent export "frodo agent export -a": should export all agents to
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "-653063408",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -2385,7 +2371,6 @@ exports[`frodo agent export "frodo agent export -a": should export all agents to
     },
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -2608,7 +2593,6 @@ exports[`frodo agent export "frodo agent export -a": should export all agents to
     },
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -2781,7 +2765,6 @@ exports[`frodo agent export "frodo agent export -i frodo-test-ig-agent": should 
   "agents": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
-      "_rev": "1756830604",
       "_type": {
         "_id": "IdentityGatewayAgent",
         "collection": true,
@@ -2819,7 +2802,6 @@ exports[`frodo agent export "frodo agent export -i frodo-test-web-agent -f test.
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "1532983433",
       "_type": {
         "_id": "WebAgent",
         "collection": true,

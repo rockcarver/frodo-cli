@@ -7,7 +7,6 @@ exports[`frodo agent java export "frodo agent java export --agent-id frodo-test-
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "227348581",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -684,7 +683,6 @@ exports[`frodo agent java export "frodo agent java export --all": should export 
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -917,7 +915,6 @@ exports[`frodo agent java export "frodo agent java export --all-separate": shoul
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1150,7 +1147,6 @@ exports[`frodo agent java export "frodo agent java export -A": should export all
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1383,7 +1379,6 @@ exports[`frodo agent java export "frodo agent java export -a --file test.json": 
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1616,7 +1611,6 @@ exports[`frodo agent java export "frodo agent java export -a": should export all
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "-299439117",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -1849,7 +1843,6 @@ exports[`frodo agent java export "frodo agent java export -i frodo-test-java-age
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "227348581",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,
@@ -2526,7 +2519,6 @@ exports[`frodo agent java export "frodo agent java export -i frodo-test-java-age
   "agents": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
-      "_rev": "227348581",
       "_type": {
         "_id": "J2EEAgent",
         "collection": true,

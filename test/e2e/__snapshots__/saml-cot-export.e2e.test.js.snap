@@ -9,7 +9,6 @@ exports[`frodo saml cot export "frodo saml cot export --all": should export all 
     "cot": {
       "2f04818d-561e-4f8a-82e8-af2426112138": {
         "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
-        "_rev": "-1164170555",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -20,7 +19,6 @@ exports[`frodo saml cot export "frodo saml cot export --all": should export all 
       },
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -53,7 +51,6 @@ exports[`frodo saml cot export "frodo saml cot export --all-separate": should ex
     "cot": {
       "2f04818d-561e-4f8a-82e8-af2426112138": {
         "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
-        "_rev": "-1164170555",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -78,7 +75,6 @@ exports[`frodo saml cot export "frodo saml cot export --all-separate": should ex
     "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -111,7 +107,6 @@ exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should
     "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -144,7 +139,6 @@ exports[`frodo saml cot export "frodo saml cot export -A": should export all sam
     "cot": {
       "2f04818d-561e-4f8a-82e8-af2426112138": {
         "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
-        "_rev": "-1164170555",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -169,7 +163,6 @@ exports[`frodo saml cot export "frodo saml cot export -A": should export all sam
     "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -202,7 +195,6 @@ exports[`frodo saml cot export "frodo saml cot export -a --file test.json": shou
     "cot": {
       "2f04818d-561e-4f8a-82e8-af2426112138": {
         "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
-        "_rev": "-1164170555",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -213,7 +205,6 @@ exports[`frodo saml cot export "frodo saml cot export -a --file test.json": shou
       },
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -246,7 +237,6 @@ exports[`frodo saml cot export "frodo saml cot export -a": should export all sam
     "cot": {
       "2f04818d-561e-4f8a-82e8-af2426112138": {
         "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
-        "_rev": "-1164170555",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -257,7 +247,6 @@ exports[`frodo saml cot export "frodo saml cot export -a": should export all sam
       },
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -290,7 +279,6 @@ exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -f test.json":
     "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,
@@ -323,7 +311,6 @@ exports[`frodo saml cot export "frodo saml cot export -i AzureCOT": should expor
     "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
-        "_rev": "-954827061",
         "_type": {
           "_id": "circlesoftrust",
           "collection": true,

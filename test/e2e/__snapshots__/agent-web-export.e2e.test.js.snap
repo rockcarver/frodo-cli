@@ -7,7 +7,6 @@ exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-we
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "1532983433",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -499,7 +498,6 @@ exports[`frodo agent web export "frodo agent web export --all": should export al
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -672,7 +670,6 @@ exports[`frodo agent web export "frodo agent web export --all-separate": should 
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -845,7 +842,6 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1018,7 +1014,6 @@ exports[`frodo agent web export "frodo agent web export -a --file test.json": sh
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1191,7 +1186,6 @@ exports[`frodo agent web export "frodo agent web export -a": should export all w
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "2099437784",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1364,7 +1358,6 @@ exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent 
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "1532983433",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
@@ -1856,7 +1849,6 @@ exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent"
   "agents": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
-      "_rev": "1532983433",
       "_type": {
         "_id": "WebAgent",
         "collection": true,
