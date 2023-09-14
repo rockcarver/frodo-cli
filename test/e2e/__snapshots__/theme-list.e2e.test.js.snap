@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo theme list "frodo theme list --long": should list the names, ids, and default status of the themes 1`] = `
+"Name         │Id                                  │Default
+Contrast     │cd6c93e2-52e2-4340-9770-66a588343841│       
+Highlander   │00203891-dde0-4114-b27a-219ae0b43a61│       
+Robroy       │b82755e8-fe9a-4d27-b66b-45e37ae12345│       
+Starter Theme│86ce2f64-586d-44fe-8593-b12a85aac68d│Yes    
+Zardoz       │4ded6d91-ceea-400a-ae3f-42209f1b0e06│       
+"
+`;
+
+exports[`frodo theme list "frodo theme list -l": should list the names, ids, and default status of the themes 1`] = `
+"Name         │Id                                  │Default
+Contrast     │cd6c93e2-52e2-4340-9770-66a588343841│       
+Highlander   │00203891-dde0-4114-b27a-219ae0b43a61│       
+Robroy       │b82755e8-fe9a-4d27-b66b-45e37ae12345│       
+Starter Theme│86ce2f64-586d-44fe-8593-b12a85aac68d│Yes    
+Zardoz       │4ded6d91-ceea-400a-ae3f-42209f1b0e06│       
+"
+`;
+
+exports[`frodo theme list "frodo theme list": should list the names of the themes 1`] = `
+"Contrast
+Highlander
+Robroy
+Starter Theme
+Zardoz
+"
+`;

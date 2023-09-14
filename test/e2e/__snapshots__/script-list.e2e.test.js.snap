@@ -1,0 +1,1229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo script list "frodo script list --long": should list the names, uuids, languages, contexts, and descriptions of the scripts 1`] = `
+"Name                     │UUID                                │Language│Context              │Description                   
+AA Custom Policy Engine  │9e9c6c4d-5d9d-4990-9f05-d8b2b25ad52b│JS      │Authentication Tree  │Custom risk policy engine     
+                         │                                    │        │Decision Node        │combining Autonomous Access   
+                         │                                    │        │                     │signals with external signals.
+AAD Passthru Parse       │ae04e1a0-c662-43aa-9d80-21af78528b45│JS      │Authentication Tree  │Parse Access Token from Azure 
+  Access Token           │                                    │        │Decision Node        │AD pass through authentication
+                         │                                    │        │                     │using the Resource Owner      
+                         │                                    │        │                     │Password Credential flow      
+AAD Passthru ROPC        │13cd3c60-a04b-4455-b028-fbfd01ed88b1│JS      │Authentication Tree  │Azure AD pass through         
+                         │                                    │        │Decision Node        │authentication using Resource 
+                         │                                    │        │                     │Owner Password Credential flow
+Add Session Properties   │d1fffc59-1d57-4264-b715-242eee52e296│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ADFS Profile             │dbe0bf9a-72aa-49d5-8483-9db147985a47│JS      │Social Idp Profile   │Normalizes raw profile data   
+  Normalization (JS)     │                                    │        │Transformation       │from ADFS                     
+Admin_AmadminCheck       │b7ce17a1-e41d-42b0-bedc-f88a4d5e1c3a│JS      │Authentication Tree  │Prepares onboarding check if  
+                         │                                    │        │Decision Node        │not amadmin                   
+ectionWorkaroundCleanup  │fd536b1f-6ee4-4505-b148-71160414ddcc│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_CanBeInvited       │0d471aff-81f3-41ce-8bf9-35c27cdc0a26│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_ClearCurrentYear   │4a9aefc4-be0e-4625-95c3-ee8f354bce35│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+min_ClearFirstLastNames  │552a0f94-d177-45a9-b7bf-1502e312c299│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+min_ClearInviteMailVars  │e05e4136-ec87-4bb2-a0a4-9a9566b2f9fe│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_CollectUsernameOrEmail  │e9c9d940-30d9-4a0c-a834-7de69a0600cf│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+n_EnableEmailClaimCheck  │cfb208d8-241c-4953-b87b-bf59d1ab3d05│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ForgotUsernameMailCheck  │5e68fee3-047d-4fff-8e99-89fb5908f068│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+GetIdPGroupsClaimConfig  │fd560219-00ad-4763-9a29-f65aa9ecf776│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+in_GroupBasedOnboarding  │6cde0f58-437d-460a-bb44-7d76999e5ed5│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_HasOnboarded       │13b6a418-4ccc-41b6-86ce-0a13f352da22│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_IdPNormalization   │dc0c9905-4a58-4f61-8562-337514e610a7│JS      │Social Idp Profile   │null                          
+                         │                                    │        │Transformation       │                              
+rationEnforcedForTenant  │92511927-75e6-427f-8e64-eb6ca74115ef│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+derationEnforcedForUser  │1e8175a2-6114-415f-9b72-9fe15bdf3661│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_IsInvited          │6dfc6de4-64cb-4d47-8269-6c5ced44344d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_LoadObjectByID     │b88ce1fe-2480-4fd5-8062-2bd1f4659e2e│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ocalRegistrationCleanup  │5dcb1238-4684-47b7-8679-087b576d4fe8│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+n_LocalRegistrationPrep  │a316aedd-8b3b-4f68-b6e8-65859f1e87be│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaGetApp          │fe35a8fb-31b1-441c-bb9b-27932565061c│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaOptIn           │158e500b-8180-4641-ad48-23577fe9d976│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaRequiredCheck   │4c7bb7bb-c5d6-47ac-92dc-256fb8121fa9│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PasswordFixEnd     │27f1b5a3-9446-4e5c-b965-f195a99fa666│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PasswordFixStart   │4accb4d0-56ec-4a28-a769-5275dbac3147│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_PasswordUpdatedMessage  │6ccf7507-38a4-49fe-9fb2-927186538e66│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PrivacyPolicy      │653b70b0-a23d-403a-933b-911371cf84c0│JS      │Authentication Tree  │Returns privacy policy        
+                         │                                    │        │Decision Node        │collection                    
+_ProfileToManagedObject  │ab78dcb5-85cb-41a6-813e-e07a77761376│JS      │Social Idp Profile   │null                          
+                         │                                    │        │Transformation       │                              
+Admin_SessionCheck       │b4067e18-2d4d-4257-a38e-0b3ba3001a58│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetCurrentYear     │6963d84e-e2f0-4db1-a746-116604189602│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetInvitedTrue     │3126e6a4-e288-4ed5-8a0b-7d849f38567b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetInviteMailVars  │db854830-a069-471f-875a-8dc67d45ea2d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+SetOnboardingAttributes  │80c3e733-ae51-4851-a01d-1cbf193c80e9│JS      │Authentication Tree  │Activates the admin's account 
+                         │                                    │        │Decision Node        │                              
+min_SetUsernameFromMail  │8e1060d8-73c4-425c-a524-0c3709b4fa8d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_UsernameChangedMessage  │f4a1729d-de9e-40b8-9e3c-33241493e4c8│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Alpha endUserUIClient    │e232cff3-2460-47cd-80b2-36c86c0d0f06│JS      │Oauth2 Access Token  │Used by endUserUIClient       
+  OAuth2 Access Token    │                                    │        │Modification         │                              
+  Modification Script    │                                    │        │                     │                              
+Alpha endUserUIClient    │e1db8a0a-0329-4962-a5bf-ecffaca376ae│JS      │Oidc Claims          │Used by endUserUIClient       
+  OIDC Claims Script     │                                    │        │                     │                              
+Alpha OAuth2 Access      │39c08084-1238-43e8-857f-2e11005eac49│JS      │Oauth2 Access Token  │Default alpha realm script for
+  Token Modification     │                                    │        │Modification         │OAuth2 Access Token           
+  Script                 │                                    │        │                     │Modification                  
+Alpha OIDC Claims        │cf3515f0-8278-4ee3-a530-1bad7424c416│JS      │Oidc Claims          │Default alpha realm script for
+  Script                 │                                    │        │                     │OIDC claims                   
+Amazon Profile           │6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Amazon                   
+APIProtection: Get Key   │9399ac8b-3a6e-423b-95a2-6e0fd07262b1│JS      │Authentication Tree  │APIProtection: Get Key And    
+  And Secret             │                                    │        │Decision Node        │Secret                        
+APIProtection: Reset     │f1a2764b-d05a-4480-8f5f-78fda7814227│JS      │Authentication Tree  │APIProtection: Reset State    
+  States                 │                                    │        │Decision Node        │                              
+Apple Profile            │484e6246-dbc6-4288-97e6-54e55431402e│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Apple                    
+Authentication Tree      │01e1a3c0-038b-4c16-956a-6c9d89328cff│JS      │Authentication Tree  │Default global script for a   
+  Decision Node Script   │                                    │        │Decision Node        │scripted decision node        
+Browser Language         │8508a00e-ad45-4310-b3c7-c6871b6a41a9│JS      │Authentication Tree  │Browser Language Decision     
+  Decision               │                                    │        │Decision Node        │                              
+Check Existing Session   │0ab1dd57-eafd-4063-8e60-65bfac8108b7│JS      │Authentication Tree  │Check existing session and set
+                         │                                    │        │Decision Node        │username                      
+Check For Existing       │616d3541-14d6-4a54-94dd-46a146ef2423│JS      │Authentication Tree  │Check For Existing Session    
+  Session                │                                    │        │Decision Node        │                              
+Check Username           │739bdc48-fd24-4c52-b353-88706d75558a│JS      │Authentication Tree  │Check if username has already 
+                         │                                    │        │Decision Node        │been collected.               
+Choice inner1, inner2    │14f14ad3-f35f-455b-a7ba-d7cd939c6921│JS      │Authentication Tree  │Dropdown selector             
+                         │                                    │        │Decision Node        │                              
+Collect Extra Fields     │92edf2c7-0bab-412c-a0da-82ad4f04505b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Collect Inner Tree       │d70df7a8-6390-409d-b821-166272a9a9c8│JS      │Authentication Tree  │Collect all the configuration 
+  Evaluator Config       │                                    │        │Decision Node        │items required for the Inner  
+                         │                                    │        │                     │Tree Evaluator to function    
+                         │                                    │        │                     │properly.                     
+Collect Message Node     │169150da-0bd1-4866-8095-eae0bbc269e4│JS      │Authentication Tree  │Collect all the configuration 
+  Config                 │                                    │        │Decision Node        │items required for the Message
+                         │                                    │        │                     │Node to function properly.    
+Collect PIN              │e4417108-4dc9-4ffc-9995-3cd490adf2ed│JS      │Authentication Tree  │Collect PIN                   
+                         │                                    │        │Decision Node        │                              
+Collect Replay Password  │d82a4ad6-cd8a-437b-af55-7373e50d685b│JS      │Authentication Tree  │Collect Replay Password       
+  (frUnindexedString2)   │                                    │        │Decision Node        │(frUnindexedString2).         
+Collect SAML2 Node       │48f17202-039f-4d40-b7fc-4ce380f1b929│JS      │Authentication Tree  │Collect all the configuration 
+  Config                 │                                    │        │Decision Node        │items required for the SAML2  
+                         │                                    │        │                     │Node to function properly.    
+Collect Set Custom       │a31a1796-8410-46b8-82ca-eb0c6e901775│JS      │Authentication Tree  │Collect all the configuration 
+  Cookie Node Config     │                                    │        │Decision Node        │items required for the Set    
+                         │                                    │        │                     │Custom Cookie node to function
+                         │                                    │        │                     │properly.                     
+Config Provider          │5e854779-6ec1-4c39-aeba-0477e0986646│JS      │Config Provider Node │Default global script for     
+                         │                                    │        │                     │Config Provider               
+Configure Email          │22ab12ac-d1d9-414b-ab51-cfae30de8c0a│JS      │Authentication Tree  │Create a configuration object 
+  Template Node          │                                    │        │Decision Node        │for the Email Template Node.  
+Copy to transientState   │452d73ee-c6f3-4f4e-9dae-e75bb3886cbd│JS      │Authentication Tree  │Copy sharedState to           
+                         │                                    │        │Decision Node        │transientState                
+opyIDToObjectAttributes  │c253a7ac-ebc9-4268-9e62-89f38f98e4ab│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+pyOTPToObjectAttributes  │5561a45f-bf00-4ec5-bab4-f069bac9a38b│JS      │Authentication Tree  │Copy an OTP generated by the  
+                         │                                    │        │Decision Node        │"HOTP Generator" node to the  
+                         │                                    │        │                     │IDM profile shared state so it
+                         │                                    │        │                     │can be patched to the user    
+                         │                                    │        │                     │profile.                      
+LDataToObjectAttributes  │8e03eb43-ed5d-4c12-9e15-2051cc9be578│JS      │Authentication Tree  │Copy SAML Data To             
+                         │                                    │        │Decision Node        │ObjectAttributes              
+CP-ITE-static-inner1     │638c865e-d393-4503-a517-535b9c74e010│JS      │Config Provider Node │nerTreeEvaluator-static-inner1
+CP-ITE-static-inner2     │740cf6fa-a173-4e9d-b17c-44758e9b19ec│JS      │Config Provider Node │nerTreeEvaluator-static-inner2
+debug                    │3cb43516-ae69-433a-8787-501d45db14e9│JS      │Authentication Tree  │Display sharedState,          
+                         │                                    │        │Decision Node        │transientState, and headers.  
+Device Id (Match) -      │157298c0-7d31-4059-a95b-eeb08473b7e5│JS      │Authentication Client│Default global script for     
+  Client Side            │                                    │        │Side                 │client side Device Id (Match) 
+                         │                                    │        │                     │Authentication Module         
+Device Id (Match) -      │703dab1a-1921-4981-98dd-b8e5349d8548│JS      │Authentication Server│Default global script for     
+  Server Side            │                                    │        │Side                 │server side Device Id (Match) 
+                         │                                    │        │                     │Authentication Module         
+iceprofile_to_attribute  │123725a9-2119-4efd-a6b0-456f3ccd34b7│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+display country          │8bccfdd0-5556-4562-a1ca-6d725a449556│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Display ESV              │b1fd9b38-fc54-46c6-9199-3d0de0abfaee│JS      │Authentication Tree  │Display the value of an ESV   
+                         │                                    │        │Decision Node        │                              
+Display Password         │ec8b314c-8e11-4364-93b9-a3e82d2a074a│JS      │Authentication Tree  │Display Password from         
+                         │                                    │        │Decision Node        │nodeState                     
+Display Session Info     │37bf200a-158f-4a45-8ee5-81516e4593f8│JS      │Authentication Tree  │Display session info.         
+                         │                                    │        │Decision Node        │                              
+Display States           │b703581a-e112-42b9-bc24-6db8bced5a13│JS      │Authentication Tree  │Display sharedState and       
+                         │                                    │        │Decision Node        │transientState.               
+Display States -         │e49225eb-e7ad-4699-bf2a-d57689f9cd6e│JS      │Authentication Tree  │Display sharedState and       
+  imported (1)           │                                    │        │Decision Node        │transientState.               
+Display States -         │6d6c2202-725b-4196-9436-92ec11a0b385│JS      │Authentication Tree  │Display sharedState and       
+  imported (2)           │                                    │        │Decision Node        │transientState.               
+Display Tenant URL       │e78f1f88-d8ad-4ecf-903a-9478072e3997│JS      │Authentication Tree  │Display Tenant URL (fqdn)     
+  (fqdn)                 │                                    │        │Decision Node        │                              
+Display Username         │fe5e303b-9ed7-4853-84fe-0ae43e2254d5│JS      │Authentication Tree  │Display the username in an    
+                         │                                    │        │Decision Node        │HTML dialog.                  
+Dropdown                 │71b3c70b-920c-464b-a918-4c86eaaddccd│JS      │Authentication Tree  │Render a dropdown             
+                         │                                    │        │Decision Node        │                              
+Embed Cookie Consent     │eea1e530-8cf4-4875-af75-11396e6a8859│JS      │Authentication Tree  │Embed cookie consent          
+                         │                                    │        │Decision Node        │JavaScript snippet.           
+Facebook Profile         │bae1d54a-e97d-4997-aa5d-c027f21af82c│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Facebook                 
+ForgeRock Internal:      │c234ba0b-58a1-4cfd-9567-09edde980745│JS      │Oauth2 Access Token  │Internal token modification   
+  OAuth2 Access Token    │                                    │        │Modification         │script                        
+  Modification Script    │                                    │        │                     │                              
+ForgeRock Internal:      │1f389a3d-21cf-417c-a6d3-42ea620071f0│JS      │Oidc Claims          │Internal OIDC Claims script   
+  OIDC Claims Script     │                                    │        │                     │                              
+ForgeRockVpnOnly         │779bb956-676d-4e44-b828-b9efa3c866d4│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+FRAAS-7955 Both States   │38f698de-fe11-43d2-8480-44e1312d121d│JS      │Authentication Tree  │FRAAS-7955 Both States        
+                         │                                    │        │Decision Node        │                              
+FRAAS-7955 Display       │164fe425-01e7-4b0b-9f60-fb41f6bf362b│JS      │Authentication Tree  │FRAAS-7955 Display sharedState
+  States                 │                                    │        │Decision Node        │and transientState.           
+FRAAS-7955 Shared State  │dedbc9f6-7fc9-4332-a330-55f7aeb95e78│JS      │Authentication Tree  │FRAAS-7955 Shared State Only  
+  Only                   │                                    │        │Decision Node        │                              
+FRAAS-7955 Show Object   │fbc563cb-eced-4e1b-9cd4-022680347668│JS      │Authentication Tree  │FRAAS-7955 Show Object Values 
+  Values                 │                                    │        │Decision Node        │                              
+FRAAS-7955 Transient     │073a64d4-37c9-486d-8c59-6583494644b9│JS      │Authentication Tree  │FRAAS-7955 Transient State    
+  State Only             │                                    │        │Decision Node        │Only                          
+FRAAS-7955 Workaround    │e0ba741b-c952-4062-9899-0b1c19237ee4│JS      │Authentication Tree  │FRAAS-7955 Workaround: Copy   
+                         │                                    │        │Decision Node        │sharedState to transientState 
+Get Email                │d6469639-249f-4df1-9e03-335cd3e37b3d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Get Lockout Status       │cdea92a1-d2bf-4364-a525-fde8b7a95792│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+GitHub Profile           │a7a78773-445b-4eca-bb93-409e86bced81│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from GitHub                   
+GitHub Profile           │23143919-6b78-40c3-b25e-beca19b229e0│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization (VS)     │                                    │        │Transformation       │from GitHub                   
+Google Profile           │58d29080-4563-480b-89bb-1e7719776a21│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Google                   
+Goto Specified Decision  │2a076e9e-75a9-46b5-b971-10ffafbdf652│JS      │Authentication Tree  │Return true if a goto param   
+                         │                                    │        │Decision Node        │has been specified, false     
+                         │                                    │        │                     │otherwise.                    
+Has Email Changed        │d3102a25-056d-4e34-973b-577ced8cc9b7│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Has Profile Changed      │2ada53cd-5d37-4592-9c7f-5711271229c2│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Hash State Variables     │a2c639ac-7ccd-4906-bb31-f6e69632c93b│JS      │Authentication Tree  │Hash State Variables          
+                         │                                    │        │Decision Node        │                              
+hashdeviceProfile        │e15a13ee-9168-40cf-934f-656a5f568a6a│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+HIBP Password Breach     │790045fa-a325-4e3e-96f8-d4a91b32e9de│JS      │Authentication Tree  │Use Have I Been Pwned Password
+  Analysis               │                                    │        │Decision Node        │to check if password has been 
+                         │                                    │        │                     │breached.                     
+iddataweb Profile        │2997bd4d-14be-4dc6-8701-27f08d10b8b7│Groovy  │Social Idp Profile   │Profile Normalization Script  
+  Normalization          │                                    │        │Transformation       │for idddataweb                
+IDP Integrity Check      │988c10fa-98da-4bf7-8ac9-a558d2fef1fd│JS      │Authentication Tree  │Protection from malicious     
+                         │                                    │        │Decision Node        │IDPs. Only allow white-listed 
+                         │                                    │        │                     │email domains (usernames are  
+                         │                                    │        │                     │email addresses).             
+IDP Lookup               │68d5a8e7-fcc9-4215-9e63-a01afe8fa849│JS      │Authentication Tree  │Perform IDP lookup based on   
+                         │                                    │        │Decision Node        │email domain. Set users'      
+                         │                                    │        │                     │external IDP in shared state  
+                         │                                    │        │                     │or continue to local          
+                         │                                    │        │                     │authentication.               
+IDP Re-Lookup            │ab917dad-6fdb-46c2-8c8c-42f094ebeea1│JS      │Authentication Tree  │Perform IDP re-lookup based on
+                         │                                    │        │Decision Node        │the Organization ID from the  
+                         │                                    │        │                     │initial lookup. Set users'    
+                         │                                    │        │                     │external IDP in shared state  
+                         │                                    │        │                     │for further processing.       
+IDP Router               │aef262d0-7a42-4a34-9826-e7dbc2ea6eb9│JS      │Authentication Tree  │Route users to their          
+                         │                                    │        │Decision Node        │organization's IDP of type    
+                         │                                    │        │                     │saml, oidc, local, or custom  
+                         │                                    │        │                     │and apply the organization's  
+                         │                                    │        │                     │theme, if specified           
+Impersonate: Extract     │d6f3befb-c73a-437e-b02a-66d9b4c93f8b│JS      │Authentication Tree  │Extract impersonatee and      
+  Actors And Become      │                                    │        │Decision Node        │impersonator from headers and 
+  Impersonator           │                                    │        │                     │become impersonator.          
+Impersonate: Switch      │878816b3-2bb4-4b43-8001-10f926ddefff│JS      │Authentication Tree  │Switch Actors And Become      
+  Actors And Become      │                                    │        │Decision Node        │Impersonatee.                 
+  Impersonatee           │                                    │        │                     │                              
+Impersonate: Update      │7dd80834-e7b2-4737-85a7-40434bb19dde│JS      │Authentication Tree  │Store the impersontor and     
+  Session Properties     │                                    │        │Decision Node        │impersonatee profile          
+                         │                                    │        │                     │information in session        
+                         │                                    │        │                     │properties.                   
+Inspect Username         │23e88721-ea4a-4da2-bfba-33d82fd0317d│JS      │Authentication Tree  │Reads the shared state "_id"  
+                         │                                    │        │Decision Node        │attribute. Fetches the        
+                         │                                    │        │                     │userName (uid0 object from the
+                         │                                    │        │                     │users. Saves the userName to  
+                         │                                    │        │                     │shared state. (in both        
+                         │                                    │        │                     │userName and username). Then  
+                         │                                    │        │                     │returns outcome if the        
+                         │                                    │        │                     │username starts with "anon-"  
+                         │                                    │        │                     │outcome = anonymous. Otherwise
+                         │                                    │        │                     │outcome = known.              
+Instagram Profile        │1244e639-4a31-401d-ab61-d75133d8dc9e│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Instagram                
+IPQS Email Address       │70e8aa07-aa8f-4ec3-b9fb-6f6f8aa14e3c│JS      │Authentication Tree  │Analyze an email address using
+                         │                                    │        │Decision Node        │the IPQualityScore (IPQS)     
+                         │                                    │        │                     │service.                      
+IPQS IP Address          │a186232a-683d-48ce-8893-d6f92652ec82│JS      │Authentication Tree  │Analyze an IP address using   
+                         │                                    │        │Decision Node        │the IPQualityScore (IPQS)     
+                         │                                    │        │                     │service.                      
+ipstack                  │87497360-d89c-412a-a99e-c8a9bec465cc│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+IPv4 CIDR Rules Engine   │7fb962a5-9f20-41d3-a077-b424a29c1198│JS      │Authentication Tree  │Evaluate IPv4 CIDR access     
+                         │                                    │        │Decision Node        │rules from                    
+                         │                                    │        │                     │"esv-ipv4-cidr-access-rules". 
+Itsme Profile            │3d97c436-42c0-4dd0-a571-ea6f34f752b3│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Itsme                    
+KerberosLogin: Extract   │355a8b7c-9e3c-40c1-a873-68127e483adf│JS      │Authentication Tree  │Extract Username from request.
+  Username               │                                    │        │Decision Node        │                              
+Launcher                 │3b81d8e6-55f3-4937-bbbb-d62233cc6a0f│JS      │Authentication Tree  │Display launch panel with     
+                         │                                    │        │Decision Node        │journeys.                     
+LinkedIn Profile         │8862ca8f-7770-4af5-a888-ac0df0947f36│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from LinkedIn                 
+Logout                   │2aab9d46-9363-4061-9f63-eb824e33c505│JS      │Authentication Tree  │Logout.                       
+                         │                                    │        │Decision Node        │                              
+MFA Splitter             │bdaf9f64-0fd6-4d2d-b305-bf295f09f797│JS      │Authentication Tree  │Decide if a user should never 
+                         │                                    │        │Decision Node        │or always be prompted for MFA 
+                         │                                    │        │                     │based on membership in the    
+                         │                                    │        │                     │'MFA Never' or 'MFA Always'   
+                         │                                    │        │                     │groups. Membership in neither 
+                         │                                    │        │                     │results in a neutral decision.
+MFA Status               │ac9fc25e-3ad9-4f80-a796-2d9093795439│JS      │Authentication Tree  │Check if MFA has already been 
+                         │                                    │        │Decision Node        │performed for this journey.   
+                         │                                    │        │                     │This allows journeys and inner
+                         │                                    │        │                     │journeys not to perform MFA   
+                         │                                    │        │                     │multiple times.               
+Microsoft Profile        │73cecbfc-dad0-4395-be6a-6858ee3a80e5│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Microsoft                
+MobileOTP: Extract       │57807349-630f-496a-bccb-ea1011b8e945│JS      │Authentication Tree  │Extract username, password,   
+  Username, Password, OTP│                                    │        │Decision Node        │and OTP from request headers  
+                         │                                    │        │                     │and put them in shared state  
+                         │                                    │        │                     │for validation.               
+MobileOTP: Prepare       │d25a1315-8beb-4a0c-84bf-534214fed087│JS      │Authentication Tree  │Prepare Reset Of OTP Profile  
+  Reset Of OTP Profile   │                                    │        │Decision Node        │Attribute                     
+  Attribute              │                                    │        │                     │                              
+MobileOTP: Validate OTP  │ce6fbbcf-5d9a-471b-bcc1-448758a6374a│JS      │Authentication Tree  │Validate OTP in profile       
+  In Profile Attribute   │                                    │        │Decision Node        │attribute                     
+Normalized ADFS Profile  │3156d7e9-1589-4ffb-a659-37a1647ee03d│Groovy  │Social Idp Profile   │Converts a normalized social  
+  to Managed User        │                                    │        │Transformation       │profile coming from ADFS into 
+                         │                                    │        │                     │a managed user                
+Normalized idddataweb    │809330cf-874c-4d57-a8f1-5882c6dd855b│Groovy  │Social Idp Profile   │Converts a normalized social  
+  Profile to Managed User│                                    │        │Transformation       │profile for iddataweb into a  
+                         │                                    │        │                     │Managed user                  
+Normalized Profile to    │ed685f9f-5909-4726-86e8-22bd38b47663│Groovy  │Social Idp Profile   │Converts a normalized social  
+  Identity               │                                    │        │Transformation       │profile into an Identity      
+Normalized Profile to    │58c824ae-84ed-4724-82cd-db128fc3f6c │Groovy  │Social Idp Profile   │Converts a normalized social  
+  Managed User           │                                    │        │Transformation       │profile into a managed user   
+OAuth2 Access Token      │d22f9a0c-426a-4466-b95e-d0f125b0d5fa│JS      │Oauth2 Access Token  │Default global script for     
+  Modification Script    │                                    │        │Modification         │OAuth2 Access Token           
+                         │                                    │        │                     │Modification                  
+OIDC Claims Script       │36863ffb-40ec-48b9-94b1-9a99f71cc3b5│JS      │Oidc Claims          │Default global script for OIDC
+                         │                                    │        │                     │claims                        
+Okta API AuthN           │2eb48a0c-24e0-4dac-acaf-02085c142ec5│JS      │Authentication Tree  │Integration to Okta           
+                         │                                    │        │Decision Node        │Authentication API            
+                         │                                    │        │                     │okta_url/api/v1/authn         
+Okta Profile             │6325cf19-a49b-471e-8d26-7e4df76df0e2│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from GitHub                   
+Onfido-CaptureEvidence   │71545db5-ce01-46b1-b79f-d41af36bd548│JS      │Authentication Tree  │Capture Evidence              
+                         │                                    │        │Decision Node        │                              
+Onfido-CheckApplicant    │d2a41d85-d33a-42d9-a7dd-50dfbc9fa7c0│JS      │Authentication Tree  │Check Applicant               
+                         │                                    │        │Decision Node        │                              
+Onfido-CheckStatus       │0c189425-e5ea-4062-ae2e-53ea14320bf4│JS      │Authentication Tree  │Check Status                  
+                         │                                    │        │Decision Node        │                              
+Onfido-CreateApplicant   │25d8a628-3556-4219-aaf5-2384e2e5f19a│JS      │Authentication Tree  │Create Applicant              
+                         │                                    │        │Decision Node        │                              
+Onfido-Meta-Tags         │8a768bb3-01cd-46b8-881c-b77f5a26c283│JS      │Authentication Tree  │Write Onfido HTML Meta Tags   
+                         │                                    │        │Decision Node        │                              
+OTP Invalid              │89eff37a-2e1e-47c2-8d62-5f7417fbb6b4│JS      │Authentication Tree  │Return TextOutputCallback     
+                         │                                    │        │Decision Node        │indicating the provided OTP   
+                         │                                    │        │                     │was invalid.                  
+OTP Valid                │5dbd53c6-67ff-4a43-84c3-90c5cf5da35a│JS      │Authentication Tree  │Return TextOutputCallback     
+                         │                                    │        │Decision Node        │indicating the provided OTP   
+                         │                                    │        │                     │was valid.                    
+Phone Validator - Line   │b63981d8-cb73-4e47-8749-e58654dcaa31│JS      │Authentication Tree  │This script uses              
+  Type                   │                                    │        │Decision Node        │phonevalidator.com to         
+                         │                                    │        │                     │determine the type of phone   
+                         │                                    │        │                     │number stored in the user     
+                         │                                    │        │                     │profile.                      
+Populate Username From   │4855aac0-1efd-49c0-a153-3b9aadc911a6│JS      │Authentication Tree  │Populate Username From Email  
+  Email                  │                                    │        │Decision Node        │                              
+Post Redirect Language   │35f56a51-cb99-410d-a7d2-7dc0bb9e4cb7│JS      │Authentication Tree  │Use this script to switch to  
+  Selector               │                                    │        │Decision Node        │the preferred language after a
+                         │                                    │        │                     │node that redirects the       
+                         │                                    │        │                     │browser (SAML2 node, Social   
+                         │                                    │        │                     │IDP Handler node, etc.) or    
+                         │                                    │        │                     │even to switch language       
+                         │                                    │        │                     │mid-journey.                  
+QR Code                  │663d0f65-ddf3-419c-8369-a90fde43d521│JS      │Authentication Tree  │Generate QR Code              
+                         │                                    │        │Decision Node        │                              
+Ready Response           │1acc5535-13e2-4ed8-83e1-f4fefd86d243│JS      │Authentication Tree  │Readiness probe response      
+                         │                                    │        │Decision Node        │                              
+Record Changes And       │12bdbce4-268b-4b95-bfdf-640de9bddead│JS      │Authentication Tree  │null                          
+  Preserve Old Email     │                                    │        │Decision Node        │                              
+Record MFA               │a873fcd8-8f17-4675-9dd6-54ab1c11e2df│JS      │Authentication Tree  │Record that MFA has been      
+                         │                                    │        │Decision Node        │performed for this journey and
+                         │                                    │        │                     │no longer needs to be         
+                         │                                    │        │                     │performed. This allows        
+                         │                                    │        │                     │journeys and inner journeys to
+                         │                                    │        │                     │check that flag before        
+                         │                                    │        │                     │performing MFA multiple times.
+Remove Button            │9535446c-0ff6-4a76-8576-616599119d64│JS      │Authentication Tree  │Remove button from page.      
+                         │                                    │        │Decision Node        │                              
+Remove Button -          │3814d347-a2f2-4be9-a810-ab41a1e374bd│JS      │Authentication Tree  │Hide buttons on the journey   
+  imported (1)           │                                    │        │Decision Node        │page.                         
+Resend OTP Option        │4ee5b182-1b09-45cc-97a9-0e609f0a2915│JS      │Authentication Tree  │Resend OTP Option             
+                         │                                    │        │Decision Node        │                              
+Reset Theme              │199405e4-050e-4f2a-87d1-d9125f74a8df│JS      │Authentication Tree  │Reset theme to what's         
+                         │                                    │        │Decision Node        │preserved in shared state     
+                         │                                    │        │                     │variable "theme-id" or to     
+                         │                                    │        │                     │default theme.                
+esetOTPProfileAttribute  │98a87024-3d07-4c75-b1ea-43ff905e9def│JS      │Authentication Tree  │Reset the IDM profile shared  
+                         │                                    │        │Decision Node        │state so it can be patched to 
+                         │                                    │        │                     │the user profile.             
+sswordReplayCredentials  │a8f10e93-3f6c-4d6c-b6a3-a8453e3d6b3a│JS      │Authentication Tree  │Reset the attributes holding  
+                         │                                    │        │Decision Node        │replay credentials for the IG 
+                         │                                    │        │                     │replay use case.              
+Return OTP               │d3405f9c-d338-4dc2-b00d-7aacf77b731d│JS      │Authentication Tree  │Return the generated OTP using
+                         │                                    │        │Decision Node        │a TextOutputCallback          
+Routed IDP Persist       │5b553f58-16bd-42b7-a782-4a981a66dbd4│JS      │Authentication Tree  │Branch based on the IDP       
+  Decision               │                                    │        │Decision Node        │setting.                      
+Salesforce Profile       │312e951f-70c5-49d2-a9ae-93aef909d5df│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Salesforce               
+Saml2 IDP Adapter        │85523e71-2d77-4577-b078-6f9674cc54e2│JS      │Saml2 Idp Adapter    │Always redirect browser       
+  Always Auth            │                                    │        │                     │pre-auth                      
+Saml2 IDP Adapter        │5b29c5b7-b161-4a42-a41f-d6c85316b951│JS      │Saml2 Idp Adapter    │null                          
+  Script                 │                                    │        │                     │                              
+Saml2 IDP Attribute      │90c4eca5-05f0-42f5-b9bf-88b693eabbbd│JS      │Saml2 Idp Attribute  │null                          
+  Mapper Script          │                                    │        │Mapper               │                              
+Sanitize                 │a064f7b7-29c5-480b-ac09-d3d122829278│JS      │Authentication Tree  │Sanitize objectAttributes     
+  objectAttributes       │                                    │        │Decision Node        │                              
+Save/restore             │5b3b2c47-0248-46f4-8a1c-8a495d249037│JS      │Authentication Tree  │null                          
+  perpetrator            │                                    │        │Decision Node        │                              
+Scripted Module -        │c827d2b4-3608-4693-868e-bbcf86bd87c7│JS      │Authentication Client│Default global script for     
+  Client Side            │                                    │        │Side                 │client side Scripted          
+                         │                                    │        │                     │Authentication Module         
+Scripted Module -        │7e3d7067-d50f-4674-8c76-a3e13a810c33│JS      │Authentication Server│Default global script for     
+  Server Side            │                                    │        │Side                 │server side Scripted          
+                         │                                    │        │                     │Authentication Module         
+Scripted Policy          │9de3eb62-f131-4fac-a294-7bd170fd4acb│JS      │Policy Condition     │Default global script for     
+  Condition              │                                    │        │                     │Scripted Policy Conditions    
+Select Theme by Browser  │847aab1b-c739-4d64-b26c-180f96cba02b│JS      │Authentication Tree  │Select and apply theme from   
+  Language               │                                    │        │Decision Node        │based on the browser language 
+                         │                                    │        │                     │in the request.               
+Select Theme from URL    │50cde102-d4b6-44c4-9ba7-8564af05ae08│JS      │Authentication Tree  │Select and apply theme from   
+                         │                                    │        │Decision Node        │query param in the request    
+                         │                                    │        │                     │URL.                          
+Service Account -        │58258c2d-46f3-4811-85c4-ea1476dd9cf4│JS      │Authentication Tree  │null                          
+  Cluster Internal       │                                    │        │Decision Node        │                              
+  Requests Only          │                                    │        │                     │                              
+Service Account - JWT    │fff76556-2882-4109-a9a6-c42d546cfe57│JS      │Oauth2 Scripted Jwt  │null                          
+  Issuers                │                                    │        │Issuer               │                              
+Service Account - Token  │3369037a-7a49-4aed-a1dc-7aab7608812b│JS      │Oauth2 Access Token  │null                          
+  Modification           │                                    │        │Modification         │                              
+Service Account -        │766ed2a6-29dd-4bd7-a60d-9eabbd63545c│JS      │Authentication Tree  │null                          
+  Verify JWT             │                                    │        │Decision Node        │                              
+Set OATH Theme           │f2107949-22f8-46c4-865d-ae1d1110a9cb│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │the new theme.                
+Set Theme                │76421cb0-0550-43e7-89f8-51ad1d95d306│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │the new theme.                
+Set Theme from URL       │1550ad56-df9f-4dad-9803-6c3a2545d8f4│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │new theme from query param in 
+                         │                                    │        │                     │the request URL.              
+Setup MFA Choice         │f26cc0de-ee31-4114-8a32-27799bb49357│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+shared State Printer     │b6fce769-cf21-4963-a8dc-7c5370a4d15b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Show Password Policy     │021e434f-89b6-45fb-9d67-5147bc1650c3│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Social Identity          │1d475815-72cb-42eb-aafd-4026989d28a7│Groovy  │Social Idp Profile   │Default global script for     
+  Provider Profile       │                                    │        │Transformation       │Social Identity Provider      
+  Transformation Script  │                                    │        │                     │Profile Transformation        
+c-social-transformation  │d2cf4f18-651a-4a3c-9b04-ee4fc896d0c3│Groovy  │Social Idp Profile   │Social Identity Provider      
+                         │                                    │        │Transformation       │Profile Transformation for    
+                         │                                    │        │                     │ForgeRock OIDC Providers      
+Store Profile In         │3981c0d3-0e3a-4c1d-be6b-5442e8acd3a1│JS      │Authentication Tree  │Store the profile information 
+  Session                │                                    │        │Decision Node        │in objectAttributes in session
+                         │                                    │        │                     │properties.                   
+Suspend Authentication   │36185679-b74f-479c-b1aa-6f6e852cca11│JS      │Authentication Tree  │Suspend authentication        
+                         │                                    │        │Decision Node        │                              
+TimeStamp_Login          │b3824c66-2dff-4613-9e54-4a7577fdb765│JS      │Authentication Tree  │Places a timestamp in the     
+                         │                                    │        │Decision Node        │frIndexedMultivalued1         
+                         │                                    │        │                     │attribute                     
+Twilio IVR: Choose       │030af5e5-ac77-4176-bafe-f4558f94818e│JS      │Authentication Tree  │Choose a 4-digit security PIN 
+  Security PIN           │                                    │        │Decision Node        │                              
+Twilio IVR: Connect      │181817ea-b8dc-4b3b-a366-99239f6f274d│JS      │Authentication Tree  │Connect caller to a real      
+  Caller                 │                                    │        │Decision Node        │person.                       
+Twilio IVR: Goodbye      │849ef5f3-7481-4607-a668-f0b5bf47db4c│JS      │Authentication Tree  │Goodbye Message               
+  Message                │                                    │        │Decision Node        │                              
+Twilio IVR: Greet        │be6f1f2c-30ee-41fb-9e1e-8da72267fad3│JS      │Authentication Tree  │Greet verified caller         
+  Verified Caller        │                                    │        │Decision Node        │                              
+Twilio IVR: Parse Call   │7dce8f07-d9fe-4752-94b9-ff99dfd0433b│JS      │Authentication Tree  │Parse parameters of the       
+  Parameters             │                                    │        │Decision Node        │incoming call.                
+Twilio IVR: Send         │3fff65f0-b3fe-40c5-8e82-b6d2e39a14e5│JS      │Authentication Tree  │Send registration information 
+  Registration           │                                    │        │Decision Node        │via SMS                       
+  Information Via SMS    │                                    │        │                     │                              
+Twilio IVR: Unknown      │7f1c30ec-ea27-4bb1-bd0b-be5792c9a1a6│JS      │Authentication Tree  │Unknown caller message        
+  Caller Message         │                                    │        │Decision Node        │                              
+Twilio IVR: Unverified   │4f1273be-9c52-4879-bbe9-9a47068aeed9│JS      │Authentication Tree  │Unverified caller message     
+  Caller Message         │                                    │        │Decision Node        │                              
+Twilio IVR: Verify       │aa2dabff-f5c4-4dc5-b4ac-5909e88a3a8f│JS      │Authentication Tree  │Verify known caller by first  
+  Known Caller           │                                    │        │Decision Node        │name                          
+Twilio IVR: Verify       │c9fa3899-c3ce-4833-af83-64d709202600│JS      │Authentication Tree  │Verify security PIN           
+  Security PIN           │                                    │        │Decision Node        │                              
+Twilio IVR: Verify       │1c0c73e8-2be1-41ce-b042-3c39694346b5│JS      │Authentication Tree  │Verify unknown caller by      
+  Unknown Caller         │                                    │        │Decision Node        │account number                
+Twilio IVR: Welcome      │53c50dbd-5331-4739-bea1-4c5e9bf553f2│JS      │Authentication Tree  │Welcome message               
+  Message                │                                    │        │Decision Node        │                              
+Twilio SMS OTP Sender    │91554b10-79a5-4aa8-aca1-59481a734c19│JS      │Authentication Tree  │Twilio SMS OTP Sender         
+                         │                                    │        │Decision Node        │                              
+Twilio Voice OTP Sender  │e0666b8b-f625-4047-89d8-e7e91151027f│JS      │Authentication Tree  │Twilio Voice OTP Sender       
+                         │                                    │        │Decision Node        │                              
+Twitter Profile          │8e298710-b55e-4085-a464-88a375a4004b│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Twitter                  
+UOP Enrich Session       │743351b3-001a-4ec8-b3ac-a674ddb8de22│JS      │Authentication Tree  │Enrich user session with UOP  
+                         │                                    │        │Decision Node        │class ID.                     
+UOP Get Course ID        │6ad22934-5d12-43a6-96a7-a2fba8d999bf│JS      │Authentication Tree  │Call out to University of     
+                         │                                    │        │Decision Node        │Phoenix Course Registration   
+                         │                                    │        │                     │System and get current course.
+VKontakte Profile        │403cf226-6051-4368-8b72-9ba14f9a5140│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from VKontakte                
+WeChat Profile           │472534ec-a25f-468d-a606-3fb1935190df│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from WeChat                   
+WordPress Profile        │91d197de-5916-4dca-83b5-9a4df26e7159│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from WordPress                
+Yahoo Profile            │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Yahoo                    
+"
+`;
+
+exports[`frodo script list "frodo script list -l": should list the names, uuids, languages, contexts, and descriptions of the scripts 1`] = `
+"Name                     │UUID                                │Language│Context              │Description                   
+AA Custom Policy Engine  │9e9c6c4d-5d9d-4990-9f05-d8b2b25ad52b│JS      │Authentication Tree  │Custom risk policy engine     
+                         │                                    │        │Decision Node        │combining Autonomous Access   
+                         │                                    │        │                     │signals with external signals.
+AAD Passthru Parse       │ae04e1a0-c662-43aa-9d80-21af78528b45│JS      │Authentication Tree  │Parse Access Token from Azure 
+  Access Token           │                                    │        │Decision Node        │AD pass through authentication
+                         │                                    │        │                     │using the Resource Owner      
+                         │                                    │        │                     │Password Credential flow      
+AAD Passthru ROPC        │13cd3c60-a04b-4455-b028-fbfd01ed88b1│JS      │Authentication Tree  │Azure AD pass through         
+                         │                                    │        │Decision Node        │authentication using Resource 
+                         │                                    │        │                     │Owner Password Credential flow
+Add Session Properties   │d1fffc59-1d57-4264-b715-242eee52e296│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ADFS Profile             │dbe0bf9a-72aa-49d5-8483-9db147985a47│JS      │Social Idp Profile   │Normalizes raw profile data   
+  Normalization (JS)     │                                    │        │Transformation       │from ADFS                     
+Admin_AmadminCheck       │b7ce17a1-e41d-42b0-bedc-f88a4d5e1c3a│JS      │Authentication Tree  │Prepares onboarding check if  
+                         │                                    │        │Decision Node        │not amadmin                   
+ectionWorkaroundCleanup  │fd536b1f-6ee4-4505-b148-71160414ddcc│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_CanBeInvited       │0d471aff-81f3-41ce-8bf9-35c27cdc0a26│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_ClearCurrentYear   │4a9aefc4-be0e-4625-95c3-ee8f354bce35│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+min_ClearFirstLastNames  │552a0f94-d177-45a9-b7bf-1502e312c299│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+min_ClearInviteMailVars  │e05e4136-ec87-4bb2-a0a4-9a9566b2f9fe│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_CollectUsernameOrEmail  │e9c9d940-30d9-4a0c-a834-7de69a0600cf│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+n_EnableEmailClaimCheck  │cfb208d8-241c-4953-b87b-bf59d1ab3d05│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ForgotUsernameMailCheck  │5e68fee3-047d-4fff-8e99-89fb5908f068│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+GetIdPGroupsClaimConfig  │fd560219-00ad-4763-9a29-f65aa9ecf776│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+in_GroupBasedOnboarding  │6cde0f58-437d-460a-bb44-7d76999e5ed5│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_HasOnboarded       │13b6a418-4ccc-41b6-86ce-0a13f352da22│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_IdPNormalization   │dc0c9905-4a58-4f61-8562-337514e610a7│JS      │Social Idp Profile   │null                          
+                         │                                    │        │Transformation       │                              
+rationEnforcedForTenant  │92511927-75e6-427f-8e64-eb6ca74115ef│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+derationEnforcedForUser  │1e8175a2-6114-415f-9b72-9fe15bdf3661│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_IsInvited          │6dfc6de4-64cb-4d47-8269-6c5ced44344d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_LoadObjectByID     │b88ce1fe-2480-4fd5-8062-2bd1f4659e2e│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+ocalRegistrationCleanup  │5dcb1238-4684-47b7-8679-087b576d4fe8│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+n_LocalRegistrationPrep  │a316aedd-8b3b-4f68-b6e8-65859f1e87be│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaGetApp          │fe35a8fb-31b1-441c-bb9b-27932565061c│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaOptIn           │158e500b-8180-4641-ad48-23577fe9d976│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_MfaRequiredCheck   │4c7bb7bb-c5d6-47ac-92dc-256fb8121fa9│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PasswordFixEnd     │27f1b5a3-9446-4e5c-b965-f195a99fa666│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PasswordFixStart   │4accb4d0-56ec-4a28-a769-5275dbac3147│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_PasswordUpdatedMessage  │6ccf7507-38a4-49fe-9fb2-927186538e66│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_PrivacyPolicy      │653b70b0-a23d-403a-933b-911371cf84c0│JS      │Authentication Tree  │Returns privacy policy        
+                         │                                    │        │Decision Node        │collection                    
+_ProfileToManagedObject  │ab78dcb5-85cb-41a6-813e-e07a77761376│JS      │Social Idp Profile   │null                          
+                         │                                    │        │Transformation       │                              
+Admin_SessionCheck       │b4067e18-2d4d-4257-a38e-0b3ba3001a58│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetCurrentYear     │6963d84e-e2f0-4db1-a746-116604189602│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetInvitedTrue     │3126e6a4-e288-4ed5-8a0b-7d849f38567b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Admin_SetInviteMailVars  │db854830-a069-471f-875a-8dc67d45ea2d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+SetOnboardingAttributes  │80c3e733-ae51-4851-a01d-1cbf193c80e9│JS      │Authentication Tree  │Activates the admin's account 
+                         │                                    │        │Decision Node        │                              
+min_SetUsernameFromMail  │8e1060d8-73c4-425c-a524-0c3709b4fa8d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+_UsernameChangedMessage  │f4a1729d-de9e-40b8-9e3c-33241493e4c8│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Alpha endUserUIClient    │e232cff3-2460-47cd-80b2-36c86c0d0f06│JS      │Oauth2 Access Token  │Used by endUserUIClient       
+  OAuth2 Access Token    │                                    │        │Modification         │                              
+  Modification Script    │                                    │        │                     │                              
+Alpha endUserUIClient    │e1db8a0a-0329-4962-a5bf-ecffaca376ae│JS      │Oidc Claims          │Used by endUserUIClient       
+  OIDC Claims Script     │                                    │        │                     │                              
+Alpha OAuth2 Access      │39c08084-1238-43e8-857f-2e11005eac49│JS      │Oauth2 Access Token  │Default alpha realm script for
+  Token Modification     │                                    │        │Modification         │OAuth2 Access Token           
+  Script                 │                                    │        │                     │Modification                  
+Alpha OIDC Claims        │cf3515f0-8278-4ee3-a530-1bad7424c416│JS      │Oidc Claims          │Default alpha realm script for
+  Script                 │                                    │        │                     │OIDC claims                   
+Amazon Profile           │6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Amazon                   
+APIProtection: Get Key   │9399ac8b-3a6e-423b-95a2-6e0fd07262b1│JS      │Authentication Tree  │APIProtection: Get Key And    
+  And Secret             │                                    │        │Decision Node        │Secret                        
+APIProtection: Reset     │f1a2764b-d05a-4480-8f5f-78fda7814227│JS      │Authentication Tree  │APIProtection: Reset State    
+  States                 │                                    │        │Decision Node        │                              
+Apple Profile            │484e6246-dbc6-4288-97e6-54e55431402e│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Apple                    
+Authentication Tree      │01e1a3c0-038b-4c16-956a-6c9d89328cff│JS      │Authentication Tree  │Default global script for a   
+  Decision Node Script   │                                    │        │Decision Node        │scripted decision node        
+Browser Language         │8508a00e-ad45-4310-b3c7-c6871b6a41a9│JS      │Authentication Tree  │Browser Language Decision     
+  Decision               │                                    │        │Decision Node        │                              
+Check Existing Session   │0ab1dd57-eafd-4063-8e60-65bfac8108b7│JS      │Authentication Tree  │Check existing session and set
+                         │                                    │        │Decision Node        │username                      
+Check For Existing       │616d3541-14d6-4a54-94dd-46a146ef2423│JS      │Authentication Tree  │Check For Existing Session    
+  Session                │                                    │        │Decision Node        │                              
+Check Username           │739bdc48-fd24-4c52-b353-88706d75558a│JS      │Authentication Tree  │Check if username has already 
+                         │                                    │        │Decision Node        │been collected.               
+Choice inner1, inner2    │14f14ad3-f35f-455b-a7ba-d7cd939c6921│JS      │Authentication Tree  │Dropdown selector             
+                         │                                    │        │Decision Node        │                              
+Collect Extra Fields     │92edf2c7-0bab-412c-a0da-82ad4f04505b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Collect Inner Tree       │d70df7a8-6390-409d-b821-166272a9a9c8│JS      │Authentication Tree  │Collect all the configuration 
+  Evaluator Config       │                                    │        │Decision Node        │items required for the Inner  
+                         │                                    │        │                     │Tree Evaluator to function    
+                         │                                    │        │                     │properly.                     
+Collect Message Node     │169150da-0bd1-4866-8095-eae0bbc269e4│JS      │Authentication Tree  │Collect all the configuration 
+  Config                 │                                    │        │Decision Node        │items required for the Message
+                         │                                    │        │                     │Node to function properly.    
+Collect PIN              │e4417108-4dc9-4ffc-9995-3cd490adf2ed│JS      │Authentication Tree  │Collect PIN                   
+                         │                                    │        │Decision Node        │                              
+Collect Replay Password  │d82a4ad6-cd8a-437b-af55-7373e50d685b│JS      │Authentication Tree  │Collect Replay Password       
+  (frUnindexedString2)   │                                    │        │Decision Node        │(frUnindexedString2).         
+Collect SAML2 Node       │48f17202-039f-4d40-b7fc-4ce380f1b929│JS      │Authentication Tree  │Collect all the configuration 
+  Config                 │                                    │        │Decision Node        │items required for the SAML2  
+                         │                                    │        │                     │Node to function properly.    
+Collect Set Custom       │a31a1796-8410-46b8-82ca-eb0c6e901775│JS      │Authentication Tree  │Collect all the configuration 
+  Cookie Node Config     │                                    │        │Decision Node        │items required for the Set    
+                         │                                    │        │                     │Custom Cookie node to function
+                         │                                    │        │                     │properly.                     
+Config Provider          │5e854779-6ec1-4c39-aeba-0477e0986646│JS      │Config Provider Node │Default global script for     
+                         │                                    │        │                     │Config Provider               
+Configure Email          │22ab12ac-d1d9-414b-ab51-cfae30de8c0a│JS      │Authentication Tree  │Create a configuration object 
+  Template Node          │                                    │        │Decision Node        │for the Email Template Node.  
+Copy to transientState   │452d73ee-c6f3-4f4e-9dae-e75bb3886cbd│JS      │Authentication Tree  │Copy sharedState to           
+                         │                                    │        │Decision Node        │transientState                
+opyIDToObjectAttributes  │c253a7ac-ebc9-4268-9e62-89f38f98e4ab│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+pyOTPToObjectAttributes  │5561a45f-bf00-4ec5-bab4-f069bac9a38b│JS      │Authentication Tree  │Copy an OTP generated by the  
+                         │                                    │        │Decision Node        │"HOTP Generator" node to the  
+                         │                                    │        │                     │IDM profile shared state so it
+                         │                                    │        │                     │can be patched to the user    
+                         │                                    │        │                     │profile.                      
+LDataToObjectAttributes  │8e03eb43-ed5d-4c12-9e15-2051cc9be578│JS      │Authentication Tree  │Copy SAML Data To             
+                         │                                    │        │Decision Node        │ObjectAttributes              
+CP-ITE-static-inner1     │638c865e-d393-4503-a517-535b9c74e010│JS      │Config Provider Node │nerTreeEvaluator-static-inner1
+CP-ITE-static-inner2     │740cf6fa-a173-4e9d-b17c-44758e9b19ec│JS      │Config Provider Node │nerTreeEvaluator-static-inner2
+debug                    │3cb43516-ae69-433a-8787-501d45db14e9│JS      │Authentication Tree  │Display sharedState,          
+                         │                                    │        │Decision Node        │transientState, and headers.  
+Device Id (Match) -      │157298c0-7d31-4059-a95b-eeb08473b7e5│JS      │Authentication Client│Default global script for     
+  Client Side            │                                    │        │Side                 │client side Device Id (Match) 
+                         │                                    │        │                     │Authentication Module         
+Device Id (Match) -      │703dab1a-1921-4981-98dd-b8e5349d8548│JS      │Authentication Server│Default global script for     
+  Server Side            │                                    │        │Side                 │server side Device Id (Match) 
+                         │                                    │        │                     │Authentication Module         
+iceprofile_to_attribute  │123725a9-2119-4efd-a6b0-456f3ccd34b7│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+display country          │8bccfdd0-5556-4562-a1ca-6d725a449556│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Display ESV              │b1fd9b38-fc54-46c6-9199-3d0de0abfaee│JS      │Authentication Tree  │Display the value of an ESV   
+                         │                                    │        │Decision Node        │                              
+Display Password         │ec8b314c-8e11-4364-93b9-a3e82d2a074a│JS      │Authentication Tree  │Display Password from         
+                         │                                    │        │Decision Node        │nodeState                     
+Display Session Info     │37bf200a-158f-4a45-8ee5-81516e4593f8│JS      │Authentication Tree  │Display session info.         
+                         │                                    │        │Decision Node        │                              
+Display States           │b703581a-e112-42b9-bc24-6db8bced5a13│JS      │Authentication Tree  │Display sharedState and       
+                         │                                    │        │Decision Node        │transientState.               
+Display States -         │e49225eb-e7ad-4699-bf2a-d57689f9cd6e│JS      │Authentication Tree  │Display sharedState and       
+  imported (1)           │                                    │        │Decision Node        │transientState.               
+Display States -         │6d6c2202-725b-4196-9436-92ec11a0b385│JS      │Authentication Tree  │Display sharedState and       
+  imported (2)           │                                    │        │Decision Node        │transientState.               
+Display Tenant URL       │e78f1f88-d8ad-4ecf-903a-9478072e3997│JS      │Authentication Tree  │Display Tenant URL (fqdn)     
+  (fqdn)                 │                                    │        │Decision Node        │                              
+Display Username         │fe5e303b-9ed7-4853-84fe-0ae43e2254d5│JS      │Authentication Tree  │Display the username in an    
+                         │                                    │        │Decision Node        │HTML dialog.                  
+Dropdown                 │71b3c70b-920c-464b-a918-4c86eaaddccd│JS      │Authentication Tree  │Render a dropdown             
+                         │                                    │        │Decision Node        │                              
+Embed Cookie Consent     │eea1e530-8cf4-4875-af75-11396e6a8859│JS      │Authentication Tree  │Embed cookie consent          
+                         │                                    │        │Decision Node        │JavaScript snippet.           
+Facebook Profile         │bae1d54a-e97d-4997-aa5d-c027f21af82c│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Facebook                 
+ForgeRock Internal:      │c234ba0b-58a1-4cfd-9567-09edde980745│JS      │Oauth2 Access Token  │Internal token modification   
+  OAuth2 Access Token    │                                    │        │Modification         │script                        
+  Modification Script    │                                    │        │                     │                              
+ForgeRock Internal:      │1f389a3d-21cf-417c-a6d3-42ea620071f0│JS      │Oidc Claims          │Internal OIDC Claims script   
+  OIDC Claims Script     │                                    │        │                     │                              
+ForgeRockVpnOnly         │779bb956-676d-4e44-b828-b9efa3c866d4│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+FRAAS-7955 Both States   │38f698de-fe11-43d2-8480-44e1312d121d│JS      │Authentication Tree  │FRAAS-7955 Both States        
+                         │                                    │        │Decision Node        │                              
+FRAAS-7955 Display       │164fe425-01e7-4b0b-9f60-fb41f6bf362b│JS      │Authentication Tree  │FRAAS-7955 Display sharedState
+  States                 │                                    │        │Decision Node        │and transientState.           
+FRAAS-7955 Shared State  │dedbc9f6-7fc9-4332-a330-55f7aeb95e78│JS      │Authentication Tree  │FRAAS-7955 Shared State Only  
+  Only                   │                                    │        │Decision Node        │                              
+FRAAS-7955 Show Object   │fbc563cb-eced-4e1b-9cd4-022680347668│JS      │Authentication Tree  │FRAAS-7955 Show Object Values 
+  Values                 │                                    │        │Decision Node        │                              
+FRAAS-7955 Transient     │073a64d4-37c9-486d-8c59-6583494644b9│JS      │Authentication Tree  │FRAAS-7955 Transient State    
+  State Only             │                                    │        │Decision Node        │Only                          
+FRAAS-7955 Workaround    │e0ba741b-c952-4062-9899-0b1c19237ee4│JS      │Authentication Tree  │FRAAS-7955 Workaround: Copy   
+                         │                                    │        │Decision Node        │sharedState to transientState 
+Get Email                │d6469639-249f-4df1-9e03-335cd3e37b3d│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Get Lockout Status       │cdea92a1-d2bf-4364-a525-fde8b7a95792│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+GitHub Profile           │a7a78773-445b-4eca-bb93-409e86bced81│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from GitHub                   
+GitHub Profile           │23143919-6b78-40c3-b25e-beca19b229e0│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization (VS)     │                                    │        │Transformation       │from GitHub                   
+Google Profile           │58d29080-4563-480b-89bb-1e7719776a21│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Google                   
+Goto Specified Decision  │2a076e9e-75a9-46b5-b971-10ffafbdf652│JS      │Authentication Tree  │Return true if a goto param   
+                         │                                    │        │Decision Node        │has been specified, false     
+                         │                                    │        │                     │otherwise.                    
+Has Email Changed        │d3102a25-056d-4e34-973b-577ced8cc9b7│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Has Profile Changed      │2ada53cd-5d37-4592-9c7f-5711271229c2│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Hash State Variables     │a2c639ac-7ccd-4906-bb31-f6e69632c93b│JS      │Authentication Tree  │Hash State Variables          
+                         │                                    │        │Decision Node        │                              
+hashdeviceProfile        │e15a13ee-9168-40cf-934f-656a5f568a6a│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+HIBP Password Breach     │790045fa-a325-4e3e-96f8-d4a91b32e9de│JS      │Authentication Tree  │Use Have I Been Pwned Password
+  Analysis               │                                    │        │Decision Node        │to check if password has been 
+                         │                                    │        │                     │breached.                     
+iddataweb Profile        │2997bd4d-14be-4dc6-8701-27f08d10b8b7│Groovy  │Social Idp Profile   │Profile Normalization Script  
+  Normalization          │                                    │        │Transformation       │for idddataweb                
+IDP Integrity Check      │988c10fa-98da-4bf7-8ac9-a558d2fef1fd│JS      │Authentication Tree  │Protection from malicious     
+                         │                                    │        │Decision Node        │IDPs. Only allow white-listed 
+                         │                                    │        │                     │email domains (usernames are  
+                         │                                    │        │                     │email addresses).             
+IDP Lookup               │68d5a8e7-fcc9-4215-9e63-a01afe8fa849│JS      │Authentication Tree  │Perform IDP lookup based on   
+                         │                                    │        │Decision Node        │email domain. Set users'      
+                         │                                    │        │                     │external IDP in shared state  
+                         │                                    │        │                     │or continue to local          
+                         │                                    │        │                     │authentication.               
+IDP Re-Lookup            │ab917dad-6fdb-46c2-8c8c-42f094ebeea1│JS      │Authentication Tree  │Perform IDP re-lookup based on
+                         │                                    │        │Decision Node        │the Organization ID from the  
+                         │                                    │        │                     │initial lookup. Set users'    
+                         │                                    │        │                     │external IDP in shared state  
+                         │                                    │        │                     │for further processing.       
+IDP Router               │aef262d0-7a42-4a34-9826-e7dbc2ea6eb9│JS      │Authentication Tree  │Route users to their          
+                         │                                    │        │Decision Node        │organization's IDP of type    
+                         │                                    │        │                     │saml, oidc, local, or custom  
+                         │                                    │        │                     │and apply the organization's  
+                         │                                    │        │                     │theme, if specified           
+Impersonate: Extract     │d6f3befb-c73a-437e-b02a-66d9b4c93f8b│JS      │Authentication Tree  │Extract impersonatee and      
+  Actors And Become      │                                    │        │Decision Node        │impersonator from headers and 
+  Impersonator           │                                    │        │                     │become impersonator.          
+Impersonate: Switch      │878816b3-2bb4-4b43-8001-10f926ddefff│JS      │Authentication Tree  │Switch Actors And Become      
+  Actors And Become      │                                    │        │Decision Node        │Impersonatee.                 
+  Impersonatee           │                                    │        │                     │                              
+Impersonate: Update      │7dd80834-e7b2-4737-85a7-40434bb19dde│JS      │Authentication Tree  │Store the impersontor and     
+  Session Properties     │                                    │        │Decision Node        │impersonatee profile          
+                         │                                    │        │                     │information in session        
+                         │                                    │        │                     │properties.                   
+Inspect Username         │23e88721-ea4a-4da2-bfba-33d82fd0317d│JS      │Authentication Tree  │Reads the shared state "_id"  
+                         │                                    │        │Decision Node        │attribute. Fetches the        
+                         │                                    │        │                     │userName (uid0 object from the
+                         │                                    │        │                     │users. Saves the userName to  
+                         │                                    │        │                     │shared state. (in both        
+                         │                                    │        │                     │userName and username). Then  
+                         │                                    │        │                     │returns outcome if the        
+                         │                                    │        │                     │username starts with "anon-"  
+                         │                                    │        │                     │outcome = anonymous. Otherwise
+                         │                                    │        │                     │outcome = known.              
+Instagram Profile        │1244e639-4a31-401d-ab61-d75133d8dc9e│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Instagram                
+IPQS Email Address       │70e8aa07-aa8f-4ec3-b9fb-6f6f8aa14e3c│JS      │Authentication Tree  │Analyze an email address using
+                         │                                    │        │Decision Node        │the IPQualityScore (IPQS)     
+                         │                                    │        │                     │service.                      
+IPQS IP Address          │a186232a-683d-48ce-8893-d6f92652ec82│JS      │Authentication Tree  │Analyze an IP address using   
+                         │                                    │        │Decision Node        │the IPQualityScore (IPQS)     
+                         │                                    │        │                     │service.                      
+ipstack                  │87497360-d89c-412a-a99e-c8a9bec465cc│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+IPv4 CIDR Rules Engine   │7fb962a5-9f20-41d3-a077-b424a29c1198│JS      │Authentication Tree  │Evaluate IPv4 CIDR access     
+                         │                                    │        │Decision Node        │rules from                    
+                         │                                    │        │                     │"esv-ipv4-cidr-access-rules". 
+Itsme Profile            │3d97c436-42c0-4dd0-a571-ea6f34f752b3│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Itsme                    
+KerberosLogin: Extract   │355a8b7c-9e3c-40c1-a873-68127e483adf│JS      │Authentication Tree  │Extract Username from request.
+  Username               │                                    │        │Decision Node        │                              
+Launcher                 │3b81d8e6-55f3-4937-bbbb-d62233cc6a0f│JS      │Authentication Tree  │Display launch panel with     
+                         │                                    │        │Decision Node        │journeys.                     
+LinkedIn Profile         │8862ca8f-7770-4af5-a888-ac0df0947f36│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from LinkedIn                 
+Logout                   │2aab9d46-9363-4061-9f63-eb824e33c505│JS      │Authentication Tree  │Logout.                       
+                         │                                    │        │Decision Node        │                              
+MFA Splitter             │bdaf9f64-0fd6-4d2d-b305-bf295f09f797│JS      │Authentication Tree  │Decide if a user should never 
+                         │                                    │        │Decision Node        │or always be prompted for MFA 
+                         │                                    │        │                     │based on membership in the    
+                         │                                    │        │                     │'MFA Never' or 'MFA Always'   
+                         │                                    │        │                     │groups. Membership in neither 
+                         │                                    │        │                     │results in a neutral decision.
+MFA Status               │ac9fc25e-3ad9-4f80-a796-2d9093795439│JS      │Authentication Tree  │Check if MFA has already been 
+                         │                                    │        │Decision Node        │performed for this journey.   
+                         │                                    │        │                     │This allows journeys and inner
+                         │                                    │        │                     │journeys not to perform MFA   
+                         │                                    │        │                     │multiple times.               
+Microsoft Profile        │73cecbfc-dad0-4395-be6a-6858ee3a80e5│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Microsoft                
+MobileOTP: Extract       │57807349-630f-496a-bccb-ea1011b8e945│JS      │Authentication Tree  │Extract username, password,   
+  Username, Password, OTP│                                    │        │Decision Node        │and OTP from request headers  
+                         │                                    │        │                     │and put them in shared state  
+                         │                                    │        │                     │for validation.               
+MobileOTP: Prepare       │d25a1315-8beb-4a0c-84bf-534214fed087│JS      │Authentication Tree  │Prepare Reset Of OTP Profile  
+  Reset Of OTP Profile   │                                    │        │Decision Node        │Attribute                     
+  Attribute              │                                    │        │                     │                              
+MobileOTP: Validate OTP  │ce6fbbcf-5d9a-471b-bcc1-448758a6374a│JS      │Authentication Tree  │Validate OTP in profile       
+  In Profile Attribute   │                                    │        │Decision Node        │attribute                     
+Normalized ADFS Profile  │3156d7e9-1589-4ffb-a659-37a1647ee03d│Groovy  │Social Idp Profile   │Converts a normalized social  
+  to Managed User        │                                    │        │Transformation       │profile coming from ADFS into 
+                         │                                    │        │                     │a managed user                
+Normalized idddataweb    │809330cf-874c-4d57-a8f1-5882c6dd855b│Groovy  │Social Idp Profile   │Converts a normalized social  
+  Profile to Managed User│                                    │        │Transformation       │profile for iddataweb into a  
+                         │                                    │        │                     │Managed user                  
+Normalized Profile to    │ed685f9f-5909-4726-86e8-22bd38b47663│Groovy  │Social Idp Profile   │Converts a normalized social  
+  Identity               │                                    │        │Transformation       │profile into an Identity      
+Normalized Profile to    │58c824ae-84ed-4724-82cd-db128fc3f6c │Groovy  │Social Idp Profile   │Converts a normalized social  
+  Managed User           │                                    │        │Transformation       │profile into a managed user   
+OAuth2 Access Token      │d22f9a0c-426a-4466-b95e-d0f125b0d5fa│JS      │Oauth2 Access Token  │Default global script for     
+  Modification Script    │                                    │        │Modification         │OAuth2 Access Token           
+                         │                                    │        │                     │Modification                  
+OIDC Claims Script       │36863ffb-40ec-48b9-94b1-9a99f71cc3b5│JS      │Oidc Claims          │Default global script for OIDC
+                         │                                    │        │                     │claims                        
+Okta API AuthN           │2eb48a0c-24e0-4dac-acaf-02085c142ec5│JS      │Authentication Tree  │Integration to Okta           
+                         │                                    │        │Decision Node        │Authentication API            
+                         │                                    │        │                     │okta_url/api/v1/authn         
+Okta Profile             │6325cf19-a49b-471e-8d26-7e4df76df0e2│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from GitHub                   
+Onfido-CaptureEvidence   │71545db5-ce01-46b1-b79f-d41af36bd548│JS      │Authentication Tree  │Capture Evidence              
+                         │                                    │        │Decision Node        │                              
+Onfido-CheckApplicant    │d2a41d85-d33a-42d9-a7dd-50dfbc9fa7c0│JS      │Authentication Tree  │Check Applicant               
+                         │                                    │        │Decision Node        │                              
+Onfido-CheckStatus       │0c189425-e5ea-4062-ae2e-53ea14320bf4│JS      │Authentication Tree  │Check Status                  
+                         │                                    │        │Decision Node        │                              
+Onfido-CreateApplicant   │25d8a628-3556-4219-aaf5-2384e2e5f19a│JS      │Authentication Tree  │Create Applicant              
+                         │                                    │        │Decision Node        │                              
+Onfido-Meta-Tags         │8a768bb3-01cd-46b8-881c-b77f5a26c283│JS      │Authentication Tree  │Write Onfido HTML Meta Tags   
+                         │                                    │        │Decision Node        │                              
+OTP Invalid              │89eff37a-2e1e-47c2-8d62-5f7417fbb6b4│JS      │Authentication Tree  │Return TextOutputCallback     
+                         │                                    │        │Decision Node        │indicating the provided OTP   
+                         │                                    │        │                     │was invalid.                  
+OTP Valid                │5dbd53c6-67ff-4a43-84c3-90c5cf5da35a│JS      │Authentication Tree  │Return TextOutputCallback     
+                         │                                    │        │Decision Node        │indicating the provided OTP   
+                         │                                    │        │                     │was valid.                    
+Phone Validator - Line   │b63981d8-cb73-4e47-8749-e58654dcaa31│JS      │Authentication Tree  │This script uses              
+  Type                   │                                    │        │Decision Node        │phonevalidator.com to         
+                         │                                    │        │                     │determine the type of phone   
+                         │                                    │        │                     │number stored in the user     
+                         │                                    │        │                     │profile.                      
+Populate Username From   │4855aac0-1efd-49c0-a153-3b9aadc911a6│JS      │Authentication Tree  │Populate Username From Email  
+  Email                  │                                    │        │Decision Node        │                              
+Post Redirect Language   │35f56a51-cb99-410d-a7d2-7dc0bb9e4cb7│JS      │Authentication Tree  │Use this script to switch to  
+  Selector               │                                    │        │Decision Node        │the preferred language after a
+                         │                                    │        │                     │node that redirects the       
+                         │                                    │        │                     │browser (SAML2 node, Social   
+                         │                                    │        │                     │IDP Handler node, etc.) or    
+                         │                                    │        │                     │even to switch language       
+                         │                                    │        │                     │mid-journey.                  
+QR Code                  │663d0f65-ddf3-419c-8369-a90fde43d521│JS      │Authentication Tree  │Generate QR Code              
+                         │                                    │        │Decision Node        │                              
+Ready Response           │1acc5535-13e2-4ed8-83e1-f4fefd86d243│JS      │Authentication Tree  │Readiness probe response      
+                         │                                    │        │Decision Node        │                              
+Record Changes And       │12bdbce4-268b-4b95-bfdf-640de9bddead│JS      │Authentication Tree  │null                          
+  Preserve Old Email     │                                    │        │Decision Node        │                              
+Record MFA               │a873fcd8-8f17-4675-9dd6-54ab1c11e2df│JS      │Authentication Tree  │Record that MFA has been      
+                         │                                    │        │Decision Node        │performed for this journey and
+                         │                                    │        │                     │no longer needs to be         
+                         │                                    │        │                     │performed. This allows        
+                         │                                    │        │                     │journeys and inner journeys to
+                         │                                    │        │                     │check that flag before        
+                         │                                    │        │                     │performing MFA multiple times.
+Remove Button            │9535446c-0ff6-4a76-8576-616599119d64│JS      │Authentication Tree  │Remove button from page.      
+                         │                                    │        │Decision Node        │                              
+Remove Button -          │3814d347-a2f2-4be9-a810-ab41a1e374bd│JS      │Authentication Tree  │Hide buttons on the journey   
+  imported (1)           │                                    │        │Decision Node        │page.                         
+Resend OTP Option        │4ee5b182-1b09-45cc-97a9-0e609f0a2915│JS      │Authentication Tree  │Resend OTP Option             
+                         │                                    │        │Decision Node        │                              
+Reset Theme              │199405e4-050e-4f2a-87d1-d9125f74a8df│JS      │Authentication Tree  │Reset theme to what's         
+                         │                                    │        │Decision Node        │preserved in shared state     
+                         │                                    │        │                     │variable "theme-id" or to     
+                         │                                    │        │                     │default theme.                
+esetOTPProfileAttribute  │98a87024-3d07-4c75-b1ea-43ff905e9def│JS      │Authentication Tree  │Reset the IDM profile shared  
+                         │                                    │        │Decision Node        │state so it can be patched to 
+                         │                                    │        │                     │the user profile.             
+sswordReplayCredentials  │a8f10e93-3f6c-4d6c-b6a3-a8453e3d6b3a│JS      │Authentication Tree  │Reset the attributes holding  
+                         │                                    │        │Decision Node        │replay credentials for the IG 
+                         │                                    │        │                     │replay use case.              
+Return OTP               │d3405f9c-d338-4dc2-b00d-7aacf77b731d│JS      │Authentication Tree  │Return the generated OTP using
+                         │                                    │        │Decision Node        │a TextOutputCallback          
+Routed IDP Persist       │5b553f58-16bd-42b7-a782-4a981a66dbd4│JS      │Authentication Tree  │Branch based on the IDP       
+  Decision               │                                    │        │Decision Node        │setting.                      
+Salesforce Profile       │312e951f-70c5-49d2-a9ae-93aef909d5df│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Salesforce               
+Saml2 IDP Adapter        │85523e71-2d77-4577-b078-6f9674cc54e2│JS      │Saml2 Idp Adapter    │Always redirect browser       
+  Always Auth            │                                    │        │                     │pre-auth                      
+Saml2 IDP Adapter        │5b29c5b7-b161-4a42-a41f-d6c85316b951│JS      │Saml2 Idp Adapter    │null                          
+  Script                 │                                    │        │                     │                              
+Saml2 IDP Attribute      │90c4eca5-05f0-42f5-b9bf-88b693eabbbd│JS      │Saml2 Idp Attribute  │null                          
+  Mapper Script          │                                    │        │Mapper               │                              
+Sanitize                 │a064f7b7-29c5-480b-ac09-d3d122829278│JS      │Authentication Tree  │Sanitize objectAttributes     
+  objectAttributes       │                                    │        │Decision Node        │                              
+Save/restore             │5b3b2c47-0248-46f4-8a1c-8a495d249037│JS      │Authentication Tree  │null                          
+  perpetrator            │                                    │        │Decision Node        │                              
+Scripted Module -        │c827d2b4-3608-4693-868e-bbcf86bd87c7│JS      │Authentication Client│Default global script for     
+  Client Side            │                                    │        │Side                 │client side Scripted          
+                         │                                    │        │                     │Authentication Module         
+Scripted Module -        │7e3d7067-d50f-4674-8c76-a3e13a810c33│JS      │Authentication Server│Default global script for     
+  Server Side            │                                    │        │Side                 │server side Scripted          
+                         │                                    │        │                     │Authentication Module         
+Scripted Policy          │9de3eb62-f131-4fac-a294-7bd170fd4acb│JS      │Policy Condition     │Default global script for     
+  Condition              │                                    │        │                     │Scripted Policy Conditions    
+Select Theme by Browser  │847aab1b-c739-4d64-b26c-180f96cba02b│JS      │Authentication Tree  │Select and apply theme from   
+  Language               │                                    │        │Decision Node        │based on the browser language 
+                         │                                    │        │                     │in the request.               
+Select Theme from URL    │50cde102-d4b6-44c4-9ba7-8564af05ae08│JS      │Authentication Tree  │Select and apply theme from   
+                         │                                    │        │Decision Node        │query param in the request    
+                         │                                    │        │                     │URL.                          
+Service Account -        │58258c2d-46f3-4811-85c4-ea1476dd9cf4│JS      │Authentication Tree  │null                          
+  Cluster Internal       │                                    │        │Decision Node        │                              
+  Requests Only          │                                    │        │                     │                              
+Service Account - JWT    │fff76556-2882-4109-a9a6-c42d546cfe57│JS      │Oauth2 Scripted Jwt  │null                          
+  Issuers                │                                    │        │Issuer               │                              
+Service Account - Token  │3369037a-7a49-4aed-a1dc-7aab7608812b│JS      │Oauth2 Access Token  │null                          
+  Modification           │                                    │        │Modification         │                              
+Service Account -        │766ed2a6-29dd-4bd7-a60d-9eabbd63545c│JS      │Authentication Tree  │null                          
+  Verify JWT             │                                    │        │Decision Node        │                              
+Set OATH Theme           │f2107949-22f8-46c4-865d-ae1d1110a9cb│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │the new theme.                
+Set Theme                │76421cb0-0550-43e7-89f8-51ad1d95d306│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │the new theme.                
+Set Theme from URL       │1550ad56-df9f-4dad-9803-6c3a2545d8f4│JS      │Authentication Tree  │Detect and preserve currently 
+                         │                                    │        │Decision Node        │active theme before setting   
+                         │                                    │        │                     │new theme from query param in 
+                         │                                    │        │                     │the request URL.              
+Setup MFA Choice         │f26cc0de-ee31-4114-8a32-27799bb49357│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+shared State Printer     │b6fce769-cf21-4963-a8dc-7c5370a4d15b│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Show Password Policy     │021e434f-89b6-45fb-9d67-5147bc1650c3│JS      │Authentication Tree  │null                          
+                         │                                    │        │Decision Node        │                              
+Social Identity          │1d475815-72cb-42eb-aafd-4026989d28a7│Groovy  │Social Idp Profile   │Default global script for     
+  Provider Profile       │                                    │        │Transformation       │Social Identity Provider      
+  Transformation Script  │                                    │        │                     │Profile Transformation        
+c-social-transformation  │d2cf4f18-651a-4a3c-9b04-ee4fc896d0c3│Groovy  │Social Idp Profile   │Social Identity Provider      
+                         │                                    │        │Transformation       │Profile Transformation for    
+                         │                                    │        │                     │ForgeRock OIDC Providers      
+Store Profile In         │3981c0d3-0e3a-4c1d-be6b-5442e8acd3a1│JS      │Authentication Tree  │Store the profile information 
+  Session                │                                    │        │Decision Node        │in objectAttributes in session
+                         │                                    │        │                     │properties.                   
+Suspend Authentication   │36185679-b74f-479c-b1aa-6f6e852cca11│JS      │Authentication Tree  │Suspend authentication        
+                         │                                    │        │Decision Node        │                              
+TimeStamp_Login          │b3824c66-2dff-4613-9e54-4a7577fdb765│JS      │Authentication Tree  │Places a timestamp in the     
+                         │                                    │        │Decision Node        │frIndexedMultivalued1         
+                         │                                    │        │                     │attribute                     
+Twilio IVR: Choose       │030af5e5-ac77-4176-bafe-f4558f94818e│JS      │Authentication Tree  │Choose a 4-digit security PIN 
+  Security PIN           │                                    │        │Decision Node        │                              
+Twilio IVR: Connect      │181817ea-b8dc-4b3b-a366-99239f6f274d│JS      │Authentication Tree  │Connect caller to a real      
+  Caller                 │                                    │        │Decision Node        │person.                       
+Twilio IVR: Goodbye      │849ef5f3-7481-4607-a668-f0b5bf47db4c│JS      │Authentication Tree  │Goodbye Message               
+  Message                │                                    │        │Decision Node        │                              
+Twilio IVR: Greet        │be6f1f2c-30ee-41fb-9e1e-8da72267fad3│JS      │Authentication Tree  │Greet verified caller         
+  Verified Caller        │                                    │        │Decision Node        │                              
+Twilio IVR: Parse Call   │7dce8f07-d9fe-4752-94b9-ff99dfd0433b│JS      │Authentication Tree  │Parse parameters of the       
+  Parameters             │                                    │        │Decision Node        │incoming call.                
+Twilio IVR: Send         │3fff65f0-b3fe-40c5-8e82-b6d2e39a14e5│JS      │Authentication Tree  │Send registration information 
+  Registration           │                                    │        │Decision Node        │via SMS                       
+  Information Via SMS    │                                    │        │                     │                              
+Twilio IVR: Unknown      │7f1c30ec-ea27-4bb1-bd0b-be5792c9a1a6│JS      │Authentication Tree  │Unknown caller message        
+  Caller Message         │                                    │        │Decision Node        │                              
+Twilio IVR: Unverified   │4f1273be-9c52-4879-bbe9-9a47068aeed9│JS      │Authentication Tree  │Unverified caller message     
+  Caller Message         │                                    │        │Decision Node        │                              
+Twilio IVR: Verify       │aa2dabff-f5c4-4dc5-b4ac-5909e88a3a8f│JS      │Authentication Tree  │Verify known caller by first  
+  Known Caller           │                                    │        │Decision Node        │name                          
+Twilio IVR: Verify       │c9fa3899-c3ce-4833-af83-64d709202600│JS      │Authentication Tree  │Verify security PIN           
+  Security PIN           │                                    │        │Decision Node        │                              
+Twilio IVR: Verify       │1c0c73e8-2be1-41ce-b042-3c39694346b5│JS      │Authentication Tree  │Verify unknown caller by      
+  Unknown Caller         │                                    │        │Decision Node        │account number                
+Twilio IVR: Welcome      │53c50dbd-5331-4739-bea1-4c5e9bf553f2│JS      │Authentication Tree  │Welcome message               
+  Message                │                                    │        │Decision Node        │                              
+Twilio SMS OTP Sender    │91554b10-79a5-4aa8-aca1-59481a734c19│JS      │Authentication Tree  │Twilio SMS OTP Sender         
+                         │                                    │        │Decision Node        │                              
+Twilio Voice OTP Sender  │e0666b8b-f625-4047-89d8-e7e91151027f│JS      │Authentication Tree  │Twilio Voice OTP Sender       
+                         │                                    │        │Decision Node        │                              
+Twitter Profile          │8e298710-b55e-4085-a464-88a375a4004b│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Twitter                  
+UOP Enrich Session       │743351b3-001a-4ec8-b3ac-a674ddb8de22│JS      │Authentication Tree  │Enrich user session with UOP  
+                         │                                    │        │Decision Node        │class ID.                     
+UOP Get Course ID        │6ad22934-5d12-43a6-96a7-a2fba8d999bf│JS      │Authentication Tree  │Call out to University of     
+                         │                                    │        │Decision Node        │Phoenix Course Registration   
+                         │                                    │        │                     │System and get current course.
+VKontakte Profile        │403cf226-6051-4368-8b72-9ba14f9a5140│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from VKontakte                
+WeChat Profile           │472534ec-a25f-468d-a606-3fb1935190df│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from WeChat                   
+WordPress Profile        │91d197de-5916-4dca-83b5-9a4df26e7159│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from WordPress                
+Yahoo Profile            │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy  │Social Idp Profile   │Normalizes raw profile data   
+  Normalization          │                                    │        │Transformation       │from Yahoo                    
+"
+`;
+
+exports[`frodo script list "frodo script list": should list the names of the scripts 1`] = `
+"AA Custom Policy Engine
+AAD Passthru Parse Access Token
+AAD Passthru ROPC
+Add Session Properties
+ADFS Profile Normalization (JS)
+Admin_AmadminCheck
+Admin_AttributeCollectionWorkaroundCleanup
+Admin_CanBeInvited
+Admin_ClearCurrentYear
+Admin_ClearFirstLastNames
+Admin_ClearInviteMailVars
+Admin_CollectUsernameOrEmail
+Admin_EnableEmailClaimCheck
+Admin_ForgotUsernameMailCheck
+Admin_GetIdPGroupsClaimConfig
+Admin_GroupBasedOnboarding
+Admin_HasOnboarded
+Admin_IdPNormalization
+Admin_IsFederationEnforcedForTenant
+Admin_IsFederationEnforcedForUser
+Admin_IsInvited
+Admin_LoadObjectByID
+Admin_LocalRegistrationCleanup
+Admin_LocalRegistrationPrep
+Admin_MfaGetApp
+Admin_MfaOptIn
+Admin_MfaRequiredCheck
+Admin_PasswordFixEnd
+Admin_PasswordFixStart
+Admin_PasswordUpdatedMessage
+Admin_PrivacyPolicy
+Admin_ProfileToManagedObject
+Admin_SessionCheck
+Admin_SetCurrentYear
+Admin_SetInvitedTrue
+Admin_SetInviteMailVars
+Admin_SetOnboardingAttributes
+Admin_SetUsernameFromMail
+Admin_UsernameChangedMessage
+Alpha endUserUIClient OAuth2 Access Token Modification Script
+Alpha endUserUIClient OIDC Claims Script
+Alpha OAuth2 Access Token Modification Script
+Alpha OIDC Claims Script
+Amazon Profile Normalization
+APIProtection: Get Key And Secret
+APIProtection: Reset States
+Apple Profile Normalization
+Authentication Tree Decision Node Script
+Browser Language Decision
+Check Existing Session
+Check For Existing Session
+Check Username
+Choice inner1, inner2
+Collect Extra Fields
+Collect Inner Tree Evaluator Config
+Collect Message Node Config
+Collect PIN
+Collect Replay Password (frUnindexedString2)
+Collect SAML2 Node Config
+Collect Set Custom Cookie Node Config
+Config Provider
+Configure Email Template Node
+Copy to transientState
+CopyIDToObjectAttributes
+CopyOTPToObjectAttributes
+CopySAMLDataToObjectAttributes
+CP-ITE-static-inner1
+CP-ITE-static-inner2
+debug
+Device Id (Match) - Client Side
+Device Id (Match) - Server Side
+deviceprofile_to_attribute
+display country
+Display ESV
+Display Password
+Display Session Info
+Display States
+Display States - imported (1)
+Display States - imported (2)
+Display Tenant URL (fqdn)
+Display Username
+Dropdown
+Embed Cookie Consent
+Facebook Profile Normalization
+ForgeRock Internal: OAuth2 Access Token Modification Script
+ForgeRock Internal: OIDC Claims Script
+ForgeRockVpnOnly
+FRAAS-7955 Both States
+FRAAS-7955 Display States
+FRAAS-7955 Shared State Only
+FRAAS-7955 Show Object Values
+FRAAS-7955 Transient State Only
+FRAAS-7955 Workaround
+Get Email
+Get Lockout Status
+GitHub Profile Normalization
+GitHub Profile Normalization (VS)
+Google Profile Normalization
+Goto Specified Decision
+Has Email Changed
+Has Profile Changed
+Hash State Variables
+hashdeviceProfile
+HIBP Password Breach Analysis
+iddataweb Profile Normalization
+IDP Integrity Check
+IDP Lookup
+IDP Re-Lookup
+IDP Router
+Impersonate: Extract Actors And Become Impersonator
+Impersonate: Switch Actors And Become Impersonatee
+Impersonate: Update Session Properties
+Inspect Username
+Instagram Profile Normalization
+IPQS Email Address
+IPQS IP Address
+ipstack
+IPv4 CIDR Rules Engine
+Itsme Profile Normalization
+KerberosLogin: Extract Username
+Launcher
+LinkedIn Profile Normalization
+Logout
+MFA Splitter
+MFA Status
+Microsoft Profile Normalization
+MobileOTP: Extract Username, Password, OTP
+MobileOTP: Prepare Reset Of OTP Profile Attribute
+MobileOTP: Validate OTP In Profile Attribute
+Normalized ADFS Profile to Managed User
+Normalized idddataweb Profile to Managed User
+Normalized Profile to Identity
+Normalized Profile to Managed User
+OAuth2 Access Token Modification Script
+OIDC Claims Script
+Okta API AuthN
+Okta Profile Normalization
+Onfido-CaptureEvidence
+Onfido-CheckApplicant
+Onfido-CheckStatus
+Onfido-CreateApplicant
+Onfido-Meta-Tags
+OTP Invalid
+OTP Valid
+Phone Validator - Line Type
+Populate Username From Email
+Post Redirect Language Selector
+QR Code
+Ready Response
+Record Changes And Preserve Old Email
+Record MFA
+Remove Button
+Remove Button - imported (1)
+Resend OTP Option
+Reset Theme
+ResetOTPProfileAttribute
+ResetPasswordReplayCredentials
+Return OTP
+Routed IDP Persist Decision
+Salesforce Profile Normalization
+Saml2 IDP Adapter Always Auth
+Saml2 IDP Adapter Script
+Saml2 IDP Attribute Mapper Script
+Sanitize objectAttributes
+Save/restore perpetrator
+Scripted Module - Client Side
+Scripted Module - Server Side
+Scripted Policy Condition
+Select Theme by Browser Language
+Select Theme from URL
+Service Account - Cluster Internal Requests Only
+Service Account - JWT Issuers
+Service Account - Token Modification
+Service Account - Verify JWT
+Set OATH Theme
+Set Theme
+Set Theme from URL
+Setup MFA Choice
+shared State Printer
+Show Password Policy
+Social Identity Provider Profile Transformation Script
+ST_healthcare-idc-social-transformation
+Store Profile In Session
+Suspend Authentication
+TimeStamp_Login
+Twilio IVR: Choose Security PIN
+Twilio IVR: Connect Caller
+Twilio IVR: Goodbye Message
+Twilio IVR: Greet Verified Caller
+Twilio IVR: Parse Call Parameters
+Twilio IVR: Send Registration Information Via SMS
+Twilio IVR: Unknown Caller Message
+Twilio IVR: Unverified Caller Message
+Twilio IVR: Verify Known Caller
+Twilio IVR: Verify Security PIN
+Twilio IVR: Verify Unknown Caller
+Twilio IVR: Welcome Message
+Twilio SMS OTP Sender
+Twilio Voice OTP Sender
+Twitter Profile Normalization
+UOP Enrich Session
+UOP Get Course ID
+VKontakte Profile Normalization
+WeChat Profile Normalization
+WordPress Profile Normalization
+Yahoo Profile Normalization
+"
+`;

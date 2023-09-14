@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo saml cot list "frodo saml cot list --long": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `""`;
+
+exports[`frodo saml cot list "frodo saml cot list -l": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `""`;
+
+exports[`frodo saml cot list "frodo saml cot list": should list the names of the circles of trust 1`] = `
+"2f04818d-561e-4f8a-82e8-af2426112138
+AzureCOT
+"
+`;
