@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo log list "frodo log list": should list the names of the logs sources 1`] = `
+"am-access
+am-activity
+am-authentication
+am-config
+am-core
+am-everything
+idm-access
+idm-activity
+idm-authentication
+idm-config
+idm-core
+idm-everything
+idm-recon
+idm-sync
+"
+`;

@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz type list "frodo authz type list --long": should list the names, descriptions, and uuids of the authz types 1`] = `
+"Name                   │Description                                                             │Uuid                                
+FrodoTestResourceType11│Frodo Test Resource Type Eleven                                         │993eba78-1c3f-4f27-b205-b4b29418f831
+FrodoTestResourceType12│Frodo Test Resource Type Twelve                                         │3fc799d7-b73f-49e0-a70b-e37990e54e56
+FrodoTestResourceType13│Frodo Test Resource Type Thirteen                                       │0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
+FrodoTestResourceType14│Frodo Test Resource Type Fourteen                                       │119b291c-40b3-4b1e-8d84-c2a561a2cb1f
+FrodoTestResourceType15│Frodo Test Resource Type Fifteen                                        │3c5f13af-ca17-403e-b47d-d15263cce954
+OAuth2 Scope           │The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.│d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b
+URL                    │The built-in URL Resource Type available to OpenAMPolicies.             │76656a38-5f8e-401b-83aa-4ccb74ce88d2
+"
+`;
+
+exports[`frodo authz type list "frodo authz type list -l": should list the names, descriptions, and uuids of the authz types 1`] = `
+"Name                   │Description                                                             │Uuid                                
+FrodoTestResourceType11│Frodo Test Resource Type Eleven                                         │993eba78-1c3f-4f27-b205-b4b29418f831
+FrodoTestResourceType12│Frodo Test Resource Type Twelve                                         │3fc799d7-b73f-49e0-a70b-e37990e54e56
+FrodoTestResourceType13│Frodo Test Resource Type Thirteen                                       │0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
+FrodoTestResourceType14│Frodo Test Resource Type Fourteen                                       │119b291c-40b3-4b1e-8d84-c2a561a2cb1f
+FrodoTestResourceType15│Frodo Test Resource Type Fifteen                                        │3c5f13af-ca17-403e-b47d-d15263cce954
+OAuth2 Scope           │The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.│d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b
+URL                    │The built-in URL Resource Type available to OpenAMPolicies.             │76656a38-5f8e-401b-83aa-4ccb74ce88d2
+"
+`;
+
+exports[`frodo authz type list "frodo authz type list": should list the names of the authz types 1`] = `
+"FrodoTestResourceType11
+FrodoTestResourceType12
+FrodoTestResourceType13
+FrodoTestResourceType14
+FrodoTestResourceType15
+OAuth2 Scope
+URL
+"
+`;

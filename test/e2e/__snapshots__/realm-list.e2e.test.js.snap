@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo realm list "frodo realm list --long": should list the names, statuses, custom domains, and parents of the realms 1`] = `""`;
+
+exports[`frodo realm list "frodo realm list -l": should list the names, statuses, custom domains, and parents of the realms 1`] = `""`;
+
+exports[`frodo realm list "frodo realm list": should list the names of the realms 1`] = `""`;

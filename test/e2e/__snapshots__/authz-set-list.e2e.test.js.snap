@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz set list "frodo authz set list": should list the names of the authz sets 1`] = `
+"test-policy-set
+"
+`;

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo admin list-oauth2-clients-with-admin-privileges "frodo admin list-oauth2-clients-with-admin-privileges": should list the ids of the oauth2 clients with admin privileges. 1`] = `""`;

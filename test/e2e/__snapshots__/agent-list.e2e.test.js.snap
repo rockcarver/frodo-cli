@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent list "frodo agent list --long": should list the ids, statuses, and types of the agents 1`] = `
+"Agent Id             │Status  │Agent Type             
+frodo-test-ig-agent  │Inactive│Identity Gateway Agents
+frodo-test-java-agent│Inactive│J2EE Agents            
+frodo-test-web-agent │Inactive│Web Agents             
+"
+`;
+
+exports[`frodo agent list "frodo agent list -l": should list the ids, statuses, and types of the agents 1`] = `
+"Agent Id             │Status  │Agent Type             
+frodo-test-ig-agent  │Inactive│Identity Gateway Agents
+frodo-test-java-agent│Inactive│J2EE Agents            
+frodo-test-web-agent │Inactive│Web Agents             
+"
+`;
+
+exports[`frodo agent list "frodo agent list": should list the ids of the agents 1`] = `
+"frodo-test-ig-agent
+frodo-test-java-agent
+frodo-test-web-agent
+"
+`;

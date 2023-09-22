@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo idp list "frodo idp list": should list the ids of the idps 1`] = `
+"adfs
+apple_web
+apple-stoyan
+azure
+facebook
+github
+google
+okta-trial-5735851
+"
+`;
