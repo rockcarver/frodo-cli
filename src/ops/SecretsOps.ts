@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 
 import {
   createKeyValueTable,
@@ -48,7 +48,7 @@ export async function listSecrets(long) {
       'Status'['brightCyan'],
       'Description'['brightCyan'],
       'Modifier'['brightCyan'],
-      'Modified'['brightCyan'],
+      'Modified (UTC)'['brightCyan'],
     ]);
     for (const secret of secrets) {
       table.push([
@@ -57,8 +57,10 @@ export async function listSecrets(long) {
         { hAlign: 'right', content: secret.loadedVersion },
         secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(secret.description, 40),
-        await resolveUserName('teammember', secret.lastChangedBy),
-        new Date(secret.lastChangeDate).toLocaleString(),
+        state.getUseBearerTokenForAmApis()
+          ? secret.lastChangedBy
+          : await resolveUserName('teammember', secret.lastChangedBy),
+        new Date(secret.lastChangeDate).toUTCString(),
       ]);
     }
     printMessage(table.toString(), 'data');
