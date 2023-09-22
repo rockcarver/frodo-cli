@@ -56,6 +56,17 @@ FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_S
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -A
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export --all-separate
 */
+
+/*
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-ig-agent
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --agent-id frodo-test-java-agent
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-web-agent -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all-separate
+*/
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
@@ -71,38 +82,38 @@ const type = 'agent';
 
 describe('frodo agent export', () => {
     test('"frodo agent export -i frodo-test-ig-agent": should export the agent with agent id "frodo-test-ig-agent"', async () => {
-        const CMD = `frodo agent export -i frodo-test-ig-agent`;
         const exportFile = "frodo-test-ig-agent.gateway.agent.json";
+        const CMD = `frodo agent export -i frodo-test-ig-agent`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent"', async () => {
-        const CMD = `frodo agent export --agent-id frodo-test-java-agent`;
         const exportFile = "frodo-test-java-agent.java.agent.json";
+        const CMD = `frodo agent export --agent-id frodo-test-java-agent`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent export -i frodo-test-web-agent -f test.json": should export the agent with agent id "frodo-test-web-agent" into file named test.json', async () => {
-        const CMD = `frodo agent export -i frodo-test-web-agent -f test.json`;
-        const exportFile = "test.json";
+    test('"frodo agent export -i frodo-test-web-agent -f my-frodo-test-web-agent.agent.json": should export the agent with agent id "frodo-test-web-agent" into file named my-frodo-test-web-agent.agent.json', async () => {
+        const exportFile = "my-frodo-test-web-agent.agent.json";
+        const CMD = `frodo agent export -i frodo-test-web-agent -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent export -a": should export all agents to a single file', async () => {
-        const CMD = `frodo agent export -a`;
         const exportFile = "allAlphaAgents.agent.json";
+        const CMD = `frodo agent export -a`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent export --all": should export all agents to a single file', async () => {
-        const CMD = `frodo agent export --all`;
         const exportFile = "allAlphaAgents.agent.json";
+        const CMD = `frodo agent export --all`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent export -a --file test.json": should export all agents to a single file named test.json', async () => {
-        const CMD = `frodo agent export -a --file test.json`;
-        const exportFile = "test.json";
+    test('"frodo agent export -a --file my-allAlphaAgents.agent.json": should export all agents to a single file named my-allAlphaAgents.agent.json', async () => {
+        const exportFile = "my-allAlphaAgents.agent.json";
+        const CMD = `frodo agent export -a --file ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 

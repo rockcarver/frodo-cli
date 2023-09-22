@@ -56,6 +56,17 @@ FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_S
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent web export -A
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent web export --all-separate
 */
+
+/*
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export -i frodo-test-web-agent
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export --agent-id frodo-test-web-agent
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export -i frodo-test-web-agent -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export -a
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web export --all-separate
+*/
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
@@ -71,38 +82,38 @@ const type = 'web.agent';
 
 describe('frodo agent web export', () => {
     test('"frodo agent web export -i frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent"', async () => {
-        const CMD = `frodo agent web export -i frodo-test-web-agent`;
         const exportFile = "frodo-test-web-agent.web.agent.json";
+        const CMD = `frodo agent web export -i frodo-test-web-agent`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent"', async () => {
-        const CMD = `frodo agent web export --agent-id frodo-test-web-agent`;
         const exportFile = "frodo-test-web-agent.web.agent.json";
+        const CMD = `frodo agent web export --agent-id frodo-test-web-agent`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent web export -i frodo-test-web-agent -f test.json": should export the web agent with agent id "frodo-test-web-agent" into file named test.json', async () => {
-        const CMD = `frodo agent web export -i frodo-test-web-agent -f test.json`;
-        const exportFile = "test.json";
+        const exportFile = "frodo-test-web-agent.web.agent.json";
+        const CMD = `frodo agent web export -i frodo-test-web-agent -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent web export -a": should export all web agents to a single file', async () => {
-        const CMD = `frodo agent web export -a`;
         const exportFile = "allAlphaAgents.web.agent.json";
+        const CMD = `frodo agent web export -a`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent web export --all": should export all web agents to a single file', async () => {
-        const CMD = `frodo agent web export --all`;
         const exportFile = "allAlphaAgents.web.agent.json";
+        const CMD = `frodo agent web export --all`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent web export -a --file test.json": should export all web agents to a single file named test.json', async () => {
-        const CMD = `frodo agent web export -a --file test.json`;
-        const exportFile = "test.json";
+        const exportFile = "my-allAlphaAgents.web.agent.json";
+        const CMD = `frodo agent web export -a --file ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
