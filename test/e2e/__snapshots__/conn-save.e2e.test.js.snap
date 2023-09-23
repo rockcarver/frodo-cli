@@ -1,18 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo conn save "frodo conn save --no-validate https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!": save new connection profile with existing service account and without admin account. 1`] = `
+"Saved connection profile https://openam-frodo-dev.forgeblocks.com/am
+"
+`;
+
 exports[`frodo conn save "frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file test/fs_tmp/conn-save-jwk.json https://openam-frodo-dev.forgeblocks.com/am": save new connection profile with existing service account and without admin account. 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
 - Validating service account b672336b-41ef-428d-ae4a-e0c082875377...
 ✔ Successfully validated service account b672336b-41ef-428d-ae4a-e0c082875377.
 Validated and added service account with id b672336b-41ef-428d-ae4a-e0c082875377 to profile.
-Saved connection profile https://openam-frodo-dev.forgeblocks.com/am
-"
-`;
-
-exports[`frodo conn save "frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!": save new connection profile with existing service account and without admin account. 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
-Created and added service account Frodo-SA-1687293271764 with id 17051145-f82a-47b0-8e73-91f27e2cb622 to profile.
-Created log API key 2e3e7162c6861fdc50a10b6353ada65a and secret.
 Saved connection profile https://openam-frodo-dev.forgeblocks.com/am
 "
 `;

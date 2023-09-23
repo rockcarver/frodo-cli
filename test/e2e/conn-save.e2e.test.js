@@ -69,8 +69,8 @@ afterAll(() => {
 });
 
 describe('frodo conn save', () => {
-  test.skip(`"frodo conn save ${c.host} ${c.user} ${c.pass}": save new connection profile with existing service account and without admin account.`, async () => {
-    const CMD = `frodo conn save ${c.host} ${c.user} ${c.pass}`;
+  test(`"frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}": save new connection profile with existing service account and without admin account.`, async () => {
+    const CMD = `frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}`;
     const { stderr } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
   });
