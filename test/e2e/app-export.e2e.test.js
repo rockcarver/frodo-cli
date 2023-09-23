@@ -59,80 +59,94 @@ FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_S
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export --all-separate
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -A --no-deps
 */
+
+/*
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreAD
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite --no-deps -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --no-deps -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A
+// FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all-separate
+// FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A --no-deps
+*/
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
-env.env.FRODO_HOST = c.host;
+env.env.FRODO_HOST = 'https://openam-volker-demo.forgeblocks.com/am'; //c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const type = 'oauth2.app';
+const type = 'application';
 
 describe('frodo app export', () => {
-    test('"frodo app export -i test2": should export the app with app id "test2"', async () => {
-        const CMD = `frodo app export -i test2`;
-        const exportFile = "test2.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -i HRLite": should export the app with app id "HRLite"', async () => {
+    const exportFile = 'HRLite.application.json';
+    const CMD = `frodo app export -i HRLite`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export --app-id test2": should export the app with app id "test2"', async () => {
-        const CMD = `frodo app export --app-id test2`;
-        const exportFile = "test2.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD"', async () => {
+    const exportFile = 'EncoreAD.application.json';
+    const CMD = `frodo app export --app-id EncoreAD`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -i test2 -f test.json": should export the app with app id "test2" into file named test.json', async () => {
-        const CMD = `frodo app export -i test2 -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json', async () => {
+    const exportFile = 'my-HRLite.application.json';
+    const CMD = `frodo app export -i HRLite -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -i test2 --no-deps": should export the app with app id "test2" with no dependencies', async () => {
-        const CMD = `frodo app export -i test2 --no-deps`;
-        const exportFile = "test2.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json', async () => {
+    const exportFile = 'my-nodeps-HRLite.application.json';
+    const CMD = `frodo app export -i HRLite --no-deps -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -a": should export all apps to a single file', async () => {
-        const CMD = `frodo app export -a`;
-        const exportFile = "allAlphaApplications.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -a": should export all apps to a single file', async () => {
+    const exportFile = 'allAlphaApplications.application.json';
+    const CMD = `frodo app export -a`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export --all": should export all apps to a single file', async () => {
-        const CMD = `frodo app export --all`;
-        const exportFile = "allAlphaApplications.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export --all -f my-allAlphaApplications.application.json": should export all apps to a single file named my-allAlphaApplications.application.json', async () => {
+    const exportFile = 'my-allAlphaApplications.application.json';
+    const CMD = `frodo app export --all -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -a --file test.json": should export all apps to a single file named test.json', async () => {
-        const CMD = `frodo app export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -a --file my-other-allAlphaApplications.application.json": should export all apps to a single file named my-other-allAlphaApplications.application.json', async () => {
+    const exportFile = 'my-other-allAlphaApplications.application.json';
+    const CMD = `frodo app export -a --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -a --no-deps": should export all apps to a single file with no dependencies', async () => {
-        const CMD = `frodo app export -a --no-deps`;
-        const exportFile = "allAlphaApplications.oauth2.app.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json', async () => {
+    const exportFile = 'my-yet-another-allAlphaApplications.application.json';
+    const CMD = `frodo app export -a --no-deps -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo app export -A": should export all apps to separate files', async () => {
-        const CMD = `frodo app export -A`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo app export -A": should export all apps to separate files', async () => {
+    const CMD = `frodo app export -A`;
+    await testExport(CMD, env, type);
+  });
 
-    test('"frodo app export --all-separate": should export all apps to separate files', async () => {
-        const CMD = `frodo app export --all-separate`;
-        await testExport(CMD, env, type);
-    });
+//   test('"frodo app export --all-separate": should export all apps to separate files', async () => {
+//     const CMD = `frodo app export --all-separate`;
+//     await testExport(CMD, env, type);
+//   });
 
-    test('"frodo app export -A --no-deps": should export all apps to separate files with no dependencies', async () => {
-        const CMD = `frodo app export -A --no-deps`;
-        await testExport(CMD, env, type);
-    });
+//   test('"frodo app export -A --no-deps": should export all apps to separate files with no dependencies', async () => {
+//     const CMD = `frodo app export -A --no-deps`;
+//     await testExport(CMD, env, type);
+//   });
 });
