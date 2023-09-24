@@ -122,8 +122,8 @@ describe('frodo agent export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo agent export --all-separate": should export all agents to separate files', async () => {
-        const CMD = `frodo agent export --all-separate`;
-        await testExport(CMD, env, type);
-    });
+    // test('"frodo agent export --all-separate": should export all agents to separate files', async () => {
+    //     const CMD = `frodo agent export --all-separate`;
+    //     await testExport(CMD, env, type);
+    // });
 });

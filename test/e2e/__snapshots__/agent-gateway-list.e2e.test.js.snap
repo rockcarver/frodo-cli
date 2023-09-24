@@ -1,18 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo agent gateway list "frodo agent gateway list --long": should list the ids and statuses of the gateway agents 1`] = `
-"Gateway Agent Id   │Status  
-frodo-test-ig-agent│Inactive
+"Gateway Agent Id    │Status  
+frodo-test-ig-agent2│Inactive
+frodo-test-ig-agent │Inactive
 "
 `;
 
 exports[`frodo agent gateway list "frodo agent gateway list -l": should list the ids and statuses of the gateway agents 1`] = `
-"Gateway Agent Id   │Status  
-frodo-test-ig-agent│Inactive
+"Gateway Agent Id    │Status  
+frodo-test-ig-agent2│Inactive
+frodo-test-ig-agent │Inactive
 "
 `;
 
 exports[`frodo agent gateway list "frodo agent gateway list": should list the ids of the gateway agents 1`] = `
-"frodo-test-ig-agent
+"frodo-test-ig-agent2
+frodo-test-ig-agent
 "
 `;
