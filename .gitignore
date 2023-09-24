@@ -9,8 +9,8 @@ esm/
 frodo
 frodo.exe
 
-connections.json
-journey-*.json
+# connections.json
+masterkey.key
 
 # Logs
 logs

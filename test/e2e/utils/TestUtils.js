@@ -54,3 +54,5 @@ export async function testExport(command, env, type, fileName, directory = "./",
     fs.unlinkSync(path);
   });
 }
+
+export const testif = (condition) => (condition ? test : test.skip);
