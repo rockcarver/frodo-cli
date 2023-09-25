@@ -59,7 +59,10 @@ program
           'Use any combination of comma separated sources, example:',
           'info'
         );
-        printMessage(`$ frodo logs tail -c am-core,idm-core ${host}`, 'text');
+        printMessage(
+          `$ frodo logs tail -c am-core,idm-core ${state.getHost()}`,
+          'text'
+        );
       }
     }
   });
