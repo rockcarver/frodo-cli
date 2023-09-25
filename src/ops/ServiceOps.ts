@@ -57,7 +57,9 @@ export async function listServices(long = false, globalConfig = false) {
 export async function exportServicesToFile(file, globalConfig = false) {
   const exportData = await exportServices(globalConfig);
   let fileName = getTypedFilename(
-    `all${titleCase(getRealmName(state.getRealm()))}Services`,
+    `all${
+      globalConfig ? 'Global' : titleCase(getRealmName(state.getRealm()))
+    }Services`,
     `service`
   );
   if (file) {
