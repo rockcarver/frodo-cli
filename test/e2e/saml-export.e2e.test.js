@@ -47,21 +47,19 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export -i iSPAzure
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export --entity-id iSPAzure
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export -i iSPAzure -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml export --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -i iSPAzure
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export --entity-id iSPAzure
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -i iSPAzure -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -a
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -A
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -70,49 +68,38 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'saml';
 
 describe('frodo saml export', () => {
-    test('"frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure"', async () => {
-        const CMD = `frodo saml export -i iSPAzure`;
-        const exportFile = "iSPAzure.saml.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure"', async () => {
+    const exportFile = 'iSPAzure.saml.json';
+    const CMD = `frodo saml export -i iSPAzure`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure"', async () => {
-        const CMD = `frodo saml export --entity-id iSPAzure`;
-        const exportFile = "iSPAzure.saml.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure"', async () => {
+    const exportFile = 'iSPAzure.saml.json';
+    const CMD = `frodo saml export --entity-id iSPAzure`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml export -i iSPAzure -f test.json": should export the saml provider with entity id "iSPAzure" into file named test.json', async () => {
-        const CMD = `frodo saml export -i iSPAzure -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json', async () => {
+    const exportFile = 'my-iSPAzure.saml.json';
+    const CMD = `frodo saml export -i iSPAzure -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml export -a": should export all saml providers to a single file', async () => {
-        const CMD = `frodo saml export -a`;
-        const exportFile = "allAlphaProviders.saml.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml export -a": should export all saml providers to a single file', async () => {
+    const exportFile = 'allAlphaProviders.saml.json';
+    const CMD = `frodo saml export -a`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml export --all": should export all saml providers to a single file', async () => {
-        const CMD = `frodo saml export --all`;
-        const exportFile = "allAlphaProviders.saml.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml export -a --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json', async () => {
+    const exportFile = 'my-allAlphaProviders.saml.json';
+    const CMD = `frodo saml export -a --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml export -a --file test.json": should export all saml providers to a single file named test.json', async () => {
-        const CMD = `frodo saml export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo saml export -A": should export all saml providers to separate files', async () => {
-        const CMD = `frodo saml export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo saml export --all-separate": should export all saml providers to separate files', async () => {
-        const CMD = `frodo saml export --all-separate`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo saml export -A": should export all saml providers to separate files', async () => {
+    const CMD = `frodo saml export -A`;
+    await testExport(CMD, env, type);
+  });
 });
