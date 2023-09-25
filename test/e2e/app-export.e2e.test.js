@@ -47,20 +47,6 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -i test2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export --app-id test2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -i test2 -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -i test2 --no-deps
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -a --no-deps
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export --all-separate
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app export -A --no-deps
-*/
-
-/*
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreAD
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f test.json
@@ -70,8 +56,6 @@ FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --file test.json
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --no-deps -f test.json
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A
-// FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all-separate
-// FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A --no-deps
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -139,14 +123,4 @@ describe('frodo app export', () => {
     const CMD = `frodo app export -A`;
     await testExport(CMD, env, type);
   });
-
-//   test('"frodo app export --all-separate": should export all apps to separate files', async () => {
-//     const CMD = `frodo app export --all-separate`;
-//     await testExport(CMD, env, type);
-//   });
-
-//   test('"frodo app export -A --no-deps": should export all apps to separate files with no dependencies', async () => {
-//     const CMD = `frodo app export -A --no-deps`;
-//     await testExport(CMD, env, type);
-//   });
 });

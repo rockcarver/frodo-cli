@@ -47,24 +47,20 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -n URL
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export --type-name URL
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -n URL -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo authz type export --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -n URL
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --type-name URL -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -A
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -73,67 +69,46 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'resourcetype.authz';
 
 describe('frodo authz type export', () => {
-    test('"frodo authz type export -n URL": should export the resource type named "URL"', async () => {
-        const CMD = `frodo authz type export -n URL`;
-        const exportFile = "URL.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export -n URL": should export the resource type named "URL"', async () => {
+    const exportFile = 'URL.resourcetype.authz.json';
+    const CMD = `frodo authz type export -n URL`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export --type-name URL": should export the resource type named "URL"', async () => {
-        const CMD = `frodo authz type export --type-name URL`;
-        const exportFile = "URL.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export --type-name URL -f test.json": should export the resource type named "URL"', async () => {
+    const exportFile = 'URL.resourcetype.authz.json';
+    const CMD = `frodo authz type export --type-name URL -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export -n URL -f test.json": should export the resource type named "URL" into file named test.json', async () => {
-        const CMD = `frodo authz type export -n URL -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2"', async () => {
+    const exportFile =
+      '76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json';
+    const CMD = `frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2"', async () => {
-        const CMD = `frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2`;
-        const exportFile = "76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json', async () => {
+    const exportFile =
+      'my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json';
+    const CMD = `frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2"', async () => {
-        const CMD = `frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2`;
-        const exportFile = "76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export --all": should export all resource types to a single file', async () => {
+    const exportFile = 'allAlphaResourceTypes.resourcetype.authz.json';
+    const CMD = `frodo authz type export --all`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named test.json', async () => {
-        const CMD = `frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json', async () => {
+    const exportFile = 'my-allAlphaResourceTypes.resourcetype.authz.json';
+    const CMD = `frodo authz type export -a --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo authz type export -a": should export all resource types to a single file', async () => {
-        const CMD = `frodo authz type export -a`;
-        const exportFile = "allAlphaResourceTypes.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo authz type export --all": should export all resource types to a single file', async () => {
-        const CMD = `frodo authz type export --all`;
-        const exportFile = "allAlphaResourceTypes.resourcetype.authz.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo authz type export -a --file test.json": should export all resource types to a single file named test.json', async () => {
-        const CMD = `frodo authz type export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo authz type export -A": should export all resource types to separate files', async () => {
-        const CMD = `frodo authz type export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo authz type export --all-separate": should export all resource types to separate files', async () => {
-        const CMD = `frodo authz type export --all-separate`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo authz type export -A": should export all resource types to separate files', async () => {
+    const CMD = `frodo authz type export -A`;
+    await testExport(CMD, env, type);
+  });
 });

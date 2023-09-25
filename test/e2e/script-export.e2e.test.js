@@ -47,23 +47,19 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -n 'GitHub Profile Normalization'
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export --script-name 'GitHub Profile Normalization'
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -n 'GitHub Profile Normalization' -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export --all-separate
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export -Ax
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo script export --all-separate --extract
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --script-name 'GitHub Profile Normalization'
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -n 'GitHub Profile Normalization' -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -Ax
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -72,59 +68,37 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'script';
 
 describe('frodo script export', () => {
-    test('"frodo script export -n \'GitHub Profile Normalization\'": should export the script named "GitHub Profile Normalization"', async () => {
-        const CMD = `frodo script export -n 'GitHub Profile Normalization'`;
-        const exportFile = "GitHub-Profile-Normalization.script.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo script export --script-name \'GitHub Profile Normalization\'": should export the script named "GitHub Profile Normalization"', async () => {
+    const exportFile = 'GitHub-Profile-Normalization.script.json';
+    const CMD = `frodo script export --script-name 'GitHub Profile Normalization'`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo script export --script-name \'GitHub Profile Normalization\'": should export the script named "GitHub Profile Normalization"', async () => {
-        const CMD = `frodo script export --script-name 'GitHub Profile Normalization'`;
-        const exportFile = "GitHub-Profile-Normalization.script.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo script export -n \'GitHub Profile Normalization\' -f my-GitHub-Profile-Normalization.script.json": should export the script named "GitHub Profile Normalization" into file named my-GitHub-Profile-Normalization.script.json', async () => {
+    const exportFile = 'my-GitHub-Profile-Normalization.script.json';
+    const CMD = `frodo script export -n 'GitHub Profile Normalization' -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo script export -n \'GitHub Profile Normalization\' -f test.json": should export the script named "GitHub Profile Normalization" into file named test.json', async () => {
-        const CMD = `frodo script export -n 'GitHub Profile Normalization' -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo script export --all": should export all scripts to a single file', async () => {
+    const exportFile = 'allAlphaScripts.script.json';
+    const CMD = `frodo script export --all`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo script export -a": should export all scripts to a single file', async () => {
-        const CMD = `frodo script export -a`;
-        const exportFile = "allAlphaScripts.script.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo script export -a --file my-allAlphaScripts.script.json": should export all scripts to a single file named my-allAlphaScripts.script.json', async () => {
+    const exportFile = 'my-allAlphaScripts.script.json';
+    const CMD = `frodo script export -a --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo script export --all": should export all scripts to a single file', async () => {
-        const CMD = `frodo script export --all`;
-        const exportFile = "allAlphaScripts.script.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo script export -A": should export all scripts to separate files', async () => {
+    const CMD = `frodo script export -A`;
+    await testExport(CMD, env, type);
+  });
 
-    test('"frodo script export -a --file test.json": should export all scripts to a single file named test.json', async () => {
-        const CMD = `frodo script export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo script export -A": should export all scripts to separate files', async () => {
-        const CMD = `frodo script export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo script export --all-separate": should export all scripts to separate files', async () => {
-        const CMD = `frodo script export --all-separate`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo script export -Ax": should export all extracted scripts to separate files', async () => {
-        const CMD = `frodo script export -Ax`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo script export --all-separate --extract": should export all extracted scripts to separate files', async () => {
-        const CMD = `frodo script export --all-separate --extract`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo script export -Ax": should export all extracted scripts to separate files', async () => {
+    const CMD = `frodo script export -Ax`;
+    await testExport(CMD, env, type);
+  });
 });
