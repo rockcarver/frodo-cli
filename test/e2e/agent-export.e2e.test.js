@@ -47,25 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -i frodo-test-ig-agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export --agent-id frodo-test-java-agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -i frodo-test-web-agent -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent export --all-separate
-*/
-
-/*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-ig-agent
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --agent-id frodo-test-java-agent
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-web-agent -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a --file test.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all-separate
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -81,12 +67,6 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'agent';
 
 describe('frodo agent export', () => {
-    test('"frodo agent export -i frodo-test-ig-agent": should export the agent with agent id "frodo-test-ig-agent"', async () => {
-        const exportFile = "frodo-test-ig-agent.gateway.agent.json";
-        const CMD = `frodo agent export -i frodo-test-ig-agent`;
-        await testExport(CMD, env, type, exportFile);
-    });
-
     test('"frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent"', async () => {
         const exportFile = "frodo-test-java-agent.java.agent.json";
         const CMD = `frodo agent export --agent-id frodo-test-java-agent`;
@@ -96,12 +76,6 @@ describe('frodo agent export', () => {
     test('"frodo agent export -i frodo-test-web-agent -f my-frodo-test-web-agent.agent.json": should export the agent with agent id "frodo-test-web-agent" into file named my-frodo-test-web-agent.agent.json', async () => {
         const exportFile = "my-frodo-test-web-agent.agent.json";
         const CMD = `frodo agent export -i frodo-test-web-agent -f ${exportFile}`;
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo agent export -a": should export all agents to a single file', async () => {
-        const exportFile = "allAlphaAgents.agent.json";
-        const CMD = `frodo agent export -a`;
         await testExport(CMD, env, type, exportFile);
     });
 
@@ -121,9 +95,4 @@ describe('frodo agent export', () => {
         const CMD = `frodo agent export -A`;
         await testExport(CMD, env, type);
     });
-
-    // test('"frodo agent export --all-separate": should export all agents to separate files', async () => {
-    //     const CMD = `frodo agent export --all-separate`;
-    //     await testExport(CMD, env, type);
-    // });
 });

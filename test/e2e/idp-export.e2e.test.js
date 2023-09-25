@@ -47,14 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export -i google
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export --idp-id google
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export -i google -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idp export --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --idp-id google
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -i google -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -A
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -70,11 +67,6 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'idp';
 
 describe('frodo idp export', () => {
-    test('"frodo idp export -i google": should export the idp provider with idp id "google"', async () => {
-        const CMD = `frodo idp export -i google`;
-        const exportFile = "google.idp.json";
-        await testExport(CMD, env, type, exportFile);
-    });
 
     test('"frodo idp export --idp-id google": should export the idp provider with idp id "google"', async () => {
         const CMD = `frodo idp export --idp-id google`;
@@ -85,12 +77,6 @@ describe('frodo idp export', () => {
     test('"frodo idp export -i google -f test.json": should export the idp provider with idp id "google" into file named test.json', async () => {
         const CMD = `frodo idp export -i google -f test.json`;
         const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo idp export -a": should export all idp providers to a single file', async () => {
-        const CMD = `frodo idp export -a`;
-        const exportFile = "allAlphaProviders.idp.json";
         await testExport(CMD, env, type, exportFile);
     });
 
@@ -108,11 +94,6 @@ describe('frodo idp export', () => {
 
     test('"frodo idp export -A": should export all idp providers to separate files', async () => {
         const CMD = `frodo idp export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo idp export --all-separate": should export all idp providers to separate files', async () => {
-        const CMD = `frodo idp export --all-separate`;
         await testExport(CMD, env, type);
     });
 });
