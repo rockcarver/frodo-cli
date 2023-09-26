@@ -51,23 +51,23 @@ FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo l
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testif } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_LOG_KEY = c.saId;
 env.env.FRODO_LOG_SECRET = c.saJwk;
 
 describe('frodo log list', () => {
-    testif()('"frodo log list": should list the names of the logs sources', async () => {
-        const CMD = `frodo log list`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test('"frodo log list": should list the names of the logs sources', async () => {
+    const CMD = `frodo log list`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });
