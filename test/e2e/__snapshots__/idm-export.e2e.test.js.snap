@@ -16127,9 +16127,9 @@ exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEnt
 }
 `;
 
-exports[`frodo idm export "frodo idm export -N script -f test.json": should export the idm config entity with idm id "script" into file named test.json 1`] = `""`;
+exports[`frodo idm export "frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export -N script -f test.json": should export the idm config entity with idm id "script" into file named test.json 2`] = `
+exports[`frodo idm export "frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 2`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",

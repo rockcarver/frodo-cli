@@ -58,7 +58,7 @@ import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -67,33 +67,32 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'idp';
 
 describe('frodo idp export', () => {
+  test('"frodo idp export --idp-id google": should export the idp provider with idp id "google"', async () => {
+    const exportFile = 'google.idp.json';
+    const CMD = `frodo idp export --idp-id google`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo idp export --idp-id google": should export the idp provider with idp id "google"', async () => {
-        const CMD = `frodo idp export --idp-id google`;
-        const exportFile = "google.idp.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json', async () => {
+    const exportFile = 'my-google.idp.json';
+    const CMD = `frodo idp export -i google -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo idp export -i google -f test.json": should export the idp provider with idp id "google" into file named test.json', async () => {
-        const CMD = `frodo idp export -i google -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo idp export --all": should export all idp providers to a single file', async () => {
+    const exportFile = 'allAlphaProviders.idp.json';
+    const CMD = `frodo idp export --all`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo idp export --all": should export all idp providers to a single file', async () => {
-        const CMD = `frodo idp export --all`;
-        const exportFile = "allAlphaProviders.idp.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json', async () => {
+    const exportFile = 'my-allAlphaProviders.idp.json';
+    const CMD = `frodo idp export -a --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo idp export -a --file test.json": should export all idp providers to a single file named test.json', async () => {
-        const CMD = `frodo idp export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo idp export -A": should export all idp providers to separate files', async () => {
-        const CMD = `frodo idp export -A`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo idp export -A": should export all idp providers to separate files', async () => {
+    const CMD = `frodo idp export -A`;
+    await testExport(CMD, env, type);
+  });
 });
