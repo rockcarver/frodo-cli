@@ -206,7 +206,7 @@ export class FrodoCommand extends FrodoStubCommand {
           ? `  FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.\n` +
             `  FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.\n`
           : ``) +
-        (this.name().startsWith('frodo logs')
+        (this.name().startsWith('frodo log')
           ? `  FRODO_LOG_KEY: Log API key. Overrides 'username' argument.\n` +
             `  FRODO_LOG_SECRET: Log API secret. Overrides 'password' argument.\n`
           : ``) +
