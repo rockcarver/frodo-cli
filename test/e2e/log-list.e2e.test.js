@@ -57,12 +57,12 @@ import { connection as c } from './utils/TestConfig';
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_HOST'] = c.host;
+process.env['FRODO_LOG_KEY'] = c.saId;
+process.env['FRODO_LOG_SECRET'] = c.saJwk;
 const env = {
   env: process.env,
 };
-env.env.FRODO_HOST = c.host;
-env.env.FRODO_LOG_KEY = c.saId;
-env.env.FRODO_LOG_SECRET = c.saJwk;
 
 describe('frodo log list', () => {
   // flaky test. skipping in github pipeline until we can figure out to make it succeed
