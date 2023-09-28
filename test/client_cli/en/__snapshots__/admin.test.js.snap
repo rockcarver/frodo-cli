@@ -23,5 +23,6 @@ Commands:
   repair-org-model                            Repair org model.
   revoke-oauth2-client-admin-privileges       Revoke admin privileges from an oauth2 client.
   show-generic-extension-attributes           Show generic extension attributes.
+  train-auto-access-model                     Train Auto Access model.
 "
 `;

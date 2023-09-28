@@ -2,7 +2,7 @@
 
 exports[`frodo email template export "frodo email template export --template-id activation": should export the email template with email id "activation" 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export --template-id activation": should export the email template with email id "activation" 2`] = `
+exports[`frodo email template export "frodo email template export --template-id activation": should export the email template with email id "activation": ./activation.template.email.json 1`] = `
 {
   "emailTemplate": {
     "activation": {
@@ -51,7 +51,7 @@ a {
 
 exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 2`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./FraudNotification.template.email.json 1`] = `
 {
   "emailTemplate": {
     "FraudNotification": {
@@ -94,7 +94,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 3`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./MobileEmailOTP.template.email.json 1`] = `
 {
   "emailTemplate": {
     "MobileEmailOTP": {
@@ -137,7 +137,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 4`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./UnknownDeviceNotification.template.email.json 1`] = `
 {
   "emailTemplate": {
     "UnknownDeviceNotification": {
@@ -180,50 +180,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 5`] = `
-{
-  "emailTemplate": {
-    "welcome": {
-      "_id": "emailTemplate/welcome",
-      "defaultLocale": "en",
-      "displayName": "Welcome",
-      "enabled": true,
-      "from": "saas@forgerock.com",
-      "html": {
-        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{
- background-color:#324054;
- color:#5e6d82;
- padding:60px;
- text-align:center
-}
-a{
- text-decoration:none;
- color:#109cf1
-}
-.content{
- background-color:#fff;
- border-radius:4px;
- margin:0 auto;
- padding:48px;
- width:235px
-}
-",
-      "subject": {
-        "en": "Your account has been created",
-      },
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 6`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./activation.template.email.json 1`] = `
 {
   "emailTemplate": {
     "activation": {
@@ -270,163 +227,7 @@ a {
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 7`] = `
-{
-  "emailTemplate": {
-    "arvestUnknownDeviceNotification": {
-      "_id": "emailTemplate/arvestUnknownDeviceNotification",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "Arvest Unknown Device Notification",
-      "enabled": true,
-      "from": ""Arvest IT Security " <admin@arvest-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 60px; text-align: center;"><div class="content" style="background-color: orange; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 60px;
- text-align: center 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: orange;
- border-radius: 4px;
- margin: 0 auto;
- padding: 48px;
- width: 235px 
-}
- ",
-      "subject": {
-        "en": "Your Arvest Bank account was accessed from an unknown device!",
-      },
-      "templateId": "arvestUnknownDeviceNotification",
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 8`] = `
-{
-  "emailTemplate": {
-    "arvestWelcome": {
-      "_id": "emailTemplate/arvestWelcome",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "ArvestWelcome",
-      "enabled": true,
-      "from": ""Arvest Admin" <admin@idcloud-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 10px; text-align: left;"><div class="content" style="background-color: #ffffff; border-radius: 4px; margin: 0 auto; padding: 10px; width: 300px;"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login" style="text-decoration: none; color: #109cf1;">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "name": "Welcome",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 10px;
- text-align: left 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: #ffffff;
- border-radius: 4px;
- margin: 0 auto;
- padding: 10px;
- width: 300px 
-}
- ",
-      "subject": {
-        "en": "Your registration with Arvest Bank",
-      },
-      "templateId": "arvestWelcome",
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 9`] = `
-{
-  "emailTemplate": {
-    "ebInvitation": {
-      "_id": "emailTemplate/ebInvitation",
-      "advancedEditor": true,
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "EBInvitation",
-      "enabled": true,
-      "from": ""J.P Morgan " <>",
-      "html": {
-        "en": "",
-      },
-      "message": {
-        "en": "<html>
-  <head></head>
-  <body style="display: 'flex'; textAlign: 'center'; color: #455469; font-family: 'Open Sans';">
-    <div class="content" style="textAlign: 'center'">
-      <p> Dear {{object.givenName}}, </p>
-      <h4 style="font-weight: 400; font-style: normal;">You have been invited to join
-        <b>JPMC Embedded Banking</b>
-      </h4>
-      <table>
-        <tr>
-          <td style="text-decoration: none; color: white; background: #155c93; font-						style: normal; font-weight: 700; font-size: 14px; line-height: 22px; border-					radius: 3px; padding: 15px">
-            <a href={{object.resumeURI}} style="text-decoration: none; color: white">ACCEPT INVITE</a>
-          </td>
-        </tr>
-      </table>
-      <h6 style="color: #999999; font-family: Inter; font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>
- ",
-      },
-      "mimeType": "text/html",
-      "name": "invitation",
-      "styles": "body {
-   margin: 0;
-   padding: 0;
-   color: #455469;
-   font-family: 'Open Sans';
-}
- table {
-   width:100%;
-   border-collapse:collapse;
-   border:0;
-   border-spacing:0;
-   background:#ffffff;
-   text-align: center;
-}
- tbody {
-}
- ",
-      "subject": {
-        "en": "You're invited to join the JPMC Embedded Banking",
-      },
-      "templateId": "ebInvitation",
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 10`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./forgottenUsername.template.email.json 1`] = `
 {
   "emailTemplate": {
     "forgottenUsername": {
@@ -454,7 +255,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 11`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./multiFactorEmailLink.template.email.json 1`] = `
 {
   "emailTemplate": {
     "multiFactorEmailLink": {
@@ -475,7 +276,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 12`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./oneTimePassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "oneTimePassword": {
@@ -496,7 +297,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 13`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./profileUpdateNotification.template.email.json 1`] = `
 {
   "emailTemplate": {
     "profileUpdateNotification": {
@@ -539,7 +340,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 14`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./profileUpdateNotificationEmailChange.template.email.json 1`] = `
 {
   "emailTemplate": {
     "profileUpdateNotificationEmailChange": {
@@ -584,7 +385,7 @@ New: {{object.mail}}</p><p>Kindest regards.</p></div></body></html>",
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 15`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./registration.template.email.json 1`] = `
 {
   "emailTemplate": {
     "registration": {
@@ -689,7 +490,7 @@ a {
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 16`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./resetPassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "resetPassword": {
@@ -712,7 +513,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 17`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./updatePassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "updatePassword": {
@@ -737,9 +538,52 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./welcome.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "welcome": {
+      "_id": "emailTemplate/welcome",
+      "defaultLocale": "en",
+      "displayName": "Welcome",
+      "enabled": true,
+      "from": "saas@forgerock.com",
+      "html": {
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
+      "subject": {
+        "en": "Your account has been created",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo email template export "frodo email template export -a --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -a --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 2`] = `
+exports[`frodo email template export "frodo email template export -a --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json: ./my-allEmailTemplates.template.email.json 1`] = `
 {
   "emailTemplate": {
     "FraudNotification": {
@@ -1342,7 +1186,7 @@ a{
 
 exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 2`] = `
+exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file: ./allEmailTemplates.template.email.json 1`] = `
 {
   "emailTemplate": {
     "FraudNotification": {
@@ -1945,7 +1789,7 @@ a{
 
 exports[`frodo email template export "frodo email template export -i activation -f my-activation.template.email.json": should export the email template with email id "activation" into file named my-activation.template.email.json 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -i activation -f my-activation.template.email.json": should export the email template with email id "activation" into file named my-activation.template.email.json 2`] = `
+exports[`frodo email template export "frodo email template export -i activation -f my-activation.template.email.json": should export the email template with email id "activation" into file named my-activation.template.email.json: ./my-activation.template.email.json 1`] = `
 {
   "emailTemplate": {
     "activation": {

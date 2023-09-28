@@ -2,7 +2,7 @@
 
 exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure" 2`] = `
+exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure": ./iSPAzure.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -241,7 +241,7 @@ exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should expo
 
 exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 2`] = `
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./iSPAzure.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -478,7 +478,7 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 }
 `;
 
-exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 3`] = `
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./sts.windows.net711ffa9c-5972-4713-ace3-688c9732614a.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -595,7 +595,7 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 }
 `;
 
-exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 4`] = `
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./urn:federation:MicrosoftOnline.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -906,7 +906,7 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 
 exports[`frodo saml export "frodo saml export -a --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export -a --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 2`] = `
+exports[`frodo saml export "frodo saml export -a --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json: ./my-allAlphaProviders.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -1544,7 +1544,7 @@ exports[`frodo saml export "frodo saml export -a --file my-allAlphaProviders.sam
 
 exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file 2`] = `
+exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file: ./allAlphaProviders.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -2182,7 +2182,7 @@ exports[`frodo saml export "frodo saml export -a": should export all saml provid
 
 exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json 2`] = `
+exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json: ./my-iSPAzure.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -2421,7 +2421,7 @@ exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.js
 
 exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `""`;
 
-exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure" 2`] = `
+exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure": ./iSPAzure.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {

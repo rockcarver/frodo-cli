@@ -2,7 +2,7 @@
 
 exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 2`] = `
+exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files: testDir3/repo.ds.json 1`] = `
 {
   "_id": "repo.ds",
   "commands": {
@@ -2158,7 +2158,7 @@ exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 
 }
 `;
 
-exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 3`] = `
+exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files: testDir3/script.json 1`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",
@@ -2202,7 +2202,7 @@ exports[`frodo idm export "frodo idm export --all-separate --directory testDir3 
 
 exports[`frodo idm export "frodo idm export --name script": should export the idm config entity with idm id "script" 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export --name script": should export the idm config entity with idm id "script" 2`] = `
+exports[`frodo idm export "frodo idm export --name script": should export the idm config entity with idm id "script": ./script.idm.json 1`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",
@@ -2246,7 +2246,7 @@ exports[`frodo idm export "frodo idm export --name script": should export the id
 
 exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 2`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/access.json 1`] = `
 {
   "_id": "access",
   "configs": [
@@ -2613,7 +2613,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 3`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/alphaOrgPrivileges.json 1`] = `
 {
   "_id": "alphaOrgPrivileges",
   "privileges": [
@@ -3373,7 +3373,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 4`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/apiVersion.json 1`] = `
 {
   "_id": "apiVersion",
   "warning": {
@@ -3423,7 +3423,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 5`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/audit.json 1`] = `
 {
   "_id": "audit",
   "auditServiceConfig": {
@@ -3540,7 +3540,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 6`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/auth.profile.json 1`] = `
 {
   "_id": "auth.profile",
   "authenticationRole": "internal/role/openidm-authenticated",
@@ -3553,7 +3553,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 7`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/authentication.json 1`] = `
 {
   "_id": "authentication",
   "rsFilter": {
@@ -3673,7 +3673,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 8`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/bravoOrgPrivileges.json 1`] = `
 {
   "_id": "bravoOrgPrivileges",
   "privileges": [
@@ -4433,7 +4433,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 9`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/cluster.json 1`] = `
 {
   "_id": "cluster",
   "enabled": true,
@@ -4445,7 +4445,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 10`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/external.email.json 1`] = `
 {
   "_id": "external.email",
   "auth": {
@@ -4471,7 +4471,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 11`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/external.emailDefault.json 1`] = `
 {
   "_id": "external.emailDefault",
   "auth": {
@@ -4497,14 +4497,14 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 12`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/external.rest.json 1`] = `
 {
   "_id": "external.rest",
   "hostnameVerifier": "&{openidm.external.rest.hostnameVerifier}",
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 13`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/felix.webconsole.json 1`] = `
 {
   "_id": "felix.webconsole",
   "password": "&{openidm.felix.webconsole.password|admin}",
@@ -4512,7 +4512,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 14`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/identityProviders.json 1`] = `
 {
   "_id": "identityProviders",
   "providers": [
@@ -5844,7 +5844,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 15`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/internal.json 1`] = `
 {
   "_id": "internal",
   "objects": [
@@ -5877,7 +5877,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 16`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/jsonstore.json 1`] = `
 {
   "_id": "jsonstore",
   "cleanupDwellSeconds": 600,
@@ -5885,7 +5885,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 17`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/managed.json 1`] = `
 {
   "_id": "managed",
   "objects": [
@@ -10308,7 +10308,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 18`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/metrics.json 1`] = `
 {
   "_id": "metrics",
   "enabled": true,
@@ -10316,7 +10316,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 19`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/notificationFactory.json 1`] = `
 {
   "_id": "notificationFactory",
   "enabled": false,
@@ -10329,7 +10329,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 20`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/policy.json 1`] = `
 {
   "_id": "policy",
   "additionalFiles": [],
@@ -10582,7 +10582,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 21`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/privilegeAssignments.json 1`] = `
 {
   "_id": "privilegeAssignments",
   "privilegeAssignments": [
@@ -10612,7 +10612,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 22`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/privileges.json 1`] = `
 {
   "_id": "privileges",
   "privileges": [
@@ -11340,7 +11340,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 23`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/provisioner.openicf.connectorinfoprovider.json 1`] = `
 {
   "_id": "provisioner.openicf.connectorinfoprovider",
   "connectorsLocation": "connectors",
@@ -11351,7 +11351,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 24`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/repo.ds.json 1`] = `
 {
   "_id": "repo.ds",
   "commands": {
@@ -13507,7 +13507,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 25`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/repo.init.json 1`] = `
 {
   "_id": "repo.init",
   "insert": {
@@ -13563,7 +13563,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 26`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/router.json 1`] = `
 {
   "_id": "router",
   "filters": [
@@ -13679,7 +13679,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 27`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/scheduler.json 1`] = `
 {
   "_id": "scheduler",
   "scheduler": {
@@ -13693,7 +13693,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 28`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/script.json 1`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",
@@ -13735,7 +13735,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 29`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/secrets.json 1`] = `
 {
   "_id": "secrets",
   "populateDefaults": true,
@@ -13838,7 +13838,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 30`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/selfservice.kba.json 1`] = `
 {
   "_id": "selfservice.kba",
   "kbaPropertyName": "kbaInfo",
@@ -13852,7 +13852,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 31`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/selfservice.propertymap.json 1`] = `
 {
   "_id": "selfservice.propertymap",
   "properties": [
@@ -13906,7 +13906,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 32`] = `
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/selfservice.terms.json 1`] = `
 {
   "_id": "selfservice.terms",
   "active": "0.0",
@@ -13929,7 +13929,7 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 
 exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 2`] = `
+exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files: testDir2/repo.ds.json 1`] = `
 {
   "_id": "repo.ds",
   "commands": {
@@ -16085,7 +16085,7 @@ exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEnt
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 3`] = `
+exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files: testDir2/script.json 1`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",
@@ -16129,7 +16129,7 @@ exports[`frodo idm export "frodo idm export -AD testDir2 -E test/e2e/env/testEnt
 
 exports[`frodo idm export "frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `""`;
 
-exports[`frodo idm export "frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 2`] = `
+exports[`frodo idm export "frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json: ./my-script.idm.json 1`] = `
 {
   "ECMAScript": {
     "#javascript.debug": "&{openidm.script.javascript.debug}",

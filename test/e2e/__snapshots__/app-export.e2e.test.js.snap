@@ -2,7 +2,7 @@
 
 exports[`frodo app export "frodo app export --all -f my-allAlphaApplications.application.json": should export all apps to a single file named my-allAlphaApplications.application.json 1`] = `""`;
 
-exports[`frodo app export "frodo app export --all -f my-allAlphaApplications.application.json": should export all apps to a single file named my-allAlphaApplications.application.json 2`] = `
+exports[`frodo app export "frodo app export --all -f my-allAlphaApplications.application.json": should export all apps to a single file named my-allAlphaApplications.application.json: ./my-allAlphaApplications.application.json 1`] = `
 {
   "application": {
     "testapp": {
@@ -3250,7 +3250,7 @@ logger.info ("Final userName " + checkuserName);
 
 exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD" 1`] = `""`;
 
-exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD" 2`] = `
+exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD": ./EncoreAD.application.json 1`] = `
 {
   "application": {},
   "connector": {
@@ -4236,7 +4236,7 @@ if (situation === "FOUND") {
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files 1`] = `""`;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 2`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./EncoreAD.application.json 1`] = `
 {
   "application": {},
   "connector": {
@@ -5220,7 +5220,7 @@ if (situation === "FOUND") {
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 3`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./HRLite.application.json 1`] = `
 {
   "application": {},
   "connector": {
@@ -5789,7 +5789,7 @@ logger.info ("Final userName " + checkuserName);
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 4`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./MrAnderson.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -5807,7 +5807,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 5`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./benefits.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -6072,7 +6072,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 6`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./company.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -6337,7 +6337,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 7`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./engineering.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -6602,7 +6602,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 8`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./sales.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -6867,7 +6867,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 }
 `;
 
-exports[`frodo app export "frodo app export -A": should export all apps to separate files 9`] = `
+exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./testapp.application.json 1`] = `
 {
   "application": {
     "testapp": {
@@ -7639,7 +7639,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 
 exports[`frodo app export "frodo app export -a --file my-other-allAlphaApplications.application.json": should export all apps to a single file named my-other-allAlphaApplications.application.json 1`] = `""`;
 
-exports[`frodo app export "frodo app export -a --file my-other-allAlphaApplications.application.json": should export all apps to a single file named my-other-allAlphaApplications.application.json 2`] = `
+exports[`frodo app export "frodo app export -a --file my-other-allAlphaApplications.application.json": should export all apps to a single file named my-other-allAlphaApplications.application.json: ./my-other-allAlphaApplications.application.json 1`] = `
 {
   "application": {
     "testapp": {
@@ -10887,7 +10887,7 @@ logger.info ("Final userName " + checkuserName);
 
 exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json 1`] = `""`;
 
-exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json 2`] = `
+exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json: ./my-yet-another-allAlphaApplications.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -11225,7 +11225,7 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
 
 exports[`frodo app export "frodo app export -a": should export all apps to a single file 1`] = `""`;
 
-exports[`frodo app export "frodo app export -a": should export all apps to a single file 2`] = `
+exports[`frodo app export "frodo app export -a": should export all apps to a single file: ./allAlphaApplications.application.json 1`] = `
 {
   "application": {
     "testapp": {
@@ -14473,7 +14473,7 @@ logger.info ("Final userName " + checkuserName);
 
 exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json 1`] = `""`;
 
-exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json 2`] = `
+exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json: ./my-nodeps-HRLite.application.json 1`] = `
 {
   "application": {},
   "managedApplication": {
@@ -14531,7 +14531,7 @@ exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRL
 
 exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json 1`] = `""`;
 
-exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json 2`] = `
+exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json: ./my-HRLite.application.json 1`] = `
 {
   "application": {},
   "connector": {
@@ -15102,7 +15102,7 @@ logger.info ("Final userName " + checkuserName);
 
 exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite" 1`] = `""`;
 
-exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite" 2`] = `
+exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite": ./HRLite.application.json 1`] = `
 {
   "application": {},
   "connector": {

@@ -2,7 +2,7 @@
 
 exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file 1`] = `""`;
 
-exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file 2`] = `
+exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file: ./allAlphaProviders.idp.json 1`] = `
 {
   "idp": {
     "adfs": {
@@ -749,7 +749,7 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
 
 exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google" 1`] = `""`;
 
-exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google" 2`] = `
+exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google": ./google.idp.json 1`] = `
 {
   "idp": {
     "google": {
@@ -847,7 +847,7 @@ exports[`frodo idp export "frodo idp export --idp-id google": should export the 
 
 exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 1`] = `""`;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 2`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./adfs.idp.json 1`] = `
 {
   "idp": {
     "adfs": {
@@ -1011,132 +1011,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 3`] = `
-{
-  "idp": {
-    "apple-stoyan": {
-      "_id": "apple-stoyan",
-      "_type": {
-        "_id": "appleConfig",
-        "collection": true,
-        "name": "Client configuration for Apple.",
-      },
-      "acrValues": [],
-      "authenticationIdKey": "sub",
-      "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
-      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-      "clientId": "CHANGE ME",
-      "clientSecret": null,
-      "enableNativeNonce": true,
-      "enabled": false,
-      "encryptJwtRequestParameter": false,
-      "encryptedIdTokens": false,
-      "issuer": "https://appleid.apple.com",
-      "issuerComparisonCheckType": "EXACT",
-      "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
-      "jwtEncryptionAlgorithm": "NONE",
-      "jwtEncryptionMethod": "NONE",
-      "jwtRequestParameterOption": "NONE",
-      "jwtSigningAlgorithm": "NONE",
-      "pkceMethod": "S256",
-      "privateKeyJwtExpTime": 600,
-      "redirectAfterFormPostURI": "https://openam-volker-dev.forgeblocks.com/login",
-      "redirectURI": "https://openam-volker-dev.forgeblocks.com/am/oauth2/alpha/client/form_post/apple-stoyan",
-      "requestNativeAppForUserInfo": false,
-      "responseMode": "FORM_POST",
-      "revocationCheckOptions": [],
-      "scopeDelimiter": " ",
-      "scopes": [
-        "name",
-        "email",
-      ],
-      "tokenEndpoint": "https://appleid.apple.com/auth/token",
-      "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
-      "uiConfig": {
-        "buttonClass": "",
-        "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
-        "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
-        "buttonDisplayName": "Apple",
-        "buttonImage": "/login/images/apple-logo.png",
-        "iconBackground": "#000000",
-        "iconClass": "fa-apple",
-        "iconFontColor": "white",
-      },
-      "useCustomTrustStore": false,
-      "userInfoResponseType": "JSON",
-      "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
-    },
-  },
-  "meta": Any<Object>,
-  "script": {
-    "484e6246-dbc6-4288-97e6-54e55431402e": {
-      "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
-      "default": true,
-      "description": "Normalizes raw profile data from Apple",
-      "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
-      "name": "Apple Profile Normalization",
-      "script": [
-        "/*",
-        " * Copyright 2021-2022 ForgeRock AS. All Rights Reserved",
-        " *",
-        " * Use of this code requires a commercial software license with ForgeRock AS.",
-        " * or with one of its affiliates. All use shall be exclusively subject",
-        " * to such license between the licensee and ForgeRock AS.",
-        " *",
-        " * In some common default configurations, the following keys are required to be not empty:",
-        " * username, givenName, familyName, email.",
-        " *",
-        " * From RFC4517: A value of the Directory String syntax is a string of one or more",
-        " * arbitrary characters from the Universal Character Set (UCS).",
-        " * A zero-length character string is not permitted.",
-        " */",
-        "",
-        "import static org.forgerock.json.JsonValue.field",
-        "import static org.forgerock.json.JsonValue.json",
-        "import static org.forgerock.json.JsonValue.object",
-        "",
-        "String email = "change@me.com"",
-        "String subjectId = rawProfile.sub",
-        "String firstName = " "",
-        "String lastName = " "",
-        "String username = subjectId",
-        "String name",
-        "",
-        "if (rawProfile.isDefined("email") && rawProfile.email.isNotNull()){ // User can elect to not share their email",
-        "    email = rawProfile.email.asString()",
-        "    username = email",
-        "}",
-        "if (rawProfile.isDefined("name") && rawProfile.name.isNotNull()) {",
-        "    if (rawProfile.name.isDefined("firstName") && rawProfile.name.firstName.isNotNull()) {",
-        "        firstName = rawProfile.name.firstName.asString()",
-        "    }",
-        "    if (rawProfile.name.isDefined("lastName") && rawProfile.name.lastName.isNotNull()) {",
-        "        lastName = rawProfile.name.lastName.asString()",
-        "    }",
-        "}",
-        "",
-        "name = (firstName?.trim() ? firstName : "") + (lastName?.trim() ? ((firstName?.trim() ? " " : "") + lastName) : "")",
-        "name =  (!name?.trim()) ? " " : name",
-        "",
-        "return json(object(",
-        "        field("id", subjectId),",
-        "        field("displayName", name),",
-        "        field("email", email),",
-        "        field("givenName", firstName),",
-        "        field("familyName", lastName),",
-        "        field("username", username)))",
-      ],
-    },
-  },
-}
-`;
-
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 4`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./apple_web.idp.json 1`] = `
 {
   "idp": {
     "apple_web": {
@@ -1261,7 +1136,132 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 5`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./apple-stoyan.idp.json 1`] = `
+{
+  "idp": {
+    "apple-stoyan": {
+      "_id": "apple-stoyan",
+      "_type": {
+        "_id": "appleConfig",
+        "collection": true,
+        "name": "Client configuration for Apple.",
+      },
+      "acrValues": [],
+      "authenticationIdKey": "sub",
+      "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "CHANGE ME",
+      "clientSecret": null,
+      "enableNativeNonce": true,
+      "enabled": false,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": false,
+      "issuer": "https://appleid.apple.com",
+      "issuerComparisonCheckType": "EXACT",
+      "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectAfterFormPostURI": "https://openam-volker-dev.forgeblocks.com/login",
+      "redirectURI": "https://openam-volker-dev.forgeblocks.com/am/oauth2/alpha/client/form_post/apple-stoyan",
+      "requestNativeAppForUserInfo": false,
+      "responseMode": "FORM_POST",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "name",
+        "email",
+      ],
+      "tokenEndpoint": "https://appleid.apple.com/auth/token",
+      "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
+      "uiConfig": {
+        "buttonClass": "",
+        "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
+        "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
+        "buttonDisplayName": "Apple",
+        "buttonImage": "/login/images/apple-logo.png",
+        "iconBackground": "#000000",
+        "iconClass": "fa-apple",
+        "iconFontColor": "white",
+      },
+      "useCustomTrustStore": false,
+      "userInfoResponseType": "JSON",
+      "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
+    },
+  },
+  "meta": Any<Object>,
+  "script": {
+    "484e6246-dbc6-4288-97e6-54e55431402e": {
+      "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Apple",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Apple Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2021-2022 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " *",
+        " * In some common default configurations, the following keys are required to be not empty:",
+        " * username, givenName, familyName, email.",
+        " *",
+        " * From RFC4517: A value of the Directory String syntax is a string of one or more",
+        " * arbitrary characters from the Universal Character Set (UCS).",
+        " * A zero-length character string is not permitted.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "String email = "change@me.com"",
+        "String subjectId = rawProfile.sub",
+        "String firstName = " "",
+        "String lastName = " "",
+        "String username = subjectId",
+        "String name",
+        "",
+        "if (rawProfile.isDefined("email") && rawProfile.email.isNotNull()){ // User can elect to not share their email",
+        "    email = rawProfile.email.asString()",
+        "    username = email",
+        "}",
+        "if (rawProfile.isDefined("name") && rawProfile.name.isNotNull()) {",
+        "    if (rawProfile.name.isDefined("firstName") && rawProfile.name.firstName.isNotNull()) {",
+        "        firstName = rawProfile.name.firstName.asString()",
+        "    }",
+        "    if (rawProfile.name.isDefined("lastName") && rawProfile.name.lastName.isNotNull()) {",
+        "        lastName = rawProfile.name.lastName.asString()",
+        "    }",
+        "}",
+        "",
+        "name = (firstName?.trim() ? firstName : "") + (lastName?.trim() ? ((firstName?.trim() ? " " : "") + lastName) : "")",
+        "name =  (!name?.trim()) ? " " : name",
+        "",
+        "return json(object(",
+        "        field("id", subjectId),",
+        "        field("displayName", name),",
+        "        field("email", email),",
+        "        field("givenName", firstName),",
+        "        field("familyName", lastName),",
+        "        field("username", username)))",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./azure.idp.json 1`] = `
 {
   "idp": {
     "azure": {
@@ -1369,7 +1369,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 6`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./facebook.idp.json 1`] = `
 {
   "idp": {
     "facebook": {
@@ -1454,7 +1454,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 7`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./github.idp.json 1`] = `
 {
   "idp": {
     "github": {
@@ -1539,7 +1539,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 8`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./google.idp.json 1`] = `
 {
   "idp": {
     "google": {
@@ -1635,7 +1635,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 9`] = `
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: ./okta-trial-5735851.idp.json 1`] = `
 {
   "idp": {
     "okta-trial-5735851": {
@@ -1727,7 +1727,7 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 
 exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json 1`] = `""`;
 
-exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json 2`] = `
+exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json: ./my-allAlphaProviders.idp.json 1`] = `
 {
   "idp": {
     "adfs": {
@@ -2474,7 +2474,7 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
 
 exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json 1`] = `""`;
 
-exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json 2`] = `
+exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json: ./my-google.idp.json 1`] = `
 {
   "idp": {
     "google": {

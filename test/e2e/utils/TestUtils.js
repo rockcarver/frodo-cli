@@ -65,13 +65,13 @@ export async function testExport(
       if (checkForMetadata) {
         expect(exportData).toMatchSnapshot({
           meta: expect.any(Object),
-        });
+        }, path);
       } else {
-        expect(exportData).toMatchSnapshot();
+        expect(exportData).toMatchSnapshot(path);
       }
     } else {
       const data = fs.readFileSync(path, 'utf8');
-      expect(data).toMatchSnapshot();
+      expect(data).toMatchSnapshot(path);
     }
     //Delete export file
     if (deleteExportFile) fs.unlinkSync(path);

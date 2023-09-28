@@ -2,7 +2,7 @@
 
 exports[`frodo saml cot export "frodo saml cot export --all": should export all saml circles of trust to a single file 1`] = `""`;
 
-exports[`frodo saml cot export "frodo saml cot export --all": should export all saml circles of trust to a single file 2`] = `
+exports[`frodo saml cot export "frodo saml cot export --all": should export all saml circles of trust to a single file: ./allAlphaCirclesOfTrust.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -44,7 +44,7 @@ exports[`frodo saml cot export "frodo saml cot export --all": should export all 
 
 exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should export the saml circles of trust with id "AzureCOT" 1`] = `""`;
 
-exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should export the saml circles of trust with id "AzureCOT" 2`] = `
+exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should export the saml circles of trust with id "AzureCOT": ./AzureCOT.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -76,7 +76,7 @@ exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should
 
 exports[`frodo saml cot export "frodo saml cot export -A": should export all saml circles of trust to separate files 1`] = `""`;
 
-exports[`frodo saml cot export "frodo saml cot export -A": should export all saml circles of trust to separate files 2`] = `
+exports[`frodo saml cot export "frodo saml cot export -A": should export all saml circles of trust to separate files: ./2f04818d-561e-4f8a-82e8-af2426112138.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -100,7 +100,7 @@ exports[`frodo saml cot export "frodo saml cot export -A": should export all sam
 }
 `;
 
-exports[`frodo saml cot export "frodo saml cot export -A": should export all saml circles of trust to separate files 3`] = `
+exports[`frodo saml cot export "frodo saml cot export -A": should export all saml circles of trust to separate files: ./AzureCOT.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -132,7 +132,7 @@ exports[`frodo saml cot export "frodo saml cot export -A": should export all sam
 
 exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCirclesOfTrust.cot.saml.json": should export all saml circles of trust to a single file named my-allAlphaCirclesOfTrust.cot.saml.json 1`] = `""`;
 
-exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCirclesOfTrust.cot.saml.json": should export all saml circles of trust to a single file named my-allAlphaCirclesOfTrust.cot.saml.json 2`] = `
+exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCirclesOfTrust.cot.saml.json": should export all saml circles of trust to a single file named my-allAlphaCirclesOfTrust.cot.saml.json: ./my-allAlphaCirclesOfTrust.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -174,7 +174,7 @@ exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCircl
 
 exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -f my-AzureCOT.cot.saml.json": should export the saml circles of trust with id "AzureCOT" into file named my-AzureCOT.cot.saml.json 1`] = `""`;
 
-exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -f my-AzureCOT.cot.saml.json": should export the saml circles of trust with id "AzureCOT" into file named my-AzureCOT.cot.saml.json 2`] = `
+exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -f my-AzureCOT.cot.saml.json": should export the saml circles of trust with id "AzureCOT" into file named my-AzureCOT.cot.saml.json: ./my-AzureCOT.cot.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {

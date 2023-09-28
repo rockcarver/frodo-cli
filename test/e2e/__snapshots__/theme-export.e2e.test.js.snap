@@ -2,7 +2,7 @@
 
 exports[`frodo theme export "frodo theme export --all": should export all themes to a single file 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export --all": should export all themes to a single file 2`] = `
+exports[`frodo theme export "frodo theme export --all": should export all themes to a single file: ./allAlphaThemes.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -797,7 +797,7 @@ exports[`frodo theme export "frodo theme export --all": should export all themes
 
 exports[`frodo theme export "frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" 2`] = `
+exports[`frodo theme export "frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298": ./2c23505e-e10c-4f09-be73-13307f615298.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -895,7 +895,7 @@ exports[`frodo theme export "frodo theme export --theme-id 2c23505e-e10c-4f09-be
 
 exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme" 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme" 2`] = `
+exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme": ./Starter-Theme.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -993,7 +993,7 @@ exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": s
 
 exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 2`] = `
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: ./Contrast.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -1087,7 +1087,7 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 }
 `;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 3`] = `
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: ./Highlander.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -1321,7 +1321,7 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 }
 `;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 4`] = `
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: ./Robroy.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -1589,7 +1589,7 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 }
 `;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 5`] = `
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: ./Starter-Theme.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -1685,7 +1685,7 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 }
 `;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 6`] = `
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: ./Zardoz.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -1820,7 +1820,7 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 
 exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json 2`] = `
+exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json: ./my-allAlphaThemes.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -2615,7 +2615,7 @@ exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.them
 
 exports[`frodo theme export "frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f my-2c23505e-e10c-4f09-be73-13307f615298.theme.json": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" into file named my-2c23505e-e10c-4f09-be73-13307f615298.theme.json 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f my-2c23505e-e10c-4f09-be73-13307f615298.theme.json": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" into file named my-2c23505e-e10c-4f09-be73-13307f615298.theme.json 2`] = `
+exports[`frodo theme export "frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f my-2c23505e-e10c-4f09-be73-13307f615298.theme.json": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" into file named my-2c23505e-e10c-4f09-be73-13307f615298.theme.json: ./my-2c23505e-e10c-4f09-be73-13307f615298.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
@@ -2713,7 +2713,7 @@ exports[`frodo theme export "frodo theme export -i 2c23505e-e10c-4f09-be73-13307
 
 exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json 1`] = `""`;
 
-exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json 2`] = `
+exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json: ./my-Starter-Theme.theme.json 1`] = `
 {
   "meta": Any<Object>,
   "theme": {
