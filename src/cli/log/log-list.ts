@@ -79,9 +79,9 @@ program
         } else {
           if (credsFromParameters) await saveConnectionProfile(host); // save new values if they were specified on CLI
           printMessage(`Log sources from ${conn.tenant}`);
-          sources.forEach((source) => {
+          for (const source of sources) {
             printMessage(`${source}`, 'data');
-          });
+          }
           printMessage(
             'Use any combination of comma separated sources, example:',
             'info'
