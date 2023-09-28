@@ -65,13 +65,9 @@ const env = {
 };
 
 describe('frodo log list', () => {
-  // flaky test. skipping in github pipeline until we can figure out to make it succeed
-  testif(!process.env['GITHUB_TOKEN'])(
-    '"frodo log list": should list the names of the logs sources',
-    async () => {
-      const CMD = `frodo log list`;
-      const { stdout } = await exec(CMD, env);
-      expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    }
-  );
+  test('"frodo log list": should list the names of the logs sources', async () => {
+    const CMD = `frodo log list`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });

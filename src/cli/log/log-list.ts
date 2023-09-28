@@ -29,9 +29,9 @@ program
         );
       } else {
         printMessage(`Log sources from ${state.getHost()}`);
-        sources.forEach((source) => {
+        for (const source of sources) {
           printMessage(`${source}`, 'data');
-        });
+        }
         printMessage(
           'Use any combination of comma separated sources, example:',
           'info'
