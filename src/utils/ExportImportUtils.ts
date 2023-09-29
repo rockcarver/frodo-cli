@@ -1,12 +1,9 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import { lstat, readdir, readFile } from 'fs/promises';
 import { join } from 'path';
-import slugify from 'slugify';
 
 import { printMessage } from './Console';
-
-const { stringify, deleteDeepByKey } = frodo.utils.json;
 
 /**
  * find all (nested) files in a directory
@@ -47,66 +44,23 @@ export async function readFiles(
   return filePathsNested.flat();
 }
 
-const { getMetadata } = frodo.utils;
+const {
+  getMetadata,
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+  titleCase,
+  getRealmString,
+} = frodo.utils;
 
-/**
- * Get a typed filename. E.g. "my-script.script.json"
- *
- * @param name The name of the file
- * @param type The type of the file, e.g. script, idp, etc.
- * @param suffix The suffix of the file, e.g. json, xml, etc. Defaults to json.
- * @returns The typed filename
- */
-export function getTypedFilename(
-  name: string,
-  type: string,
-  suffix = 'json'
-): string {
-  const slug = slugify(name.replace(/^http(s?):\/\//, ''));
-  return `${slug}.${type}.${suffix}`;
-}
-
-/**
- * Save JSON object to file
- *
- * @param data data object
- * @param filename file name
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function saveJsonToFile(data: any, filename: string) {
-  const exportData = data;
-  if (!exportData.meta) {
-    exportData.meta = getMetadata();
-  }
-  deleteDeepByKey(exportData, '_rev');
-  fs.writeFile(filename, stringify(exportData), (err) => {
-    if (err) {
-      return printMessage(`ERROR - can't save ${filename}`, 'error');
-    }
-    return '';
-  });
-}
-
-export function saveToFile(type, data, identifier, filename) {
-  const exportData = {};
-  exportData['meta'] = getMetadata();
-  exportData[type] = {};
-
-  if (Array.isArray(data)) {
-    data.forEach((element) => {
-      exportData[type][element[identifier]] = element;
-    });
-  } else {
-    exportData[type][data[identifier]] = data;
-  }
-  deleteDeepByKey(exportData, '_rev');
-  fs.writeFile(filename, stringify(exportData), (err) => {
-    if (err) {
-      return printMessage(`ERROR - can't save ${type} to file`, 'error');
-    }
-    return '';
-  });
-}
+export {
+  getMetadata,
+  getRealmString,
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+  titleCase,
+};
 
 /**
  * Save text data to file
@@ -122,25 +76,4 @@ export function saveTextToFile(data: string, filename: string): boolean {
     printMessage(`ERROR - can't save ${filename}`, 'error');
     return false;
   }
-}
-
-/*
- * Output str in title case
- *
- * e.g.: 'ALL UPPERCASE AND all lowercase' = 'All Uppercase And All Lowercase'
- */
-export function titleCase(input) {
-  const str = input.toString();
-  const splitStr = str.toLowerCase().split(' ');
-  for (let i = 0; i < splitStr.length; i += 1) {
-    splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].slice(1);
-  }
-  return splitStr.join(' ');
-}
-
-export function getRealmString() {
-  const realm = state.getRealm();
-  return realm
-    .split('/')
-    .reduce((result, item) => `${result}${titleCase(item)}`, '');
 }

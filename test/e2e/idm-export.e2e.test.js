@@ -47,22 +47,19 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export -N script
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export --name script
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export -N script -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export --name script --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export -AD testDir
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export --all-separate --directory testDir
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export -AD testDir -E testEntityFile.json -e testEnvFile.env
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo idm export --all-separate --directory testDir --entities-file testEntityFile.json --env-file testEnvFile.env
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --name script
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -N script -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -AD testDir1
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -AD testDir2 -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
-import fs from "fs";
+import fs from 'fs';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -71,75 +68,44 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'idm';
 
 describe('frodo idm export', () => {
-    test('"frodo idm export -N script": should export the idm config entity with idm id "script"', async () => {
-        const CMD = `frodo idm export -N script`;
-        const exportFile = "script.idm.json";
-        await testExport(CMD, env, type, exportFile, undefined, false);
-    });
+  test('"frodo idm export --name script": should export the idm config entity with idm id "script"', async () => {
+    const exportFile = 'script.idm.json';
+    const CMD = `frodo idm export --name script`;
+    await testExport(CMD, env, type, exportFile, undefined, false);
+  });
 
-    test('"frodo idm export --name script": should export the idm config entity with idm id "script"', async () => {
-        const CMD = `frodo idm export --name script`;
-        const exportFile = "script.idm.json";
-        await testExport(CMD, env, type, exportFile, undefined, false);
-    });
+  test('"frodo idm export -N script -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json', async () => {
+    const exportFile = 'my-script.idm.json';
+    const CMD = `frodo idm export -N script -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile, undefined, false);
+  });
 
-    test('"frodo idm export -N script -f test.json": should export the idm config entity with idm id "script" into file named test.json', async () => {
-        const CMD = `frodo idm export -N script -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile, undefined, false);
+  test('"frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory', async () => {
+    const dirName = 'testDir1';
+    const CMD = `frodo idm export -AD ${dirName}`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+    fs.rmdirSync(dirName, {
+      recursive: true,
     });
+  });
 
-    test('"frodo idm export --name script --file test.json": should export the idm config entity with idm id "script" into file named test.json', async () => {
-        const CMD = `frodo idm export --name script --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile, undefined, false);
+  test('"frodo idm export -AD testDir2 -E test/e2e/env/testEntityFile.json -e test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files', async () => {
+    const dirName = 'testDir2';
+    const CMD = `frodo idm export -AD ${dirName} -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+    //Delete test files
+    fs.rmdirSync(dirName, {
+      recursive: true,
     });
+  });
 
-    test('"frodo idm export -AD testDir": should export all idm config entities to separate files in the "testDir" directory', async () => {
-        const CMD = `frodo idm export -AD testDir`;
-        await testExport(CMD, env, undefined, undefined, 'testDir', false);
-        fs.rmdirSync('testDir', {
-            recursive: true
-        });
+  test('"frodo idm export --all-separate --directory testDir3 --entities-file test/e2e/env/testEntityFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files', async () => {
+    const dirName = 'testDir3';
+    const CMD = `frodo idm export --all-separate --directory ${dirName} --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+    //Delete test files
+    fs.rmdirSync(dirName, {
+      recursive: true,
     });
-
-    test('"frodo idm export --all-separate --directory testDir": should export all idm config entities to separate files in the "testDir" directory', async () => {
-        const CMD = `frodo idm export --all-separate --directory testDir`;
-        await testExport(CMD, env, undefined, undefined, 'testDir', false);
-        fs.rmdirSync('testDir', {
-            recursive: true
-        });
-    });
-
-    test('"frodo idm export -AD testDir -E testEntityFile.json -e testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files', async () => {
-        const CMD = `frodo idm export -AD testDir -E testEntityFile.json -e testEnvFile.env`;
-        //Create test files
-        fs.writeFileSync("testEntityFile.json", JSON.stringify({
-            idm: ['script', 'repo.ds']
-        }));
-        fs.writeFileSync("testEnvFile.env", "admin=uid=admin\ninstallDir=idm.install.dir\ngroovy=.groovy");
-        await testExport(CMD, env, undefined, undefined, 'testDir', false);
-        //Delete test files
-        fs.unlinkSync("testEntityFile.json");
-        fs.unlinkSync("testEnvFile.env");
-        fs.rmdirSync('testDir', {
-            recursive: true
-        });
-    });
-
-    test('"frodo idm export --all-separate --directory testDir --entities-file testEntityFile.json --env-file testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files', async () => {
-        const CMD = `frodo idm export --all-separate --directory testDir --entities-file testEntityFile.json --env-file testEnvFile.env`;
-        //Create test files
-        fs.writeFileSync("testEntityFile.json", JSON.stringify({
-            idm: ['script', 'repo.ds']
-        }));
-        fs.writeFileSync("testEnvFile.env", "admin=uid=admin\ninstallDir=idm.install.dir\ngroovy=.groovy");
-        await testExport(CMD, env, undefined, undefined, 'testDir', false);
-        //Delete test files
-        fs.unlinkSync("testEntityFile.json");
-        fs.unlinkSync("testEnvFile.env");
-        fs.rmdirSync('testDir', {
-            recursive: true
-        });
-    });
+  });
 });

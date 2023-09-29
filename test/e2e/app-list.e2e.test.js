@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app list
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app list -l
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo app list --long
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list -l
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list --long
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -62,7 +62,7 @@ process.env['FRODO_MOCK'] = '1';
 const env = {
     env: process.env,
 };
-env.env.FRODO_HOST = c.host;
+env.env.FRODO_HOST = 'https://openam-volker-demo.forgeblocks.com/am'; //c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 

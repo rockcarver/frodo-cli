@@ -1,62 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo app list "frodo app list --long": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the apps 1`] = `
-"Client Id                           │Status│Client Type │Grant Types  │Scopes                     │Redirect URIs                              
-23281ea7-739b-4fd1-b953-eaae73a2b497│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-49a2981c-e192-4739-a0e6-c7582168bdf5│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-86fca6d7-2f52-4524-92c6-b6f416071455│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-d4c3ecbc-4b03-4ad5-b32f-464bda442e3f│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-ig-oidc-app                         │Active│Confidential│Authz Code   │openid                     │https://ig.mytestrun.com/home/oidc/callback
-                                    │      │            │Client Creds │profile                    │                                           
-                                    │      │            │Refresh Token│email                      │                                           
-                                    │      │            │             │secctx                     │                                           
-RCSClient                           │Active│Confidential│Client Creds │fr:idm:*                   │                                           
-test2                               │Active│Confidential│Authz Code   │openid                     │                                           
-                                    │      │            │Refresh Token│fr:idm:*                   │                                           
-                                    │      │            │Client Creds │                           │                                           
+"Name       │Id                                  │Template        │Version│Authoritative│Description        
+benefits   │9fb975e4-9723-4fac-9fe7-ee25053c6218│saml            │  1.0.0│        false│Deployed via Encore
+company    │1b3510cf-9352-4573-9cd8-1eaf36cc629c│saml            │  1.0.0│        false│Deployed via Encore
+EncoreAD   │d7f62815-a835-4e2f-a69e-25e7f9019fc2│active.directory│  1.0.0│        false│Example            
+engineering│0e5811ab-ef31-401b-aaa1-70b523eafa55│saml            │  1.0.0│        false│Deployed via Encore
+HRLite     │08505c1b-87ea-4ed0-ab89-20432dcc6249│scripted.sql    │  1.0.0│         true│Example            
+MrAnderson │e9f2ecd5-3d50-4da0-9ca2-587dbca390e2│bookmark        │    1.0│             │This is a bookmark 
+sales      │368b5b11-d8db-4079-98e9-0573934aef04│saml            │  1.0.0│        false│Deployed via Encore
+testapp    │ab00f0cd-e7a0-44fe-9ae9-f80f0e193322│web             │    1.0│             │Test App           
 "
 `;
 
 exports[`frodo app list "frodo app list -l": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the apps 1`] = `
-"Client Id                           │Status│Client Type │Grant Types  │Scopes                     │Redirect URIs                              
-23281ea7-739b-4fd1-b953-eaae73a2b497│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-49a2981c-e192-4739-a0e6-c7582168bdf5│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-86fca6d7-2f52-4524-92c6-b6f416071455│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-d4c3ecbc-4b03-4ad5-b32f-464bda442e3f│Active│Confidential│Client Creds │fr:idm:*                   │                                           
-                                    │      │            │             │fr:idc:esv:*               │                                           
-                                    │      │            │             │dynamic_client_registration│                                           
-ig-oidc-app                         │Active│Confidential│Authz Code   │openid                     │https://ig.mytestrun.com/home/oidc/callback
-                                    │      │            │Client Creds │profile                    │                                           
-                                    │      │            │Refresh Token│email                      │                                           
-                                    │      │            │             │secctx                     │                                           
-RCSClient                           │Active│Confidential│Client Creds │fr:idm:*                   │                                           
-test2                               │Active│Confidential│Authz Code   │openid                     │                                           
-                                    │      │            │Refresh Token│fr:idm:*                   │                                           
-                                    │      │            │Client Creds │                           │                                           
+"Name       │Id                                  │Template        │Version│Authoritative│Description        
+benefits   │9fb975e4-9723-4fac-9fe7-ee25053c6218│saml            │  1.0.0│        false│Deployed via Encore
+company    │1b3510cf-9352-4573-9cd8-1eaf36cc629c│saml            │  1.0.0│        false│Deployed via Encore
+EncoreAD   │d7f62815-a835-4e2f-a69e-25e7f9019fc2│active.directory│  1.0.0│        false│Example            
+engineering│0e5811ab-ef31-401b-aaa1-70b523eafa55│saml            │  1.0.0│        false│Deployed via Encore
+HRLite     │08505c1b-87ea-4ed0-ab89-20432dcc6249│scripted.sql    │  1.0.0│         true│Example            
+MrAnderson │e9f2ecd5-3d50-4da0-9ca2-587dbca390e2│bookmark        │    1.0│             │This is a bookmark 
+sales      │368b5b11-d8db-4079-98e9-0573934aef04│saml            │  1.0.0│        false│Deployed via Encore
+testapp    │ab00f0cd-e7a0-44fe-9ae9-f80f0e193322│web             │    1.0│             │Test App           
 "
 `;
 
 exports[`frodo app list "frodo app list": should list the ids of the apps 1`] = `
-"23281ea7-739b-4fd1-b953-eaae73a2b497
-49a2981c-e192-4739-a0e6-c7582168bdf5
-86fca6d7-2f52-4524-92c6-b6f416071455
-d4c3ecbc-4b03-4ad5-b32f-464bda442e3f
-ig-oidc-app
-RCSClient
-test2
+"benefits
+company
+EncoreAD
+engineering
+HRLite
+MrAnderson
+sales
+testapp
 "
 `;

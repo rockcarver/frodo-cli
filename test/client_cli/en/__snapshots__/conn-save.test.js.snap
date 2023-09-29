@@ -40,6 +40,7 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
+  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
@@ -96,6 +97,7 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
+  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
@@ -152,6 +154,7 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
+  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
@@ -208,6 +211,7 @@ Evironment Variables:
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
+  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.

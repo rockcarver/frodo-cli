@@ -136,7 +136,7 @@ jobs:
       - name: Install frodo-cli globally
         run: npm i -g
 
-      - name: CLI Help Tests
+      - name: CLI Tests
         run: npm test
 
       - name: Version Test

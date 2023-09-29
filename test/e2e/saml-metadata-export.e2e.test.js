@@ -47,16 +47,15 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml metadata export -i iSPAzure
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml metadata export --entity-id iSPAzure
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo saml metadata export -i iSPAzure -f test.xml
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export -i iSPAzure
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export --entity-id iSPAzure -f test.xml
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -65,21 +64,15 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'metadata';
 
 describe('frodo saml metadata export', () => {
-    test('"frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure"', async () => {
-        const CMD = `frodo saml metadata export -i iSPAzure`;
-        const exportFile = "iSPAzure.metadata.xml";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure"', async () => {
+    const exportFile = 'iSPAzure.metadata.xml';
+    const CMD = `frodo saml metadata export -i iSPAzure`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo saml metadata export --entity-id iSPAzure": should export the saml metadata with entity id "iSPAzure"', async () => {
-        const CMD = `frodo saml metadata export --entity-id iSPAzure`;
-        const exportFile = "iSPAzure.metadata.xml";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo saml metadata export -i iSPAzure -f test.xml": should export the saml metadata with entity id "iSPAzure" into file named test.xml', async () => {
-        const CMD = `frodo saml metadata export -i iSPAzure -f test.xml`;
-        const exportFile = "test.xml";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo saml metadata export --entity-id iSPAzure": should export the saml metadata with entity id "iSPAzure"', async () => {
+    const exportFile = 'my-iSPAzure.metadata.xml';
+    const CMD = `frodo saml metadata export --entity-id iSPAzure -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 });

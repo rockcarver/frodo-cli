@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
 import {
@@ -42,7 +42,7 @@ export async function listVariables(long) {
       'Status'['brightCyan'],
       'Description'['brightCyan'],
       'Modifier'['brightCyan'],
-      'Modified'['brightCyan'],
+      'Modified (UTC)'['brightCyan'],
     ]);
     for (const variable of variables) {
       table.push([
@@ -50,8 +50,10 @@ export async function listVariables(long) {
         wordwrap(decodeBase64(variable.valueBase64), 40),
         variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
         wordwrap(variable.description, 40),
-        await resolveUserName('teammember', variable.lastChangedBy),
-        new Date(variable.lastChangeDate).toLocaleString(),
+        state.getUseBearerTokenForAmApis()
+          ? variable.lastChangedBy
+          : await resolveUserName('teammember', variable.lastChangedBy),
+        new Date(variable.lastChangeDate).toUTCString(),
       ]);
     }
     printMessage(table.toString(), 'data');

@@ -47,17 +47,13 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -n 'Starter Theme'
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export --theme-name 'Starter Theme'
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -n 'Starter Theme' -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo theme export --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export --theme-name 'Starter Theme'
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export -n 'Starter Theme' -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme export -A
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -73,67 +69,44 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'theme';
 
 describe('frodo theme export', () => {
-    test('"frodo theme export -n \'Starter Theme\'": should export the theme named "Starter Theme"', async () => {
-        const CMD = `frodo theme export -n 'Starter Theme'`;
-        const exportFile = "Starter-Theme.theme.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
     test('"frodo theme export --theme-name \'Starter Theme\'": should export the theme named "Starter Theme"', async () => {
-        const CMD = `frodo theme export --theme-name 'Starter Theme'`;
         const exportFile = "Starter-Theme.theme.json";
+        const CMD = `frodo theme export --theme-name 'Starter Theme'`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo theme export -n \'Starter Theme\' -f test.json": should export the theme named "Starter Theme" into file named test.json', async () => {
-        const CMD = `frodo theme export -n 'Starter Theme' -f test.json`;
-        const exportFile = "test.json";
+    test('"frodo theme export -n \'Starter Theme\' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json', async () => {
+        const exportFile = "my-Starter-Theme.theme.json";
+        const CMD = `frodo theme export -n 'Starter Theme' -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d"', async () => {
-        const CMD = `frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d`;
-        const exportFile = "86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json";
+    test('"frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298"', async () => {
+        const exportFile = "2c23505e-e10c-4f09-be73-13307f615298.theme.json";
+        const CMD = `frodo theme export --theme-id 2c23505e-e10c-4f09-be73-13307f615298`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d"', async () => {
-        const CMD = `frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d`;
-        const exportFile = "86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test.json": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into file named test.json', async () => {
-        const CMD = `frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo theme export -a": should export all themes to a single file', async () => {
-        const CMD = `frodo theme export -a`;
-        const exportFile = "allAlphaThemes.theme.json";
+    test('"frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f my-2c23505e-e10c-4f09-be73-13307f615298.theme.json": should export the theme with id "2c23505e-e10c-4f09-be73-13307f615298" into file named my-2c23505e-e10c-4f09-be73-13307f615298.theme.json', async () => {
+        const exportFile = "my-2c23505e-e10c-4f09-be73-13307f615298.theme.json";
+        const CMD = `frodo theme export -i 2c23505e-e10c-4f09-be73-13307f615298 -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo theme export --all": should export all themes to a single file', async () => {
-        const CMD = `frodo theme export --all`;
         const exportFile = "allAlphaThemes.theme.json";
+        const CMD = `frodo theme export --all`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo theme export -a --file test.json": should export all themes to a single file named test.json', async () => {
-        const CMD = `frodo theme export -a --file test.json`;
-        const exportFile = "test.json";
+    test('"frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json', async () => {
+        const exportFile = "my-allAlphaThemes.theme.json";
+        const CMD = `frodo theme export -a --file ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo theme export -A": should export all themes to separate files', async () => {
         const CMD = `frodo theme export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo theme export --all-separate": should export all themes to separate files', async () => {
-        const CMD = `frodo theme export --all-separate`;
         await testExport(CMD, env, type);
     });
 });

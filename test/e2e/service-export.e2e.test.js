@@ -47,27 +47,23 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -i policyconfiguration
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --service-id policyconfiguration
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -i policyconfiguration -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -gi dashboard
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --global --service-id dashboard
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -ga
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --global --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --all-separate
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export -Ag
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo service export --global --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -i policyconfiguration
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --service-id policyconfiguration -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -gi dashboard
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --global --service-id dashboard -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -a
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --all --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -ga
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --global --all -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -gA
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
@@ -76,83 +72,61 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'service';
 
 describe('frodo service export', () => {
-    test('"frodo service export -i policyconfiguration": should export the service with id "policyconfiguration"', async () => {
-        const CMD = `frodo service export -i policyconfiguration`;
-        const exportFile = "policyconfiguration.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export -i policyconfiguration": should export the service with id "policyconfiguration"', async () => {
+    const exportFile = 'policyconfiguration.service.json';
+    const CMD = `frodo service export -i policyconfiguration`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export --service-id policyconfiguration": should export the service with id "policyconfiguration"', async () => {
-        const CMD = `frodo service export --service-id policyconfiguration`;
-        const exportFile = "policyconfiguration.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export --service-id policyconfiguration": should export the service with id "policyconfiguration"', async () => {
+    const exportFile = 'policyconfiguration.service.json';
+    const CMD = `frodo service export --service-id policyconfiguration`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export -i policyconfiguration -f test.json": should export the service with id "policyconfiguration" into file named test.json', async () => {
-        const CMD = `frodo service export -i policyconfiguration -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export -gi dashboard": should export the global service with id "dashboard"', async () => {
+    const exportFile = 'dashboard.service.json';
+    const CMD = `frodo service export -gi dashboard`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export -gi dashboard": should export the global service with id "dashboard"', async () => {
-        const CMD = `frodo service export -gi dashboard`;
-        const exportFile = "dashboard.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export --global --service-id dashboard": should export the global service with id "dashboard"', async () => {
+    const exportFile = 'my-dashboard.service.json';
+    const CMD = `frodo service export --global --service-id dashboard -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export --global --service-id dashboard": should export the global service with id "dashboard"', async () => {
-        const CMD = `frodo service export --global --service-id dashboard`;
-        const exportFile = "dashboard.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export -a": should export all services to a single file', async () => {
+    const exportFile = 'allAlphaServices.service.json';
+    const CMD = `frodo service export -a`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export -a": should export all services to a single file', async () => {
-        const CMD = `frodo service export -a`;
-        const exportFile = "allAlphaServices.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json', async () => {
+    const exportFile = 'my-allAlphaServices.service.json';
+    const CMD = `frodo service export --all --file ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export --all": should export all services to a single file', async () => {
-        const CMD = `frodo service export --all`;
-        const exportFile = "allAlphaServices.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export -ga": should export all global services to a single file', async () => {
+    const exportFile = 'allGlobalServices.service.json';
+    const CMD = `frodo service export -ga`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export -a --file test.json": should export all services to a single file named test.json', async () => {
-        const CMD = `frodo service export -a --file test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export --global --all": should export all global services to a single file', async () => {
+    const exportFile = 'my-allGlobalServices.service.json';
+    const CMD = `frodo service export --global --all -f ${exportFile}`;
+    await testExport(CMD, env, type, exportFile);
+  });
 
-    test('"frodo service export -ga": should export all global services to a single file', async () => {
-        const CMD = `frodo service export -ga`;
-        const exportFile = "allAlphaServices.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
+  test('"frodo service export -A": should export all services to separate files', async () => {
+    const CMD = `frodo service export -A`;
+    await testExport(CMD, env, type);
+  });
 
-    test('"frodo service export --global --all": should export all global services to a single file', async () => {
-        const CMD = `frodo service export --global --all`;
-        const exportFile = "allAlphaServices.service.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo service export -A": should export all services to separate files', async () => {
-        const CMD = `frodo service export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo service export --all-separate": should export all services to separate files', async () => {
-        const CMD = `frodo service export --all-separate`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo service export -gA": should export all global services to separate files', async () => {
-        const CMD = `frodo service export -gA`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo service export --global --all-separate": should export all global services to separate files', async () => {
-        const CMD = `frodo service export --global --all-separate`;
-        await testExport(CMD, env, type);
-    });
+  test('"frodo service export -gA": should export all global services to separate files', async () => {
+    const CMD = `frodo service export -gA`;
+    await testExport(CMD, env, type);
+  });
 });

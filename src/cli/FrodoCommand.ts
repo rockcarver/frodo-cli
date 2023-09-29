@@ -206,10 +206,11 @@ export class FrodoCommand extends FrodoStubCommand {
           ? `  FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.\n` +
             `  FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.\n`
           : ``) +
-        (this.name().startsWith('frodo logs')
+        (this.name().startsWith('frodo log')
           ? `  FRODO_LOG_KEY: Log API key. Overrides 'username' argument.\n` +
             `  FRODO_LOG_SECRET: Log API secret. Overrides 'password' argument.\n`
           : ``) +
+        `  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.\n` +
         `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.\n` +
         `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n` +
         `  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.\n` +

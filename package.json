@@ -104,7 +104,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-27",
+    "@rockcarver/frodo-lib": "2.0.0-32",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",

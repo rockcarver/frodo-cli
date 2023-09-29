@@ -47,27 +47,27 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo log list
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo log list
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes } from './utils/TestUtils';
+import { removeAnsiEscapeCodes, testif } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_HOST'] = c.host;
+process.env['FRODO_LOG_KEY'] = c.saId;
+process.env['FRODO_LOG_SECRET'] = c.saJwk;
 const env = {
-    env: process.env,
+  env: process.env,
 };
-env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = c.saId;
-env.env.FRODO_SA_JWK = c.saJwk;
 
 describe('frodo log list', () => {
-    test('"frodo log list": should list the names of the logs sources', async () => {
-        const CMD = `frodo log list`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test('"frodo log list": should list the names of the logs sources', async () => {
+    const CMD = `frodo log list`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });

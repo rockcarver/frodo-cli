@@ -2,7 +2,7 @@
 
 exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file 2`] = `
+exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file: ./allAlphaResourceTypes.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -17,7 +17,7 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356542,
+      "lastModifiedDate": 1694717616300,
       "name": "FrodoTestResourceType13",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -34,7 +34,7 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356664,
+      "lastModifiedDate": 1694717616482,
       "name": "FrodoTestResourceType14",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -51,7 +51,7 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356780,
+      "lastModifiedDate": 1694717616660,
       "name": "FrodoTestResourceType15",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -68,7 +68,7 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356413,
+      "lastModifiedDate": 1694717616120,
       "name": "FrodoTestResourceType12",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -89,8 +89,8 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -107,7 +107,7 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356293,
+      "lastModifiedDate": 1694717615932,
       "name": "FrodoTestResourceType11",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -122,8 +122,8 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1682866321756,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661536,
       "name": "OAuth2 Scope",
       "patterns": [
         "*://*:*/*",
@@ -131,209 +131,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "*",
       ],
       "uuid": "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 1`] = `""`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 2`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "993eba78-1c3f-4f27-b205-b4b29418f831": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147077,
-      "description": "Frodo Test Resource Type Eleven",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356293,
-      "name": "FrodoTestResourceType11",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "993eba78-1c3f-4f27-b205-b4b29418f831",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 3`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "3fc799d7-b73f-49e0-a70b-e37990e54e56": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147204,
-      "description": "Frodo Test Resource Type Twelve",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356413,
-      "name": "FrodoTestResourceType12",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "3fc799d7-b73f-49e0-a70b-e37990e54e56",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 4`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147346,
-      "description": "Frodo Test Resource Type Thirteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356542,
-      "name": "FrodoTestResourceType13",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 5`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "119b291c-40b3-4b1e-8d84-c2a561a2cb1f": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147437,
-      "description": "Frodo Test Resource Type Fourteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356664,
-      "name": "FrodoTestResourceType14",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "119b291c-40b3-4b1e-8d84-c2a561a2cb1f",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 6`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "3c5f13af-ca17-403e-b47d-d15263cce954": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684545571229,
-      "description": "Frodo Test Resource Type Fifteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356780,
-      "name": "FrodoTestResourceType15",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "3c5f13af-ca17-403e-b47d-d15263cce954",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 7`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b": {
-      "actions": {
-        "GRANT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030586,
-      "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1682866321756,
-      "name": "OAuth2 Scope",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-        "*",
-      ],
-      "uuid": "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export --all-separate": should export all resource types to separate files 8`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
-      "actions": {
-        "DELETE": true,
-        "GET": true,
-        "HEAD": true,
-        "OPTIONS": true,
-        "PATCH": true,
-        "POST": true,
-        "PUT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
-      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
-      "name": "URL",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-      ],
-      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
     },
   },
   "script": {},
@@ -342,7 +139,7 @@ exports[`frodo authz type export "frodo authz type export --all-separate": shoul
 
 exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 2`] = `
+exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2": ./76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -361,8 +158,8 @@ exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -375,9 +172,9 @@ exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export --type-name URL": should export the resource type named "URL" 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL" 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export --type-name URL": should export the resource type named "URL" 2`] = `
+exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL": ./URL.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -396,8 +193,8 @@ exports[`frodo authz type export "frodo authz type export --type-name URL": shou
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -412,7 +209,7 @@ exports[`frodo authz type export "frodo authz type export --type-name URL": shou
 
 exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 2`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./FrodoTestResourceType11.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -427,7 +224,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356293,
+      "lastModifiedDate": 1694717615932,
       "name": "FrodoTestResourceType11",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -440,7 +237,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 3`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./FrodoTestResourceType12.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -455,7 +252,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356413,
+      "lastModifiedDate": 1694717616120,
       "name": "FrodoTestResourceType12",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -468,7 +265,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 4`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./FrodoTestResourceType13.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -483,7 +280,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356542,
+      "lastModifiedDate": 1694717616300,
       "name": "FrodoTestResourceType13",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -496,7 +293,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 5`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./FrodoTestResourceType14.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -511,7 +308,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356664,
+      "lastModifiedDate": 1694717616482,
       "name": "FrodoTestResourceType14",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -524,7 +321,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 6`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./FrodoTestResourceType15.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -539,7 +336,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356780,
+      "lastModifiedDate": 1694717616660,
       "name": "FrodoTestResourceType15",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -552,7 +349,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 7`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./OAuth2-Scope.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -565,8 +362,8 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1682866321756,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661536,
       "name": "OAuth2 Scope",
       "patterns": [
         "*://*:*/*",
@@ -580,7 +377,7 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 8`] = `
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: ./URL.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -599,8 +396,8 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -613,9 +410,9 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -a --file test.json": should export all resource types to a single file named test.json 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export -a --file test.json": should export all resource types to a single file named test.json 2`] = `
+exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json: ./my-allAlphaResourceTypes.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -630,7 +427,7 @@ exports[`frodo authz type export "frodo authz type export -a --file test.json": 
       "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356542,
+      "lastModifiedDate": 1694717616300,
       "name": "FrodoTestResourceType13",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -647,7 +444,7 @@ exports[`frodo authz type export "frodo authz type export -a --file test.json": 
       "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356664,
+      "lastModifiedDate": 1694717616482,
       "name": "FrodoTestResourceType14",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -664,7 +461,7 @@ exports[`frodo authz type export "frodo authz type export -a --file test.json": 
       "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356780,
+      "lastModifiedDate": 1694717616660,
       "name": "FrodoTestResourceType15",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -681,144 +478,7 @@ exports[`frodo authz type export "frodo authz type export -a --file test.json": 
       "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356413,
-      "name": "FrodoTestResourceType12",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "3fc799d7-b73f-49e0-a70b-e37990e54e56",
-    },
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
-      "actions": {
-        "DELETE": true,
-        "GET": true,
-        "HEAD": true,
-        "OPTIONS": true,
-        "PATCH": true,
-        "POST": true,
-        "PUT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
-      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
-      "name": "URL",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-      ],
-      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-    },
-    "993eba78-1c3f-4f27-b205-b4b29418f831": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147077,
-      "description": "Frodo Test Resource Type Eleven",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356293,
-      "name": "FrodoTestResourceType11",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "993eba78-1c3f-4f27-b205-b4b29418f831",
-    },
-    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b": {
-      "actions": {
-        "GRANT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030586,
-      "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1682866321756,
-      "name": "OAuth2 Scope",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-        "*",
-      ],
-      "uuid": "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export -a": should export all resource types to a single file 1`] = `""`;
-
-exports[`frodo authz type export "frodo authz type export -a": should export all resource types to a single file 2`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147346,
-      "description": "Frodo Test Resource Type Thirteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356542,
-      "name": "FrodoTestResourceType13",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76",
-    },
-    "119b291c-40b3-4b1e-8d84-c2a561a2cb1f": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147437,
-      "description": "Frodo Test Resource Type Fourteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356664,
-      "name": "FrodoTestResourceType14",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "119b291c-40b3-4b1e-8d84-c2a561a2cb1f",
-    },
-    "3c5f13af-ca17-403e-b47d-d15263cce954": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684545571229,
-      "description": "Frodo Test Resource Type Fifteen",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356780,
-      "name": "FrodoTestResourceType15",
-      "patterns": [
-        "pattern2://*:*/*?*",
-        "pattern1://*:*/*",
-      ],
-      "uuid": "3c5f13af-ca17-403e-b47d-d15263cce954",
-    },
-    "3fc799d7-b73f-49e0-a70b-e37990e54e56": {
-      "actions": {
-        "action1": true,
-        "action2": true,
-      },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147204,
-      "description": "Frodo Test Resource Type Twelve",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356413,
+      "lastModifiedDate": 1694717616120,
       "name": "FrodoTestResourceType12",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -839,8 +499,8 @@ exports[`frodo authz type export "frodo authz type export -a": should export all
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -857,7 +517,7 @@ exports[`frodo authz type export "frodo authz type export -a": should export all
       "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1691209356293,
+      "lastModifiedDate": 1694717615932,
       "name": "FrodoTestResourceType11",
       "patterns": [
         "pattern2://*:*/*?*",
@@ -872,8 +532,8 @@ exports[`frodo authz type export "frodo authz type export -a": should export all
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1682866321756,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661536,
       "name": "OAuth2 Scope",
       "patterns": [
         "*://*:*/*",
@@ -887,9 +547,9 @@ exports[`frodo authz type export "frodo authz type export -a": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named test.json 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f test.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named test.json 2`] = `
+exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json: ./my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -908,78 +568,8 @@ exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
-      "name": "URL",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-      ],
-      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 1`] = `""`;
-
-exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 2`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
-      "actions": {
-        "DELETE": true,
-        "GET": true,
-        "HEAD": true,
-        "OPTIONS": true,
-        "PATCH": true,
-        "POST": true,
-        "PUT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
-      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
-      "name": "URL",
-      "patterns": [
-        "*://*:*/*",
-        "*://*:*/*?*",
-      ],
-      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-    },
-  },
-  "script": {},
-}
-`;
-
-exports[`frodo authz type export "frodo authz type export -n URL -f test.json": should export the resource type named "URL" into file named test.json 1`] = `""`;
-
-exports[`frodo authz type export "frodo authz type export -n URL -f test.json": should export the resource type named "URL" into file named test.json 2`] = `
-{
-  "meta": Any<Object>,
-  "policy": {},
-  "policyset": {},
-  "resourcetype": {
-    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
-      "actions": {
-        "DELETE": true,
-        "GET": true,
-        "HEAD": true,
-        "OPTIONS": true,
-        "PATCH": true,
-        "POST": true,
-        "PUT": true,
-      },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
-      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -994,7 +584,7 @@ exports[`frodo authz type export "frodo authz type export -n URL -f test.json": 
 
 exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL" 1`] = `""`;
 
-exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL" 2`] = `
+exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL": ./URL.resourcetype.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -1013,8 +603,8 @@ exports[`frodo authz type export "frodo authz type export -n URL": should export
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "lastModifiedDate": 1684690114955,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1694717661706,
       "name": "URL",
       "patterns": [
         "*://*:*/*",

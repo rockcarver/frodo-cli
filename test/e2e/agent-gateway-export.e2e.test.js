@@ -47,14 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export -i frodo-test-ig-agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export --agent-id frodo-test-ig-agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export -i frodo-test-ig-agent -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am FRODO_SA_ID=b672336b-41ef-428d-ae4a-e0c082875377 FRODO_SA_JWK=$(<~/Downloads/frodo-test_privateKey.jwk) frodo agent gateway export --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --agent-id frodo-test-ig-agent
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -A
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -70,49 +67,32 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'gateway.agent';
 
 describe('frodo agent gateway export', () => {
-    test('"frodo agent gateway export -i frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent"', async () => {
-        const CMD = `frodo agent gateway export -i frodo-test-ig-agent`;
-        const exportFile = "frodo-test-ig-agent.gateway.agent.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
     test('"frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent"', async () => {
-        const CMD = `frodo agent gateway export --agent-id frodo-test-ig-agent`;
         const exportFile = "frodo-test-ig-agent.gateway.agent.json";
+        const CMD = `frodo agent gateway export --agent-id frodo-test-ig-agent`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent gateway export -i frodo-test-ig-agent -f test.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named test.json', async () => {
-        const CMD = `frodo agent gateway export -i frodo-test-ig-agent -f test.json`;
-        const exportFile = "test.json";
-        await testExport(CMD, env, type, exportFile);
-    });
-
-    test('"frodo agent gateway export -a": should export all gateway agents to a single file', async () => {
-        const CMD = `frodo agent gateway export -a`;
-        const exportFile = "allAlphaAgents.gateway.agent.json";
+    test('"frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json.json', async () => {
+        const exportFile = "my-frodo-test-ig-agent.gateway.agent.json.json";
+        const CMD = `frodo agent gateway export -i frodo-test-ig-agent -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent gateway export --all": should export all gateway agents to a single file', async () => {
-        const CMD = `frodo agent gateway export --all`;
         const exportFile = "allAlphaAgents.gateway.agent.json";
+        const CMD = `frodo agent gateway export --all`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent gateway export -a --file test.json": should export all gateway agents to a single file named test.json', async () => {
-        const CMD = `frodo agent gateway export -a --file test.json`;
-        const exportFile = "test.json";
+    test('"frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json', async () => {
+        const exportFile = "my-allAlphaAgents.gateway.agent.json";
+        const CMD = `frodo agent gateway export -a --file ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
     test('"frodo agent gateway export -A": should export all gateway agents to separate files', async () => {
         const CMD = `frodo agent gateway export -A`;
-        await testExport(CMD, env, type);
-    });
-
-    test('"frodo agent gateway export --all-separate": should export all gateway agents to separate files', async () => {
-        const CMD = `frodo agent gateway export --all-separate`;
         await testExport(CMD, env, type);
     });
 });
