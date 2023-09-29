@@ -67,8 +67,8 @@ program
           'error'
         );
       } else {
-        if (saveCredentials) await saveConnectionProfile(host); // save new values if they were specified on CLI
-        printMessage(`Log sources from ${conn.tenant}`);
+        if (saveCredentials) await saveConnectionProfile(state.getHost()); // save new values if they were specified on CLI
+        printMessage(`Log sources from ${state.getHost()}`);
         for (const source of sources) {
           printMessage(`${source}`, 'data');
         }
