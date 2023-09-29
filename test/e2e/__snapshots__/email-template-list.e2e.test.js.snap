@@ -1,68 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo email template list "frodo email template list --long": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates 1`] = `
-"Id                                  │Name                              │Status │Locale(s)│From                                                │Subject                                 
-activation                          │Activation                        │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been       
-                                    │                                  │       │         │                                                    │activated                               
-arvestUnknownDeviceNotification     │Arvest Unknown Device Notification│enabled│en       │"Arvest IT Security " <admin@arvest-demo.com>       │Your Arvest Bank account was accessed   
-                                    │                                  │       │         │                                                    │from an unknown device!                 
-arvestWelcome                       │ArvestWelcome                     │enabled│en       │"Arvest Admin" <admin@idcloud-demo.com>             │Your registration with Arvest Bank      
-ebInvitation                        │EBInvitation                      │enabled│en       │"J.P Morgan " <>                                    │You're invited to join the JPMC Embedded
-                                    │                                  │       │         │                                                    │Banking                                 
-forgottenUsername                   │                                  │enabled│en (fr)  │                                                    │Account Information - username          
-FraudNotification                   │Fraud Notification                │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!  
-MobileEmailOTP                      │Mobile Email OTP                  │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login             
-multiFactorEmailLink                │                                  │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud   
-                                    │                                  │       │         │                                                    │login                                   
-oneTimePassword                     │                                  │enabled│en       │                                                    │One-Time Password for login             
-profileUpdateNotification           │Profile Update Notification       │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated      
-profileUpdateNotificationEmailChange│Email Address Change Notification │enabled│en       │saas@forgerock.com                                  │You email address and profile has been  
-                                    │                                  │       │         │                                                    │updated                                 
-registration                        │registration                      │enabled│en (fr)  │"J.P Morgan" <sass@forgerock.com>                   │You're invited to join JPMC Embedded    
-                                    │                                  │       │         │                                                    │Banking                                 
-resetPassword                       │                                  │enabled│en (fr)  │                                                    │Reset your password                     
-UnknownDeviceNotification           │Unknown Device Notification       │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from  
-                                    │                                  │       │         │                                                    │an unknown device!                      
-updatePassword                      │                                  │enabled│en       │                                                    │Update your password                    
-welcome                             │Welcome                           │enabled│en       │saas@forgerock.com                                  │Your account has been created           
-Welcome                             │Welcome                           │enabled│en       │saas@forgerock.com                                  │Your registration with Expanse          
+"Id                                  │Name                             │Status │Locale(s)│From                                                │Subject                               
+activation                          │Activation                       │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been     
+                                    │                                 │       │         │                                                    │activated                             
+forgottenUsername                   │                                 │enabled│en (fr)  │                                                    │Account Information - username        
+FraudNotification                   │Fraud Notification               │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!
+MobileEmailOTP                      │Mobile Email OTP                 │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login           
+multiFactorEmailLink                │                                 │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud 
+                                    │                                 │       │         │                                                    │login                                 
+oneTimePassword                     │                                 │enabled│en       │                                                    │One-Time Password for login           
+profileUpdateNotification           │Profile Update Notification      │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated    
+profileUpdateNotificationEmailChange│Email Address Change Notification│enabled│en       │saas@forgerock.com                                  │You email address and profile has been
+                                    │                                 │       │         │                                                    │updated                               
+registration                        │                                 │enabled│en (fr)  │                                                    │Register new account                  
+resetPassword                       │                                 │enabled│en (fr)  │                                                    │Reset your password                   
+UnknownDeviceNotification           │Unknown Device Notification      │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from
+                                    │                                 │       │         │                                                    │an unknown device!                    
+updatePassword                      │                                 │enabled│en       │                                                    │Update your password                  
+welcome                             │Welcome                          │enabled│en       │saas@forgerock.com                                  │Your account has been created         
 "
 `;
 
 exports[`frodo email template list "frodo email template list -l": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates 1`] = `
-"Id                                  │Name                              │Status │Locale(s)│From                                                │Subject                                 
-activation                          │Activation                        │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been       
-                                    │                                  │       │         │                                                    │activated                               
-arvestUnknownDeviceNotification     │Arvest Unknown Device Notification│enabled│en       │"Arvest IT Security " <admin@arvest-demo.com>       │Your Arvest Bank account was accessed   
-                                    │                                  │       │         │                                                    │from an unknown device!                 
-arvestWelcome                       │ArvestWelcome                     │enabled│en       │"Arvest Admin" <admin@idcloud-demo.com>             │Your registration with Arvest Bank      
-ebInvitation                        │EBInvitation                      │enabled│en       │"J.P Morgan " <>                                    │You're invited to join the JPMC Embedded
-                                    │                                  │       │         │                                                    │Banking                                 
-forgottenUsername                   │                                  │enabled│en (fr)  │                                                    │Account Information - username          
-FraudNotification                   │Fraud Notification                │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!  
-MobileEmailOTP                      │Mobile Email OTP                  │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login             
-multiFactorEmailLink                │                                  │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud   
-                                    │                                  │       │         │                                                    │login                                   
-oneTimePassword                     │                                  │enabled│en       │                                                    │One-Time Password for login             
-profileUpdateNotification           │Profile Update Notification       │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated      
-profileUpdateNotificationEmailChange│Email Address Change Notification │enabled│en       │saas@forgerock.com                                  │You email address and profile has been  
-                                    │                                  │       │         │                                                    │updated                                 
-registration                        │registration                      │enabled│en (fr)  │"J.P Morgan" <sass@forgerock.com>                   │You're invited to join JPMC Embedded    
-                                    │                                  │       │         │                                                    │Banking                                 
-resetPassword                       │                                  │enabled│en (fr)  │                                                    │Reset your password                     
-UnknownDeviceNotification           │Unknown Device Notification       │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from  
-                                    │                                  │       │         │                                                    │an unknown device!                      
-updatePassword                      │                                  │enabled│en       │                                                    │Update your password                    
-welcome                             │Welcome                           │enabled│en       │saas@forgerock.com                                  │Your account has been created           
-Welcome                             │Welcome                           │enabled│en       │saas@forgerock.com                                  │Your registration with Expanse          
+"Id                                  │Name                             │Status │Locale(s)│From                                                │Subject                               
+activation                          │Activation                       │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been     
+                                    │                                 │       │         │                                                    │activated                             
+forgottenUsername                   │                                 │enabled│en (fr)  │                                                    │Account Information - username        
+FraudNotification                   │Fraud Notification               │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!
+MobileEmailOTP                      │Mobile Email OTP                 │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login           
+multiFactorEmailLink                │                                 │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud 
+                                    │                                 │       │         │                                                    │login                                 
+oneTimePassword                     │                                 │enabled│en       │                                                    │One-Time Password for login           
+profileUpdateNotification           │Profile Update Notification      │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated    
+profileUpdateNotificationEmailChange│Email Address Change Notification│enabled│en       │saas@forgerock.com                                  │You email address and profile has been
+                                    │                                 │       │         │                                                    │updated                               
+registration                        │                                 │enabled│en (fr)  │                                                    │Register new account                  
+resetPassword                       │                                 │enabled│en (fr)  │                                                    │Reset your password                   
+UnknownDeviceNotification           │Unknown Device Notification      │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from
+                                    │                                 │       │         │                                                    │an unknown device!                    
+updatePassword                      │                                 │enabled│en       │                                                    │Update your password                  
+welcome                             │Welcome                          │enabled│en       │saas@forgerock.com                                  │Your account has been created         
 "
 `;
 
 exports[`frodo email template list "frodo email template list": should list the ids of the email templates 1`] = `
 "activation
-arvestUnknownDeviceNotification
-arvestWelcome
-ebInvitation
 forgottenUsername
 FraudNotification
 MobileEmailOTP
@@ -75,6 +58,5 @@ resetPassword
 UnknownDeviceNotification
 updatePassword
 welcome
-Welcome
 "
 `;

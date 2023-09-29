@@ -390,100 +390,23 @@ exports[`frodo email template export "frodo email template export -A": should ex
   "emailTemplate": {
     "registration": {
       "_id": "emailTemplate/registration",
-      "advancedEditor": true,
       "defaultLocale": "en",
-      "displayName": "registration",
-      "emailTemplate": {},
       "enabled": true,
-      "from": ""J.P Morgan" <sass@forgerock.com>",
+      "from": "",
       "html": {
-        "en": "",
-        "fr": "",
+        "en": "<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>",
+        "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>",
       },
       "message": {
-        "en": "<html>
-  <head></head>
-  <body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;">
-    <div class="content" style="background-color: #fff; border-radius: 4px;">
-      <h4 id="youhavebeeninvitedtojoinjpmcembeddedbanking" style="font-style: normal; font-weight: 400;">You have been invited to join 
-        
-        <strong>JPMC Developer Console</strong>
-      </h4>
-      <p>
-        <a href="{{object.resumeURI}}" style="text-decoration: none; color: white; background-color: #1A7B99; padding: 10px">ACCEPT INVITE</a>
-      </p>
-      <h6 id="copyright2022ofjpmorganchaseco" style="color: #999999; font-family: 'Inter'; -font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px;">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>",
-        "fr": "<html><head></head><body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;"><div class="content" style="background-color: #fff; border-radius: 4px;"><h3 id="ceciestvotremaildinscription" style="text-align: left;">Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: white;">Lien de vérification email</a></p></div></body></html>",
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Email verification link</a></p></div></body></html>",
+        "fr": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Lien de vérification email</a></p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body {
-   color: #455469;
-   text-align: center;
-   font-family: 'Open Sans';
-   width: 400px;
-   margin: auto;
-}
- td {
-   text-decoration: none;
-   color: white;
-   background: #155C93;
-   font-style: normal;
-   font-weight: 700;
-   font-size: 14px;
-   line-height: 22px;
-   border-radius: 3px;
-   padding: 15px;
-}
- .content {
-   background-color: #fff;
-   border-radius: 4px;
-}
- h2 {
-   margin: 50px;
-}
- h3 {
-   text-align: left;
-}
- h4 {
-   font-style: normal;
-   font-weight: 400;
-}
- h5 {
-   color: #666666;
-   font-family: 'Inter';
-   font-style: normal;
-   font-weight: 400;
-   font-size: 16px;
-   line-height: 24px;
-}
- h6 {
-   color: #999999;
-   font-family: 'Inter';
-   -font-style: normal;
-   font-weight: 400;
-   font-size: 12px;
-   line-height: 16px;
-}
- table {
-   margin: auto;
-   background-color: #dedddc;
-}
- tr {
-   background-color: #dedddc;
-}
-
-a {
-  text-decoration: none;
-  color: white;
-} ",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
       "subject": {
-        "en": "You're invited to join JPMC Embedded Banking",
+        "en": "Register new account",
         "fr": "Créer un nouveau compte",
       },
-      "templateId": "registration",
     },
   },
   "meta": Any<Object>,
@@ -691,41 +614,6 @@ exports[`frodo email template export "frodo email template export -a --file my-a
         "en": "Your Expanse account was accessed from an unknown device!",
       },
     },
-    "Welcome": {
-      "_id": "emailTemplate/Welcome",
-      "defaultLocale": "en",
-      "displayName": "Welcome",
-      "enabled": true,
-      "from": "saas@forgerock.com",
-      "html": {
-        "en": "<div class="content"><p>Welcome to Expanse, {{object.givenName}}!</p><p><a href="https://openam-huntington-dev.forgeblocks.com/am/XUI/?realm=/alpha#/service/Login">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Expanse Team.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 10px; text-align: left;"><div class="content" style="background-color: #ffffff; border-radius: 4px; margin: 0 auto; padding: 10px; width: 300px;"><p>Welcome to Expanse, {{object.givenName}}!</p><p><a href="https://openam-huntington-dev.forgeblocks.com/am/XUI/?realm=/alpha#/service/Login" style="text-decoration: none; color: #109cf1;">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Expanse Team.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 10px;
- text-align: left 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: #ffffff;
- border-radius: 4px;
- margin: 0 auto;
- padding: 10px;
- width: 300px 
-}
- ",
-      "subject": {
-        "en": "Your registration with Expanse",
-      },
-    },
     "activation": {
       "_id": "emailTemplate/activation",
       "defaultLocale": "en",
@@ -764,138 +652,6 @@ a {
         "en": "Your J.P. Morgan account has been activated",
       },
       "templateId": "activation",
-    },
-    "arvestUnknownDeviceNotification": {
-      "_id": "emailTemplate/arvestUnknownDeviceNotification",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "Arvest Unknown Device Notification",
-      "enabled": true,
-      "from": ""Arvest IT Security " <admin@arvest-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 60px; text-align: center;"><div class="content" style="background-color: orange; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 60px;
- text-align: center 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: orange;
- border-radius: 4px;
- margin: 0 auto;
- padding: 48px;
- width: 235px 
-}
- ",
-      "subject": {
-        "en": "Your Arvest Bank account was accessed from an unknown device!",
-      },
-      "templateId": "arvestUnknownDeviceNotification",
-    },
-    "arvestWelcome": {
-      "_id": "emailTemplate/arvestWelcome",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "ArvestWelcome",
-      "enabled": true,
-      "from": ""Arvest Admin" <admin@idcloud-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 10px; text-align: left;"><div class="content" style="background-color: #ffffff; border-radius: 4px; margin: 0 auto; padding: 10px; width: 300px;"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login" style="text-decoration: none; color: #109cf1;">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "name": "Welcome",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 10px;
- text-align: left 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: #ffffff;
- border-radius: 4px;
- margin: 0 auto;
- padding: 10px;
- width: 300px 
-}
- ",
-      "subject": {
-        "en": "Your registration with Arvest Bank",
-      },
-      "templateId": "arvestWelcome",
-    },
-    "ebInvitation": {
-      "_id": "emailTemplate/ebInvitation",
-      "advancedEditor": true,
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "EBInvitation",
-      "enabled": true,
-      "from": ""J.P Morgan " <>",
-      "html": {
-        "en": "",
-      },
-      "message": {
-        "en": "<html>
-  <head></head>
-  <body style="display: 'flex'; textAlign: 'center'; color: #455469; font-family: 'Open Sans';">
-    <div class="content" style="textAlign: 'center'">
-      <p> Dear {{object.givenName}}, </p>
-      <h4 style="font-weight: 400; font-style: normal;">You have been invited to join
-        <b>JPMC Embedded Banking</b>
-      </h4>
-      <table>
-        <tr>
-          <td style="text-decoration: none; color: white; background: #155c93; font-						style: normal; font-weight: 700; font-size: 14px; line-height: 22px; border-					radius: 3px; padding: 15px">
-            <a href={{object.resumeURI}} style="text-decoration: none; color: white">ACCEPT INVITE</a>
-          </td>
-        </tr>
-      </table>
-      <h6 style="color: #999999; font-family: Inter; font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>
- ",
-      },
-      "mimeType": "text/html",
-      "name": "invitation",
-      "styles": "body {
-   margin: 0;
-   padding: 0;
-   color: #455469;
-   font-family: 'Open Sans';
-}
- table {
-   width:100%;
-   border-collapse:collapse;
-   border:0;
-   border-spacing:0;
-   background:#ffffff;
-   text-align: center;
-}
- tbody {
-}
- ",
-      "subject": {
-        "en": "You're invited to join the JPMC Embedded Banking",
-      },
-      "templateId": "ebInvitation",
     },
     "forgottenUsername": {
       "_id": "emailTemplate/forgottenUsername",
@@ -1017,100 +773,23 @@ New: {{object.mail}}</p><p>Kindest regards.</p></div></body></html>",
     },
     "registration": {
       "_id": "emailTemplate/registration",
-      "advancedEditor": true,
       "defaultLocale": "en",
-      "displayName": "registration",
-      "emailTemplate": {},
       "enabled": true,
-      "from": ""J.P Morgan" <sass@forgerock.com>",
+      "from": "",
       "html": {
-        "en": "",
-        "fr": "",
+        "en": "<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>",
+        "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>",
       },
       "message": {
-        "en": "<html>
-  <head></head>
-  <body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;">
-    <div class="content" style="background-color: #fff; border-radius: 4px;">
-      <h4 id="youhavebeeninvitedtojoinjpmcembeddedbanking" style="font-style: normal; font-weight: 400;">You have been invited to join 
-        
-        <strong>JPMC Developer Console</strong>
-      </h4>
-      <p>
-        <a href="{{object.resumeURI}}" style="text-decoration: none; color: white; background-color: #1A7B99; padding: 10px">ACCEPT INVITE</a>
-      </p>
-      <h6 id="copyright2022ofjpmorganchaseco" style="color: #999999; font-family: 'Inter'; -font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px;">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>",
-        "fr": "<html><head></head><body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;"><div class="content" style="background-color: #fff; border-radius: 4px;"><h3 id="ceciestvotremaildinscription" style="text-align: left;">Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: white;">Lien de vérification email</a></p></div></body></html>",
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Email verification link</a></p></div></body></html>",
+        "fr": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Lien de vérification email</a></p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body {
-   color: #455469;
-   text-align: center;
-   font-family: 'Open Sans';
-   width: 400px;
-   margin: auto;
-}
- td {
-   text-decoration: none;
-   color: white;
-   background: #155C93;
-   font-style: normal;
-   font-weight: 700;
-   font-size: 14px;
-   line-height: 22px;
-   border-radius: 3px;
-   padding: 15px;
-}
- .content {
-   background-color: #fff;
-   border-radius: 4px;
-}
- h2 {
-   margin: 50px;
-}
- h3 {
-   text-align: left;
-}
- h4 {
-   font-style: normal;
-   font-weight: 400;
-}
- h5 {
-   color: #666666;
-   font-family: 'Inter';
-   font-style: normal;
-   font-weight: 400;
-   font-size: 16px;
-   line-height: 24px;
-}
- h6 {
-   color: #999999;
-   font-family: 'Inter';
-   -font-style: normal;
-   font-weight: 400;
-   font-size: 12px;
-   line-height: 16px;
-}
- table {
-   margin: auto;
-   background-color: #dedddc;
-}
- tr {
-   background-color: #dedddc;
-}
-
-a {
-  text-decoration: none;
-  color: white;
-} ",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
       "subject": {
-        "en": "You're invited to join JPMC Embedded Banking",
+        "en": "Register new account",
         "fr": "Créer un nouveau compte",
       },
-      "templateId": "registration",
     },
     "resetPassword": {
       "_id": "emailTemplate/resetPassword",
@@ -1294,41 +973,6 @@ exports[`frodo email template export "frodo email template export -a": should ex
         "en": "Your Expanse account was accessed from an unknown device!",
       },
     },
-    "Welcome": {
-      "_id": "emailTemplate/Welcome",
-      "defaultLocale": "en",
-      "displayName": "Welcome",
-      "enabled": true,
-      "from": "saas@forgerock.com",
-      "html": {
-        "en": "<div class="content"><p>Welcome to Expanse, {{object.givenName}}!</p><p><a href="https://openam-huntington-dev.forgeblocks.com/am/XUI/?realm=/alpha#/service/Login">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Expanse Team.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 10px; text-align: left;"><div class="content" style="background-color: #ffffff; border-radius: 4px; margin: 0 auto; padding: 10px; width: 300px;"><p>Welcome to Expanse, {{object.givenName}}!</p><p><a href="https://openam-huntington-dev.forgeblocks.com/am/XUI/?realm=/alpha#/service/Login" style="text-decoration: none; color: #109cf1;">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Expanse Team.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 10px;
- text-align: left 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: #ffffff;
- border-radius: 4px;
- margin: 0 auto;
- padding: 10px;
- width: 300px 
-}
- ",
-      "subject": {
-        "en": "Your registration with Expanse",
-      },
-    },
     "activation": {
       "_id": "emailTemplate/activation",
       "defaultLocale": "en",
@@ -1367,138 +1011,6 @@ a {
         "en": "Your J.P. Morgan account has been activated",
       },
       "templateId": "activation",
-    },
-    "arvestUnknownDeviceNotification": {
-      "_id": "emailTemplate/arvestUnknownDeviceNotification",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "Arvest Unknown Device Notification",
-      "enabled": true,
-      "from": ""Arvest IT Security " <admin@arvest-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 60px; text-align: center;"><div class="content" style="background-color: orange; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Hello {{object.givenName}} {{object.sn}},</p><p>your Arvest account was accessed from an unknown device!</p><p>Your Arvest Cyber Security Team.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 60px;
- text-align: center 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: orange;
- border-radius: 4px;
- margin: 0 auto;
- padding: 48px;
- width: 235px 
-}
- ",
-      "subject": {
-        "en": "Your Arvest Bank account was accessed from an unknown device!",
-      },
-      "templateId": "arvestUnknownDeviceNotification",
-    },
-    "arvestWelcome": {
-      "_id": "emailTemplate/arvestWelcome",
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "ArvestWelcome",
-      "enabled": true,
-      "from": ""Arvest Admin" <admin@idcloud-demo.com>",
-      "html": {
-        "en": "<div class="content"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: black; padding: 10px; text-align: left;"><div class="content" style="background-color: #ffffff; border-radius: 4px; margin: 0 auto; padding: 10px; width: 300px;"><p>Welcome to Arvest Bank, {{object.givenName}}!</p><p><a href="https://openam-idcloud-demo.forgeblocks.com/am/XUI/?realm=/alpha#/service/IBX_Login" style="text-decoration: none; color: #109cf1;">Access your account</a> with your new username: {{object.userName}}</p><p>We are looking forward to servicing all your banking needs!</p><p>Your Arvest Team</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "name": "Welcome",
-      "styles": "body {
- background-color: #324054;
- color: black;
- padding: 10px;
- text-align: left 
-}
- a {
- text-decoration: none;
- color: #109cf1;
-}
- .content {
- background-color: #ffffff;
- border-radius: 4px;
- margin: 0 auto;
- padding: 10px;
- width: 300px 
-}
- ",
-      "subject": {
-        "en": "Your registration with Arvest Bank",
-      },
-      "templateId": "arvestWelcome",
-    },
-    "ebInvitation": {
-      "_id": "emailTemplate/ebInvitation",
-      "advancedEditor": true,
-      "defaultLocale": "en",
-      "description": "",
-      "displayName": "EBInvitation",
-      "enabled": true,
-      "from": ""J.P Morgan " <>",
-      "html": {
-        "en": "",
-      },
-      "message": {
-        "en": "<html>
-  <head></head>
-  <body style="display: 'flex'; textAlign: 'center'; color: #455469; font-family: 'Open Sans';">
-    <div class="content" style="textAlign: 'center'">
-      <p> Dear {{object.givenName}}, </p>
-      <h4 style="font-weight: 400; font-style: normal;">You have been invited to join
-        <b>JPMC Embedded Banking</b>
-      </h4>
-      <table>
-        <tr>
-          <td style="text-decoration: none; color: white; background: #155c93; font-						style: normal; font-weight: 700; font-size: 14px; line-height: 22px; border-					radius: 3px; padding: 15px">
-            <a href={{object.resumeURI}} style="text-decoration: none; color: white">ACCEPT INVITE</a>
-          </td>
-        </tr>
-      </table>
-      <h6 style="color: #999999; font-family: Inter; font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>
- ",
-      },
-      "mimeType": "text/html",
-      "name": "invitation",
-      "styles": "body {
-   margin: 0;
-   padding: 0;
-   color: #455469;
-   font-family: 'Open Sans';
-}
- table {
-   width:100%;
-   border-collapse:collapse;
-   border:0;
-   border-spacing:0;
-   background:#ffffff;
-   text-align: center;
-}
- tbody {
-}
- ",
-      "subject": {
-        "en": "You're invited to join the JPMC Embedded Banking",
-      },
-      "templateId": "ebInvitation",
     },
     "forgottenUsername": {
       "_id": "emailTemplate/forgottenUsername",
@@ -1620,100 +1132,23 @@ New: {{object.mail}}</p><p>Kindest regards.</p></div></body></html>",
     },
     "registration": {
       "_id": "emailTemplate/registration",
-      "advancedEditor": true,
       "defaultLocale": "en",
-      "displayName": "registration",
-      "emailTemplate": {},
       "enabled": true,
-      "from": ""J.P Morgan" <sass@forgerock.com>",
+      "from": "",
       "html": {
-        "en": "",
-        "fr": "",
+        "en": "<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>",
+        "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>",
       },
       "message": {
-        "en": "<html>
-  <head></head>
-  <body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;">
-    <div class="content" style="background-color: #fff; border-radius: 4px;">
-      <h4 id="youhavebeeninvitedtojoinjpmcembeddedbanking" style="font-style: normal; font-weight: 400;">You have been invited to join 
-        
-        <strong>JPMC Developer Console</strong>
-      </h4>
-      <p>
-        <a href="{{object.resumeURI}}" style="text-decoration: none; color: white; background-color: #1A7B99; padding: 10px">ACCEPT INVITE</a>
-      </p>
-      <h6 id="copyright2022ofjpmorganchaseco" style="color: #999999; font-family: 'Inter'; -font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px;">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>
-    </div>
-  </body>
-</html>",
-        "fr": "<html><head></head><body style="color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;"><div class="content" style="background-color: #fff; border-radius: 4px;"><h3 id="ceciestvotremaildinscription" style="text-align: left;">Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: white;">Lien de vérification email</a></p></div></body></html>",
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Email verification link</a></p></div></body></html>",
+        "fr": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Lien de vérification email</a></p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body {
-   color: #455469;
-   text-align: center;
-   font-family: 'Open Sans';
-   width: 400px;
-   margin: auto;
-}
- td {
-   text-decoration: none;
-   color: white;
-   background: #155C93;
-   font-style: normal;
-   font-weight: 700;
-   font-size: 14px;
-   line-height: 22px;
-   border-radius: 3px;
-   padding: 15px;
-}
- .content {
-   background-color: #fff;
-   border-radius: 4px;
-}
- h2 {
-   margin: 50px;
-}
- h3 {
-   text-align: left;
-}
- h4 {
-   font-style: normal;
-   font-weight: 400;
-}
- h5 {
-   color: #666666;
-   font-family: 'Inter';
-   font-style: normal;
-   font-weight: 400;
-   font-size: 16px;
-   line-height: 24px;
-}
- h6 {
-   color: #999999;
-   font-family: 'Inter';
-   -font-style: normal;
-   font-weight: 400;
-   font-size: 12px;
-   line-height: 16px;
-}
- table {
-   margin: auto;
-   background-color: #dedddc;
-}
- tr {
-   background-color: #dedddc;
-}
-
-a {
-  text-decoration: none;
-  color: white;
-} ",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
       "subject": {
-        "en": "You're invited to join JPMC Embedded Banking",
+        "en": "Register new account",
         "fr": "Créer un nouveau compte",
       },
-      "templateId": "registration",
     },
     "resetPassword": {
       "_id": "emailTemplate/resetPassword",
