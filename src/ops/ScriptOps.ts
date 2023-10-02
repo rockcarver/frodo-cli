@@ -32,6 +32,8 @@ const {
   importScripts,
 } = frodo.script;
 
+const { isBase64Encoded } = frodo.utils;
+
 /**
  * Get a one-line description of the script object
  * @param {ScriptSkeleton} scriptObj script object to describe
@@ -279,6 +281,45 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
 }
 
 /**
+ * Check if a string is a valid URL
+ * @param {string} urlString input string to be evaluated
+ * @returns {boolean} true if a valid URL, false otherwise
+ */
+function isValidUrl(urlString: string): boolean {
+  try {
+    return Boolean(new URL(urlString));
+  } catch (error) {
+    return false;
+  }
+}
+
+function isScriptExtracted(importData: ScriptExportInterface): boolean {
+  debugMessage(`Cli.ScriptOps.isScriptExtracted: start`);
+  let extracted = true;
+  for (const scriptId of Object.keys(importData.script)) {
+    const script = importData.script[scriptId].script;
+    if (Array.isArray(script)) {
+      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is string array`);
+      extracted = false;
+      break;
+    }
+    if (isValidUrl(script as string)) {
+      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is extracted`);
+      extracted = true;
+      break;
+    }
+    if (isBase64Encoded) {
+      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is base64-encoded`);
+      extracted = false;
+      break;
+    }
+    break;
+  }
+  debugMessage(`Cli.ScriptOps.isScriptExtracted: end [extracted=${extracted}]`);
+  return extracted;
+}
+
+/**
  * Import script(s) from file
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
  * @param {string} file file name
@@ -295,8 +336,12 @@ export async function importScriptsFromFile(
   fs.readFile(file, 'utf8', async (err, data) => {
     try {
       if (err) throw err;
-      const importData = JSON.parse(data);
-      await importScripts(name, importData, reUuid);
+      const importData: ScriptExportInterface = JSON.parse(data);
+      if (isScriptExtracted(importData)) {
+        await handleScriptFileImport(file, reUuid, false);
+      } else {
+        await importScripts(name, importData, reUuid);
+      }
       outcome = true;
     } catch (error) {
       printMessage(

@@ -67,7 +67,7 @@ program
 
       verboseMessage(`Importing script(s) into realm "${state.getRealm()}"...`);
 
-      if (options.scriptName) {
+      if (options.file) {
         const outcome = await importScriptsFromFile(
           options.scriptName || options.script,
           options.file,
