@@ -10,9 +10,6 @@ authentication
 bravoOrgPrivileges
 cluster
 emailTemplate/activation
-emailTemplate/arvestUnknownDeviceNotification
-emailTemplate/arvestWelcome
-emailTemplate/ebInvitation
 emailTemplate/forgottenUsername
 emailTemplate/FraudNotification
 emailTemplate/frEmailUpdated
@@ -31,7 +28,6 @@ emailTemplate/registration
 emailTemplate/resetPassword
 emailTemplate/UnknownDeviceNotification
 emailTemplate/updatePassword
-emailTemplate/Welcome
 emailTemplate/welcome
 endpoint/getavailableuserstoassign
 endpoint/getprocessesforuser

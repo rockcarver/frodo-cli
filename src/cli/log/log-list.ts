@@ -13,9 +13,10 @@ program
   .description('List available ID Cloud log sources.')
   .action(async (host, user, password, options, command) => {
     command.handleDefaultArgsAndOpts(host, user, password, options, command);
-    let saveCredentials = false;
-    let foundCredentials = false;
+
     verboseMessage('Listing available ID Cloud log sources...');
+
+    let foundCredentials = false;
 
     const conn = await getConnectionProfile();
     if (conn) state.setHost(conn.tenant);
@@ -50,8 +51,8 @@ program
         const creds = await provisionCreds();
         state.setLogApiKey(creds.api_key_id as string);
         state.setLogApiSecret(creds.api_key_secret as string);
+        await saveConnectionProfile(state.getHost());
         foundCredentials = true;
-        saveCredentials = true;
       }
       // unable to create credentials
       else {
@@ -67,7 +68,6 @@ program
           'error'
         );
       } else {
-        if (saveCredentials) await saveConnectionProfile(state.getHost()); // save new values if they were specified on CLI
         printMessage(`Log sources from ${state.getHost()}`);
         for (const source of sources) {
           printMessage(`${source}`, 'data');
