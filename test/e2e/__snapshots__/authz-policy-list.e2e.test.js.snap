@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz policy list "frodo authz policy list --long --set-id test-policy-set": should list the ids, descriptions, and statuses of the authz policies in the test-policy-set set 1`] = `
+"Id         │Description            │Status  
+Test Policy│Test Policy Description│inactive
+"
+`;
+
+exports[`frodo authz policy list "frodo authz policy list --long": should list the ids, descriptions, and statuses of the authz policies 1`] = `
+"Id         │Description            │Status  
+Test Policy│Test Policy Description│inactive
+"
+`;
+
+exports[`frodo authz policy list "frodo authz policy list --set-id test-policy-set": should list the ids of the authz policies in the test-policy-set set 1`] = `
+"Test Policy
+"
+`;
+
+exports[`frodo authz policy list "frodo authz policy list -l --set-id test-policy-set": should list the ids, descriptions, and statuses of the authz policies in the test-policy-set set 1`] = `
+"Id         │Description            │Status  
+Test Policy│Test Policy Description│inactive
+"
+`;
+
+exports[`frodo authz policy list "frodo authz policy list -l": should list the ids, descriptions, and statuses of the authz policies 1`] = `
+"Id         │Description            │Status  
+Test Policy│Test Policy Description│inactive
+"
+`;
+
+exports[`frodo authz policy list "frodo authz policy list": should list the ids of the authz policies 1`] = `
+"Test Policy
+Test Policy
+"
+`;

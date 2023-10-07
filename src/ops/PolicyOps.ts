@@ -10,6 +10,7 @@ import fs from 'fs';
 import {
   createObjectTable,
   createProgressBar,
+  createTable,
   debugMessage,
   failSpinner,
   printMessage,
@@ -52,6 +53,21 @@ export async function listPolicies(long = false): Promise<boolean> {
         printMessage(`${policy._id}`, 'data');
       }
     }
+    if (long) {
+      const table = createTable(['Id', 'Description', 'Status']);
+      for (const policy of policies) {
+        table.push([
+          `${policy._id}`,
+          `${policy.description}`,
+          policy.active ? 'active'['brightGreen'] : 'inactive'['brightRed'],
+        ]);
+      }
+      printMessage(table.toString(), 'data');
+    } else {
+      for (const policy of policies) {
+        printMessage(`${policy._id}`, 'data');
+      }
+    }
     outcome = true;
   } catch (err) {
     printMessage(`listPolicies ERROR: ${err.message}`, 'error');
@@ -74,8 +90,18 @@ export async function listPoliciesByPolicySet(
   try {
     const policies = await readPoliciesByPolicySet(policySetId);
     policies.sort((a, b) => a._id.localeCompare(b._id));
-    for (const policy of policies) {
-      if (!long) {
+    if (long) {
+      const table = createTable(['Id', 'Description', 'Status']);
+      for (const policy of policies) {
+        table.push([
+          `${policy._id}`,
+          `${policy.description}`,
+          policy.active ? 'active'['brightGreen'] : 'inactive'['brightRed'],
+        ]);
+      }
+      printMessage(table.toString(), 'data');
+    } else {
+      for (const policy of policies) {
         printMessage(`${policy._id}`, 'data');
       }
     }
