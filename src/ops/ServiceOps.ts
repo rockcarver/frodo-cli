@@ -36,7 +36,10 @@ export async function listServices(long = false, globalConfig = false) {
     if (long) {
       const table = createTable(['Service Id', 'Service Name']);
       for (const service of services) {
-        table.push([service._id, service.name]);
+        table.push([
+          service._id,
+          globalConfig ? service['_type'].name : service.name,
+        ]);
       }
       printMessage(table.toString(), 'data');
     } else {

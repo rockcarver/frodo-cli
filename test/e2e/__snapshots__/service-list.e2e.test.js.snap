@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo service list "frodo service list --long --global": should list the ids and names of the global services 1`] = `
+"Service Id │Service Name
+CorsService│CORS Service
+dashboard  │Dashboard   
+"
+`;
+
+exports[`frodo service list "frodo service list -g": should list the ids of the global services 1`] = `
+"CorsService
+dashboard
+"
+`;
+
+exports[`frodo service list "frodo service list -l": should list the ids and names of the services 1`] = `
+"Service Id             │Service Name                    
+baseurl                │Base URL Source                 
+DataStoreService       │External Data Stores            
+oauth-oidc             │OAuth2 Provider                 
+policyconfiguration    │Policy Configuration            
+selfServiceTrees       │Self Service Trees              
+SocialIdentityProviders│Social Identity Provider Service
+validation             │Validation Service              
+"
+`;
+
+exports[`frodo service list "frodo service list": should list the ids of the services 1`] = `
+"baseurl
+DataStoreService
+oauth-oidc
+policyconfiguration
+selfServiceTrees
+SocialIdentityProviders
+validation
+"
+`;
