@@ -134,22 +134,24 @@ export class FrodoStubCommand extends Command {
   constructor(name: string) {
     super(name);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.on('unhandledRejection', (error: any) => {
-      printMessage(
-        `${error.config?.method ? error.config.method + ' ' : ''}${
-          error.config?.url ? error.config.url : ''
-        }`,
-        'error'
-      );
-      printMessage(error.response?.data, 'error');
-      printMessage(error.stack, 'error');
-      printMessage(
-        `Please report this unhandled error here: https://github.com/rockcarver/frodo-cli/issues`,
-        'error'
-      );
-      process.exitCode = 1;
-    });
+    if (!process.listenerCount('unhandledRejection')) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      process.on('unhandledRejection', (error: any) => {
+        printMessage(
+          `${error.config?.method ? error.config.method + ' ' : ''}${
+            error.config?.url ? error.config.url : ''
+          }`,
+          'error'
+        );
+        printMessage(error.response?.data, 'error');
+        printMessage(error.stack, 'error');
+        printMessage(
+          `Please report this unhandled error here: https://github.com/rockcarver/frodo-cli/issues`,
+          'error'
+        );
+        process.exitCode = 1;
+      });
+    }
 
     // other default settings
     this.helpOption('-h, --help', 'Help');
