@@ -13,7 +13,7 @@ program
   .description('Count managed objects.')
   .addOption(
     new Option(
-      '-m, --managed-object <type>',
+      '-o, --managed-object <type>',
       'Type of managed object to count. E.g. "alpha_user", "alpha_role", "user", "role".'
     )
   )
