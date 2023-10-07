@@ -189,7 +189,17 @@ export async function exportJourneysToFile(
 ): Promise<void> {
   let fileName = file;
   if (!fileName) {
-    fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journeys');
+    fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
+  }
+  if (state.getDirectory()) {
+    const dir = state.getDirectory().replace(/\/$/, '');
+    debugMessage(`exportJourneysToFile: directory='${dir}'`);
+    fileName = `${dir}/${fileName}`;
+    // create directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      debugMessage(`exportJourneysToFile: creating directory '${dir}'`);
+      fs.mkdirSync(dir, { recursive: true });
+    }
   }
   const trees = await readJourneys();
   const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
@@ -215,11 +225,23 @@ export async function exportJourneysToFile(
 export async function exportJourneysToFiles(
   options: TreeExportOptions
 ): Promise<void> {
+  const dir = state.getDirectory()
+    ? state.getDirectory().replace(/\/$/, '')
+    : undefined;
+  debugMessage(`exportJourneysToFiles: directory='${dir}'`);
+  // create directory if it doesn't exist
+  if (dir && !fs.existsSync(dir)) {
+    debugMessage(`exportJourneysToFiles: creating directory '${dir}'`);
+    fs.mkdirSync(dir, { recursive: true });
+  }
   const trees = await readJourneys();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
     updateProgressBar(`${tree._id}`);
-    const fileName = getTypedFilename(`${tree._id}`, 'journey');
+    let fileName = getTypedFilename(`${tree._id}`, 'journey');
+    if (dir) {
+      fileName = `${dir}/${fileName}`;
+    }
     try {
       const exportData: SingleTreeExportInterface = await exportJourney(
         tree._id,
