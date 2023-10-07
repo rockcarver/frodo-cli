@@ -41,6 +41,9 @@
     "clean-cjs": "rimraf cjs",
     "transpile-cjs": "babel --out-dir cjs --extensions \".ts\" --source-maps --config-file ./babel.config.cjs.json src && echo {\\\"type\\\": \\\"commonjs\\\"} > cjs/package.json",
     "dist-pkg": "pkg -C Gzip -t node18 --no-signature --config package.json -o frodo cjs/app.js",
+    "dist-pkg-linux": "pkg -C Gzip -t node18-linux --no-signature --config package.json -o frodo-linux cjs/app.js",
+    "dist-pkg-macos": "pkg -C Gzip -t node18-macos --no-signature --config package.json -o frodo-macos cjs/app.js",
+    "dist-pkg-win": "pkg -C Gzip -t node18-win --no-signature --config package.json -o frodo.exe cjs/app.js",
     "build:binary": "tsc && npm run clean-cjs && npm run transpile-cjs && npm run dist-pkg",
     "link-frodo-lib": "npm link ../frodo-lib",
     "watch": "npm run link-frodo-lib && babel --watch --out-dir esm --extensions \".ts\" --source-maps --config-file ./babel.config.esm.json src"
@@ -104,7 +107,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-34",
+    "@rockcarver/frodo-lib": "2.0.0-35",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
