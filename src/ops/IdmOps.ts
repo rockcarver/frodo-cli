@@ -459,7 +459,7 @@ export async function importAllConfigEntities(
 export async function countManagedObjects(type: string) {
   try {
     const result = await queryManagedObjects(type);
-    printMessage(`${type}: ${result.length}`);
+    printMessage(`${type}: ${result.length}`, 'data');
   } catch (error) {
     printMessage(error.response.data, 'error');
     printMessage(`Error querying managed objects by type: ${error}`, 'error');
