@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo oauth client import "frodo oauth client import --all --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import all oauth clients from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --all-separate": should import all oauth clients from the current directory" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --app-id test2 --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import the oauth client with the id "test2" from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import the first oauth client from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --no-deps -A": should import all oauth clients from the current directory" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --no-deps -af test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import all oauth clients from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --no-deps -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import the first oauth client from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
+
+exports[`frodo oauth client import "frodo oauth client import --no-deps -i test2 -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import the oauth client with the id "test2" from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;

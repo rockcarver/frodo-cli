@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent web import "frodo agent web import --agent-id frodo-test-web-agent --file test/e2e/exports/all/allAlphaAgents.web.agent.json": should import the agent with the id "frodo-test-web-agent" from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import --all --file test/e2e/exports/all/allAlphaAgents.web.agent.json": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import --all-separate": should import all agents from the current directory" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import --file test/e2e/exports/all/allAlphaAgents.web.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import -A": should import all agents from the current directory" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import -af test/e2e/exports/all/allAlphaAgents.web.agent.json": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import -f test/e2e/exports/all/allAlphaAgents.web.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;
+
+exports[`frodo agent web import "frodo agent web import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.web.agent.json": should import the agent with the id "frodo-test-web-agent" from the file "test/e2e/exports/all/allAlphaAgents.web.agent.json" 1`] = `""`;

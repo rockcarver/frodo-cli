@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo saml cot import "frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import --all-separate": should import all saml circle of trusts from the current directory" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the first saml cot from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import -A": should import all saml circle of trusts from the current directory" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import -af test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the first saml circle of trust from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+
+exports[`frodo saml cot import "frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
