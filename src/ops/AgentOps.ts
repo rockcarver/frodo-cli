@@ -378,15 +378,17 @@ export async function importAgentFromFile(agentId: string, file: string) {
   const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
-    let importData = JSON.parse(data);
+    const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
     if (importData.agents && importData.agents[agentId]) {
-      importData = importData.agents[agentId];
+      const agent = importData.agents[agentId];
+      importData.agents = {};
+      importData.agents[agentId] = agent;
     } else if (importData.agents) {
-      importData = null;
+      importData.agents = null;
     }
     // if an agentId was specified, only import the matching agent
-    if (importData && agentId === importData.agents._id) {
+    if (importData.agents) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
@@ -478,15 +480,17 @@ export async function importIdentityGatewayAgentFromFile(
   const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
-    let importData = JSON.parse(data);
+    const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
     if (importData.agents && importData.agents[agentId]) {
-      importData = importData.agents[agentId];
+      const agent = importData.agents[agentId];
+      importData.agents = {};
+      importData.agents[agentId] = agent;
     } else if (importData.agents) {
-      importData = null;
+      importData.agents = null;
     }
     // if an agentId was specified, only import the matching agent
-    if (importData && agentId === importData.agents._id) {
+    if (importData.agents) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
@@ -580,15 +584,17 @@ export async function importJavaAgentFromFile(agentId: string, file: string) {
   const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
-    let importData = JSON.parse(data);
+    const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
     if (importData.agents && importData.agents[agentId]) {
-      importData = importData.agents[agentId];
+      const agent = importData.agents[agentId];
+      importData.agents = {};
+      importData.agents[agentId] = agent;
     } else if (importData.agents) {
-      importData = null;
+      importData.agents = null;
     }
     // if an agentId was specified, only import the matching agent
-    if (importData && agentId === importData.agents._id) {
+    if (importData.agents) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
@@ -680,15 +686,17 @@ export async function importWebAgentFromFile(agentId: string, file: string) {
   const verbose = state.getVerbose();
   fs.readFile(file, 'utf8', async (err, data) => {
     if (err) throw err;
-    let importData = JSON.parse(data);
+    const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
     if (importData.agents && importData.agents[agentId]) {
-      importData = importData.agents[agentId];
+      const agent = importData.agents[agentId];
+      importData.agents = {};
+      importData.agents[agentId] = agent;
     } else if (importData.agents) {
-      importData = null;
+      importData.agents = null;
     }
     // if an agentId was specified, only import the matching agent
-    if (importData && agentId === importData.agents._id) {
+    if (importData.agents) {
       if (!verbose) showSpinner(`Importing ${agentId}...`);
       try {
         if (verbose) showSpinner(`Importing ${agentId}...`);
