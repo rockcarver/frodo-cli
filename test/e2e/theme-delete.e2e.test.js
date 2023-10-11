@@ -69,20 +69,6 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-// for some reason the recordings don't seem to work properly for theme operations:
-// Errored ➞ GET https://openam-frodo-dev.forgeblocks.com/am/json/serverinfo/* SyntaxError: /Users/vscheuber/Projects/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
-//     at JSON.parse (<anonymous>)
-//     at Object.readFileSync (/Users/vscheuber/Projects/frodo-lib/node_modules/jsonfile/index.js:52:17)
-//     at getRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/node-server/src/api.js:22:35)
-//     at onFindRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister-fs/src/index.js:23:21)
-//     at onFindRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:127:38)
-//     at findRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:143:30)
-//     at FSPersister.findEntry (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:174:34)
-//     at replay (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:207:49)
-//     at HttpAdapter.<anonymous> (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:140:19)
-//     at HttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:92:13)
-// /Users/vscheuber/Projects/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
-// Unrecognized combination of options or no options...
 describe('frodo theme delete', () => {
   test("\"frodo theme delete -n 'Starter Theme'\": should delete the theme named 'Starter Theme'", async () => {
     const CMD = `frodo theme delete -n 'Starter Theme'`;
