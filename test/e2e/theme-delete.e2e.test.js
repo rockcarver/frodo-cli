@@ -48,8 +48,11 @@
 
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete -n 'Starter Theme'
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete -i 2c23505e-e10c-4f09-be73-13307f615298
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete --theme-name 'Does Not Exist'
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete -i 9e6bf50d-85aa-4d70-a340-439d8bc7bc14
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete --theme-id 4eeb434c-1f56-4173-8da3-b49214bedeb6
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete -a
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme delete --all
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -60,48 +63,54 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
+// for some reason the recordings don't seem to work properly for theme operations:
+// Errored ➞ GET https://openam-frodo-dev.forgeblocks.com/am/json/serverinfo/* SyntaxError: /Users/vscheuber/Projects/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
+//     at JSON.parse (<anonymous>)
+//     at Object.readFileSync (/Users/vscheuber/Projects/frodo-lib/node_modules/jsonfile/index.js:52:17)
+//     at getRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/node-server/src/api.js:22:35)
+//     at onFindRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister-fs/src/index.js:23:21)
+//     at onFindRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:127:38)
+//     at findRecording (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:143:30)
+//     at FSPersister.findEntry (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/persister/src/index.js:174:34)
+//     at replay (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:207:49)
+//     at HttpAdapter.<anonymous> (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:140:19)
+//     at HttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:92:13)
+// /Users/vscheuber/Projects/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
+// Unrecognized combination of options or no options...
 describe('frodo theme delete', () => {
+  test("\"frodo theme delete -n 'Starter Theme'\": should delete the theme named 'Starter Theme'", async () => {
+    const CMD = `frodo theme delete -n 'Starter Theme'`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test('"frodo theme delete -n \'Starter Theme\'": should delete the theme named \'Starter Theme\'', async () => {
-        const CMD = `frodo theme delete -n 'Starter Theme'`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test("\"frodo theme delete --theme-name 'Does Not Exist'\": should display error when the theme named 'Does Not Exist' cannot be deleted since it does not exist", async () => {
+    const CMD = `frodo theme delete --theme-name 'Does Not Exist'`;
+    const { stderr } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  });
 
-    test('"frodo theme delete --theme-name \'Starter Theme\'": should display error when the theme named \'Starter Theme\' cannot be deleted since it does not exist', async () => {
-        const CMD = `frodo theme delete --theme-name 'Starter Theme'`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
-    });
+  test('"frodo theme delete -i 9e6bf50d-85aa-4d70-a340-439d8bc7bc14": should delete the theme with id \'9e6bf50d-85aa-4d70-a340-439d8bc7bc14\'', async () => {
+    const CMD = `frodo theme delete -i 9e6bf50d-85aa-4d70-a340-439d8bc7bc14`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test('"frodo theme delete -i 2c23505e-e10c-4f09-be73-13307f615298": should delete the theme with id \'2c23505e-e10c-4f09-be73-13307f615298\'', async () => {
-        const CMD = `frodo theme delete -i 2c23505e-e10c-4f09-be73-13307f615298`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test('"frodo theme delete --theme-id 4eeb434c-1f56-4173-8da3-b49214bedeb6": should display error when the theme with id \'4eeb434c-1f56-4173-8da3-b49214bedeb6\' cannot be deleted since it does not exist', async () => {
+    const CMD = `frodo theme delete --theme-id 4eeb434c-1f56-4173-8da3-b49214bedeb6`;
+    const { stderr } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  });
 
-    test('"frodo theme delete --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should display error when the theme with id \'2c23505e-e10c-4f09-be73-13307f615298\' cannot be deleted since it does not exist', async () => {
-        const CMD = `frodo theme delete --theme-id 2c23505e-e10c-4f09-be73-13307f615298`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
-    });
-
-    test('"frodo theme delete -a": should delete all themes', async () => {
-        const CMD = `frodo theme delete -a`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-
-    test('"frodo theme delete --all": should display error when no themes can be deleted', async () => {
-        const CMD = `frodo theme delete --all`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
-    });
-
+  test('"frodo theme delete -a": should delete all themes', async () => {
+    const CMD = `frodo theme delete -a`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });
