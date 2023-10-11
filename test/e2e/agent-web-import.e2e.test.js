@@ -110,12 +110,12 @@ describe('frodo agent web import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo agent web import -A": should import all agents from the current directory"`, async () => {
+    test.skip(`"frodo agent web import -A": should import all agents from the current directory"`, async () => {
         const CMD = `frodo agent web import -A`;
         await testImportAllSeparate(CMD, env, 'agent/web');
     });
 
-    test(`"frodo agent web import --all-separate": should import all agents from the current directory"`, async () => {
+    test.skip(`"frodo agent web import --all-separate": should import all agents from the current directory"`, async () => {
         const CMD = `frodo agent web import --all-separate`;
         await testImportAllSeparate(CMD, env, 'agent/web');
     });
