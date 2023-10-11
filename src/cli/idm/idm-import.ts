@@ -86,7 +86,7 @@ program
         await importConfigEntityByIdFromFile(options.name, options.file);
       }
       // import from file
-      if (options.file && (await getTokens())) {
+      else if (options.file && (await getTokens())) {
         verboseMessage(`Importing object from file...`);
         await importConfigEntityFromFile(options.file);
       }

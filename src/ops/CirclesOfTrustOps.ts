@@ -279,7 +279,7 @@ export async function importCirclesOfTrustFromFiles(): Promise<boolean> {
     debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: begin`);
     const names = fs.readdirSync('.');
     const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.policy.authz.json')
+      name.toLowerCase().endsWith('.cot.saml.json')
     );
     createProgressBar(files.length, 'Importing circles of trust...');
     let total = 0;

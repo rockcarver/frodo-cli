@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo saml import "frodo saml import --all --file test/e2e/exports/all/allAlphaProviders.saml.json": should import all saml providers from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import --all-separate": should import all saml providers from the current directory" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import --entity-id iSPAzure --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the saml provider with the id "iSPAzure" from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the first saml from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import -A": should import all saml providers from the current directory" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import -af test/e2e/exports/all/allAlphaProviders.saml.json": should import all saml providers from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import -f test/e2e/exports/all/allAlphaProviders.saml.json": should import the first saml provider from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+
+exports[`frodo saml import "frodo saml import -i iSPAzure -f test/e2e/exports/all/allAlphaProviders.saml.json": should import the saml provider with the id "iSPAzure" from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;

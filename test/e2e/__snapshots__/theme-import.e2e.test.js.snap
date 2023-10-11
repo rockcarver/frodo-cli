@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo theme import "frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --all-separate": should import all themes from the current directory" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -A": should import all themes from the current directory" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json": should import all themes from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the first theme from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;
+
+exports[`frodo theme import "frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the theme with the name "Starter Theme" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `""`;

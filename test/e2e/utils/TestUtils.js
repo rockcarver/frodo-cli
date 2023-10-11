@@ -79,3 +79,26 @@ export async function testExport(
 }
 
 export const testif = (condition) => (condition ? test : test.skip);
+
+/**
+ * Method that runs an import (all-separate) command and tests that it was executed correctly.
+ * @param {string} command The import command to run
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @param {string} allSeparateDirectory The directory under the 'all-separate' directory to get all the import files from
+ * @returns {Promise<void>}
+ */
+export async function testImportAllSeparate(command, env, allSeparateDirectory) {
+  //Copy separate files to current directory
+  const directory = `test/e2e/exports/all-separate/${allSeparateDirectory}/`;
+  const fileNames = fs.readdirSync(directory).filter(n => n.endsWith(".json"));
+  fileNames.forEach(n => fs.cpSync(directory + n, './' + n));
+
+  //Perform imports
+  const { stdout } = await exec(command, env);
+
+  //Delete separate files from current directory
+  fileNames.forEach(n => fs.unlinkSync('./' + n));
+
+  //Verify output
+  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+}

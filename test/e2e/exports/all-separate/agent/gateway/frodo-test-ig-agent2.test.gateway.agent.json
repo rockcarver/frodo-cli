@@ -1,0 +1,22 @@
+{
+  "meta": {},
+  "agents": {
+    "frodo-test-ig-agent2": {
+      "_id": "frodo-test-ig-agent2",
+      "_rev": "-653063408",
+      "igTokenIntrospection": "Realm",
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "status": "Inactive",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo"
+      ],
+      "agentgroup": null,
+      "userpassword": null,
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "name": "Identity Gateway Agents",
+        "collection": true
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz policy import "frodo authz policy import --all --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import all policies from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json with no dependencies" 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs": should import all policies from the current directory" with no dependencies 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the first policy from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import -A": should import all policies from the current directory" 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import -af test/e2e/exports/all/allAlphaPolicies.policy.authz.json": should import all policies from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import -f test/e2e/exports/all/allAlphaPolicies.policy.authz.json": should import the first policy from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" 1`] = `""`;
+
+exports[`frodo authz policy import "frodo authz policy import -i 'Test Policy' -f test/e2e/exports/all/allAlphaPolicies.policy.authz.json": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" 1`] = `""`;
