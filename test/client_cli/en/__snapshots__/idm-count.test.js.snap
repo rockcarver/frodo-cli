@@ -46,7 +46,7 @@ Options:
                                templates or how to walk through the tenant
                                admin login flow of Identity Cloud and handle
                                MFA (choices: "classic", "cloud", "forgeops")
-  -m, --managed-object <type>  Type of managed object to count. E.g.
+  -o, --managed-object <type>  Type of managed object to count. E.g.
                                "alpha_user", "alpha_role", "user", "role".
   --sa-id <sa-id>              Service account id.
   --sa-jwk-file <file>         File containing the JSON Web Key (JWK)

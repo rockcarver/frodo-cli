@@ -1,61 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo theme delete "frodo theme delete --all": should display error when no themes can be deleted 1`] = `
-"(Use \`frodo --trace-warnings ...\` to show where the warning was created)
-Errored ➞ GET https://openam-frodo-dev.forgeblocks.com/am/json/serverinfo/* SyntaxError: /home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_all_1797740195/am_1076162899/recording.har: Unexpected end of JSON input
-    at JSON.parse (<anonymous>)
-    at Object.readFileSync (/snapshot/tmp/frodo-lib/node_modules/jsonfile/index.js:52:17)
-    at API.getRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/node-server/dist/cjs/pollyjs-node-server.js:37:35)
-    at FSPersister.onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister-fs/dist/cjs/pollyjs-persister-fs.js:35:21)
-    at onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3586:38)
-    at FSPersister.findRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3597:30)
-    at FSPersister.findEntry (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3638:34)
-    at HttpAdapter.replay (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1329:49)
-    at HttpAdapter.<anonymous> (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1264:19)
-    at HttpAdapter.handleRequest (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1219:34)
-/home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_all_1797740195/am_1076162899/recording.har: Unexpected end of JSON input
-Unrecognized combination of options or no options...
+exports[`frodo theme delete "frodo theme delete --theme-id 4eeb434c-1f56-4173-8da3-b49214bedeb6": should display error when the theme with id '4eeb434c-1f56-4173-8da3-b49214bedeb6' cannot be deleted since it does not exist 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting 4eeb434c-1f56-4173-8da3-b49214bedeb6...
+✖ Error: '4eeb434c-1f56-4173-8da3-b49214bedeb6' not found in realm 'alpha'
 "
 `;
 
-exports[`frodo theme delete "frodo theme delete --theme-id 2c23505e-e10c-4f09-be73-13307f615298": should display error when the theme with id '2c23505e-e10c-4f09-be73-13307f615298' cannot be deleted since it does not exist 1`] = `
-"(Use \`frodo --trace-warnings ...\` to show where the warning was created)
-Errored ➞ GET https://openam-frodo-dev.forgeblocks.com/am/json/serverinfo/* SyntaxError: /home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
-    at JSON.parse (<anonymous>)
-    at Object.readFileSync (/snapshot/tmp/frodo-lib/node_modules/jsonfile/index.js:52:17)
-    at API.getRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/node-server/dist/cjs/pollyjs-node-server.js:37:35)
-    at FSPersister.onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister-fs/dist/cjs/pollyjs-persister-fs.js:35:21)
-    at onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3586:38)
-    at FSPersister.findRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3597:30)
-    at FSPersister.findEntry (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3638:34)
-    at HttpAdapter.replay (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1329:49)
-    at HttpAdapter.<anonymous> (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1264:19)
-    at HttpAdapter.handleRequest (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1219:34)
-/home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-id_1554519189/am_1076162899/recording.har: Unexpected end of JSON input
-Unrecognized combination of options or no options...
-"
-`;
-
-exports[`frodo theme delete "frodo theme delete --theme-name 'Starter Theme'": should display error when the theme named 'Starter Theme' cannot be deleted since it does not exist 1`] = `
-"(Use \`frodo --trace-warnings ...\` to show where the warning was created)
-Errored ➞ GET https://openam-frodo-dev.forgeblocks.com/am/json/serverinfo/* SyntaxError: /home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-name_1325589195/am_1076162899/recording.har: Unexpected end of JSON input
-    at JSON.parse (<anonymous>)
-    at Object.readFileSync (/snapshot/tmp/frodo-lib/node_modules/jsonfile/index.js:52:17)
-    at API.getRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/node-server/dist/cjs/pollyjs-node-server.js:37:35)
-    at FSPersister.onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister-fs/dist/cjs/pollyjs-persister-fs.js:35:21)
-    at onFindRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3586:38)
-    at FSPersister.findRecording (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3597:30)
-    at FSPersister.findEntry (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/persister/dist/cjs/pollyjs-persister.js:3638:34)
-    at HttpAdapter.replay (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1329:49)
-    at HttpAdapter.<anonymous> (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1264:19)
-    at HttpAdapter.handleRequest (/snapshot/tmp/frodo-lib/node_modules/@pollyjs/adapter/dist/cjs/pollyjs-adapter.js:1219:34)
-/home/trivir/Work/frodo-rebase/tmp/frodo-lib/mocks/theme_2834462706/delete_1740784714/0_theme-name_1325589195/am_1076162899/recording.har: Unexpected end of JSON input
-Unrecognized combination of options or no options...
+exports[`frodo theme delete "frodo theme delete --theme-name 'Does Not Exist'": should display error when the theme named 'Does Not Exist' cannot be deleted since it does not exist 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting Does Not Exist...
+✖ Error: 'Does Not Exist' not found in realm 'alpha'
 "
 `;
 
 exports[`frodo theme delete "frodo theme delete -a": should delete all themes 1`] = `""`;
 
-exports[`frodo theme delete "frodo theme delete -i 2c23505e-e10c-4f09-be73-13307f615298": should delete the theme with id '2c23505e-e10c-4f09-be73-13307f615298' 1`] = `""`;
+exports[`frodo theme delete "frodo theme delete -i 9e6bf50d-85aa-4d70-a340-439d8bc7bc14": should delete the theme with id '9e6bf50d-85aa-4d70-a340-439d8bc7bc14' 1`] = `""`;
 
 exports[`frodo theme delete "frodo theme delete -n 'Starter Theme'": should delete the theme named 'Starter Theme' 1`] = `""`;

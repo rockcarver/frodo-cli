@@ -1,6 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { type ThemeSkeleton } from '@rockcarver/frodo-lib/types/ops/ThemeOps';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   createProgressIndicator,
@@ -105,6 +106,7 @@ export async function exportThemeByName(name, file) {
   createProgressIndicator('determinate', 1, `Exporting ${name}`);
   try {
     const themeData = await readThemeByName(name);
+    if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(`Writing file ${fileName}`);
     saveToFile('theme', [themeData], '_id', fileName);
     stopProgressIndicator(`Successfully exported theme ${name}.`);
@@ -152,6 +154,7 @@ export async function exportThemesToFile(file) {
     'Exporting themes'
   );
   for (const themeData of allThemesData) {
+    if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(`Exporting theme ${themeData.name}`);
   }
   saveToFile('theme', allThemesData, '_id', fileName);
@@ -171,6 +174,7 @@ export async function exportThemesToFiles() {
     'Exporting themes'
   );
   for (const themeData of allThemesData) {
+    if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(`Writing theme ${themeData.name}`);
     const fileName = getTypedFilename(themeData.name, 'theme');
     saveToFile('theme', themeData, '_id', fileName);
