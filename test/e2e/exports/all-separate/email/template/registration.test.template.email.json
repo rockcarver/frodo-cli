@@ -1,0 +1,28 @@
+{
+  "meta": {},
+  "emailTemplate": {
+    "registration": {
+      "_id": "emailTemplate/registration",
+      "advancedEditor": true,
+      "defaultLocale": "en",
+      "displayName": "registration",
+      "enabled": true,
+      "from": "\"J.P Morgan\" <sass@forgerock.com>",
+      "html": {
+        "en": "",
+        "fr": ""
+      },
+      "message": {
+        "en": "<html>\n  <head></head>\n  <body style=\"color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;\">\n    <div class=\"content\" style=\"background-color: #fff; border-radius: 4px;\">\n      <h4 id=\"youhavebeeninvitedtojoinjpmcembeddedbanking\" style=\"font-style: normal; font-weight: 400;\">You have been invited to join \n        \n        <strong>JPMC Developer Console</strong>\n      </h4>\n      <p>\n        <a href=\"{{object.resumeURI}}\" style=\"text-decoration: none; color: white; background-color: #1A7B99; padding: 10px\">ACCEPT INVITE</a>\n      </p>\n      <h6 id=\"copyright2022ofjpmorganchaseco\" style=\"color: #999999; font-family: 'Inter'; -font-style: normal; font-weight: 400; font-size: 12px; line-height: 16px;\">Copyright © 2022 of J.P. Morgan Chase & Co.</h6>\n    </div>\n  </body>\n</html>",
+        "fr": "<html><head></head><body style=\"color: #455469; text-align: center; font-family: 'Open Sans'; width: 400px; margin: auto;\"><div class=\"content\" style=\"background-color: #fff; border-radius: 4px;\"><h3 id=\"ceciestvotremaildinscription\" style=\"text-align: left;\">Ceci est votre mail d'inscription.</h3><p><a href=\"{{object.resumeURI}}\" style=\"text-decoration: none; color: white;\">Lien de vérification email</a></p></div></body></html>"
+      },
+      "mimeType": "text/html",
+      "styles": "body {\n   color: #455469;\n   text-align: center;\n   font-family: 'Open Sans';\n   width: 400px;\n   margin: auto;\n}\n td {\n   text-decoration: none;\n   color: white;\n   background: #155C93;\n   font-style: normal;\n   font-weight: 700;\n   font-size: 14px;\n   line-height: 22px;\n   border-radius: 3px;\n   padding: 15px;\n}\n .content {\n   background-color: #fff;\n   border-radius: 4px;\n}\n h2 {\n   margin: 50px;\n}\n h3 {\n   text-align: left;\n}\n h4 {\n   font-style: normal;\n   font-weight: 400;\n}\n h5 {\n   color: #666666;\n   font-family: 'Inter';\n   font-style: normal;\n   font-weight: 400;\n   font-size: 16px;\n   line-height: 24px;\n}\n h6 {\n   color: #999999;\n   font-family: 'Inter';\n   -font-style: normal;\n   font-weight: 400;\n   font-size: 12px;\n   line-height: 16px;\n}\n table {\n   margin: auto;\n   background-color: #dedddc;\n}\n tr {\n   background-color: #dedddc;\n}\n\na {\n  text-decoration: none;\n  color: white;\n} ",
+      "subject": {
+        "en": "You're invited to join JPMC Embedded Banking",
+        "fr": "Créer un nouveau compte"
+      },
+      "templateId": "registration"
+    }
+  }
+}

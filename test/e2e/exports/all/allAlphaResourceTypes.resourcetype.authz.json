@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.4.0",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "exportDate": "2023-09-14T18:38:15.618Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-trivir.2 [v18.5.0]"
+  },
+  "script": {},
+  "policy": {},
+  "policyset": {},
+  "resourcetype": {
+    "993eba78-1c3f-4f27-b205-b4b29418f831": {
+      "uuid": "993eba78-1c3f-4f27-b205-b4b29418f831",
+      "name": "FrodoTestResourceType11",
+      "description": "Frodo Test Resource Type Eleven",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "actions": {
+        "action2": true,
+        "action1": true
+      },
+      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "creationDate": 1684544147077,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1691209356293
+    },
+    "3fc799d7-b73f-49e0-a70b-e37990e54e56": {
+      "uuid": "3fc799d7-b73f-49e0-a70b-e37990e54e56",
+      "name": "FrodoTestResourceType12",
+      "description": "Frodo Test Resource Type Twelve",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "actions": {
+        "action2": true,
+        "action1": true
+      },
+      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "creationDate": 1684544147204,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1691209356413
+    },
+    "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": {
+      "uuid": "0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76",
+      "name": "FrodoTestResourceType13",
+      "description": "Frodo Test Resource Type Thirteen",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "actions": {
+        "action2": true,
+        "action1": true
+      },
+      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "creationDate": 1684544147346,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1691209356542
+    },
+    "119b291c-40b3-4b1e-8d84-c2a561a2cb1f": {
+      "uuid": "119b291c-40b3-4b1e-8d84-c2a561a2cb1f",
+      "name": "FrodoTestResourceType14",
+      "description": "Frodo Test Resource Type Fourteen",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "actions": {
+        "action2": true,
+        "action1": true
+      },
+      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "creationDate": 1684544147437,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1691209356664
+    },
+    "3c5f13af-ca17-403e-b47d-d15263cce954": {
+      "uuid": "3c5f13af-ca17-403e-b47d-d15263cce954",
+      "name": "FrodoTestResourceType15",
+      "description": "Frodo Test Resource Type Fifteen",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "actions": {
+        "action2": true,
+        "action1": true
+      },
+      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "creationDate": 1684545571229,
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1691209356780
+    },
+    "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b": {
+      "uuid": "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b",
+      "name": "OAuth2 Scope",
+      "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+        "*"
+      ],
+      "actions": {
+        "GRANT": true
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030586,
+      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "lastModifiedDate": 1682866321756
+    },
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "name": "URL",
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*"
+      ],
+      "actions": {
+        "HEAD": true,
+        "DELETE": true,
+        "POST": true,
+        "GET": true,
+        "OPTIONS": true,
+        "PUT": true,
+        "PATCH": true
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "lastModifiedBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
+      "lastModifiedDate": 1684690114955
+    }
+  }
+}

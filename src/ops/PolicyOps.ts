@@ -516,15 +516,17 @@ export async function importFirstPolicyFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  showSpinner(`Importing first policy from ${file}...`);
   try {
     const data = fs.readFileSync(file, 'utf8');
     const fileData = JSON.parse(data);
-    await importFirstPolicy(fileData, options);
+    const policy = await importFirstPolicy(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(
+      `Imported first policy with id '${policy._id}' from ${file}.`
+    );
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing first policy from ${file}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importFirstPolicyFromFile: end`);
