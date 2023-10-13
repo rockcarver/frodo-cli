@@ -25,6 +25,7 @@ Options:
                                  (*.service.json) in the current directory.
                                  Ignored with -a.
   --curlirize                    Output all network calls in curl format.
+  -D, --directory <directory>    Set the working directory.
   --debug                        Debug output during command execution. If
                                  specified, may or may not produce additional
                                  output helpful for troubleshooting.

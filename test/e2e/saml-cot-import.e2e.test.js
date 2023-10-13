@@ -49,16 +49,19 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -AD test/e2e/exports/all-separate/saml/cot
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/saml/cot
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -71,7 +74,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaCirclesOfTrustExport = "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaCirclesOfTrustFileName = "allAlphaThemes.theme.json";
+const allAlphaCirclesOfTrustExport = `${allDirectory}/${allAlphaCirclesOfTrustFileName}`;
+const allSeparateCircleOfTrustsDirectory = `test/e2e/exports/all-separate/saml/cot`;
 
 describe('frodo saml cot import', () => {
     test(`"frodo saml cot import -i AzureCOT -f ${allAlphaCirclesOfTrustExport}": should import the saml circle of trust with the id "AzureCOT" from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
@@ -82,6 +88,12 @@ describe('frodo saml cot import', () => {
 
     test(`"frodo saml cot import --cot-id AzureCOT --file ${allAlphaCirclesOfTrustExport}": should import the saml circle of trust with the id "AzureCOT" from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
         const CMD = `frodo saml cot import --cot-id AzureCOT --file ${allAlphaCirclesOfTrustExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo saml cot import -i AzureCOT -f ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}": should import the saml circle of trust with the id "AzureCOT" from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
+        const CMD = `frodo saml cot import -i AzureCOT -f ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -98,6 +110,12 @@ describe('frodo saml cot import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo saml cot import -f ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}": should import the first saml circle of trust from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
+        const CMD = `frodo saml cot import -f ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo saml cot import -af ${allAlphaCirclesOfTrustExport}": should import all saml circle of trusts from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
         const CMD = `frodo saml cot import -af ${allAlphaCirclesOfTrustExport}`;
         const { stdout } = await exec(CMD, env);
@@ -110,14 +128,22 @@ describe('frodo saml cot import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo saml cot import -A": should import all saml circle of trusts from the current directory"`, async () => {
-        const CMD = `frodo saml cot import -A`;
-        await testImportAllSeparate(CMD, env, 'saml/cot');
+    test(`"frodo saml cot import -af ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}": should import all saml circle of trusts from the file "${allAlphaCirclesOfTrustExport}"`, async () => {
+        const CMD = `frodo saml cot import -af ${allAlphaCirclesOfTrustFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo saml cot import --all-separate": should import all saml circle of trusts from the current directory"`, async () => {
-        const CMD = `frodo saml cot import --all-separate`;
-        await testImportAllSeparate(CMD, env, 'saml/cot');
+    test(`"frodo saml cot import -AD ${allSeparateCircleOfTrustsDirectory}": should import all saml circle of trusts from the ${allSeparateCircleOfTrustsDirectory} directory"`, async () => {
+        const CMD = `frodo saml cot import -AD ${allSeparateCircleOfTrustsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo saml cot import --all-separate --directory ${allSeparateCircleOfTrustsDirectory}": should import all saml circle of trusts from the ${allSeparateCircleOfTrustsDirectory} directory"`, async () => {
+        const CMD = `frodo saml cot import --all-separate --directory ${allSeparateCircleOfTrustsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
 });

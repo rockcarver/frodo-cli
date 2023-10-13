@@ -49,13 +49,16 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreAD
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite --no-deps -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f my-HRLite.application.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -D appExportTestDir1
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all -f test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --file test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --no-deps -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all -f my-allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --file my-other-allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -aD appExportTestDir2
 FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all-separate --no-deps --directory appExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -95,6 +98,13 @@ describe('frodo app export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
+  // TODO: Generate mocks for this test (skip for the meantime)
+  test.skip('"frodo app export -i HRLite -D appExportTestDir1": should export the app with app id "HRLite" into the directory appExportTestDir1', async () => {
+    const exportDirectory = 'appExportTestDir1';
+    const CMD = `frodo app export -i HRLite -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory);
+  });
+
   test('"frodo app export -a": should export all apps to a single file', async () => {
     const exportFile = 'allAlphaApplications.application.json';
     const CMD = `frodo app export -a`;
@@ -119,8 +129,22 @@ describe('frodo app export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
+  // TODO: Generate mocks for this test (skip for the meantime)
+  test.skip('"frodo app export -aD appExportTestDir2": should export all apps to a single file in the directory appExportTestDir2', async () => {
+    const exportDirectory = 'appExportTestDir2';
+    const CMD = `frodo app export -aD ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory);
+  });
+
   test('"frodo app export -A": should export all apps to separate files', async () => {
     const CMD = `frodo app export -A`;
     await testExport(CMD, env, type);
+  });
+
+  // TODO: Generate mocks for this test (skip for the meantime)
+  test.skip('"frodo app export --all-separate --no-deps --directory appExportTestDir3": should export all apps to separate files in the directory appExportTestDir3', async () => {
+    const exportDirectory = 'appExportTestDir3';
+    const CMD = `frodo app export --all-separate --no-deps --directory ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory);
   });
 });

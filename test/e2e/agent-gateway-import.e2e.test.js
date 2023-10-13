@@ -49,16 +49,19 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import --agent-id frodo-test-ig-agent --file test/e2e/exports/all/allAlphaAgents.gateway.agent.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -i frodo-test-ig-agent -f allAlphaAgents.gateway.agent.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import --file test/e2e/exports/all/allAlphaAgents.gateway.agent.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -f allAlphaAgents.gateway.agent.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -af test/e2e/exports/all/allAlphaAgents.gateway.agent.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import --all --file test/e2e/exports/all/allAlphaAgents.gateway.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -af allAlphaAgents.gateway.agent.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import -AD test/e2e/exports/all-separate/agent/gateway
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway import --all-separate --directory test/e2e/exports/all-separate/agent/gateway
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -71,7 +74,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaGatewayAgentsExport = "test/e2e/exports/all/allAlphaAgents.gateway.agent.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaGatewayAgentsFileName = "allAlphaAgents.gateway.agent.json";
+const allAlphaGatewayAgentsExport = `${allDirectory}/${allAlphaGatewayAgentsFileName}`;
+const allSeparateGatewayAgentsDirectory = `test/e2e/exports/all-separate/agent/gateway`;
 
 describe('frodo agent gateway import', () => {
     test(`"frodo agent gateway import -i frodo-test-ig-agent -f ${allAlphaGatewayAgentsExport}": should import the agent with the id "frodo-test-ig-agent" from the file "${allAlphaGatewayAgentsExport}"`, async () => {
@@ -82,6 +88,12 @@ describe('frodo agent gateway import', () => {
 
     test(`"frodo agent gateway import --agent-id frodo-test-ig-agent --file ${allAlphaGatewayAgentsExport}": should import the agent with the id "frodo-test-ig-agent" from the file "${allAlphaGatewayAgentsExport}"`, async () => {
         const CMD = `frodo agent gateway import --agent-id frodo-test-ig-agent --file ${allAlphaGatewayAgentsExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo agent gateway import -i frodo-test-ig-agent -f ${allAlphaGatewayAgentsFileName} -D ${allDirectory}": should import the agent with the id "frodo-test-ig-agent" from the file "${allAlphaGatewayAgentsExport}"`, async () => {
+        const CMD = `frodo agent gateway import -i frodo-test-ig-agent -f ${allAlphaGatewayAgentsFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -98,6 +110,12 @@ describe('frodo agent gateway import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo agent gateway import -f ${allAlphaGatewayAgentsFileName} -D ${allDirectory}": should import the first agent from the file "${allAlphaGatewayAgentsExport}"`, async () => {
+        const CMD = `frodo agent gateway import -f ${allAlphaGatewayAgentsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo agent gateway import -af ${allAlphaGatewayAgentsExport}": should import all agents from the file "${allAlphaGatewayAgentsExport}"`, async () => {
         const CMD = `frodo agent gateway import -af ${allAlphaGatewayAgentsExport}`;
         const { stdout } = await exec(CMD, env);
@@ -110,14 +128,22 @@ describe('frodo agent gateway import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test.skip(`"frodo agent gateway import -A": should import all agents from the current directory"`, async () => {
-        const CMD = `frodo agent gateway import -A`;
-        await testImportAllSeparate(CMD, env, 'agent/gateway');
+    test(`"frodo agent gateway import -af ${allAlphaGatewayAgentsFileName} -D ${allDirectory}": should import all agents from the file "${allAlphaGatewayAgentsExport}"`, async () => {
+        const CMD = `frodo agent gateway import -af ${allAlphaGatewayAgentsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test.skip(`"frodo agent gateway import --all-separate": should import all agents from the current directory"`, async () => {
-        const CMD = `frodo agent gateway import --all-separate`;
-        await testImportAllSeparate(CMD, env, 'agent/gateway');
+    test(`"frodo agent gateway import -AD ${allSeparateGatewayAgentsDirectory}": should import all agents from the ${allSeparateGatewayAgentsDirectory} directory"`, async () => {
+        const CMD = `frodo agent gateway import -AD ${allSeparateGatewayAgentsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo agent gateway import --all-separate --directory ${allSeparateGatewayAgentsDirectory}": should import all agents from the ${allSeparateGatewayAgentsDirectory} directory"`, async () => {
+        const CMD = `frodo agent gateway import --all-separate --directory ${allSeparateGatewayAgentsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
 });

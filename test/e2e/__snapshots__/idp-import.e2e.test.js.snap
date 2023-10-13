@@ -2,16 +2,22 @@
 
 exports[`frodo idp import "frodo idp import --all --file test/e2e/exports/all/allAlphaProviders.idp.json": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
-exports[`frodo idp import "frodo idp import --all-separate": should import all idps from the current directory" 1`] = `""`;
+exports[`frodo idp import "frodo idp import --all-separate --directory test/e2e/exports/all-separate/idp": should import all idps from the test/e2e/exports/all-separate/idp directory" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import --file test/e2e/exports/all/allAlphaProviders.idp.json": should import the first idp from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import --idp-id google --file test/e2e/exports/all/allAlphaProviders.idp.json": should import the idp with the id "google" from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
-exports[`frodo idp import "frodo idp import -A": should import all idps from the current directory" 1`] = `""`;
+exports[`frodo idp import "frodo idp import -AD test/e2e/exports/all-separate/idp": should import all idps from the test/e2e/exports/all-separate/idp directory" 1`] = `""`;
+
+exports[`frodo idp import "frodo idp import -af allAlphaProviders.idp.json -D test/e2e/exports/all": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import -af test/e2e/exports/all/allAlphaProviders.idp.json": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
+exports[`frodo idp import "frodo idp import -f allAlphaProviders.idp.json -D test/e2e/exports/all": should import the first idp from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
+
 exports[`frodo idp import "frodo idp import -f test/e2e/exports/all/allAlphaProviders.idp.json": should import the first idp from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
+
+exports[`frodo idp import "frodo idp import -i google -f allAlphaProviders.idp.json -D test/e2e/exports/all": should import the idp with the id "google" from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import -i google -f test/e2e/exports/all/allAlphaProviders.idp.json": should import the idp with the id "google" from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;

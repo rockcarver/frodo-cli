@@ -14,6 +14,7 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
+  -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
@@ -71,6 +72,7 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
+  -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
@@ -128,6 +130,7 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
+  -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
@@ -185,6 +188,7 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
+  -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
