@@ -50,7 +50,7 @@ program
         command
       );
       // import by id
-      if (options.file && options.idpId && (await getTokens())) {
+      if (options.file && options.appId && (await getTokens())) {
         verboseMessage(`Importing OAuth2 application "${options.appId}"...`);
         const status = await importOAuth2ClientFromFile(
           options.appId,
