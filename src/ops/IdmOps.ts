@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
@@ -12,7 +12,7 @@ import {
 } from '../utils/Console';
 import { getTypedFilename, readFiles } from '../utils/ExportImportUtils';
 
-const { unSubstituteEnvParams, areScriptHooksValid } = frodo.utils;
+const { unSubstituteEnvParams, areScriptHooksValid, getFilePath } = frodo.utils;
 const {
   testConnectorServers,
   readConfigEntities,
@@ -76,24 +76,24 @@ export async function exportConfigEntity(id, file) {
     fileName = getTypedFilename(`${id}`, 'idm');
   }
   const configEntity = await readConfigEntity(id);
-  fs.writeFile(fileName, JSON.stringify(configEntity, null, 2), (err) => {
-    if (err) {
-      return printMessage(`ERROR - can't save ${id} export to file`, 'error');
+  fs.writeFile(
+    getFilePath(fileName, true),
+    JSON.stringify(configEntity, null, 2),
+    (err) => {
+      if (err) {
+        return printMessage(`ERROR - can't save ${id} export to file`, 'error');
+      }
+      return '';
     }
-    return '';
-  });
+  );
 }
 
 /**
  * Export all IDM configuration objects into separate JSON files in a directory specified by <directory>
- * @param {String} directory export directory
  */
-export async function exportAllRawConfigEntities(directory) {
+export async function exportAllRawConfigEntities() {
   try {
     const configurations = await readConfigEntities();
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory);
-    }
     createProgressIndicator(
       'indeterminate',
       undefined,
@@ -151,7 +151,7 @@ export async function exportAllRawConfigEntities(directory) {
     for (const item of results) {
       if (item != null) {
         fse.outputFile(
-          `${directory}/${item._id}.json`,
+          getFilePath(`${item._id}.json`, true),
           JSON.stringify(item, null, 2),
           (err) => {
             if (err) {
@@ -176,15 +176,10 @@ export async function exportAllRawConfigEntities(directory) {
 
 /**
  * Export all IDM configuration objects
- * @param {String} directory export directory
  * @param {String} entitiesFile JSON file that specifies the config entities to export/import
  * @param {String} envFile File that defines environment specific variables for replacement during configuration export/import
  */
-export async function exportAllConfigEntities(
-  directory,
-  entitiesFile,
-  envFile
-) {
+export async function exportAllConfigEntities(entitiesFile, envFile) {
   let entriesToExport = [];
   // read list of entities to export
   fs.readFile(entitiesFile, 'utf8', async (err, data) => {
@@ -198,10 +193,6 @@ export async function exportAllConfigEntities(
 
     try {
       const configurations = await readConfigEntities();
-      // create export directory if not exist
-      if (!fs.existsSync(directory)) {
-        fs.mkdirSync(directory);
-      }
       createProgressIndicator(
         'indeterminate',
         undefined,
@@ -225,7 +216,7 @@ export async function exportAllConfigEntities(
             );
           });
           fse.outputFile(
-            `${directory}/${item._id}.json`,
+            getFilePath(`${item._id}.json`, true),
             configEntityString,
             (error) => {
               if (err) {
@@ -264,7 +255,10 @@ export async function importConfigEntityByIdFromFile(
     file = getTypedFilename(entityId, 'idm');
   }
 
-  const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const fileData = fs.readFileSync(
+    path.resolve(process.cwd(), getFilePath(file)),
+    'utf8'
+  );
 
   const entityData = JSON.parse(fileData);
   const isValid = areScriptHooksValid(entityData);
@@ -290,7 +284,10 @@ export async function importConfigEntityFromFile(
   file: string,
   validate?: boolean
 ) {
-  const fileData = fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
+  const fileData = fs.readFileSync(
+    path.resolve(process.cwd(), getFilePath(file)),
+    'utf8'
+  );
   const entityData = JSON.parse(fileData);
   const entityId = entityData._id;
   const isValid = areScriptHooksValid(entityData);
@@ -309,13 +306,10 @@ export async function importConfigEntityFromFile(
 
 /**
  * Import all IDM configuration objects from separate JSON files in a directory specified by <directory>
- * @param baseDirectory export directory
  * @param validate validate script hooks
  */
-export async function importAllRawConfigEntities(
-  baseDirectory: string,
-  validate?: boolean
-) {
+export async function importAllRawConfigEntities(validate?: boolean) {
+  const baseDirectory = state.getDirectory();
   if (!fs.existsSync(baseDirectory)) {
     return;
   }
@@ -375,17 +369,16 @@ export async function importAllRawConfigEntities(
 
 /**
  * Import all IDM configuration objects
- * @param baseDirectory import directory
  * @param entitiesFile JSON file that specifies the config entities to export/import
  * @param envFile File that defines environment specific variables for replacement during configuration export/import
  * @param validate validate script hooks
  */
 export async function importAllConfigEntities(
-  baseDirectory: string,
   entitiesFile: string,
   envFile: string,
   validate?: boolean
 ) {
+  const baseDirectory = state.getDirectory();
   if (!fs.existsSync(baseDirectory)) {
     return;
   }

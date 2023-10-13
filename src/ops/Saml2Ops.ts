@@ -17,7 +17,7 @@ import {
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
 
-const { decodeBase64 } = frodo.utils;
+const { decodeBase64, getFilePath, getWorkingDirectory } = frodo.utils;
 const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
   frodo.utils;
 const {
@@ -148,14 +148,16 @@ export async function exportSaml2MetadataToFile(entityId, file = null) {
   if (!fileName) {
     fileName = getTypedFilename(entityId, 'metadata', 'xml');
   }
+  const filePath = getFilePath(fileName, true);
   createProgressBar(1, `Exporting metadata for: ${entityId}`);
   try {
-    updateProgressBar(`Writing file ${fileName}`);
+    updateProgressBar(`Writing file ${filePath}`);
     const metaData = await getSaml2ProviderMetadata(entityId);
-    saveTextToFile(metaData, fileName);
+    saveTextToFile(metaData, filePath);
     updateProgressBar(`Exported provider ${entityId}`);
     stopProgressBar(
-      `Exported ${entityId.brightCyan} metadata to ${fileName.brightCyan}.`
+      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
+      `Exported ${entityId.brightCyan} metadata to ${filePath.brightCyan}.`
     );
   } catch (error) {
     stopProgressBar(`${error}`);
@@ -176,20 +178,22 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
   if (!fileName) {
     fileName = getTypedFilename(entityId, 'saml');
   }
+  const filePath = getFilePath(fileName, true);
   try {
     createProgressBar(1, `Exporting provider ${entityId}`);
     const fileData = await exportSaml2Provider(entityId);
-    saveJsonToFile(fileData, fileName);
+    saveJsonToFile(fileData, filePath);
     updateProgressBar(`Exported provider ${entityId}`);
     stopProgressBar(
-      `Exported ${entityId.brightCyan} to ${fileName.brightCyan}.`
+      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
+      `Exported ${entityId.brightCyan} to ${filePath.brightCyan}.`
     );
   } catch (err) {
     stopProgressBar(`${err}`);
     printMessage(err, 'error');
   }
   debugMessage(
-    `cli.Saml2Ops.exportSaml2ProviderToFile: end [entityId=${entityId}, file=${fileName}]`
+    `cli.Saml2Ops.exportSaml2ProviderToFile: end [entityId=${entityId}, file=${filePath}]`
   );
 }
 
@@ -205,7 +209,7 @@ export async function exportSaml2ProvidersToFile(file = null) {
   }
   try {
     const exportData = await exportSaml2Providers();
-    saveJsonToFile(exportData, fileName);
+    saveJsonToFile(exportData, getFilePath(fileName, true));
   } catch (error) {
     printMessage(error.message, 'error');
     printMessage(
@@ -226,7 +230,7 @@ export async function exportSaml2ProvidersToFiles() {
     for (const stub of stubs) {
       const fileName = getTypedFilename(stub.entityId, 'saml');
       const fileData = await exportSaml2Provider(stub.entityId);
-      saveJsonToFile(fileData, fileName);
+      saveJsonToFile(fileData, getFilePath(fileName, true));
       updateProgressBar(`Exported provider ${stub.entityId}`);
     }
     stopProgressBar(`${stubs.length} providers exported.`);
@@ -244,7 +248,7 @@ export async function importSaml2ProviderFromFile(
   entityId: string,
   file: string
 ) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     showSpinner(`Importing ${entityId}...`);
@@ -262,7 +266,7 @@ export async function importSaml2ProviderFromFile(
  * @param {String} file Import file name
  */
 export async function importFirstSaml2ProviderFromFile(file: string) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data) as Saml2ExportInterface;
     // pick the first provider and run with it
@@ -285,7 +289,7 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
  * @param {String} file Import file name
  */
 export async function importSaml2ProvidersFromFile(file: string) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     if (validateImport(fileData.meta)) {
@@ -300,10 +304,10 @@ export async function importSaml2ProvidersFromFile(file: string) {
  * Import all SAML entity providers from all *.saml.json files in the current directory
  */
 export async function importSaml2ProvidersFromFiles() {
-  const names = fs.readdirSync('.');
-  const jsonFiles = names.filter((name) =>
-    name.toLowerCase().endsWith('.saml.json')
-  );
+  const names = fs.readdirSync(getWorkingDirectory());
+  const jsonFiles = names
+    .filter((name) => name.toLowerCase().endsWith('.saml.json'))
+    .map((name) => getFilePath(name));
   createProgressBar(jsonFiles.length, 'Importing providers...');
   let total = 0;
   for (const file of jsonFiles) {

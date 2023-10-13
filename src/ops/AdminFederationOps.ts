@@ -22,6 +22,8 @@ const {
   importFirstAdminFederationProvider,
 } = frodo.cloud.adminFed;
 
+const { getFilePath, getWorkingDirectory } = frodo.utils;
+
 /**
  * List providers
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -57,13 +59,14 @@ export async function exportAdminFederationProviderToFile(
   if (!fileName) {
     fileName = getTypedFilename(providerId, 'admin.federation');
   }
+  const filePath = getFilePath(fileName, true);
   createProgressBar(1, `Exporting ${providerId}`);
   try {
-    updateProgressBar(`Writing file ${fileName}`);
+    updateProgressBar(`Writing file ${filePath}`);
     const fileData = await exportAdminFederationProvider(providerId);
-    saveJsonToFile(fileData, fileName);
+    saveJsonToFile(fileData, filePath);
     stopProgressBar(
-      `Exported ${providerId['brightCyan']} to ${fileName['brightCyan']}.`
+      `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
     );
     outcome = true;
   } catch (err) {
@@ -88,9 +91,10 @@ export async function exportAdminFederationProvidersToFile(
     if (!fileName) {
       fileName = getTypedFilename(`allProviders`, 'admin.federation');
     }
+    const filePath = getFilePath(fileName, true);
     const fileData = await exportAdminFederationProviders();
-    saveJsonToFile(fileData, fileName);
-    succeedSpinner(`Exported all providers to ${fileName}`);
+    saveJsonToFile(fileData, filePath);
+    succeedSpinner(`Exported all providers to ${filePath}`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting all providers.`);
@@ -112,7 +116,7 @@ export async function exportAdminFederationProvidersToFiles(): Promise<boolean> 
       updateProgressBar(`Writing provider ${idpData._id}`);
       const fileName = getTypedFilename(idpData._id, 'admin.federation');
       const fileData = await exportAdminFederationProvider(idpData._id);
-      saveJsonToFile(fileData, fileName);
+      saveJsonToFile(fileData, getFilePath(fileName, true));
     }
     stopProgressBar(`${allIdpsData.length} providers exported.`);
     outcome = true;
@@ -134,17 +138,18 @@ export async function importAdminFederationProviderFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
-  showSpinner(`Importing provider ${providerId} from ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing provider ${providerId} from ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importAdminFederationProvider(providerId, fileData);
     succeedSpinner(
-      `Successfully imported provider ${providerId} from ${file}.`
+      `Successfully imported provider ${providerId} from ${filePath}.`
     );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing provider ${providerId} from ${file}.`);
+    failSpinner(`Error importing provider ${providerId} from ${filePath}.`);
     printMessage(error.response?.data || error, 'error');
   }
   return outcome;
@@ -162,15 +167,16 @@ export async function importFirstAdminFederationProviderFromFile(
   debugMessage(
     `cli.AdminFederationOps.importFirstAdminFederationProviderFromFile: begin`
   );
-  showSpinner(`Importing first provider from ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing first provider from ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstAdminFederationProvider(fileData);
-    succeedSpinner(`Successfully imported first provider from ${file}.`);
+    succeedSpinner(`Successfully imported first provider from ${filePath}.`);
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing first provider from ${file}.`);
+    failSpinner(`Error importing first provider from ${filePath}.`);
     printMessage(error.response?.data || error, 'error');
   }
   debugMessage(
@@ -191,15 +197,16 @@ export async function importAdminFederationProvidersFromFile(
   debugMessage(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFile: begin`
   );
-  showSpinner(`Importing providers from ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing providers from ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importAdminFederationProviders(fileData);
-    succeedSpinner(`Imported providers from ${file}.`);
+    succeedSpinner(`Imported providers from ${filePath}.`);
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error.response?.data || error, 'error');
   }
   debugMessage(
@@ -218,10 +225,10 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
     debugMessage(
       `cli.AdminFederationOps.importAdminFederationProvidersFromFiles: begin`
     );
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.admin.federation.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.admin.federation.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing providers...');
     let total = 0;
     for (const file of files) {

@@ -25,7 +25,7 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 
-const { getRealmName } = frodo.utils;
+const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
 const { readPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
 const {
   readPolicySets,
@@ -211,9 +211,10 @@ export async function exportPolicySetToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySet(policySetId, options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${policySetId} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${policySetId} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${policySetId}: ${error.message}`);
@@ -247,9 +248,10 @@ export async function exportPolicySetsToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySets(options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported all policy sets to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported all policy sets to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting policy sets: ${error.message}`);
@@ -282,7 +284,7 @@ export async function exportPolicySetsToFiles(
           policySet.name,
           options
         );
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, getFilePath(file, true));
         updateProgressBar(`Exported ${policySet.name}.`);
       } catch (error) {
         errors.push(error);
@@ -314,7 +316,7 @@ export async function importPolicySetFromFile(
   debugMessage(`cli.PolicySetOps.importPolicySetFromFile: begin`);
   showSpinner(`Importing ${policySetId}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySet(policySetId, fileData, options);
     outcome = true;
@@ -339,17 +341,18 @@ export async function importFirstPolicySetFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: begin`);
-  showSpinner(`Importing first policy set from ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing first policy set from ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     const policySet = await importFirstPolicySet(fileData, options);
     outcome = true;
     succeedSpinner(
-      `Imported first policy set with name '${policySet.name}' from ${file}.`
+      `Imported first policy set with name '${policySet.name}' from ${filePath}.`
     );
   } catch (error) {
-    failSpinner(`Error importing first policy set from ${file}.`);
+    failSpinner(`Error importing first policy set from ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: end`);
@@ -368,15 +371,16 @@ export async function importPolicySetsFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySets(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
@@ -394,10 +398,10 @@ export async function importPolicySetsFromFiles(
   const errors = [];
   try {
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: begin`);
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.policyset.authz.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.policyset.authz.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing policy sets...');
     let total = 0;
     for (const file of files) {

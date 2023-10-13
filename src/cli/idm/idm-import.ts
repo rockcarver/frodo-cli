@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
@@ -56,12 +56,6 @@ program
       'Import all IDM configuration objects from separate files in directory -D. Ignored with -N, and -a.'
     )
   )
-  .addOption(
-    new Option(
-      '-D, --directory <directory>',
-      'Import directory. Required with and ignored without -a/-A.'
-    )
-  )
   .action(
     // implement command logic inside action handler
     async (
@@ -90,33 +84,37 @@ program
         verboseMessage(`Importing object from file...`);
         await importConfigEntityFromFile(options.file);
       }
+      // require --directory -D for all-separate functions
+      else if (options.allSeparate && !state.getDirectory()) {
+        printMessage(
+          '-D or --directory required when using -A or --all-separate',
+          'error'
+        );
+        program.help();
+        process.exitCode = 1;
+      }
       // --all-separate -A
       else if (
         options.allSeparate &&
-        options.directory &&
         options.entitiesFile &&
         options.envFile &&
         (await getTokens())
       ) {
         verboseMessage(
-          `Importing IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
+          `Importing IDM configuration objects specified in ${
+            options.entitiesFile
+          } into separate files in ${state.getDirectory()} using ${
+            options.envFile
+          } for variable replacement...`
         );
-        await importAllConfigEntities(
-          options.directory,
-          options.entitiesFile,
-          options.envFile
-        );
+        await importAllConfigEntities(options.entitiesFile, options.envFile);
       }
       // --all-separate -A without variable replacement
-      else if (
-        options.allSeparate &&
-        options.directory &&
-        (await getTokens())
-      ) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage(
-          `Importing all IDM configuration objects from separate files in ${options.directory}...`
+          `Importing all IDM configuration objects from separate files in ${state.getDirectory()}...`
         );
-        await importAllRawConfigEntities(options.directory);
+        await importAllRawConfigEntities();
       }
       // unrecognized combination of options or no options
       else {

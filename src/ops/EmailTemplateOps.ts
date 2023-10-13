@@ -18,7 +18,7 @@ import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 import { cloneDeep } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
-const { validateImport } = frodo.utils;
+const { validateImport, getFilePath, getWorkingDirectory } = frodo.utils;
 const {
   EMAIL_TEMPLATE_TYPE,
   readEmailTemplates,
@@ -160,15 +160,16 @@ export async function exportEmailTemplateToFile(
   if (!fileName) {
     fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
   }
+  const filePath = getFilePath(fileName, true);
   createProgressIndicator('determinate', 1, `Exporting ${templateId}`);
   try {
     const templateData = await readEmailTemplate(templateId);
-    updateProgressIndicator(`Writing file ${fileName}`);
+    updateProgressIndicator(`Writing file ${filePath}`);
     const fileData = getFileDataTemplate();
     fileData.emailTemplate[templateId] = templateData;
-    saveJsonToFile(fileData, fileName);
+    saveJsonToFile(fileData, filePath);
     stopProgressIndicator(
-      `Exported ${templateId['brightCyan']} to ${fileName['brightCyan']}.`
+      `Exported ${templateId['brightCyan']} to ${filePath['brightCyan']}.`
     );
   } catch (err) {
     stopProgressIndicator(`${err}`);
@@ -185,6 +186,7 @@ export async function exportEmailTemplatesToFile(file) {
   if (!fileName) {
     fileName = getTypedFilename(`allEmailTemplates`, EMAIL_TEMPLATE_FILE_TYPE);
   }
+  const filePath = getFilePath(fileName, true);
   try {
     const fileData = getFileDataTemplate();
     const templates = await readEmailTemplates();
@@ -198,9 +200,9 @@ export async function exportEmailTemplatesToFile(file) {
       updateProgressIndicator(`Exporting ${templateId}`);
       fileData.emailTemplate[templateId] = template;
     }
-    saveJsonToFile(fileData, fileName);
+    saveJsonToFile(fileData, filePath);
     stopProgressIndicator(
-      `${templates.length} templates exported to ${fileName}.`
+      `${templates.length} templates exported to ${filePath}.`
     );
   } catch (err) {
     stopProgressIndicator(`${err}`);
@@ -225,7 +227,7 @@ export async function exportEmailTemplatesToFiles() {
       const fileData = getFileDataTemplate();
       updateProgressIndicator(`Exporting ${templateId}`);
       fileData.emailTemplate[templateId] = template;
-      saveJsonToFile(fileData, fileName);
+      saveJsonToFile(fileData, getFilePath(fileName, true));
     }
     stopProgressIndicator(`${templates.length} templates exported.`);
   } catch (err) {
@@ -247,7 +249,8 @@ export async function importEmailTemplateFromFile(
 ) {
   // eslint-disable-next-line no-param-reassign
   templateId = templateId.replaceAll(`${EMAIL_TEMPLATE_TYPE}/`, '');
-  fs.readFile(file, 'utf8', async (err, data) => {
+  const filePath = getFilePath(file);
+  fs.readFile(filePath, 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     if (raw || validateImport(fileData.meta)) {
@@ -269,10 +272,10 @@ export async function importEmailTemplateFromFile(
         }
       } else {
         stopProgressIndicator(
-          `Email template ${templateId} not found in ${file}!`
+          `Email template ${templateId} not found in ${filePath}!`
         );
         printMessage(
-          `Email template ${templateId} not found in ${file}!`,
+          `Email template ${templateId} not found in ${filePath}!`,
           'error'
         );
       }
@@ -287,7 +290,7 @@ export async function importEmailTemplateFromFile(
  * @param {string} file optional filename
  */
 export async function importEmailTemplatesFromFile(file: string) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     if (validateImport(fileData.meta)) {
@@ -360,15 +363,14 @@ function s2sConvert(
  * @param {boolean} raw import raw data file lacking frodo export envelop
  */
 export async function importEmailTemplatesFromFiles(raw = false) {
-  const names = fs.readdirSync('.');
-  const jsonFiles = raw
-    ? names.filter(
-        (name) =>
-          name.startsWith(`${EMAIL_TEMPLATE_TYPE}-`) && name.endsWith(`.json`)
-      )
-    : names.filter((name) =>
-        name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
-      );
+  const names = fs.readdirSync(getWorkingDirectory());
+  const jsonFiles = names
+    .filter((name) =>
+      raw
+        ? name.startsWith(`${EMAIL_TEMPLATE_TYPE}-`) && name.endsWith(`.json`)
+        : name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
+    )
+    .map((name) => getFilePath(name));
   createProgressIndicator(
     'determinate',
     jsonFiles.length,
@@ -435,7 +437,7 @@ export async function importFirstEmailTemplateFromFile(
   file: string,
   raw = false
 ) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     if (

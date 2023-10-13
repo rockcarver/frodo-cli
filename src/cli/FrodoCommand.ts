@@ -55,6 +55,11 @@ Management admin token or not and whether to export/import referenced email temp
 to walk through the tenant admin login flow of Identity Cloud and handle MFA'
 ).choices(globalConfig.DEPLOYMENT_TYPES);
 
+const directoryOption = new Option(
+  '-D, --directory <directory>',
+  'Set the working directory.'
+).default(undefined, 'undefined');
+
 const insecureOption = new Option(
   '-k, --insecure',
   'Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability.'
@@ -86,6 +91,7 @@ const defaultOpts = [
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
   deploymentOption,
+  directoryOption,
   insecureOption,
   verboseOption,
   debugOption,
@@ -113,6 +119,8 @@ const stateMap = {
   },
   [deploymentOption.attributeName()]: (type: string) =>
     state.setDeploymentType(type),
+  [directoryOption.attributeName()]: (directory: string) =>
+    state.setDirectory(directory),
   [insecureOption.attributeName()]: (insecure: boolean) =>
     state.setAllowInsecureConnection(insecure),
   [verboseOption.attributeName()]: (verbose: boolean) =>

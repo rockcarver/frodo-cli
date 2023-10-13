@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
@@ -52,9 +52,6 @@ program
     )
   )
   .addOption(
-    new Option('-D, --directory <directory>', 'Destination directory.')
-  )
-  .addOption(
     new Option(
       '-O, --organize <method>',
       'Organize exports into folders using the indicated method. Valid values for method:\n' +
@@ -74,7 +71,6 @@ program
         options,
         command
       );
-      if (options.directory) state.setDirectory(options.directory);
       // export
       if (options.journeyId && (await getTokens())) {
         verboseMessage('Exporting journey...');

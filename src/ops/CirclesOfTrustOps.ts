@@ -20,7 +20,7 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 
-const { getRealmName } = frodo.utils;
+const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
 const {
   readCirclesOfTrust,
   exportCircleOfTrust,
@@ -126,9 +126,10 @@ export async function exportCircleOfTrustToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportCircleOfTrust(cotId);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${cotId} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${cotId} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${cotId}: ${error.message}`);
@@ -155,9 +156,10 @@ export async function exportCirclesOfTrustToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportCirclesOfTrust();
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported all circles of trust to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported all circles of trust to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting circles of trust: ${error.message}`);
@@ -180,7 +182,7 @@ export async function exportCirclesOfTrustToFiles(): Promise<boolean> {
       try {
         const exportData: CirclesOfTrustExportInterface =
           await exportCircleOfTrust(cot._id);
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, getFilePath(file, true));
         updateProgressBar(`Exported ${cot.name}.`);
       } catch (error) {
         errors.push(error);
@@ -206,16 +208,17 @@ export async function importCircleOfTrustFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
-  showSpinner(`Importing circle of trust ${cotId} from ${file}...`);
-  fs.readFile(file, 'utf8', async (err, data) => {
+  const filePath = getFilePath(file);
+  showSpinner(`Importing circle of trust ${cotId} from ${filePath}...`);
+  fs.readFile(filePath, 'utf8', async (err, data) => {
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
       await importCircleOfTrust(cotId, fileData);
       outcome = true;
-      succeedSpinner(`Imported circle of trust ${cotId} from ${file}.`);
+      succeedSpinner(`Imported circle of trust ${cotId} from ${filePath}.`);
     } catch (error) {
-      failSpinner(`Error importing circle of trust ${cotId} from ${file}.`);
+      failSpinner(`Error importing circle of trust ${cotId} from ${filePath}.`);
       printMessage(error.response?.data || error, 'error');
     }
   });
@@ -230,16 +233,17 @@ export async function importFirstCircleOfTrustFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
-  showSpinner(`Importing first circle of trust from ${file}...`);
-  fs.readFile(file, 'utf8', async (err, data) => {
+  const filePath = getFilePath(file);
+  showSpinner(`Importing first circle of trust from ${filePath}...`);
+  fs.readFile(filePath, 'utf8', async (err, data) => {
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
       await importFirstCircleOfTrust(fileData);
       outcome = true;
-      succeedSpinner(`Imported first circle of trust from ${file}.`);
+      succeedSpinner(`Imported first circle of trust from ${filePath}.`);
     } catch (error) {
-      failSpinner(`Error importing first circle of trust from ${file}.`);
+      failSpinner(`Error importing first circle of trust from ${filePath}.`);
       printMessage(error.response?.data || error, 'error');
     }
   });
@@ -254,16 +258,17 @@ export async function importCirclesOfTrustFromFile(
   file: string
 ): Promise<boolean> {
   let outcome = false;
-  showSpinner(`Importing circles of trust from ${file}...`);
-  fs.readFile(file, 'utf8', async (err, data) => {
+  const filePath = getFilePath(file);
+  showSpinner(`Importing circles of trust from ${filePath}...`);
+  fs.readFile(filePath, 'utf8', async (err, data) => {
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
       await importCirclesOfTrust(fileData);
       outcome = true;
-      succeedSpinner(`Imported circles of trust from ${file}.`);
+      succeedSpinner(`Imported circles of trust from ${filePath}.`);
     } catch (error) {
-      failSpinner(`Error importing circles of trust from ${file}.`);
+      failSpinner(`Error importing circles of trust from ${filePath}.`);
       printMessage(error.response?.data || error, 'error');
     }
   });
@@ -277,10 +282,10 @@ export async function importCirclesOfTrustFromFiles(): Promise<boolean> {
   const errors = [];
   try {
     debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: begin`);
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.cot.saml.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.cot.saml.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing circles of trust...');
     let total = 0;
     for (const file of files) {

@@ -20,7 +20,8 @@ import {
 import { saveJsonToFile } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
-const { getTypedFilename, titleCase } = frodo.utils;
+const { getTypedFilename, titleCase, getFilePath, getWorkingDirectory } =
+  frodo.utils;
 const {
   readApplications: _readApplications,
   deleteApplicationByName: _deleteApplicationByName,
@@ -146,9 +147,10 @@ export async function exportApplicationToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplicationByName(applicationName, options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${applicationName} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${applicationName} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${applicationName}: ${error.message}`);
@@ -178,9 +180,10 @@ export async function exportApplicationsToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplications(options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported all applications to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported all applications to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting all applications`);
@@ -207,7 +210,7 @@ export async function exportApplicationsToFiles(
       const file = getTypedFilename(application.name, 'application');
       try {
         const exportData = await _exportApplication(application._id, options);
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, getFilePath(file, true));
         updateProgressBar(`Exported ${application._id}.`);
       } catch (error) {
         errors.push(error);
@@ -239,7 +242,7 @@ export async function importApplicationFromFile(
   debugMessage(`cli.ApplicationOps.importApplicationFromFile: begin`);
   showSpinner(`Importing ${applicationName}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await _importApplicationByName(applicationName, fileData, options);
     outcome = true;
@@ -264,15 +267,16 @@ export async function importFirstApplicationFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await _importFirstApplication(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: end`);
@@ -291,15 +295,16 @@ export async function importApplicationsFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ApplicationOps.importApplicationsFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const applicationData = JSON.parse(data);
     await _importApplications(applicationData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.ApplicationOps.importApplicationsFromFile: end`);
@@ -317,10 +322,10 @@ export async function importApplicationsFromFiles(
   const errors = [];
   try {
     debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: begin`);
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.application.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.application.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing applications...');
     let total = 0;
     for (const file of files) {
