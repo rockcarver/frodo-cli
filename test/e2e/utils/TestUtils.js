@@ -32,9 +32,10 @@ export async function testExport(
   type,
   fileName,
   directory = './',
-  checkForMetadata = true
+  checkForMetadata = true,
+  checkStderr = false
 ) {
-  const { stdout } = await exec(command, env);
+  const { stdout, stderr } = await exec(command, env);
   const regex = new RegExp(
     fileName
       ? fileName
@@ -52,6 +53,7 @@ export async function testExport(
     expect(filePaths.length >= 1).toBeTruthy();
   }
   expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  if (checkStderr) expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
   let deleteExportDirectory = true;
   filePaths.forEach((path) => {
     let deleteExportFile = true;
