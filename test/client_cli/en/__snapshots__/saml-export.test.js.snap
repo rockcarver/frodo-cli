@@ -26,6 +26,7 @@ Options:
                                files <provider name>.saml.json. Ignored with
                                -t, -i, and -a.
   --curlirize                  Output all network calls in curl format.
+  -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
                                output helpful for troubleshooting.

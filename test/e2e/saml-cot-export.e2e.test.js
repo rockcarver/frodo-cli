@@ -48,10 +48,13 @@
 
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export --cot-id AzureCOT
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -i AzureCOT -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -i AzureCOT -f my-AzureCOT.cot.saml.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -i AzureCOT -D samlCotExportTestDir1
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -a --file my-allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -aD samlCotExportTestDir2
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot export --all-separate --directory samlCotExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -79,6 +82,12 @@ describe('frodo saml cot export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
+    test('"frodo saml cot export -i AzureCOT -D samlCotExportTestDir1": should export the saml circles of trust with id "AzureCOT" into the directory named samlCotExportTestDir1', async () => {
+        const exportDirectory = "samlCotExportTestDir1";
+        const CMD = `frodo saml cot export -i AzureCOT -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
+    });
+
     test('"frodo saml cot export --all": should export all saml circles of trust to a single file', async () => {
         const exportFile = "allAlphaCirclesOfTrust.cot.saml.json";
         const CMD = `frodo saml cot export --all`;
@@ -91,8 +100,20 @@ describe('frodo saml cot export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
+    test('"frodo saml cot export -aD samlCotExportTestDir2": should export all saml circles of trust to a single file in the directory samlCotExportTestDir2', async () => {
+        const exportDirectory = "samlCotExportTestDir2";
+        const CMD = `frodo saml cot export -aD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
+    });
+
     test('"frodo saml cot export -A": should export all saml circles of trust to separate files', async () => {
         const CMD = `frodo saml cot export -A`;
         await testExport(CMD, env, type);
+    });
+
+    test('"frodo saml cot export --all-separate --directory samlCotExportTestDir3": should export all saml circles of trust to separate files in the directory samlCotExportTestDir3', async () => {
+        const exportDirectory = "samlCotExportTestDir3";
+        const CMD = `frodo saml cot export --all-separate --directory ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
     });
 });

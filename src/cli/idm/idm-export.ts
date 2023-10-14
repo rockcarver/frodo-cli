@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
@@ -47,12 +47,6 @@ program
       'Export all IDM configuration objects into separate JSON files in directory -D. Ignored with -N, and -a.'
     )
   )
-  .addOption(
-    new Option(
-      '-D, --directory <directory>',
-      'Export directory. Required with and ignored without -a/-A.'
-    )
-  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -69,34 +63,38 @@ program
         verboseMessage(`Exporting object "${options.name}"...`);
         exportConfigEntity(options.name, options.file);
       }
+      // require --directory -D for all-separate functions
+      else if (options.allSeparate && !state.getDirectory()) {
+        printMessage(
+          '-D or --directory required when using -A or --all-separate',
+          'error'
+        );
+        program.help();
+        process.exitCode = 1;
+      }
       // --all-separate -A
       else if (
         options.allSeparate &&
-        options.directory &&
         options.entitiesFile &&
         options.envFile &&
         (await getTokens())
       ) {
         verboseMessage(
-          `Exporting IDM configuration objects specified in ${options.entitiesFile} into separate files in ${options.directory} using ${options.envFile} for variable replacement...`
+          `Exporting IDM configuration objects specified in ${
+            options.entitiesFile
+          } into separate files in ${state.getDirectory()} using ${
+            options.envFile
+          } for variable replacement...`
         );
-        exportAllConfigEntities(
-          options.directory,
-          options.entitiesFile,
-          options.envFile
-        );
+        exportAllConfigEntities(options.entitiesFile, options.envFile);
         warnAboutOfflineConnectorServers();
       }
       // --all-separate -A without variable replacement
-      else if (
-        options.allSeparate &&
-        options.directory &&
-        (await getTokens())
-      ) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage(
-          `Exporting all IDM configuration objects into separate files in ${options.directory}...`
+          `Exporting all IDM configuration objects into separate files in ${state.getDirectory()}...`
         );
-        exportAllRawConfigEntities(options.directory);
+        exportAllRawConfigEntities();
         warnAboutOfflineConnectorServers();
       }
       // unrecognized combination of options or no options

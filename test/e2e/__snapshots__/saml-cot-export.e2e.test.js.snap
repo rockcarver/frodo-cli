@@ -42,6 +42,95 @@ exports[`frodo saml cot export "frodo saml cot export --all": should export all 
 }
 `;
 
+exports[`frodo saml cot export "frodo saml cot export --all-separate --directory samlCotExportTestDir3": should export all saml circles of trust to separate files in the directory samlCotExportTestDir3 1`] = `""`;
+
+exports[`frodo saml cot export "frodo saml cot export --all-separate --directory samlCotExportTestDir3": should export all saml circles of trust to separate files in the directory samlCotExportTestDir3: samlCotExportTestDir3/2f04818d-561e-4f8a-82e8-af2426112138.cot.saml.json 1`] = `
+{
+  "meta": Any<Object>,
+  "saml": {
+    "cot": {
+      "2f04818d-561e-4f8a-82e8-af2426112138": {
+        "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [],
+      },
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {},
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo saml cot export "frodo saml cot export --all-separate --directory samlCotExportTestDir3": should export all saml circles of trust to separate files in the directory samlCotExportTestDir3: samlCotExportTestDir3/AzureCOT.cot.saml.json 1`] = `
+{
+  "meta": Any<Object>,
+  "saml": {
+    "cot": {
+      "AzureCOT": {
+        "_id": "AzureCOT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [
+          "iSPAzure|saml2",
+          "urn:federation:MicrosoftOnline|saml2",
+          "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+          "SPAzure|saml2",
+          "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
+        ],
+      },
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {},
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo saml cot export "frodo saml cot export --all-separate --directory samlCotExportTestDir3": should export all saml circles of trust to separate files in the directory samlCotExportTestDir3: samlCotExportTestDir3/FR_COT.cot.saml.json 1`] = `
+{
+  "meta": Any<Object>,
+  "saml": {
+    "cot": {
+      "FR_COT": {
+        "_id": "FR_COT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [
+          "engineering-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/company/saml|saml2",
+          "company-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/roles/saml|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/sales/saml|saml2",
+          "sales-IDP|saml2",
+          "benefits-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/benefits/saml|saml2",
+        ],
+      },
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {},
+  },
+  "script": {},
+}
+`;
+
 exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should export the saml circles of trust with id "AzureCOT" 1`] = `""`;
 
 exports[`frodo saml cot export "frodo saml cot export --cot-id AzureCOT": should export the saml circles of trust with id "AzureCOT": ./AzureCOT.cot.saml.json 1`] = `
@@ -147,6 +236,99 @@ exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCircl
         "status": "active",
         "trustedProviders": [],
       },
+      "AzureCOT": {
+        "_id": "AzureCOT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [
+          "iSPAzure|saml2",
+          "urn:federation:MicrosoftOnline|saml2",
+          "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+          "SPAzure|saml2",
+          "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
+        ],
+      },
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {},
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo saml cot export "frodo saml cot export -aD samlCotExportTestDir2": should export all saml circles of trust to a single file in the directory samlCotExportTestDir2 1`] = `""`;
+
+exports[`frodo saml cot export "frodo saml cot export -aD samlCotExportTestDir2": should export all saml circles of trust to a single file in the directory samlCotExportTestDir2: samlCotExportTestDir2/allAlphaCirclesOfTrust.cot.saml.json 1`] = `
+{
+  "meta": Any<Object>,
+  "saml": {
+    "cot": {
+      "2f04818d-561e-4f8a-82e8-af2426112138": {
+        "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [],
+      },
+      "AzureCOT": {
+        "_id": "AzureCOT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [
+          "iSPAzure|saml2",
+          "urn:federation:MicrosoftOnline|saml2",
+          "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+          "SPAzure|saml2",
+          "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
+        ],
+      },
+      "FR_COT": {
+        "_id": "FR_COT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust",
+        },
+        "status": "active",
+        "trustedProviders": [
+          "engineering-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/company/saml|saml2",
+          "company-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/roles/saml|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/sales/saml|saml2",
+          "sales-IDP|saml2",
+          "benefits-IDP|saml2",
+          "https://volker-demo.encore.forgerock.com:443/apps/web/benefits/saml|saml2",
+        ],
+      },
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {},
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -D samlCotExportTestDir1": should export the saml circles of trust with id "AzureCOT" into the directory named samlCotExportTestDir1 1`] = `""`;
+
+exports[`frodo saml cot export "frodo saml cot export -i AzureCOT -D samlCotExportTestDir1": should export the saml circles of trust with id "AzureCOT" into the directory named samlCotExportTestDir1: samlCotExportTestDir1/AzureCOT.cot.saml.json 1`] = `
+{
+  "meta": Any<Object>,
+  "saml": {
+    "cot": {
       "AzureCOT": {
         "_id": "AzureCOT",
         "_type": {

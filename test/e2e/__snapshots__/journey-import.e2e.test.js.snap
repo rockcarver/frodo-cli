@@ -2,21 +2,27 @@
 
 exports[`frodo journey import "frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import all journeys from the file"test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import --all-separate --no-deps": should import all journeys from the current directory with no deps 1`] = `""`;
+exports[`frodo journey import "frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/journey": should import all journeys from the test/e2e/exports/all-separate/journey directory with no deps 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import the first journey from the file"test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import --journey-id j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import the journey with the id "j00" from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import -A --re-uuid": should import all journeys from the current directory with new uuids 1`] = `""`;
+exports[`frodo journey import "frodo journey import -AD test/e2e/exports/all-separate/journey --re-uuid": should import all journeys from the test/e2e/exports/all-separate/journey directory with new uuids 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import -A": should import all journeys from the current directory" 1`] = `""`;
+exports[`frodo journey import "frodo journey import -AD test/e2e/exports/all-separate/journey": should import all journeys from the test/e2e/exports/all-separate/journey directory" 1`] = `""`;
+
+exports[`frodo journey import "frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all": should import all journeys from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json": should import all journeys from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
+
+exports[`frodo journey import "frodo journey import -f allAlphaJourneys.journey.json -D test/e2e/exports/all": should import the first journey from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid": should import the first journey from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" with new uuids 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json": should import the first journey from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
+
+exports[`frodo journey import "frodo journey import -i j00 -f allAlphaJourneys.journey.json -D test/e2e/exports/all": should import the journey with the id "j00" from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid": should import the journey with the id "j00" from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" with new uuids 1`] = `""`;
 

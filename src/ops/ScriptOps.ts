@@ -32,7 +32,7 @@ const {
   importScripts,
 } = frodo.script;
 
-const { isBase64Encoded } = frodo.utils;
+const { isBase64Encoded, getFilePath, getWorkingDirectory } = frodo.utils;
 
 /**
  * Get a one-line description of the script object
@@ -131,10 +131,11 @@ export async function exportScriptToFile(
     if (file) {
       fileName = file;
     }
-    spinSpinner(`Exporting script '${scriptId}' to '${fileName}'...`);
+    const filePath = getFilePath(fileName, true);
+    spinSpinner(`Exporting script '${scriptId}' to '${filePath}'...`);
     const scriptExport = await exportScript(scriptId);
-    saveJsonToFile(scriptExport, fileName);
-    succeedSpinner(`Exported script '${scriptId}' to '${fileName}'.`);
+    saveJsonToFile(scriptExport, filePath);
+    succeedSpinner(`Exported script '${scriptId}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end [true]`);
     return true;
   } catch (error) {
@@ -162,10 +163,11 @@ export async function exportScriptByNameToFile(
     if (file) {
       fileName = file;
     }
-    spinSpinner(`Exporting script '${name}' to '${fileName}'...`);
+    const filePath = getFilePath(fileName, true);
+    spinSpinner(`Exporting script '${name}' to '${filePath}'...`);
     const scriptExport = await exportScriptByName(name);
-    saveJsonToFile(scriptExport, fileName);
-    succeedSpinner(`Exported script '${name}' to '${fileName}'.`);
+    saveJsonToFile(scriptExport, filePath);
+    succeedSpinner(`Exported script '${name}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [true]`);
     return true;
   } catch (error) {
@@ -192,7 +194,7 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
       fileName = file;
     }
     const scriptExport = await exportScripts();
-    saveJsonToFile(scriptExport, fileName);
+    saveJsonToFile(scriptExport, getFilePath(fileName, true));
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
     return true;
   } catch (error) {
@@ -220,7 +222,7 @@ export async function exportScriptsToFiles(): Promise<boolean> {
       updateProgressBar(`Reading script ${script.name}`);
       const fileName = getTypedFilename(script.name, 'script');
       const scriptExport = await exportScriptByName(script.name);
-      saveJsonToFile(scriptExport, fileName);
+      saveJsonToFile(scriptExport, getFilePath(fileName, true));
     } catch (error) {
       outcome = false;
       printMessage(
@@ -252,7 +254,9 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
         'script',
         fileExtension
       );
+      const scriptFilePath = getFilePath(scriptFileName, true);
       const fileName = getTypedFilename(script.name, 'script');
+      const filePath = getFilePath(fileName, true);
 
       const scriptExport = await exportScriptByName(script.name);
 
@@ -262,10 +266,10 @@ export async function exportScriptsToFilesExtract(): Promise<boolean> {
         ? scriptSkeleton.script.join('\n')
         : scriptSkeleton.script;
 
-      scriptSkeleton.script = `file://${scriptFileName}`;
+      scriptSkeleton.script = `file://${scriptFilePath}`;
 
-      saveTextToFile(scriptText, scriptFileName);
-      saveJsonToFile(scriptExport, fileName);
+      saveTextToFile(scriptText, scriptFilePath);
+      saveJsonToFile(scriptExport, filePath);
     } catch (error) {
       outcome = false;
       printMessage(
@@ -332,13 +336,14 @@ export async function importScriptsFromFile(
   reUuid = false
 ): Promise<boolean> {
   let outcome = false;
+  const filePath = getFilePath(file);
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: start`);
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(filePath, 'utf8', async (err, data) => {
     try {
       if (err) throw err;
       const importData: ScriptExportInterface = JSON.parse(data);
       if (isScriptExtracted(importData)) {
-        await handleScriptFileImport(file, reUuid, false);
+        await handleScriptFileImport(filePath, reUuid, false);
       } else {
         await importScripts(name, importData, reUuid);
       }
@@ -382,7 +387,11 @@ export async function importScriptsFromFiles(
 
   // We watch json files and script files.
   const watcher = chokidar.watch(
-    [`./**/*.script.json`, `./**/*.script.js`, `./**/*.script.groovy`],
+    [
+      `${getWorkingDirectory()}/**/*.script.json`,
+      `${getWorkingDirectory()}/**/*.script.js`,
+      `${getWorkingDirectory()}/**/*.script.groovy`,
+    ],
     {
       persistent: watch,
     }

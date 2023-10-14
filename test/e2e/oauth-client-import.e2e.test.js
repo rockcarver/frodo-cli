@@ -49,16 +49,19 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -i test2 -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --app-id test2 --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -i test2 -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -af test/e2e/exports/all/allAlphaApplications.oauth2.app.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -af allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -AD test/e2e/exports/all-separate/oauth/client
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all-separate --directory test/e2e/exports/all-separate/oauth/client
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -71,7 +74,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaOauthApplicationsExport = "test/e2e/exports/all/allAlphaApplications.oauth2.app.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaOauthApplicationsFileName = "allAlphaApplications.oauth2.app.json";
+const allAlphaOauthApplicationsExport = `${allDirectory}/${allAlphaOauthApplicationsFileName}`;
+const allSeparateOauthApplicationsDirectory = `test/e2e/exports/all-separate/oauth/client`;
 
 describe('frodo oauth client import', () => {
     test(`"frodo oauth client import --no-deps -i test2 -f ${allAlphaOauthApplicationsExport}": should import the oauth client with the id "test2" from the file "${allAlphaOauthApplicationsExport}"`, async () => {
@@ -82,6 +88,12 @@ describe('frodo oauth client import', () => {
 
     test(`"frodo oauth client import --app-id test2 --file ${allAlphaOauthApplicationsExport}": should import the oauth client with the id "test2" from the file "${allAlphaOauthApplicationsExport}"`, async () => {
         const CMD = `frodo oauth client import --app-id test2 --file ${allAlphaOauthApplicationsExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo oauth client import -i test2 -f ${allAlphaOauthApplicationsFileName} -D ${allDirectory}": should import the oauth client with the id "test2" from the file "${allAlphaOauthApplicationsExport}"`, async () => {
+        const CMD = `frodo oauth client import -i test2 -f ${allAlphaOauthApplicationsFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -98,6 +110,12 @@ describe('frodo oauth client import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo oauth client import -f ${allAlphaOauthApplicationsFileName} -D ${allDirectory}": should import the first oauth client from the file "${allAlphaOauthApplicationsExport}"`, async () => {
+        const CMD = `frodo oauth client import -f ${allAlphaOauthApplicationsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo oauth client import --no-deps -af ${allAlphaOauthApplicationsExport}": should import all oauth clients from the file "${allAlphaOauthApplicationsExport}"`, async () => {
         const CMD = `frodo oauth client import --no-deps -af ${allAlphaOauthApplicationsExport}`;
         const { stdout } = await exec(CMD, env);
@@ -110,14 +128,22 @@ describe('frodo oauth client import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo oauth client import --no-deps -A": should import all oauth clients from the current directory"`, async () => {
-        const CMD = `frodo oauth client import --no-deps -A`;
-        await testImportAllSeparate(CMD, env, 'oauth/client');
+    test(`"frodo oauth client import -af ${allAlphaOauthApplicationsFileName} -D ${allDirectory}": should import all oauth clients from the file "${allAlphaOauthApplicationsExport}"`, async () => {
+        const CMD = `frodo oauth client import -af ${allAlphaOauthApplicationsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo oauth client import --all-separate": should import all oauth clients from the current directory"`, async () => {
-        const CMD = `frodo oauth client import --all-separate`;
-        await testImportAllSeparate(CMD, env, 'oauth/client');
+    test(`"frodo oauth client import --no-deps -AD ${allSeparateOauthApplicationsDirectory}": should import all oauth clients from the ${allSeparateOauthApplicationsDirectory} directory"`, async () => {
+        const CMD = `frodo oauth client import --no-deps -AD ${allSeparateOauthApplicationsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo oauth client import --all-separate --directory ${allSeparateOauthApplicationsDirectory}": should import all oauth clients from the ${allSeparateOauthApplicationsDirectory} directory"`, async () => {
+        const CMD = `frodo oauth client import --all-separate --directory ${allSeparateOauthApplicationsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
 });

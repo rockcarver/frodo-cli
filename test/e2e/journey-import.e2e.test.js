@@ -50,19 +50,22 @@
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --journey-id j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f allAlphaJourneys.journey.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f allAlphaJourneys.journey.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -A --re-uuid
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/journey
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/journey --re-uuid
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/journey
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -75,7 +78,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaJourneysExport = "test/e2e/exports/all/allAlphaJourneys.journey.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaJourneysFileName = "allAlphaJourneys.journey.json";
+const allAlphaJourneysExport = `${allDirectory}/${allAlphaJourneysFileName}`;
+const allSeparateJourneysDirectory = `test/e2e/exports/all-separate/journey`;
 
 describe('frodo journey import', () => {
     test(`"frodo journey import -i j00 -f ${allAlphaJourneysExport}": should import the journey with the id "j00" from the file "${allAlphaJourneysExport}"`, async () => {
@@ -96,6 +102,12 @@ describe('frodo journey import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo journey import -i j00 -f ${allAlphaJourneysFileName} -D ${allDirectory}": should import the journey with the id "j00" from the file "${allAlphaJourneysExport}"`, async () => {
+        const CMD = `frodo journey import -i j00 -f ${allAlphaJourneysFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo journey import -f ${allAlphaJourneysExport}": should import the first journey from the file "${allAlphaJourneysExport}"`, async () => {
         const CMD = `frodo journey import -f ${allAlphaJourneysExport}`;
         const { stdout } = await exec(CMD, env);
@@ -110,6 +122,12 @@ describe('frodo journey import', () => {
 
     test(`"frodo journey import --file ${allAlphaJourneysExport} --no-deps": should import the first journey from the file"${allAlphaJourneysExport}" with no deps`, async () => {
         const CMD = `frodo journey import --file ${allAlphaJourneysExport} --no-deps`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo journey import -f ${allAlphaJourneysFileName} -D ${allDirectory}": should import the first journey from the file "${allAlphaJourneysExport}"`, async () => {
+        const CMD = `frodo journey import -f ${allAlphaJourneysFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -133,18 +151,27 @@ describe('frodo journey import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo journey import -A": should import all journeys from the current directory"`, async () => {
-        const CMD = `frodo journey import -A`;
-        await testImportAllSeparate(CMD, env, 'journey');
+    test(`"frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory}": should import all journeys from the file "${allAlphaJourneysExport}"`, async () => {
+        const CMD = `frodo journey import -af ${allAlphaJourneysFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo journey import -A --re-uuid": should import all journeys from the current directory with new uuids`, async () => {
-        const CMD = `frodo journey import -A --re-uuid`;
-        await testImportAllSeparate(CMD, env, 'journey');
+    test(`"frodo journey import -AD ${allSeparateJourneysDirectory}": should import all journeys from the ${allSeparateJourneysDirectory} directory"`, async () => {
+        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo journey import --all-separate --no-deps": should import all journeys from the current directory with no deps`, async () => {
-        const CMD = `frodo journey import --all-separate --no-deps`;
-        await testImportAllSeparate(CMD, env, 'journey');
+    test(`"frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid": should import all journeys from the ${allSeparateJourneysDirectory} directory with new uuids`, async () => {
+        const CMD = `frodo journey import -AD ${allSeparateJourneysDirectory} --re-uuid`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory}": should import all journeys from the ${allSeparateJourneysDirectory} directory with no deps`, async () => {
+        const CMD = `frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 });

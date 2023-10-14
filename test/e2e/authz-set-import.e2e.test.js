@@ -49,16 +49,19 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -i 'test-policy-set' -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --set-id 'test-policy-set' --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -i 'test-policy-set' -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -f test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -f allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -af test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all-separate --no-deps --prereqs
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -af allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -AD test/e2e/exports/all-separate/authz/set
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/authz/set
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -71,7 +74,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaPolicySetsExport = "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaPolicySetsFileName = "allAlphaPolicySets.policyset.authz.json";
+const allAlphaPolicySetsExport = `${allDirectory}/${allAlphaPolicySetsFileName}`;
+const allSeparatePolicySetsDirectory = `test/e2e/exports/all-separate/authz/set`;
 
 describe('frodo authz set import', () => {
     test(`"frodo authz set import -i 'test-policy-set' -f ${allAlphaPolicySetsExport}": should import the policy set with the id "test-policy-set" from the file "${allAlphaPolicySetsExport}"`, async () => {
@@ -82,6 +88,12 @@ describe('frodo authz set import', () => {
 
     test(`"frodo authz set import --set-id 'test-policy-set' --file ${allAlphaPolicySetsExport} --no-deps --prereqs": should import the policy set with the id "test-policy-set" from the file "${allAlphaPolicySetsExport}" with no dependencies`, async () => {
         const CMD = `frodo authz set import --set-id 'test-policy-set' --file ${allAlphaPolicySetsExport} --no-deps --prereqs`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo authz set import -i 'test-policy-set' -f ${allAlphaPolicySetsFileName} -D ${allDirectory}": should import the policy set with the id "test-policy-set" from the file "${allAlphaPolicySetsExport}"`, async () => {
+        const CMD = `frodo authz set import -i 'test-policy-set' -f ${allAlphaPolicySetsFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -98,26 +110,40 @@ describe('frodo authz set import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo authz set import -f ${allAlphaPolicySetsFileName} -D ${allDirectory}": should import the first policy set from the file "${allAlphaPolicySetsExport}"`, async () => {
+        const CMD = `frodo authz set import -f ${allAlphaPolicySetsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo authz set import -af ${allAlphaPolicySetsExport}": should import all policy sets from the file "${allAlphaPolicySetsExport}"`, async () => {
         const CMD = `frodo authz set import -af ${allAlphaPolicySetsExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo authz set import --all --file ${allAlphaPolicySetsExport} --no-deps --prereqs": should import all policy sets from the file "${allAlphaPolicySetsExport} with no dependencies"`, async () => {
+    test(`"frodo authz set import --all --file ${allAlphaPolicySetsExport} --no-deps --prereqs": should import all policy sets from the file "${allAlphaPolicySetsExport}" with no dependencies`, async () => {
         const CMD = `frodo authz set import --all --file ${allAlphaPolicySetsExport} --no-deps --prereqs`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo authz set import -A": should import all policy sets from the current directory"`, async () => {
-        const CMD = `frodo authz set import -A`;
-        await testImportAllSeparate(CMD, env, 'authz/set');
+    test(`"frodo authz set import -af ${allAlphaPolicySetsFileName} -D ${allDirectory}": should import all policy sets from the file "${allAlphaPolicySetsExport}"`, async () => {
+        const CMD = `frodo authz set import -af ${allAlphaPolicySetsFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo authz set import --all-separate --no-deps --prereqs": should import all policy sets from the current directory" with no dependencies`, async () => {
-        const CMD = `frodo authz set import --all-separate --no-deps --prereqs`;
-        await testImportAllSeparate(CMD, env, 'authz/set');
+    test(`"frodo authz set import -AD ${allSeparatePolicySetsDirectory}": should import all policy sets from the ${allSeparatePolicySetsDirectory} directory"`, async () => {
+        const CMD = `frodo authz set import -AD ${allSeparatePolicySetsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo authz set import --all-separate --no-deps --prereqs --directory ${allSeparatePolicySetsDirectory}": should import all policy sets from the ${allSeparatePolicySetsDirectory} directory with no dependencies`, async () => {
+        const CMD = `frodo authz set import --all-separate --no-deps --prereqs --directory ${allSeparatePolicySetsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
 });

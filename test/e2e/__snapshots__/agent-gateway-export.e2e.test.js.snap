@@ -78,6 +78,54 @@ exports[`frodo agent gateway export "frodo agent gateway export --all": should e
 }
 `;
 
+exports[`frodo agent gateway export "frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3 1`] = `""`;
+
+exports[`frodo agent gateway export "frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3: agentGatewayExportTestDir3/frodo-test-ig-agent.gateway.agent.json 1`] = `
+{
+  "agents": {
+    "frodo-test-ig-agent": {
+      "_id": "frodo-test-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo",
+      ],
+      "igTokenIntrospection": "Realm",
+      "status": "Inactive",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent gateway export "frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3: agentGatewayExportTestDir3/frodo-test-ig-agent2.gateway.agent.json 1`] = `
+{
+  "agents": {
+    "frodo-test-ig-agent2": {
+      "_id": "frodo-test-ig-agent2",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo",
+      ],
+      "igTokenIntrospection": "Realm",
+      "status": "Inactive",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files 1`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: ./frodo-test-ig-agent.gateway.agent.json 1`] = `
@@ -168,9 +216,85 @@ exports[`frodo agent gateway export "frodo agent gateway export -a --file my-all
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -aD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json.json: ./my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export -aD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2: agentGatewayExportTestDir2/allAlphaAgents.gateway.agent.json 1`] = `
+{
+  "agents": {
+    "frodo-test-ig-agent": {
+      "_id": "frodo-test-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo",
+      ],
+      "igTokenIntrospection": "Realm",
+      "status": "Inactive",
+    },
+    "frodo-test-ig-agent2": {
+      "_id": "frodo-test-ig-agent2",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo",
+      ],
+      "igTokenIntrospection": "Realm",
+      "status": "Inactive",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1 1`] = `""`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1: agentGatewayExportTestDir1/frodo-test-ig-agent.gateway.agent.json 1`] = `
+{
+  "agents": {
+    "frodo-test-ig-agent": {
+      "_id": "frodo-test-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "igCdssoLoginUrlTemplate": {
+        "inherited": false,
+        "value": "http://testurl.com:8080/frodo",
+      },
+      "igCdssoRedirectUrls": {
+        "inherited": false,
+        "value": [
+          "http://testurl.com:8080/frodo",
+        ],
+      },
+      "igTokenIntrospection": {
+        "inherited": false,
+        "value": "Realm",
+      },
+      "status": {
+        "inherited": false,
+        "value": "Inactive",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json 1`] = `""`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json: ./my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {

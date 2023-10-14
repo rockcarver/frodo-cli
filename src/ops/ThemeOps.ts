@@ -12,7 +12,8 @@ import {
 } from '../utils/Console';
 import { getTypedFilename, saveToFile } from '../utils/ExportImportUtils';
 
-const { getRealmString, validateImport } = frodo.utils;
+const { getRealmString, validateImport, getFilePath, getWorkingDirectory } =
+  frodo.utils;
 const {
   readThemes,
   readThemeByName,
@@ -103,12 +104,13 @@ export async function exportThemeByName(name, file) {
   if (file) {
     fileName = file;
   }
+  const filePath = getFilePath(fileName, true);
   createProgressIndicator('determinate', 1, `Exporting ${name}`);
   try {
     const themeData = await readThemeByName(name);
     if (!themeData._id) themeData._id = uuidv4();
-    updateProgressIndicator(`Writing file ${fileName}`);
-    saveToFile('theme', [themeData], '_id', fileName);
+    updateProgressIndicator(`Writing file to ${filePath}`);
+    saveToFile('theme', [themeData], '_id', filePath);
     stopProgressIndicator(`Successfully exported theme ${name}.`);
   } catch (error) {
     stopProgressIndicator(`${error.message}`);
@@ -126,11 +128,12 @@ export async function exportThemeById(id, file) {
   if (file) {
     fileName = file;
   }
+  const filePath = getFilePath(fileName, true);
   createProgressIndicator('determinate', 1, `Exporting ${id}`);
   try {
     const themeData = await readTheme(id);
-    updateProgressIndicator(`Writing file ${fileName}`);
-    saveToFile('theme', [themeData], '_id', fileName);
+    updateProgressIndicator(`Writing file to ${filePath}`);
+    saveToFile('theme', [themeData], '_id', filePath);
     stopProgressIndicator(`Successfully exported theme ${id}.`);
   } catch (error) {
     stopProgressIndicator(`${error.message}`);
@@ -147,6 +150,7 @@ export async function exportThemesToFile(file) {
   if (file) {
     fileName = file;
   }
+  const filePath = getFilePath(fileName, true);
   const allThemesData = await readThemes();
   createProgressIndicator(
     'determinate',
@@ -157,9 +161,9 @@ export async function exportThemesToFile(file) {
     if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(`Exporting theme ${themeData.name}`);
   }
-  saveToFile('theme', allThemesData, '_id', fileName);
+  saveToFile('theme', allThemesData, '_id', filePath);
   stopProgressIndicator(
-    `${allThemesData.length} themes exported to ${fileName}.`
+    `${allThemesData.length} themes exported to ${filePath}.`
   );
 }
 
@@ -177,7 +181,7 @@ export async function exportThemesToFiles() {
     if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(`Writing theme ${themeData.name}`);
     const fileName = getTypedFilename(themeData.name, 'theme');
-    saveToFile('theme', themeData, '_id', fileName);
+    saveToFile('theme', themeData, '_id', getFilePath(fileName, true));
   }
   stopProgressIndicator(`${allThemesData.length} themes exported.`);
 }
@@ -188,7 +192,7 @@ export async function exportThemesToFiles() {
  * @param {String} file import file name
  */
 export async function importThemeByName(name, file) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
     if (validateImport(themeData.meta)) {
@@ -230,7 +234,7 @@ export async function importThemeByName(name, file) {
  * @param {String} file import file name
  */
 export async function importThemeById(id, file) {
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
     if (validateImport(themeData.meta)) {
@@ -273,7 +277,8 @@ export async function importThemeById(id, file) {
  * @param {String} file import file name
  */
 export async function importThemesFromFile(file) {
-  fs.readFile(file, 'utf8', (err, data) => {
+  const filePath = getFilePath(file);
+  fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
     if (validateImport(fileData.meta)) {
@@ -295,7 +300,7 @@ export async function importThemesFromFile(file) {
           printMessage(
             `Error importing ${
               Object.keys(fileData.theme).length
-            } themes from ${file}`,
+            } themes from ${filePath}`,
             'error'
           );
         } else {
@@ -316,10 +321,10 @@ export async function importThemesFromFile(file) {
  * Import themes from separate files
  */
 export async function importThemesFromFiles() {
-  const names = fs.readdirSync('.');
-  const jsonFiles = names.filter((name) =>
-    name.toLowerCase().endsWith('.theme.json')
-  );
+  const names = fs.readdirSync(getWorkingDirectory());
+  const jsonFiles = names
+    .filter((name) => name.toLowerCase().endsWith('.theme.json'))
+    .map((name) => getFilePath(name));
 
   createProgressIndicator(
     'determinate',
@@ -358,7 +363,7 @@ export async function importThemesFromFiles() {
  * @param {String} file import file name
  */
 export async function importFirstThemeFromFile(file) {
-  fs.readFile(file, 'utf8', (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', (err, data) => {
     if (err) throw err;
     const themeData = JSON.parse(data);
     if (validateImport(themeData.meta)) {

@@ -49,18 +49,22 @@
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f allAlphaThemes.theme.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f allAlphaThemes.theme.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f allAlphaThemes.theme.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all-separate
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af allAlphaThemes.theme.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -AD test/e2e/exports/all-separate/theme
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all-separate --directory test/e2e/exports/all-separate/theme
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testImportAllSeparate } from './utils/TestUtils';
+import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -73,7 +77,10 @@ env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allAlphaThemesExport = "test/e2e/exports/all/allAlphaThemes.theme.json";
+const allDirectory = "test/e2e/exports/all";
+const allAlphaThemesFileName = "allAlphaThemes.theme.json";
+const allAlphaThemesExport = `${allDirectory}/${allAlphaThemesFileName}`;
+const allSeparateThemesDirectory = `test/e2e/exports/all-separate/theme`;
 
 describe('frodo theme import', () => {
     test(`"frodo theme import -n \'Starter Theme\' -f ${allAlphaThemesExport}": should import the theme with the name "Starter Theme" from the file "${allAlphaThemesExport}"`, async () => {
@@ -84,6 +91,12 @@ describe('frodo theme import', () => {
 
     test(`"frodo theme import --theme-name \'Starter Theme\' --file ${allAlphaThemesExport}": should import the theme with the name "Starter Theme" from the file "${allAlphaThemesExport}"`, async () => {
         const CMD = `frodo theme import --theme-name 'Starter Theme' --file ${allAlphaThemesExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo theme import -n \'Starter Theme\' -f ${allAlphaThemesFileName} -D ${allDirectory}": should import the theme with the name "Starter Theme" from the file "${allAlphaThemesExport}"`, async () => {
+        const CMD = `frodo theme import -n 'Starter Theme' -f ${allAlphaThemesFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -100,6 +113,12 @@ describe('frodo theme import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f ${allAlphaThemesFileName} -D ${allDirectory}": should import the theme with the id "86ce2f64-586d-44fe-8593-b12a85aac68d" from the file "${allAlphaThemesExport}"`, async () => {
+        const CMD = `frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f ${allAlphaThemesFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo theme import -f ${allAlphaThemesExport}": should import the first theme from the file "${allAlphaThemesExport}"`, async () => {
         const CMD = `frodo theme import -f ${allAlphaThemesExport}`;
         const { stdout } = await exec(CMD, env);
@@ -108,6 +127,12 @@ describe('frodo theme import', () => {
 
     test(`"frodo theme import --file ${allAlphaThemesExport}": should import the first theme from the file "${allAlphaThemesExport}"`, async () => {
         const CMD = `frodo theme import --file ${allAlphaThemesExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo theme import -f ${allAlphaThemesFileName} -D ${allDirectory}": should import the first theme from the file "${allAlphaThemesExport}"`, async () => {
+        const CMD = `frodo theme import -f ${allAlphaThemesFileName} -D ${allDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -124,14 +149,22 @@ describe('frodo theme import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo theme import -A": should import all themes from the current directory"`, async () => {
-        const CMD = `frodo theme import -A`;
-        await testImportAllSeparate(CMD, env, 'theme');
+    test(`"frodo theme import -af ${allAlphaThemesFileName} -D ${allDirectory}": should import all themes from the file "${allAlphaThemesExport}"`, async () => {
+        const CMD = `frodo theme import -af ${allAlphaThemesFileName} -D ${allDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo theme import --all-separate": should import all themes from the current directory"`, async () => {
-        const CMD = `frodo theme import --all-separate`;
-        await testImportAllSeparate(CMD, env, 'theme');
+    test(`"frodo theme import -AD ${allSeparateThemesDirectory}": should import all themes from the '${allSeparateThemesDirectory}' directory"`, async () => {
+        const CMD = `frodo theme import -AD ${allSeparateThemesDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo theme import --all-separate --directory ${allSeparateThemesDirectory}": should import all themes from the '${allSeparateThemesDirectory}' directory"`, async () => {
+        const CMD = `frodo theme import --all-separate --directory ${allSeparateThemesDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
 });

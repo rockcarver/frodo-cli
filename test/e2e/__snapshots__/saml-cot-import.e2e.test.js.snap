@@ -1,17 +1,140 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml cot import "frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import --all --file test/e2e/exports/all/allAlphaThemes.theme.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:564:52
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:641:32)
+    at importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:551:32)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:106:16
+"
+`;
 
-exports[`frodo saml cot import "frodo saml cot import --all-separate": should import all saml circle of trusts from the current directory" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/saml/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/saml/cot directory" 1`] = `""`;
 
-exports[`frodo saml cot import "frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:458:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:495:31)
+    at importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:442:31)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:89:16
+"
+`;
 
-exports[`frodo saml cot import "frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the first saml cot from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import --file test/e2e/exports/all/allAlphaThemes.theme.json": should import the first saml cot from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:513:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:548:36)
+    at importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:498:36)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:98:16
+"
+`;
 
-exports[`frodo saml cot import "frodo saml cot import -A": should import all saml circle of trusts from the current directory" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import -AD test/e2e/exports/all-separate/saml/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/saml/cot directory" 1`] = `""`;
 
-exports[`frodo saml cot import "frodo saml cot import -af test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import -af allAlphaThemes.theme.json -D test/e2e/exports/all": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:564:52
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:641:32)
+    at importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:551:32)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:106:16
+"
+`;
 
-exports[`frodo saml cot import "frodo saml cot import -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the first saml circle of trust from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import -af test/e2e/exports/all/allAlphaThemes.theme.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:564:52
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:641:32)
+    at importCirclesOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:551:32)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:106:16
+"
+`;
 
-exports[`frodo saml cot import "frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the first saml circle of trust from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:513:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:548:36)
+    at importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:498:36)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:98:16
+"
+`;
+
+exports[`frodo saml cot import "frodo saml cot import -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the first saml circle of trust from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:513:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:548:36)
+    at importFirstCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:498:36)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:98:16
+"
+`;
+
+exports[`frodo saml cot import "frodo saml cot import -i AzureCOT -f allAlphaThemes.theme.json -D test/e2e/exports/all": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:458:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:495:31)
+    at importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:442:31)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:89:16
+"
+`;
+
+exports[`frodo saml cot import "frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaThemes.theme.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaThemes.theme.json" 1`] = `
+"TypeError: Cannot read properties of undefined (reading 'cot')
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:458:48
+    at Generator.next (<anonymous>)
+    at asyncGeneratorStep (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:22:103)
+    at _next (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:194)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:364
+    at new Promise (<anonymous>)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:23:97
+    at _importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:495:31)
+    at importCircleOfTrust (/snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:442:31)
+    at /snapshot/frodo-working-directory/frodo-lib/cjs/ops/CirclesOfTrustOps.js:89:16
+"
+`;

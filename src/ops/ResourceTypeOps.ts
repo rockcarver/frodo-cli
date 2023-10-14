@@ -21,7 +21,7 @@ import {
   titleCase,
 } from '../utils/ExportImportUtils';
 
-const { getRealmName } = frodo.utils;
+const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
 const {
   readResourceTypes,
   readResourceType,
@@ -276,9 +276,10 @@ export async function exportResourceTypeToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceType(resourceTypeUuid);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${resourceTypeUuid} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${resourceTypeUuid} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${resourceTypeUuid}: ${error.message}`);
@@ -305,9 +306,10 @@ export async function exportResourceTypeByNameToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypeByName(resourceTypeName);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${resourceTypeName} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${resourceTypeName} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${resourceTypeName}: ${error.message}`);
@@ -335,9 +337,10 @@ export async function exportResourceTypesToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypes();
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported all resource types to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported all resource types to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting resource types: ${error.message}`);
@@ -361,7 +364,7 @@ export async function exportResourceTypesToFiles(): Promise<boolean> {
       try {
         const exportData: ResourceTypeExportInterface =
           await exportResourceType(resourceType.uuid);
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, getFilePath(file, true));
         updateProgressBar(`Exported ${resourceType.name}.`);
       } catch (error) {
         errors.push(error);
@@ -391,7 +394,7 @@ export async function importResourceTypeFromFile(
   debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: begin`);
   showSpinner(`Importing ${resourceTypeId}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importResourceType(resourceTypeId, fileData);
     outcome = true;
@@ -418,7 +421,7 @@ export async function importResourceTypeByNameFromFile(
   debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: begin`);
   showSpinner(`Importing ${resourceTypeName}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importResourceTypeByName(resourceTypeName, fileData);
     outcome = true;
@@ -441,15 +444,16 @@ export async function importFirstResourceTypeFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstResourceType(fileData);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: end`);
@@ -466,15 +470,16 @@ export async function importResourceTypesFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importResourceTypes(fileData);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
@@ -489,10 +494,10 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
   const errors = [];
   try {
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: begin`);
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.resourcetype.authz.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.resourcetype.authz.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing resource types...');
     let total = 0;
     for (const file of files) {

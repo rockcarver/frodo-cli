@@ -26,7 +26,7 @@ Options:
                                separate files <journey/tree name>.json. Ignored
                                with -i or -a.
   --curlirize                  Output all network calls in curl format.
-  -D, --directory <directory>  Destination directory.
+  -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
                                output helpful for troubleshooting.

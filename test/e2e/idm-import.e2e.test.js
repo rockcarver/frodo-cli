@@ -47,9 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/idm/script.test.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --name script --file test/e2e/exports/all-separate/idm/script.test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -D test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/idm/script.idm.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f script.idm.json -D test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --name script --file test/e2e/exports/all-separate/idm/script.idm.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -f script.idm.json -D test/e2e/exports/all-separate/idm
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
@@ -58,7 +60,6 @@ import cp from 'child_process';
 import { promisify } from 'util';
 import { removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
-import fs from 'fs';
 
 const exec = promisify(cp.exec);
 
@@ -71,20 +72,16 @@ env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 const idmExportDirectory = "test/e2e/exports/all-separate/idm";
-const idmScriptConfigExport = `${idmExportDirectory}/script.test.json`;
+const idmScriptConfigFileName = "script.idm.json";
+const idmScriptConfigExport = `${idmExportDirectory}/${idmScriptConfigFileName}`;
 const testEntitiesFile = 'test/e2e/env/testEntitiesFile.json';
 const testEnvFile = 'test/e2e/env/testEnvFile.env';
 
 describe('frodo idm import', () => {
-    test(`"frodo idm import -N script": should import the idm config with name 'script'"`, async () => {
-        //Set up file
-        const tmpFile = './script.idm.json';
-        fs.cpSync(idmScriptConfigExport, tmpFile);
-        const CMD = `frodo idm import -N script`;
+    test(`"frodo idm import -N script -D ${idmExportDirectory}": should import the idm config with name 'script' from the directory ${idmExportDirectory}"`, async () => {
+        const CMD = `frodo idm import -N script -D ${idmExportDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-        //Delete file
-        fs.unlinkSync(tmpFile);
     });
 
     test(`"frodo idm import -f ${idmScriptConfigExport}": should import the idm config from the file named '${idmScriptConfigExport}'"`, async () => {
@@ -93,8 +90,20 @@ describe('frodo idm import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    test(`"frodo idm import -f ${idmScriptConfigFileName} -D ${idmExportDirectory}": should import the idm config from the file named '${idmScriptConfigExport}'"`, async () => {
+        const CMD = `frodo idm import -f ${idmScriptConfigFileName} -D ${idmExportDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
     test(`"frodo idm import --name script --file ${idmScriptConfigExport}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
         const CMD = `frodo idm import --name script --file ${idmScriptConfigExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo idm import -N script -f ${idmScriptConfigFileName} -D ${idmExportDirectory}": should import the idm config with name 'script' from the file named '${idmScriptConfigExport}'"`, async () => {
+        const CMD = `frodo idm import -N script -f ${idmScriptConfigFileName} -D ${idmExportDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

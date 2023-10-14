@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
@@ -53,7 +53,6 @@ program
       'Import all services from separate files <id>.service.json.'
     )
   )
-  .addOption(new Option('-D, --directory <directory>', 'Working directory.'))
   .addOption(new Option('-g, --global', 'Import global services.'))
   .action(
     async (
@@ -72,7 +71,6 @@ program
         options,
         command
       );
-      state.setDirectory(options.directory || '.');
 
       const clean = options.clean ?? false;
       const globalConfig = options.global ?? false;

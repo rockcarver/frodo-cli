@@ -20,7 +20,8 @@ import {
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
 
-const { getTypedFilename, titleCase } = frodo.utils;
+const { getTypedFilename, titleCase, getFilePath, getWorkingDirectory } =
+  frodo.utils;
 const {
   readOAuth2Clients,
   exportOAuth2Client,
@@ -108,9 +109,10 @@ export async function exportOAuth2ClientToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportOAuth2Client(clientId, options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported ${clientId} to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported ${clientId} to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting ${clientId}: ${error.message}`);
@@ -140,9 +142,10 @@ export async function exportOAuth2ClientsToFile(
     if (file) {
       fileName = file;
     }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportOAuth2Clients(options);
-    saveJsonToFile(exportData, fileName);
-    succeedSpinner(`Exported all clients to ${fileName}.`);
+    saveJsonToFile(exportData, filePath);
+    succeedSpinner(`Exported all clients to ${filePath}.`);
     outcome = true;
   } catch (error) {
     failSpinner(`Error exporting all clients`);
@@ -172,7 +175,7 @@ export async function exportOAuth2ClientsToFiles(
       try {
         const exportData: OAuth2ClientExportInterface =
           await exportOAuth2Client(client._id, options);
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, getFilePath(file, true));
         updateProgressBar(`Exported ${client._id}.`);
       } catch (error) {
         errors.push(error);
@@ -204,7 +207,7 @@ export async function importOAuth2ClientFromFile(
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientFromFile: begin`);
   showSpinner(`Importing ${clientId}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importOAuth2Client(clientId, fileData, options);
     outcome = true;
@@ -229,15 +232,16 @@ export async function importFirstOAuth2ClientFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.importFirstOAuth2ClientFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstOAuth2Client(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.OAuth2ClientOps.importFirstOAuth2ClientFromFile: end`);
@@ -256,15 +260,16 @@ export async function importOAuth2ClientsFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: begin`);
-  showSpinner(`Importing ${file}...`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
   try {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const clientData = JSON.parse(data);
     await importOAuth2Clients(clientData, options);
     outcome = true;
-    succeedSpinner(`Imported ${file}.`);
+    succeedSpinner(`Imported ${filePath}.`);
   } catch (error) {
-    failSpinner(`Error importing ${file}.`);
+    failSpinner(`Error importing ${filePath}.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: end`);
@@ -282,10 +287,10 @@ export async function importOAuth2ClientsFromFiles(
   const errors = [];
   try {
     debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: begin`);
-    const names = fs.readdirSync('.');
-    const files = names.filter((name) =>
-      name.toLowerCase().endsWith('.oauth2.app.json')
-    );
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.oauth2.app.json'))
+      .map((name) => getFilePath(name));
     createProgressBar(files.length, 'Importing clients...');
     let total = 0;
     for (const file of files) {

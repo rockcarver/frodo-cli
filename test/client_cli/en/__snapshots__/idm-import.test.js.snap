@@ -24,8 +24,7 @@ Options:
                                        from separate files in directory -D.
                                        Ignored with -N, and -a.
   --curlirize                          Output all network calls in curl format.
-  -D, --directory <directory>          Import directory. Required with and
-                                       ignored without -a/-A.
+  -D, --directory <directory>          Set the working directory.
   --debug                              Debug output during command execution.
                                        If specified, may or may not produce
                                        additional output helpful for

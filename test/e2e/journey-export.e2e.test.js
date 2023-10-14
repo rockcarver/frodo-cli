@@ -88,8 +88,6 @@ describe('frodo journey export', () => {
         const exportDirectory = "journeyTestDirectory1";
         const CMD = `frodo journey export --journey-id j02 --no-deps --use-string-arrays -D ${exportDirectory}`;
         await testExport(CMD, env, type, exportFile, exportDirectory);
-        //Delete folder
-        fs.rmdirSync(exportDirectory);
     });
 
     test('"frodo journey export -a": should export all journeys to a single file', async () => {
@@ -109,8 +107,6 @@ describe('frodo journey export', () => {
         const exportDirectory = "journeyTestDirectory2";
         const CMD = `frodo journey export -a --no-deps --use-string-arrays --directory ${exportDirectory}`;
         await testExport(CMD, env, type, exportFile, exportDirectory);
-        //Delete folder
-        fs.rmdirSync(exportDirectory);
     });
 
     test('"frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays', async () => {
@@ -122,7 +118,5 @@ describe('frodo journey export', () => {
         const exportDirectory = "journeyTestDirectory3";
         const CMD = `frodo journey export -AD ${exportDirectory}`;
         await testExport(CMD, env, type, undefined, exportDirectory);
-        //Delete folder
-        fs.rmdirSync(exportDirectory);
     });
 });

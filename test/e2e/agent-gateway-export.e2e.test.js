@@ -48,10 +48,13 @@
 
 /*
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --agent-id frodo-test-ig-agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -f test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -a --file test.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -aD agentGatewayExportTestDir2
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -A
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -73,10 +76,16 @@ describe('frodo agent gateway export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json.json', async () => {
+    test('"frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json', async () => {
         const exportFile = "my-frodo-test-ig-agent.gateway.agent.json.json";
         const CMD = `frodo agent gateway export -i frodo-test-ig-agent -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
+    });
+
+    test('"frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1', async () => {
+        const exportDirectory = "agentGatewayExportTestDir1";
+        const CMD = `frodo agent gateway export -i frodo-test-ig-agent -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
     });
 
     test('"frodo agent gateway export --all": should export all gateway agents to a single file', async () => {
@@ -91,8 +100,20 @@ describe('frodo agent gateway export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
+    test('"frodo agent gateway export -aD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2', async () => {
+        const exportDirectory = "agentGatewayExportTestDir2";
+        const CMD = `frodo agent gateway export -aD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
+    });
+
     test('"frodo agent gateway export -A": should export all gateway agents to separate files', async () => {
         const CMD = `frodo agent gateway export -A`;
         await testExport(CMD, env, type);
+    });
+
+    test('"frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3', async () => {
+        const exportDirectory = "agentGatewayExportTestDir3";
+        const CMD = `frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3`;
+        await testExport(CMD, env, type, undefined, exportDirectory);
     });
 });

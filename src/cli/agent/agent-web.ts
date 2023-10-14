@@ -1,6 +1,6 @@
-import { FrodoCommand } from '../FrodoCommand';
+import { FrodoStubCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo agent web');
+const program = new FrodoStubCommand('frodo agent web');
 
 program.description('Manage web agents.');
 

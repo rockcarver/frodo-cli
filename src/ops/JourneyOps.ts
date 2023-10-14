@@ -33,7 +33,13 @@ import * as Theme from './ThemeOps';
 import { cloneDeep } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
-const { getTypedFilename, saveJsonToFile, getRealmString } = frodo.utils;
+const {
+  getTypedFilename,
+  saveJsonToFile,
+  getRealmString,
+  getFilePath,
+  getWorkingDirectory,
+} = frodo.utils;
 const {
   readJourneys,
   exportJourney,
@@ -148,16 +154,7 @@ export async function exportJourneyToFile(
   if (!file) {
     file = getTypedFilename(journeyId, 'journey');
   }
-  if (state.getDirectory()) {
-    const dir = state.getDirectory().replace(/\/$/, '');
-    debugMessage(`exportJourneyToFile: directory='${dir}'`);
-    file = `${dir}/${file}`;
-    // create directory if it doesn't exist
-    if (!fs.existsSync(dir)) {
-      debugMessage(`exportJourneyToFile: creating directory '${dir}'`);
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  }
+  const filePath = getFilePath(file, true);
   if (!verbose) showSpinner(`${journeyId}`);
   try {
     const fileData: SingleTreeExportInterface = await exportJourney(
@@ -165,9 +162,9 @@ export async function exportJourneyToFile(
       options
     );
     if (verbose) showSpinner(`${journeyId}`);
-    saveJsonToFile(fileData, file);
+    saveJsonToFile(fileData, filePath);
     succeedSpinner(
-      `Exported ${journeyId['brightCyan']} to ${file['brightCyan']}.`
+      `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`
     );
   } catch (error) {
     if (verbose) showSpinner(`${journeyId}`);
@@ -187,20 +184,10 @@ export async function exportJourneysToFile(
     useStringArrays: false,
   }
 ): Promise<void> {
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
+  if (!file) {
+    file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
   }
-  if (state.getDirectory()) {
-    const dir = state.getDirectory().replace(/\/$/, '');
-    debugMessage(`exportJourneysToFile: directory='${dir}'`);
-    fileName = `${dir}/${fileName}`;
-    // create directory if it doesn't exist
-    if (!fs.existsSync(dir)) {
-      debugMessage(`exportJourneysToFile: creating directory '${dir}'`);
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  }
+  const filePath = getFilePath(file, true);
   const trees = await readJourneys();
   const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
   createProgressBar(trees.length, 'Exporting journeys...');
@@ -214,8 +201,8 @@ export async function exportJourneysToFile(
       printMessage(`Error exporting journey ${tree._id}: ${error}`, 'error');
     }
   }
-  saveJsonToFile(fileData, fileName);
-  stopProgressBar(`Exported to ${fileName}`);
+  saveJsonToFile(fileData, filePath);
+  stopProgressBar(`Exported to ${filePath}`);
 }
 
 /**
@@ -225,29 +212,17 @@ export async function exportJourneysToFile(
 export async function exportJourneysToFiles(
   options: TreeExportOptions
 ): Promise<void> {
-  const dir = state.getDirectory()
-    ? state.getDirectory().replace(/\/$/, '')
-    : undefined;
-  debugMessage(`exportJourneysToFiles: directory='${dir}'`);
-  // create directory if it doesn't exist
-  if (dir && !fs.existsSync(dir)) {
-    debugMessage(`exportJourneysToFiles: creating directory '${dir}'`);
-    fs.mkdirSync(dir, { recursive: true });
-  }
   const trees = await readJourneys();
   createProgressBar(trees.length, 'Exporting journeys...');
   for (const tree of trees) {
     updateProgressBar(`${tree._id}`);
-    let fileName = getTypedFilename(`${tree._id}`, 'journey');
-    if (dir) {
-      fileName = `${dir}/${fileName}`;
-    }
+    const fileName = getTypedFilename(`${tree._id}`, 'journey');
     try {
       const exportData: SingleTreeExportInterface = await exportJourney(
         tree._id,
         options
       );
-      saveJsonToFile(exportData, fileName);
+      saveJsonToFile(exportData, getFilePath(fileName, true));
     } catch (error) {
       // do we need to report status here?
     }
@@ -267,7 +242,7 @@ export async function importJourneyFromFile(
   options: TreeImportOptions
 ) {
   const verbose = state.getDebug();
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = JSON.parse(data);
     // check if this is a file with multiple trees and get journey by id
@@ -330,7 +305,7 @@ export async function importFirstJourneyFromFile(
   options: TreeImportOptions
 ) {
   const verbose = state.getDebug();
-  fs.readFile(file, 'utf8', async (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = cloneDeep(JSON.parse(data));
     let journeyId = null;
@@ -401,7 +376,7 @@ export async function importJourneysFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  fs.readFile(file, 'utf8', (err, data) => {
+  fs.readFile(getFilePath(file), 'utf8', (err, data) => {
     if (err) throw err;
     try {
       const fileData = JSON.parse(data);
@@ -427,10 +402,10 @@ export async function importJourneysFromFile(
  * @param {TreeImportOptions} options import options
  */
 export async function importJourneysFromFiles(options: TreeImportOptions) {
-  const names = fs.readdirSync('.');
-  const jsonFiles = names.filter((name) =>
-    name.toLowerCase().endsWith('.journey.json')
-  );
+  const names = fs.readdirSync(getWorkingDirectory());
+  const jsonFiles = names
+    .filter((name) => name.toLowerCase().endsWith('.journey.json'))
+    .map((name) => getFilePath(name));
   const allJourneysData = { trees: {} };
   for (const file of jsonFiles) {
     const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));

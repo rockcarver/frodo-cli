@@ -22,6 +22,7 @@ Options:
   -d, --defaults               Use default logging noise filters (default: Use
                                custom logging noise filters defined in
                                $HOME/LoggingNoiseFilter.json)
+  -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
                                output helpful for troubleshooting.
@@ -89,6 +90,7 @@ Options:
   -d, --defaults               Use default logging noise filters (default: Use
                                custom logging noise filters defined in
                                $HOME/LoggingNoiseFilter.json)
+  -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
                                output helpful for troubleshooting.
