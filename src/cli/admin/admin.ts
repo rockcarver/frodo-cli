@@ -69,5 +69,7 @@ export default function setup() {
 
   program.command('repair-org-model', 'Repair org model.');
 
+  // program.command('train-auto-access-model', 'Train Auto Access model.');
+
   return program;
 }
