@@ -75,7 +75,7 @@ env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 const allDirectory = "test/e2e/exports/all";
-const allAlphaCirclesOfTrustFileName = "allAlphaThemes.theme.json";
+const allAlphaCirclesOfTrustFileName = "allAlphaCirclesOfTrust.cot.saml.json";
 const allAlphaCirclesOfTrustExport = `${allDirectory}/${allAlphaCirclesOfTrustFileName}`;
 const allSeparateCircleOfTrustsDirectory = `test/e2e/exports/all-separate/saml/cot`;
 
