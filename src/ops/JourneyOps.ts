@@ -150,7 +150,7 @@ export async function exportJourneyToFile(
   options: TreeExportOptions
 ): Promise<void> {
   debugMessage(`exportJourneyToFile: start`);
-  const verbose = state.getDebug();
+  const verbose = state.getVerbose();
   if (!file) {
     file = getTypedFilename(journeyId, 'journey');
   }
@@ -241,7 +241,7 @@ export async function importJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const verbose = state.getDebug();
+  const verbose = state.getVerbose();
   fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = JSON.parse(data);
@@ -304,7 +304,7 @@ export async function importFirstJourneyFromFile(
   file: string,
   options: TreeImportOptions
 ) {
-  const verbose = state.getDebug();
+  const verbose = state.getVerbose();
   fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     let journeyData = cloneDeep(JSON.parse(data));

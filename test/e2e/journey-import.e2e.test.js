@@ -47,6 +47,8 @@
  */
 
 /*
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --journey-id j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
@@ -84,10 +86,17 @@ const allAlphaJourneysExport = `${allDirectory}/${allAlphaJourneysFileName}`;
 const allSeparateJourneysDirectory = `test/e2e/exports/all-separate/journey`;
 
 describe('frodo journey import', () => {
-    test(`"frodo journey import -i j00 -f ${allAlphaJourneysExport}": should import the journey with the id "j00" from the file "${allAlphaJourneysExport}"`, async () => {
-        const CMD = `frodo journey import -i j00 -f ${allAlphaJourneysExport}`;
+    test(`"frodo journey import -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json": should import the journey in file "${allSeparateJourneysDirectory}/FrodoTest.journey.json"`, async () => {
+        const CMD = `frodo journey import -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo journey import --verbose -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json": should import the journey in file "${allSeparateJourneysDirectory}/FrodoTest.journey.json"`, async () => {
+        const CMD = `frodo journey import --verbose -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json`;
+        const { stdout, stderr } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     });
 
     test(`"frodo journey import -i j00 -f ${allAlphaJourneysExport} --re-uuid": should import the journey with the id "j00" from the file "${allAlphaJourneysExport}" with new uuids`, async () => {

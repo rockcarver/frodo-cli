@@ -47,6 +47,8 @@
  */
 
 /*
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -i FrodoTest
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --verbose -i FrodoTest
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -i j00
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -i j01 -f my-j01.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --journey-id j02 --no-deps --use-string-arrays -D journeyTestDirectory1
@@ -71,10 +73,16 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'journey';
 
 describe('frodo journey export', () => {
-    test('"frodo journey export -i j00": should export the journey with journey id "j00"', async () => {
-        const exportFile = "j00.journey.json";
-        const CMD = `frodo journey export -i j00`;
+    test('"frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest"', async () => {
+        const exportFile = "FrodoTest.journey.json";
+        const CMD = `frodo journey export -i FrodoTest`;
         await testExport(CMD, env, type, exportFile);
+    });
+
+    test('"frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest"', async () => {
+        const exportFile = "FrodoTest.journey.json";
+        const CMD = `frodo journey export --verbose -i FrodoTest`;
+        await testExport(CMD, env, type, exportFile, './', true, true);
     });
 
     test('"frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json', async () => {
