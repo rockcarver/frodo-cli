@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -i activation -f emailTemplate-activation.test.json -D test/e2e/exports/all-separate/email/template/raw
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --template-id activation --file test/e2e/exports/all/allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -f allEmailTemplates.template.email.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -i welcome -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --template-id welcome --file test/e2e/exports/all/allEmailTemplates.template.email.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --file test/e2e/exports/all/allEmailTemplates.template.email.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import -af test/e2e/exports/all/allEmailTemplates.template.email.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all --file test/e2e/exports/all/allEmailTemplates.template.email.json
@@ -66,73 +66,72 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allDirectory = "test/e2e/exports/all";
-const allAlphaEmailTemplatesFileName = "allEmailTemplates.template.email.json";
+const allDirectory = 'test/e2e/exports/all';
+const allAlphaEmailTemplatesFileName = 'allEmailTemplates.template.email.json';
 const allAlphaEmailTemplatesExport = `${allDirectory}/${allAlphaEmailTemplatesFileName}`;
 const allSeparateEmailTemplatesDirectory = `test/e2e/exports/all-separate/email/template`;
 const allSeparateEmailTemplatesRawDirectory = `${allSeparateEmailTemplatesDirectory}/raw`;
-const emailTemplateActivationRawFileName = "emailTemplate-activation.test.json";
-const emailTemplateActivationRawExport = `${allSeparateEmailTemplatesRawDirectory}/${emailTemplateActivationRawFileName}`;
+const emailTemplateWelcomeRawFileName = 'emailTemplate-welcome.test.json';
+const emailTemplateWelcomeRawExport = `${allSeparateEmailTemplatesRawDirectory}/${emailTemplateWelcomeRawFileName}`;
 
 describe('frodo email template import', () => {
-    test(`"frodo email template import --raw -i activation -f ${emailTemplateActivationRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}": should import the email template with the id "activation" from the file "${emailTemplateActivationRawExport}"`, async () => {
-        const CMD = `frodo email template import --raw -i activation -f ${emailTemplateActivationRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --raw -i welcome -f ${emailTemplateWelcomeRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}": should import the email template with the id "welcome" from the file "${emailTemplateWelcomeRawExport}"`, async () => {
+    const CMD = `frodo email template import --raw -i welcome -f ${emailTemplateWelcomeRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --template-id activation --file ${allAlphaEmailTemplatesExport}": should import the email template with the id "activation" from the file "${allAlphaEmailTemplatesExport}"`, async () => {
-        const CMD = `frodo email template import --template-id activation --file ${allAlphaEmailTemplatesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --template-id welcome --file ${allAlphaEmailTemplatesExport}": should import the email template with the id "welcome" from the file "${allAlphaEmailTemplatesExport}"`, async () => {
+    const CMD = `frodo email template import --template-id welcome --file ${allAlphaEmailTemplatesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --raw -f ${allAlphaEmailTemplatesFileName} -D ${allDirectory}": should import the first email template from the file "${emailTemplateActivationRawExport}"`, async () => {
-        const CMD = `frodo email template import --raw -f ${allAlphaEmailTemplatesFileName} -D ${allDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --raw -f ${emailTemplateWelcomeRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}": should import the first email template from the file "${emailTemplateWelcomeRawExport}"`, async () => {
+    const CMD = `frodo email template import --raw -f ${emailTemplateWelcomeRawFileName} -D ${allSeparateEmailTemplatesRawDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --file ${allAlphaEmailTemplatesExport}": should import the first email template from the file "${allAlphaEmailTemplatesExport}"`, async () => {
-        const CMD = `frodo email template import --file ${allAlphaEmailTemplatesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --file ${allAlphaEmailTemplatesExport}": should import the first email template from the file "${allAlphaEmailTemplatesExport}"`, async () => {
+    const CMD = `frodo email template import --file ${allAlphaEmailTemplatesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import -af ${allAlphaEmailTemplatesExport}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
-        const CMD = `frodo email template import -af ${allAlphaEmailTemplatesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import -af ${allAlphaEmailTemplatesExport}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
+    const CMD = `frodo email template import -af ${allAlphaEmailTemplatesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --all --file ${allAlphaEmailTemplatesExport}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
-        const CMD = `frodo email template import --all --file ${allAlphaEmailTemplatesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --all --file ${allAlphaEmailTemplatesExport}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
+    const CMD = `frodo email template import --all --file ${allAlphaEmailTemplatesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import -af ${allAlphaEmailTemplatesFileName} -D ${allDirectory}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
-        const CMD = `frodo email template import -af ${allAlphaEmailTemplatesFileName} -D ${allDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import -af ${allAlphaEmailTemplatesFileName} -D ${allDirectory}": should import all email templates from the file "${allAlphaEmailTemplatesExport}"`, async () => {
+    const CMD = `frodo email template import -af ${allAlphaEmailTemplatesFileName} -D ${allDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --raw -AD ${allSeparateEmailTemplatesRawDirectory}": should import all email templates from the ${allSeparateEmailTemplatesRawDirectory} directory"`, async () => {
-        const CMD = `frodo email template import --raw -AD ${allSeparateEmailTemplatesRawDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo email template import --raw -AD ${allSeparateEmailTemplatesRawDirectory}": should import all email templates from the ${allSeparateEmailTemplatesRawDirectory} directory"`, async () => {
+    const CMD = `frodo email template import --raw -AD ${allSeparateEmailTemplatesRawDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo email template import --all-separate --directory ${allSeparateEmailTemplatesDirectory}": should import all email templates from the ${allSeparateEmailTemplatesDirectory} directory"`, async () => {
-        const CMD = `frodo email template import --all-separate --directory ${allSeparateEmailTemplatesDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-
+  test(`"frodo email template import --all-separate --directory ${allSeparateEmailTemplatesDirectory}": should import all email templates from the ${allSeparateEmailTemplatesDirectory} directory"`, async () => {
+    const CMD = `frodo email template import --all-separate --directory ${allSeparateEmailTemplatesDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });
