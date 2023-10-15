@@ -1,0 +1,14 @@
+{
+    "enabled" : true,
+    "from" : "",
+    "subject" : {
+        "en" : "Your account has been created",
+        "fr" : "Votre compte vient d’être créé !"
+    },
+    "message" : {
+        "en" : "<html><body><p>Welcome to OpenIDM. Your username is '{{object.userName}}'.</p></body></html>",
+        "fr" : "<html><body><p>Bienvenue sur OpenIDM. Votre nom d'utilisateur est '{{object.userName}}'.</p></body></html>"
+    },
+    "defaultLocale" : "en",
+    "mimeType" : "text/html"
+}

@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --template-id activation
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i activation -f my-activation.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i activation -D emailTemplateExportTestDir1
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --template-id welcome
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i welcome -f my-welcome.template.email.json
+FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i welcome -D emailTemplateExportTestDir1
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -a
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --all --file my-allEmailTemplates.template.email.json
 FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -aD emailTemplateExportTestDir2
@@ -70,21 +70,21 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'template.email';
 
 describe('frodo email template export', () => {
-  test('"frodo email template export --template-id activation": should export the email template with email id "activation"', async () => {
-    const exportFile = 'activation.template.email.json';
-    const CMD = `frodo email template export --template-id activation`;
+  test('"frodo email template export --template-id welcome": should export the email template with email id "welcome"', async () => {
+    const exportFile = 'welcome.template.email.json';
+    const CMD = `frodo email template export --template-id welcome`;
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo email template export -i activation -f my-activation.template.email.json": should export the email template with email id "activation" into file named my-activation.template.email.json', async () => {
-    const exportFile = 'my-activation.template.email.json';
-    const CMD = `frodo email template export -i activation -f ${exportFile}`;
+  test('"frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json', async () => {
+    const exportFile = 'my-welcome.template.email.json';
+    const CMD = `frodo email template export -i welcome -f ${exportFile}`;
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo email template export -i activation -D emailTemplateExportTestDir1": should export the email template with email id "activation" into the directory emailTemplateExportTestDir1', async () => {
+  test('"frodo email template export -i welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1', async () => {
     const exportDirectory = 'emailTemplateExportTestDir1';
-    const CMD = `frodo email template export -i activation -D ${exportDirectory}`;
+    const CMD = `frodo email template export -i welcome -D ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory);
   });
 
