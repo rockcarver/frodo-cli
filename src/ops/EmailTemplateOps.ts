@@ -247,7 +247,6 @@ export async function importEmailTemplateFromFile(
   file: string,
   raw = false
 ) {
-  // eslint-disable-next-line no-param-reassign
   templateId = templateId.replaceAll(`${EMAIL_TEMPLATE_TYPE}/`, '');
   const filePath = getFilePath(file);
   fs.readFile(filePath, 'utf8', async (err, data) => {
@@ -256,8 +255,8 @@ export async function importEmailTemplateFromFile(
     if (raw || validateImport(fileData.meta)) {
       createProgressIndicator('determinate', 1, `Importing ${templateId}`);
       if (
-        fileData.emailTemplate[templateId] ||
-        (raw && fileData._id === templateId)
+        (fileData.emailTemplate && fileData.emailTemplate[templateId]) ||
+        (raw && getTemplateIdFromFileName(file) === templateId)
       ) {
         try {
           const emailTemplateData = raw
@@ -326,14 +325,15 @@ export async function importEmailTemplatesFromFile(file: string) {
  * @param {string} file file name
  * @returns {string} email template id/name
  */
-function readEmailTemplateIdFromFile(file: string) {
+function getTemplateIdFromFileName(file: string) {
+  debugMessage(`cli.EmailTemplateOps.getTemplateIdFromFileName: file=${file}`);
+  const basename = path.basename(file);
+  const keys = basename.split('-');
+  if (keys[0] !== EMAIL_TEMPLATE_TYPE || keys.length <= 1)
+    throw new Error(`Filename does not indicate a raw email template: ${file}`);
+  const templateId = keys[1].split('.')[0];
   debugMessage(
-    `cli.EmailTemplateOps.readEmailTemplateIdFromFile: file=${file}`
-  );
-  const fileName = path.basename(file);
-  const templateId = fileName.substring(14, fileName.indexOf('.'));
-  debugMessage(
-    `cli.EmailTemplateOps.readEmailTemplateIdFromFile: templateId=${templateId}`
+    `cli.EmailTemplateOps.getTemplateIdFromFileName: templateId=${templateId}`
   );
   return templateId;
 }
@@ -388,7 +388,7 @@ export async function importEmailTemplatesFromFiles(raw = false) {
       let errors = 0;
       if (raw) {
         total++;
-        const templateId = readEmailTemplateIdFromFile(file);
+        const templateId = getTemplateIdFromFileName(file);
         try {
           const templateData = s2sConvert(fileData);
           await updateEmailTemplate(templateId, templateData);
@@ -440,20 +440,17 @@ export async function importFirstEmailTemplateFromFile(
   fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
     if (err) throw err;
     const fileData = JSON.parse(data);
-    if (
-      (raw && file.startsWith('emailTemplate-')) ||
-      validateImport(fileData.meta)
-    ) {
+    if (raw || validateImport(fileData.meta)) {
       showSpinner(`Importing first email template`);
       if (raw) {
-        const templateId = readEmailTemplateIdFromFile(file);
         try {
+          const templateId = getTemplateIdFromFileName(file);
           const templateData = s2sConvert(fileData);
           await updateEmailTemplate(templateId, templateData);
           succeedSpinner(`Imported ${templateId}`);
-        } catch (updateEmailTemplateError) {
-          failSpinner(`Error importing ${templateId}`);
-          printMessage(updateEmailTemplateError.response?.data, 'error');
+        } catch (error) {
+          failSpinner(`Error importing email template: ${error}`);
+          printMessage(error.response?.data, 'error');
         }
       } else {
         for (const id in fileData.emailTemplate) {
