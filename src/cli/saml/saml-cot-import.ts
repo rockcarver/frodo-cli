@@ -58,7 +58,7 @@ program
             options.cotId
           }" into realm "${state.getRealm()}"...`
         );
-        const outcome = importCircleOfTrustFromFile(
+        const outcome = await importCircleOfTrustFromFile(
           options.cotId,
           options.file
         );
@@ -69,7 +69,7 @@ program
         verboseMessage(
           `Importing all circles of trust from a single file (${options.file})...`
         );
-        const outcome = importCirclesOfTrustFromFile(options.file);
+        const outcome = await importCirclesOfTrustFromFile(options.file);
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
@@ -77,7 +77,7 @@ program
         verboseMessage(
           'Importing all circles of trust from separate files (*.saml.json) in current directory...'
         );
-        const outcome = importCirclesOfTrustFromFiles();
+        const outcome = await importCirclesOfTrustFromFiles();
         if (!outcome) process.exitCode = 1;
       }
       // import first from file
@@ -87,7 +87,7 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        const outcome = importFirstCircleOfTrustFromFile(options.file);
+        const outcome = await importFirstCircleOfTrustFromFile(options.file);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
