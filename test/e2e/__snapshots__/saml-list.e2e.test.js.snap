@@ -1,8 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml list "frodo saml list --long": should list the ids, locations, and roles of the saml entity providers 1`] = `""`;
+exports[`frodo saml list "frodo saml list --long": should list the ids, locations, and roles of the saml entity providers 1`] = `
+"Entity Id                                                    │Location│Role(s)
+https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/│remote  │IDP    
+iSPAzure                                                     │hosted  │SP     
+urn:federation:MicrosoftOnline                               │remote  │SP     
+"
+`;
 
-exports[`frodo saml list "frodo saml list -l": should list the ids, locations, and roles of the saml entity providers 1`] = `""`;
+exports[`frodo saml list "frodo saml list -l": should list the ids, locations, and roles of the saml entity providers 1`] = `
+"Entity Id                                                    │Location│Role(s)
+https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/│remote  │IDP    
+iSPAzure                                                     │hosted  │SP     
+urn:federation:MicrosoftOnline                               │remote  │SP     
+"
+`;
 
 exports[`frodo saml list "frodo saml list": should list the ids of the saml entity providers 1`] = `
 "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/

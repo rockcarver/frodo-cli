@@ -32,10 +32,10 @@ export async function listRealms(long = false) {
           realmConfig.parentPath,
         ]);
       });
-      printMessage(table.toString());
+      printMessage(table.toString(), 'data');
     } else {
       realms.forEach((realmConfig) => {
-        printMessage(realmConfig.name, 'info');
+        printMessage(realmConfig.name, 'data');
       });
     }
   } catch (error) {
@@ -64,7 +64,7 @@ export async function describeRealm(realm: string) {
     ]);
     table.push(['Parent'['brightCyan'], realmConfig.parentPath]);
     table.push(['Id'['brightCyan'], realmConfig._id]);
-    printMessage(table.toString());
+    printMessage(table.toString(), 'data');
   } catch (error) {
     printMessage(`Realm ${realm} not found!`, 'error');
   }

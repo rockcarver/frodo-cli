@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo realm describe "frodo realm describe": should describe the current realm 1`] = `
+"Name          │alpha   
+Status        │active  
+Custom Domains│        
+Parent        │/       
+Id            │L2FscGhh
+"
+`;
