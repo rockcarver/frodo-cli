@@ -12,6 +12,7 @@ Commands:
   create          Create variables.
   delete          Delete variables.
   describe        Describe variables.
+  export          Export variables.
   help [command]  display help for command
   list            List variables.
   set             Set variable descriptions.

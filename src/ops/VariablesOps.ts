@@ -4,21 +4,33 @@ import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/Va
 import {
   createKeyValueTable,
   createProgressBar,
+  createProgressIndicator,
   createTable,
+  debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
   stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
   updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
+import {
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+  titleCase,
+} from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
-const { decodeBase64 } = frodo.utils;
+const { decodeBase64, getFilePath } = frodo.utils;
 const { resolveUserName } = frodo.idm.managed;
 const {
   readVariables,
   readVariable,
+  exportVariable,
+  exportVariables,
   updateVariable: _updateVariable,
 } = frodo.cloud.variable;
 
@@ -58,8 +70,8 @@ export async function listVariables(long) {
     }
     printMessage(table.toString(), 'data');
   } else {
-    variables.forEach((secret) => {
-      printMessage(secret._id, 'data');
+    variables.forEach((variable) => {
+      printMessage(variable._id, 'data');
     });
   }
 }
@@ -196,4 +208,83 @@ export async function describeVariable(variableId) {
   ]);
   table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
   printMessage(table.toString());
+}
+
+/**
+ * Export a single variable to file
+ * @param {String} variableId Variable id
+ * @param {String} file Optional filename
+ * @param {boolean} noDecode Do not include decoded variable value in export
+ */
+export async function exportVariableToFile(variableId: string, file: string | null, noDecode: boolean) {
+  debugMessage(
+    `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
+  );
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(variableId, 'variable');
+  }
+  const filePath = getFilePath(fileName, true);
+  try {
+    createProgressBar(1, `Exporting variable ${variableId}`);
+    const fileData = await exportVariable(variableId, noDecode);
+    saveJsonToFile(fileData, filePath);
+    updateProgressBar(`Exported variable ${variableId}`);
+    stopProgressBar(
+      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
+      `Exported ${variableId.brightCyan} to ${filePath.brightCyan}.`
+    );
+  } catch (err) {
+    stopProgressBar(`${err}`);
+    printMessage(err, 'error');
+  }
+  debugMessage(
+    `Cli.VariablesOps.exportVariableToFile: end [variableId=${variableId}, file=${file}]`
+  );
+}
+
+/**
+ * Export all variables to single file
+ * @param {string} file Optional filename
+ * @param {boolean} noDecode Do not include decoded variable value in export
+ */
+export async function exportVariablesToFile(file: string | null, noDecode: boolean) {
+  debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(
+      `all${titleCase(state.getRealm())}Variables`,
+      'variable'
+    );
+  }
+  try {
+    const variablesExport = await exportVariables(noDecode);
+    saveJsonToFile(variablesExport, getFilePath(fileName, true));
+  } catch (error) {
+    printMessage(error.message, 'error');
+    printMessage(`exportVariablesToFile: ${error.response?.status}`, 'error');
+  }
+  debugMessage(`Cli.VariablesOps.exportVariablesToFile: end [file=${file}]`);
+}
+
+/**
+ * Export all variables to seperate files
+ * @param {boolean} noDecode Do not include decoded variable value in export
+ */
+export async function exportVariablesToFiles(noDecode: boolean) {
+  const variableList = await readVariables();
+  createProgressIndicator(
+    'determinate',
+    variableList.length,
+    'Exporting variables'
+  );
+  for (const variable of variableList) {
+    if (!noDecode) {
+      variable.value = decodeBase64(variable.valueBase64);
+    }
+    updateProgressIndicator(`Writing variable ${variable._id}`);
+    const fileName = getTypedFilename(variable._id, 'variable');
+    saveToFile('variable', variable, '_id', getFilePath(fileName, true));
+  }
+  stopProgressIndicator(`${variableList.length} variables exported`);
 }

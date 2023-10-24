@@ -10,7 +10,7 @@ program.command('delete', 'Delete secrets.');
 
 program.command('describe', 'Describe secret.');
 
-// program.command('export', 'Export secrets.');
+program.command('export', 'Export secrets.');
 
 // program.command('import', 'Import secrets.');
 
