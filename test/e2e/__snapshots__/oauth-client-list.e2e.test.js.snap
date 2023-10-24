@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo oauth client list "frodo oauth client list --long": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the oauth clients 1`] = `
+"Client Id                           │Status│Client Type │Grant Types  │Scopes                     │Redirect URIs                              
+23281ea7-739b-4fd1-b953-eaae73a2b497│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+49a2981c-e192-4739-a0e6-c7582168bdf5│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+86fca6d7-2f52-4524-92c6-b6f416071455│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+d4c3ecbc-4b03-4ad5-b32f-464bda442e3f│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+ig-oidc-app                         │Active│Confidential│Authz Code   │openid                     │https://ig.mytestrun.com/home/oidc/callback
+                                    │      │            │Client Creds │profile                    │                                           
+                                    │      │            │Refresh Token│email                      │                                           
+                                    │      │            │             │secctx                     │                                           
+RCSClient                           │Active│Confidential│Client Creds │fr:idm:*                   │                                           
+test2                               │Active│Confidential│Authz Code   │openid                     │                                           
+                                    │      │            │Refresh Token│fr:idm:*                   │                                           
+                                    │      │            │Client Creds │                           │                                           
+testapp                             │Active│Confidential│Authz Code   │                           │                                           
+"
+`;
+
+exports[`frodo oauth client list "frodo oauth client list -l": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the oauth clients 1`] = `
+"Client Id                           │Status│Client Type │Grant Types  │Scopes                     │Redirect URIs                              
+23281ea7-739b-4fd1-b953-eaae73a2b497│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+49a2981c-e192-4739-a0e6-c7582168bdf5│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+86fca6d7-2f52-4524-92c6-b6f416071455│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+d4c3ecbc-4b03-4ad5-b32f-464bda442e3f│Active│Confidential│Client Creds │fr:idm:*                   │                                           
+                                    │      │            │             │fr:idc:esv:*               │                                           
+                                    │      │            │             │dynamic_client_registration│                                           
+ig-oidc-app                         │Active│Confidential│Authz Code   │openid                     │https://ig.mytestrun.com/home/oidc/callback
+                                    │      │            │Client Creds │profile                    │                                           
+                                    │      │            │Refresh Token│email                      │                                           
+                                    │      │            │             │secctx                     │                                           
+RCSClient                           │Active│Confidential│Client Creds │fr:idm:*                   │                                           
+test2                               │Active│Confidential│Authz Code   │openid                     │                                           
+                                    │      │            │Refresh Token│fr:idm:*                   │                                           
+                                    │      │            │Client Creds │                           │                                           
+testapp                             │Active│Confidential│Authz Code   │                           │                                           
+"
+`;
+
+exports[`frodo oauth client list "frodo oauth client list": should list the ids of the oauth clients 1`] = `
+"23281ea7-739b-4fd1-b953-eaae73a2b497
+49a2981c-e192-4739-a0e6-c7582168bdf5
+86fca6d7-2f52-4524-92c6-b6f416071455
+d4c3ecbc-4b03-4ad5-b32f-464bda442e3f
+ig-oidc-app
+RCSClient
+test2
+testapp
+"
+`;

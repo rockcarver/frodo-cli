@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent gateway delete "frodo agent gateway delete --agent-id frodo-test-ig-agent": should display error when the agent gateway with id 'frodo-test-ig-agent' cannot be deleted since it does not exist 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+Identity gateway agent 'frodo-test-ig-agent' not found!
+"
+`;
+
+exports[`frodo agent gateway delete "frodo agent gateway delete --all": should do nothing when no agent gateways can be deleted 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+"
+`;
+
+exports[`frodo agent gateway delete "frodo agent gateway delete -a": should delete all agent gateways 1`] = `""`;
+
+exports[`frodo agent gateway delete "frodo agent gateway delete -i frodo-test-ig-agent": should delete the agent gateway with id 'frodo-test-ig-agent' 1`] = `""`;
