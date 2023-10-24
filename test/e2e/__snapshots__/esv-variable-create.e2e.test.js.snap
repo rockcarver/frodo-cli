@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --description "This is another test variable." --variable-type string": should create an esv variable of type string with the value of pi. 1`] = `""`;
+
+exports[`frodo esv variable create "frodo esv variable create --variable-id esv-test-var-pi-unknown --value "3.1415926" --description "This is another test variable." --variable-type unknown": should display an error when trying to create an esv variable of unknown type 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Creating variable esv-test-var-pi-unknown...
+✖ Error: 606 - expressionType in body should be one of [string list array object bool int number base64encodedinlined keyvaluelist]
+"
+`;
+
+exports[`frodo esv variable create "frodo esv variable create -i esv-test-var-pi --value "3.1415926" --description "This is another test variable." --variable-type number": should create an esv variable of type number with the value of pi. 1`] = `""`;
