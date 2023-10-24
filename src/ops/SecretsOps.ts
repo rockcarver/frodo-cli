@@ -239,7 +239,10 @@ export async function describeSecret(secretId) {
  * @param {String} secretId Secret id
  * @param {String} file Optional filename
  */
-export async function exportSecretToFile(secretId: string, file: string | null) {
+export async function exportSecretToFile(
+  secretId: string,
+  file: string | null
+) {
   debugMessage(
     `Cli.SecretsOps.exportSecretToFile: start [secretId=${secretId}, file=${file}]`
   );

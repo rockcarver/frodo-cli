@@ -216,7 +216,11 @@ export async function describeVariable(variableId) {
  * @param {String} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
  */
-export async function exportVariableToFile(variableId: string, file: string | null, noDecode: boolean) {
+export async function exportVariableToFile(
+  variableId: string,
+  file: string | null,
+  noDecode: boolean
+) {
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
   );
@@ -248,7 +252,10 @@ export async function exportVariableToFile(variableId: string, file: string | nu
  * @param {string} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
  */
-export async function exportVariablesToFile(file: string | null, noDecode: boolean) {
+export async function exportVariablesToFile(
+  file: string | null,
+  noDecode: boolean
+) {
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
   let fileName = file;
   if (!fileName) {

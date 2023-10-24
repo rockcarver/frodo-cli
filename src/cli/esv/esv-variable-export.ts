@@ -57,7 +57,11 @@ program
             options.variableId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportVariableToFile(options.variableId, options.file, options.decode);
+        await exportVariableToFile(
+          options.variableId,
+          options.file,
+          options.decode
+        );
       } else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all variables to a single file...');
         await exportVariablesToFile(options.file, options.decode);
