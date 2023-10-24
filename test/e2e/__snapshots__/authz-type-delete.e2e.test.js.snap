@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz type delete "frodo authz type delete --type-id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": should display error when the resource type with id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 cannot be deleted since it does not exist 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76...
+✖ Error deleting 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76: Resource Type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 does not exist in realm /alpha
+"
+`;
+
+exports[`frodo authz type delete "frodo authz type delete --type-name FrodoTestResourceType13": should display error when the resource type with name FrodoTestResourceType13 cannot be deleted since it does not exist 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting FrodoTestResourceType13...
+✖ Error deleting FrodoTestResourceType13: Resource Type with name FrodoTestResourceType13 does not exist in realm alpha
+"
+`;
+
+exports[`frodo authz type delete "frodo authz type delete -i 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76": should delete the resource type with id 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 1`] = `""`;
+
+exports[`frodo authz type delete "frodo authz type delete -n FrodoTestResourceType13": should delete the resource type with name FrodoTestResourceType13 1`] = `""`;

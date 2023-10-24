@@ -1,0 +1,124 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz policy describe "frodo authz policy describe --policy-id "Test Policy"": should describe the "Test Policy" policy 1`] = `
+"_id                 │Test Policy                                                 
+_rev                │1693495339482                                               
+name                │Test Policy                                                 
+active              │false                                                       
+description         │Test Policy Description                                     
+applicationName     │test-policy-set                                             
+resourceTypeUuid    │76656a38-5f8e-401b-83aa-4ccb74ce88d2                        
+lastModifiedBy      │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+lastModifiedDate    │2023-08-31T15:22:19.482Z                                    
+createdBy           │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+creationDate        │2023-08-31T15:22:19.482Z                                    
+                    │                                                            
+  resources         │                                                            
+                   0│lorem://ipsum:dolor/sit                                     
+                    │                                                            
+  actionValues      │                                                            
+                POST│false                                                       
+                 GET│true                                                        
+                    │                                                            
+  subject           │                                                            
+                type│NONE                                                        
+                    │                                                            
+  condition         │                                                            
+                type│SimpleTime                                                  
+           startTime│12:00                                                       
+             endTime│11:59                                                       
+            startDay│mon                                                         
+              endDay│fri                                                         
+           startDate│2023:08:01                                                  
+             endDate│2023:08:02                                                  
+ enforcementTimeZone│GMT                                                         
+                    │                                                            
+  resourceAttributes│                                                            
+                    │                                                            
+    0               │                                                            
+                type│Static                                                      
+        propertyName│Test_Name                                                   
+      propertyValues│                                                            
+                   0│Test_Value                                                  
+"
+`;
+
+exports[`frodo authz policy describe "frodo authz policy describe -i "Test Policy" --json": should describe the "Test Policy" policy in json 1`] = `
+"{
+  _id: 'Test Policy',
+  _rev: '1693495339482',
+  name: 'Test Policy',
+  active: false,
+  description: 'Test Policy Description',
+  resources: [ 'lorem://ipsum:dolor/sit' ],
+  applicationName: 'test-policy-set',
+  actionValues: { POST: false, GET: true },
+  subject: { type: 'NONE' },
+  condition: {
+    type: 'SimpleTime',
+    startTime: '12:00',
+    endTime: '11:59',
+    startDay: 'mon',
+    endDay: 'fri',
+    startDate: '2023:08:01',
+    endDate: '2023:08:02',
+    enforcementTimeZone: 'GMT'
+  },
+  resourceTypeUuid: '76656a38-5f8e-401b-83aa-4ccb74ce88d2',
+  resourceAttributes: [
+    {
+      type: 'Static',
+      propertyName: 'Test_Name',
+      propertyValues: [ 'Test_Value' ]
+    }
+  ],
+  lastModifiedBy: 'id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config',
+  lastModifiedDate: '2023-08-31T15:22:19.482Z',
+  createdBy: 'id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config',
+  creationDate: '2023-08-31T15:22:19.482Z'
+}
+"
+`;
+
+exports[`frodo authz policy describe "frodo authz policy describe -i "Test Policy"": should describe the "Test Policy" policy 1`] = `
+"_id                 │Test Policy                                                 
+_rev                │1693495339482                                               
+name                │Test Policy                                                 
+active              │false                                                       
+description         │Test Policy Description                                     
+applicationName     │test-policy-set                                             
+resourceTypeUuid    │76656a38-5f8e-401b-83aa-4ccb74ce88d2                        
+lastModifiedBy      │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+lastModifiedDate    │2023-08-31T15:22:19.482Z                                    
+createdBy           │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+creationDate        │2023-08-31T15:22:19.482Z                                    
+                    │                                                            
+  resources         │                                                            
+                   0│lorem://ipsum:dolor/sit                                     
+                    │                                                            
+  actionValues      │                                                            
+                POST│false                                                       
+                 GET│true                                                        
+                    │                                                            
+  subject           │                                                            
+                type│NONE                                                        
+                    │                                                            
+  condition         │                                                            
+                type│SimpleTime                                                  
+           startTime│12:00                                                       
+             endTime│11:59                                                       
+            startDay│mon                                                         
+              endDay│fri                                                         
+           startDate│2023:08:01                                                  
+             endDate│2023:08:02                                                  
+ enforcementTimeZone│GMT                                                         
+                    │                                                            
+  resourceAttributes│                                                            
+                    │                                                            
+    0               │                                                            
+                type│Static                                                      
+        propertyName│Test_Name                                                   
+      propertyValues│                                                            
+                   0│Test_Value                                                  
+"
+`;

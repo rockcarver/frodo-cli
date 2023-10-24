@@ -1,32 +1,13 @@
 {
   "meta": {
-    "exportDate": "2023-10-09T22:33:49.019Z",
+    "exportDate": "2023-10-17T21:03:19.591Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-35 [v18.5.0]",
+    "exportToolVersion": "v2.0.0-41 [v18.5.0]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
     "originAmVersion": "7.4.0"
   },
   "policy": {
-    "FeatureStorePolicy": {
-      "_id": "FeatureStorePolicy",
-      "actionValues": {},
-      "active": true,
-      "applicationName": "test-policy-set",
-      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "creationDate": "2023-09-28T14:58:21.552Z",
-      "description": "FeatureStorePolicy",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-09T22:32:09.678Z",
-      "name": "FeatureStorePolicy",
-      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
-      "resources": [
-        "https://www.example.com:443/*"
-      ],
-      "subject": {
-        "type": "NONE"
-      }
-    },
     "Test Policy": {
       "_id": "Test Policy",
       "actionValues": {
@@ -36,20 +17,29 @@
       "active": false,
       "applicationName": "test-policy-set",
       "condition": {
-        "endDate": "2023:08:02",
-        "endDay": "fri",
-        "endTime": "11:59",
-        "enforcementTimeZone": "GMT",
-        "startDate": "2023:08:01",
-        "startDay": "mon",
-        "startTime": "12:00",
-        "type": "SimpleTime"
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime"
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script"
+          }
+        ],
+        "type": "AND"
       },
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "creationDate": "2023-09-28T14:55:02.746Z",
+      "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-09T22:32:09.783Z",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -102,7 +92,7 @@
       "editable": true,
       "entitlementCombiner": "DenyOverride",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1696890778387,
+      "lastModifiedDate": 1697571878359,
       "name": "test-policy-set",
       "resourceComparator": null,
       "resourceTypeUuids": [
@@ -137,7 +127,7 @@
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1694717661706,
+      "lastModifiedDate": 1697573378358,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -146,5 +136,41 @@
       "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
     }
   },
-  "script": {}
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field(\"id\", rawProfile.sub),",
+        "        field(\"displayName\", rawProfile.name),",
+        "        field(\"givenName\", rawProfile.given_name),",
+        "        field(\"familyName\", rawProfile.family_name),",
+        "        field(\"photoUrl\", rawProfile.picture),",
+        "        field(\"email\", rawProfile.email),",
+        "        field(\"username\", rawProfile.email),",
+        "        field(\"locale\", rawProfile.locale)))"
+      ]
+    }
+  }
 }
