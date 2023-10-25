@@ -1,6 +1,12 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import {
+  exportVariablesToFile,
+  exportVariablesToFiles,
+  exportVariableToFile,
+} from '../../ops/VariablesOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
@@ -28,6 +34,12 @@ program
       'Export all variables to separate files (*.variable.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(
+    new Option(
+      '--no-decode',
+      'Do not include decoded variable value in export'
+    ).default(false, 'false')
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -39,9 +51,29 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        // code goes here
+      if (options.variableId && (await getTokens())) {
+        verboseMessage(
+          `Exporting variable "${
+            options.variableId
+          }" from realm "${state.getRealm()}"...`
+        );
+        await exportVariableToFile(
+          options.variableId,
+          options.file,
+          options.decode
+        );
+      } else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all variables to a single file...');
+        await exportVariablesToFile(options.file, options.decode);
+      } else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all variables to separate files...');
+        await exportVariablesToFiles(options.decode);
       } else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
         process.exitCode = 1;
       }
     }

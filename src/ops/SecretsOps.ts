@@ -4,6 +4,7 @@ import {
   createKeyValueTable,
   createProgressBar,
   createTable,
+  debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
@@ -11,6 +12,12 @@ import {
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
+import {
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+  titleCase,
+} from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
 const { resolveUserName } = frodo.idm.managed;
@@ -19,6 +26,8 @@ const {
   createSecret: _createSecret,
   readVersionsOfSecret,
   readSecret,
+  exportSecret,
+  exportSecrets,
   enableVersionOfSecret,
   disableVersionOfSecret,
   createVersionOfSecret: _createVersionOfSecret,
@@ -26,6 +35,8 @@ const {
   deleteSecret: _deleteSecret,
   deleteVersionOfSecret: _deleteVersionOfSecret,
 } = frodo.cloud.secret;
+
+const { getFilePath } = frodo.utils;
 
 /**
  * List secrets
@@ -221,6 +232,78 @@ export async function describeSecret(secretId) {
   printMessage(table.toString());
   printMessage('\nSecret Versions:');
   await listSecretVersions(secretId);
+}
+
+/**
+ * Export a single secret to file
+ * @param {String} secretId Secret id
+ * @param {String} file Optional filename
+ */
+export async function exportSecretToFile(
+  secretId: string,
+  file: string | null
+) {
+  debugMessage(
+    `Cli.SecretsOps.exportSecretToFile: start [secretId=${secretId}, file=${file}]`
+  );
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(secretId, 'secret');
+  }
+  const filePath = getFilePath(fileName, true);
+  try {
+    createProgressBar(1, `Exporting secret ${secretId}`);
+    const fileData = await exportSecret(secretId);
+    saveJsonToFile(fileData, filePath);
+    updateProgressBar(`Exported secret ${secretId}`);
+    stopProgressBar(
+      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
+      `Exported ${secretId.brightCyan} to ${filePath.brightCyan}.`
+    );
+  } catch (err) {
+    stopProgressBar(`${err}`);
+    printMessage(err, 'error');
+  }
+  debugMessage(
+    `Cli.SecretsOps.exportSecretToFile: end [secretId=${secretId}, file=${file}]`
+  );
+}
+
+/**
+ * Export all secrets to single file
+ * @param {string} file Optional filename
+ */
+export async function exportSecretsToFile(file: string) {
+  debugMessage(`Cli.SecretsOps.exportSecretsToFile: start [file=${file}]`);
+  let fileName = file;
+  if (!fileName) {
+    fileName = getTypedFilename(
+      `all${titleCase(state.getRealm())}Secrets`,
+      'secret'
+    );
+  }
+  try {
+    const secretsExport = await exportSecrets();
+    saveJsonToFile(secretsExport, getFilePath(fileName, true));
+  } catch (error) {
+    printMessage(error.message, 'error');
+    printMessage(`exportSecretsToFile: ${error.response?.status}`, 'error');
+  }
+  debugMessage(`Cli.SecretsOps.exportSecretsToFile: end [file=${file}]`);
+}
+
+/**
+ * Export all secrets to individual files
+ */
+export async function exportSecretsToFiles() {
+  const allSecretsData = await readSecrets();
+  createProgressBar(allSecretsData.length, 'Exporting secrets');
+  for (const secret of allSecretsData) {
+    updateProgressBar(`Writing secret ${secret._id}`);
+    const fileName = getTypedFilename(secret._id, 'secret');
+    saveToFile('secret', secret, '_id', getFilePath(fileName, true));
+  }
+  stopProgressBar(`${allSecretsData.length} secrets exported.`);
 }
 
 /**

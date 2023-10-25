@@ -1,6 +1,12 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import {
+  exportSecretsToFile,
+  exportSecretsToFiles,
+  exportSecretToFile,
+} from '../../ops/SecretsOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
@@ -39,9 +45,25 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        // code goes here
+      if (options.secretId && (await getTokens())) {
+        verboseMessage(
+          `Exporting secret "${
+            options.secretId
+          }" from realm "${state.getRealm()}"...`
+        );
+        await exportSecretToFile(options.secretId, options.file);
+      } else if (options.all && (await getTokens())) {
+        verboseMessage('Exporting all secrets to a single file...');
+        await exportSecretsToFile(options.file);
+      } else if (options.allSeparate && (await getTokens())) {
+        verboseMessage('Exporting all secrets to separate files...');
+        await exportSecretsToFiles();
       } else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
         process.exitCode = 1;
       }
     }

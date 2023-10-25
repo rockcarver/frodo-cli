@@ -10,7 +10,7 @@ program.command('delete', 'Delete variables.');
 
 program.command('describe', 'Describe variables.');
 
-// program.command('export', 'Export variables.');
+program.command('export', 'Export variables.');
 
 // program.command('import', 'Import variables.');
 
