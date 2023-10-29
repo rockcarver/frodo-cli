@@ -1,4 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Argument, Command, Option } from 'commander';
 import fs from 'fs';
 
@@ -80,6 +80,13 @@ const curlirizeOption = new Option(
   'Output all network calls in curl format.'
 );
 
+const noCacheOption = new Option(
+  '--no-cache',
+  'Disable token cache for this operation.'
+);
+
+const flushCacheOption = new Option('--flush-cache', 'Flush token cache.');
+
 const defaultArgs = [
   hostArgument,
   realmArgument,
@@ -96,6 +103,8 @@ const defaultOpts = [
   verboseOption,
   debugOption,
   curlirizeOption,
+  noCacheOption,
+  flushCacheOption,
 ];
 
 const stateMap = {
@@ -128,6 +137,11 @@ const stateMap = {
   [debugOption.attributeName()]: (debug: boolean) => state.setDebug(debug),
   [curlirizeOption.attributeName()]: (curlirize: boolean) =>
     state.setCurlirize(curlirize),
+  [noCacheOption.attributeName()]: (cache: boolean) =>
+    state.setUseTokenCache(cache),
+  [flushCacheOption.attributeName()]: (flush: boolean) => {
+    if (flush) frodo.cache.flush();
+  },
 };
 
 /**
@@ -212,6 +226,7 @@ export class FrodoCommand extends FrodoStubCommand {
         `  FRODO_PASSWORD: Password. Overrides 'password' argument.\n` +
         `  FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.\n` +
         `  FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
+        `  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.\n` +
         ('frodo conn save' === this.name()
           ? `  FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.\n` +
             `  FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.\n`
