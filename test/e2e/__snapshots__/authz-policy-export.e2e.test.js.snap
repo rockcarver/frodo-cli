@@ -1,0 +1,1102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz policy export "frodo authz policy export --all --file my-allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to a single file named my-allAlphaPolicies.policy.authz.json with no dependencies and with prereqs 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export --all --file my-allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to a single file named my-allAlphaPolicies.policy.authz.json with no dependencies and with prereqs: ./my-allAlphaPolicies.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "FeatureStorePolicy": {
+      "_id": "FeatureStorePolicy",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.459Z",
+      "description": "FeatureStorePolicy",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
+      "name": "FeatureStorePolicy",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "https://www.example.com:443/*",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {
+    "test-policy-set": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction",
+      ],
+      "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
+      "creationDate": 1693494279401,
+      "description": "Test Policy Set Description",
+      "displayName": "Test Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697571878359,
+      "name": "test-policy-set",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+      ],
+    },
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true,
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697573378358,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    },
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export --all-separate --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export --all-separate --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/FeatureStorePolicy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "FeatureStorePolicy": {
+      "_id": "FeatureStorePolicy",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.459Z",
+      "description": "FeatureStorePolicy",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
+      "name": "FeatureStorePolicy",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "https://www.example.com:443/*",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {
+    "test-policy-set": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction",
+      ],
+      "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
+      "creationDate": 1693494279401,
+      "description": "Test Policy Set Description",
+      "displayName": "Test Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697571878359,
+      "name": "test-policy-set",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+      ],
+    },
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true,
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697573378358,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    },
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export --all-separate --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {
+    "test-policy-set": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction",
+      ],
+      "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
+      "creationDate": 1693494279401,
+      "description": "Test Policy Set Description",
+      "displayName": "Test Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697571878359,
+      "name": "test-policy-set",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+      ],
+    },
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true,
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697573378358,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    },
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should export the policy with id "Test Policy" from the test-policy-set into the file my-Test-Policy.policy.authz.json with no dependencies and with prereqs: ./my-Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {
+    "test-policy-set": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction",
+      ],
+      "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
+      "creationDate": 1693494279401,
+      "description": "Test Policy Set Description",
+      "displayName": "Test Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697571878359,
+      "name": "test-policy-set",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+      ],
+    },
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true,
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697573378358,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    },
+  },
+  "script": {},
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -A": should export all policies to separate files 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export -A": should export all policies to separate files: ./FeatureStorePolicy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "FeatureStorePolicy": {
+      "_id": "FeatureStorePolicy",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.459Z",
+      "description": "FeatureStorePolicy",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
+      "name": "FeatureStorePolicy",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "https://www.example.com:443/*",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {},
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -A": should export all policies to separate files: ./Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field("id", rawProfile.sub),",
+        "        field("displayName", rawProfile.name),",
+        "        field("givenName", rawProfile.given_name),",
+        "        field("familyName", rawProfile.family_name),",
+        "        field("photoUrl", rawProfile.picture),",
+        "        field("email", rawProfile.email),",
+        "        field("username", rawProfile.email),",
+        "        field("locale", rawProfile.locale)))",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -a": should export all policies to a single file 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export -a": should export all policies to a single file: ./allAlphaPolicies.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "FeatureStorePolicy": {
+      "_id": "FeatureStorePolicy",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.459Z",
+      "description": "FeatureStorePolicy",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
+      "name": "FeatureStorePolicy",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "https://www.example.com:443/*",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field("id", rawProfile.sub),",
+        "        field("displayName", rawProfile.name),",
+        "        field("givenName", rawProfile.given_name),",
+        "        field("familyName", rawProfile.family_name),",
+        "        field("photoUrl", rawProfile.picture),",
+        "        field("email", rawProfile.email),",
+        "        field("username", rawProfile.email),",
+        "        field("locale", rawProfile.locale)))",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -aD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export -aD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2: authzPolicyExportTestDir2/allAlphaPolicies.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "FeatureStorePolicy": {
+      "_id": "FeatureStorePolicy",
+      "actionValues": {},
+      "active": true,
+      "applicationName": "test-policy-set",
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.459Z",
+      "description": "FeatureStorePolicy",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
+      "name": "FeatureStorePolicy",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "https://www.example.com:443/*",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field("id", rawProfile.sub),",
+        "        field("displayName", rawProfile.name),",
+        "        field("givenName", rawProfile.given_name),",
+        "        field("familyName", rawProfile.family_name),",
+        "        field("photoUrl", rawProfile.picture),",
+        "        field("email", rawProfile.email),",
+        "        field("username", rawProfile.email),",
+        "        field("locale", rawProfile.locale)))",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1: authzPolicyExportTestDir1/Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field("id", rawProfile.sub),",
+        "        field("displayName", rawProfile.name),",
+        "        field("givenName", rawProfile.given_name),",
+        "        field("familyName", rawProfile.family_name),",
+        "        field("photoUrl", rawProfile.picture),",
+        "        field("email", rawProfile.email),",
+        "        field("username", rawProfile.email),",
+        "        field("locale", rawProfile.locale)))",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'": should export the policy with id "Test Policy" 1`] = `""`;
+
+exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'": should export the policy with id "Test Policy": ./Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {},
+  "resourcetype": {},
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2020 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "return json(object(",
+        "        field("id", rawProfile.sub),",
+        "        field("displayName", rawProfile.name),",
+        "        field("givenName", rawProfile.given_name),",
+        "        field("familyName", rawProfile.family_name),",
+        "        field("photoUrl", rawProfile.picture),",
+        "        field("email", rawProfile.email),",
+        "        field("username", rawProfile.email),",
+        "        field("locale", rawProfile.locale)))",
+      ],
+    },
+  },
+}
+`;

@@ -53,6 +53,7 @@ program
         options,
         command
       );
+      host = host ? host : state.getHost();
       if (options.outputFile) state.setOutputFile(options.outputFile);
       // TODO: review checks for arguments
       if (typeof host === 'undefined' || typeof options.file !== 'undefined') {

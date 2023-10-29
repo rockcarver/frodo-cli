@@ -4,7 +4,7 @@ import { Option } from 'commander';
 import {
   deletePolicies,
   deletePoliciesByPolicySet,
-  deletePolicy,
+  deletePolicyById,
 } from '../../ops/PolicyOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
@@ -41,7 +41,7 @@ program
       // delete by id
       if (options.policyId && (await getTokens())) {
         verboseMessage('Deleting authorization policy...');
-        const outcome = await deletePolicy(options.policyId);
+        const outcome = await deletePolicyById(options.policyId);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a by policy set

@@ -103,7 +103,9 @@ export async function createSecret(
     succeedSpinner(`Created secret ${id}`);
   } catch (error) {
     failSpinner(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
+      error.response
+        ? `Error: ${error.response.data.code} - ${error.response.data.message}`
+        : error
     );
   }
 }
@@ -200,7 +202,7 @@ export async function listSecretVersions(secretId) {
       new Date(version.createDate).toLocaleString(),
     ]);
   }
-  printMessage(table.toString());
+  printMessage(table.toString(), 'data');
 }
 
 /**
@@ -229,8 +231,8 @@ export async function describeSecret(secretId) {
   table.push(['Modifier UUID'['brightCyan'], secret.lastChangedBy]);
   table.push(['Encoding'['brightCyan'], secret.encoding]);
   table.push(['Use In Placeholders'['brightCyan'], secret.useInPlaceholders]);
-  printMessage(table.toString());
-  printMessage('\nSecret Versions:');
+  printMessage(table.toString(), 'data');
+  printMessage('\nSecret Versions:', 'data');
   await listSecretVersions(secretId);
 }
 

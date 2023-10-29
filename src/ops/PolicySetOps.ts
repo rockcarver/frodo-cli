@@ -35,6 +35,7 @@ const {
   importPolicySet,
   importFirstPolicySet,
   importPolicySets,
+  deletePolicySet,
 } = frodo.authz.policySet;
 
 /**
@@ -84,7 +85,9 @@ export async function describePolicySet(
  * @param {string} policySetId policy set id/name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deletePolicySet(policySetId: string): Promise<boolean> {
+export async function deletePolicySetById(
+  policySetId: string
+): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.deletePolicySet: begin`);
   showSpinner(`Deleting ${policySetId}...`);
   let outcome = false;
@@ -100,18 +103,21 @@ export async function deletePolicySet(policySetId: string): Promise<boolean> {
       errors.push(error);
     }
   }
-  try {
-    debugMessage(`Deleting policy set ${policySetId}`);
-    await deletePolicySet(policySetId);
-  } catch (error) {
-    printMessage(`Error deleting policy set ${policySetId}: ${error}`, 'error');
-  }
   if (errors.length) {
     const errorMessages = errors.map((error) => error.message).join('\n');
     failSpinner(`Error deleting ${policySetId}: ${errorMessages}`);
   } else {
-    succeedSpinner(`Deleted ${policySetId}.`);
-    outcome = true;
+    try {
+      debugMessage(`Deleting policy set ${policySetId}`);
+      await deletePolicySet(policySetId);
+      succeedSpinner(`Deleted ${policySetId}.`);
+      outcome = true;
+    } catch (error) {
+      printMessage(
+        `Error deleting policy set ${policySetId}: ${error}`,
+        'error'
+      );
+    }
   }
   debugMessage(`cli.PolicySetOps.deletePolicySet: end [outcome=${outcome}]`);
   return outcome;

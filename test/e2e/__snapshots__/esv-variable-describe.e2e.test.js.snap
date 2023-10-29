@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo esv variable describe "frodo esv variable describe --variable-id esv-neo-age": should describe the esv variable "esv-neo-age" 1`] = `
+"Name         │esv-neo-age                         
+Value        │28                                  
+Status       │loaded                              
+Description  │Neo's age in the matrix.            
+Modified     │7/18/2023, 4:21:23 PM               
+Modifier     │b672336b-41ef-428d-ae4a-e0c082875377
+Modifier UUID│b672336b-41ef-428d-ae4a-e0c082875377
+"
+`;
+
+exports[`frodo esv variable describe "frodo esv variable describe -i esv-neo-age": should describe the esv variable "esv-neo-age" 1`] = `
+"Name         │esv-neo-age                         
+Value        │28                                  
+Status       │loaded                              
+Description  │Neo's age in the matrix.            
+Modified     │7/18/2023, 4:21:23 PM               
+Modifier     │b672336b-41ef-428d-ae4a-e0c082875377
+Modifier UUID│b672336b-41ef-428d-ae4a-e0c082875377
+"
+`;

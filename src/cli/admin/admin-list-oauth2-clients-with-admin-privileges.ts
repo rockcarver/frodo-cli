@@ -28,7 +28,7 @@ program.description('List oauth2 clients with admin privileges.').action(
       const adminClients = await listOAuth2AdminClients();
       adminClients.sort((a, b) => a.localeCompare(b));
       adminClients.forEach((item) => {
-        printMessage(`${item}`);
+        printMessage(`${item}`, 'data');
       });
     } else {
       process.exitCode = 1;

@@ -2,9 +2,9 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
-  deleteResourceType,
-  deleteResourceTypeByName,
+  deleteResourceTypeById,
   deleteResourceTypes,
+  deleteResourceTypeUsingName,
 } from '../../ops/ResourceTypeOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
@@ -47,13 +47,13 @@ program
       // delete by uuid
       if (options.typeId && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
-        const outcome = deleteResourceType(options.typeId);
+        const outcome = deleteResourceTypeById(options.typeId);
         if (!outcome) process.exitCode = 1;
       }
       // delete by name
       else if (options.typeName && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
-        const outcome = deleteResourceTypeByName(options.typeName);
+        const outcome = deleteResourceTypeUsingName(options.typeName);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a

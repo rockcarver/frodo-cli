@@ -1,7 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { deletePolicySet, deletePolicySets } from '../../ops/PolicySetOps';
+import { deletePolicySetById, deletePolicySets } from '../../ops/PolicySetOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -32,7 +32,7 @@ program
       // delete by id
       if (options.setId && (await getTokens())) {
         verboseMessage('Deleting authorization policy set...');
-        const outcome = deletePolicySet(options.setId);
+        const outcome = deletePolicySetById(options.setId);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a

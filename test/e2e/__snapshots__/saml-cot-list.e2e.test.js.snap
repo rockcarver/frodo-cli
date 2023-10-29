@@ -1,8 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml cot list "frodo saml cot list --long": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `""`;
+exports[`frodo saml cot list "frodo saml cot list --long": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `
+"Name                                │Description│Status│Trusted Providers                                            
+2f04818d-561e-4f8a-82e8-af2426112138│           │active│                                                             
+AzureCOT                            │           │active│iSPAzure                                                     
+                                    │           │      │urn:federation:MicrosoftOnline                               
+                                    │           │      │https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/
+                                    │           │      │SPAzure                                                      
+                                    │           │      │https://idc.scheuber.io/am/saml2/IDPAzure                    
+"
+`;
 
-exports[`frodo saml cot list "frodo saml cot list -l": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `""`;
+exports[`frodo saml cot list "frodo saml cot list -l": should list the names, descriptions, status, and trusted providers of the circles of trust 1`] = `
+"Name                                │Description│Status│Trusted Providers                                            
+2f04818d-561e-4f8a-82e8-af2426112138│           │active│                                                             
+AzureCOT                            │           │active│iSPAzure                                                     
+                                    │           │      │urn:federation:MicrosoftOnline                               
+                                    │           │      │https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/
+                                    │           │      │SPAzure                                                      
+                                    │           │      │https://idc.scheuber.io/am/saml2/IDPAzure                    
+"
+`;
 
 exports[`frodo saml cot list "frodo saml cot list": should list the names of the circles of trust 1`] = `
 "2f04818d-561e-4f8a-82e8-af2426112138

@@ -112,7 +112,7 @@ export async function listSaml2Providers(long = false) {
         provider.roles.map((role) => roleMap[role]).join(', '),
       ]);
     }
-    printMessage(table.toString());
+    printMessage(table.toString(), 'data');
   }
 }
 
@@ -132,7 +132,7 @@ export async function describeSaml2Provider(entityId) {
     rawProviderData.roles = roles;
     rawProviderData.metadataUrl = getSaml2ProviderMetadataUrl(entityId);
     const table = createObjectTable(rawProviderData);
-    printMessage(table.toString());
+    printMessage(table.toString(), 'data');
   } catch (error) {
     printMessage(error.message, 'error');
   }
