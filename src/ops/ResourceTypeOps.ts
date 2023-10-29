@@ -33,6 +33,8 @@ const {
   importResourceTypeByName,
   importFirstResourceType,
   importResourceTypes,
+  deleteResourceType,
+  deleteResourceTypeByName,
 } = frodo.authz.resourceType;
 
 /**
@@ -139,27 +141,23 @@ export async function describeResourceTypeByName(
  * @param {string} resourceTypeUuid resource type uuid
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteResourceType(
+export async function deleteResourceTypeById(
   resourceTypeUuid: string
 ): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceType: begin`);
   showSpinner(`Deleting ${resourceTypeUuid}...`);
   let outcome = false;
-  const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeUuid}`);
     await deleteResourceType(resourceTypeUuid);
-  } catch (error) {
-    errors.push(error);
-  }
-  if (errors.length) {
-    const errorMessages = errors
-      .map((error) => error.response?.data?.message || error.message)
-      .join('\n');
-    failSpinner(`Error deleting ${resourceTypeUuid}: ${errorMessages}`);
-  } else {
     succeedSpinner(`Deleted ${resourceTypeUuid}.`);
     outcome = true;
+  } catch (error) {
+    failSpinner(
+      `Error deleting ${resourceTypeUuid}: ${
+        error.response?.data?.message || error.message
+      }`
+    );
   }
   debugMessage(
     `cli.ResourceTypeOps.deleteResourceType: end [outcome=${outcome}]`
@@ -172,27 +170,23 @@ export async function deleteResourceType(
  * @param {string} resourceTypeName resource type name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteResourceTypeByName(
+export async function deleteResourceTypeUsingName(
   resourceTypeName: string
 ): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: begin`);
   showSpinner(`Deleting ${resourceTypeName}...`);
   let outcome = false;
-  const errors = [];
   try {
     debugMessage(`Deleting resource type ${resourceTypeName}`);
     await deleteResourceTypeByName(resourceTypeName);
-  } catch (error) {
-    errors.push(error);
-  }
-  if (errors.length) {
-    const errorMessages = errors
-      .map((error) => error.response?.data?.message || error.message)
-      .join('\n');
-    failSpinner(`Error deleting ${resourceTypeName}: ${errorMessages}`);
-  } else {
     succeedSpinner(`Deleted ${resourceTypeName}.`);
     outcome = true;
+  } catch (error) {
+    failSpinner(
+      `Error deleting ${resourceTypeName}: ${
+        error.response?.data?.message || error.message
+      }`
+    );
   }
   debugMessage(
     `cli.ResourceTypeOps.deleteResourceTypeByName: end [outcome=${outcome}]`

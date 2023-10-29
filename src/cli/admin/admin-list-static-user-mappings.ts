@@ -39,7 +39,7 @@ program
         );
         subjects.sort((a, b) => a.localeCompare(b));
         subjects.forEach((item) => {
-          printMessage(`${item}`);
+          printMessage(`${item}`, 'data');
         });
       } else {
         process.exitCode = 1;

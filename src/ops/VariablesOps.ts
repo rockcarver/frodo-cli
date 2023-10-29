@@ -31,6 +31,8 @@ const {
   readVariable,
   exportVariable,
   exportVariables,
+  deleteVariable,
+  updateVariableDescription,
   updateVariable: _updateVariable,
 } = frodo.cloud.variable;
 
@@ -95,7 +97,9 @@ export async function createVariable(
     succeedSpinner(`Created variable ${variableId}`);
   } catch (error) {
     failSpinner(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
+      error.response
+        ? `Error: ${error.response.data.code} - ${error.response.data.message}`
+        : error
     );
   }
 }
@@ -126,7 +130,7 @@ export async function updateVariable(variableId, value, description) {
 export async function setVariableDescription(variableId, description) {
   showSpinner(`Setting description of variable ${variableId}...`);
   try {
-    await setVariableDescription(variableId, description);
+    await updateVariableDescription(variableId, description);
     succeedSpinner(`Set description of variable ${variableId}`);
   } catch (error) {
     failSpinner(
@@ -139,7 +143,7 @@ export async function setVariableDescription(variableId, description) {
  * Delete a variable
  * @param {string} variableId variable id
  */
-export async function deleteVariable(variableId) {
+export async function deleteVariableById(variableId) {
   showSpinner(`Deleting variable ${variableId}...`);
   try {
     await deleteVariable(variableId);
@@ -207,7 +211,7 @@ export async function describeVariable(variableId) {
     await resolveUserName('teammember', variable.lastChangedBy),
   ]);
   table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
-  printMessage(table.toString());
+  printMessage(table.toString(), 'data');
 }
 
 /**

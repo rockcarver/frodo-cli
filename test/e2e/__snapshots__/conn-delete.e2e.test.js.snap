@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo conn delete "frodo conn delete https://openam-frodo-dev.forgeblocks.com/am": should delete the connection profile 1`] = `
+"Deleted connection profile https://openam-frodo-dev.forgeblocks.com/am
+"
+`;
+f

@@ -1,0 +1,219 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo saml describe "frodo saml describe --entity-id iSPAzure": should describe the iSPAzure saml provider 1`] = `
+"entityId                             │iSPAzure                                                                                              
+location                             │hosted                                                                                                
+roles                                │SP                                                                                                    
+metadataUrl                          │https://openam-frodo-dev.forgeblocks.com/am/saml2/jsp/exportmetadata.jsp?entityid=iSPAzure&realm=alpha
+                                     │                                                                                                      
+  serviceProvider                    │                                                                                                      
+                                     │                                                                                                      
+    assertionContent                 │                                                                                                      
+                    assertionTimeSkew│300                                                                                                   
+      nameIdFormat                   │                                                                                                      
+        nameIdFormatList             │                                                                                                      
+                                    0│urn:oasis:names:tc:SAML:2.0:nameid-format:persistent                                                  
+                                    1│urn:oasis:names:tc:SAML:2.0:nameid-format:transient                                                   
+                                    2│urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress                                                
+                                    3│urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified                                                 
+                                    4│urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName                                  
+                                    5│urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos                                                    
+                                    6│urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName                                             
+      authenticationContext          │                                                                                                      
+          authenticationContextMapper│com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper                                            
+         authenticationComparisonType│Exact                                                                                                 
+includeRequestedAuthenticationContext│true                                                                                                  
+        authContextItems             │                                                                                                      
+          0                          │                                                                                                      
+                     contextReference│urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport                                     
+                                level│0                                                                                                     
+                          defaultItem│true                                                                                                  
+                                     │                                                                                                      
+    assertionProcessing              │                                                                                                      
+      attributeMapper                │                                                                                                      
+                      attributeMapper│com.sun.identity.saml2.plugins.DefaultSPAttributeMapper                                               
+        attributeMap                 │                                                                                                      
+          0                          │                                                                                                      
+                                  key│http://schemas.microsoft.com/identity/claims/displayname                                              
+                                value│cn                                                                                                    
+          1                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname                                       
+                                value│givenName                                                                                             
+          2                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname                                         
+                                value│sn                                                                                                    
+          3                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress                                    
+                                value│mail                                                                                                  
+          4                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name                                            
+                                value│uid                                                                                                   
+      autoFederation                 │                                                                                                      
+                       autoFedEnabled│false                                                                                                 
+      accountMapping                 │                                                                                                      
+                      spAccountMapper│com.sun.identity.saml2.plugins.DefaultSPAccountMapper                                                 
+                  useNameIDAsSPUserID│true                                                                                                  
+      responseArtifactMessageEncoding│                                                                                                      
+                             encoding│URI                                                                                                   
+                                     │                                                                                                      
+    services                         │                                                                                                      
+                            metaAlias│/alpha/iSPAzure                                                                                       
+      serviceAttributes              │                                                                                                      
+        singleLogoutService          │                                                                                                      
+          0                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect                                                    
+                             location│https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure                                     
+                     responseLocation│https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure                                     
+          1                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure                                         
+          2                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:SOAP                                                             
+                             location│https://idc.scheuber.io/am/SPSloSoap/metaAlias/alpha/iSPAzure                                         
+        nameIdService                │                                                                                                      
+          0                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect                                                    
+                             location│https://idc.scheuber.io/am/SPMniRedirect/metaAlias/alpha/iSPAzure                                     
+                     responseLocation│https://idc.scheuber.io/am/SPMniRedirect/metaAlias/alpha/iSPAzure                                     
+          1                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/SPMniPOST/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPMniPOST/metaAlias/alpha/iSPAzure                                         
+          2                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:SOAP                                                             
+                             location│https://idc.scheuber.io/am/SPMniSoap/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPMniSoap/metaAlias/alpha/iSPAzure                                         
+        assertionConsumerService     │                                                                                                      
+          0                          │                                                                                                      
+                            isDefault│true                                                                                                  
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact                                                    
+                             location│https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure                                      
+                                index│0                                                                                                     
+          1                          │                                                                                                      
+                            isDefault│false                                                                                                 
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure                                      
+                                index│1                                                                                                     
+          2                          │                                                                                                      
+                            isDefault│false                                                                                                 
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:PAOS                                                             
+                             location│https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure                                      
+                                index│2                                                                                                     
+                                     │                                                                                                      
+    advanced                         │                                                                                                      
+      saeConfiguration               │                                                                                                      
+                                spUrl│https://idc.scheuber.io/am/spsaehandler/metaAlias/alpha/iSPAzure                                      
+      ecpConfiguration               │                                                                                                      
+          ecpRequestIdpListFinderImpl│com.sun.identity.saml2.plugins.ECPIDPFinder                                                           
+"
+`;
+
+exports[`frodo saml describe "frodo saml describe -i iSPAzure": should describe the iSPAzure saml provider 1`] = `
+"entityId                             │iSPAzure                                                                                              
+location                             │hosted                                                                                                
+roles                                │SP                                                                                                    
+metadataUrl                          │https://openam-frodo-dev.forgeblocks.com/am/saml2/jsp/exportmetadata.jsp?entityid=iSPAzure&realm=alpha
+                                     │                                                                                                      
+  serviceProvider                    │                                                                                                      
+                                     │                                                                                                      
+    assertionContent                 │                                                                                                      
+                    assertionTimeSkew│300                                                                                                   
+      nameIdFormat                   │                                                                                                      
+        nameIdFormatList             │                                                                                                      
+                                    0│urn:oasis:names:tc:SAML:2.0:nameid-format:persistent                                                  
+                                    1│urn:oasis:names:tc:SAML:2.0:nameid-format:transient                                                   
+                                    2│urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress                                                
+                                    3│urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified                                                 
+                                    4│urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName                                  
+                                    5│urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos                                                    
+                                    6│urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName                                             
+      authenticationContext          │                                                                                                      
+          authenticationContextMapper│com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper                                            
+         authenticationComparisonType│Exact                                                                                                 
+includeRequestedAuthenticationContext│true                                                                                                  
+        authContextItems             │                                                                                                      
+          0                          │                                                                                                      
+                     contextReference│urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport                                     
+                                level│0                                                                                                     
+                          defaultItem│true                                                                                                  
+                                     │                                                                                                      
+    assertionProcessing              │                                                                                                      
+      attributeMapper                │                                                                                                      
+                      attributeMapper│com.sun.identity.saml2.plugins.DefaultSPAttributeMapper                                               
+        attributeMap                 │                                                                                                      
+          0                          │                                                                                                      
+                                  key│http://schemas.microsoft.com/identity/claims/displayname                                              
+                                value│cn                                                                                                    
+          1                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname                                       
+                                value│givenName                                                                                             
+          2                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname                                         
+                                value│sn                                                                                                    
+          3                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress                                    
+                                value│mail                                                                                                  
+          4                          │                                                                                                      
+                                  key│http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name                                            
+                                value│uid                                                                                                   
+      autoFederation                 │                                                                                                      
+                       autoFedEnabled│false                                                                                                 
+      accountMapping                 │                                                                                                      
+                      spAccountMapper│com.sun.identity.saml2.plugins.DefaultSPAccountMapper                                                 
+                  useNameIDAsSPUserID│true                                                                                                  
+      responseArtifactMessageEncoding│                                                                                                      
+                             encoding│URI                                                                                                   
+                                     │                                                                                                      
+    services                         │                                                                                                      
+                            metaAlias│/alpha/iSPAzure                                                                                       
+      serviceAttributes              │                                                                                                      
+        singleLogoutService          │                                                                                                      
+          0                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect                                                    
+                             location│https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure                                     
+                     responseLocation│https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure                                     
+          1                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure                                         
+          2                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:SOAP                                                             
+                             location│https://idc.scheuber.io/am/SPSloSoap/metaAlias/alpha/iSPAzure                                         
+        nameIdService                │                                                                                                      
+          0                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect                                                    
+                             location│https://idc.scheuber.io/am/SPMniRedirect/metaAlias/alpha/iSPAzure                                     
+                     responseLocation│https://idc.scheuber.io/am/SPMniRedirect/metaAlias/alpha/iSPAzure                                     
+          1                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/SPMniPOST/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPMniPOST/metaAlias/alpha/iSPAzure                                         
+          2                          │                                                                                                      
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:SOAP                                                             
+                             location│https://idc.scheuber.io/am/SPMniSoap/metaAlias/alpha/iSPAzure                                         
+                     responseLocation│https://idc.scheuber.io/am/SPMniSoap/metaAlias/alpha/iSPAzure                                         
+        assertionConsumerService     │                                                                                                      
+          0                          │                                                                                                      
+                            isDefault│true                                                                                                  
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact                                                    
+                             location│https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure                                      
+                                index│0                                                                                                     
+          1                          │                                                                                                      
+                            isDefault│false                                                                                                 
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST                                                        
+                             location│https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure                                      
+                                index│1                                                                                                     
+          2                          │                                                                                                      
+                            isDefault│false                                                                                                 
+                              binding│urn:oasis:names:tc:SAML:2.0:bindings:PAOS                                                             
+                             location│https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure                                      
+                                index│2                                                                                                     
+                                     │                                                                                                      
+    advanced                         │                                                                                                      
+      saeConfiguration               │                                                                                                      
+                                spUrl│https://idc.scheuber.io/am/spsaehandler/metaAlias/alpha/iSPAzure                                      
+      ecpConfiguration               │                                                                                                      
+          ecpRequestIdpListFinderImpl│com.sun.identity.saml2.plugins.ECPIDPFinder                                                           
+"
+`;

@@ -28,7 +28,7 @@ program.description('List oauth2 clients with custom privileges.').action(
       const adminClients = await listOAuth2CustomClients();
       adminClients.sort((a, b) => a.localeCompare(b));
       adminClients.forEach((item) => {
-        printMessage(`${item}`);
+        printMessage(`${item}`, 'data');
       });
     } else {
       process.exitCode = 1;

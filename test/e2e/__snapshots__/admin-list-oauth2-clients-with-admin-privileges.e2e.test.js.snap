@@ -1,3 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo admin list-oauth2-clients-with-admin-privileges "frodo admin list-oauth2-clients-with-admin-privileges": should list the ids of the oauth2 clients with admin privileges. 1`] = `""`;
+exports[`frodo admin list-oauth2-clients-with-admin-privileges "frodo admin list-oauth2-clients-with-admin-privileges": should list the ids of the oauth2 clients with admin privileges. 1`] = `
+"23281ea7-739b-4fd1-b953-eaae73a2b497
+49a2981c-e192-4739-a0e6-c7582168bdf5
+86fca6d7-2f52-4524-92c6-b6f416071455
+d4c3ecbc-4b03-4ad5-b32f-464bda442e3f
+"
+`;

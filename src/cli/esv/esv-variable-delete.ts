@@ -1,7 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { deleteVariable, deleteVariables } from '../../ops/VariablesOps';
+import { deleteVariableById, deleteVariables } from '../../ops/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -40,7 +40,7 @@ program
       // delete by id
       if (options.variableId && (await getTokens())) {
         verboseMessage('Deleting variable...');
-        deleteVariable(options.variableId);
+        deleteVariableById(options.variableId);
       }
       // --all -a
       else if (options.all && (await getTokens())) {

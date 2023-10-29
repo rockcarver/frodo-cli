@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo esv variable set "frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"": should update the "esv-test-var-pi-string" variable 1`] = `""`;
+
+exports[`frodo esv variable set "frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."": should update the "esv-test-var-pi-string" variable's description. 1`] = `""`;

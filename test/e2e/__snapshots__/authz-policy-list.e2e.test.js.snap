@@ -31,6 +31,5 @@ Test Policy│Test Policy Description│inactive
 
 exports[`frodo authz policy list "frodo authz policy list": should list the ids of the authz policies 1`] = `
 "Test Policy
-Test Policy
 "
 `;

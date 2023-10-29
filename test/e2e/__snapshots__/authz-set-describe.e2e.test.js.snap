@@ -1,0 +1,148 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authz set describe "frodo authz set describe --set-id test-policy-set": should describe the test-policy-set set 1`] = `
+"displayName        │Test Policy Set                                             
+name               │test-policy-set                                             
+description        │Test Policy Set Description                                 
+createdBy          │id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config
+creationDate       │1693494279401                                               
+lastModifiedBy     │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+lastModifiedDate   │1693495339089                                               
+resourceComparator │                                                            
+applicationType    │iPlanetAMWebAgentService                                    
+entitlementCombiner│DenyOverride                                                
+editable           │true                                                        
+saveIndex          │                                                            
+searchIndex        │                                                            
+                   │                                                            
+  conditions       │                                                            
+                  0│AMIdentityMembership                                        
+                  1│AND                                                         
+                  2│AuthLevel                                                   
+                  3│AuthScheme                                                  
+                  4│AuthenticateToRealm                                         
+                  5│AuthenticateToService                                       
+                  6│IPv4                                                        
+                  7│IPv6                                                        
+                  8│LDAPFilter                                                  
+                  9│LEAuthLevel                                                 
+                 10│NOT                                                         
+                 11│OAuth2Scope                                                 
+                 12│OR                                                          
+                 13│Policy                                                      
+                 14│ResourceEnvIP                                               
+                 15│Script                                                      
+                 16│Session                                                     
+                 17│SessionProperty                                             
+                 18│SimpleTime                                                  
+                 19│Transaction                                                 
+                   │                                                            
+  resourceTypeUuids│                                                            
+                  0│76656a38-5f8e-401b-83aa-4ccb74ce88d2                        
+                   │                                                            
+  subjects         │                                                            
+                  0│AND                                                         
+                  1│AuthenticatedUsers                                          
+                  2│Identity                                                    
+                  3│JwtClaim                                                    
+                  4│NONE                                                        
+                  5│NOT                                                         
+                  6│OR                                                          
+                  7│Policy                                                      
+"
+`;
+
+exports[`frodo authz set describe "frodo authz set describe -i test-policy-set --json": should describe the test-policy-set set in json 1`] = `
+"{
+  displayName: 'Test Policy Set',
+  name: 'test-policy-set',
+  description: 'Test Policy Set Description',
+  attributeNames: [],
+  createdBy: 'id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config',
+  conditions: [
+    'AMIdentityMembership', 'AND',
+    'AuthLevel',            'AuthScheme',
+    'AuthenticateToRealm',  'AuthenticateToService',
+    'IPv4',                 'IPv6',
+    'LDAPFilter',           'LEAuthLevel',
+    'NOT',                  'OAuth2Scope',
+    'OR',                   'Policy',
+    'ResourceEnvIP',        'Script',
+    'Session',              'SessionProperty',
+    'SimpleTime',           'Transaction'
+  ],
+  creationDate: 1693494279401,
+  lastModifiedBy: 'id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config',
+  lastModifiedDate: 1693495339089,
+  resourceTypeUuids: [ '76656a38-5f8e-401b-83aa-4ccb74ce88d2' ],
+  resourceComparator: null,
+  applicationType: 'iPlanetAMWebAgentService',
+  entitlementCombiner: 'DenyOverride',
+  subjects: [
+    'AND',
+    'AuthenticatedUsers',
+    'Identity',
+    'JwtClaim',
+    'NONE',
+    'NOT',
+    'OR',
+    'Policy'
+  ],
+  editable: true,
+  saveIndex: null,
+  searchIndex: null
+}
+"
+`;
+
+exports[`frodo authz set describe "frodo authz set describe -i test-policy-set": should describe the test-policy-set set 1`] = `
+"displayName        │Test Policy Set                                             
+name               │test-policy-set                                             
+description        │Test Policy Set Description                                 
+createdBy          │id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config
+creationDate       │1693494279401                                               
+lastModifiedBy     │id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config
+lastModifiedDate   │1693495339089                                               
+resourceComparator │                                                            
+applicationType    │iPlanetAMWebAgentService                                    
+entitlementCombiner│DenyOverride                                                
+editable           │true                                                        
+saveIndex          │                                                            
+searchIndex        │                                                            
+                   │                                                            
+  conditions       │                                                            
+                  0│AMIdentityMembership                                        
+                  1│AND                                                         
+                  2│AuthLevel                                                   
+                  3│AuthScheme                                                  
+                  4│AuthenticateToRealm                                         
+                  5│AuthenticateToService                                       
+                  6│IPv4                                                        
+                  7│IPv6                                                        
+                  8│LDAPFilter                                                  
+                  9│LEAuthLevel                                                 
+                 10│NOT                                                         
+                 11│OAuth2Scope                                                 
+                 12│OR                                                          
+                 13│Policy                                                      
+                 14│ResourceEnvIP                                               
+                 15│Script                                                      
+                 16│Session                                                     
+                 17│SessionProperty                                             
+                 18│SimpleTime                                                  
+                 19│Transaction                                                 
+                   │                                                            
+  resourceTypeUuids│                                                            
+                  0│76656a38-5f8e-401b-83aa-4ccb74ce88d2                        
+                   │                                                            
+  subjects         │                                                            
+                  0│AND                                                         
+                  1│AuthenticatedUsers                                          
+                  2│Identity                                                    
+                  3│JwtClaim                                                    
+                  4│NONE                                                        
+                  5│NOT                                                         
+                  6│OR                                                          
+                  7│Policy                                                      
+"
+`;

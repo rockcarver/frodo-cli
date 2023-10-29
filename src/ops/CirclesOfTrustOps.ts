@@ -103,7 +103,7 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
           .join('\n'),
       ]);
     });
-    printMessage(table.toString());
+    printMessage(table.toString(), 'data');
     outcome = true;
   }
   return outcome;

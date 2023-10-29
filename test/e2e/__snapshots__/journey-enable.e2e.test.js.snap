@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo journey enable "frodo journey enable --journey-id j10": should do nothing special when enabling the journey with id "j10" when it is already enabled 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Enabling journey j10...
+✔ Enabled journey j10.
+"
+`;
+
+exports[`frodo journey enable "frodo journey enable -i j10": should enable the journey with id "j10" 1`] = `""`;
