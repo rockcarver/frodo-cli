@@ -32,6 +32,7 @@ Options:
                                output helpful for troubleshooting.
   -f, --file <file>            Name of the file to write the exported
                                journey(s) to. Ignored with -A.
+  --flush-cache                Flush token cache.
   -h, --help                   Help
   -i, --journey-id <journey>   Name of a journey/tree. If specified, -a and -A
                                are ignored.
@@ -56,6 +57,7 @@ Options:
                                templates or how to walk through the tenant
                                admin login flow of Identity Cloud and handle
                                MFA (choices: "classic", "cloud", "forgeops")
+  --no-cache                   Disable token cache for this operation.
   --no-deps                    Do not include any dependencies (scripts, email
                                templates, SAML entity providers and circles of
                                trust, social identity providers, themes).
@@ -82,6 +84,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.

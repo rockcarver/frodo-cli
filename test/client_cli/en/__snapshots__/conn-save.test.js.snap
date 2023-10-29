@@ -16,6 +16,7 @@ Options:
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+  --flush-cache                                Flush token cache.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
@@ -25,6 +26,7 @@ Options:
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
   The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  --no-cache                                   Disable token cache for this operation.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
@@ -39,6 +41,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
@@ -74,6 +77,7 @@ Options:
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+  --flush-cache                                Flush token cache.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
@@ -83,6 +87,7 @@ Options:
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
   The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  --no-cache                                   Disable token cache for this operation.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
@@ -97,6 +102,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
@@ -132,6 +138,7 @@ Options:
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+  --flush-cache                                Flush token cache.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
@@ -141,6 +148,7 @@ Options:
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
   The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  --no-cache                                   Disable token cache for this operation.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
@@ -155,6 +163,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
@@ -190,6 +199,7 @@ Options:
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+  --flush-cache                                Flush token cache.
   -h, --help                                   Help
   -k, --insecure                               Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
   --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
@@ -199,6 +209,7 @@ Options:
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
   The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  --no-cache                                   Disable token cache for this operation.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
@@ -213,6 +224,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.

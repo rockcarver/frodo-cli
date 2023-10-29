@@ -26,6 +26,7 @@ Options:
                                    specified, may or may not produce additional
                                    output helpful for troubleshooting.
   --description [description]      Variable description.
+  --flush-cache                    Flush token cache.
   -h, --help                       Help
   -i, --variable-id <variable-id>  Variable id.
   -k, --insecure                   Allow insecure connections when using
@@ -50,6 +51,7 @@ Options:
                                    admin login flow of Identity Cloud and
                                    handle MFA (choices: "classic", "cloud",
                                    "forgeops")
+  --no-cache                       Disable token cache for this operation.
   --sa-id <sa-id>                  Service account id.
   --sa-jwk-file <file>             File containing the JSON Web Key (JWK)
                                    associated with the the service account.
@@ -68,6 +70,7 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
