@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   rockcarver/frodo-lib#53: Frodo Library now uses a file-based secure token cache to persist session and access tokens for re-use. The cached tokens are protected by the credential that was used to obtain them. Session tokens are encrypted using the hashed password as the master key, access tokens are encrypted using the hashed JWK private key as the master key. Therefore only users and processes with the correct credentials can access the tokens in the cache.
+
+    -   The new default behavior is for Frodo CLI to use the new token cache for all applicable commands.
+    -   A new global option `--no-cache` has been added to all commands to allow disabling the cache for indiviual invocations.
+    -   A new environment variable `FRODO_NO_CACHE` is available to globally turn off token caching.
+    -   A new environment variable `FRODO_TOKEN_CACHE_PATH` is available to instruct Frodo Library to use a non-default token cache file.
+
+-   rockcarver/frodo-lib#340: Frodo Library now autotomatically refreshes expired session and access tokens.
+
+    -   The new default behavior is for Frodo CLI to automatically refresh tokens. This will only ever be noticeable during long-running operations like `frodo journey prune` or `frodo esv apply` that can take longer than 15 mins to complete.
+
+### Fixed
+
+-   \#316: Frodo Library now properly exports scripts referenced by the `Device Match` node if the `Use Custom Matching Script` option is selected.
+
 ## [2.0.0-28] - 2023-10-25
 
 ## [2.0.0-27] - 2023-10-22
