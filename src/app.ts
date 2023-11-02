@@ -27,6 +27,7 @@ import { printMessage } from './utils/Console';
 import { getVersions } from './utils/Version';
 
 const { initConnectionProfiles } = frodo.conn;
+const { initTokenCache } = frodo.cache;
 
 (async () => {
   try {
@@ -38,6 +39,7 @@ const { initConnectionProfiles } = frodo.conn;
     printMessage(await getVersions(true), 'text', false);
 
     await initConnectionProfiles();
+    await initTokenCache();
 
     program.addCommand(admin());
     program.addCommand(agent());
