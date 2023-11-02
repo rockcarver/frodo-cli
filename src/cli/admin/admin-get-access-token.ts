@@ -41,14 +41,12 @@ program
         printMessage(
           `Getting an access token using client "${options.clientId}"...`
         );
-        const response = (
-          await clientCredentialsGrant(
-            state.getHost(),
-            options.clientId,
-            options.clientSecret,
-            options.scope
-          )
-        ).data;
+        const response = await clientCredentialsGrant(
+          state.getHost(),
+          options.clientId,
+          options.clientSecret,
+          options.scope
+        );
         printMessage(`Token: ${response.access_token}`);
       } else {
         process.exitCode = 1;

@@ -34,7 +34,7 @@ program
       if (await getTokens()) {
         printMessage(
           `Granting oauth2 client "${
-            options.target
+            options.clientId || options.target
           }" in realm "${state.getRealm()}" admin privileges...`
         );
         await grantOAuth2ClientAdminPrivileges(

@@ -1,5 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { ReadableStrings } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import { Readable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import type {
   OAuth2ClientExportInterface,
   OAuth2ClientExportOptions,
@@ -68,10 +68,12 @@ export async function listOAuth2Clients(long = false) {
             ? 'Active'['brightGreen']
             : (client.coreOAuth2ClientConfig.status as string)['brightRed'],
           client.coreOAuth2ClientConfig.clientType,
-          (client.advancedOAuth2ClientConfig.grantTypes as ReadableStrings)
+          (client.advancedOAuth2ClientConfig.grantTypes as Readable<string[]>)
             .map((type) => grantTypesMap[type])
             .join('\n'),
-          (client.coreOAuth2ClientConfig.scopes as ReadableStrings).join('\n'),
+          (client.coreOAuth2ClientConfig.scopes as Readable<string[]>).join(
+            '\n'
+          ),
           (client.coreOAuth2ClientConfig.redirectionUris as string[]).join(
             '\n'
           ),

@@ -31,6 +31,7 @@ Options:
   -f, --file <file>                 Name of the journey export file to
                                     describe. Ignored with -A.
   -F, --output-file <file>          Name of the file to write the output to.
+  --flush-cache                     Flush token cache.
   -h, --help                        Help
   -i, --journey-id <journey>        Name of a journey/tree. If specified, -a
                                     and -A are ignored.
@@ -59,6 +60,7 @@ Options:
                                     handle MFA (choices: "classic", "cloud",
                                     "forgeops")
   --markdown                        Output in markdown.
+  --no-cache                        Disable token cache for this operation.
   -o, --override-version <version>  Override version. Notation:
                                     '<major>.<minor>.<patch>' e.g. '7.2.0'.
                                     Override detected version with any version.
@@ -81,11 +83,13 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
+  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
-  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
+  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;

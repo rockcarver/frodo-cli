@@ -29,6 +29,7 @@ Options:
                                specified, may or may not produce additional
                                output helpful for troubleshooting.
   -f, --file <file>            Name of the file to import.
+  --flush-cache                Flush token cache.
   -h, --help                   Help
   -k, --insecure               Allow insecure connections when using SSL/TLS.
                                Has no effect when using a network proxy for
@@ -53,6 +54,7 @@ Options:
                                MFA (choices: "classic", "cloud", "forgeops")
   -n, --script-name <name>     Name of the script. If specified, -a and -A are
                                ignored.
+  --no-cache                   Disable token cache for this operation.
   --re-uuid                    Re-UUID. Create a new UUID for the script upon
                                import. Use this to duplicate a script or create
                                a new version of the same script. Note that you
@@ -78,11 +80,13 @@ Evironment Variables:
   FRODO_PASSWORD: Password. Overrides 'password' argument.
   FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
+  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
   FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
-  FRODO_MASTER_KEY: Use this master key instead of '~/.frodo/masterkey.key' file. Takes precedence over FRODO_MASTER_KEY_PATH.
+  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
 
 "
 `;
