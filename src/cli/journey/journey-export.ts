@@ -51,15 +51,15 @@ program
       'Do not include any dependencies (scripts, email templates, SAML entity providers and circles of trust, social identity providers, themes).'
     )
   )
-  .addOption(
-    new Option(
-      '-O, --organize <method>',
-      'Organize exports into folders using the indicated method. Valid values for method:\n' +
-        'id: folders named by id of exported object\n' +
-        'type: folders named by type (e.g. script, journey, idp)\n' +
-        'type/id: folders named by type with sub-folders named by id'
-    )
-  )
+  // .addOption(
+  //   new Option(
+  //     '-O, --organize <method>',
+  //     'Organize exports into folders using the indicated method. Valid values for method:\n' +
+  //       'id: folders named by id of exported object\n' +
+  //       'type: folders named by type (e.g. script, journey, idp)\n' +
+  //       'type/id: folders named by type with sub-folders named by id'
+  //   )
+  // )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
