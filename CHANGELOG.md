@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-29] - 2023-11-02
+
 ### Added
 
 -   rockcarver/frodo-lib#53: Frodo Library now uses a file-based secure token cache to persist session and access tokens for re-use. The cached tokens are protected by the credential that was used to obtain them. Session tokens are encrypted using the hashed password as the master key, access tokens are encrypted using the hashed JWK private key as the master key. Therefore only users and processes with the correct credentials can access the tokens in the cache.
@@ -1388,7 +1390,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-28...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-29...HEAD
+
+[2.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-28...v2.0.0-29
 
 [2.0.0-28]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-27...v2.0.0-28
 
