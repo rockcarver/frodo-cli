@@ -25,7 +25,7 @@ import {
 import wordwrap from './utils/Wordwrap';
 
 const { decodeBase64, getFilePath } = frodo.utils;
-const { resolveUserName } = frodo.idm.managed;
+const { resolvePerpetratorUuid } = frodo.idm.managed;
 const {
   readVariables,
   readVariable,
@@ -66,7 +66,7 @@ export async function listVariables(long) {
         wordwrap(variable.description, 40),
         state.getUseBearerTokenForAmApis()
           ? variable.lastChangedBy
-          : await resolveUserName('teammember', variable.lastChangedBy),
+          : await resolvePerpetratorUuid(variable.lastChangedBy),
         new Date(variable.lastChangeDate).toUTCString(),
       ]);
     }
@@ -189,29 +189,37 @@ export async function deleteVariables() {
  * Describe a variable
  * @param {string} variableId variable id
  */
-export async function describeVariable(variableId) {
+export async function describeVariable(variableId, json = false) {
   const variable = await readVariable(variableId);
-  const table = createKeyValueTable();
-  table.push(['Name'['brightCyan'], variable._id]);
-  table.push([
-    'Value'['brightCyan'],
-    wordwrap(decodeBase64(variable.valueBase64), 40),
-  ]);
-  table.push([
-    'Status'['brightCyan'],
-    variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-  ]);
-  table.push(['Description'['brightCyan'], wordwrap(variable.description, 60)]);
-  table.push([
-    'Modified'['brightCyan'],
-    new Date(variable.lastChangeDate).toLocaleString(),
-  ]);
-  table.push([
-    'Modifier'['brightCyan'],
-    await resolveUserName('teammember', variable.lastChangedBy),
-  ]);
-  table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
-  printMessage(table.toString(), 'data');
+  if (json) {
+    printMessage(variable, 'data');
+  } else {
+    const table = createKeyValueTable();
+    table.push(['Name'['brightCyan'], variable._id]);
+    table.push([
+      'Value'['brightCyan'],
+      wordwrap(decodeBase64(variable.valueBase64), 40),
+    ]);
+    table.push(['Type'['brightCyan'], variable.expressionType]);
+    table.push([
+      'Status'['brightCyan'],
+      variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+    ]);
+    table.push([
+      'Description'['brightCyan'],
+      wordwrap(variable.description, 60),
+    ]);
+    table.push([
+      'Modified'['brightCyan'],
+      new Date(variable.lastChangeDate).toLocaleString(),
+    ]);
+    const modifierName = await resolvePerpetratorUuid(variable.lastChangedBy);
+    if (modifierName && modifierName !== variable.lastChangedBy) {
+      table.push(['Modifier'['brightCyan'], modifierName]);
+    }
+    table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
+    printMessage(table.toString(), 'data');
+  }
 }
 
 /**

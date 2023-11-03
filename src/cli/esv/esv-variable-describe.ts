@@ -17,6 +17,7 @@ program
       'Variable id.'
     ).makeOptionMandatory()
   )
+  .addOption(new Option('--json', 'Output in JSON format.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -30,7 +31,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Describing variable ${options.variableId}...`);
-        describeVariable(options.variableId);
+        describeVariable(options.variableId, options.json);
       } else {
         process.exitCode = 1;
       }
