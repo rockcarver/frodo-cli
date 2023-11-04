@@ -28,6 +28,7 @@ Options:
   --flush-cache                    Flush token cache.
   -h, --help                       Help
   -i, --variable-id <variable-id>  Variable id.
+  --json                           Output in JSON format.
   -k, --insecure                   Allow insecure connections when using
                                    SSL/TLS. Has no effect when using a network
                                    proxy for https
