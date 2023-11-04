@@ -10,6 +10,7 @@ Options:
 Commands:
   admin                                                 Platform admin tasks.
   agent                                                 Manage agents.
+  authn                                                 Manage authentication settings.
   authz                                                 Manage authotiztion policies, policy sets, and resource types.
   app                                                   Manage applications.
   conn|connection                                       Manage connection profiles.

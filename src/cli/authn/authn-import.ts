@@ -1,23 +1,17 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { describeVariable } from '../../ops/VariablesOps';
-import { verboseMessage } from '../../utils/Console.js';
+import { importAuthenticationSettingsFromFile } from '../../ops/AuthenticationSettingsOps';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
-const program = new FrodoCommand('frodo esv variable describe');
+const program = new FrodoCommand('frodo authn import');
 
 program
-  .description('Describe variables.')
-  .addOption(
-    new Option(
-      '-i, --variable-id <variable-id>',
-      'Variable id.'
-    ).makeOptionMandatory()
-  )
-  .addOption(new Option('--json', 'Output in JSON format.'))
+  .description('Import authentication settings.')
+  .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -30,8 +24,9 @@ program
         command
       );
       if (await getTokens()) {
-        verboseMessage(`Describing variable ${options.variableId}...`);
-        describeVariable(options.variableId, options.json);
+        verboseMessage('Importing authentication settings from file...');
+        const outcome = importAuthenticationSettingsFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

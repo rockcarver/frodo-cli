@@ -1,22 +1,16 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { describeVariable } from '../../ops/VariablesOps';
-import { verboseMessage } from '../../utils/Console.js';
+import { describeAuthenticationSettings } from '../../ops/AuthenticationSettingsOps';
+import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
-const program = new FrodoCommand('frodo esv variable describe');
+const program = new FrodoCommand('frodo authn describe');
 
 program
-  .description('Describe variables.')
-  .addOption(
-    new Option(
-      '-i, --variable-id <variable-id>',
-      'Variable id.'
-    ).makeOptionMandatory()
-  )
+  .description('Describe authentication settings.')
   .addOption(new Option('--json', 'Output in JSON format.'))
   .action(
     // implement command logic inside action handler
@@ -30,9 +24,14 @@ program
         command
       );
       if (await getTokens()) {
-        verboseMessage(`Describing variable ${options.variableId}...`);
-        describeVariable(options.variableId, options.json);
-      } else {
+        verboseMessage(`Describing authentication settings...`);
+        const outcome = await describeAuthenticationSettings(options.json);
+        if (!outcome) process.exitCode = 1;
+      }
+      // unrecognized combination of options or no options
+      else {
+        verboseMessage('Unrecognized combination of options or no options...');
+        program.help();
         process.exitCode = 1;
       }
     }
