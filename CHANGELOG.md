@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-30] - 2023-11-04
+
 ### Added
 
 -   \#283: Support for authentication settings:
@@ -24,14 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         `frodo authn describe --json <myTenant> <realm>`
 
         `frodo authn describe <myTenant> <username> <password>`
+
     -   Describe authentication settings in machine-readable format (json):<br>
         `frodo authn describe --json <myTenant> <realm>`
 
         `frodo authn describe --json <myTenant> <realm> <username> <password>`
+
     -   Export authentication settings to file:<br>
         `frodo authn export <myTenant> <realm>`
 
         `frodo authn export <myTenant> <realm> <username> <password>`
+
     -   Import authentication settings from file:<br>
         `frodo authn import -f alphaRealm.authentication.settings.json <myTenant> <realm>`
 
@@ -1422,7 +1427,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-29...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-30...HEAD
+
+[2.0.0-30]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-29...v2.0.0-30
 
 [2.0.0-29]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-28...v2.0.0-29
 
