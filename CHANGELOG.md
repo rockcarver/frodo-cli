@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   \#283: Support for authentication settings:
+
+    -   `frodo authn`  Manage authentication setting.
+        -   `describe` List authentication settings.
+        -   `export`   Export authentication settings.
+        -   `import`   Import authentication settings.
+
+    Examples:
+
+    -   Describe authentication settings:<br>
+        `frodo authn describe <myTenant> <realm>`
+
+        `frodo authn describe --json <myTenant> <realm>`
+
+        `frodo authn describe <myTenant> <username> <password>`
+    -   Describe authentication settings in machine-readable format (json):<br>
+        `frodo authn describe --json <myTenant> <realm>`
+
+        `frodo authn describe --json <myTenant> <realm> <username> <password>`
+    -   Export authentication settings to file:<br>
+        `frodo authn export <myTenant> <realm>`
+
+        `frodo authn export <myTenant> <realm> <username> <password>`
+    -   Import authentication settings from file:<br>
+        `frodo authn import -f alphaRealm.authentication.settings.json <myTenant> <realm>`
+
+        `frodo authn import -f alphaRealm.authentication.settings.json <myTenant> <realm> <username> <password>`<br>
+
+    -   \#217: Support `--json` with `frodo esv variable describe`.
+
 ## [2.0.0-29] - 2023-11-02
 
 ### Added

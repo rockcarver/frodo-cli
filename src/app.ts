@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import admin from './cli/admin/admin';
 import agent from './cli/agent/agent';
 import app from './cli/app/app';
+import authn from './cli/authn/authn';
 import authz from './cli/authz/authz';
 import conn from './cli/conn/conn';
 import email from './cli/email/email';
@@ -43,6 +44,7 @@ const { initTokenCache } = frodo.cache;
 
     program.addCommand(admin());
     program.addCommand(agent());
+    program.addCommand(authn());
     program.addCommand(authz());
     program.addCommand(app());
     program.addCommand(conn());
