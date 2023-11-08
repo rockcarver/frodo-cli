@@ -232,7 +232,6 @@ jobs:
             Release.txt
             frodo-linux-${{ needs.build.outputs.newVersion }}.zip
             frodo-macos-${{ needs.build.outputs.newVersion }}.zip
-            frodo-macos-${{ needs.build.outputs.newVersion }}.dmg
             frodo-win-${{ needs.build.outputs.newVersion }}.zip
             frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -346,6 +345,16 @@ jobs:
       - name: Build
         run: npm run dist-pkg
 
+      - name: Sign distribution binary
+        run: |
+          cat > entitlements.plist <<DELIM
+          <dict>
+            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <true/>
+          </dict>
+          DELIM
+          codesign -f -s 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp --deep frodo
+
       #
       # Fail early on failing tests.
       #
@@ -355,53 +364,16 @@ jobs:
           ./frodo journey -h
           ./frodo journey export -h
 
-      - name: Install gon via HomeBrew for code signing and app notarization
-        run: |
-          brew tap mitchellh/gon
-          brew install mitchellh/gon/gon
+      - name: Create zip file
+        run: ditto -c -k frodo frodo-macos-${{ needs.build.outputs.newVersion }}.zip
 
       - name: Notorize
-        env:
-          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-        run: |
-          cat > entitlements.plist <<DELIM
-          <dict>
-            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
-            <true/>
-          </dict>
-          DELIM
-          cat > ./gon.json <<DELIM
-          {
-            "source" : ["./frodo"],
-            "bundle_id" : "rockcarver.frodo.cli",
-            "apple_id": {
-              "username" : "${{ secrets.AC_USERNAME }}",
-              "password":  "@env:AC_PASSWORD"
-            },
-            "sign" :{
-              "application_identity" : "Developer ID Application: Volker Scheuber (AV6L99G8W9)",
-              "entitlements_file" : "entitlements.plist"
-            },
-            "dmg" :{
-              "output_path":  "frodo-macos-${{ needs.build.outputs.newVersion }}.dmg",
-              "volume_name":  "frodo"
-            },
-            "zip" :{
-              "output_path" : "frodo-macos-${{ needs.build.outputs.newVersion }}.zip"
-            }
-          }
-          DELIM
-          gon -log-level=debug -log-json gon.json
+        run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-${{ needs.build.outputs.newVersion }}.zip
 
       - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: frodo-macos-${{ needs.build.outputs.newVersion }}.dmg
 
   linux-binary-release:
     # run on PRs for e2e testing binary builds as linux builds do not require secrets.
