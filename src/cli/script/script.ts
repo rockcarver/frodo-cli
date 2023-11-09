@@ -18,7 +18,7 @@ export default function setup() {
 
   program.command('import', 'Import scripts.');
 
-  // program.command('delete', 'Delete scripts.');
+  program.command('delete', 'Delete scripts.');
 
   return program;
 }

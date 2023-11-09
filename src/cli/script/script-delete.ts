@@ -1,27 +1,36 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import {
+  deleteAllScripts,
+  deleteScriptId,
+  deleteScriptName,
+} from '../../ops/ScriptOps';
+import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
 
-const program = new FrodoCommand('frodo cmd delete');
+const program = new FrodoCommand('frodo script delete');
 
 program
-  .description('Cmd delete.')
+  .description('Delete scripts.')
   .addOption(
     new Option(
-      '-i, --cmd-id <cmd-id>',
-      'Cmd id. If specified, -a and -A are ignored.'
+      '-i, --script-id <script>',
+      'id of a script. If specified, -a and -A are ignored.'
     )
   )
   .addOption(
-    new Option('-a, --all', 'Delete all cmds in a realm. Ignored with -i.')
+    new Option(
+      '-n, --script-name <script>',
+      'name of a script. If specified, -a and -A are ignored.'
+    )
   )
   .addOption(
     new Option(
-      '--no-deep',
-      'No deep delete. This leaves orphaned configuration artifacts behind.'
+      '-a, --all',
+      'Delete all non-default scripts in a realm. Ignored with -i.'
     )
   )
   .action(
@@ -35,9 +44,29 @@ program
         options,
         command
       );
-      if (await getTokens()) {
-        // code goes here
+      if (options.scriptId && (await getTokens())) {
+        verboseMessage(
+          `Deleting script ${
+            options.scriptId
+          } in realm "${state.getRealm()}"...`
+        );
+        deleteScriptId(options.scriptId);
+      } else if (options.scriptName && (await getTokens())) {
+        verboseMessage(
+          `Deleting script ${
+            options.scriptName
+          } in realm "${state.getRealm()}"...`
+        );
+        deleteScriptName(options.scriptName);
+      } else if (options.all && (await getTokens())) {
+        verboseMessage('Deleting all non-default scripts...');
+        deleteAllScripts();
       } else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
         process.exitCode = 1;
       }
     }

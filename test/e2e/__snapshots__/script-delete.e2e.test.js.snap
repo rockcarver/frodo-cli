@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo script delete "frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id 'e15a13ee-9168-40cf-934f-656a5f568a6a' cannot be deleted since it hashdeviceProfile 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting e15a13ee-9168-40cf-934f-656a5f568a6a...
+✖ Error: Request failed with status code 404
+"
+`;
+
+exports[`frodo script delete "frodo script delete --script-name 'hashdeviceProfile'": should display error when the script named 'hashdeviceProfile' cannot be deleted since it hashdeviceProfile 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+- Deleting hashdeviceProfile...
+✖ Error: Script with name hashdeviceProfile does not exist.
+"
+`;
+
+exports[`frodo script delete "frodo script delete -i e15a13ee-9168-40cf-934f-656a5f568a6a": should delete the script with id 'e15a13ee-9168-40cf-934f-656a5f568a6a' 1`] = `""`;
+
+exports[`frodo script delete "frodo script delete -n 'hashdeviceProfile'": should delete the script named 'hashdeviceProfile' 1`] = `""`;
