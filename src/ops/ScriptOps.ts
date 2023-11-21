@@ -6,6 +6,7 @@ import fs from 'fs';
 
 import {
   createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
@@ -13,6 +14,7 @@ import {
   showSpinner,
   spinSpinner,
   stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
   updateProgressBar,
 } from '../utils/Console';
@@ -30,6 +32,9 @@ const {
   exportScriptByName,
   exportScripts,
   importScripts,
+  deleteScript,
+  deleteScriptByName,
+  deleteScripts,
 } = frodo.script;
 
 const { isBase64Encoded, getFilePath, getWorkingDirectory } = frodo.utils;
@@ -530,4 +535,49 @@ function getScriptId(script: ScriptExportInterface): string {
     throw new Error(`Expected 1 script, found ${scriptIds.length}`);
   }
   return scriptIds[0];
+}
+
+/**
+ * Delete script by id
+ * @param {String} id script id
+ */
+export async function deleteScriptId(id) {
+  createProgressIndicator('indeterminate', undefined, `Deleting ${id}...`);
+  try {
+    await deleteScript(id);
+    stopProgressIndicator(`Deleted ${id}.`, 'success');
+  } catch (error) {
+    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+  }
+}
+
+/**
+ * Delete script by name
+ * @param {String} name script name
+ */
+export async function deleteScriptName(name) {
+  createProgressIndicator('indeterminate', undefined, `Deleting ${name}...`);
+  try {
+    await deleteScriptByName(name);
+    stopProgressIndicator(`Deleted ${name}.`, 'success');
+  } catch (error) {
+    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+  }
+}
+
+/**
+ * Delete all non-default scripts
+ */
+export async function deleteAllScripts() {
+  createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting all non-default scripts...`
+  );
+  try {
+    await deleteScripts();
+    stopProgressIndicator(`Deleted all non-default scripts.`, 'success');
+  } catch (error) {
+    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+  }
 }

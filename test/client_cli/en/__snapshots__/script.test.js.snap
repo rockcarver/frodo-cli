@@ -9,6 +9,7 @@ Options:
   -h, --help      Help
 
 Commands:
+  delete          Delete scripts.
   export          Export scripts.
   help [command]  display help for command
   import          Import scripts.
