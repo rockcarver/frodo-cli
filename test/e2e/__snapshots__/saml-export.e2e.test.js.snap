@@ -3121,7 +3121,7 @@ exports[`frodo saml export "frodo saml export --all-separate --directory samlExp
 }
 `;
 
-exports[`frodo saml export "frodo saml export --all-separate --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3: samlExportTestDir3/urn:federation:MicrosoftOnline.saml.json 1`] = `
+exports[`frodo saml export "frodo saml export --all-separate --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3: samlExportTestDir3/urnfederationMicrosoftOnline.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
@@ -4114,7 +4114,7 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 }
 `;
 
-exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./urn:federation:MicrosoftOnline.saml.json 1`] = `
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./urnfederationMicrosoftOnline.saml.json 1`] = `
 {
   "meta": Any<Object>,
   "saml": {
