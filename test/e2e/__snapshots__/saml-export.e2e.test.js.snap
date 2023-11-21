@@ -11313,7 +11313,11 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 }
 `;
 
+<<<<<<< HEAD
 exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: urnfederationMicrosoftOnline.saml.json 1`] = `
+=======
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: ./urnfederationMicrosoftOnline.saml.json 1`] = `
+>>>>>>> 6d3aabb3 (update snapshots)
 {
   "meta": Any<Object>,
   "saml": {
