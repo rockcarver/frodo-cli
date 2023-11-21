@@ -4555,6 +4555,990 @@ if (situation === "FOUND") {
 }
 `;
 
+exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD": EncoreAD.application.json 1`] = `
+{
+  "application": {},
+  "connector": {
+    "EncoreAD": {
+      "_id": "provisioner.openicf/EncoreAD",
+      "configurationProperties": {
+        "accountObjectClasses": [
+          "top",
+          "person",
+          "organizationalPerson",
+          "user",
+        ],
+        "accountSearchFilter": "(objectClass=User)",
+        "accountSynchronizationFilter": null,
+        "accountUserNameAttributes": [
+          "uid",
+          "cn",
+        ],
+        "allowTreeDelete": false,
+        "alternateKeyStore": null,
+        "alternateKeyStorePassword": null,
+        "alternateKeyStoreType": null,
+        "attributesToSynchronize": [],
+        "authType": "simple",
+        "baseContexts": [
+          "OU=Encore,DC=ad-volker-demo,DC=encore,DC=forgerock,DC=org",
+        ],
+        "baseContextsToSynchronize": [],
+        "blockSize": 100,
+        "changeLogBlockSize": 100,
+        "changeNumberAttribute": "changeNumber",
+        "checkAliveMinInterval": 60,
+        "connectionTimeout": 30000,
+        "convertADIntervalToISO8601": [
+          "pwdLastSet",
+          "accountExpires",
+          "lockoutTime",
+          "lastLogon",
+        ],
+        "convertGTToISO8601": [
+          "whenCreated",
+          "whenChanged",
+        ],
+        "credentials": {
+          "$crypto": {
+            "type": "x-simple-encryption",
+            "value": {
+              "cipher": "AES/CBC/PKCS5Padding",
+              "data": "ReilS5BMTftYl2t8OZvtaQ==",
+              "iv": "jdqo9Kvv2ZxpWoywTUmT7w==",
+              "keySize": 16,
+              "mac": "N7QnFAv3SNRsBzEau1iDDg==",
+              "purpose": "idm.config.encryption",
+              "salt": "ut6NNENf3Op7SOjJuXdSdw==",
+              "stableId": "openidm-sym-default",
+            },
+          },
+        },
+        "failover": [],
+        "filterWithOrInsteadOfAnd": false,
+        "getGroupMemberId": false,
+        "groupMemberAttribute": "member",
+        "groupObjectClasses": [
+          "top",
+          "groupOfUniqueNames",
+        ],
+        "groupSearchFilter": "(&(!(cn=Domain Users))(objectClass=group))",
+        "groupSynchronizationFilter": null,
+        "gssapiLoginContext": null,
+        "host": "volker-demo.ad-volker-demo.encore.forgerock.org",
+        "hostNameVerification": false,
+        "hostNameVerifierPattern": null,
+        "lastCheckAlive": 1674482716432,
+        "maintainLdapGroupMembership": false,
+        "maintainPosixGroupMembership": false,
+        "modifiersNamesToFilterOut": [],
+        "objectClassesToSynchronize": [
+          "user",
+        ],
+        "passwordAttribute": "unicodePwd",
+        "passwordHashAlgorithm": "WIN-AD",
+        "port": 636,
+        "principal": "CN=root,CN=Users,DC=ad-volker-demo,DC=encore,DC=forgerock,DC=org",
+        "privateKeyAlias": null,
+        "readSchema": false,
+        "referralsHandling": "follow",
+        "removeLogEntryObjectClassFromFilter": true,
+        "resetSyncToken": "never",
+        "respectResourcePasswordPolicyChangeAfterReset": false,
+        "sendCAUDTxId": false,
+        "ssl": true,
+        "startTLS": false,
+        "uidAttribute": "objectGUID",
+        "useBlocks": true,
+        "useDNSSRVRecord": false,
+        "useOldADGUIDFormat": false,
+        "usePagedResultControl": true,
+        "useTimestampsForSync": false,
+        "vlvSortAttribute": "sAMAccountName",
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.ldap-connector",
+        "bundleVersion": "1.5.20.12",
+        "connectorHostRef": "adrcs",
+        "connectorName": "org.identityconnectors.ldap.LdapConnector",
+        "displayName": "LDAP Connector",
+        "systemType": "provisioner.openicf",
+      },
+      "enabled": true,
+      "objectTypes": {
+        "Group": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__GROUP__",
+          "nativeType": "__GROUP__",
+          "properties": {
+            "cn": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "cn",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "displayName": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "objectGUID": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "objectGUID",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "uSNChanged": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "uSNChanged",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "uSNCreated": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "uSNCreated",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "whenChanged": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "whenChanged",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "whenCreated": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "whenCreated",
+              "nativeType": "string",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+        "User": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__ENABLE__": {
+              "nativeName": "__ENABLE__",
+              "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
+              "required": false,
+              "type": "boolean",
+              "userSpecific": true,
+            },
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "__PASSWORD__": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT",
+              ],
+              "nativeName": "__PASSWORD__",
+              "nativeType": "JAVA_TYPE_GUARDEDSTRING",
+              "type": "JAVA_TYPE_GUARDEDSTRING",
+            },
+            "accountExpires": {
+              "nativeName": "accountExpires",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "c": {
+              "nativeName": "c",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "cn": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "cn",
+              "nativeType": "string",
+              "required": false,
+              "type": "string",
+            },
+            "co": {
+              "nativeName": "co",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "company": {
+              "nativeName": "company",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "countryCode": {
+              "nativeName": "countryCode",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "department": {
+              "nativeName": "department",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "displayName": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "division": {
+              "nativeName": "division",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "employeeID": {
+              "nativeName": "employeeID",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "employeeNumber": {
+              "nativeName": "employeeNumber",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "employeeType": {
+              "nativeName": "employeeType",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "facsimileTelephoneNumber": {
+              "nativeName": "facsimileTelephoneNumber",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "givenName": {
+              "nativeName": "givenName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "homePhone": {
+              "nativeName": "homePhone",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "initials": {
+              "nativeName": "initials",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "l": {
+              "nativeName": "l",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "lastLogon": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "lastLogon",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "ldapGroups": {
+              "items": {
+                "nativeType": "string",
+                "type": "string",
+              },
+              "nativeName": "ldapGroups",
+              "nativeType": "string",
+              "required": false,
+              "type": "array",
+              "userSpecific": false,
+            },
+            "lockoutTime": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "lockoutTime",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "mail": {
+              "nativeName": "mail",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "manager": {
+              "nativeName": "manager",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "memberOf": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string",
+              },
+              "nativeName": "memberOf",
+              "nativeType": "string",
+              "type": "array",
+            },
+            "middleName": {
+              "nativeName": "middleName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "mobile": {
+              "nativeName": "mobile",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "objectGUID": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "objectGUID",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "otherHomePhone": {
+              "items": {
+                "nativeType": "string",
+                "type": "string",
+              },
+              "nativeName": "otherHomePhone",
+              "nativeType": "string",
+              "type": "array",
+            },
+            "physicalDeliveryOfficeName": {
+              "nativeName": "physicalDeliveryOfficeName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "postOfficeBox": {
+              "items": {
+                "nativeType": "string",
+                "type": "string",
+              },
+              "nativeName": "postOfficeBox",
+              "nativeType": "string",
+              "type": "array",
+            },
+            "postalCode": {
+              "nativeName": "postalCode",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "pwdLastSet": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+              ],
+              "nativeName": "pwdLastSet",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "sAMAccountName": {
+              "nativeName": "sAMAccountName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "sn": {
+              "nativeName": "sn",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "st": {
+              "nativeName": "st",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "streetAddress": {
+              "nativeName": "streetAddress",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "telephoneNumber": {
+              "nativeName": "telephoneNumber",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "title": {
+              "nativeName": "title",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "uSNChanged": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "uSNChanged",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "uSNCreated": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "uSNCreated",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "userAccountControl": {
+              "nativeName": "userAccountControl",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "userPrincipalName": {
+              "nativeName": "userPrincipalName",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "whenChanged": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "whenChanged",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "whenCreated": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE",
+              ],
+              "nativeName": "whenCreated",
+              "nativeType": "string",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1,
+      },
+      "poolConfigOption": {
+        "maxIdle": 10,
+        "maxObjects": 10,
+        "maxWait": 150000,
+        "minEvictableIdleTimeMillis": 120000,
+        "minIdle": 1,
+      },
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false,
+      },
+    },
+  },
+  "managedApplication": {
+    "d7f62815-a835-4e2f-a69e-25e7f9019fc2": {
+      "_id": "d7f62815-a835-4e2f-a69e-25e7f9019fc2",
+      "authoritative": false,
+      "connectorId": "EncoreAD",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemEncoreadUser_managedAlpha_user",
+        "managedAlpha_user_systemEncoreadUser",
+      ],
+      "name": "EncoreAD",
+      "templateName": "active.directory",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "Group": {
+            "properties": {
+              "cn": {
+                "userSpecific": true,
+              },
+              "description": {
+                "userSpecific": true,
+              },
+              "displayName": {
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "userSpecific": true,
+              },
+            },
+          },
+          "User": {
+            "properties": {
+              "__ENABLE__": {
+                "userSpecific": true,
+              },
+              "__NAME__": {
+                "userSpecific": true,
+              },
+              "__PASSWORD__": {
+                "userSpecific": true,
+              },
+              "accountExpires": {
+                "userSpecific": true,
+              },
+              "c": {
+                "userSpecific": true,
+              },
+              "cn": {
+                "userSpecific": true,
+              },
+              "co": {
+                "userSpecific": true,
+              },
+              "company": {
+                "userSpecific": true,
+              },
+              "countryCode": {
+                "userSpecific": true,
+              },
+              "department": {
+                "userSpecific": true,
+              },
+              "description": {
+                "userSpecific": true,
+              },
+              "displayName": {
+                "userSpecific": true,
+              },
+              "division": {
+                "userSpecific": true,
+              },
+              "employeeID": {
+                "userSpecific": true,
+              },
+              "employeeNumber": {
+                "userSpecific": true,
+              },
+              "employeeType": {
+                "userSpecific": true,
+              },
+              "facsimileTelephoneNumber": {
+                "userSpecific": true,
+              },
+              "givenName": {
+                "userSpecific": true,
+              },
+              "homePhone": {
+                "userSpecific": true,
+              },
+              "initials": {
+                "userSpecific": true,
+              },
+              "l": {
+                "userSpecific": true,
+              },
+              "lastLogon": {
+                "userSpecific": true,
+              },
+              "ldapGroups": {},
+              "lockoutTime": {
+                "userSpecific": true,
+              },
+              "mail": {
+                "userSpecific": true,
+              },
+              "manager": {
+                "userSpecific": true,
+              },
+              "memberOf": {
+                "userSpecific": true,
+              },
+              "middleName": {
+                "userSpecific": true,
+              },
+              "mobile": {
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "userSpecific": true,
+              },
+              "otherHomePhone": {
+                "userSpecific": true,
+              },
+              "physicalDeliveryOfficeName": {
+                "userSpecific": true,
+              },
+              "postOfficeBox": {
+                "userSpecific": true,
+              },
+              "postalCode": {
+                "userSpecific": true,
+              },
+              "pwdLastSet": {
+                "userSpecific": true,
+              },
+              "sAMAccountName": {
+                "userSpecific": true,
+              },
+              "sn": {
+                "userSpecific": true,
+              },
+              "st": {
+                "userSpecific": true,
+              },
+              "streetAddress": {
+                "userSpecific": true,
+              },
+              "telephoneNumber": {
+                "userSpecific": true,
+              },
+              "title": {
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "userSpecific": true,
+              },
+              "userAccountControl": {
+                "userSpecific": true,
+              },
+              "userPrincipalName": {
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "userSpecific": true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "mapping": {
+    "managedAlpha_user_systemEncoreadUser": {
+      "_id": "sync/managedAlpha_user_systemEncoreadUser",
+      "consentRequired": false,
+      "displayName": "managedAlpha_user_systemEncoreadUser",
+      "icon": null,
+      "name": "managedAlpha_user_systemEncoreadUser",
+      "optimizeAssignmentSync": true,
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "givenName",
+          "target": "givenName",
+        },
+        {
+          "source": "cn",
+          "target": "cn",
+        },
+        {
+          "source": "sn",
+          "target": "sn",
+        },
+        {
+          "source": "userName",
+          "target": "sAMAccountName",
+        },
+        {
+          "source": "",
+          "target": "userPrincipalName",
+          "transform": {
+            "source": "\`\${source.userName}@ad-volker-demo.encore.forgerock.org\`;",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "__ENABLE__",
+          "transform": {
+            "source": "(source.accountStatus==='active') ? true : false;",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "__NAME__",
+          "transform": {
+            "source": "(source.accountStatus=="active")? \`cn=\${source.userName},ou=Encore,dc=ad-volker-demo,dc=encore,dc=forgerock,dc=org\`:\`cn=\${source.userName},ou=Inactive,ou=Encore,dc=ad-volker-demo,dc=encore,dc=forgerock,dc=org\`",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "__PASSWORD__",
+          "transform": {
+            "source": "openidm.decrypt(source.custom_encryptedPassword)",
+            "type": "text/javascript",
+          },
+        },
+      ],
+      "runTargetPhase": false,
+      "source": "managed/alpha_user",
+      "sourceCondition": "/source/effectiveApplications[_id eq "d7f62815-a835-4e2f-a69e-25e7f9019fc2"]",
+      "sourceQuery": {
+        "_queryFilter": "effectiveApplications[_id eq "d7f62815-a835-4e2f-a69e-25e7f9019fc2"] or lastSync/managedAlpha_user_systemEncoreadUser pr",
+      },
+      "target": "system/EncoreAD/User",
+    },
+    "systemEncoreadUser_managedAlpha_user": {
+      "_id": "sync/systemEncoreadUser_managedAlpha_user",
+      "consentRequired": false,
+      "correlationQuery": [
+        {
+          "linkQualifier": "default",
+          "source": "var qry = {'_queryFilter': 'mail eq "' + source.userPrincipalName + '"'}; qry",
+          "type": "text/javascript",
+        },
+      ],
+      "displayName": "systemEncoreadUser_managedAlpha_user",
+      "icon": null,
+      "links": "managedAlpha_user_systemEncoreadUser",
+      "name": "systemEncoreadUser_managedAlpha_user",
+      "onLink": {
+        "globals": {
+          "assignmentResCollection": "managed/alpha_assignment",
+        },
+        "source": "function javaIsEqual(old, other) {
+  var JsonPatch = org.forgerock.json.JsonPatch;
+  var JsonValue = org.forgerock.json.JsonValue;
+  return JsonPatch.diff(JsonValue(old), JsonValue(other)).asList().size() === 0;
+}
+
+if (situation === "FOUND") {
+  var params = {
+    "resourceId": targetId, 
+    "mapping": mappingConfig.links,
+    "linkQualifier": linkQualifier
+  };
+
+  // get the preview of the target object from the outbound mapping
+  var targetPreview = openidm.action("sync", "getTargetPreview", {}, params);
+  var attributes = [];
+
+  // find all values where target app user has different values from the correlated IDM user
+  Object.keys(source).filter(function (key) {
+    if (key in targetPreview) {
+      return !javaIsEqual(source[key], targetPreview[key]); 
+    } else {
+      return false
+    }
+  }).forEach(function (key) {
+    var attribute = {
+      "name": key,
+      "value": source[key]
+    };
+    attributes.push(attribute);
+  })
+
+  // create override assignment if any diff was found
+  if (attributes.length > 0) {
+    var assignment = {
+      "name": targetId + "-overrideAssignment",
+      "description": targetId + "override assignment",
+      "mapping": mappingConfig.links,
+      "attributes": attributes,
+      "type": "__OVERRIDE__",
+      "members": [{"_ref": mappingConfig.target + "/" + targetId}]
+    };
+    var assignmentResult = openidm.create(assignmentResCollection, null, assignment);
+    var result = openidm.action("sync", "getTargetPreview", {}, params);
+    Object.keys(source).forEach(function (key) {
+      if (typeof result[key] === "undefined" || javaIsEqual(source[key], result[key])) {
+        return
+      }
+      // unable to successfully recreate object being linked, delete assignment and throw exception
+      openidm.delete(assignmentResCollection + "/" + assignmentResult._id, null);
+      throw "Unable to successfully recreate " + sourceId + " with an assignment for " + targetId;
+    })
+  }
+}",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "LINK",
+          "postAction": {
+            "globals": {},
+            "source": "openidm.create("managed/alpha_user/"+target._id+"/applications",null,{_ref:"managed/alpha_application/d7f62815-a835-4e2f-a69e-25e7f9019fc2"})",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [],
+      "runTargetPhase": false,
+      "source": "system/EncoreAD/User",
+      "target": "managed/alpha_user",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo app export "frodo app export -A": should export all apps to separate files 1`] = `""`;
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: ./EncoreAD.application.json 1`] = `
@@ -12189,6 +13173,342 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
 }
 `;
 
+exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json: my-yet-another-allAlphaApplications.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
+      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+      "authoritative": true,
+      "connectorId": "HRLite",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemHrlite__account___managedAlpha_user",
+      ],
+      "name": "HRLite",
+      "templateName": "scripted.sql",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "__ACCOUNT__": {
+            "properties": {
+              "__NAME__": {},
+              "address": {},
+              "city": {},
+              "country": {},
+              "depId": {},
+              "depName": {},
+              "email": {},
+              "empType": {},
+              "firstName": {},
+              "isManager": {},
+              "jobCode": {},
+              "lastName": {},
+              "phone": {},
+              "postalCode": {},
+              "state": {},
+              "status": {},
+              "uid": {},
+            },
+          },
+          "department": {
+            "properties": {
+              "__NAME__": {},
+              "description": {},
+              "name": {},
+              "parent": {},
+              "uid": {},
+            },
+          },
+        },
+      },
+    },
+    "0e5811ab-ef31-401b-aaa1-70b523eafa55": {
+      "_id": "0e5811ab-ef31-401b-aaa1-70b523eafa55",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/puzzle.svg",
+      "name": "engineering",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fengineering&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Froles%2Fsaml",
+        "idpPrivateId": "ZW5naW5lZXJpbmctSURQ",
+        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-497",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvcm9sZXMvc2FtbA",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "1b3510cf-9352-4573-9cd8-1eaf36cc629c": {
+      "_id": "1b3510cf-9352-4573-9cd8-1eaf36cc629c",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/eolic-energy.svg",
+      "name": "company",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fcompany&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fcompany%2Fsaml",
+        "idpPrivateId": "Y29tcGFueS1JRFA",
+        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-481",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvY29tcGFueS9zYW1s",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "368b5b11-d8db-4079-98e9-0573934aef04": {
+      "_id": "368b5b11-d8db-4079-98e9-0573934aef04",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/infography.svg",
+      "name": "sales",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fsales&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fsales%2Fsaml",
+        "idpPrivateId": "c2FsZXMtSURQ",
+        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-503",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvc2FsZXMvc2FtbA",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "9fb975e4-9723-4fac-9fe7-ee25053c6218": {
+      "_id": "9fb975e4-9723-4fac-9fe7-ee25053c6218",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/hot-air-balloon.svg",
+      "name": "benefits",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fbenefits&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fbenefits%2Fsaml",
+        "idpPrivateId": "YmVuZWZpdHMtSURQ",
+        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-492",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvYmVuZWZpdHMvc2FtbA",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322": {
+      "_id": "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322",
+      "description": "Test App",
+      "name": "testapp",
+      "ssoEntities": {
+        "oidcId": "testapp",
+      },
+      "templateName": "web",
+      "templateVersion": "1.0",
+    },
+    "d7f62815-a835-4e2f-a69e-25e7f9019fc2": {
+      "_id": "d7f62815-a835-4e2f-a69e-25e7f9019fc2",
+      "authoritative": false,
+      "connectorId": "EncoreAD",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemEncoreadUser_managedAlpha_user",
+        "managedAlpha_user_systemEncoreadUser",
+      ],
+      "name": "EncoreAD",
+      "templateName": "active.directory",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "Group": {
+            "properties": {
+              "cn": {
+                "userSpecific": true,
+              },
+              "description": {
+                "userSpecific": true,
+              },
+              "displayName": {
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "userSpecific": true,
+              },
+            },
+          },
+          "User": {
+            "properties": {
+              "__ENABLE__": {
+                "userSpecific": true,
+              },
+              "__NAME__": {
+                "userSpecific": true,
+              },
+              "__PASSWORD__": {
+                "userSpecific": true,
+              },
+              "accountExpires": {
+                "userSpecific": true,
+              },
+              "c": {
+                "userSpecific": true,
+              },
+              "cn": {
+                "userSpecific": true,
+              },
+              "co": {
+                "userSpecific": true,
+              },
+              "company": {
+                "userSpecific": true,
+              },
+              "countryCode": {
+                "userSpecific": true,
+              },
+              "department": {
+                "userSpecific": true,
+              },
+              "description": {
+                "userSpecific": true,
+              },
+              "displayName": {
+                "userSpecific": true,
+              },
+              "division": {
+                "userSpecific": true,
+              },
+              "employeeID": {
+                "userSpecific": true,
+              },
+              "employeeNumber": {
+                "userSpecific": true,
+              },
+              "employeeType": {
+                "userSpecific": true,
+              },
+              "facsimileTelephoneNumber": {
+                "userSpecific": true,
+              },
+              "givenName": {
+                "userSpecific": true,
+              },
+              "homePhone": {
+                "userSpecific": true,
+              },
+              "initials": {
+                "userSpecific": true,
+              },
+              "l": {
+                "userSpecific": true,
+              },
+              "lastLogon": {
+                "userSpecific": true,
+              },
+              "ldapGroups": {},
+              "lockoutTime": {
+                "userSpecific": true,
+              },
+              "mail": {
+                "userSpecific": true,
+              },
+              "manager": {
+                "userSpecific": true,
+              },
+              "memberOf": {
+                "userSpecific": true,
+              },
+              "middleName": {
+                "userSpecific": true,
+              },
+              "mobile": {
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "userSpecific": true,
+              },
+              "otherHomePhone": {
+                "userSpecific": true,
+              },
+              "physicalDeliveryOfficeName": {
+                "userSpecific": true,
+              },
+              "postOfficeBox": {
+                "userSpecific": true,
+              },
+              "postalCode": {
+                "userSpecific": true,
+              },
+              "pwdLastSet": {
+                "userSpecific": true,
+              },
+              "sAMAccountName": {
+                "userSpecific": true,
+              },
+              "sn": {
+                "userSpecific": true,
+              },
+              "st": {
+                "userSpecific": true,
+              },
+              "streetAddress": {
+                "userSpecific": true,
+              },
+              "telephoneNumber": {
+                "userSpecific": true,
+              },
+              "title": {
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "userSpecific": true,
+              },
+              "userAccountControl": {
+                "userSpecific": true,
+              },
+              "userPrincipalName": {
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "userSpecific": true,
+              },
+            },
+          },
+        },
+      },
+    },
+    "e9f2ecd5-3d50-4da0-9ca2-587dbca390e2": {
+      "_id": "e9f2ecd5-3d50-4da0-9ca2-587dbca390e2",
+      "description": "This is a bookmark",
+      "name": "MrAnderson",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://mranderson.scheuber.io",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo app export "frodo app export -a": should export all apps to a single file 1`] = `""`;
 
 exports[`frodo app export "frodo app export -a": should export all apps to a single file: ./allAlphaApplications.application.json 1`] = `
@@ -15816,6 +17136,62 @@ exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRL
 }
 `;
 
+exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json: my-nodeps-HRLite.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
+      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+      "authoritative": true,
+      "connectorId": "HRLite",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemHrlite__account___managedAlpha_user",
+      ],
+      "name": "HRLite",
+      "templateName": "scripted.sql",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "__ACCOUNT__": {
+            "properties": {
+              "__NAME__": {},
+              "address": {},
+              "city": {},
+              "country": {},
+              "depId": {},
+              "depName": {},
+              "email": {},
+              "empType": {},
+              "firstName": {},
+              "isManager": {},
+              "jobCode": {},
+              "lastName": {},
+              "phone": {},
+              "postalCode": {},
+              "state": {},
+              "status": {},
+              "uid": {},
+            },
+          },
+          "department": {
+            "properties": {
+              "__NAME__": {},
+              "description": {},
+              "name": {},
+              "parent": {},
+              "uid": {},
+            },
+          },
+        },
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json 1`] = `""`;
 
 exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json: ./my-HRLite.application.json 1`] = `
@@ -16387,9 +17763,1147 @@ logger.info ("Final userName " + checkuserName);
 }
 `;
 
+exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json: my-HRLite.application.json 1`] = `
+{
+  "application": {},
+  "connector": {
+    "HRLite": {
+      "_id": "provisioner.openicf/HRLite",
+      "configurationProperties": {
+        "abandonWhenPercentageFull": 0,
+        "accessToUnderlyingConnectionAllowed": true,
+        "alternateUsernameAllowed": false,
+        "authenticateScriptFileName": "HRliteAuthenticateScript.groovy",
+        "autoCommit": true,
+        "classpath": [],
+        "commitOnReturn": false,
+        "connectionProperties": null,
+        "createScriptFileName": "HRliteCreateScript.groovy",
+        "customConfiguration": null,
+        "customSensitiveConfiguration": null,
+        "customizerScriptFileName": null,
+        "dataSourceJNDI": null,
+        "debug": false,
+        "defaultAutoCommit": null,
+        "defaultCatalog": null,
+        "defaultReadOnly": null,
+        "defaultTransactionIsolation": -1,
+        "deleteScriptFileName": "HRliteDeleteScript.groovy",
+        "disabledGlobalASTTransformations": null,
+        "driverClassName": "com.mysql.jdbc.Driver",
+        "fairQueue": true,
+        "ignoreExceptionOnPreLoad": false,
+        "initSQL": null,
+        "initialSize": 10,
+        "jdbcInterceptors": null,
+        "jmxEnabled": true,
+        "logAbandoned": false,
+        "logValidationErrors": false,
+        "maxActive": 100,
+        "maxAge": 0,
+        "maxIdle": 100,
+        "maxWait": 30000,
+        "minEvictableIdleTimeMillis": 60000,
+        "minIdle": 10,
+        "minimumRecompilationInterval": 100,
+        "name": "Tomcat Connection Pool[1-265824587]",
+        "numTestsPerEvictionRun": 0,
+        "password": {
+          "$crypto": {
+            "type": "x-simple-encryption",
+            "value": {
+              "cipher": "AES/CBC/PKCS5Padding",
+              "data": "73doNZivdgZ7KmuOlzFBdD/7blip0OU6uRwBDv53wcQ=",
+              "iv": "/C0QyOAnnUNQCovrsMgzEw==",
+              "keySize": 16,
+              "mac": "EAPShe6oCwxlTCHYC2wBlQ==",
+              "purpose": "idm.config.encryption",
+              "salt": "zYm6JkzqEzE1/0Y+o9K3+Q==",
+              "stableId": "openidm-sym-default",
+            },
+          },
+        },
+        "propagateInterruptState": false,
+        "recompileGroovySource": false,
+        "removeAbandoned": false,
+        "removeAbandonedTimeout": 60,
+        "resolveUsernameScriptFileName": null,
+        "rollbackOnReturn": false,
+        "schemaScriptFileName": "HRliteSchemaScript.groovy",
+        "scriptBaseClass": null,
+        "scriptExtensions": [
+          "groovy",
+        ],
+        "scriptOnResourceScriptFileName": null,
+        "scriptRoots": "/opt/forgerock/openicf/scripts/hrlite",
+        "searchScriptFileName": "HRliteSearchScript.groovy",
+        "sourceEncoding": "UTF-8",
+        "suspectTimeout": 0,
+        "syncScriptFileName": "HRliteSyncScript.groovy",
+        "targetDirectory": null,
+        "testOnBorrow": false,
+        "testOnConnect": false,
+        "testOnReturn": false,
+        "testScriptFileName": "HRliteTestScript.groovy",
+        "testWhileIdle": false,
+        "timeBetweenEvictionRunsMillis": 5000,
+        "tolerance": 10,
+        "updateScriptFileName": "HRliteUpdateScript.groovy",
+        "url": "jdbc:mysql://mariadb:3306/hrdb?autoReconnect=true",
+        "useDisposableConnectionFacade": true,
+        "useEquals": true,
+        "useLock": false,
+        "useStatementFacade": true,
+        "username": "hradmin",
+        "validationInterval": 2000,
+        "validationQuery": "SELECT 1 FROM DUAL",
+        "validationQueryTimeout": -1,
+        "validatorClassName": null,
+        "verbose": false,
+        "warningLevel": 1,
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.scriptedsql-connector",
+        "bundleVersion": "1.5.20.9",
+        "connectorHostRef": "encorebaseline",
+        "connectorName": "org.forgerock.openicf.connectors.scriptedsql.ScriptedSQLConnector",
+        "displayName": "Scripted SQL Connector",
+        "systemType": "provisioner.openicf",
+      },
+      "enabled": true,
+      "objectTypes": {
+        "__ACCOUNT__": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "address": {
+              "nativeName": "address",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "city": {
+              "nativeName": "city",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "country": {
+              "nativeName": "country",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "depId": {
+              "nativeName": "depId",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "depName": {
+              "nativeName": "depName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "email": {
+              "nativeName": "email",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "empType": {
+              "nativeName": "empType",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "externalMail": {
+              "nativeName": "externalMail",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "firstName": {
+              "nativeName": "firstName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "isManager": {
+              "nativeName": "isManager",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "jobCode": {
+              "nativeName": "jobCode",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "lastName": {
+              "nativeName": "lastName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "phone": {
+              "nativeName": "phone",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "postalCode": {
+              "nativeName": "postalCode",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "state": {
+              "nativeName": "state",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "status": {
+              "nativeName": "status",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "uid": {
+              "nativeName": "uid",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+        "department": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "department",
+          "nativeType": "department",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "name": {
+              "nativeName": "name",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "parent": {
+              "nativeName": "parent",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "uid": {
+              "nativeName": "uid",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1,
+      },
+      "poolConfigOption": {
+        "maxIdle": 10,
+        "maxObjects": 10,
+        "maxWait": 150000,
+        "minEvictableIdleTimeMillis": 120000,
+        "minIdle": 1,
+      },
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false,
+      },
+    },
+  },
+  "managedApplication": {
+    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
+      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+      "authoritative": true,
+      "connectorId": "HRLite",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemHrlite__account___managedAlpha_user",
+      ],
+      "name": "HRLite",
+      "templateName": "scripted.sql",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "__ACCOUNT__": {
+            "properties": {
+              "__NAME__": {},
+              "address": {},
+              "city": {},
+              "country": {},
+              "depId": {},
+              "depName": {},
+              "email": {},
+              "empType": {},
+              "firstName": {},
+              "isManager": {},
+              "jobCode": {},
+              "lastName": {},
+              "phone": {},
+              "postalCode": {},
+              "state": {},
+              "status": {},
+              "uid": {},
+            },
+          },
+          "department": {
+            "properties": {
+              "__NAME__": {},
+              "description": {},
+              "name": {},
+              "parent": {},
+              "uid": {},
+            },
+          },
+        },
+      },
+    },
+  },
+  "mapping": {
+    "systemHrlite__account___managedAlpha_user": {
+      "_id": "sync/systemHrlite__account___managedAlpha_user",
+      "consentRequired": false,
+      "correlationQuery": [
+        {
+          "expressionTree": {
+            "all": [
+              "frIndexedInteger1",
+            ],
+          },
+          "file": "ui/correlateTreeToQueryFilter.js",
+          "linkQualifier": "default",
+          "mapping": "systemHrlite__account___managedAlpha_user",
+          "type": "text/javascript",
+        },
+      ],
+      "displayName": "systemHrlite__account___managedAlpha_user",
+      "icon": null,
+      "name": "systemHrlite__account___managedAlpha_user",
+      "onCreate": {
+        "globals": {},
+        "source": "// Script has access to the following variables:
+// sourceObject
+// targetObject
+// existingTargetObject
+// linkQualifier
+var givenName = source.firstName;
+logger.info ("this is the givenName " + givenName);
+var sn = source.lastName;
+logger.info ("this is the sn " + sn);
+
+/* first choice of username */
+var checkuserName = givenName.substring(0,1).concat(sn).toLowerCase();
+logger.info ("calculated checkuserName " + checkuserName);
+/* if the userName is not found no need to go further */
+var queryUsername = {
+    _queryFilter: "/userName eq '" + checkuserName + "'"
+};
+
+var queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+if (queryResult.resultCount > 0) {
+    /* second choice of username */
+    checkuserName = givenName.substring(0,2).concat(sn).toLowerCase();
+    logger.info ("calculated checkuserName " + checkuserName);
+    queryUsername = {
+        _queryFilter: "/userName eq '" + checkuserName + "'"
+    };
+    queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+    /* while the userName is found try above for second then add time to end until found */
+    while (queryResult.resultCount > 0) {
+         /* timeadded to choice of username */
+         var millis = String(Date.now());
+         logger.info ("calculated checkuserName " + checkuserName);
+         checkuserName = givenName.substring(0,1).concat(sn).concat(millis.substring(millis.length - 4)).toLowerCase();
+         logger.info ("calculated checkuserName " + checkuserName);
+         queryUsername = {
+            _queryFilter: "/userName eq '" + checkuserName + "'"
+        };
+        queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+    }  
+}
+target.userName = checkuserName;
+target.cn = checkuserName + " " + givenName + " " + sn;
+target.mail = checkuserName+"@ad-volker-demo.encore.forgerock.org"; 
+target.password = 'Frdp-2010';
+//Mail domain is dependent on your AD domain name….
+logger.info ("Final userName " + checkuserName);
+// Role assignment scripts must always return targetObject, otherwise
+// other scripts and code that occur downstream of your script will
+// not work as expected.
+",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "FOUND",
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "",
+          "target": "frIndexedInteger1",
+          "transform": {
+            "source": "parseInt(source.__NAME__)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger2",
+          "transform": {
+            "source": "parseInt(source.status)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger3",
+          "transform": {
+            "source": "parseInt(source.depId)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger4",
+          "transform": {
+            "source": "parseInt(source.jobCode)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger5",
+          "transform": {
+            "source": "parseInt(source.empType)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "phone",
+          "target": "telephoneNumber",
+        },
+        {
+          "source": "city",
+          "target": "city",
+        },
+        {
+          "source": "state",
+          "target": "stateProvince",
+        },
+        {
+          "source": "address",
+          "target": "postalAddress",
+        },
+        {
+          "source": "postalCode",
+          "target": "postalCode",
+        },
+        {
+          "source": "country",
+          "target": "country",
+        },
+        {
+          "source": "firstName",
+          "target": "givenName",
+        },
+        {
+          "source": "lastName",
+          "target": "sn",
+        },
+        {
+          "source": "isManager",
+          "target": "frIndexedString4",
+        },
+        {
+          "source": "externalMail",
+          "target": "frIndexedString5",
+        },
+        {
+          "source": "",
+          "target": "accountStatus",
+          "transform": {
+            "source": "(parseInt(source.status)==5)?"inactive":"active";",
+            "type": "text/javascript",
+          },
+        },
+      ],
+      "runTargetPhase": true,
+      "source": "system/HRLite/__ACCOUNT__",
+      "target": "managed/alpha_user",
+      "taskThreads": 1,
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite" 1`] = `""`;
 
 exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite": ./HRLite.application.json 1`] = `
+{
+  "application": {},
+  "connector": {
+    "HRLite": {
+      "_id": "provisioner.openicf/HRLite",
+      "configurationProperties": {
+        "abandonWhenPercentageFull": 0,
+        "accessToUnderlyingConnectionAllowed": true,
+        "alternateUsernameAllowed": false,
+        "authenticateScriptFileName": "HRliteAuthenticateScript.groovy",
+        "autoCommit": true,
+        "classpath": [],
+        "commitOnReturn": false,
+        "connectionProperties": null,
+        "createScriptFileName": "HRliteCreateScript.groovy",
+        "customConfiguration": null,
+        "customSensitiveConfiguration": null,
+        "customizerScriptFileName": null,
+        "dataSourceJNDI": null,
+        "debug": false,
+        "defaultAutoCommit": null,
+        "defaultCatalog": null,
+        "defaultReadOnly": null,
+        "defaultTransactionIsolation": -1,
+        "deleteScriptFileName": "HRliteDeleteScript.groovy",
+        "disabledGlobalASTTransformations": null,
+        "driverClassName": "com.mysql.jdbc.Driver",
+        "fairQueue": true,
+        "ignoreExceptionOnPreLoad": false,
+        "initSQL": null,
+        "initialSize": 10,
+        "jdbcInterceptors": null,
+        "jmxEnabled": true,
+        "logAbandoned": false,
+        "logValidationErrors": false,
+        "maxActive": 100,
+        "maxAge": 0,
+        "maxIdle": 100,
+        "maxWait": 30000,
+        "minEvictableIdleTimeMillis": 60000,
+        "minIdle": 10,
+        "minimumRecompilationInterval": 100,
+        "name": "Tomcat Connection Pool[1-265824587]",
+        "numTestsPerEvictionRun": 0,
+        "password": {
+          "$crypto": {
+            "type": "x-simple-encryption",
+            "value": {
+              "cipher": "AES/CBC/PKCS5Padding",
+              "data": "73doNZivdgZ7KmuOlzFBdD/7blip0OU6uRwBDv53wcQ=",
+              "iv": "/C0QyOAnnUNQCovrsMgzEw==",
+              "keySize": 16,
+              "mac": "EAPShe6oCwxlTCHYC2wBlQ==",
+              "purpose": "idm.config.encryption",
+              "salt": "zYm6JkzqEzE1/0Y+o9K3+Q==",
+              "stableId": "openidm-sym-default",
+            },
+          },
+        },
+        "propagateInterruptState": false,
+        "recompileGroovySource": false,
+        "removeAbandoned": false,
+        "removeAbandonedTimeout": 60,
+        "resolveUsernameScriptFileName": null,
+        "rollbackOnReturn": false,
+        "schemaScriptFileName": "HRliteSchemaScript.groovy",
+        "scriptBaseClass": null,
+        "scriptExtensions": [
+          "groovy",
+        ],
+        "scriptOnResourceScriptFileName": null,
+        "scriptRoots": "/opt/forgerock/openicf/scripts/hrlite",
+        "searchScriptFileName": "HRliteSearchScript.groovy",
+        "sourceEncoding": "UTF-8",
+        "suspectTimeout": 0,
+        "syncScriptFileName": "HRliteSyncScript.groovy",
+        "targetDirectory": null,
+        "testOnBorrow": false,
+        "testOnConnect": false,
+        "testOnReturn": false,
+        "testScriptFileName": "HRliteTestScript.groovy",
+        "testWhileIdle": false,
+        "timeBetweenEvictionRunsMillis": 5000,
+        "tolerance": 10,
+        "updateScriptFileName": "HRliteUpdateScript.groovy",
+        "url": "jdbc:mysql://mariadb:3306/hrdb?autoReconnect=true",
+        "useDisposableConnectionFacade": true,
+        "useEquals": true,
+        "useLock": false,
+        "useStatementFacade": true,
+        "username": "hradmin",
+        "validationInterval": 2000,
+        "validationQuery": "SELECT 1 FROM DUAL",
+        "validationQueryTimeout": -1,
+        "validatorClassName": null,
+        "verbose": false,
+        "warningLevel": 1,
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.scriptedsql-connector",
+        "bundleVersion": "1.5.20.9",
+        "connectorHostRef": "encorebaseline",
+        "connectorName": "org.forgerock.openicf.connectors.scriptedsql.ScriptedSQLConnector",
+        "displayName": "Scripted SQL Connector",
+        "systemType": "provisioner.openicf",
+      },
+      "enabled": true,
+      "objectTypes": {
+        "__ACCOUNT__": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "address": {
+              "nativeName": "address",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "city": {
+              "nativeName": "city",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "country": {
+              "nativeName": "country",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "depId": {
+              "nativeName": "depId",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "depName": {
+              "nativeName": "depName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "email": {
+              "nativeName": "email",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "empType": {
+              "nativeName": "empType",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "externalMail": {
+              "nativeName": "externalMail",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "firstName": {
+              "nativeName": "firstName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "isManager": {
+              "nativeName": "isManager",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "jobCode": {
+              "nativeName": "jobCode",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "lastName": {
+              "nativeName": "lastName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "phone": {
+              "nativeName": "phone",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "postalCode": {
+              "nativeName": "postalCode",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "state": {
+              "nativeName": "state",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "status": {
+              "nativeName": "status",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "uid": {
+              "nativeName": "uid",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+        "department": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "department",
+          "nativeType": "department",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string",
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "name": {
+              "nativeName": "name",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "parent": {
+              "nativeName": "parent",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+            "uid": {
+              "nativeName": "uid",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1,
+      },
+      "poolConfigOption": {
+        "maxIdle": 10,
+        "maxObjects": 10,
+        "maxWait": 150000,
+        "minEvictableIdleTimeMillis": 120000,
+        "minIdle": 1,
+      },
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false,
+      },
+    },
+  },
+  "managedApplication": {
+    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
+      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+      "authoritative": true,
+      "connectorId": "HRLite",
+      "description": "Example",
+      "icon": "",
+      "mappingNames": [
+        "systemHrlite__account___managedAlpha_user",
+      ],
+      "name": "HRLite",
+      "templateName": "scripted.sql",
+      "templateVersion": "1.0.0",
+      "uiConfig": {
+        "objectTypes": {
+          "__ACCOUNT__": {
+            "properties": {
+              "__NAME__": {},
+              "address": {},
+              "city": {},
+              "country": {},
+              "depId": {},
+              "depName": {},
+              "email": {},
+              "empType": {},
+              "firstName": {},
+              "isManager": {},
+              "jobCode": {},
+              "lastName": {},
+              "phone": {},
+              "postalCode": {},
+              "state": {},
+              "status": {},
+              "uid": {},
+            },
+          },
+          "department": {
+            "properties": {
+              "__NAME__": {},
+              "description": {},
+              "name": {},
+              "parent": {},
+              "uid": {},
+            },
+          },
+        },
+      },
+    },
+  },
+  "mapping": {
+    "systemHrlite__account___managedAlpha_user": {
+      "_id": "sync/systemHrlite__account___managedAlpha_user",
+      "consentRequired": false,
+      "correlationQuery": [
+        {
+          "expressionTree": {
+            "all": [
+              "frIndexedInteger1",
+            ],
+          },
+          "file": "ui/correlateTreeToQueryFilter.js",
+          "linkQualifier": "default",
+          "mapping": "systemHrlite__account___managedAlpha_user",
+          "type": "text/javascript",
+        },
+      ],
+      "displayName": "systemHrlite__account___managedAlpha_user",
+      "icon": null,
+      "name": "systemHrlite__account___managedAlpha_user",
+      "onCreate": {
+        "globals": {},
+        "source": "// Script has access to the following variables:
+// sourceObject
+// targetObject
+// existingTargetObject
+// linkQualifier
+var givenName = source.firstName;
+logger.info ("this is the givenName " + givenName);
+var sn = source.lastName;
+logger.info ("this is the sn " + sn);
+
+/* first choice of username */
+var checkuserName = givenName.substring(0,1).concat(sn).toLowerCase();
+logger.info ("calculated checkuserName " + checkuserName);
+/* if the userName is not found no need to go further */
+var queryUsername = {
+    _queryFilter: "/userName eq '" + checkuserName + "'"
+};
+
+var queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+if (queryResult.resultCount > 0) {
+    /* second choice of username */
+    checkuserName = givenName.substring(0,2).concat(sn).toLowerCase();
+    logger.info ("calculated checkuserName " + checkuserName);
+    queryUsername = {
+        _queryFilter: "/userName eq '" + checkuserName + "'"
+    };
+    queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+    /* while the userName is found try above for second then add time to end until found */
+    while (queryResult.resultCount > 0) {
+         /* timeadded to choice of username */
+         var millis = String(Date.now());
+         logger.info ("calculated checkuserName " + checkuserName);
+         checkuserName = givenName.substring(0,1).concat(sn).concat(millis.substring(millis.length - 4)).toLowerCase();
+         logger.info ("calculated checkuserName " + checkuserName);
+         queryUsername = {
+            _queryFilter: "/userName eq '" + checkuserName + "'"
+        };
+        queryResult = openidm.query("/managed/alpha_user",queryUsername,["*"]);
+    }  
+}
+target.userName = checkuserName;
+target.cn = checkuserName + " " + givenName + " " + sn;
+target.mail = checkuserName+"@ad-volker-demo.encore.forgerock.org"; 
+target.password = 'Frdp-2010';
+//Mail domain is dependent on your AD domain name….
+logger.info ("Final userName " + checkuserName);
+// Role assignment scripts must always return targetObject, otherwise
+// other scripts and code that occur downstream of your script will
+// not work as expected.
+",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "FOUND",
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "",
+          "target": "frIndexedInteger1",
+          "transform": {
+            "source": "parseInt(source.__NAME__)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger2",
+          "transform": {
+            "source": "parseInt(source.status)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger3",
+          "transform": {
+            "source": "parseInt(source.depId)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger4",
+          "transform": {
+            "source": "parseInt(source.jobCode)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "",
+          "target": "frIndexedInteger5",
+          "transform": {
+            "source": "parseInt(source.empType)",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "phone",
+          "target": "telephoneNumber",
+        },
+        {
+          "source": "city",
+          "target": "city",
+        },
+        {
+          "source": "state",
+          "target": "stateProvince",
+        },
+        {
+          "source": "address",
+          "target": "postalAddress",
+        },
+        {
+          "source": "postalCode",
+          "target": "postalCode",
+        },
+        {
+          "source": "country",
+          "target": "country",
+        },
+        {
+          "source": "firstName",
+          "target": "givenName",
+        },
+        {
+          "source": "lastName",
+          "target": "sn",
+        },
+        {
+          "source": "isManager",
+          "target": "frIndexedString4",
+        },
+        {
+          "source": "externalMail",
+          "target": "frIndexedString5",
+        },
+        {
+          "source": "",
+          "target": "accountStatus",
+          "transform": {
+            "source": "(parseInt(source.status)==5)?"inactive":"active";",
+            "type": "text/javascript",
+          },
+        },
+      ],
+      "runTargetPhase": true,
+      "source": "system/HRLite/__ACCOUNT__",
+      "target": "managed/alpha_user",
+      "taskThreads": 1,
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite": HRLite.application.json 1`] = `
 {
   "application": {},
   "connector": {

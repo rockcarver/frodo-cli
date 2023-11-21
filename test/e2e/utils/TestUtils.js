@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 import cp from 'child_process';
 
@@ -35,18 +36,17 @@ export async function testExport(
   checkForMetadata = true,
   checkStderr = false
 ) {
+  const isCurrentDirectory = directory === './' || directory === '.';
   const { stdout, stderr } = await exec(command, env);
   const regex = new RegExp(
     fileName
       ? fileName
       : type
       ? `.*\\.${type}\\.(json|js|groovy|xml)`
-      : `.*\\.(json|js|groovy)`
+      : `.*\\.(json|js|groovy|xml)`
   );
-  const filePaths = fs
-    .readdirSync(directory)
-    .filter((n) => regex.test(n))
-    .map((n) => `${directory}${directory.endsWith('/') ? '' : '/'}${n}`);
+  const filePaths = getFilePaths(directory, !isCurrentDirectory)
+      .filter((p) => regex.test(p));
   if (fileName) {
     expect(filePaths.length).toBe(1);
   } else {
@@ -80,9 +80,24 @@ export async function testExport(
     //Delete export file
     if (deleteExportFile) fs.unlinkSync(path);
   });
-  if (directory && directory !== './' && directory !== '.' && deleteExportDirectory) fs.rmdirSync(directory, {
+  if (!isCurrentDirectory && deleteExportDirectory) fs.rmdirSync(directory, {
     recursive: true,
   });
 }
 
 export const testif = (condition) => (condition ? test : test.skip);
+
+/**
+ * Gets the file paths of all files in the given directory.
+ * @param {string} directoryPath The given base directory
+ * @param {boolean} recursive If true, recursively gets file paths from sub-directories in the given directory. Default: false
+ * @returns {string[]} The list of file paths
+ */
+function getFilePaths(directoryPath, recursive = false) {
+  let paths = [];
+  fs.readdirSync(directoryPath)
+      .map(file => path.join(directoryPath, file))
+      .filter(filePath => recursive || !fs.statSync(filePath).isDirectory()) // Filter out directories if it is not recursive
+      .forEach(filePath => fs.statSync(filePath).isDirectory() ? paths = paths.concat(getFilePaths(filePath, recursive)) : paths.push(filePath));
+  return paths;
+}

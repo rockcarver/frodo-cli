@@ -10,7 +10,11 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { getTypedFilename, saveToFile } from '../utils/ExportImportUtils';
+import {
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+} from '../utils/ExportImportUtils';
 
 const { getRealmString, validateImport, getFilePath, getWorkingDirectory } =
   frodo.utils;
@@ -21,6 +25,7 @@ const {
   updateThemeByName,
   updateTheme,
   updateThemes,
+  exportThemes,
   deleteTheme,
   deleteThemeByName,
   deleteThemes,
@@ -151,20 +156,8 @@ export async function exportThemesToFile(file) {
     fileName = file;
   }
   const filePath = getFilePath(fileName, true);
-  const allThemesData = await readThemes();
-  createProgressIndicator(
-    'determinate',
-    allThemesData.length,
-    'Exporting themes'
-  );
-  for (const themeData of allThemesData) {
-    if (!themeData._id) themeData._id = uuidv4();
-    updateProgressIndicator(`Exporting theme ${themeData.name}`);
-  }
-  saveToFile('theme', allThemesData, '_id', filePath);
-  stopProgressIndicator(
-    `${allThemesData.length} themes exported to ${filePath}.`
-  );
+  const exportData = await exportThemes();
+  saveJsonToFile(exportData, filePath);
 }
 
 /**

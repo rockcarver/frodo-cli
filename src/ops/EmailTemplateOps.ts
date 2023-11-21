@@ -23,6 +23,7 @@ const {
   EMAIL_TEMPLATE_TYPE,
   readEmailTemplates,
   readEmailTemplate,
+  exportEmailTemplates,
   updateEmailTemplate,
 } = frodo.email.template;
 
@@ -188,24 +189,9 @@ export async function exportEmailTemplatesToFile(file) {
   }
   const filePath = getFilePath(fileName, true);
   try {
-    const fileData = getFileDataTemplate();
-    const templates = await readEmailTemplates();
-    createProgressIndicator(
-      'determinate',
-      templates.length,
-      'Exporting email templates'
-    );
-    for (const template of templates) {
-      const templateId = template._id.replace(`${EMAIL_TEMPLATE_TYPE}/`, '');
-      updateProgressIndicator(`Exporting ${templateId}`);
-      fileData.emailTemplate[templateId] = template;
-    }
-    saveJsonToFile(fileData, filePath);
-    stopProgressIndicator(
-      `${templates.length} templates exported to ${filePath}.`
-    );
+    const exportData = await exportEmailTemplates();
+    saveJsonToFile(exportData, filePath);
   } catch (err) {
-    stopProgressIndicator(`${err}`);
     printMessage(err, 'error');
   }
 }
@@ -215,21 +201,22 @@ export async function exportEmailTemplatesToFile(file) {
  */
 export async function exportEmailTemplatesToFiles() {
   try {
-    const templates = await readEmailTemplates();
+    const exportData = Object.entries(
+      (await exportEmailTemplates()).emailTemplate
+    );
     createProgressIndicator(
       'determinate',
-      templates.length,
-      'Exporting email templates'
+      exportData.length,
+      'Writing email templates'
     );
-    for (const template of templates) {
-      const templateId = template._id.replace(`${EMAIL_TEMPLATE_TYPE}/`, '');
+    for (const [templateId, template] of exportData) {
       const fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
       const fileData = getFileDataTemplate();
       updateProgressIndicator(`Exporting ${templateId}`);
       fileData.emailTemplate[templateId] = template;
       saveJsonToFile(fileData, getFilePath(fileName, true));
     }
-    stopProgressIndicator(`${templates.length} templates exported.`);
+    stopProgressIndicator(`${exportData.length} templates written.`);
   } catch (err) {
     stopProgressIndicator(`${err}`);
     printMessage(err, 'error');

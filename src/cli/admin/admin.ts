@@ -28,6 +28,11 @@ export default function setup() {
   );
 
   program.command(
+    'export-full-cloud-config',
+    'Export full cloud configuration for all ops that currently support export.'
+  );
+
+  program.command(
     'grant-oauth2-client-admin-privileges',
     'Grant an oauth2 client admin privileges.'
   );
