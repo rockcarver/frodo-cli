@@ -43,7 +43,7 @@ const {
 const {
   readJourneys,
   exportJourney,
-  createMultiTreeExportTemplate,
+  exportJourneys,
   resolveDependencies,
   importJourneys,
   importJourney,
@@ -188,21 +188,8 @@ export async function exportJourneysToFile(
     file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
   }
   const filePath = getFilePath(file, true);
-  const trees = await readJourneys();
-  const fileData: MultiTreeExportInterface = createMultiTreeExportTemplate();
-  createProgressBar(trees.length, 'Exporting journeys...');
-  for (const tree of trees) {
-    updateProgressBar(`${tree._id}`);
-    try {
-      const exportData = await exportJourney(tree._id, options);
-      delete exportData.meta;
-      fileData.trees[tree._id] = exportData;
-    } catch (error) {
-      printMessage(`Error exporting journey ${tree._id}: ${error}`, 'error');
-    }
-  }
+  const fileData: MultiTreeExportInterface = await exportJourneys(options);
   saveJsonToFile(fileData, filePath);
-  stopProgressBar(`Exported to ${filePath}`);
 }
 
 /**
@@ -212,17 +199,15 @@ export async function exportJourneysToFile(
 export async function exportJourneysToFiles(
   options: TreeExportOptions
 ): Promise<void> {
-  const trees = await readJourneys();
+  const journeysExport = await exportJourneys(options);
+  const trees = Object.entries(journeysExport.trees);
   createProgressBar(trees.length, 'Exporting journeys...');
-  for (const tree of trees) {
-    updateProgressBar(`${tree._id}`);
-    const fileName = getTypedFilename(`${tree._id}`, 'journey');
+  for (const [treeId, treeValue] of trees) {
+    updateProgressBar(`${treeId}`);
+    const fileName = getTypedFilename(`${treeId}`, 'journey');
+    treeValue['meta'] = journeysExport.meta;
     try {
-      const exportData: SingleTreeExportInterface = await exportJourney(
-        tree._id,
-        options
-      );
-      saveJsonToFile(exportData, getFilePath(fileName, true));
+      saveJsonToFile(treeValue, getFilePath(fileName, true));
     } catch (error) {
       // do we need to report status here?
     }

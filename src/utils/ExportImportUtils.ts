@@ -45,18 +45,18 @@ export async function readFiles(
 }
 
 const {
-  getMetadata,
   getTypedFilename,
   saveJsonToFile,
   saveToFile,
   titleCase,
   getRealmString,
+  isValidUrl,
 } = frodo.utils;
 
 export {
-  getMetadata,
   getRealmString,
   getTypedFilename,
+  isValidUrl,
   saveJsonToFile,
   saveToFile,
   titleCase,

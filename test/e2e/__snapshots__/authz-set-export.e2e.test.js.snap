@@ -2,7 +2,7 @@
 
 exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs 1`] = `""`;
 
-exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs: ./my-allAlphaPolicySets.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs: my-allAlphaPolicySets.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -312,7 +312,7 @@ exports[`frodo authz set export "frodo authz set export --all-separate --directo
 
 exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs 1`] = `""`;
 
-exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs: ./my-test-policy-set.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs: my-test-policy-set.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -399,7 +399,7 @@ exports[`frodo authz set export "frodo authz set export --set-id test-policy-set
 
 exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files 1`] = `""`;
 
-exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files: ./FeatureStorePolicySet.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files: FeatureStorePolicySet.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {},
@@ -461,7 +461,7 @@ exports[`frodo authz set export "frodo authz set export -A": should export all p
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files: ./test-policy-set.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files: test-policy-set.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {
@@ -631,7 +631,7 @@ exports[`frodo authz set export "frodo authz set export -A": should export all p
 
 exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file 1`] = `""`;
 
-exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file: ./allAlphaPolicySets.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file: allAlphaPolicySets.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {
@@ -1243,7 +1243,7 @@ exports[`frodo authz set export "frodo authz set export -i test-policy-set -D au
 
 exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set" 1`] = `""`;
 
-exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set": ./test-policy-set.policyset.authz.json 1`] = `
+exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set": test-policy-set.policyset.authz.json 1`] = `
 {
   "meta": Any<Object>,
   "policy": {
