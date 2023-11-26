@@ -112,11 +112,27 @@ function getFilePaths(directoryPath, recursive = false) {
   let paths = [];
   fs.readdirSync(directoryPath)
     .map((file) => path.join(directoryPath, file))
-    .filter((filePath) => recursive || !fs.statSync(filePath).isDirectory()) // Filter out directories if it is not recursive
-    .forEach((filePath) =>
-      fs.statSync(filePath).isDirectory()
+    .filter((filePath) => {
+      // try/catch and safest possible fallback to stabilize highly parallelized test execution where the results of readdirSync are altered while being mapped/filtered/forEach-ed
+      let isDirectory = false;
+      try {
+        isDirectory = fs.statSync(filePath).isDirectory();
+      } catch (error) {
+        // ignore
+      }
+      return recursive || !isDirectory;
+    }) // Filter out directories if it is not recursive
+    .forEach((filePath) => {
+      // try/catch and safest possible fallback to stabilize highly parallelized test execution where the results of readdirSync are altered while being mapped/filtered/forEach-ed
+      let isDirectory = false;
+      try {
+        isDirectory = fs.statSync(filePath).isDirectory();
+      } catch (error) {
+        // ignore
+      }
+      isDirectory
         ? (paths = paths.concat(getFilePaths(filePath, recursive)))
-        : paths.push(filePath)
-    );
+        : paths.push(filePath);
+    });
   return paths;
 }
