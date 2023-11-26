@@ -26,7 +26,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing providers in realm "${state.getRealm()}"...`);
-        listSocialProviders();
+        await listSocialProviders();
       } else {
         process.exitCode = 1;
       }

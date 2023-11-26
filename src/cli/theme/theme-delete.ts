@@ -51,7 +51,7 @@ program
             options.themeName
           }" from realm "${state.getRealm()}"...`
         );
-        deleteThemeByNameCmd(options.themeName);
+        await deleteThemeByNameCmd(options.themeName);
       }
       // delete by id
       else if (options.themeId && (await getTokens())) {
@@ -60,14 +60,14 @@ program
             options.themeId
           }" from realm "${state.getRealm()}"...`
         );
-        deleteThemeCmd(options.themeId);
+        await deleteThemeCmd(options.themeId);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage(
           `Deleting all themes from realm "${state.getRealm()}"...`
         );
-        deleteAllThemes();
+        await deleteAllThemes();
       }
       // unrecognized combination of options or no options
       else {

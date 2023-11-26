@@ -58,17 +58,17 @@ program
               options.idpId
             }" from realm "${state.getRealm()}"...`
           );
-          exportSocialIdentityProviderToFile(options.idpId, options.file);
+          await exportSocialIdentityProviderToFile(options.idpId, options.file);
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all providers to a single file...');
-          exportSocialIdentityProvidersToFile(options.file);
+          await exportSocialIdentityProvidersToFile(options.file);
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all providers to separate files...');
-          exportSocialIdentityProvidersToFiles();
+          await exportSocialIdentityProvidersToFiles();
         }
         // unrecognized combination of options or no options
         else {

@@ -7,15 +7,15 @@ import type {
 import fs from 'fs';
 
 import {
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
@@ -203,24 +203,49 @@ export async function exportApplicationsToFiles(
 ) {
   debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: begin`);
   const errors = [];
+  let barId: string;
   try {
     const applications = await _readApplications();
-    createProgressBar(applications.length, 'Exporting applications...');
+    barId = createProgressIndicator(
+      'determinate',
+      applications.length,
+      'Exporting applications...'
+    );
     for (const application of applications) {
-      const file = getTypedFilename(application.name, 'application');
+      const fileBarId = createProgressIndicator(
+        'determinate',
+        1,
+        `Exporting application ${application.name}...`
+      );
+      const file = getFilePath(
+        getTypedFilename(application.name, 'application'),
+        true
+      );
       try {
+        updateProgressIndicator(barId, `Exporting ${application.name}.`);
         const exportData = await _exportApplication(application._id, options);
-        saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${application._id}.`);
+        saveJsonToFile(exportData, file);
+        updateProgressIndicator(
+          fileBarId,
+          `Saving ${application.name} to ${file}.`
+        );
+        stopProgressIndicator(
+          fileBarId,
+          `${application.name} saved to ${file}.`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${application._id}.`);
+        updateProgressIndicator(barId, `Error exporting ${application.name}.`);
+        stopProgressIndicator(
+          fileBarId,
+          `Error saving ${application.name} to ${file}.`
+        );
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(barId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting applications(s) to file(s)`);
+    stopProgressIndicator(barId, `Error exporting applications(s) to file(s)`);
   }
   debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: end`);
   return 0 === errors.length;
@@ -320,13 +345,18 @@ export async function importApplicationsFromFiles(
   options: ApplicationImportOptions = { deps: true }
 ): Promise<boolean> {
   const errors = [];
+  let barId: string;
   try {
     debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.application.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing applications...');
+    barId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing applications...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -335,19 +365,29 @@ export async function importApplicationsFromFiles(
         const count = Object.keys(fileData.application).length;
         total += count;
         await _importApplications(fileData, options);
-        updateProgressBar(`Imported ${count} application(s) from ${file}`);
+        updateProgressIndicator(
+          barId,
+          `Imported ${count} application(s) from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing application(s) from ${file}`);
+        updateProgressIndicator(
+          barId,
+          `Error importing application(s) from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      barId,
       `Finished importing ${total} application(s) from ${files.length} file(s).`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing application(s) from file(s).`);
+    stopProgressIndicator(
+      barId,
+      `Error importing application(s) from file(s).`
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: end`);

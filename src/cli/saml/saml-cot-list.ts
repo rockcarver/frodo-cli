@@ -29,7 +29,7 @@ program
         verboseMessage(
           `Listing SAML circles of trust in realm "${state.getRealm()}"...`
         );
-        const outcome = listCirclesOfTrust(options.long);
+        const outcome = await listCirclesOfTrust(options.long);
         if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;

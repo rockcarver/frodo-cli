@@ -5,16 +5,16 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 
 import {
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
   spinSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
@@ -215,19 +215,32 @@ export async function exportScriptsToFiles(extract = false): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const scriptList = await readScripts();
-  createProgressBar(
+  const barId = createProgressIndicator(
+    'determinate',
     scriptList.length,
     'Exporting scripts to individual files...'
   );
   for (const script of scriptList) {
+    const fileBarId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting script ${script.name}...`
+    );
+    updateProgressIndicator(barId, `Reading script ${script.name}`);
+    const file = getFilePath(getTypedFilename(script.name, 'script'), true);
     try {
-      updateProgressBar(`Reading script ${script.name}`);
-      const fileName = getTypedFilename(script.name, 'script');
       const scriptExport = await exportScriptByName(script.name);
       if (extract) extractScriptToFile(scriptExport);
-      saveJsonToFile(scriptExport, getFilePath(fileName, true));
+      saveJsonToFile(scriptExport, file);
+      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
     } catch (error) {
       outcome = false;
+      updateProgressIndicator(barId, `Error exporting ${script.name}.`);
+      stopProgressIndicator(
+        fileBarId,
+        `Error saving ${script.name} to ${file}.`
+      );
       printMessage(
         `Error exporting script '${script.name}': ${error.message}`,
         'error'
@@ -235,7 +248,10 @@ export async function exportScriptsToFiles(extract = false): Promise<boolean> {
       debugMessage(error);
     }
   }
-  stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
+  stopProgressIndicator(
+    barId,
+    `Exported ${scriptList.length} scripts to individual files.`
+  );
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end [${outcome}]`);
   return outcome;
 }

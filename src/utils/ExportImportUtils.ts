@@ -3,8 +3,6 @@ import fs from 'fs';
 import { lstat, readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 
-import { printMessage } from './Console';
-
 /**
  * find all (nested) files in a directory
  *
@@ -66,14 +64,7 @@ export {
  * Save text data to file
  * @param data text data
  * @param filename file name
- * @return true if successful, false otherwise
  */
-export function saveTextToFile(data: string, filename: string): boolean {
-  try {
-    fs.writeFileSync(filename, data);
-    return true;
-  } catch (error) {
-    printMessage(`ERROR - can't save ${filename}`, 'error');
-    return false;
-  }
+export function saveTextToFile(data: string, filename: string): void {
+  fs.writeFileSync(filename, data);
 }

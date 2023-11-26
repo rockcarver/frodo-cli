@@ -31,13 +31,16 @@ program
         verboseMessage(
           `Listing authorization policies in policy set ${options.setId}...`
         );
-        const outcome = listPoliciesByPolicySet(options.setId, options.long);
+        const outcome = await listPoliciesByPolicySet(
+          options.setId,
+          options.long
+        );
         if (!outcome) process.exitCode = 1;
       }
       // all policies
       else if (await getTokens()) {
         verboseMessage(`Listing authorization policies...`);
-        const outcome = listPolicies(options.long);
+        const outcome = await listPolicies(options.long);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

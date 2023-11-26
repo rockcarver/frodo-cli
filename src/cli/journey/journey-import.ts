@@ -66,7 +66,7 @@ program
       // import
       if (options.journeyId && (await getTokens())) {
         printMessage(`Importing journey ${options.journeyId}...`);
-        importJourneyFromFile(options.journeyId, options.file, {
+        await importJourneyFromFile(options.journeyId, options.file, {
           reUuid: options.reUuid,
           deps: options.deps,
         });
@@ -76,7 +76,7 @@ program
         printMessage(
           `Importing all journeys from a single file (${options.file})...`
         );
-        importJourneysFromFile(options.file, {
+        await importJourneysFromFile(options.file, {
           reUuid: options.reUuid,
           deps: options.deps,
         });
@@ -86,7 +86,7 @@ program
         printMessage(
           'Importing all journeys from separate files in current directory...'
         );
-        importJourneysFromFiles({
+        await importJourneysFromFiles({
           reUuid: options.reUuid,
           deps: options.deps,
         });
@@ -94,7 +94,7 @@ program
       // import first journey in file
       else if (options.file && (await getTokens())) {
         printMessage('Importing first journey in file...');
-        importFirstJourneyFromFile(options.file, {
+        await importFirstJourneyFromFile(options.file, {
           reUuid: options.reUuid,
           deps: options.deps,
         });

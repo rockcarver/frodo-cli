@@ -667,6 +667,142 @@ exports[`frodo authz policy export "frodo authz policy export -A": should export
 }
 `;
 
+exports[`frodo authz policy export "frodo authz policy export -A": should export all policies to separate files: my-Test-Policy.policy.authz.json 1`] = `
+{
+  "meta": Any<Object>,
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false,
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime",
+          },
+          {
+            "scriptId": "58d29080-4563-480b-89bb-1e7719776a21",
+            "type": "Script",
+          },
+        ],
+        "type": "AND",
+      },
+      "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "creationDate": "2023-10-17T19:44:38.545Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value",
+          ],
+          "type": "Static",
+        },
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit",
+      ],
+      "subject": {
+        "type": "NONE",
+      },
+    },
+  },
+  "policyset": {
+    "test-policy-set": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AMIdentityMembership",
+        "AND",
+        "AuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "LEAuthLevel",
+        "NOT",
+        "OAuth2Scope",
+        "OR",
+        "Policy",
+        "ResourceEnvIP",
+        "Script",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Transaction",
+      ],
+      "createdBy": "id=fbdeb2a9-beb6-4a14-ae66-e35f16ce421d,ou=user,ou=am-config",
+      "creationDate": 1693494279401,
+      "description": "Test Policy Set Description",
+      "displayName": "Test Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697571878359,
+      "name": "test-policy-set",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE",
+        "NOT",
+        "OR",
+        "Policy",
+      ],
+    },
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true,
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
+      "lastModifiedDate": 1697573378358,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*",
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    },
+  },
+  "script": {},
+}
+`;
+
 exports[`frodo authz policy export "frodo authz policy export -a": should export all policies to a single file 1`] = `""`;
 
 exports[`frodo authz policy export "frodo authz policy export -a": should export all policies to a single file: allAlphaPolicies.policy.authz.json 1`] = `

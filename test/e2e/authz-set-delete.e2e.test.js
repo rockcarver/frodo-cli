@@ -61,36 +61,38 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 describe('frodo authz set delete', () => {
+  test('"frodo authz set delete -i test-policy-set": should delete the policy set with id \'test-policy-set\'', async () => {
+    const CMD = `frodo authz set delete -i test-policy-set`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test('"frodo authz set delete -i test-policy-set": should delete the policy set with id \'test-policy-set\'', async () => {
-        const CMD = `frodo authz set delete -i test-policy-set`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test('"frodo authz set delete --set-id test-policy-set": should display error when the policy set with id \'test-policy-set\' cannot be deleted since it does not exist', async () => {
+    const CMD = `frodo authz set delete --set-id test-policy-set`;
+    try {
+      const { stderr } = await exec(CMD, env);
+      fail(`Command expected to fail: ${CMD}`);
+    } catch (error) {
+      expect(removeAnsiEscapeCodes(error.stderr)).toMatchSnapshot();
+    }
+  });
 
-    test('"frodo authz set delete --set-id test-policy-set": should display error when the policy set with id \'test-policy-set\' cannot be deleted since it does not exist', async () => {
-        const CMD = `frodo authz set delete --set-id test-policy-set`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
-    });
+  test('"frodo authz set delete -a": should delete all policy sets', async () => {
+    const CMD = `frodo authz set delete -a`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test('"frodo authz set delete -a": should delete all policy sets', async () => {
-        const CMD = `frodo authz set delete -a`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-
-    test('"frodo authz set delete --all": should do nothing when no policy sets can be deleted', async () => {
-        const CMD = `frodo authz set delete --all`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
-    });
-
+  test('"frodo authz set delete --all": should do nothing when no policy sets can be deleted', async () => {
+    const CMD = `frodo authz set delete --all`;
+    const { stderr } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  });
 });

@@ -1,16 +1,11 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import {
-  failSpinner,
-  printMessage,
-  showSpinner,
-  succeedSpinner,
-} from '../../utils/Console';
+import { enableJourney } from '../../ops/JourneyOps';
+import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
-const { enableJourney } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey enable');
 
@@ -38,12 +33,8 @@ program
       );
       // enable
       if (options.journeyId && (await getTokens())) {
-        showSpinner(`Enabling journey ${options.journeyId}...`);
-        if (await enableJourney(options.journeyId)) {
-          succeedSpinner(`Enabled journey ${options.journeyId}.`);
-        } else {
-          failSpinner(`Enabling journey ${options.journeyId} failed.`);
-        }
+        const outcome = await enableJourney(options.journeyId);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

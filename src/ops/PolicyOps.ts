@@ -9,15 +9,15 @@ import fs from 'fs';
 
 import {
   createObjectTable,
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
@@ -161,6 +161,7 @@ export async function deletePolicies(): Promise<boolean> {
   let outcome = false;
   const errors = [];
   let policies: PolicySkeleton[] = [];
+  let indicatorId: string;
   try {
     showSpinner(`Retrieving all policies...`);
     try {
@@ -172,7 +173,8 @@ export async function deletePolicies(): Promise<boolean> {
       throw error;
     }
     if (policies.length)
-      createProgressBar(
+      indicatorId = createProgressIndicator(
+        'determinate',
         policies.length,
         `Deleting ${policies.length} policies...`
       );
@@ -181,10 +183,10 @@ export async function deletePolicies(): Promise<boolean> {
       try {
         debugMessage(`Deleting policy ${policyId}`);
         await deletePolicy(policyId);
-        updateProgressBar(`Deleted ${policyId}`);
+        updateProgressIndicator(indicatorId, `Deleted ${policyId}`);
       } catch (error) {
         error.message = `Error deleting policy ${policyId}: ${error}`;
-        updateProgressBar(error.message);
+        updateProgressIndicator(indicatorId, error.message);
         errors.push(error);
       }
     }
@@ -195,10 +197,16 @@ export async function deletePolicies(): Promise<boolean> {
     if (errors.length) {
       const errorMessages = errors.map((error) => error.message).join('\n');
       if (policies.length)
-        stopProgressBar(`Error deleting all policies: ${errorMessages}`);
+        stopProgressIndicator(
+          indicatorId,
+          `Error deleting all policies: ${errorMessages}`
+        );
     } else {
       if (policies.length)
-        stopProgressBar(`Deleted ${policies.length} policies.`);
+        stopProgressIndicator(
+          indicatorId,
+          `Deleted ${policies.length} policies.`
+        );
       outcome = true;
     }
   }
@@ -218,6 +226,7 @@ export async function deletePoliciesByPolicySet(
   let outcome = false;
   const errors = [];
   let policies: PolicySkeleton[] = [];
+  let indicatorId: string;
   try {
     showSpinner(`Retrieving all policies from policy set ${policySetId}...`);
     try {
@@ -231,7 +240,8 @@ export async function deletePoliciesByPolicySet(
       throw error;
     }
     if (policies.length)
-      createProgressBar(
+      indicatorId = createProgressIndicator(
+        'determinate',
         policies.length,
         `Deleting ${policies.length} policies from policy set ${policySetId}...`
       );
@@ -240,10 +250,10 @@ export async function deletePoliciesByPolicySet(
       try {
         debugMessage(`Deleting policy ${policyId}`);
         await deletePolicy(policyId);
-        updateProgressBar(`Deleted ${policyId}`);
+        updateProgressIndicator(indicatorId, `Deleted ${policyId}`);
       } catch (error) {
         error.message = `Error deleting policy ${policyId} from policy set ${policySetId}: ${error}`;
-        updateProgressBar(error.message);
+        updateProgressIndicator(indicatorId, error.message);
         errors.push(error);
       }
     }
@@ -254,12 +264,16 @@ export async function deletePoliciesByPolicySet(
     if (errors.length) {
       const errorMessages = errors.map((error) => error.message).join('\n');
       if (policies.length)
-        stopProgressBar(
+        stopProgressIndicator(
+          indicatorId,
           `Error deleting all policies from policy set ${policySetId}: ${errorMessages}`
         );
     } else {
       if (policies.length)
-        stopProgressBar(`Deleted ${policies.length} policies.`);
+        stopProgressIndicator(
+          indicatorId,
+          `Deleted ${policies.length} policies.`
+        );
       outcome = true;
     }
   }
@@ -397,9 +411,14 @@ export async function exportPoliciesToFiles(
 ): Promise<boolean> {
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
+  let indicatorId: string;
   try {
     const policies: PolicySkeleton[] = await readPolicies();
-    createProgressBar(policies.length, 'Exporting policy sets...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      policies.length,
+      'Exporting policy sets...'
+    );
     for (const policy of policies) {
       const file = getTypedFilename(policy._id, 'policy.authz');
       try {
@@ -408,16 +427,16 @@ export async function exportPoliciesToFiles(
           options
         );
         saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${policy._id}.`);
+        updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${policy._id}.`);
+        updateProgressIndicator(indicatorId, `Error exporting ${policy._id}.`);
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(indicatorId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting policy sets to files`);
+    stopProgressIndicator(indicatorId, `Error exporting policy sets to files`);
   }
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: end`);
   return 0 === errors.length;
@@ -438,10 +457,12 @@ export async function exportPoliciesByPolicySetToFiles(
 ): Promise<boolean> {
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: begin`);
   const errors = [];
+  let indicatorId: string;
   try {
     const policies: PolicySkeleton[] =
       await readPoliciesByPolicySet(policySetId);
-    createProgressBar(
+    indicatorId = createProgressIndicator(
+      'determinate',
       policies.length,
       `Exporting policies in policy set ${policySetId}...`
     );
@@ -453,16 +474,16 @@ export async function exportPoliciesByPolicySetToFiles(
           options
         );
         saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${policy._id}.`);
+        updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${policy._id}.`);
+        updateProgressIndicator(indicatorId, `Error exporting ${policy._id}.`);
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(indicatorId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting policy sets to files`);
+    stopProgressIndicator(indicatorId, `Error exporting policy sets to files`);
   }
   debugMessage(`cli.PolicyOps.exportPoliciesToFiles: end`);
   return 0 === errors.length;
@@ -576,13 +597,18 @@ export async function importPoliciesFromFiles(
   options: PolicyImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   const errors = [];
+  let indicatorId: string;
   try {
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.policy.authz.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing policies...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing policies...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -591,19 +617,26 @@ export async function importPoliciesFromFiles(
         const count = Object.keys(fileData.policyset).length;
         total += count;
         await importPolicies(fileData, options);
-        updateProgressBar(`Imported ${count} policies from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} policies from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing policies from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing policies from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Finished importing ${total} policies from ${files.length} files.`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing policies from files.`);
+    stopProgressIndicator(indicatorId, `Error importing policies from files.`);
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicyOps.importPoliciesFromFiles: end`);

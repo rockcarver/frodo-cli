@@ -3,17 +3,14 @@ import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/Va
 
 import {
   createKeyValueTable,
-  createProgressBar,
   createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
   stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
   updateProgressIndicator,
 } from '../utils/Console';
 import {
@@ -159,13 +156,21 @@ export async function deleteVariableById(variableId) {
  * Delete all variables
  */
 export async function deleteVariables() {
+  let indicatorId: string;
   try {
     const variables = await readVariables();
-    createProgressBar(variables.length, `Deleting variable...`);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      variables.length,
+      `Deleting variable...`
+    );
     for (const variable of variables) {
       try {
         await deleteVariable(variable._id);
-        updateProgressBar(`Deleted variable ${variable._id}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Deleted variable ${variable._id}`
+        );
       } catch (error) {
         printMessage(
           `Error: ${error.response.data.code} - ${error.response.data.message}`,
@@ -173,9 +178,10 @@ export async function deleteVariables() {
         );
       }
     }
-    stopProgressBar(`Variables deleted.`);
+    stopProgressIndicator(indicatorId, `Variables deleted.`);
   } catch (error) {
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Error: ${error.response.data.code} - ${error.response.data.message}`
     );
     printMessage(
@@ -241,17 +247,23 @@ export async function exportVariableToFile(
     fileName = getTypedFilename(variableId, 'variable');
   }
   const filePath = getFilePath(fileName, true);
+  let indicatorId: string;
   try {
-    createProgressBar(1, `Exporting variable ${variableId}`);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting variable ${variableId}`
+    );
     const fileData = await exportVariable(variableId, noDecode);
     saveJsonToFile(fileData, filePath);
-    updateProgressBar(`Exported variable ${variableId}`);
-    stopProgressBar(
+    updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
+    stopProgressIndicator(
+      indicatorId,
       // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
       `Exported ${variableId.brightCyan} to ${filePath.brightCyan}.`
     );
   } catch (err) {
-    stopProgressBar(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
   }
   debugMessage(
@@ -292,7 +304,7 @@ export async function exportVariablesToFile(
  */
 export async function exportVariablesToFiles(noDecode: boolean) {
   const variableList = await readVariables();
-  createProgressIndicator(
+  const indicatorId = createProgressIndicator(
     'determinate',
     variableList.length,
     'Exporting variables'
@@ -301,9 +313,12 @@ export async function exportVariablesToFiles(noDecode: boolean) {
     if (!noDecode) {
       variable.value = decodeBase64(variable.valueBase64);
     }
-    updateProgressIndicator(`Writing variable ${variable._id}`);
+    updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
     const fileName = getTypedFilename(variable._id, 'variable');
     saveToFile('variable', variable, '_id', getFilePath(fileName, true));
   }
-  stopProgressIndicator(`${variableList.length} variables exported`);
+  stopProgressIndicator(
+    indicatorId,
+    `${variableList.length} variables exported`
+  );
 }

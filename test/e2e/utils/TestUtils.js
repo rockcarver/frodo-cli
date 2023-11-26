@@ -38,6 +38,8 @@ export async function testExport(
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
   const { stdout, stderr } = await exec(command, env);
+  // console.error(`stdout:\n${stdout}`);
+  // console.error(`stderr:\n${stderr}`);
   const regex = new RegExp(
     fileName
       ? fileName
@@ -45,9 +47,12 @@ export async function testExport(
       ? `.*\\.${type}\\.(json|js|groovy|xml)`
       : `.*\\.(json|js|groovy|xml)`
   );
-  const filePaths = getFilePaths(directory, !isCurrentDirectory)
-      .filter((p) => regex.test(p));
+  const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
+    regex.test(p)
+  );
   if (fileName) {
+    // if (filePaths.length !== 0)
+    //   console.error(`filePaths:\n${filePaths.join('\n')}`);
     expect(filePaths.length).toBe(1);
   } else {
     expect(filePaths.length >= 1).toBeTruthy();
@@ -67,9 +72,12 @@ export async function testExport(
         exportData = { path, error };
       }
       if (checkForMetadata) {
-        expect(exportData).toMatchSnapshot({
-          meta: expect.any(Object),
-        }, path);
+        expect(exportData).toMatchSnapshot(
+          {
+            meta: expect.any(Object),
+          },
+          path
+        );
       } else {
         expect(exportData).toMatchSnapshot(path);
       }
@@ -78,11 +86,18 @@ export async function testExport(
       expect(data).toMatchSnapshot(path);
     }
     //Delete export file
-    if (deleteExportFile) fs.unlinkSync(path);
+    if (deleteExportFile) {
+      try {
+        fs.unlinkSync(path);
+      } catch (error) {
+        // ignore for now, since this is only cleanup
+      }
+    }
   });
-  if (!isCurrentDirectory && deleteExportDirectory) fs.rmdirSync(directory, {
-    recursive: true,
-  });
+  if (!isCurrentDirectory && deleteExportDirectory)
+    fs.rmdirSync(directory, {
+      recursive: true,
+    });
 }
 
 export const testif = (condition) => (condition ? test : test.skip);
@@ -96,8 +111,12 @@ export const testif = (condition) => (condition ? test : test.skip);
 function getFilePaths(directoryPath, recursive = false) {
   let paths = [];
   fs.readdirSync(directoryPath)
-      .map(file => path.join(directoryPath, file))
-      .filter(filePath => recursive || !fs.statSync(filePath).isDirectory()) // Filter out directories if it is not recursive
-      .forEach(filePath => fs.statSync(filePath).isDirectory() ? paths = paths.concat(getFilePaths(filePath, recursive)) : paths.push(filePath));
+    .map((file) => path.join(directoryPath, file))
+    .filter((filePath) => recursive || !fs.statSync(filePath).isDirectory()) // Filter out directories if it is not recursive
+    .forEach((filePath) =>
+      fs.statSync(filePath).isDirectory()
+        ? (paths = paths.concat(getFilePaths(filePath, recursive)))
+        : paths.push(filePath)
+    );
   return paths;
 }
