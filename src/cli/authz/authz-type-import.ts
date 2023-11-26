@@ -58,7 +58,7 @@ program
         verboseMessage(
           'Importing authorization resource type by uuid from file...'
         );
-        const outcome = importResourceTypeFromFile(
+        const outcome = await importResourceTypeFromFile(
           options.typeId,
           options.file
         );
@@ -69,7 +69,7 @@ program
         verboseMessage(
           'Importing authorization resource type by name from file...'
         );
-        const outcome = importResourceTypeByNameFromFile(
+        const outcome = await importResourceTypeByNameFromFile(
           options.typeName,
           options.file
         );

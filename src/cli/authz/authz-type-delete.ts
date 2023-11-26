@@ -47,19 +47,19 @@ program
       // delete by uuid
       if (options.typeId && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
-        const outcome = deleteResourceTypeById(options.typeId);
+        const outcome = await deleteResourceTypeById(options.typeId);
         if (!outcome) process.exitCode = 1;
       }
       // delete by name
       else if (options.typeName && (await getTokens())) {
         verboseMessage('Deleting authorization resource type...');
-        const outcome = deleteResourceTypeUsingName(options.typeName);
+        const outcome = await deleteResourceTypeUsingName(options.typeName);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all authorization resource types...');
-        const outcome = deleteResourceTypes();
+        const outcome = await deleteResourceTypes();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

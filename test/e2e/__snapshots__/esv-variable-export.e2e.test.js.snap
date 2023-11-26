@@ -2,7 +2,7 @@
 
 exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: ./allAlphaVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: allAlphaVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {
@@ -388,7 +388,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --d
 
 exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var": ./esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var": esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {
@@ -408,7 +408,7 @@ exports[`frodo esv variable export "frodo esv variable export --variable-id esv-
 
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-blue-piller.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-blue-piller.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -426,7 +426,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-ipv4-cidr-access-rules.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -449,7 +449,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-nebuchadnezzar-crew.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -467,7 +467,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -485,7 +485,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-neo-age.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-neo-age.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -503,7 +503,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -521,7 +521,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var-1.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-1.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -539,7 +539,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var-2.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-2.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -557,7 +557,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var-3.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-3.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -575,7 +575,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var-pi.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -593,7 +593,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-test-var-pi-string.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi-string.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -611,7 +611,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-trinity-phone.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-trinity-phone.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -629,7 +629,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: ./esv-volkerstestvariable1.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-volkerstestvariable1.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variable": {
@@ -649,7 +649,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 
 exports[`frodo esv variable export "frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json: ./my-allAlphaVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json: my-allAlphaVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {
@@ -959,7 +959,7 @@ exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -D
 
 exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json: ./my-esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json: my-esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {

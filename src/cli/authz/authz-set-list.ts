@@ -21,7 +21,7 @@ program.description('List authorization policy sets.').action(
     );
     if (await getTokens()) {
       verboseMessage('Listing authorization policy sets...');
-      const outcome = listPolicySets();
+      const outcome = await listPolicySets();
       if (!outcome) process.exitCode = 1;
     } else {
       process.exitCode = 1;

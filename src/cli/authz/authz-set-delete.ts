@@ -32,13 +32,13 @@ program
       // delete by id
       if (options.setId && (await getTokens())) {
         verboseMessage('Deleting authorization policy set...');
-        const outcome = deletePolicySetById(options.setId);
+        const outcome = await deletePolicySetById(options.setId);
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all authorization policy sets...');
-        const outcome = deletePolicySets();
+        const outcome = await deletePolicySets();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

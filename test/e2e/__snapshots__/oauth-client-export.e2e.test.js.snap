@@ -2,7 +2,7 @@
 
 exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies 1`] = `""`;
 
-exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies: ./my-nodeps-allAlphaApplications.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies: my-nodeps-allAlphaApplications.oauth2.app.json 1`] = `
 {
   "application": {
     "23281ea7-739b-4fd1-b953-eaae73a2b497": {
@@ -11086,7 +11086,7 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --d
 
 exports[`frodo oauth client export "frodo oauth client export --app-id test2 --no-deps -f my-nodeps-test2.oauth2.app.json": should export the oauth client with oauth client id "test2" with no dependencies into a file named my-nodeps-test2.oauth2.app.json 1`] = `""`;
 
-exports[`frodo oauth client export "frodo oauth client export --app-id test2 --no-deps -f my-nodeps-test2.oauth2.app.json": should export the oauth client with oauth client id "test2" with no dependencies into a file named my-nodeps-test2.oauth2.app.json: ./my-nodeps-test2.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export --app-id test2 --no-deps -f my-nodeps-test2.oauth2.app.json": should export the oauth client with oauth client id "test2" with no dependencies into a file named my-nodeps-test2.oauth2.app.json: my-nodeps-test2.oauth2.app.json 1`] = `
 {
   "application": {
     "test2": {
@@ -11814,7 +11814,7 @@ exports[`frodo oauth client export "frodo oauth client export --app-id test2 --n
 
 exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files 1`] = `""`;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./49a2981c-e192-4739-a0e6-c7582168bdf5.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: 49a2981c-e192-4739-a0e6-c7582168bdf5.oauth2.app.json 1`] = `
 {
   "application": {
     "49a2981c-e192-4739-a0e6-c7582168bdf5": {
@@ -12567,7 +12567,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./86fca6d7-2f52-4524-92c6-b6f416071455.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: 86fca6d7-2f52-4524-92c6-b6f416071455.oauth2.app.json 1`] = `
 {
   "application": {
     "86fca6d7-2f52-4524-92c6-b6f416071455": {
@@ -13319,7 +13319,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./23281ea7-739b-4fd1-b953-eaae73a2b497.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: 23281ea7-739b-4fd1-b953-eaae73a2b497.oauth2.app.json 1`] = `
 {
   "application": {
     "23281ea7-739b-4fd1-b953-eaae73a2b497": {
@@ -14071,7 +14071,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./RCSClient.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: RCSClient.oauth2.app.json 1`] = `
 {
   "application": {
     "RCSClient": {
@@ -14763,7 +14763,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./d4c3ecbc-4b03-4ad5-b32f-464bda442e3f.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: d4c3ecbc-4b03-4ad5-b32f-464bda442e3f.oauth2.app.json 1`] = `
 {
   "application": {
     "d4c3ecbc-4b03-4ad5-b32f-464bda442e3f": {
@@ -15516,7 +15516,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./ig-oidc-app.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ig-oidc-app.oauth2.app.json 1`] = `
 {
   "application": {
     "ig-oidc-app": {
@@ -16272,7 +16272,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./test2.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: test2.oauth2.app.json 1`] = `
 {
   "application": {
     "test2": {
@@ -17795,7 +17795,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: ./testapp.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: testapp.oauth2.app.json 1`] = `
 {
   "application": {
     "testapp": {
@@ -18552,7 +18552,7 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 
 exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file 1`] = `""`;
 
-exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file: ./allAlphaApplications.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file: allAlphaApplications.oauth2.app.json 1`] = `
 {
   "application": {
     "23281ea7-739b-4fd1-b953-eaae73a2b497": {
@@ -30363,7 +30363,7 @@ exports[`frodo oauth client export "frodo oauth client export -i test2 -D oauthC
 
 exports[`frodo oauth client export "frodo oauth client export -i test2": should export the oauth client with oauth client id "test2" 1`] = `""`;
 
-exports[`frodo oauth client export "frodo oauth client export -i test2": should export the oauth client with oauth client id "test2": ./test2.oauth2.app.json 1`] = `
+exports[`frodo oauth client export "frodo oauth client export -i test2": should export the oauth client with oauth client id "test2": test2.oauth2.app.json 1`] = `
 {
   "application": {
     "test2": {

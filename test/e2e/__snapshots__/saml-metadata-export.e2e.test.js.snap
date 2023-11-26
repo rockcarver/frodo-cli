@@ -83,7 +83,7 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
 
 exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml 1`] = `""`;
 
-exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml: ./my-iSPAzure.metadata.xml 1`] = `
+exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml: my-iSPAzure.metadata.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <EntityDescriptor entityID="iSPAzure" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:query="urn:oasis:names:tc:SAML:metadata:ext:query" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" xmlns:xenc11="http://www.w3.org/2009/xmlenc11#" xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport" xmlns:x509qry="urn:oasis:names:tc:SAML:metadata:X509:query" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
@@ -245,7 +245,7 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
 
 exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure" 1`] = `""`;
 
-exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure": ./iSPAzure.metadata.xml 1`] = `
+exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure": iSPAzure.metadata.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <EntityDescriptor entityID="iSPAzure" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:query="urn:oasis:names:tc:SAML:metadata:ext:query" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" xmlns:xenc11="http://www.w3.org/2009/xmlenc11#" xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport" xmlns:x509qry="urn:oasis:names:tc:SAML:metadata:X509:query" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">

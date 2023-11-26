@@ -55,13 +55,16 @@ program
       // export by uuid
       if (options.typeId && (await getTokens())) {
         verboseMessage('Exporting authorization resource type to file...');
-        const outcome = exportResourceTypeToFile(options.typeId, options.file);
+        const outcome = await exportResourceTypeToFile(
+          options.typeId,
+          options.file
+        );
         if (!outcome) process.exitCode = 1;
       }
       // export by name
       else if (options.typeName && (await getTokens())) {
         verboseMessage('Exporting authorization resource type to file...');
-        const outcome = exportResourceTypeByNameToFile(
+        const outcome = await exportResourceTypeByNameToFile(
           options.typeName,
           options.file
         );

@@ -1,16 +1,22 @@
 /* eslint-disable no-console */
 import { frodo, state } from '@rockcarver/frodo-lib';
+import {
+  ProgressIndicatorStatusType,
+  ProgressIndicatorType,
+} from '@rockcarver/frodo-lib/types/utils/Console';
 import { MultiBar, Presets } from 'cli-progress';
 import Table from 'cli-table3';
 import Color from 'colors';
 import { createSpinner } from 'nanospinner';
+import { v4 as uuidv4 } from 'uuid';
 
 Color.enable();
 
 const { appendTextToFile } = frodo.utils;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const progressBars: { [k: string]: any } = {};
 let multiBarContainer = null;
-let progressBar = null;
 let spinner = null;
 
 /**
@@ -190,34 +196,47 @@ export function printMessage(message, type = 'text', newline = true) {
  * Example:
  * [========================================] 100% | 49/49 | Analyzing journey - transactional_auth
  *
- * @param {Number} total The total number of entries to track progress for
- * @param {String} message optional progress bar message
- * @param {Object} options progress bar configuration options
- *
+ * @param {number} total The total number of entries to track progress for
+ * @param {string} message optional progress bar message
+ * @param {object} options progress bar configuration options
+ * @returns {string} progress bar reference id. Save this id to manage (update, stop) the progress bar.
  */
-export function createProgressBar(
-  total,
-  message = null,
-  options = {
+function createProgressBar(
+  total: number,
+  message: string = null,
+  options: object = {
+    clearOnComplete: false,
+    hideCursor: true,
     format: '[{bar}] {percentage}% | {value}/{total} | {data}',
     noTTYOutput: true,
   }
-) {
+): string {
+  debugMessage(`cli.Console.createProgressBar: start`);
   let opt = options;
   if (message == null) {
     opt = {
+      clearOnComplete: false,
+      hideCursor: true,
       format: '[{bar}] {percentage}% | {value}/{total}',
       noTTYOutput: true,
     };
   }
-  // progressBar = new SingleBar(opt, Presets.legacy); // create only when needed
-  // progressBar.start(total, 0, {
-  //   data: message,
-  // });
-  multiBarContainer = new MultiBar(opt, Presets.legacy);
-  progressBar = multiBarContainer.create(total, 0, {
+  if (!multiBarContainer) {
+    multiBarContainer = new MultiBar(opt, Presets.legacy);
+    debugMessage(
+      `cli.Console.createProgressBar: initialized multiBarContainer`
+    );
+  }
+  const id = uuidv4();
+  progressBars[id] = multiBarContainer.create(total, 0, {
     data: message,
   });
+  debugMessage(
+    `cli.Console.createProgressBar: end [${id}, ${
+      Object.keys(progressBars).length
+    } bars]`
+  );
+  return id;
 }
 
 /**
@@ -225,26 +244,60 @@ export function createProgressBar(
  * @param {string} message optional message to update the progress bar
  *
  */
-export function updateProgressBar(message = null) {
-  if (message)
-    progressBar.increment({
+function updateProgressBar(id: string, message: string = null) {
+  if (!progressBars[id]) {
+    warn(
+      `progressBar is undefined. Make sure to call 'createProgressBar' before calling 'updateProgressBar'.`
+    );
+  } else if (message) {
+    progressBars[id].increment({
       data: message,
     });
-  else progressBar.increment();
+  } else {
+    progressBars[id].increment();
+  }
 }
 
 /**
  * Stop and hide the progress bar
  * @param {*} message optional message to update the progress bar
  */
-export function stopProgressBar(message = null) {
-  if (message)
-    progressBar.update({
+function stopProgressBar(id: string, message: string = null) {
+  debugMessage(`cli.Console.stopProgressBar: start [${id}]`);
+  if (!progressBars[id]) {
+    warn(
+      `progressBar is undefined. Make sure to call 'createProgressBar' before calling 'stopProgressBar'.`
+    );
+  } else if (message) {
+    progressBars[id].update({
       data: message,
     });
-  // progressBar.stop();
-  multiBarContainer.stop();
-  multiBarContainer = null;
+  }
+  progressBars[id].stop();
+  debugMessage(
+    `cli.Console.stopProgressBar: end [${
+      Object.keys(progressBars).length
+    } bars]`
+  );
+}
+
+/**
+ * Clean-up progress bars
+ */
+function cleanupProgressBars() {
+  debugMessage(`cli.Console.cleanupProgressBars: start`);
+  try {
+    debugMessage(
+      `cli.Console.cleanupProgressBars: stopping ${
+        Object.keys(progressBars).length
+      } bars`
+    );
+    multiBarContainer.stop();
+    multiBarContainer = null;
+  } catch (error) {
+    // ignore
+  }
+  debugMessage(`cli.Console.cleanupProgressBars: end`);
 }
 
 /**
@@ -317,27 +370,31 @@ export function spinSpinner(message = null) {
 }
 
 export function createProgressIndicator(
-  type = 'determinate',
+  type: ProgressIndicatorType = 'determinate',
   total = 0,
   message = null
-) {
+): string {
   if (type === 'determinate') {
-    createProgressBar(total, message);
+    return createProgressBar(total, message);
   } else {
     showSpinner(message);
   }
 }
 
-export function updateProgressIndicator(message) {
-  if (!progressBar) {
+export function updateProgressIndicator(id: string, message: string) {
+  if (!progressBars[id]) {
     spinSpinner(message);
   } else {
-    updateProgressBar(message);
+    updateProgressBar(id, message);
   }
 }
 
-export function stopProgressIndicator(message, status = 'none') {
-  if (!progressBar) {
+export function stopProgressIndicator(
+  id: string,
+  message: string,
+  status: ProgressIndicatorStatusType = 'none'
+) {
+  if (!progressBars[id]) {
     switch (status) {
       case 'none':
         stopSpinner(message);
@@ -356,8 +413,12 @@ export function stopProgressIndicator(message, status = 'none') {
         break;
     }
   } else {
-    stopProgressBar(message);
+    stopProgressBar(id, message);
   }
+}
+
+export function cleanupProgressIndicators() {
+  cleanupProgressBars();
 }
 
 /**

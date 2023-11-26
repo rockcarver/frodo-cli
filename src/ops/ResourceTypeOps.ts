@@ -5,15 +5,15 @@ import fs from 'fs';
 
 import {
   createObjectTable,
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
@@ -205,6 +205,7 @@ export async function deleteResourceTypes(): Promise<
   let outcome = false;
   const errors = [];
   let resourceTypes: ResourceTypeSkeleton[] = [];
+  let indicatorId: string;
   try {
     showSpinner(`Retrieving all resource types...`);
     try {
@@ -216,7 +217,8 @@ export async function deleteResourceTypes(): Promise<
       throw error;
     }
     if (resourceTypes.length)
-      createProgressBar(
+      indicatorId = createProgressIndicator(
+        'determinate',
         resourceTypes.length,
         `Deleting ${resourceTypes.length} resource types...`
       );
@@ -225,10 +227,10 @@ export async function deleteResourceTypes(): Promise<
       try {
         debugMessage(`Deleting resource type ${resourceTypeId}`);
         await deleteResourceType(resourceTypeId);
-        updateProgressBar(`Deleted ${resourceTypeId}`);
+        updateProgressIndicator(indicatorId, `Deleted ${resourceTypeId}`);
       } catch (error) {
         error.message = `Error deleting resource type ${resourceTypeId}: ${error}`;
-        updateProgressBar(error.message);
+        updateProgressIndicator(indicatorId, error.message);
         errors.push(error);
       }
     }
@@ -239,10 +241,16 @@ export async function deleteResourceTypes(): Promise<
     if (errors.length) {
       const errorMessages = errors.map((error) => error.message).join('\n');
       if (resourceTypes.length)
-        stopProgressBar(`Error deleting all resource types: ${errorMessages}`);
+        stopProgressIndicator(
+          indicatorId,
+          `Error deleting all resource types: ${errorMessages}`
+        );
     } else {
       if (resourceTypes.length)
-        stopProgressBar(`Deleted ${resourceTypes.length} resource types.`);
+        stopProgressIndicator(
+          indicatorId,
+          `Deleted ${resourceTypes.length} resource types.`
+        );
       outcome = true;
     }
   }
@@ -350,25 +358,36 @@ export async function exportResourceTypesToFile(
 export async function exportResourceTypesToFiles(): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
+  let indicatorId: string;
   try {
     const resourceTypes: ResourceTypeSkeleton[] = await readResourceTypes();
-    createProgressBar(resourceTypes.length, 'Exporting resource types...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      resourceTypes.length,
+      'Exporting resource types...'
+    );
     for (const resourceType of resourceTypes) {
       const file = getTypedFilename(resourceType.name, 'resourcetype.authz');
       try {
         const exportData: ResourceTypeExportInterface =
           await exportResourceType(resourceType.uuid);
         saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${resourceType.name}.`);
+        updateProgressIndicator(indicatorId, `Exported ${resourceType.name}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${resourceType.name}.`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error exporting ${resourceType.name}.`
+        );
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(indicatorId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting resource types to files`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting resource types to files`
+    );
   }
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: end`);
   return 0 === errors.length;
@@ -486,13 +505,18 @@ export async function importResourceTypesFromFile(
  */
 export async function importResourceTypesFromFiles(): Promise<boolean> {
   const errors = [];
+  let indicatorId: string;
   try {
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.resourcetype.authz.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing resource types...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing resource types...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -501,19 +525,29 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
         const count = Object.keys(fileData.resourcetype).length;
         total += count;
         await importResourceTypes(fileData);
-        updateProgressBar(`Imported ${count} resource types from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} resource types from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing resource types from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing resource types from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Finished importing ${total} resource types from ${files.length} files.`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing resource types from files.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing resource types from files.`
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: end`);

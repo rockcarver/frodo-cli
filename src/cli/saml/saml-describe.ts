@@ -29,7 +29,7 @@ program
             options.entityId
           } in realm "${state.getRealm()}"...`
         );
-        describeSaml2Provider(options.entityId);
+        await describeSaml2Provider(options.entityId);
       } else {
         process.exitCode = 1;
       }

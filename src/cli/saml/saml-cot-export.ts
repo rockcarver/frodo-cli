@@ -57,19 +57,22 @@ program
             options.cotId
           }" from realm "${state.getRealm()}"...`
         );
-        const outcome = exportCircleOfTrustToFile(options.cotId, options.file);
+        const outcome = await exportCircleOfTrustToFile(
+          options.cotId,
+          options.file
+        );
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to a single file...');
-        const outcome = exportCirclesOfTrustToFile(options.file);
+        const outcome = await exportCirclesOfTrustToFile(options.file);
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to separate files...');
-        const outcome = exportCirclesOfTrustToFiles();
+        const outcome = await exportCirclesOfTrustToFiles();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

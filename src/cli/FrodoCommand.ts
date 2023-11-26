@@ -4,6 +4,7 @@ import fs from 'fs';
 
 import * as globalConfig from '../storage/StaticStorage';
 import {
+  cleanupProgressIndicators,
   createProgressIndicator,
   curlirizeMessage,
   debugMessage,
@@ -191,6 +192,15 @@ export class FrodoStubCommand extends Command {
     state.setCreateProgressHandler(createProgressIndicator);
     state.setUpdateProgressHandler(updateProgressIndicator);
     state.setStopProgressHandler(stopProgressIndicator);
+
+    // shutdown handlers
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.hook('postAction', (thisCommand, actionCommand) => {
+      debugMessage(
+        `postAction: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
+      );
+      cleanupProgressIndicators();
+    });
   }
 }
 

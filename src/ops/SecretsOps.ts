@@ -2,15 +2,15 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 
 import {
   createKeyValueTable,
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
@@ -147,13 +147,18 @@ export async function deleteSecret(secretId) {
  * Delete all secrets
  */
 export async function deleteSecrets() {
+  let indicatorId: string;
   try {
     const secrets = await readSecrets();
-    createProgressBar(secrets.length, `Deleting secrets...`);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      secrets.length,
+      `Deleting secrets...`
+    );
     for (const secret of secrets) {
       try {
         await _deleteSecret(secret._id);
-        updateProgressBar(`Deleted secret ${secret._id}`);
+        updateProgressIndicator(indicatorId, `Deleted secret ${secret._id}`);
       } catch (error) {
         printMessage(
           `Error: ${error.response.data.code} - ${error.response.data.message}`,
@@ -161,7 +166,7 @@ export async function deleteSecrets() {
         );
       }
     }
-    stopProgressBar(`Secrets deleted.`);
+    stopProgressIndicator(indicatorId, `Secrets deleted.`);
   } catch (error) {
     printMessage(
       `Error: ${error.response.data.code} - ${error.response.data.message}`,
@@ -253,17 +258,23 @@ export async function exportSecretToFile(
     fileName = getTypedFilename(secretId, 'secret');
   }
   const filePath = getFilePath(fileName, true);
+  let indicatorId: string;
   try {
-    createProgressBar(1, `Exporting secret ${secretId}`);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting secret ${secretId}`
+    );
     const fileData = await exportSecret(secretId);
     saveJsonToFile(fileData, filePath);
-    updateProgressBar(`Exported secret ${secretId}`);
-    stopProgressBar(
+    updateProgressIndicator(indicatorId, `Exported secret ${secretId}`);
+    stopProgressIndicator(
+      indicatorId,
       // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
       `Exported ${secretId.brightCyan} to ${filePath.brightCyan}.`
     );
   } catch (err) {
-    stopProgressBar(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
   }
   debugMessage(
@@ -299,13 +310,20 @@ export async function exportSecretsToFile(file: string) {
  */
 export async function exportSecretsToFiles() {
   const allSecretsData = await readSecrets();
-  createProgressBar(allSecretsData.length, 'Exporting secrets');
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    allSecretsData.length,
+    'Exporting secrets'
+  );
   for (const secret of allSecretsData) {
-    updateProgressBar(`Writing secret ${secret._id}`);
+    updateProgressIndicator(indicatorId, `Writing secret ${secret._id}`);
     const fileName = getTypedFilename(secret._id, 'secret');
     saveToFile('secret', secret, '_id', getFilePath(fileName, true));
   }
-  stopProgressBar(`${allSecretsData.length} secrets exported.`);
+  stopProgressIndicator(
+    indicatorId,
+    `${allSecretsData.length} secrets exported.`
+  );
 }
 
 /**
