@@ -58,21 +58,21 @@ program
             options.entityId
           }" into realm "${state.getRealm()}"...`
         );
-        importSaml2ProviderFromFile(options.entityId, options.file);
+        await importSaml2ProviderFromFile(options.entityId, options.file);
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        importSaml2ProvidersFromFile(options.file);
+        await importSaml2ProvidersFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files (*.saml.json) in current directory...'
         );
-        importSaml2ProvidersFromFiles();
+        await importSaml2ProvidersFromFiles();
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -81,7 +81,7 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        importFirstSaml2ProviderFromFile(options.file);
+        await importFirstSaml2ProviderFromFile(options.file);
       }
       // unrecognized combination of options or no options
       else {

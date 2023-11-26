@@ -61,7 +61,7 @@ program
       // export by id/name
       if (options.name && (await getTokens())) {
         verboseMessage(`Exporting object "${options.name}"...`);
-        exportConfigEntity(options.name, options.file);
+        await exportConfigEntity(options.name, options.file);
       }
       // require --directory -D for all-separate functions
       else if (options.allSeparate && !state.getDirectory()) {
@@ -87,7 +87,7 @@ program
           } for variable replacement...`
         );
         exportAllConfigEntities(options.entitiesFile, options.envFile);
-        warnAboutOfflineConnectorServers();
+        await warnAboutOfflineConnectorServers();
       }
       // --all-separate -A without variable replacement
       else if (options.allSeparate && (await getTokens())) {
@@ -95,7 +95,7 @@ program
           `Exporting all IDM configuration objects into separate files in ${state.getDirectory()}...`
         );
         exportAllRawConfigEntities();
-        warnAboutOfflineConnectorServers();
+        await warnAboutOfflineConnectorServers();
       }
       // unrecognized combination of options or no options
       else {

@@ -57,17 +57,17 @@ program
             options.templateId
           }" from realm "${state.getRealm()}"...`
         );
-        exportEmailTemplateToFile(options.templateId, options.file);
+        await exportEmailTemplateToFile(options.templateId, options.file);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all email templates to a single file...');
-        exportEmailTemplatesToFile(options.file);
+        await exportEmailTemplatesToFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all email templates to separate files...');
-        exportEmailTemplatesToFiles();
+        await exportEmailTemplatesToFiles();
       }
       // unrecognized combination of options or no options
       else {

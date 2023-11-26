@@ -5,15 +5,12 @@ import fs from 'fs';
 
 import {
   createObjectTable,
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
-  failSpinner,
   printMessage,
-  showSpinner,
-  stopProgressBar,
-  succeedSpinner,
-  updateProgressBar,
+  stopProgressIndicator,
+  updateProgressIndicator,
 } from '../utils/Console';
 import { saveTextToFile } from '../utils/ExportImportUtils';
 
@@ -144,23 +141,27 @@ export async function describeSaml2Provider(entityId) {
  * @param {String} file Optional filename
  */
 export async function exportSaml2MetadataToFile(entityId, file = null) {
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(entityId, 'metadata', 'xml');
+  if (!file) {
+    file = getTypedFilename(entityId, 'metadata', 'xml');
   }
-  const filePath = getFilePath(fileName, true);
-  createProgressBar(1, `Exporting metadata for: ${entityId}`);
+  const filePath = getFilePath(file, true);
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    1,
+    `Exporting metadata for: ${entityId}`
+  );
   try {
-    updateProgressBar(`Writing file ${filePath}`);
+    updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const metaData = await getSaml2ProviderMetadata(entityId);
     saveTextToFile(metaData, filePath);
-    updateProgressBar(`Exported provider ${entityId}`);
-    stopProgressBar(
+    updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
+    stopProgressIndicator(
+      indicatorId,
       // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
       `Exported ${entityId.brightCyan} metadata to ${filePath.brightCyan}.`
     );
   } catch (error) {
-    stopProgressBar(`${error}`);
+    stopProgressIndicator(indicatorId, `${error}`);
     printMessage(error, 'error');
   }
 }
@@ -174,22 +175,27 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
   debugMessage(
     `cli.Saml2Ops.exportSaml2ProviderToFile: start [entityId=${entityId}, file=${file}]`
   );
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(entityId, 'saml');
+  if (!file) {
+    file = getTypedFilename(entityId, 'saml');
   }
-  const filePath = getFilePath(fileName, true);
+  const filePath = getFilePath(file, true);
+  let indicatorId: string;
   try {
-    createProgressBar(1, `Exporting provider ${entityId}`);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting provider ${entityId}`
+    );
     const fileData = await exportSaml2Provider(entityId);
     saveJsonToFile(fileData, filePath);
-    updateProgressBar(`Exported provider ${entityId}`);
-    stopProgressBar(
+    updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
+    stopProgressIndicator(
+      indicatorId,
       // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
       `Exported ${entityId.brightCyan} to ${filePath.brightCyan}.`
     );
   } catch (err) {
-    stopProgressBar(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
   }
   debugMessage(
@@ -203,13 +209,12 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
  */
 export async function exportSaml2ProvidersToFile(file = null) {
   debugMessage(`cli.Saml2Ops.exportSaml2ProviderToFile: start [file=${file}]`);
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(`all${getRealmString()}Providers`, 'saml');
+  if (!file) {
+    file = getTypedFilename(`all${getRealmString()}Providers`, 'saml');
   }
   try {
     const exportData = await exportSaml2Providers();
-    saveJsonToFile(exportData, getFilePath(fileName, true));
+    saveJsonToFile(exportData, getFilePath(file, true));
   } catch (error) {
     printMessage(error.message, 'error');
     printMessage(
@@ -226,14 +231,21 @@ export async function exportSaml2ProvidersToFile(file = null) {
 export async function exportSaml2ProvidersToFiles() {
   const stubs = await readSaml2ProviderStubs();
   if (stubs.length > 0) {
-    createProgressBar(stubs.length, 'Exporting providers');
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      stubs.length,
+      'Exporting providers'
+    );
     for (const stub of stubs) {
-      const fileName = getTypedFilename(stub.entityId, 'saml');
+      const file = getFilePath(getTypedFilename(stub.entityId, 'saml'), true);
       const fileData = await exportSaml2Provider(stub.entityId);
-      saveJsonToFile(fileData, getFilePath(fileName, true));
-      updateProgressBar(`Exported provider ${stub.entityId}`);
+      saveJsonToFile(fileData, file);
+      updateProgressIndicator(
+        indicatorId,
+        `Exported provider ${stub.entityId}`
+      );
     }
-    stopProgressBar(`${stubs.length} providers exported.`);
+    stopProgressIndicator(indicatorId, `${stubs.length} providers exported.`);
   } else {
     printMessage('No entity providers found.', 'info');
   }
@@ -248,17 +260,30 @@ export async function importSaml2ProviderFromFile(
   entityId: string,
   file: string
 ) {
-  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
-    if (err) throw err;
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    showSpinner(`Importing ${entityId}...`);
+    const indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${entityId}...`
+    );
     try {
       await importSaml2Provider(entityId, fileData);
-      succeedSpinner(`Imported ${entityId}.`);
+      stopProgressIndicator(indicatorId, `Imported ${entityId}.`, 'success');
     } catch (error) {
-      failSpinner(`Error importing ${entityId}: ${error.message}`);
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing ${entityId}: ${error.message}`,
+        'fail'
+      );
     }
-  });
+  } catch (error) {
+    printMessage(
+      `Error importing saml2 provider ${entityId}: ${error}`,
+      'error'
+    );
+  }
 }
 
 /**
@@ -266,22 +291,32 @@ export async function importSaml2ProviderFromFile(
  * @param {String} file Import file name
  */
 export async function importFirstSaml2ProviderFromFile(file: string) {
-  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
-    if (err) throw err;
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data) as Saml2ExportInterface;
     // pick the first provider and run with it
     const entityId64 =
       Object.keys(fileData.saml.remote)[0] ||
       Object.keys(fileData.saml.hosted)[0];
     const entityId = decodeBase64(entityId64);
-    showSpinner(`Importing ${entityId}...`);
+    const indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${entityId}...`
+    );
     try {
       await importSaml2Provider(entityId, fileData);
-      succeedSpinner(`Imported ${entityId}.`);
+      stopProgressIndicator(indicatorId, `Imported ${entityId}.`, 'success');
     } catch (error) {
-      failSpinner(`Error importing ${entityId}: ${error.message}`);
+      stopProgressIndicator(
+        indicatorId,
+        `Error importing ${entityId}: ${error.message}`,
+        'fail'
+      );
     }
-  });
+  } catch (error) {
+    printMessage(`Error importing first saml2 provider: ${error}`, 'error');
+  }
 }
 
 /**
@@ -289,15 +324,17 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
  * @param {String} file Import file name
  */
 export async function importSaml2ProvidersFromFile(file: string) {
-  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
-    if (err) throw err;
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     if (validateImport(fileData.meta)) {
       await importSaml2Providers(fileData);
     } else {
       printMessage('Import validation failed...', 'error');
     }
-  });
+  } catch (error) {
+    printMessage(`Error importing saml2 providers: ${error}`, 'error');
+  }
 }
 
 /**
@@ -308,7 +345,11 @@ export async function importSaml2ProvidersFromFiles() {
   const jsonFiles = names
     .filter((name) => name.toLowerCase().endsWith('.saml.json'))
     .map((name) => getFilePath(name));
-  createProgressBar(jsonFiles.length, 'Importing providers...');
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    jsonFiles.length,
+    'Importing providers...'
+  );
   let total = 0;
   for (const file of jsonFiles) {
     try {
@@ -317,7 +358,8 @@ export async function importSaml2ProvidersFromFiles() {
       if (validateImport(fileData.meta)) {
         const result = await importSaml2Providers(fileData);
         total += result.length;
-        updateProgressBar(
+        updateProgressIndicator(
+          indicatorId,
           `Imported ${result.length} provider(s) from ${file}.`
         );
       } else {
@@ -330,7 +372,8 @@ export async function importSaml2ProvidersFromFiles() {
       );
     }
   }
-  stopProgressBar(
+  stopProgressIndicator(
+    indicatorId,
     `Imported ${total} provider(s) from ${jsonFiles.length} file(s).`
   );
 }

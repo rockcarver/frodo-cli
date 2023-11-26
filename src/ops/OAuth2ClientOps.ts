@@ -8,15 +8,15 @@ import type {
 import fs from 'fs';
 
 import {
-  createProgressBar,
+  createProgressIndicator,
   createTable,
   debugMessage,
   failSpinner,
   printMessage,
   showSpinner,
-  stopProgressBar,
+  stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import { saveJsonToFile } from '../utils/ExportImportUtils';
 
@@ -169,25 +169,30 @@ export async function exportOAuth2ClientsToFiles(
 ) {
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: begin`);
   const errors = [];
+  let indicatorId: string;
   try {
     const clients = await readOAuth2Clients();
-    createProgressBar(clients.length, 'Exporting clients...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      clients.length,
+      'Exporting clients...'
+    );
     for (const client of clients) {
       const file = getTypedFilename(client._id, 'oauth2.app');
       try {
         const exportData: OAuth2ClientExportInterface =
           await exportOAuth2Client(client._id, options);
         saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${client._id}.`);
+        updateProgressIndicator(indicatorId, `Exported ${client._id}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${client._id}.`);
+        updateProgressIndicator(indicatorId, `Error exporting ${client._id}.`);
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(indicatorId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting client(s) to file(s)`);
+    stopProgressIndicator(indicatorId, `Error exporting client(s) to file(s)`);
   }
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: end`);
   return 0 === errors.length;
@@ -287,13 +292,18 @@ export async function importOAuth2ClientsFromFiles(
   options: OAuth2ClientImportOptions = { deps: true }
 ): Promise<boolean> {
   const errors = [];
+  let indicatorId: string;
   try {
     debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.oauth2.app.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing clients...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing clients...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -302,19 +312,29 @@ export async function importOAuth2ClientsFromFiles(
         const count = Object.keys(fileData.application).length;
         total += count;
         await importOAuth2Clients(fileData, options);
-        updateProgressBar(`Imported ${count} client(s) from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} client(s) from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing client(s) from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing client(s) from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Finished importing ${total} client(s) from ${files.length} file(s).`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing client(s) from file(s).`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing client(s) from file(s).`
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: end`);

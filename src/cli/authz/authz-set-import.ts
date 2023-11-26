@@ -56,10 +56,14 @@ program
       // import
       if (options.setId && (await getTokens())) {
         verboseMessage('Importing authorization policy set from file...');
-        const outcome = importPolicySetFromFile(options.setId, options.file, {
-          deps: options.deps,
-          prereqs: options.prereqs,
-        });
+        const outcome = await importPolicySetFromFile(
+          options.setId,
+          options.file,
+          {
+            deps: options.deps,
+            prereqs: options.prereqs,
+          }
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all

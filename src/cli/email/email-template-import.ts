@@ -55,7 +55,7 @@ program
       // import by id
       if (options.file && options.templateId && (await getTokens())) {
         verboseMessage(`Importing email template "${options.templateId}"...`);
-        importEmailTemplateFromFile(
+        await importEmailTemplateFromFile(
           options.templateId,
           options.file,
           options.raw
@@ -66,21 +66,21 @@ program
         verboseMessage(
           `Importing all email templates from a single file (${options.file})...`
         );
-        importEmailTemplatesFromFile(options.file);
+        await importEmailTemplatesFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all email templates from separate files (*.template.email.json) in current directory...'
         );
-        importEmailTemplatesFromFiles(options.raw);
+        await importEmailTemplatesFromFiles(options.raw);
       }
       // import first template from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first email template from file "${options.file}"...`
         );
-        importFirstEmailTemplateFromFile(options.file, options.raw);
+        await importFirstEmailTemplateFromFile(options.file, options.raw);
       }
       // unrecognized combination of options or no options
       else {

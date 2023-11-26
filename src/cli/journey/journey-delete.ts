@@ -5,6 +5,7 @@ import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getTokens } = frodo.login;
+const { deleteJourney, deleteJourneys } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey delete');
 
@@ -52,12 +53,12 @@ program
             options.journeyId
           } in realm "${state.getRealm()}"...`
         );
-        frodo.authn.journey.deleteJourney(options.journeyId, options);
+        await deleteJourney(options.journeyId, options);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all journeys...');
-        frodo.authn.journey.deleteJourneys(options);
+        await deleteJourneys(options);
       }
       // unrecognized combination of options or no options
       else {

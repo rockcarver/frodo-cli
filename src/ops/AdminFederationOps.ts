@@ -2,14 +2,11 @@ import { frodo } from '@rockcarver/frodo-lib';
 import fs from 'fs';
 
 import {
-  createProgressBar,
+  createProgressIndicator,
   debugMessage,
-  failSpinner,
   printMessage,
-  showSpinner,
-  stopProgressBar,
-  succeedSpinner,
-  updateProgressBar,
+  stopProgressIndicator,
+  updateProgressIndicator,
 } from '../utils/Console';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 
@@ -60,17 +57,22 @@ export async function exportAdminFederationProviderToFile(
     fileName = getTypedFilename(providerId, 'admin.federation');
   }
   const filePath = getFilePath(fileName, true);
-  createProgressBar(1, `Exporting ${providerId}`);
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    1,
+    `Exporting ${providerId}`
+  );
   try {
-    updateProgressBar(`Writing file ${filePath}`);
+    updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = await exportAdminFederationProvider(providerId);
     saveJsonToFile(fileData, filePath);
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
     );
     outcome = true;
   } catch (err) {
-    stopProgressBar(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(`${err}`, 'error');
   }
   return outcome;
@@ -85,7 +87,11 @@ export async function exportAdminFederationProvidersToFile(
   file = ''
 ): Promise<boolean> {
   let outcome = false;
-  showSpinner(`Exporting all providers...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Exporting all providers...`
+  );
   try {
     let fileName = file;
     if (!fileName) {
@@ -94,10 +100,14 @@ export async function exportAdminFederationProvidersToFile(
     const filePath = getFilePath(fileName, true);
     const fileData = await exportAdminFederationProviders();
     saveJsonToFile(fileData, filePath);
-    succeedSpinner(`Exported all providers to ${filePath}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Exported all providers to ${filePath}`,
+      'success'
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error exporting all providers.`);
+    stopProgressIndicator(spinnerId, `Error exporting all providers.`, 'fail');
     printMessage(error.response?.data || error, 'error');
   }
   return outcome;
@@ -109,19 +119,31 @@ export async function exportAdminFederationProvidersToFile(
  */
 export async function exportAdminFederationProvidersToFiles(): Promise<boolean> {
   let outcome = false;
+  let indicatorId: string;
   try {
     const allIdpsData = await readAdminFederationProviders();
-    createProgressBar(allIdpsData.length, 'Exporting providers');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      allIdpsData.length,
+      'Exporting providers'
+    );
     for (const idpData of allIdpsData) {
-      updateProgressBar(`Writing provider ${idpData._id}`);
+      updateProgressIndicator(indicatorId, `Writing provider ${idpData._id}`);
       const fileName = getTypedFilename(idpData._id, 'admin.federation');
       const fileData = await exportAdminFederationProvider(idpData._id);
       saveJsonToFile(fileData, getFilePath(fileName, true));
     }
-    stopProgressBar(`${allIdpsData.length} providers exported.`);
+    stopProgressIndicator(
+      indicatorId,
+      `${allIdpsData.length} providers exported.`
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error exporting all providers.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting all providers.`,
+      'fail'
+    );
     printMessage(error.response?.data || error, 'error');
   }
   return outcome;
@@ -139,17 +161,27 @@ export async function importAdminFederationProviderFromFile(
 ): Promise<boolean> {
   let outcome = false;
   const filePath = getFilePath(file);
-  showSpinner(`Importing provider ${providerId} from ${filePath}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing provider ${providerId} from ${filePath}...`
+  );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importAdminFederationProvider(providerId, fileData);
-    succeedSpinner(
-      `Successfully imported provider ${providerId} from ${filePath}.`
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully imported provider ${providerId} from ${filePath}.`,
+      'success'
     );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing provider ${providerId} from ${filePath}.`);
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing provider ${providerId} from ${filePath}.`,
+      'fail'
+    );
     printMessage(error.response?.data || error, 'error');
   }
   return outcome;
@@ -168,15 +200,27 @@ export async function importFirstAdminFederationProviderFromFile(
     `cli.AdminFederationOps.importFirstAdminFederationProviderFromFile: begin`
   );
   const filePath = getFilePath(file);
-  showSpinner(`Importing first provider from ${filePath}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing first provider from ${filePath}...`
+  );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstAdminFederationProvider(fileData);
-    succeedSpinner(`Successfully imported first provider from ${filePath}.`);
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully imported first provider from ${filePath}.`,
+      'success'
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing first provider from ${filePath}.`);
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing first provider from ${filePath}.`,
+      'fail'
+    );
     printMessage(error.response?.data || error, 'error');
   }
   debugMessage(
@@ -198,15 +242,23 @@ export async function importAdminFederationProvidersFromFile(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFile: begin`
   );
   const filePath = getFilePath(file);
-  showSpinner(`Importing providers from ${filePath}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing providers from ${filePath}...`
+  );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importAdminFederationProviders(fileData);
-    succeedSpinner(`Imported providers from ${filePath}.`);
+    stopProgressIndicator(
+      spinnerId,
+      `Imported providers from ${filePath}.`,
+      'success'
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
+    stopProgressIndicator(spinnerId, `Error importing ${filePath}.`, 'fail');
     printMessage(error.response?.data || error, 'error');
   }
   debugMessage(
@@ -221,6 +273,7 @@ export async function importAdminFederationProvidersFromFile(
  */
 export async function importAdminFederationProvidersFromFiles(): Promise<boolean> {
   const errors = [];
+  let indicatorId: string;
   try {
     debugMessage(
       `cli.AdminFederationOps.importAdminFederationProvidersFromFiles: begin`
@@ -229,7 +282,11 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.admin.federation.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing providers...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing providers...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -238,19 +295,29 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
         const count = Object.keys(fileData.idp).length;
         total += count;
         await importAdminFederationProviders(fileData);
-        updateProgressBar(`Imported ${count} provider(s) from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} provider(s) from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing provider(s) from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing provider(s) from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Finished importing ${total} provider(s) from ${files.length} file(s).`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing provider(s) from file(s).`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing provider(s) from file(s).`
+    );
     printMessage(error, 'error');
   }
   debugMessage(

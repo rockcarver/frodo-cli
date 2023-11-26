@@ -7,11 +7,8 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
-  failSpinner,
   printMessage,
-  showSpinner,
   stopProgressIndicator,
-  succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
 import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
@@ -162,18 +159,23 @@ export async function exportEmailTemplateToFile(
     fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
   }
   const filePath = getFilePath(fileName, true);
-  createProgressIndicator('determinate', 1, `Exporting ${templateId}`);
+  const indicatorId = createProgressIndicator(
+    'determinate',
+    1,
+    `Exporting ${templateId}`
+  );
   try {
     const templateData = await readEmailTemplate(templateId);
-    updateProgressIndicator(`Writing file ${filePath}`);
+    updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = getFileDataTemplate();
     fileData.emailTemplate[templateId] = templateData;
     saveJsonToFile(fileData, filePath);
     stopProgressIndicator(
+      indicatorId,
       `Exported ${templateId['brightCyan']} to ${filePath['brightCyan']}.`
     );
   } catch (err) {
-    stopProgressIndicator(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
   }
 }
@@ -200,11 +202,12 @@ export async function exportEmailTemplatesToFile(file) {
  * Export all email templates to separate files
  */
 export async function exportEmailTemplatesToFiles() {
+  let indicatorId: string;
   try {
     const exportData = Object.entries(
       (await exportEmailTemplates()).emailTemplate
     );
-    createProgressIndicator(
+    indicatorId = createProgressIndicator(
       'determinate',
       exportData.length,
       'Writing email templates'
@@ -212,13 +215,16 @@ export async function exportEmailTemplatesToFiles() {
     for (const [templateId, template] of exportData) {
       const fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
       const fileData = getFileDataTemplate();
-      updateProgressIndicator(`Exporting ${templateId}`);
+      updateProgressIndicator(indicatorId, `Exporting ${templateId}`);
       fileData.emailTemplate[templateId] = template;
       saveJsonToFile(fileData, getFilePath(fileName, true));
     }
-    stopProgressIndicator(`${exportData.length} templates written.`);
+    stopProgressIndicator(
+      indicatorId,
+      `${exportData.length} templates written.`
+    );
   } catch (err) {
-    stopProgressIndicator(`${err}`);
+    stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
   }
 }
@@ -236,39 +242,45 @@ export async function importEmailTemplateFromFile(
 ) {
   templateId = templateId.replaceAll(`${EMAIL_TEMPLATE_TYPE}/`, '');
   const filePath = getFilePath(file);
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    if (err) throw err;
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    if (raw || validateImport(fileData.meta)) {
-      createProgressIndicator('determinate', 1, `Importing ${templateId}`);
-      if (
-        (fileData.emailTemplate && fileData.emailTemplate[templateId]) ||
-        (raw && getTemplateIdFromFileName(file) === templateId)
-      ) {
-        try {
-          const emailTemplateData = raw
-            ? s2sConvert(fileData)
-            : fileData.emailTemplate[templateId];
-          await updateEmailTemplate(templateId, emailTemplateData);
-          updateProgressIndicator(`Importing ${templateId}`);
-          stopProgressIndicator(`Imported ${templateId}`);
-        } catch (updateEmailTemplateError) {
-          stopProgressIndicator(`${updateEmailTemplateError}`);
-          printMessage(updateEmailTemplateError, 'error');
-        }
-      } else {
-        stopProgressIndicator(
-          `Email template ${templateId} not found in ${filePath}!`
-        );
-        printMessage(
-          `Email template ${templateId} not found in ${filePath}!`,
-          'error'
-        );
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Importing ${templateId}`
+    );
+    if (
+      (fileData.emailTemplate && fileData.emailTemplate[templateId]) ||
+      (raw && getTemplateIdFromFileName(file) === templateId)
+    ) {
+      try {
+        const emailTemplateData = raw
+          ? s2sConvert(fileData)
+          : fileData.emailTemplate[templateId];
+        await updateEmailTemplate(templateId, emailTemplateData);
+        updateProgressIndicator(indicatorId, `Importing ${templateId}`);
+        stopProgressIndicator(indicatorId, `Imported ${templateId}`);
+      } catch (updateEmailTemplateError) {
+        stopProgressIndicator(indicatorId, `${updateEmailTemplateError}`);
+        printMessage(updateEmailTemplateError, 'error');
       }
     } else {
-      printMessage('Import validation failed...', 'error');
+      stopProgressIndicator(
+        indicatorId,
+        `Email template ${templateId} not found in ${filePath}!`
+      );
+      printMessage(
+        `Email template ${templateId} not found in ${filePath}!`,
+        'error'
+      );
     }
-  });
+  } catch (error) {
+    printMessage(
+      `Error importing email template ${templateId}: ${error}`,
+      'error'
+    );
+  }
 }
 
 /**
@@ -276,35 +288,31 @@ export async function importEmailTemplateFromFile(
  * @param {string} file optional filename
  */
 export async function importEmailTemplatesFromFile(file: string) {
-  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
-    if (err) throw err;
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      createProgressIndicator(
-        'determinate',
-        Object.keys(fileData.emailTemplate).length,
-        `Importing email templates`
-      );
-      for (const id in fileData.emailTemplate) {
-        if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
-          const templateId = id.replace(regexEmailTemplateType, '');
-          try {
-            await updateEmailTemplate(
-              templateId,
-              fileData.emailTemplate[templateId]
-            );
-            updateProgressIndicator(`Imported ${templateId}`);
-          } catch (updateEmailTemplateError) {
-            printMessage(`\nError importing ${templateId}`, 'error');
-            printMessage(updateEmailTemplateError.response.data, 'error');
-          }
-        }
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      Object.keys(fileData.emailTemplate).length,
+      `Importing email templates`
+    );
+    for (const id of Object.keys(fileData.emailTemplate)) {
+      const templateId = id.replace(regexEmailTemplateType, '');
+      try {
+        await updateEmailTemplate(
+          templateId,
+          fileData.emailTemplate[templateId]
+        );
+        updateProgressIndicator(indicatorId, `Imported ${templateId}`);
+      } catch (updateEmailTemplateError) {
+        printMessage(`\nError importing ${templateId}`, 'error');
+        printMessage(updateEmailTemplateError.response.data, 'error');
       }
-      stopProgressIndicator(`Done.`);
-    } else {
-      printMessage('Import validation failed...', 'error');
     }
-  });
+    stopProgressIndicator(indicatorId, `Done.`);
+  } catch (error) {
+    printMessage(`Error importing email templates: ${error}`, 'error');
+  }
 }
 
 /**
@@ -358,7 +366,7 @@ export async function importEmailTemplatesFromFiles(raw = false) {
         : name.toLowerCase().endsWith(`${EMAIL_TEMPLATE_FILE_TYPE}.json`)
     )
     .map((name) => getFilePath(name));
-  createProgressIndicator(
+  const indicatorId = createProgressIndicator(
     'determinate',
     jsonFiles.length,
     'Importing email templates...'
@@ -404,12 +412,13 @@ export async function importEmailTemplatesFromFiles(raw = false) {
         }
       }
       totalErrors += errors;
-      updateProgressIndicator(`Imported ${file}`);
+      updateProgressIndicator(indicatorId, `Imported ${file}`);
     } else {
       printMessage(`Validation of ${file} failed!`, 'error');
     }
   }
   stopProgressIndicator(
+    indicatorId,
     `Imported ${total - totalErrors} of ${total} email template(s) from ${
       jsonFiles.length
     } file(s).`
@@ -424,40 +433,50 @@ export async function importFirstEmailTemplateFromFile(
   file: string,
   raw = false
 ) {
-  fs.readFile(getFilePath(file), 'utf8', async (err, data) => {
-    if (err) throw err;
+  let indicatorId: string;
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    if (raw || validateImport(fileData.meta)) {
-      showSpinner(`Importing first email template`);
-      if (raw) {
-        try {
-          const templateId = getTemplateIdFromFileName(file);
-          const templateData = s2sConvert(fileData);
-          await updateEmailTemplate(templateId, templateData);
-          succeedSpinner(`Imported ${templateId}`);
-        } catch (error) {
-          failSpinner(`Error importing email template: ${error}`);
-          printMessage(error.response?.data, 'error');
-        }
-      } else {
-        for (const id in fileData.emailTemplate) {
-          if ({}.hasOwnProperty.call(fileData.emailTemplate, id)) {
-            try {
-              await updateEmailTemplate(
-                id.replace(regexEmailTemplateType, ''),
-                fileData.emailTemplate[id]
-              );
-              succeedSpinner(`Imported ${id}`);
-            } catch (updateEmailTemplateError) {
-              failSpinner(`Error importing ${id}`);
-              printMessage(updateEmailTemplateError.response?.data, 'error');
-            }
-            break;
-          }
-        }
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing first email template`
+    );
+    if (raw) {
+      try {
+        const templateId = getTemplateIdFromFileName(file);
+        const templateData = s2sConvert(fileData);
+        await updateEmailTemplate(templateId, templateData);
+        stopProgressIndicator(indicatorId, `Imported ${templateId}`, 'success');
+      } catch (error) {
+        stopProgressIndicator(
+          indicatorId,
+          `Error importing email template: ${error}`,
+          'fail'
+        );
+        printMessage(error.response?.data, 'error');
       }
     } else {
-      printMessage('Import validation failed...', 'error');
+      for (const id of Object.keys(fileData.emailTemplate)) {
+        try {
+          await updateEmailTemplate(
+            id.replace(regexEmailTemplateType, ''),
+            fileData.emailTemplate[id]
+          );
+          stopProgressIndicator(indicatorId, `Imported ${id}`, 'success');
+        } catch (updateEmailTemplateError) {
+          stopProgressIndicator(indicatorId, `Error importing ${id}`, 'fail');
+          printMessage(updateEmailTemplateError.response?.data, 'error');
+        }
+        break;
+      }
     }
-  });
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing first email template`,
+      'fail'
+    );
+    printMessage(`Error importing first email template: ${error}`, 'error');
+  }
 }
