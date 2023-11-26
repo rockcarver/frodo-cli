@@ -3,9 +3,9 @@ import {
   FullExportInterface,
   FullExportOptions,
 } from '@rockcarver/frodo-lib/types/ops/AdminOps';
+import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
 
-import { ScriptExportInterface } from '../../../frodo-lib/types/ops/ScriptOps';
 import { extractScriptToFile } from './ScriptOps';
 
 const {
