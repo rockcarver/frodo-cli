@@ -531,12 +531,16 @@ function getScriptId(script: ScriptExportInterface): string {
  * @param {String} id script id
  */
 export async function deleteScriptId(id) {
-  createProgressIndicator('indeterminate', undefined, `Deleting ${id}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${id}...`
+  );
   try {
     await deleteScript(id);
-    stopProgressIndicator(`Deleted ${id}.`, 'success');
+    stopProgressIndicator(spinnerId, `Deleted ${id}.`, 'success');
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }
 
@@ -545,12 +549,16 @@ export async function deleteScriptId(id) {
  * @param {String} name script name
  */
 export async function deleteScriptName(name) {
-  createProgressIndicator('indeterminate', undefined, `Deleting ${name}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${name}...`
+  );
   try {
     await deleteScriptByName(name);
-    stopProgressIndicator(`Deleted ${name}.`, 'success');
+    stopProgressIndicator(spinnerId, `Deleted ${name}.`, 'success');
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }
 
@@ -558,15 +566,19 @@ export async function deleteScriptName(name) {
  * Delete all non-default scripts
  */
 export async function deleteAllScripts() {
-  createProgressIndicator(
+  const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all non-default scripts...`
   );
   try {
     await deleteScripts();
-    stopProgressIndicator(`Deleted all non-default scripts.`, 'success');
+    stopProgressIndicator(
+      spinnerId,
+      `Deleted all non-default scripts.`,
+      'success'
+    );
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }
