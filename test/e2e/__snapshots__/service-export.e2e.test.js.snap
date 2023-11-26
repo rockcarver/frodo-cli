@@ -2,7 +2,7 @@
 
 exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json 1`] = `""`;
 
-exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json: ./my-allAlphaServices.service.json 1`] = `
+exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json: my-allAlphaServices.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -884,7 +884,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
 
 exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json 1`] = `""`;
 
-exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json: ./my-allGlobalServices.service.json 1`] = `
+exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json: my-allGlobalServices.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -959,7 +959,7 @@ exports[`frodo service export "frodo service export --global --all -f my-allGlob
 
 exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json 1`] = `""`;
 
-exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json: ./my-dashboard.service.json 1`] = `
+exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json: my-dashboard.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -1024,7 +1024,7 @@ exports[`frodo service export "frodo service export --global --service-id dashbo
 
 exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json 1`] = `""`;
 
-exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json: ./my-policyconfiguration.service.json 1`] = `
+exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json: my-policyconfiguration.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -1991,7 +1991,7 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
 
 exports[`frodo service export "frodo service export -A": should export all services to separate files 1`] = `""`;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./SocialIdentityProviders.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: SocialIdentityProviders.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2382,7 +2382,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./baseurl.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: baseurl.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2402,7 +2402,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./oauth-oidc.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: oauth-oidc.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2824,7 +2824,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./policyconfiguration.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: policyconfiguration.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2867,7 +2867,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./selfServiceTrees.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: selfServiceTrees.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2891,7 +2891,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files: ./validation.service.json 1`] = `
+exports[`frodo service export "frodo service export -A": should export all services to separate files: validation.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -2913,7 +2913,7 @@ exports[`frodo service export "frodo service export -A": should export all servi
 
 exports[`frodo service export "frodo service export -a": should export all services to a single file 1`] = `""`;
 
-exports[`frodo service export "frodo service export -a": should export all services to a single file: ./allAlphaServices.service.json 1`] = `
+exports[`frodo service export "frodo service export -a": should export all services to a single file: allAlphaServices.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -4677,7 +4677,7 @@ exports[`frodo service export "frodo service export -aD serviceExportTestDir3": 
 
 exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files 1`] = `""`;
 
-exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files: ./CorsService.service.json 1`] = `
+exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files: CorsService.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -4695,7 +4695,7 @@ exports[`frodo service export "frodo service export -g --all-separate": should e
 }
 `;
 
-exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files: ./dashboard.service.json 1`] = `
+exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files: dashboard.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -4760,7 +4760,7 @@ exports[`frodo service export "frodo service export -g --all-separate": should e
 
 exports[`frodo service export "frodo service export -ga": should export all global services to a single file 1`] = `""`;
 
-exports[`frodo service export "frodo service export -ga": should export all global services to a single file: ./allGlobalServices.service.json 1`] = `
+exports[`frodo service export "frodo service export -ga": should export all global services to a single file: allGlobalServices.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -4900,7 +4900,7 @@ exports[`frodo service export "frodo service export -gi dashboard -D serviceExpo
 
 exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard" 1`] = `""`;
 
-exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard": ./dashboard.service.json 1`] = `
+exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard": dashboard.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -5010,7 +5010,7 @@ exports[`frodo service export "frodo service export -i policyconfiguration -D se
 
 exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration" 1`] = `""`;
 
-exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration": ./policyconfiguration.service.json 1`] = `
+exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration": policyconfiguration.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {

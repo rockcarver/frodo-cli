@@ -64,7 +64,7 @@ program
             options.themeName
           }" from realm "${state.getRealm()}"...`
         );
-        exportThemeByName(options.themeName, options.file);
+        await exportThemeByName(options.themeName, options.file);
       }
       // export by id
       else if (options.themeId && (await getTokens())) {
@@ -73,17 +73,17 @@ program
             options.themeId
           }" from realm "${state.getRealm()}"...`
         );
-        exportThemeById(options.themeId, options.file);
+        await exportThemeById(options.themeId, options.file);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all themes to a single file...');
-        exportThemesToFile(options.file);
+        await exportThemesToFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all themes to separate files...');
-        exportThemesToFiles();
+        await exportThemesToFiles();
       }
       // unrecognized combination of options or no options
       else {

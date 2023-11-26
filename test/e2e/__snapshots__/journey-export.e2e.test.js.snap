@@ -2,7 +2,7 @@
 
 exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json 1`] = `""`;
 
-exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json: ./my-allAlphaJourneys.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json: my-allAlphaJourneys.journey.json 1`] = `
 {
   "meta": Any<Object>,
   "trees": {
@@ -3252,7 +3252,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
 
 exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays 1`] = `""`;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j00.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j00.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -3513,7 +3513,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j01.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j01.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -3770,7 +3770,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j02.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j02.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -4027,7 +4027,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j03.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j03.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -4284,7 +4284,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j04.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j04.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -4541,7 +4541,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j05.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j05.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -4798,7 +4798,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j06.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j06.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -5055,7 +5055,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j07.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j07.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -5312,7 +5312,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j08.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j08.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -5569,7 +5569,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j09.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j09.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -5826,7 +5826,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --u
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: ./j10.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays: j10.journey.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},
@@ -6352,13 +6352,13 @@ Exporting journey...
     - identityResource: managed/alpha_user
     - Done
   - Nodes:
-    - 795108e9-0b4d-4849-80fa-fb8518c6e3b0 (PageNode)
-    - 650203c3-47f7-439d-a554-669cb7b08c57 (product-Saml2Node)
-    - c0bbd39a-ff6b-45d7-af8a-0685e810bc11 (PageNode)
-    - c859d258-79c1-4448-bd52-12e4e414af92 (EmailTemplateNode)
     - 234526e1-48cf-477e-8ecb-abf15fcd5c67 (SocialProviderHandlerNode)
     - 4951364c-59be-42cd-9cd7-79c9392214db (ScriptedDecisionNode)
     - 58ab3ae6-cb79-445f-9a52-170e9b7f1339 (IdentityStoreDecisionNode)
+    - 650203c3-47f7-439d-a554-669cb7b08c57 (product-Saml2Node)
+    - 795108e9-0b4d-4849-80fa-fb8518c6e3b0 (PageNode)
+    - c0bbd39a-ff6b-45d7-af8a-0685e810bc11 (PageNode)
+    - c859d258-79c1-4448-bd52-12e4e414af92 (EmailTemplateNode)
   - Inner nodes:
     - fe762924-bc07-4f50-9234-17ab245efff1 (ValidatedUsernameNode)
     - 051c1939-7dd5-4cf1-866e-48f57541b6ac (ValidatedPasswordNode)
@@ -6366,12 +6366,11 @@ Exporting journey...
     - ac343c95-8873-410e-823b-0931a71fc0c7 (ValidatedPasswordNode)
     - 9d19d94c-77b1-4386-9c5d-8a2e39e3f5b4 (SelectIdPNode)
   - Email templates:
-    - welcome
+    - welcome (Welcome)
   - SAML2 entity providers:
     - hosted iSPAzure
     - remote urn:federation:MicrosoftOnline
   - SAML2 circles of trust:
-    - AzureCOT
   - OAuth2/OIDC (social) identity providers:
     - google
     - github
@@ -6399,40 +6398,41 @@ Exporting journey...
 "
 `;
 
-exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest": ./FrodoTest.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest": FrodoTest.journey.json 1`] = `
 {
-  "circlesOfTrust": {
-    "AzureCOT": {
-      "_id": "AzureCOT",
-      "_type": {
-        "_id": "circlesoftrust",
-        "collection": true,
-        "name": "Circle of Trust",
-      },
-      "status": "active",
-      "trustedProviders": [
-        "iSPAzure|saml2",
-        "urn:federation:MicrosoftOnline|saml2",
-        "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
-        "SPAzure|saml2",
-        "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
-      ],
-    },
-  },
+  "circlesOfTrust": {},
   "emailTemplates": {
     "welcome": {
       "_id": "emailTemplate/welcome",
       "defaultLocale": "en",
+      "displayName": "Welcome",
       "enabled": true,
-      "from": "",
+      "from": "saas@forgerock.com",
       "html": {
-        "en": "<html><body><p>Welcome. Your username is '{{object.userName}}'.</p></body></html>",
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
       },
       "message": {
         "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
       "subject": {
         "en": "Your account has been created",
       },
@@ -6792,7 +6792,9 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
             "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
             "useNameIDAsSPUserID": true,
           },
-          "adapter": {},
+          "adapter": {
+            "spAdapterScript": "07ee6240-d106-4e25-a781-5fcabc477d22",
+          },
           "attributeMapper": {
             "attributeMap": [
               {
@@ -6888,7 +6890,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
     },
     "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l": {
       "_id": "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l",
-      "base64EntityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI_Pgo8RW50aXR5RGVzY3JpcHRvciBlbnRpdHlJRD0idXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5lIiBJRD0iX2U0NmExMTkzLWU4YTctNDhlZC04MDRmLTE1MTY3MjllY2I1ZiIgeG1sbnM9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDptZXRhZGF0YSIgeG1sbnM6cXVlcnk9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOm1ldGFkYXRhOmV4dDpxdWVyeSIgeG1sbnM6bWRhdHRyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphdHRyaWJ1dGUiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgeG1sbnM6eGVuYzExPSJodHRwOi8vd3d3LnczLm9yZy8yMDA5L3htbGVuYzExIyIgeG1sbnM6YWxnPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphbGdzdXBwb3J0IiB4bWxuczp4NTA5cXJ5PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTpYNTA5OnF1ZXJ5IiB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI-CiAgICA8RXh0ZW5zaW9ucz4KICAgICAgICA8YWxnOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8-CiAgICAgICAgPGFsZzpTaWduaW5nTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8-CiAgICA8L0V4dGVuc2lvbnM-CiAgICA8U1BTU09EZXNjcmlwdG9yIFdhbnRBc3NlcnRpb25zU2lnbmVkPSJ0cnVlIiBwcm90b2NvbFN1cHBvcnRFbnVtZXJhdGlvbj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICA8ZHM6WDUwOURhdGE-CiAgICAgICAgICAgICAgICAgICAgPGRzOlg1MDlDZXJ0aWZpY2F0ZT4KTUlJQy9UQ0NBZVdnQXdJQkFnSVFiZ0RIZmkzdDFKTkdWcXdENS83bG1qQU5CZ2txaGtpRzl3MEJBUXNGQURBcE1TY3dKUVlEVlFRRApFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd0hoY05NakF4TWpJeE1EQXdNREF3V2hjTk1qVXhNakl4Ck1EQXdNREF3V2pBcE1TY3dKUVlEVlFRREV4NU1hWFpsSUVsRUlGTlVVeUJUYVdkdWFXNW5JRkIxWW14cFl5QkxaWGt3Z2dFaU1BMEcKQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURGVDAvMC8ycVF1cm5ZYTBMYkpIRjlZWW96aEVINnI5bUN4VkRCWWJldwpTRzR0R2dyV3BzZXdRLzk2cGNjekdNUWN0TXZVK2gyZVgzOEh4L2Y5SkFJRGJ1UlF6UWxzUGhRUzdERFo2V2xUWFUrdDhkL2cyQzdmCnBTb0xzNEtWZEppaDR4eWpMVVdqK0JLL2lqc1JqQnQ0Uml3OVZiSkgvRGRXS3lvU01iRUNFaUUrczFSdExQL2VZb01tTmZ4eVFHcVcKaXJDTnFWTkJUbHF6WVFwNGRnRjBmb1l5NGt0b3h3bVFPVm9UY0lNRllwMUk0cEZQSTdDeHVNTGtmSzBYN2FUYk03WUdwaHZNZkp4SgpranJRZHlJN0c1ZDF0NEROaTN6a0ViQlQ3RkdBcjZxUHQzS245cmFscHFKS0hkcEVCQTlOMHZOd1FvNVhUWUloVWJQUTE2SVJBZ01CCkFBR2pJVEFmTUIwR0ExVWREZ1FXQkJSczd0UG1ma2tzU3I2N0t0RWxIallaYmVhQ1RqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUEKSnF3TVpTalFKMzZ4KzFzdHk2RWVMS1FMUWV3UXdQYUVDNDdadXQrOGJYZWQ2UThqTVowYmZhL01NN1hxdUVjYWJhTVpMUXVLTGZ0NAo0WVh3WFhRT2ZRckkycWpRcjNlVG9KRmxEVDloUjByZnA5d1FxdHREeGQ2QWE2Uld3RFRnbzVvS1VRQ1RLTEhoRXk4dVd6U2NLMGVHCnQyZDdUV1RhRFhqUlN3TnE2dE03ZlJoWnMwN3RLQlYzeGZpOUVReS9tbGF2QU1GUkJWbTg2TlNvN0FzT0cxSU9NcTAzVTNvb0NXQVgKaDlQZHZ2SE5mSGhIMTlmdXRBbkMvSGVPandSRjFRYzUyN2FCTXBoWUZRTGRpVGhmbWZtaUUvQWhRcUN3WjJvRTd1Q0poQnRSK0tiMQpaR2hqSTM1cEhmc1NxR2lGYTdLcis1YXZlODIyUERja2U4OU12Zz09CiAgICAgICAgICAgICAgICAgICAgPC9kczpYNTA5Q2VydGlmaWNhdGU-CiAgICAgICAgICAgICAgICA8L2RzOlg1MDlEYXRhPgogICAgICAgICAgICA8L2RzOktleUluZm8-CiAgICAgICAgPC9LZXlEZXNjcmlwdG9yPgogICAgICAgIDxLZXlEZXNjcmlwdG9yIHVzZT0ic2lnbmluZyI-CiAgICAgICAgICAgIDxkczpLZXlJbmZvPgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIDxkczpYNTA5RGF0YT4KICAgICAgICAgICAgICAgICAgICA8ZHM6WDUwOUNlcnRpZmljYXRlPgpNSUlDL1RDQ0FlV2dBd0lCQWdJUU4vR1BlZ25UOGJsUDJFY1NkTU1iQnpBTkJna3Foa2lHOXcwQkFRc0ZBREFwTVNjd0pRWURWUVFECkV4NU1hWFpsSUVsRUlGTlVVeUJUYVdkdWFXNW5JRkIxWW14cFl5QkxaWGt3SGhjTk1qRXdNakU0TURBd01EQXdXaGNOTWpZd01qRTQKTURBd01EQXdXakFwTVNjd0pRWURWUVFERXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dnZ0VpTUEwRwpDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFhkTEdVMkxsNVJQZERVbktRK2YvSFM1cWlUYXkyY0NoOVUyQVM2b0RNCjZTT3hWaFlHdG9lSjFWUGViY0xucGdMZmhQeHpyd1dvVnpYU0VGK1ZSUWJuWUlEMkpiNGtoamd5RWVvVGhrM1ZxclRod2hhaHBTYkIKZzJ2bzA2dklPcDFUUzJSMUJpd0hLVExvQjFpMUlKbmFJRlNDM0JONnBZNGZsWFd5TFF0LzVBQlhFbHYyWFpMcVhNOUVlZmo2Smk0MApuTElzaVc0ZFd3M0JEYS95d1dXME1zaVc1b2pHcTR2b3ZjQWdFTmUvNE5VYmp1NzBnSFAvV1M1RDliVzVwK09JUWk3L3VucmxXZS9oCjNBNmp0QmJiUmxYWVhsTitaMjJ1VFR5eUNEL1c4emVYYUFDTHZIYWd3RU1yUWVQRFhCWnFjL2lYMmtJK29vWnIxc0MvSDM5UkFnTUIKQUFHaklUQWZNQjBHQTFVZERnUVdCQlNyWDJkbTNMd1Q5amIvcCtiQUFkWVFwRSsvTmpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQplcUpmWUhuc0E5cWhHdHRYRmZGcFBXNERRTGg1dzZKQ2NlN3ZHdldJTnI1ZnIxRG5RZGNPcit3d2pRL3RxYmNrQUwydjZ6MUFxamhTCjc4a2JmZWduQVFEd2lvSloxb2xZWXZMT3hLb2E2SEYrYjEvcDBNbHViOFp1a2sybjFiMmxLUEJCT2liT2FzU1k3Z1FEd2xJWmk3dGwKOW5NVHhVZmRZSytFNUF4djdEVm5tVUN3Y25ucFY1LzFTRmROeVcya1dPNEM2OHJyak1PdkVDZndyS2tiZlZKTThmOWtyRVVCdW9CRgo4ZFREdjdEMlpNNFEyYnVDNzBOYmZhTldVWDB5RnZLSTBJdVRxazhSQmZHVFJRNGZaQWJoTVBheWtFcEJ1NmROalRpNVlPYTBsTnFGCkdTN0F4N2xlQ2g1eDlsVjhlbGNMa1hzOHlTbzhBT1FKazBoZ0l3PT0KICAgICAgICAgICAgICAgICAgICA8L2RzOlg1MDlDZXJ0aWZpY2F0ZT4KICAgICAgICAgICAgICAgIDwvZHM6WDUwOURhdGE-CiAgICAgICAgICAgIDwvZHM6S2V5SW5mbz4KICAgICAgICA8L0tleURlc2NyaXB0b3I-CiAgICAgICAgPEtleURlc2NyaXB0b3IgdXNlPSJzaWduaW5nIj4KICAgICAgICAgICAgPGRzOktleUluZm8-CiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8U2luZ2xlTG9nb3V0U2VydmljZSBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBMb2NhdGlvbj0iaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2xvZ2luLnNyZiIvPgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6ZW1haWxBZGRyZXNzPC9OYW1lSURGb3JtYXQ-CiAgICAgICAgPE5hbWVJREZvcm1hdD51cm46bWFjZTpzaGliYm9sZXRoOjEuMDpuYW1lSWRlbnRpZmllcjwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6dW5zcGVjaWZpZWQ8L05hbWVJREZvcm1hdD4KICAgICAgICA8TmFtZUlERm9ybWF0PnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOm5hbWVpZC1mb3JtYXQ6cGVyc2lzdGVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxBc3NlcnRpb25Db25zdW1lclNlcnZpY2UgaW5kZXg9IjAiIGlzRGVmYXVsdD0idHJ1ZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOkhUVFAtUE9TVCIgTG9jYXRpb249Imh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9sb2dpbi5zcmYiLz4KICAgICAgICA8QXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlIGluZGV4PSIxIiBpc0RlZmF1bHQ9ImZhbHNlIiBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NULVNpbXBsZVNpZ24iIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICAgICAgPEFzc2VydGlvbkNvbnN1bWVyU2VydmljZSBpbmRleD0iMiIgaXNEZWZhdWx0PSJmYWxzZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOlBBT1MiIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICA8L1NQU1NPRGVzY3JpcHRvcj4KPC9FbnRpdHlEZXNjcmlwdG9yPgoK",
+      "base64EntityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI_Pgo8RW50aXR5RGVzY3JpcHRvciBlbnRpdHlJRD0idXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5lIiBJRD0iX2U0NmExMTkzLWU4YTctNDhlZC04MDRmLTE1MTY3MjllY2I1ZiIgeG1sbnM9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDptZXRhZGF0YSIgeG1sbnM6cXVlcnk9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOm1ldGFkYXRhOmV4dDpxdWVyeSIgeG1sbnM6bWRhdHRyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphdHRyaWJ1dGUiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgeG1sbnM6eGVuYzExPSJodHRwOi8vd3d3LnczLm9yZy8yMDA5L3htbGVuYzExIyIgeG1sbnM6YWxnPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphbGdzdXBwb3J0IiB4bWxuczp4NTA5cXJ5PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTpYNTA5OnF1ZXJ5IiB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI-CiAgICA8RXh0ZW5zaW9ucz4KICAgICAgICA8YWxnOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8-CiAgICAgICAgPGFsZzpTaWduaW5nTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8-CiAgICA8L0V4dGVuc2lvbnM-CiAgICA8U1BTU09EZXNjcmlwdG9yIFdhbnRBc3NlcnRpb25zU2lnbmVkPSJ0cnVlIiBwcm90b2NvbFN1cHBvcnRFbnVtZXJhdGlvbj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRYmdESGZpM3QxSk5HVnF3RDUvN2xtakFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpBeE1qSXhNREF3TURBd1doY05NalV4TWpJeApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFERlQwLzAvMnFRdXJuWWEwTGJKSEY5WVlvemhFSDZyOW1DeFZEQlliZXcKU0c0dEdncldwc2V3US85NnBjY3pHTVFjdE12VStoMmVYMzhIeC9mOUpBSURidVJRelFsc1BoUVM3RERaNldsVFhVK3Q4ZC9nMkM3ZgpwU29MczRLVmRKaWg0eHlqTFVXaitCSy9panNSakJ0NFJpdzlWYkpIL0RkV0t5b1NNYkVDRWlFK3MxUnRMUC9lWW9NbU5meHlRR3FXCmlyQ05xVk5CVGxxellRcDRkZ0YwZm9ZeTRrdG94d21RT1ZvVGNJTUZZcDFJNHBGUEk3Q3h1TUxrZkswWDdhVGJNN1lHcGh2TWZKeEoKa2pyUWR5STdHNWQxdDRETmkzemtFYkJUN0ZHQXI2cVB0M0tuOXJhbHBxSktIZHBFQkE5TjB2TndRbzVYVFlJaFViUFExNklSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCUnM3dFBtZmtrc1NyNjdLdEVsSGpZWmJlYUNUakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCkpxd01aU2pRSjM2eCsxc3R5NkVlTEtRTFFld1F3UGFFQzQ3WnV0KzhiWGVkNlE4ak1aMGJmYS9NTTdYcXVFY2FiYU1aTFF1S0xmdDQKNFlYd1hYUU9mUXJJMnFqUXIzZVRvSkZsRFQ5aFIwcmZwOXdRcXR0RHhkNkFhNlJXd0RUZ281b0tVUUNUS0xIaEV5OHVXelNjSzBlRwp0MmQ3VFdUYURYalJTd05xNnRNN2ZSaFpzMDd0S0JWM3hmaTlFUXkvbWxhdkFNRlJCVm04Nk5TbzdBc09HMUlPTXEwM1Uzb29DV0FYCmg5UGR2dkhOZkhoSDE5ZnV0QW5DL0hlT2p3UkYxUWM1MjdhQk1waFlGUUxkaVRoZm1mbWlFL0FoUXFDd1oyb0U3dUNKaEJ0UitLYjEKWkdoakkzNXBIZnNTcUdpRmE3S3IrNWF2ZTgyMlBEY2tlODlNdmc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8U2luZ2xlTG9nb3V0U2VydmljZSBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBMb2NhdGlvbj0iaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2xvZ2luLnNyZiIvPgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6ZW1haWxBZGRyZXNzPC9OYW1lSURGb3JtYXQ-CiAgICAgICAgPE5hbWVJREZvcm1hdD51cm46bWFjZTpzaGliYm9sZXRoOjEuMDpuYW1lSWRlbnRpZmllcjwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6dW5zcGVjaWZpZWQ8L05hbWVJREZvcm1hdD4KICAgICAgICA8TmFtZUlERm9ybWF0PnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOm5hbWVpZC1mb3JtYXQ6cGVyc2lzdGVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxBc3NlcnRpb25Db25zdW1lclNlcnZpY2UgaW5kZXg9IjAiIGlzRGVmYXVsdD0idHJ1ZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOkhUVFAtUE9TVCIgTG9jYXRpb249Imh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9sb2dpbi5zcmYiLz4KICAgICAgICA8QXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlIGluZGV4PSIxIiBpc0RlZmF1bHQ9ImZhbHNlIiBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NULVNpbXBsZVNpZ24iIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICAgICAgPEFzc2VydGlvbkNvbnN1bWVyU2VydmljZSBpbmRleD0iMiIgaXNEZWZhdWx0PSJmYWxzZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOlBBT1MiIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICA8L1NQU1NPRGVzY3JpcHRvcj4KPC9FbnRpdHlEZXNjcmlwdG9yPgoK",
       "entityId": "urn:federation:MicrosoftOnline",
       "entityLocation": "remote",
       "serviceProvider": {
@@ -6916,23 +6918,8 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
           },
         },
         "assertionProcessing": {
-          "attributeMapper": {
-            "attributeMap": [
-              {
-                "binary": false,
-                "localAttribute": "mail",
-                "samlAttribute": "IDPEmail",
-              },
-              {
-                "binary": false,
-                "localAttribute": "UOPClassID",
-                "samlAttribute": "UOPClassID",
-              },
-            ],
-          },
-          "responseArtifactMessageEncoding": {
-            "encoding": "URI",
-          },
+          "attributeMapper": {},
+          "responseArtifactMessageEncoding": {},
         },
         "services": {
           "serviceAttributes": {
@@ -6975,6 +6962,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -6988,6 +6976,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7001,6 +6990,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": true,
       "description": "Converts a normalized social profile into a managed user",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7014,6 +7004,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7027,6 +7018,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7040,6 +7032,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
+      "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7053,6 +7046,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7066,6 +7060,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7079,6 +7074,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
+      "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -7351,7 +7347,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
       "scopes": [
         "user",
       ],
-      "tokenEndpoint": "https://github.com/login/oauth/access_token",
+      "tokenEndpoint": "https://ig.mytestrun.com/login/oauth/access_token",
       "transform": "23143919-6b78-40c3-b25e-beca19b229e0",
       "uiConfig": {
         "buttonCustomStyle": "background-color: #fff; color: #757575; border-color: #ddd;",
@@ -7362,7 +7358,7 @@ exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": sho
         "iconFontColor": "white",
       },
       "useCustomTrustStore": false,
-      "userInfoEndpoint": "https://api.github.com/user",
+      "userInfoEndpoint": "https://ig.mytestrun.com/user",
     },
     "google": {
       "_id": "google",
@@ -13772,7 +13768,7 @@ exports[`frodo journey export "frodo journey export -a --no-deps --use-string-ar
 
 exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file 1`] = `""`;
 
-exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file: ./allAlphaJourneys.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file: allAlphaJourneys.journey.json 1`] = `
 {
   "meta": Any<Object>,
   "trees": {
@@ -17022,40 +17018,41 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
 
 exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `""`;
 
-exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest": ./FrodoTest.journey.json 1`] = `
+exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest": FrodoTest.journey.json 1`] = `
 {
-  "circlesOfTrust": {
-    "AzureCOT": {
-      "_id": "AzureCOT",
-      "_type": {
-        "_id": "circlesoftrust",
-        "collection": true,
-        "name": "Circle of Trust",
-      },
-      "status": "active",
-      "trustedProviders": [
-        "iSPAzure|saml2",
-        "urn:federation:MicrosoftOnline|saml2",
-        "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
-        "SPAzure|saml2",
-        "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
-      ],
-    },
-  },
+  "circlesOfTrust": {},
   "emailTemplates": {
     "welcome": {
       "_id": "emailTemplate/welcome",
       "defaultLocale": "en",
+      "displayName": "Welcome",
       "enabled": true,
-      "from": "",
+      "from": "saas@forgerock.com",
       "html": {
-        "en": "<html><body><p>Welcome. Your username is '{{object.userName}}'.</p></body></html>",
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
       },
       "message": {
         "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
       "subject": {
         "en": "Your account has been created",
       },
@@ -17415,7 +17412,9 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
             "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
             "useNameIDAsSPUserID": true,
           },
-          "adapter": {},
+          "adapter": {
+            "spAdapterScript": "07ee6240-d106-4e25-a781-5fcabc477d22",
+          },
           "attributeMapper": {
             "attributeMap": [
               {
@@ -17511,7 +17510,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
     },
     "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l": {
       "_id": "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l",
-      "base64EntityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI_Pgo8RW50aXR5RGVzY3JpcHRvciBlbnRpdHlJRD0idXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5lIiBJRD0iX2U0NmExMTkzLWU4YTctNDhlZC04MDRmLTE1MTY3MjllY2I1ZiIgeG1sbnM9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDptZXRhZGF0YSIgeG1sbnM6cXVlcnk9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOm1ldGFkYXRhOmV4dDpxdWVyeSIgeG1sbnM6bWRhdHRyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphdHRyaWJ1dGUiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgeG1sbnM6eGVuYzExPSJodHRwOi8vd3d3LnczLm9yZy8yMDA5L3htbGVuYzExIyIgeG1sbnM6YWxnPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphbGdzdXBwb3J0IiB4bWxuczp4NTA5cXJ5PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTpYNTA5OnF1ZXJ5IiB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI-CiAgICA8RXh0ZW5zaW9ucz4KICAgICAgICA8YWxnOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8-CiAgICAgICAgPGFsZzpTaWduaW5nTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8-CiAgICA8L0V4dGVuc2lvbnM-CiAgICA8U1BTU09EZXNjcmlwdG9yIFdhbnRBc3NlcnRpb25zU2lnbmVkPSJ0cnVlIiBwcm90b2NvbFN1cHBvcnRFbnVtZXJhdGlvbj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICA8ZHM6WDUwOURhdGE-CiAgICAgICAgICAgICAgICAgICAgPGRzOlg1MDlDZXJ0aWZpY2F0ZT4KTUlJQy9UQ0NBZVdnQXdJQkFnSVFiZ0RIZmkzdDFKTkdWcXdENS83bG1qQU5CZ2txaGtpRzl3MEJBUXNGQURBcE1TY3dKUVlEVlFRRApFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd0hoY05NakF4TWpJeE1EQXdNREF3V2hjTk1qVXhNakl4Ck1EQXdNREF3V2pBcE1TY3dKUVlEVlFRREV4NU1hWFpsSUVsRUlGTlVVeUJUYVdkdWFXNW5JRkIxWW14cFl5QkxaWGt3Z2dFaU1BMEcKQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURGVDAvMC8ycVF1cm5ZYTBMYkpIRjlZWW96aEVINnI5bUN4VkRCWWJldwpTRzR0R2dyV3BzZXdRLzk2cGNjekdNUWN0TXZVK2gyZVgzOEh4L2Y5SkFJRGJ1UlF6UWxzUGhRUzdERFo2V2xUWFUrdDhkL2cyQzdmCnBTb0xzNEtWZEppaDR4eWpMVVdqK0JLL2lqc1JqQnQ0Uml3OVZiSkgvRGRXS3lvU01iRUNFaUUrczFSdExQL2VZb01tTmZ4eVFHcVcKaXJDTnFWTkJUbHF6WVFwNGRnRjBmb1l5NGt0b3h3bVFPVm9UY0lNRllwMUk0cEZQSTdDeHVNTGtmSzBYN2FUYk03WUdwaHZNZkp4SgpranJRZHlJN0c1ZDF0NEROaTN6a0ViQlQ3RkdBcjZxUHQzS245cmFscHFKS0hkcEVCQTlOMHZOd1FvNVhUWUloVWJQUTE2SVJBZ01CCkFBR2pJVEFmTUIwR0ExVWREZ1FXQkJSczd0UG1ma2tzU3I2N0t0RWxIallaYmVhQ1RqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUEKSnF3TVpTalFKMzZ4KzFzdHk2RWVMS1FMUWV3UXdQYUVDNDdadXQrOGJYZWQ2UThqTVowYmZhL01NN1hxdUVjYWJhTVpMUXVLTGZ0NAo0WVh3WFhRT2ZRckkycWpRcjNlVG9KRmxEVDloUjByZnA5d1FxdHREeGQ2QWE2Uld3RFRnbzVvS1VRQ1RLTEhoRXk4dVd6U2NLMGVHCnQyZDdUV1RhRFhqUlN3TnE2dE03ZlJoWnMwN3RLQlYzeGZpOUVReS9tbGF2QU1GUkJWbTg2TlNvN0FzT0cxSU9NcTAzVTNvb0NXQVgKaDlQZHZ2SE5mSGhIMTlmdXRBbkMvSGVPandSRjFRYzUyN2FCTXBoWUZRTGRpVGhmbWZtaUUvQWhRcUN3WjJvRTd1Q0poQnRSK0tiMQpaR2hqSTM1cEhmc1NxR2lGYTdLcis1YXZlODIyUERja2U4OU12Zz09CiAgICAgICAgICAgICAgICAgICAgPC9kczpYNTA5Q2VydGlmaWNhdGU-CiAgICAgICAgICAgICAgICA8L2RzOlg1MDlEYXRhPgogICAgICAgICAgICA8L2RzOktleUluZm8-CiAgICAgICAgPC9LZXlEZXNjcmlwdG9yPgogICAgICAgIDxLZXlEZXNjcmlwdG9yIHVzZT0ic2lnbmluZyI-CiAgICAgICAgICAgIDxkczpLZXlJbmZvPgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIDxkczpYNTA5RGF0YT4KICAgICAgICAgICAgICAgICAgICA8ZHM6WDUwOUNlcnRpZmljYXRlPgpNSUlDL1RDQ0FlV2dBd0lCQWdJUU4vR1BlZ25UOGJsUDJFY1NkTU1iQnpBTkJna3Foa2lHOXcwQkFRc0ZBREFwTVNjd0pRWURWUVFECkV4NU1hWFpsSUVsRUlGTlVVeUJUYVdkdWFXNW5JRkIxWW14cFl5QkxaWGt3SGhjTk1qRXdNakU0TURBd01EQXdXaGNOTWpZd01qRTQKTURBd01EQXdXakFwTVNjd0pRWURWUVFERXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dnZ0VpTUEwRwpDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFhkTEdVMkxsNVJQZERVbktRK2YvSFM1cWlUYXkyY0NoOVUyQVM2b0RNCjZTT3hWaFlHdG9lSjFWUGViY0xucGdMZmhQeHpyd1dvVnpYU0VGK1ZSUWJuWUlEMkpiNGtoamd5RWVvVGhrM1ZxclRod2hhaHBTYkIKZzJ2bzA2dklPcDFUUzJSMUJpd0hLVExvQjFpMUlKbmFJRlNDM0JONnBZNGZsWFd5TFF0LzVBQlhFbHYyWFpMcVhNOUVlZmo2Smk0MApuTElzaVc0ZFd3M0JEYS95d1dXME1zaVc1b2pHcTR2b3ZjQWdFTmUvNE5VYmp1NzBnSFAvV1M1RDliVzVwK09JUWk3L3VucmxXZS9oCjNBNmp0QmJiUmxYWVhsTitaMjJ1VFR5eUNEL1c4emVYYUFDTHZIYWd3RU1yUWVQRFhCWnFjL2lYMmtJK29vWnIxc0MvSDM5UkFnTUIKQUFHaklUQWZNQjBHQTFVZERnUVdCQlNyWDJkbTNMd1Q5amIvcCtiQUFkWVFwRSsvTmpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQplcUpmWUhuc0E5cWhHdHRYRmZGcFBXNERRTGg1dzZKQ2NlN3ZHdldJTnI1ZnIxRG5RZGNPcit3d2pRL3RxYmNrQUwydjZ6MUFxamhTCjc4a2JmZWduQVFEd2lvSloxb2xZWXZMT3hLb2E2SEYrYjEvcDBNbHViOFp1a2sybjFiMmxLUEJCT2liT2FzU1k3Z1FEd2xJWmk3dGwKOW5NVHhVZmRZSytFNUF4djdEVm5tVUN3Y25ucFY1LzFTRmROeVcya1dPNEM2OHJyak1PdkVDZndyS2tiZlZKTThmOWtyRVVCdW9CRgo4ZFREdjdEMlpNNFEyYnVDNzBOYmZhTldVWDB5RnZLSTBJdVRxazhSQmZHVFJRNGZaQWJoTVBheWtFcEJ1NmROalRpNVlPYTBsTnFGCkdTN0F4N2xlQ2g1eDlsVjhlbGNMa1hzOHlTbzhBT1FKazBoZ0l3PT0KICAgICAgICAgICAgICAgICAgICA8L2RzOlg1MDlDZXJ0aWZpY2F0ZT4KICAgICAgICAgICAgICAgIDwvZHM6WDUwOURhdGE-CiAgICAgICAgICAgIDwvZHM6S2V5SW5mbz4KICAgICAgICA8L0tleURlc2NyaXB0b3I-CiAgICAgICAgPEtleURlc2NyaXB0b3IgdXNlPSJzaWduaW5nIj4KICAgICAgICAgICAgPGRzOktleUluZm8-CiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8U2luZ2xlTG9nb3V0U2VydmljZSBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBMb2NhdGlvbj0iaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2xvZ2luLnNyZiIvPgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6ZW1haWxBZGRyZXNzPC9OYW1lSURGb3JtYXQ-CiAgICAgICAgPE5hbWVJREZvcm1hdD51cm46bWFjZTpzaGliYm9sZXRoOjEuMDpuYW1lSWRlbnRpZmllcjwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6dW5zcGVjaWZpZWQ8L05hbWVJREZvcm1hdD4KICAgICAgICA8TmFtZUlERm9ybWF0PnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOm5hbWVpZC1mb3JtYXQ6cGVyc2lzdGVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxBc3NlcnRpb25Db25zdW1lclNlcnZpY2UgaW5kZXg9IjAiIGlzRGVmYXVsdD0idHJ1ZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOkhUVFAtUE9TVCIgTG9jYXRpb249Imh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9sb2dpbi5zcmYiLz4KICAgICAgICA8QXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlIGluZGV4PSIxIiBpc0RlZmF1bHQ9ImZhbHNlIiBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NULVNpbXBsZVNpZ24iIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICAgICAgPEFzc2VydGlvbkNvbnN1bWVyU2VydmljZSBpbmRleD0iMiIgaXNEZWZhdWx0PSJmYWxzZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOlBBT1MiIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICA8L1NQU1NPRGVzY3JpcHRvcj4KPC9FbnRpdHlEZXNjcmlwdG9yPgoK",
+      "base64EntityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI_Pgo8RW50aXR5RGVzY3JpcHRvciBlbnRpdHlJRD0idXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5lIiBJRD0iX2U0NmExMTkzLWU4YTctNDhlZC04MDRmLTE1MTY3MjllY2I1ZiIgeG1sbnM9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDptZXRhZGF0YSIgeG1sbnM6cXVlcnk9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOm1ldGFkYXRhOmV4dDpxdWVyeSIgeG1sbnM6bWRhdHRyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphdHRyaWJ1dGUiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgeG1sbnM6eGVuYzExPSJodHRwOi8vd3d3LnczLm9yZy8yMDA5L3htbGVuYzExIyIgeG1sbnM6YWxnPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphbGdzdXBwb3J0IiB4bWxuczp4NTA5cXJ5PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTpYNTA5OnF1ZXJ5IiB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI-CiAgICA8RXh0ZW5zaW9ucz4KICAgICAgICA8YWxnOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8-CiAgICAgICAgPGFsZzpTaWduaW5nTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8-CiAgICA8L0V4dGVuc2lvbnM-CiAgICA8U1BTU09EZXNjcmlwdG9yIFdhbnRBc3NlcnRpb25zU2lnbmVkPSJ0cnVlIiBwcm90b2NvbFN1cHBvcnRFbnVtZXJhdGlvbj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRYmdESGZpM3QxSk5HVnF3RDUvN2xtakFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpBeE1qSXhNREF3TURBd1doY05NalV4TWpJeApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFERlQwLzAvMnFRdXJuWWEwTGJKSEY5WVlvemhFSDZyOW1DeFZEQlliZXcKU0c0dEdncldwc2V3US85NnBjY3pHTVFjdE12VStoMmVYMzhIeC9mOUpBSURidVJRelFsc1BoUVM3RERaNldsVFhVK3Q4ZC9nMkM3ZgpwU29MczRLVmRKaWg0eHlqTFVXaitCSy9panNSakJ0NFJpdzlWYkpIL0RkV0t5b1NNYkVDRWlFK3MxUnRMUC9lWW9NbU5meHlRR3FXCmlyQ05xVk5CVGxxellRcDRkZ0YwZm9ZeTRrdG94d21RT1ZvVGNJTUZZcDFJNHBGUEk3Q3h1TUxrZkswWDdhVGJNN1lHcGh2TWZKeEoKa2pyUWR5STdHNWQxdDRETmkzemtFYkJUN0ZHQXI2cVB0M0tuOXJhbHBxSktIZHBFQkE5TjB2TndRbzVYVFlJaFViUFExNklSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCUnM3dFBtZmtrc1NyNjdLdEVsSGpZWmJlYUNUakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCkpxd01aU2pRSjM2eCsxc3R5NkVlTEtRTFFld1F3UGFFQzQ3WnV0KzhiWGVkNlE4ak1aMGJmYS9NTTdYcXVFY2FiYU1aTFF1S0xmdDQKNFlYd1hYUU9mUXJJMnFqUXIzZVRvSkZsRFQ5aFIwcmZwOXdRcXR0RHhkNkFhNlJXd0RUZ281b0tVUUNUS0xIaEV5OHVXelNjSzBlRwp0MmQ3VFdUYURYalJTd05xNnRNN2ZSaFpzMDd0S0JWM3hmaTlFUXkvbWxhdkFNRlJCVm04Nk5TbzdBc09HMUlPTXEwM1Uzb29DV0FYCmg5UGR2dkhOZkhoSDE5ZnV0QW5DL0hlT2p3UkYxUWM1MjdhQk1waFlGUUxkaVRoZm1mbWlFL0FoUXFDd1oyb0U3dUNKaEJ0UitLYjEKWkdoakkzNXBIZnNTcUdpRmE3S3IrNWF2ZTgyMlBEY2tlODlNdmc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8U2luZ2xlTG9nb3V0U2VydmljZSBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBMb2NhdGlvbj0iaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2xvZ2luLnNyZiIvPgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6ZW1haWxBZGRyZXNzPC9OYW1lSURGb3JtYXQ-CiAgICAgICAgPE5hbWVJREZvcm1hdD51cm46bWFjZTpzaGliYm9sZXRoOjEuMDpuYW1lSWRlbnRpZmllcjwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6dW5zcGVjaWZpZWQ8L05hbWVJREZvcm1hdD4KICAgICAgICA8TmFtZUlERm9ybWF0PnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOm5hbWVpZC1mb3JtYXQ6cGVyc2lzdGVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxBc3NlcnRpb25Db25zdW1lclNlcnZpY2UgaW5kZXg9IjAiIGlzRGVmYXVsdD0idHJ1ZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOkhUVFAtUE9TVCIgTG9jYXRpb249Imh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9sb2dpbi5zcmYiLz4KICAgICAgICA8QXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlIGluZGV4PSIxIiBpc0RlZmF1bHQ9ImZhbHNlIiBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NULVNpbXBsZVNpZ24iIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICAgICAgPEFzc2VydGlvbkNvbnN1bWVyU2VydmljZSBpbmRleD0iMiIgaXNEZWZhdWx0PSJmYWxzZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOlBBT1MiIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICA8L1NQU1NPRGVzY3JpcHRvcj4KPC9FbnRpdHlEZXNjcmlwdG9yPgoK",
       "entityId": "urn:federation:MicrosoftOnline",
       "entityLocation": "remote",
       "serviceProvider": {
@@ -17539,23 +17538,8 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
           },
         },
         "assertionProcessing": {
-          "attributeMapper": {
-            "attributeMap": [
-              {
-                "binary": false,
-                "localAttribute": "mail",
-                "samlAttribute": "IDPEmail",
-              },
-              {
-                "binary": false,
-                "localAttribute": "UOPClassID",
-                "samlAttribute": "UOPClassID",
-              },
-            ],
-          },
-          "responseArtifactMessageEncoding": {
-            "encoding": "URI",
-          },
+          "attributeMapper": {},
+          "responseArtifactMessageEncoding": {},
         },
         "services": {
           "serviceAttributes": {
@@ -17598,6 +17582,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17611,6 +17596,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17624,6 +17610,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": true,
       "description": "Converts a normalized social profile into a managed user",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17637,6 +17624,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17650,6 +17638,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17663,6 +17652,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
+      "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17676,6 +17666,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17689,6 +17680,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
+      "evaluatorVersion": "1.0",
       "language": "GROOVY",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17702,6 +17694,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
+      "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
@@ -17974,7 +17967,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
       "scopes": [
         "user",
       ],
-      "tokenEndpoint": "https://github.com/login/oauth/access_token",
+      "tokenEndpoint": "https://ig.mytestrun.com/login/oauth/access_token",
       "transform": "23143919-6b78-40c3-b25e-beca19b229e0",
       "uiConfig": {
         "buttonCustomStyle": "background-color: #fff; color: #757575; border-color: #ddd;",
@@ -17985,7 +17978,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
         "iconFontColor": "white",
       },
       "useCustomTrustStore": false,
-      "userInfoEndpoint": "https://api.github.com/user",
+      "userInfoEndpoint": "https://ig.mytestrun.com/user",
     },
     "google": {
       "_id": "google",
@@ -18312,7 +18305,7 @@ exports[`frodo journey export "frodo journey export -i FrodoTest": should export
 
 exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json 1`] = `""`;
 
-exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json: ./my-j01.json 1`] = `
+exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json: my-j01.json 1`] = `
 {
   "circlesOfTrust": {},
   "emailTemplates": {},

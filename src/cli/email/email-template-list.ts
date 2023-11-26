@@ -27,7 +27,7 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing email templates ...`);
-        listEmailTemplates(options.long);
+        await listEmailTemplates(options.long);
       } else {
         process.exitCode = 1;
       }

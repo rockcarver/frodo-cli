@@ -10,14 +10,11 @@ import fs from 'fs';
 
 import {
   createObjectTable,
-  createProgressBar,
+  createProgressIndicator,
   debugMessage,
-  failSpinner,
   printMessage,
-  showSpinner,
-  stopProgressBar,
-  succeedSpinner,
-  updateProgressBar,
+  stopProgressIndicator,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
@@ -89,7 +86,11 @@ export async function deletePolicySetById(
   policySetId: string
 ): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.deletePolicySet: begin`);
-  showSpinner(`Deleting ${policySetId}...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Deleting ${policySetId}...`
+  );
   let outcome = false;
   const errors = [];
   const policies: PolicySkeleton[] = await readPoliciesByPolicySet(policySetId);
@@ -99,23 +100,27 @@ export async function deletePolicySetById(
       await deletePolicy(policy._id);
     } catch (error) {
       error.message = `Error deleting policy ${policy._id} in policy set ${policySetId}: ${error}`;
-      printMessage(error.message, 'error');
       errors.push(error);
     }
   }
   if (errors.length) {
     const errorMessages = errors.map((error) => error.message).join('\n');
-    failSpinner(`Error deleting ${policySetId}: ${errorMessages}`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error deleting policies in policy set ${policySetId}: ${errorMessages}`,
+      'fail'
+    );
   } else {
     try {
       debugMessage(`Deleting policy set ${policySetId}`);
       await deletePolicySet(policySetId);
-      succeedSpinner(`Deleted ${policySetId}.`);
+      stopProgressIndicator(indicatorId, `Deleted ${policySetId}.`, 'success');
       outcome = true;
     } catch (error) {
-      printMessage(
+      stopProgressIndicator(
+        indicatorId,
         `Error deleting policy set ${policySetId}: ${error}`,
-        'error'
+        'fail'
       );
     }
   }
@@ -132,18 +137,29 @@ export async function deletePolicySets(): Promise<boolean> {
   let outcome = false;
   const errors = [];
   let policySets: PolicySetSkeleton[] = [];
+  let indicatorId: string;
+  let indicatorId2: string;
   try {
-    showSpinner(`Retrieving all policy sets...`);
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Retrieving all policy sets...`
+    );
     try {
       policySets = await readPolicySets();
-      succeedSpinner(`Found ${policySets.length} policy sets.`);
+      stopProgressIndicator(
+        indicatorId,
+        `Found ${policySets.length} policy sets.`,
+        'success'
+      );
     } catch (error) {
       error.message = `Error retrieving all policy sets: ${error.message}`;
-      failSpinner(error.message);
+      stopProgressIndicator(indicatorId, error.message, 'fail');
       throw error;
     }
     if (policySets.length)
-      createProgressBar(
+      indicatorId2 = createProgressIndicator(
+        'determinate',
         policySets.length,
         `Deleting ${policySets.length} policy sets...`
       );
@@ -168,10 +184,10 @@ export async function deletePolicySets(): Promise<boolean> {
       try {
         debugMessage(`Deleting policy set ${policySetId}`);
         await deletePolicySet(policySetId);
-        updateProgressBar(`Deleted ${policySetId}`);
+        updateProgressIndicator(indicatorId2, `Deleted ${policySetId}`);
       } catch (error) {
         error.message = `Error deleting policy set ${policySetId}: ${error}`;
-        updateProgressBar(error.message);
+        updateProgressIndicator(indicatorId2, error.message);
         errors.push(error);
       }
     }
@@ -182,10 +198,16 @@ export async function deletePolicySets(): Promise<boolean> {
     if (errors.length) {
       const errorMessages = errors.map((error) => error.message).join('\n');
       if (policySets.length)
-        stopProgressBar(`Error deleting all policy sets: ${errorMessages}`);
+        stopProgressIndicator(
+          indicatorId2,
+          `Error deleting all policy sets: ${errorMessages}`
+        );
     } else {
       if (policySets.length)
-        stopProgressBar(`Deleted ${policySets.length} policy sets.`);
+        stopProgressIndicator(
+          indicatorId2,
+          `Deleted ${policySets.length} policy sets.`
+        );
       outcome = true;
     }
   }
@@ -211,7 +233,11 @@ export async function exportPolicySetToFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetToFile: begin`);
-  showSpinner(`Exporting ${policySetId}...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Exporting ${policySetId}...`
+  );
   try {
     let fileName = getTypedFilename(policySetId, 'policyset.authz');
     if (file) {
@@ -220,10 +246,18 @@ export async function exportPolicySetToFile(
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySet(policySetId, options);
     saveJsonToFile(exportData, filePath);
-    succeedSpinner(`Exported ${policySetId} to ${filePath}.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Exported ${policySetId} to ${filePath}.`,
+      'success'
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error exporting ${policySetId}: ${error.message}`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting ${policySetId}: ${error.message}`,
+      'fail'
+    );
   }
   debugMessage(`cli.PolicySetOps.exportPolicySetToFile: end`);
   return outcome;
@@ -245,7 +279,11 @@ export async function exportPolicySetsToFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: begin`);
-  showSpinner(`Exporting all policy sets...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Exporting all policy sets...`
+  );
   try {
     let fileName = getTypedFilename(
       `all${titleCase(getRealmName(state.getRealm()))}PolicySets`,
@@ -257,10 +295,18 @@ export async function exportPolicySetsToFile(
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySets(options);
     saveJsonToFile(exportData, filePath);
-    succeedSpinner(`Exported all policy sets to ${filePath}.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Exported all policy sets to ${filePath}.`,
+      'success'
+    );
     outcome = true;
   } catch (error) {
-    failSpinner(`Error exporting policy sets: ${error.message}`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting policy sets: ${error.message}`,
+      'fail'
+    );
   }
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: end`);
   return outcome;
@@ -280,9 +326,14 @@ export async function exportPolicySetsToFiles(
 ): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: begin`);
   const errors = [];
+  let indicatorId: string;
   try {
     const policySets: PolicySetSkeleton[] = await readPolicySets();
-    createProgressBar(policySets.length, 'Exporting policy sets...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      policySets.length,
+      'Exporting policy sets...'
+    );
     for (const policySet of policySets) {
       const file = getTypedFilename(policySet.name, 'policyset.authz');
       try {
@@ -291,16 +342,19 @@ export async function exportPolicySetsToFiles(
           options
         );
         saveJsonToFile(exportData, getFilePath(file, true));
-        updateProgressBar(`Exported ${policySet.name}.`);
+        updateProgressIndicator(indicatorId, `Exported ${policySet.name}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error exporting ${policySet.name}.`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error exporting ${policySet.name}.`
+        );
       }
     }
-    stopProgressBar(`Export complete.`);
+    stopProgressIndicator(indicatorId, `Export complete.`);
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error exporting policy sets to files`);
+    stopProgressIndicator(indicatorId, `Error exporting policy sets to files`);
   }
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: end`);
   return 0 === errors.length;
@@ -320,15 +374,23 @@ export async function importPolicySetFromFile(
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetFromFile: begin`);
-  showSpinner(`Importing ${policySetId}...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing ${policySetId}...`
+  );
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySet(policySetId, fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${policySetId}.`);
+    stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
   } catch (error) {
-    failSpinner(`Error importing ${policySetId}.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing ${policySetId}.`,
+      'fail'
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importPolicySetFromFile: end`);
@@ -348,17 +410,27 @@ export async function importFirstPolicySetFromFile(
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: begin`);
   const filePath = getFilePath(file);
-  showSpinner(`Importing first policy set from ${filePath}...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing first policy set from ${filePath}...`
+  );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     const policySet = await importFirstPolicySet(fileData, options);
     outcome = true;
-    succeedSpinner(
-      `Imported first policy set with name '${policySet.name}' from ${filePath}.`
+    stopProgressIndicator(
+      indicatorId,
+      `Imported first policy set with name '${policySet.name}' from ${filePath}.`,
+      'success'
     );
   } catch (error) {
-    failSpinner(`Error importing first policy set from ${filePath}.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing first policy set from ${filePath}.`,
+      'fail'
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: end`);
@@ -378,15 +450,19 @@ export async function importPolicySetsFromFile(
   let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: begin`);
   const filePath = getFilePath(file);
-  showSpinner(`Importing ${filePath}...`);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing ${filePath}...`
+  );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySets(fileData, options);
     outcome = true;
-    succeedSpinner(`Imported ${filePath}.`);
+    stopProgressIndicator(indicatorId, `Imported ${filePath}.`, 'success');
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
+    stopProgressIndicator(indicatorId, `Error importing ${filePath}.`, 'fail');
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
@@ -402,13 +478,18 @@ export async function importPolicySetsFromFiles(
   options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
   const errors = [];
+  let indicatorId: string;
   try {
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
       .filter((name) => name.toLowerCase().endsWith('.policyset.authz.json'))
       .map((name) => getFilePath(name));
-    createProgressBar(files.length, 'Importing policy sets...');
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing policy sets...'
+    );
     let total = 0;
     for (const file of files) {
       try {
@@ -417,19 +498,29 @@ export async function importPolicySetsFromFiles(
         const count = Object.keys(fileData.policyset).length;
         total += count;
         await importPolicySets(fileData, options);
-        updateProgressBar(`Imported ${count} policy sets from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} policy sets from ${file}`
+        );
       } catch (error) {
         errors.push(error);
-        updateProgressBar(`Error importing policy sets from ${file}`);
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing policy sets from ${file}`
+        );
         printMessage(error, 'error');
       }
     }
-    stopProgressBar(
+    stopProgressIndicator(
+      indicatorId,
       `Finished importing ${total} policy sets from ${files.length} files.`
     );
   } catch (error) {
     errors.push(error);
-    stopProgressBar(`Error importing policy sets from files.`);
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing policy sets from files.`
+    );
     printMessage(error, 'error');
   }
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: end`);

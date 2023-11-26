@@ -47,7 +47,7 @@ program
             options.entityId
           }" from realm "${state.getRealm()}"...`
         );
-        exportSaml2MetadataToFile(options.entityId, options.file);
+        await exportSaml2MetadataToFile(options.entityId, options.file);
       }
       // // --all-separate -A
       // else if (options.allSeparate && (await getTokens())) {

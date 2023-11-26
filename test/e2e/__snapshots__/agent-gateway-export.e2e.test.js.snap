@@ -2,7 +2,7 @@
 
 exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent" 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent": ./frodo-test-ig-agent.gateway.agent.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent": frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {
@@ -39,7 +39,7 @@ exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo
 
 exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file: ./allAlphaAgents.gateway.agent.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file: allAlphaAgents.gateway.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {
@@ -128,7 +128,7 @@ exports[`frodo agent gateway export "frodo agent gateway export --all-separate -
 
 exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: ./frodo-test-ig-agent.gateway.agent.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {
@@ -152,7 +152,7 @@ exports[`frodo agent gateway export "frodo agent gateway export -A": should expo
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: ./frodo-test-ig-agent2.gateway.agent.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: frodo-test-ig-agent2.gateway.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent2": {
@@ -177,7 +177,7 @@ exports[`frodo agent gateway export "frodo agent gateway export -A": should expo
 
 exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json: ./my-allAlphaAgents.gateway.agent.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json: my-allAlphaAgents.gateway.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {
@@ -294,7 +294,7 @@ exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig
 
 exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json 1`] = `""`;
 
-exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json: ./my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json: my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `
 {
   "agents": {
     "frodo-test-ig-agent": {

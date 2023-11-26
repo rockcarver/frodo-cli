@@ -2,7 +2,7 @@
 
 exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json: ./my-allEmailTemplates.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json: my-allEmailTemplates.template.email.json 1`] = `
 {
   "emailTemplate": {
     "forgottenUsername": {
@@ -232,7 +232,7 @@ exports[`frodo email template export "frodo email template export --all-separate
 
 exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome" 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome": ./welcome.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome": welcome.template.email.json 1`] = `
 {
   "emailTemplate": {
     "welcome": {
@@ -259,7 +259,7 @@ exports[`frodo email template export "frodo email template export --template-id 
 
 exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./forgottenUsername.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: forgottenUsername.template.email.json 1`] = `
 {
   "emailTemplate": {
     "forgottenUsername": {
@@ -287,7 +287,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./registration.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: registration.template.email.json 1`] = `
 {
   "emailTemplate": {
     "registration": {
@@ -315,7 +315,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./resetPassword.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: resetPassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "resetPassword": {
@@ -338,7 +338,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./updatePassword.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: updatePassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "updatePassword": {
@@ -363,7 +363,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: ./welcome.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: welcome.template.email.json 1`] = `
 {
   "emailTemplate": {
     "welcome": {
@@ -390,7 +390,7 @@ exports[`frodo email template export "frodo email template export -A": should ex
 
 exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file: ./allEmailTemplates.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file: allEmailTemplates.template.email.json 1`] = `
 {
   "emailTemplate": {
     "forgottenUsername": {
@@ -615,7 +615,7 @@ exports[`frodo email template export "frodo email template export -i welcome -D 
 
 exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json: ./my-welcome.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json: my-welcome.template.email.json 1`] = `
 {
   "emailTemplate": {
     "welcome": {

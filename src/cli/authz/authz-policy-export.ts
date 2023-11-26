@@ -63,11 +63,15 @@ program
       // export
       if (options.policyId && (await getTokens())) {
         verboseMessage('Exporting authorization policy to file...');
-        const outcome = exportPolicyToFile(options.policyId, options.file, {
-          deps: options.deps,
-          prereqs: options.prereqs,
-          useStringArrays: true,
-        });
+        const outcome = await exportPolicyToFile(
+          options.policyId,
+          options.file,
+          {
+            deps: options.deps,
+            prereqs: options.prereqs,
+            useStringArrays: true,
+          }
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all by policy set

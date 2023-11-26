@@ -58,21 +58,21 @@ program
             options.idpId
           }" into realm "${state.getRealm()}"...`
         );
-        importSocialIdentityProviderFromFile(options.idpId, options.file);
+        await importSocialIdentityProviderFromFile(options.idpId, options.file);
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        importSocialIdentityProvidersFromFile(options.file);
+        await importSocialIdentityProvidersFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files in current directory...'
         );
-        importSocialIdentityProvidersFromFiles();
+        await importSocialIdentityProvidersFromFiles();
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -81,7 +81,7 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        importFirstSocialIdentityProviderFromFile(options.file);
+        await importFirstSocialIdentityProviderFromFile(options.file);
       }
       // unrecognized combination of options or no options
       else {

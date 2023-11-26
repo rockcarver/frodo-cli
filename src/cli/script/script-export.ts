@@ -5,7 +5,6 @@ import {
   exportScriptByNameToFile,
   exportScriptsToFile,
   exportScriptsToFiles,
-  exportScriptsToFilesExtract,
 } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
@@ -89,11 +88,7 @@ program
       else if (options.allSeparate) {
         verboseMessage('Exporting all scripts to separate files...');
         // -x / --extract
-        if (options.extract) {
-          await exportScriptsToFilesExtract();
-        } else {
-          await exportScriptsToFiles();
-        }
+        await exportScriptsToFiles(options.extract);
       }
 
       // unrecognized combination of options or no options

@@ -5,7 +5,6 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 
 import {
-  createProgressBar,
   createProgressIndicator,
   createTable,
   debugMessage,
@@ -13,13 +12,13 @@ import {
   printMessage,
   showSpinner,
   spinSpinner,
-  stopProgressBar,
   stopProgressIndicator,
   succeedSpinner,
-  updateProgressBar,
+  updateProgressIndicator,
 } from '../utils/Console';
 import {
   getTypedFilename,
+  isValidUrl,
   saveJsonToFile,
   saveTextToFile,
   titleCase,
@@ -212,24 +211,39 @@ export async function exportScriptsToFile(file: string): Promise<boolean> {
 
 /**
  * Export all scripts to individual files
+ * @param extract Extracts the scripts from the exports into separate files if true
  * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
  */
-export async function exportScriptsToFiles(): Promise<boolean> {
+export async function exportScriptsToFiles(extract = false): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const scriptList = await readScripts();
-  createProgressBar(
+  const barId = createProgressIndicator(
+    'determinate',
     scriptList.length,
     'Exporting scripts to individual files...'
   );
   for (const script of scriptList) {
+    const fileBarId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting script ${script.name}...`
+    );
+    updateProgressIndicator(barId, `Reading script ${script.name}`);
+    const file = getFilePath(getTypedFilename(script.name, 'script'), true);
     try {
-      updateProgressBar(`Reading script ${script.name}`);
-      const fileName = getTypedFilename(script.name, 'script');
       const scriptExport = await exportScriptByName(script.name);
-      saveJsonToFile(scriptExport, getFilePath(fileName, true));
+      if (extract) extractScriptToFile(scriptExport);
+      saveJsonToFile(scriptExport, file);
+      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
     } catch (error) {
       outcome = false;
+      updateProgressIndicator(barId, `Error exporting ${script.name}.`);
+      stopProgressIndicator(
+        fileBarId,
+        `Error saving ${script.name} to ${file}.`
+      );
       printMessage(
         `Error exporting script '${script.name}': ${error.message}`,
         'error'
@@ -237,69 +251,44 @@ export async function exportScriptsToFiles(): Promise<boolean> {
       debugMessage(error);
     }
   }
-  stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
+  stopProgressIndicator(
+    barId,
+    `Exported ${scriptList.length} scripts to individual files.`
+  );
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end [${outcome}]`);
   return outcome;
 }
 
-export async function exportScriptsToFilesExtract(): Promise<boolean> {
-  let outcome = true;
-  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: start`);
-  const scriptList = await readScripts();
-  createProgressBar(
-    scriptList.length,
-    'Exporting scripts to individual files...'
-  );
-  for (const script of scriptList) {
-    try {
-      updateProgressBar(`Reading script ${script.name}`);
-      const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
-      const scriptFileName = getTypedFilename(
-        script.name,
-        'script',
-        fileExtension
-      );
-      const scriptFilePath = getFilePath(scriptFileName, true);
-      const fileName = getTypedFilename(script.name, 'script');
-      const filePath = getFilePath(fileName, true);
-
-      const scriptExport = await exportScriptByName(script.name);
-
-      const scriptSkeleton = getScriptSkeleton(scriptExport);
-
-      const scriptText = Array.isArray(scriptSkeleton.script)
-        ? scriptSkeleton.script.join('\n')
-        : scriptSkeleton.script;
-
-      scriptSkeleton.script = `file://${scriptFilePath}`;
-
-      saveTextToFile(scriptText, scriptFilePath);
-      saveJsonToFile(scriptExport, filePath);
-    } catch (error) {
-      outcome = false;
-      printMessage(
-        `Error exporting script '${script.name}': ${error.message}`,
-        'error'
-      );
-      debugMessage(error);
-    }
-  }
-  stopProgressBar(`Exported ${scriptList.length} scripts to individual files.`);
-  debugMessage(`Cli.ScriptOps.exportScriptsToFilesExtract: end [${outcome}]`);
-  return outcome;
-}
-
 /**
- * Check if a string is a valid URL
- * @param {string} urlString input string to be evaluated
- * @returns {boolean} true if a valid URL, false otherwise
+ * Extracts a script from a script export into a separate file.
+ * @param scriptExport The script export
+ * @param scriptId The script id (optional if there is only one script in the export)
+ * @param directory The directory within the base directory to save the script file
  */
-function isValidUrl(urlString: string): boolean {
-  try {
-    return Boolean(new URL(urlString));
-  } catch (error) {
-    return false;
-  }
+export function extractScriptToFile(
+  scriptExport: ScriptExportInterface,
+  scriptId?: string,
+  directory?: string
+) {
+  const scriptSkeleton = scriptId
+    ? scriptExport.script[scriptId]
+    : getScriptSkeleton(scriptExport);
+  const fileExtension =
+    scriptSkeleton.language === 'JAVASCRIPT' ? 'js' : 'groovy';
+  const scriptFileName = getTypedFilename(
+    scriptSkeleton.name,
+    'script',
+    fileExtension
+  );
+  const scriptFilePath = getFilePath(
+    (directory ? `${directory}/` : '') + scriptFileName,
+    true
+  );
+  const scriptText = Array.isArray(scriptSkeleton.script)
+    ? scriptSkeleton.script.join('\n')
+    : scriptSkeleton.script;
+  scriptSkeleton.script = `file://${scriptFilePath}`;
+  saveTextToFile(scriptText, scriptFilePath);
 }
 
 function isScriptExtracted(importData: ScriptExportInterface): boolean {
@@ -542,12 +531,16 @@ function getScriptId(script: ScriptExportInterface): string {
  * @param {String} id script id
  */
 export async function deleteScriptId(id) {
-  createProgressIndicator('indeterminate', undefined, `Deleting ${id}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${id}...`
+  );
   try {
     await deleteScript(id);
-    stopProgressIndicator(`Deleted ${id}.`, 'success');
+    stopProgressIndicator(spinnerId, `Deleted ${id}.`, 'success');
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }
 
@@ -556,12 +549,16 @@ export async function deleteScriptId(id) {
  * @param {String} name script name
  */
 export async function deleteScriptName(name) {
-  createProgressIndicator('indeterminate', undefined, `Deleting ${name}...`);
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${name}...`
+  );
   try {
     await deleteScriptByName(name);
-    stopProgressIndicator(`Deleted ${name}.`, 'success');
+    stopProgressIndicator(spinnerId, `Deleted ${name}.`, 'success');
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }
 
@@ -569,15 +566,19 @@ export async function deleteScriptName(name) {
  * Delete all non-default scripts
  */
 export async function deleteAllScripts() {
-  createProgressIndicator(
+  const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all non-default scripts...`
   );
   try {
     await deleteScripts();
-    stopProgressIndicator(`Deleted all non-default scripts.`, 'success');
+    stopProgressIndicator(
+      spinnerId,
+      `Deleted all non-default scripts.`,
+      'success'
+    );
   } catch (error) {
-    stopProgressIndicator(`Error: ${error.message}`, 'fail');
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
 }

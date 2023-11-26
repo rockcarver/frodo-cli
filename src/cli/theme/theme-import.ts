@@ -65,7 +65,7 @@ program
             options.themeName
           }" into realm "${state.getRealm()}"...`
         );
-        importThemeByName(options.themeName, options.file);
+        await importThemeByName(options.themeName, options.file);
       }
       // import by id
       else if (options.file && options.themeId && (await getTokens())) {
@@ -74,14 +74,14 @@ program
             options.themeId
           }" into realm "${state.getRealm()}"...`
         );
-        importThemeById(options.themeId, options.file);
+        await importThemeById(options.themeId, options.file);
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all themes from a single file (${options.file})...`
         );
-        importThemesFromFile(options.file);
+        await importThemesFromFile(options.file);
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
@@ -97,7 +97,7 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        importFirstThemeFromFile(options.file);
+        await importFirstThemeFromFile(options.file);
       }
       // unrecognized combination of options or no options
       else {
