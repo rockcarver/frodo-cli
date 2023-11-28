@@ -47,11 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-generic --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi."
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create --secret-id esv-test-secret-pi-generic2 --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding generic --no-use-in-placeholders
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-pem --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding pem
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-base64hmac --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding base64hmac
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-unknown --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding unknown
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-generic --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi."
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create --secret-id esv-test-secret-pi-generic2 --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding generic --no-use-in-placeholders
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-pem --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding pem
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-base64hmac --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding base64hmac
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret create -i esv-test-secret-pi-unknown --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding unknown
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -97,7 +97,11 @@ describe('frodo esv secret create', () => {
 
     test('"frodo esv secret create -i esv-test-secret-pi-unknown --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding unknown": should display an error when creating an esv secret with unknown encoding', async () => {
         const CMD = `frodo esv secret create -i esv-test-secret-pi-unknown --value "3.141592653589793238462643383279502884" --description "This is a test secret containing the value pi." --encoding unknown`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 });

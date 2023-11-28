@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list -l
-FRODO_MOCK=record FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list --long
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list -l
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app list --long
  */
 import cp from 'child_process';
 import { promisify } from 'util';

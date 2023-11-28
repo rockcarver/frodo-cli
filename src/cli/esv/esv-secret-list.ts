@@ -27,7 +27,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Listing secrets...');
-        listSecrets(options.long);
+        const outcome = await listSecrets(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

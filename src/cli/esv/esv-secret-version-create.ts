@@ -26,7 +26,11 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Creating new version of secret...');
-        createVersionOfSecret(options.secretId, options.value);
+        const outcome = await createVersionOfSecret(
+          options.secretId,
+          options.value
+        );
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

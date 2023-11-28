@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list
-FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list -l
-FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list --long
+FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list
+FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list -l
+FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list --long
  */
 import cp from 'child_process';
 import { promisify } from 'util';

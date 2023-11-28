@@ -47,8 +47,8 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version deactivate -i esv-test-secret-pi-generic -v 1
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version deactivate --secret-id esv-test-secret-pi-generic --version 2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version deactivate -i esv-test-secret-pi-generic -v 1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version deactivate --secret-id esv-test-secret-pi-generic --version 2
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -74,7 +74,11 @@ describe('frodo esv secret version deactivate', () => {
 
     test('"frodo esv secret version deactivate --secret-id esv-test-secret-pi-generic --version 2": should display an error when activating version 2 of the secret "esv-test-secret-pi-generic", which is the latest and already activated version', async () => {
         const CMD = `frodo esv secret version deactivate --secret-id esv-test-secret-pi-generic --version 2`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+          await exec(CMD, env);
+          fail("Command should've failed");
+        } catch (e) {
+          expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 });

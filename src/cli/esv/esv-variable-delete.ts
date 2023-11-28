@@ -40,12 +40,14 @@ program
       // delete by id
       if (options.variableId && (await getTokens())) {
         verboseMessage('Deleting variable...');
-        deleteVariableById(options.variableId);
+        const outcome = await deleteVariableById(options.variableId);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all variables...');
-        deleteVariables();
+        const outcome = await deleteVariables();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

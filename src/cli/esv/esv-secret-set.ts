@@ -26,7 +26,11 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Setting secret description...');
-        setSecretDescription(options.secretId, options.description);
+        const outcome = await setSecretDescription(
+          options.secretId,
+          options.description
+        );
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -47,17 +47,17 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -i test2 -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --app-id test2 --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -i test2 -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -af test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -af allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -AD test/e2e/exports/all-separate/oauth/client
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all-separate --directory test/e2e/exports/all-separate/oauth/client
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -i test2 -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --app-id test2 --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -i test2 -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -f test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -f allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -af test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -af allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -AD test/e2e/exports/all-separate/oauth/client
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all-separate --directory test/e2e/exports/all-separate/oauth/client
 */
 import cp from 'child_process';
 import { promisify } from 'util';

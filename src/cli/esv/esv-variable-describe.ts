@@ -31,7 +31,11 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Describing variable ${options.variableId}...`);
-        describeVariable(options.variableId, options.json);
+        const outcome = await describeVariable(
+          options.variableId,
+          options.json
+        );
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

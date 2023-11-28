@@ -47,7 +47,7 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin list-oauth2-clients-with-admin-privileges
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin list-oauth2-clients-with-admin-privileges
  */
 import cp from 'child_process';
 import { promisify } from 'util';

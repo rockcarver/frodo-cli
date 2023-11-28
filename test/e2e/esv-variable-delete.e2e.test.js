@@ -47,10 +47,10 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -i esv-test-var-pi
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --variable-id esv-test-var-pi
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -i esv-test-var-pi
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --variable-id esv-test-var-pi
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete -a
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable delete --all
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -77,8 +77,12 @@ describe('frodo esv variable delete', () => {
 
     test('"frodo esv variable delete --variable-id esv-test-var-pi": should display error when the variable with id \'esv-test-var-pi\' cannot be deleted since it does not exist', async () => {
         const CMD = `frodo esv variable delete --variable-id esv-test-var-pi`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+          await exec(CMD, env);
+          fail("Command should've failed");
+        } catch (e) {
+          expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
     //TODO: Generate mock for this test (skip for meantime)

@@ -51,19 +51,24 @@ program
             options.secretId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportSecretToFile(options.secretId, options.file);
+        const outcome = await exportSecretToFile(
+          options.secretId,
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       } else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all secrets to a single file...');
-        await exportSecretsToFile(options.file);
+        const outcome = await exportSecretsToFile(options.file);
+        if (!outcome) process.exitCode = 1;
       } else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all secrets to separate files...');
-        await exportSecretsToFiles();
+        const outcome = await exportSecretsToFiles();
+        if (!outcome) process.exitCode = 1;
       } else {
         printMessage(
           'Unrecognized combination of options or no options...',
           'error'
         );
-        program.help();
         process.exitCode = 1;
       }
     }

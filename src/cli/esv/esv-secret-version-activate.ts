@@ -27,12 +27,15 @@ program
       // activate by id
       if (options.secretId && options.version && (await getTokens())) {
         verboseMessage(`Activating version of secret...`);
-        activateVersionOfSecret(options.secretId, options.version);
+        const outcome = await activateVersionOfSecret(
+          options.secretId,
+          options.version
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {
         printMessage('Unrecognized combination of options or no options...');
-        program.help();
         process.exitCode = 1;
       }
     }
