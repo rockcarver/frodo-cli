@@ -1,11 +1,24 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { Writable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import { OAuth2ClientSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2ClientApi';
+import { AccessTokenResponseType } from '@rockcarver/frodo-lib/types/api/OAuth2OIDCApi';
+import { OAuth2TrustedJwtIssuerSkeleton } from '@rockcarver/frodo-lib/types/api/OAuth2TrustedJwtIssuerApi';
 import {
   FullExportInterface,
   FullExportOptions,
 } from '@rockcarver/frodo-lib/types/ops/AdminOps';
+import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
 
+import {
+  cleanupProgressIndicators,
+  createKeyValueTable,
+  createProgressIndicator,
+  printMessage,
+  stopProgressIndicator,
+  updateProgressIndicator,
+} from '../utils/Console';
 import { extractScriptToFile } from './ScriptOps';
 
 const {
@@ -16,7 +29,277 @@ const {
   getFilePath,
   getWorkingDirectory,
 } = frodo.utils;
-const { exportFullConfiguration } = frodo.admin;
+const {
+  exportFullConfiguration,
+  generateRfc7523AuthZGrantArtifacts: _generateRfc7523AuthZGrantArtifacts,
+  executeRfc7523AuthZGrantFlow: _executeRfc7523AuthZGrantFlow,
+} = frodo.admin;
+const { stringify } = frodo.utils.json;
+const { readOAuth2TrustedJwtIssuer } = frodo.oauth2oidc.issuer;
+
+function getJwkFilePath(clientId: string): string {
+  return getFilePath(getTypedFilename(clientId + '_private', 'jwk'), true);
+}
+
+function getJwksFilePath(clientId: string): string {
+  return getFilePath(getTypedFilename(clientId + '_public', 'jwks'), true);
+}
+
+export async function generateRfc7523AuthZGrantArtifacts(
+  clientId: string,
+  iss: string,
+  jwk?: JwkRsa,
+  sub?: string,
+  scope?: string[],
+  options?: { save: boolean },
+  json?: boolean
+): Promise<boolean> {
+  let artifacts: {
+    jwk: JwkRsa;
+    jwks: JwksInterface;
+    client: OAuth2ClientSkeleton;
+    issuer: OAuth2TrustedJwtIssuerSkeleton;
+  };
+  try {
+    const barId = createProgressIndicator(
+      'determinate',
+      options.save ? 3 : 1,
+      'Generating artifacts...'
+    );
+    artifacts = await _generateRfc7523AuthZGrantArtifacts(
+      clientId,
+      iss,
+      jwk,
+      sub,
+      scope,
+      options
+    );
+    updateProgressIndicator(barId, 'Successfully generated artifacts.');
+    let jwkFile: string;
+    let jwksFile: string;
+    if (options.save) {
+      const jwkBarId = createProgressIndicator(
+        'determinate',
+        1,
+        'Saving JWK (private key)...'
+      );
+      jwkFile = getJwkFilePath(clientId);
+      saveJsonToFile(artifacts.jwk, jwkFile, false);
+      updateProgressIndicator(jwkBarId, `Saved JWK to ${jwkFile}.`);
+      updateProgressIndicator(barId, 'Successfully saved JWK (private key).');
+      stopProgressIndicator(jwkBarId);
+      const jwksBarId = createProgressIndicator(
+        'determinate',
+        1,
+        'Saving JWKS (public key)...'
+      );
+      jwksFile = getJwksFilePath(clientId);
+      saveJsonToFile(artifacts.jwks, jwksFile, false);
+      updateProgressIndicator(jwksBarId, `Saved JWKS to ${jwksFile}.`);
+      stopProgressIndicator(jwksBarId);
+      updateProgressIndicator(barId, 'Successfully saved JWKS (public key).');
+    }
+    stopProgressIndicator(
+      barId,
+      `Successfully generated ${
+        options.save ? 'and saved artifacts' : 'artifacts'
+      }.`
+    );
+    cleanupProgressIndicators();
+
+    if (json) {
+      printMessage(artifacts, 'data');
+    } else {
+      printMessage(
+        options.save
+          ? `\nCreated oauth2 client in the ${state.getRealm()} realm:`
+          : `\nIn AM, create an OAuth2 client in the ${state.getRealm()} realm with the following information:`
+      );
+      const client = createKeyValueTable();
+      client.push(['Client ID'['brightCyan'], clientId]);
+      client.push(['Client Name'['brightCyan'], clientId]);
+      client.push([
+        'Scopes'['brightCyan'],
+        (
+          artifacts.client.coreOAuth2ClientConfig.scopes as Writable<string[]>
+        ).value.join(', '),
+      ]);
+      client.push([
+        'Client Type'['brightCyan'],
+        (artifacts.client.coreOAuth2ClientConfig.clientType as Writable<string>)
+          .value,
+      ]);
+      client.push([
+        'Grant Types'['brightCyan'],
+        (
+          artifacts.client.advancedOAuth2ClientConfig.grantTypes as Writable<
+            string[]
+          >
+        ).value.join(', '),
+      ]);
+      client.push([
+        'Implied Consent'['brightCyan'],
+        (
+          artifacts.client.advancedOAuth2ClientConfig
+            .isConsentImplied as Writable<boolean>
+        ).value,
+      ]);
+      client.push([
+        'Token Endpoint Authentication '['brightCyan'],
+        (
+          artifacts.client.advancedOAuth2ClientConfig
+            .tokenEndpointAuthMethod as Writable<string>
+        ).value,
+      ]);
+      client.push([
+        'Public Key Selector'['brightCyan'],
+        (
+          artifacts.client.signEncOAuth2ClientConfig
+            .publicKeyLocation as Writable<string>
+        ).value,
+      ]);
+      client.push([
+        'JWKS (Public Key)'['brightCyan'],
+        options.save ? `${jwksFile}` : 'See below',
+      ]);
+      printMessage(`\n${client.toString()}`);
+
+      printMessage(
+        options.save
+          ? `\nCreated oauth2 trusted issuer in the ${state.getRealm()} realm:`
+          : `\nIn AM, create a trusted issuer in the ${state.getRealm()} realm with the following information:`
+      );
+      const issuer = createKeyValueTable();
+      issuer.push(['Name'['brightCyan'], artifacts.issuer._id]);
+      issuer.push([
+        'JWT Issuer'['brightCyan'],
+        (artifacts.issuer.issuer as Writable<string>).value,
+      ]);
+      issuer.push([
+        'Allowed Subjects              '['brightCyan'],
+        (artifacts.issuer.allowedSubjects as Writable<string[]>)?.value.length
+          ? (
+              artifacts.issuer.allowedSubjects as Writable<string[]>
+            )?.value.join(', ')
+          : `Any ${state.getRealm()} realm user`,
+      ]);
+      issuer.push([
+        'JWKS (Public Key)'['brightCyan'],
+        options.save ? `${jwksFile}` : 'See below',
+      ]);
+      printMessage(`\n${issuer.toString()}`);
+      if (!options.save) {
+        printMessage('\nJWK (Private Key)'['brightCyan']);
+        printMessage(stringify(artifacts.jwk));
+        printMessage('\nJWKS (Public Key)'['brightCyan']);
+        printMessage(stringify(artifacts.jwks));
+      }
+    }
+    return true;
+  } catch (error) {
+    printMessage(error, 'error');
+    return false;
+  }
+}
+
+export async function executeRfc7523AuthZGrantFlow(
+  clientId: string,
+  iss?: string,
+  jwk?: JwkRsa,
+  sub?: string,
+  scope?: string[],
+  json?: boolean
+): Promise<boolean> {
+  let tokenResponse: AccessTokenResponseType;
+  let spinnerId: string;
+  try {
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      'Executing rfc7523 authz grant flow...'
+    );
+    let issuer: OAuth2TrustedJwtIssuerSkeleton;
+    // make sure we have an issuer
+    if (!iss) {
+      try {
+        if (!issuer)
+          issuer = await readOAuth2TrustedJwtIssuer(clientId + '-issuer');
+        iss = issuer.issuer as string;
+      } catch (error) {
+        throw new Error(
+          `No issuer provided and no suitable issuer could be found: ${error.message}`
+        );
+      }
+    }
+    // make sure we have a JWK
+    if (!jwk) {
+      try {
+        jwk = JSON.parse(fs.readFileSync(getJwkFilePath(clientId), 'utf8'));
+      } catch (error) {
+        throw new Error(
+          `No JWK provided and no suitable JWK could be loaded from file: ${error.message}`
+        );
+      }
+    }
+    // make sure we have a subject
+    if (!sub) {
+      try {
+        if (!issuer)
+          issuer = await frodo.oauth2oidc.issuer.readOAuth2TrustedJwtIssuer(
+            clientId + '-issuer'
+          );
+        if (
+          (issuer.allowedSubjects as string[]) &&
+          (issuer.allowedSubjects as string[]).length
+        )
+          sub = (issuer.allowedSubjects as string[])[0];
+      } catch (error) {
+        throw new Error(
+          `No subject provided and no suitable subject could be extracted from the trusted issuer configuration: ${error.message}`
+        );
+      }
+      if (!sub)
+        throw new Error(
+          `No subject provided and no suitable subject could be extracted from the trusted issuer's list of allowed subjects.`
+        );
+    }
+    // we got everything we need, let's get that token
+    tokenResponse = await _executeRfc7523AuthZGrantFlow(
+      clientId,
+      iss,
+      jwk,
+      sub,
+      scope
+    );
+    stopProgressIndicator(
+      spinnerId,
+      'Successfully executed rfc7523 authz grant flow.',
+      'success'
+    );
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error executing rfc7523 authz grant flow: ${stringify(
+        error.response?.data || error.message
+      )}`,
+      'fail'
+    );
+    return false;
+  }
+  cleanupProgressIndicators();
+
+  if (json) {
+    printMessage(tokenResponse, 'data');
+  } else {
+    printMessage('\nAccess Token'['brightCyan']);
+    printMessage(tokenResponse.access_token);
+    if (tokenResponse.id_token) {
+      printMessage('\nIdentity Token'['brightCyan']);
+      printMessage(tokenResponse.id_token);
+    }
+  }
+  return true;
+}
 
 /**
  * Export everything to separate files

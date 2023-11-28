@@ -274,6 +274,7 @@ function stopProgressBar(id: string, message: string = null) {
     });
   }
   progressBars[id].stop();
+  // progressBars[id].render();
   debugMessage(
     `cli.Console.stopProgressBar: end [${
       Object.keys(progressBars).length
@@ -391,7 +392,7 @@ export function updateProgressIndicator(id: string, message: string) {
 
 export function stopProgressIndicator(
   id: string,
-  message: string,
+  message: string = null,
   status: ProgressIndicatorStatusType = 'none'
 ) {
   if (!progressBars[id]) {
