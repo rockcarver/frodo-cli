@@ -455,7 +455,7 @@ jobs:
           ./frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip . -i frodo
+        run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip frodo
 
       - uses: actions/upload-artifact@v3
         with:
