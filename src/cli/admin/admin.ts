@@ -18,6 +18,16 @@ export default function setup() {
   );
 
   program.command(
+    'generate-rfc7523-authz-grant-artifacts',
+    'Generate RFC7523 authorization grant artifacts.'
+  );
+
+  program.command(
+    'execute-rfc7523-authz-grant-flow',
+    'Execute RFC7523 authorization grant flow.'
+  );
+
+  program.command(
     'get-access-token',
     'Get an access token using client credentials grant type.'
   );

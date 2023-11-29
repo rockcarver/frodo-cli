@@ -47,15 +47,15 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -i welcome -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --template-id welcome --file test/e2e/exports/all/allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --file test/e2e/exports/all/allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import -af test/e2e/exports/all/allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all --file test/e2e/exports/all/allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import -af allEmailTemplates.template.email.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -AD test/e2e/exports/all-separate/email/template/raw
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all-separate --directory test/e2e/exports/all-separate/email/template
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -i welcome -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --template-id welcome --file test/e2e/exports/all/allEmailTemplates.template.email.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -f emailTemplate-welcome.test.json -D test/e2e/exports/all-separate/email/template/raw
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --file test/e2e/exports/all/allEmailTemplates.template.email.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import -af test/e2e/exports/all/allEmailTemplates.template.email.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all --file test/e2e/exports/all/allEmailTemplates.template.email.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import -af allEmailTemplates.template.email.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -AD test/e2e/exports/all-separate/email/template/raw
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all-separate --directory test/e2e/exports/all-separate/email/template
 */
 import cp from 'child_process';
 import { promisify } from 'util';

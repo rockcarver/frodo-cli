@@ -47,17 +47,17 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -i iSPAzure -f test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --entity-id iSPAzure --file test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -i iSPAzure -f allAlphaProviders.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -f test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --file test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -f allAlphaProviders.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all --file test/e2e/exports/all/allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af allAlphaProviders.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -AD test/e2e/exports/all-separate/saml
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all-separate --directory test/e2e/exports/all-separate/saml
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -i iSPAzure -f test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --entity-id iSPAzure --file test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -i iSPAzure -f allAlphaProviders.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -f test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --file test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -f allAlphaProviders.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all --file test/e2e/exports/all/allAlphaProviders.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af allAlphaProviders.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -AD test/e2e/exports/all-separate/saml
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all-separate --directory test/e2e/exports/all-separate/saml
 */
 import cp from 'child_process';
 import { promisify } from 'util';

@@ -1,16 +1,16 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { VariableExpressionType } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
+import {
+  VariableExpressionType,
+  VariableSkeleton,
+} from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
 import {
   createKeyValueTable,
   createProgressIndicator,
   createTable,
   debugMessage,
-  failSpinner,
   printMessage,
-  showSpinner,
   stopProgressIndicator,
-  succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
 import {
@@ -36,15 +36,31 @@ const {
 /**
  * List variables
  * @param {boolean} long Long version, all the fields
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listVariables(long) {
-  let variables = [];
+export async function listVariables(long: boolean): Promise<boolean> {
+  let outcome = false;
+  let spinnerId: string;
+  let variables: VariableSkeleton[] = [];
   try {
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Reading variables...`
+    );
     variables = await readVariables();
     variables.sort((a, b) => a._id.localeCompare(b._id));
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully read ${variables.length} variables.`,
+      'success'
+    );
   } catch (error) {
-    printMessage(`${error.message}`, 'error');
-    printMessage(error.response.data, 'error');
+    stopProgressIndicator(
+      spinnerId,
+      `Error reading variables: ${error.response?.data || error.message}`,
+      'fail'
+    );
   }
   if (long) {
     const table = createTable([
@@ -68,11 +84,14 @@ export async function listVariables(long) {
       ]);
     }
     printMessage(table.toString(), 'data');
+    outcome = true;
   } else {
     variables.forEach((variable) => {
       printMessage(variable._id, 'data');
     });
+    outcome = true;
   }
+  return outcome;
 }
 
 /**
@@ -81,24 +100,38 @@ export async function listVariables(long) {
  * @param {string} value variable value
  * @param {string} description variable description
  * @param {VariableExpressionType} type variable type
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function createVariable(
   variableId: string,
   value: string,
   description: string,
   type: VariableExpressionType = 'string'
-) {
-  showSpinner(`Creating variable ${variableId}...`);
+): Promise<boolean> {
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Creating variable ${variableId}...`
+  );
   try {
     await _updateVariable(variableId, value, description, type);
-    succeedSpinner(`Created variable ${variableId}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Created variable ${variableId}`,
+      'success'
+    );
+    outcome = true;
   } catch (error) {
-    failSpinner(
+    stopProgressIndicator(
+      spinnerId,
       error.response
         ? `Error: ${error.response.data.code} - ${error.response.data.message}`
-        : error
+        : error,
+      'fail'
     );
   }
+  return outcome;
 }
 
 /**
@@ -106,56 +139,100 @@ export async function createVariable(
  * @param {string} variableId variable id
  * @param {string} value variable value
  * @param {string} description variable description
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function updateVariable(variableId, value, description) {
-  showSpinner(`Updating variable ${variableId}...`);
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Updating variable ${variableId}...`
+  );
   try {
     await _updateVariable(variableId, value, description);
-    succeedSpinner(`Updated variable ${variableId}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Updated variable ${variableId}`,
+      'success'
+    );
+    outcome = true;
   } catch (error) {
-    failSpinner(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
+    stopProgressIndicator(
+      spinnerId,
+      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      'fail'
     );
   }
+  return outcome;
 }
 
 /**
  * Set description of variable
  * @param {string} variableId variable id
  * @param {string} description variable description
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function setVariableDescription(variableId, description) {
-  showSpinner(`Setting description of variable ${variableId}...`);
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Setting description of variable ${variableId}...`
+  );
   try {
     await updateVariableDescription(variableId, description);
-    succeedSpinner(`Set description of variable ${variableId}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Set description of variable ${variableId}`,
+      'success'
+    );
+    outcome = true;
   } catch (error) {
-    failSpinner(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
+    stopProgressIndicator(
+      spinnerId,
+      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      'fail'
     );
   }
+  return outcome;
 }
 
 /**
  * Delete a variable
  * @param {string} variableId variable id
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteVariableById(variableId) {
-  showSpinner(`Deleting variable ${variableId}...`);
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Deleting variable ${variableId}...`
+  );
   try {
     await deleteVariable(variableId);
-    succeedSpinner(`Deleted variable ${variableId}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Deleted variable ${variableId}`,
+      'success'
+    );
+    outcome = true;
   } catch (error) {
-    failSpinner(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
+    stopProgressIndicator(
+      spinnerId,
+      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      'fail'
     );
   }
+  return outcome;
 }
 
 /**
  * Delete all variables
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteVariables() {
+  let outcome = false;
   let indicatorId: string;
   try {
     const variables = await readVariables();
@@ -178,6 +255,7 @@ export async function deleteVariables() {
         );
       }
     }
+    outcome = true;
     stopProgressIndicator(indicatorId, `Variables deleted.`);
   } catch (error) {
     stopProgressIndicator(
@@ -189,43 +267,71 @@ export async function deleteVariables() {
       'error'
     );
   }
+  return outcome;
 }
 
 /**
  * Describe a variable
  * @param {string} variableId variable id
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeVariable(variableId, json = false) {
-  const variable = await readVariable(variableId);
-  if (json) {
-    printMessage(variable, 'data');
-  } else {
-    const table = createKeyValueTable();
-    table.push(['Name'['brightCyan'], variable._id]);
-    table.push([
-      'Value'['brightCyan'],
-      wordwrap(decodeBase64(variable.valueBase64), 40),
-    ]);
-    table.push(['Type'['brightCyan'], variable.expressionType]);
-    table.push([
-      'Status'['brightCyan'],
-      variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-    ]);
-    table.push([
-      'Description'['brightCyan'],
-      wordwrap(variable.description, 60),
-    ]);
-    table.push([
-      'Modified'['brightCyan'],
-      new Date(variable.lastChangeDate).toLocaleString(),
-    ]);
-    const modifierName = await resolvePerpetratorUuid(variable.lastChangedBy);
-    if (modifierName && modifierName !== variable.lastChangedBy) {
-      table.push(['Modifier'['brightCyan'], modifierName]);
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Describing variable ${variableId}...`
+  );
+  try {
+    const variable = await readVariable(variableId);
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully retrieved variable ${variableId}`,
+      'success'
+    );
+    if (json) {
+      printMessage(variable, 'data');
+    } else {
+      const table = createKeyValueTable();
+      table.push(['Name'['brightCyan'], variable._id]);
+      table.push([
+        'Value'['brightCyan'],
+        wordwrap(decodeBase64(variable.valueBase64), 40),
+      ]);
+      table.push(['Type'['brightCyan'], variable.expressionType]);
+      table.push([
+        'Status'['brightCyan'],
+        variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+      ]);
+      table.push([
+        'Description'['brightCyan'],
+        wordwrap(variable.description, 60),
+      ]);
+      table.push([
+        'Modified'['brightCyan'],
+        new Date(variable.lastChangeDate).toLocaleString(),
+      ]);
+      let modifierName: string;
+      try {
+        modifierName = await resolvePerpetratorUuid(variable.lastChangedBy);
+      } catch (error) {
+        // ignore
+      }
+      if (modifierName && modifierName !== variable.lastChangedBy) {
+        table.push(['Modifier'['brightCyan'], modifierName]);
+      }
+      table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
+      printMessage(table.toString(), 'data');
     }
-    table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
-    printMessage(table.toString(), 'data');
+    outcome = true;
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error describing variable ${variableId}`,
+      'fail'
+    );
   }
+  return outcome;
 }
 
 /**
@@ -233,6 +339,7 @@ export async function describeVariable(variableId, json = false) {
  * @param {String} variableId Variable id
  * @param {String} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariableToFile(
   variableId: string,
@@ -242,6 +349,7 @@ export async function exportVariableToFile(
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
   );
+  let outcome = false;
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(variableId, 'variable');
@@ -262,6 +370,7 @@ export async function exportVariableToFile(
       // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
       `Exported ${variableId.brightCyan} to ${filePath.brightCyan}.`
     );
+    outcome = true;
   } catch (err) {
     stopProgressIndicator(indicatorId, `${err}`);
     printMessage(err, 'error');
@@ -269,56 +378,107 @@ export async function exportVariableToFile(
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: end [variableId=${variableId}, file=${file}]`
   );
+  return outcome;
 }
 
 /**
  * Export all variables to single file
  * @param {string} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFile(
   file: string | null,
   noDecode: boolean
 ) {
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(
+  let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Exporting variables...`
+  );
+  if (!file) {
+    file = getTypedFilename(
       `all${titleCase(state.getRealm())}Variables`,
       'variable'
     );
   }
   try {
     const variablesExport = await exportVariables(noDecode);
-    saveJsonToFile(variablesExport, getFilePath(fileName, true));
+    saveJsonToFile(variablesExport, getFilePath(file, true));
+    stopProgressIndicator(
+      spinnerId,
+      `Exported variables to ${file}`,
+      'success'
+    );
+    outcome = true;
   } catch (error) {
-    printMessage(error.message, 'error');
-    printMessage(`exportVariablesToFile: ${error.response?.status}`, 'error');
+    stopProgressIndicator(
+      spinnerId,
+      `Error exporting variables: ${error.response?.status || error.message}`,
+      'fail'
+    );
   }
-  debugMessage(`Cli.VariablesOps.exportVariablesToFile: end [file=${file}]`);
+  debugMessage(
+    `Cli.VariablesOps.exportVariablesToFile: end [outcome=${outcome}, file=${file}]`
+  );
+  return outcome;
 }
 
 /**
  * Export all variables to seperate files
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFiles(noDecode: boolean) {
-  const variableList = await readVariables();
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    variableList.length,
-    'Exporting variables'
-  );
-  for (const variable of variableList) {
-    if (!noDecode) {
-      variable.value = decodeBase64(variable.valueBase64);
-    }
-    updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
-    const fileName = getTypedFilename(variable._id, 'variable');
-    saveToFile('variable', variable, '_id', getFilePath(fileName, true));
+  let outcome = false;
+  let spinnerId: string;
+  let indicatorId: string;
+  let variableList: VariableSkeleton[] = [];
+  try {
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Retrieving variables...`
+    );
+    variableList = await readVariables();
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully retrieved ${variableList.length} variables`,
+      'success'
+    );
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error retrieving variables: ${error.message}`,
+      'fail'
+    );
   }
-  stopProgressIndicator(
-    indicatorId,
-    `${variableList.length} variables exported`
-  );
+  try {
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      variableList.length,
+      'Exporting variables'
+    );
+    for (const variable of variableList) {
+      if (!noDecode) {
+        variable.value = decodeBase64(variable.valueBase64);
+      }
+      updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
+      const fileName = getTypedFilename(variable._id, 'variable');
+      saveToFile('variable', variable, '_id', getFilePath(fileName, true));
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `${variableList.length} variables exported`
+    );
+    outcome = true;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting variables: ${error.message}`
+    );
+  }
+  return outcome;
 }

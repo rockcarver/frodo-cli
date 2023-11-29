@@ -31,14 +31,23 @@ program
         (await getTokens())
       ) {
         verboseMessage('Updating variable...');
-        updateVariable(options.variableId, options.value, options.description);
+        const outcome = await updateVariable(
+          options.variableId,
+          options.value,
+          options.description
+        );
+        if (!outcome) process.exitCode = 1;
       } else if (
         options.variableId &&
         options.description &&
         (await getTokens())
       ) {
         verboseMessage('Updating variable...');
-        setVariableDescription(options.variableId, options.description);
+        const outcome = await setVariableDescription(
+          options.variableId,
+          options.description
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

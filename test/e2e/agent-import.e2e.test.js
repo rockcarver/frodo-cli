@@ -47,17 +47,17 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --agent-id frodo-test-ig-agent --file test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -i frodo-test-ig-agent -f allAlphaAgents.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -f test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --file test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -f allAlphaAgents.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all --file test/e2e/exports/all/allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af allAlphaAgents.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -AD test/e2e/exports/all-separate/agent
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all-separate --directory test/e2e/exports/all-separate/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --agent-id frodo-test-ig-agent --file test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -i frodo-test-ig-agent -f allAlphaAgents.agent.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -f test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --file test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -f allAlphaAgents.agent.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all --file test/e2e/exports/all/allAlphaAgents.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af allAlphaAgents.agent.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -AD test/e2e/exports/all-separate/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all-separate --directory test/e2e/exports/all-separate/agent
 */
 import cp from 'child_process';
 import { promisify } from 'util';

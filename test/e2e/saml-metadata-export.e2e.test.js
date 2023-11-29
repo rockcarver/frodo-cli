@@ -47,10 +47,10 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export -i iSPAzure
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export -i iSPAzure
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

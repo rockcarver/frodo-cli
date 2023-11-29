@@ -47,14 +47,14 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -D test/e2e/exports/all-separate/idm
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/idm/script.idm.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f script.idm.json -D test/e2e/exports/all-separate/idm
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --name script --file test/e2e/exports/all-separate/idm/script.idm.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -f script.idm.json -D test/e2e/exports/all-separate/idm
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -D test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/idm/script.idm.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f script.idm.json -D test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --name script --file test/e2e/exports/all-separate/idm/script.idm.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -N script -f script.idm.json -D test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/idm -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
 */
 import cp from 'child_process';
 import { promisify } from 'util';

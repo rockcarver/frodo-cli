@@ -39,13 +39,14 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Creating secret...');
-        createSecret(
+        const outcome = await createSecret(
           options.secretId,
           options.value,
           options.description,
           options.encoding,
           options.useInPlaceholders
         );
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

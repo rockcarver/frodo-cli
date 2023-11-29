@@ -47,20 +47,20 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f allAlphaThemes.theme.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f allAlphaThemes.theme.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f allAlphaThemes.theme.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af allAlphaThemes.theme.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -AD test/e2e/exports/all-separate/theme
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all-separate --directory test/e2e/exports/all-separate/theme
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-name 'Starter Theme' --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -n 'Starter Theme' -f allAlphaThemes.theme.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f allAlphaThemes.theme.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -f allAlphaThemes.theme.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all --file test/e2e/exports/all/allAlphaThemes.theme.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -af allAlphaThemes.theme.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import -AD test/e2e/exports/all-separate/theme
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo theme import --all-separate --directory test/e2e/exports/all-separate/theme
 */
 import cp from 'child_process';
 import { promisify } from 'util';

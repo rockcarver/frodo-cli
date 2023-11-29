@@ -57,17 +57,23 @@ program
             options.variableId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportVariableToFile(
+        const outcome = await exportVariableToFile(
           options.variableId,
           options.file,
           options.decode
         );
+        if (!outcome) process.exitCode = 1;
       } else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all variables to a single file...');
-        await exportVariablesToFile(options.file, options.decode);
+        const outcome = await exportVariablesToFile(
+          options.file,
+          options.decode
+        );
+        if (!outcome) process.exitCode = 1;
       } else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all variables to separate files...');
-        await exportVariablesToFiles(options.decode);
+        const outcome = await exportVariablesToFiles(options.decode);
+        if (!outcome) process.exitCode = 1;
       } else {
         printMessage(
           'Unrecognized combination of options or no options...',

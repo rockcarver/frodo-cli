@@ -47,8 +47,8 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable set -i esv-test-var-pi-string --description "This is a pi test variable."
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable set --variable-id esv-test-var-pi-string --description "This is a test variable of pi." --value "3.14"
  */
 import cp from 'child_process';
 import { promisify } from 'util';

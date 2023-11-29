@@ -56,12 +56,13 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Creating variable...');
-        createVariable(
+        const outcome = await createVariable(
           options.variableId,
           options.value,
           options.description,
           options.variableType
         );
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

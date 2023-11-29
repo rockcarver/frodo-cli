@@ -47,14 +47,14 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -i test-policy-set
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -i test-policy-set -D authzPolicySetExportTestDir1
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -aD authzPolicySetExportTestDir2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -A
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --all-separate --directory authzPolicySetExportTestDir3 --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -i test-policy-set
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -i test-policy-set -D authzPolicySetExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -a
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -aD authzPolicySetExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export -A
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set export --all-separate --directory authzPolicySetExportTestDir3 --no-deps --prereqs
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

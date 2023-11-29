@@ -47,11 +47,11 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config --all --file test.json --use-string-arrays --no-decode
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -AD exportAllTestDir1
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -AxD exportAllTestDir2
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config --all-separate --directory exportAllTestDir3 --use-string-arrays --no-decode --extract
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -a
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config --all --file test.json --use-string-arrays --no-decode
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -AD exportAllTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config -AxD exportAllTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo admin export-full-cloud-config --all-separate --directory exportAllTestDir3 --use-string-arrays --no-decode --extract
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';

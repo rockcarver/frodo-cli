@@ -28,7 +28,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Listing versions...');
-        listSecretVersions(options.secretId);
+        const outcome = await listSecretVersions(options.secretId);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

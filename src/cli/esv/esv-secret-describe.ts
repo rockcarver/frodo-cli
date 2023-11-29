@@ -30,7 +30,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Describing secret ${options.secretId}...`);
-        describeSecret(options.secretId);
+        const outcome = await describeSecret(options.secretId);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

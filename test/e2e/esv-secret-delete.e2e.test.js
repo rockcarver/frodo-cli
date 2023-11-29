@@ -47,10 +47,10 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -i esv-test-secret-pi-generic
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --secret-id esv-test-secret-pi-generic
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -a
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -i esv-test-secret-pi-generic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --secret-id esv-test-secret-pi-generic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete -a
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret delete --all
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -77,8 +77,12 @@ describe('frodo esv secret delete', () => {
 
     test('"frodo esv secret delete --secret-id esv-test-secret-pi-generic": should display error when the secret with id \'esv-test-secret-pi-generic\' cannot be deleted since it does not exist', async () => {
         const CMD = `frodo esv secret delete --secret-id esv-test-secret-pi-generic`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+          await exec(CMD, env);
+          fail("Command should've failed");
+        } catch (e) {
+          expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
     //TODO: Generate mock for this test (skip for meantime)

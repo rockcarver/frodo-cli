@@ -47,17 +47,17 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -AD test/e2e/exports/all-separate/saml/cot
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/saml/cot
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -i AzureCOT -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -f allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -af allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import -AD test/e2e/exports/all-separate/saml/cot
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/saml/cot
 */
 import cp from 'child_process';
 import { promisify } from 'util';

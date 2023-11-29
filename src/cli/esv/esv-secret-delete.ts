@@ -34,17 +34,18 @@ program
       // delete by id
       if (options.secretId && (await getTokens())) {
         verboseMessage('Deleting secret...');
-        deleteSecret(options.secretId);
+        const outcome = await deleteSecret(options.secretId);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all secrets...');
-        deleteSecrets();
+        const outcome = await deleteSecrets();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {
         printMessage('Unrecognized combination of options or no options...');
-        program.help();
         process.exitCode = 1;
       }
     }

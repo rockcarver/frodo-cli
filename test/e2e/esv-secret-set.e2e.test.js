@@ -47,7 +47,7 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret set -i esv-test-secret-pi-generic --description "Test secret containing value of pi"
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret set -i esv-test-secret-pi-generic --description "Test secret containing value of pi"
  */
 import cp from 'child_process';
 import { promisify } from 'util';

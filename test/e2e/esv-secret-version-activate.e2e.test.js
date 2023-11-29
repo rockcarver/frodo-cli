@@ -47,8 +47,8 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version activate -i esv-test-secret-pi-generic -v 1
-FRODO_MOCK=record FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version activate --secret-id esv-test-secret-pi-generic --version 2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version activate -i esv-test-secret-pi-generic -v 1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret version activate --secret-id esv-test-secret-pi-generic --version 2
  */
 import cp from 'child_process';
 import { promisify } from 'util';

@@ -35,17 +35,21 @@ program
       // delete by id
       if (options.secretId && options.version && (await getTokens())) {
         verboseMessage(`Deleting version of secret...`);
-        deleteVersionOfSecret(options.secretId, options.version);
+        const outcome = await deleteVersionOfSecret(
+          options.secretId,
+          options.version
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       // else if (options.all && (await getTokens())) {
       //   printMessage('Deleting all versions...');
-      //   deleteJourneys(options);
+      //   const outcome = deleteJourneys(options);
+      //   if (!outcome) process.exitCode = 1;
       // }
       // unrecognized combination of options or no options
       else {
         printMessage('Unrecognized combination of options or no options...');
-        program.help();
         process.exitCode = 1;
       }
     }
