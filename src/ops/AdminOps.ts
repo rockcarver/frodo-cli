@@ -213,57 +213,100 @@ export async function executeRfc7523AuthZGrantFlow(
   let tokenResponse: AccessTokenResponseType;
   let spinnerId: string;
   try {
-    spinnerId = createProgressIndicator(
-      'indeterminate',
-      0,
-      'Executing rfc7523 authz grant flow...'
-    );
     let issuer: OAuth2TrustedJwtIssuerSkeleton;
     // make sure we have an issuer
     if (!iss) {
+      let issSpinnerId: string;
       try {
+        issSpinnerId = createProgressIndicator(
+          'indeterminate',
+          0,
+          'No issuer provided, attempting to find suitable issuer...'
+        );
         if (!issuer)
           issuer = await readOAuth2TrustedJwtIssuer(clientId + '-issuer');
-        iss = issuer.issuer as string;
+        iss = (issuer.issuer as Writable<string>).value;
+        stopProgressIndicator(
+          issSpinnerId,
+          `Found suitable issuer: ${clientId + '-issuer'} - ${iss}`,
+          'success'
+        );
       } catch (error) {
-        throw new Error(
-          `No issuer provided and no suitable issuer could be found: ${error.message}`
+        stopProgressIndicator(
+          issSpinnerId,
+          `No issuer provided and no suitable issuer could be found: ${error.message}`,
+          'fail'
         );
       }
     }
     // make sure we have a JWK
     if (!jwk) {
+      let jwkSpinnerId: string;
       try {
+        jwkSpinnerId = createProgressIndicator(
+          'indeterminate',
+          0,
+          'No JWK provided, attempting to locate a suitable JWK...'
+        );
         jwk = JSON.parse(fs.readFileSync(getJwkFilePath(clientId), 'utf8'));
+        stopProgressIndicator(
+          jwkSpinnerId,
+          `Loaded private key JWK from: ${getJwkFilePath(clientId)}`,
+          'success'
+        );
       } catch (error) {
-        throw new Error(
-          `No JWK provided and no suitable JWK could be loaded from file: ${error.message}`
+        stopProgressIndicator(
+          jwkSpinnerId,
+          `No JWK provided and no suitable JWK could be loaded from file: ${error.message}`,
+          'fail'
         );
       }
     }
     // make sure we have a subject
     if (!sub) {
+      let subSpinnerId: string;
       try {
+        subSpinnerId = createProgressIndicator(
+          'indeterminate',
+          0,
+          'Executing rfc7523 authz grant flow...'
+        );
         if (!issuer)
           issuer = await frodo.oauth2oidc.issuer.readOAuth2TrustedJwtIssuer(
             clientId + '-issuer'
           );
         if (
-          (issuer.allowedSubjects as string[]) &&
-          (issuer.allowedSubjects as string[]).length
+          (issuer.allowedSubjects as Writable<string[]>).value &&
+          (issuer.allowedSubjects as Writable<string[]>).value.length
         )
-          sub = (issuer.allowedSubjects as string[])[0];
+          sub = (issuer.allowedSubjects as Writable<string[]>).value[0];
       } catch (error) {
-        throw new Error(
-          `No subject provided and no suitable subject could be extracted from the trusted issuer configuration: ${error.message}`
+        stopProgressIndicator(
+          subSpinnerId,
+          `No subject provided and no suitable subject could be extracted from the trusted issuer configuration: ${error.message}`,
+          'fail'
         );
       }
-      if (!sub)
-        throw new Error(
-          `No subject provided and no suitable subject could be extracted from the trusted issuer's list of allowed subjects.`
+      if (sub) {
+        stopProgressIndicator(
+          subSpinnerId,
+          `Using first subject from issuer's allowed subjects: ${sub}`,
+          'success'
         );
+      } else {
+        stopProgressIndicator(
+          subSpinnerId,
+          `No subject provided and no suitable subject could be extracted from the trusted issuer's list of allowed subjects.`,
+          'success'
+        );
+      }
     }
     // we got everything we need, let's get that token
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      'Executing rfc7523 authz grant flow...'
+    );
     tokenResponse = await _executeRfc7523AuthZGrantFlow(
       clientId,
       iss,
