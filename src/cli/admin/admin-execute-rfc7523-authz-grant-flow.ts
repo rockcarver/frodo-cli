@@ -4,6 +4,7 @@ import { Option } from 'commander';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
+import * as s from '../../help/SampleData';
 import { executeRfc7523AuthZGrantFlow } from '../../ops/AdminOps.js';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand.js';
@@ -36,6 +37,30 @@ program
     )
   )
   .addOption(new Option('--json', 'Output in JSON format.'))
+  .addHelpText(
+    'after',
+    `Usage Examples:\n` +
+      `  If you used frodo to create the RFC7523 configuration (see 'Related Commands' below), then you can test your configuration with minimal input and frodo will locate the missing parameters. The command below returns access token and identity token:\n` +
+      `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 ${s.amBaseUrl}\n`[
+        'brightCyan'
+      ] +
+      `  Same as above but output raw json:\n` +
+      `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --json ${s.amBaseUrl}'\n`[
+        'brightCyan'
+      ] +
+      `  Same as first command above but explicitly provide all parameters:\n` +
+      `  $ frodo admin execute-rfc7523-authz-grant-flow --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}'\n`[
+        'brightCyan'
+      ] +
+      `\nRelated Commands:\n` +
+      `  Run ${
+        'frodo admin generate-rfc7523-authz-grant-artifacts --help'[
+          'brightCyan'
+        ]
+      } to see how to create the required configuration artifacts for ${
+        'frodo admin execute-rfc7523-authz-grant-flow'['brightCyan']
+      }:\n`
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
