@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
 import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
 import { Option } from 'commander';
 import fs from 'fs';
@@ -54,10 +54,10 @@ program
       ] +
       `\nRelated Commands:\n` +
       `  Run ${
-        'frodo admin generate-rfc7523-authz-grant-artifacts --help'[
+        'frodo admin generate-rfc7523-authz-grant-artefacts --help'[
           'brightCyan'
         ]
-      } to see how to create the required configuration artifacts for ${
+      } to see how to create the required configuration artefacts for ${
         'frodo admin execute-rfc7523-authz-grant-flow'['brightCyan']
       }:\n`
   )
@@ -73,9 +73,7 @@ program
         command
       );
       if (await getTokens()) {
-        printMessage(
-          `Generating RFC7523 authorization grant artifacts in realm "${state.getRealm()}"...`
-        );
+        printMessage(`Executing RFC7523 authorization grant flow...`);
         let clientId = uuidv4();
         if (options.clientId) {
           clientId = options.clientId;

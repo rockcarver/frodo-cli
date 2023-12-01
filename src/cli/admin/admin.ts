@@ -18,8 +18,8 @@ export default function setup() {
   );
 
   program.command(
-    'generate-rfc7523-authz-grant-artifacts',
-    'Generate RFC7523 authorization grant artifacts.'
+    'generate-rfc7523-authz-grant-artefacts',
+    'Generate RFC7523 authorization grant artefacts.'
   );
 
   program.command(
