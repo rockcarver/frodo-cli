@@ -31,7 +31,7 @@ const {
 } = frodo.utils;
 const {
   exportFullConfiguration,
-  generateRfc7523AuthZGrantArtifacts: _generateRfc7523AuthZGrantArtifacts,
+  generateRfc7523AuthZGrantArtefacts: _generateRfc7523AuthZGrantArtefacts,
   executeRfc7523AuthZGrantFlow: _executeRfc7523AuthZGrantFlow,
 } = frodo.admin;
 const { stringify } = frodo.utils.json;
@@ -45,7 +45,7 @@ function getJwksFilePath(clientId: string): string {
   return getFilePath(getTypedFilename(clientId + '_public', 'jwks'), true);
 }
 
-export async function generateRfc7523AuthZGrantArtifacts(
+export async function generateRfc7523AuthZGrantArtefacts(
   clientId: string,
   iss: string,
   jwk?: JwkRsa,
@@ -54,7 +54,7 @@ export async function generateRfc7523AuthZGrantArtifacts(
   options?: { save: boolean },
   json?: boolean
 ): Promise<boolean> {
-  let artifacts: {
+  let artefacts: {
     jwk: JwkRsa;
     jwks: JwksInterface;
     client: OAuth2ClientSkeleton;
@@ -64,9 +64,9 @@ export async function generateRfc7523AuthZGrantArtifacts(
     const barId = createProgressIndicator(
       'determinate',
       options.save ? 3 : 1,
-      'Generating artifacts...'
+      'Generating artefacts...'
     );
-    artifacts = await _generateRfc7523AuthZGrantArtifacts(
+    artefacts = await _generateRfc7523AuthZGrantArtefacts(
       clientId,
       iss,
       jwk,
@@ -74,7 +74,7 @@ export async function generateRfc7523AuthZGrantArtifacts(
       scope,
       options
     );
-    updateProgressIndicator(barId, 'Successfully generated artifacts.');
+    updateProgressIndicator(barId, 'Successfully generated artefacts.');
     let jwkFile: string;
     let jwksFile: string;
     if (options.save) {
@@ -84,7 +84,7 @@ export async function generateRfc7523AuthZGrantArtifacts(
         'Saving JWK (private key)...'
       );
       jwkFile = getJwkFilePath(clientId);
-      saveJsonToFile(artifacts.jwk, jwkFile, false);
+      saveJsonToFile(artefacts.jwk, jwkFile, false);
       updateProgressIndicator(jwkBarId, `Saved JWK to ${jwkFile}.`);
       updateProgressIndicator(barId, 'Successfully saved JWK (private key).');
       stopProgressIndicator(jwkBarId);
@@ -94,7 +94,7 @@ export async function generateRfc7523AuthZGrantArtifacts(
         'Saving JWKS (public key)...'
       );
       jwksFile = getJwksFilePath(clientId);
-      saveJsonToFile(artifacts.jwks, jwksFile, false);
+      saveJsonToFile(artefacts.jwks, jwksFile, false);
       updateProgressIndicator(jwksBarId, `Saved JWKS to ${jwksFile}.`);
       stopProgressIndicator(jwksBarId);
       updateProgressIndicator(barId, 'Successfully saved JWKS (public key).');
@@ -102,13 +102,13 @@ export async function generateRfc7523AuthZGrantArtifacts(
     stopProgressIndicator(
       barId,
       `Successfully generated ${
-        options.save ? 'and saved artifacts' : 'artifacts'
+        options.save ? 'and saved artefacts' : 'artefacts'
       }.`
     );
     cleanupProgressIndicators();
 
     if (json) {
-      printMessage(artifacts, 'data');
+      printMessage(artefacts, 'data');
     } else {
       printMessage(
         options.save
@@ -121,18 +121,18 @@ export async function generateRfc7523AuthZGrantArtifacts(
       client.push([
         'Scopes'['brightCyan'],
         (
-          artifacts.client.coreOAuth2ClientConfig.scopes as Writable<string[]>
+          artefacts.client.coreOAuth2ClientConfig.scopes as Writable<string[]>
         ).value.join(', '),
       ]);
       client.push([
         'Client Type'['brightCyan'],
-        (artifacts.client.coreOAuth2ClientConfig.clientType as Writable<string>)
+        (artefacts.client.coreOAuth2ClientConfig.clientType as Writable<string>)
           .value,
       ]);
       client.push([
         'Grant Types'['brightCyan'],
         (
-          artifacts.client.advancedOAuth2ClientConfig.grantTypes as Writable<
+          artefacts.client.advancedOAuth2ClientConfig.grantTypes as Writable<
             string[]
           >
         ).value.join(', '),
@@ -140,21 +140,21 @@ export async function generateRfc7523AuthZGrantArtifacts(
       client.push([
         'Implied Consent'['brightCyan'],
         (
-          artifacts.client.advancedOAuth2ClientConfig
+          artefacts.client.advancedOAuth2ClientConfig
             .isConsentImplied as Writable<boolean>
         ).value,
       ]);
       client.push([
         'Token Endpoint Authentication '['brightCyan'],
         (
-          artifacts.client.advancedOAuth2ClientConfig
+          artefacts.client.advancedOAuth2ClientConfig
             .tokenEndpointAuthMethod as Writable<string>
         ).value,
       ]);
       client.push([
         'Public Key Selector'['brightCyan'],
         (
-          artifacts.client.signEncOAuth2ClientConfig
+          artefacts.client.signEncOAuth2ClientConfig
             .publicKeyLocation as Writable<string>
         ).value,
       ]);
@@ -170,16 +170,16 @@ export async function generateRfc7523AuthZGrantArtifacts(
           : `\nIn AM, create a trusted issuer in the ${state.getRealm()} realm with the following information:`
       );
       const issuer = createKeyValueTable();
-      issuer.push(['Name'['brightCyan'], artifacts.issuer._id]);
+      issuer.push(['Name'['brightCyan'], artefacts.issuer._id]);
       issuer.push([
         'JWT Issuer'['brightCyan'],
-        (artifacts.issuer.issuer as Writable<string>).value,
+        (artefacts.issuer.issuer as Writable<string>).value,
       ]);
       issuer.push([
         'Allowed Subjects              '['brightCyan'],
-        (artifacts.issuer.allowedSubjects as Writable<string[]>)?.value.length
+        (artefacts.issuer.allowedSubjects as Writable<string[]>)?.value.length
           ? (
-              artifacts.issuer.allowedSubjects as Writable<string[]>
+              artefacts.issuer.allowedSubjects as Writable<string[]>
             )?.value.join(', ')
           : `Any ${state.getRealm()} realm user`,
       ]);
@@ -190,9 +190,9 @@ export async function generateRfc7523AuthZGrantArtifacts(
       printMessage(`\n${issuer.toString()}`);
       if (!options.save) {
         printMessage('\nJWK (Private Key)'['brightCyan']);
-        printMessage(stringify(artifacts.jwk));
+        printMessage(stringify(artefacts.jwk));
         printMessage('\nJWKS (Public Key)'['brightCyan']);
-        printMessage(stringify(artifacts.jwks));
+        printMessage(stringify(artefacts.jwks));
       }
     }
     return true;
