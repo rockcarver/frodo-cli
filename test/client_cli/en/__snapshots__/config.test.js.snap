@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'config' should be expected english 1`] = `
+"Usage: frodo config [options] [command]
+
+Manage full cloud configuration.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  export          Export full cloud configuration for all ops that currently
+                  support export..
+  help [command]  display help for command
+"
+`;
