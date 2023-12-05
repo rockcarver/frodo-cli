@@ -10,6 +10,7 @@ import {
 import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
+import fse from 'fs-extra';
 
 import {
   cleanupProgressIndicators,
@@ -444,32 +445,54 @@ export async function exportEverythingToFiles(
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Object.entries(obj).forEach(([id, value]: [string, any]) => {
-          const filename =
-            type == 'config'
-              ? `${id}.json`
-              : getTypedFilename(value.name ? value.name : id, type);
-          if (type == 'config' && filename.includes('/')) {
-            fs.mkdirSync(
-              `${baseDirectory}/${type}/${filename.slice(
-                0,
-                filename.lastIndexOf('/')
-              )}`,
-              {
-                recursive: true,
+          if (type == 'config') {
+            if (value != null) {
+              const filename = `${id}.json`;
+              if (filename.includes('/')) {
+                fs.mkdirSync(
+                  `${baseDirectory}/${type}/${filename.slice(
+                    0,
+                    filename.lastIndexOf('/')
+                  )}`,
+                  {
+                    recursive: true,
+                  }
+                );
               }
+              fse.outputFile(
+                `${baseDirectory}/${type}/${filename}`,
+                stringify(value),
+                (err) => {
+                  if (err) {
+                    return printMessage(
+                      `ERROR - can't save config ${id} to file - ${err}`,
+                      'error'
+                    );
+                  }
+                }
+              );
+            }
+          } else {
+            const filename = getTypedFilename(
+              value && value.name ? value.name : id,
+              type
+            );
+            if (extract && type == 'script') {
+              extractScriptToFile(
+                exportData as ScriptExportInterface,
+                id,
+                type
+              );
+            }
+            saveJsonToFile(
+              {
+                [type]: {
+                  [id]: value,
+                },
+              },
+              `${baseDirectory}/${type}/${filename}`
             );
           }
-          if (extract && type == 'script') {
-            extractScriptToFile(exportData as ScriptExportInterface, id, type);
-          }
-          saveJsonToFile(
-            {
-              [type]: {
-                [id]: value,
-              },
-            },
-            `${baseDirectory}/${type}/${filename}`
-          );
         });
       }
     }
