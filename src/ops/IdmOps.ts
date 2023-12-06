@@ -12,6 +12,7 @@ import {
 } from '../utils/Console';
 import { getTypedFilename, readFiles } from '../utils/ExportImportUtils';
 
+const { stringify } = frodo.utils.json;
 const { unSubstituteEnvParams, areScriptHooksValid, getFilePath } = frodo.utils;
 const {
   testConnectorServers,
@@ -77,16 +78,12 @@ export async function exportConfigEntity(id, file) {
     fileName = getTypedFilename(`${id}`, 'idm');
   }
   const configEntity = await readConfigEntity(id);
-  fs.writeFile(
-    getFilePath(fileName, true),
-    JSON.stringify(configEntity, null, 2),
-    (err) => {
-      if (err) {
-        return printMessage(`ERROR - can't save ${id} export to file`, 'error');
-      }
-      return '';
+  fs.writeFile(getFilePath(fileName, true), stringify(configEntity), (err) => {
+    if (err) {
+      return printMessage(`ERROR - can't save ${id} export to file`, 'error');
     }
-  );
+    return '';
+  });
 }
 
 /**
@@ -98,7 +95,7 @@ export async function exportAllRawConfigEntities() {
     if (value != null) {
       fse.outputFile(
         getFilePath(`${id}.json`, true),
-        JSON.stringify(value, null, 2),
+        stringify(value),
         (err) => {
           if (err) {
             return printMessage(
@@ -145,7 +142,7 @@ export async function exportAllConfigEntities(entitiesFile, envFile) {
       const results = await Promise.all(entityPromises);
       for (const item of results) {
         if (item != null) {
-          let configEntityString = JSON.stringify(item, null, 2);
+          let configEntityString = stringify(item);
           envParams.each((key, value) => {
             configEntityString = replaceall(
               value,

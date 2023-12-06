@@ -13,6 +13,7 @@ Commands:
   authn                                                 Manage authentication settings.
   authz                                                 Manage authotiztion policies, policy sets, and resource types.
   app                                                   Manage applications.
+  config                                                Manage full cloud configuration.
   conn|connection                                       Manage connection profiles.
   email                                                 Manage email templates and configuration.
   esv                                                   Manage environment secrets and variables (ESVs).

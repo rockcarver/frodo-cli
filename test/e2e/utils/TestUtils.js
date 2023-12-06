@@ -25,6 +25,8 @@ export function removeAnsiEscapeCodes(text) {
  * @param {string} type The type of the file(s), e.g. script, idp, etc.
  * @param {string | undefined} fileName The file name if exporting a single file. Leave undefined if exporting (potentially) multiple files.
  * @param {string} directory The path to the directory the export files are located in. Default is the current directory "./".
+ * @param checkForMetadata If true, ensures that metadata exists in each export. Default: true
+ * @param checkStderr
  * @returns {Promise<void>}
  */
 export async function testExport(
@@ -71,7 +73,7 @@ export async function testExport(
         deleteExportDirectory = false;
         exportData = { path, error };
       }
-      if (checkForMetadata) {
+      if (checkForMetadata || exportData.meta) {
         expect(exportData).toMatchSnapshot(
           {
             meta: expect.any(Object),
