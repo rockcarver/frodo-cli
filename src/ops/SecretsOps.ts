@@ -5,6 +5,7 @@ import {
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
 
+import { getFullExportConfig, isIdUsed } from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -42,11 +43,16 @@ const { getFilePath } = frodo.utils;
 
 /**
  * List secrets
- * @param {boolean} long Long version, all the fields
+ * @param {boolean} long Long version, all the fields besides usage
+ * @param {boolean} usage Display usage field
+ * @param {String | null} file Optional filename to determine usage
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listSecrets(long: boolean): Promise<boolean> {
-  let outcome = false;
+export async function listSecrets(
+  long: boolean = false,
+  usage: boolean = false,
+  file: string | null = null
+): Promise<boolean> {
   let spinnerId: string;
   let secrets: SecretSkeleton[] = [];
   try {
@@ -68,19 +74,44 @@ export async function listSecrets(long: boolean): Promise<boolean> {
       `Error reading secrets: ${error.response?.data || error.message}`,
       'fail'
     );
+    return false;
   }
-  if (long) {
-    const table = createTable([
-      'Id'['brightCyan'],
-      { hAlign: 'right', content: 'Active\nVersion'['brightCyan'] },
-      { hAlign: 'right', content: 'Loaded\nVersion'['brightCyan'] },
-      'Status'['brightCyan'],
-      'Description'['brightCyan'],
-      'Modifier'['brightCyan'],
-      'Modified (UTC)'['brightCyan'],
-    ]);
-    for (const secret of secrets) {
-      let lastChangedBy = secret.lastChangedBy;
+  if (!long && !usage) {
+    secrets.forEach((variable) => {
+      printMessage(variable._id, 'data');
+    });
+    return true;
+  }
+  let fullExport = null;
+  const headers = long
+    ? [
+        'Id'['brightCyan'],
+        { hAlign: 'right', content: 'Active\nVersion'['brightCyan'] },
+        { hAlign: 'right', content: 'Loaded\nVersion'['brightCyan'] },
+        'Status'['brightCyan'],
+        'Description'['brightCyan'],
+        'Modifier'['brightCyan'],
+        'Modified (UTC)'['brightCyan'],
+      ]
+    : ['Id'['brightCyan']];
+  if (usage) {
+    try {
+      fullExport = await getFullExportConfig(file);
+    } catch (error) {
+      printMessage(
+        `Error getting full export: ${error.response?.data || error.message}`,
+        'error'
+      );
+      return false;
+    }
+    //Delete secrets from full export so they aren't mistakenly used for determining usage
+    delete fullExport.secrets;
+    headers.push('Used'['brightCyan']);
+  }
+  const table = createTable(headers);
+  for (const secret of secrets) {
+    let lastChangedBy = secret.lastChangedBy;
+    if (long) {
       try {
         lastChangedBy = state.getUseBearerTokenForAmApis()
           ? secret.lastChangedBy
@@ -88,25 +119,30 @@ export async function listSecrets(long: boolean): Promise<boolean> {
       } catch (error) {
         // ignore
       }
-      table.push([
-        secret._id,
-        { hAlign: 'right', content: secret.activeVersion },
-        { hAlign: 'right', content: secret.loadedVersion },
-        secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-        wordwrap(secret.description, 40),
-        lastChangedBy,
-        new Date(secret.lastChangeDate).toUTCString(),
-      ]);
     }
-    printMessage(table.toString(), 'data');
-    outcome = true;
-  } else {
-    secrets.forEach((secret) => {
-      printMessage(secret._id, 'data');
-    });
-    outcome = true;
+    const values = long
+      ? [
+          secret._id,
+          { hAlign: 'right', content: secret.activeVersion },
+          { hAlign: 'right', content: secret.loadedVersion },
+          secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          wordwrap(secret.description, 40),
+          lastChangedBy,
+          new Date(secret.lastChangeDate).toUTCString(),
+        ]
+      : [secret._id];
+    if (usage) {
+      const isEsvUsed = isIdUsed(fullExport, secret._id, true);
+      values.push(
+        isEsvUsed.used
+          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+          : 'no'['brightRed']
+      );
+    }
+    table.push(values);
   }
-  return outcome;
+  printMessage(table.toString(), 'data');
+  return true;
 }
 
 /**

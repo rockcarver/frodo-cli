@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.993Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Google Profile Normalization",
+      "script": "file://test/e2e/exports/all-separate/everything/script/Google-Profile-Normalization.script.groovy"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.998Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "service": {
+    "policyconfiguration": {
+      "_id": "",
+      "_type": {
+        "_id": "policyconfiguration",
+        "collection": false,
+        "name": "Policy Configuration"
+      },
+      "bindDn": "&{am.stores.user.username}",
+      "bindPassword": {
+        "$string": "&{am.stores.user.password}"
+      },
+      "checkIfResourceTypeExists": true,
+      "connectionPoolMaximumSize": 10,
+      "connectionPoolMinimumSize": 1,
+      "ldapServer": [
+        "userstore-1.userstore:1389",
+        "userstore-0.userstore:1389",
+        "userstore-2.userstore:1389"
+      ],
+      "maximumSearchResults": 100,
+      "mtlsEnabled": false,
+      "nextDescendents": [],
+      "policyHeartbeatInterval": 10,
+      "policyHeartbeatTimeUnit": "SECONDS",
+      "realmSearchFilter": "(objectclass=sunismanagedorganization)",
+      "searchTimeout": 5,
+      "sslEnabled": {
+        "$bool": "&{am.stores.ssl.enabled}"
+      },
+      "subjectsResultTTL": 10,
+      "userAliasEnabled": false,
+      "usersBaseDn": "ou=identities",
+      "usersSearchAttribute": "uid",
+      "usersSearchFilter": "(objectclass=inetorgperson)",
+      "usersSearchScope": "SCOPE_SUB"
+    }
+  }
+}

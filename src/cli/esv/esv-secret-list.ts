@@ -12,7 +12,22 @@ const program = new FrodoCommand('frodo esv secret list');
 program
   .description('List secrets.')
   .addOption(
-    new Option('-l, --long', 'Long with all fields.').default(false, 'false')
+    new Option('-l, --long', 'Long with all fields besides usage.').default(
+      false,
+      'false'
+    )
+  )
+  .addOption(
+    new Option(
+      '-u, --usage',
+      'Display usage field. If a file is provided with -f or --file, it will search for usage in the file. If a directory is provided with -D or --directory, it will search for usage in all .json files in the directory and sub-directories. If no file or directory is provided, it will perform a full export automatically to determine usage.'
+    ).default(false, 'false')
+  )
+  .addOption(
+    new Option(
+      '-f, --file [file]',
+      'Optional export file to use to determine usage. Overrides -D, --directory. Only used if -u or --usage is provided as well.'
+    )
   )
   .action(
     // implement command logic inside action handler
@@ -27,7 +42,11 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Listing secrets...');
-        const outcome = await listSecrets(options.long);
+        const outcome = await listSecrets(
+          options.long,
+          options.usage,
+          options.file
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;

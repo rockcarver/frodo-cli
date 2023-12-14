@@ -1,0 +1,9 @@
+{
+  "_id": "servletfilter/upload",
+  "initParams": {
+    "maxRequestSizeInMegabytes": 50
+  },
+  "urlPatterns": [
+    "&{openidm.servlet.upload.alias}/*"
+  ]
+}
