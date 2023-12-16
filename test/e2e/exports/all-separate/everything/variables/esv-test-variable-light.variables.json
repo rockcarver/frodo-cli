@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:21.008Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "variables": {
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903047Z",
+      "lastChangedBy": "1e9280f6-eab6-467e-889c-83d147c8b936",
+      "loaded": true,
+      "value": "299792458",
+      "valueBase64": "Mjk5NzkyNDU4"
+    }
+  }
+}

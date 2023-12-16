@@ -4,6 +4,7 @@ import {
   VariableSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
+import { getFullExportConfig, isIdUsed } from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -35,11 +36,16 @@ const {
 
 /**
  * List variables
- * @param {boolean} long Long version, all the fields
+ * @param {boolean} long Long version, all the fields besides usage
+ * @param {boolean} usage Display usage field
+ * @param {String | null} file Optional filename to determine usage
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listVariables(long: boolean): Promise<boolean> {
-  let outcome = false;
+export async function listVariables(
+  long: boolean = false,
+  usage: boolean = false,
+  file: string | null = null
+): Promise<boolean> {
   let spinnerId: string;
   let variables: VariableSkeleton[] = [];
   try {
@@ -61,37 +67,65 @@ export async function listVariables(long: boolean): Promise<boolean> {
       `Error reading variables: ${error.response?.data || error.message}`,
       'fail'
     );
+    return false;
   }
-  if (long) {
-    const table = createTable([
-      'Id'['brightCyan'],
-      'Value'['brightCyan'],
-      'Status'['brightCyan'],
-      'Description'['brightCyan'],
-      'Modifier'['brightCyan'],
-      'Modified (UTC)'['brightCyan'],
-    ]);
-    for (const variable of variables) {
-      table.push([
-        variable._id,
-        wordwrap(decodeBase64(variable.valueBase64), 40),
-        variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-        wordwrap(variable.description, 40),
-        state.getUseBearerTokenForAmApis()
-          ? variable.lastChangedBy
-          : await resolvePerpetratorUuid(variable.lastChangedBy),
-        new Date(variable.lastChangeDate).toUTCString(),
-      ]);
-    }
-    printMessage(table.toString(), 'data');
-    outcome = true;
-  } else {
+  if (!long && !usage) {
     variables.forEach((variable) => {
       printMessage(variable._id, 'data');
     });
-    outcome = true;
+    return true;
   }
-  return outcome;
+  let fullExport = null;
+  const headers = long
+    ? [
+        'Id'['brightCyan'],
+        'Value'['brightCyan'],
+        'Status'['brightCyan'],
+        'Description'['brightCyan'],
+        'Modifier'['brightCyan'],
+        'Modified (UTC)'['brightCyan'],
+      ]
+    : ['Id'['brightCyan']];
+  if (usage) {
+    try {
+      fullExport = await getFullExportConfig(file);
+    } catch (error) {
+      printMessage(
+        `Error getting full export: ${error.response?.data || error.message}`,
+        'error'
+      );
+      return false;
+    }
+    //Delete variables from full export so they aren't mistakenly used for determining usage
+    delete fullExport.variables;
+    headers.push('Used'['brightCyan']);
+  }
+  const table = createTable(headers);
+  for (const variable of variables) {
+    const values = long
+      ? [
+          variable._id,
+          wordwrap(decodeBase64(variable.valueBase64), 40),
+          variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          wordwrap(variable.description, 40),
+          state.getUseBearerTokenForAmApis()
+            ? variable.lastChangedBy
+            : await resolvePerpetratorUuid(variable.lastChangedBy),
+          new Date(variable.lastChangeDate).toUTCString(),
+        ]
+      : [variable._id];
+    if (usage) {
+      const isEsvUsed = isIdUsed(fullExport, variable._id, true);
+      values.push(
+        isEsvUsed.used
+          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+          : 'no'['brightRed']
+      );
+    }
+    table.push(values);
+  }
+  printMessage(table.toString(), 'data');
+  return true;
 }
 
 /**

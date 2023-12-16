@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.985Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "9de3eb62-f131-4fac-a294-7bd170fd4acb": {
+      "_id": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+      "context": "POLICY_CONDITION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for Scripted Policy Conditions",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Scripted Policy Condition",
+      "script": "file://test/e2e/exports/all-separate/everything/script/Scripted-Policy-Condition.script.js"
+    }
+  }
+}

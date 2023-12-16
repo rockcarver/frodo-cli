@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.981Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "saml": {
+    "cot": {
+      "AzureCOT": {
+        "_id": "AzureCOT",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": [
+          "iSPAzure|saml2",
+          "urn:federation:MicrosoftOnline|saml2",
+          "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+          "SPAzure|saml2",
+          "https://idc.scheuber.io/am/saml2/IDPAzure|saml2"
+        ]
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

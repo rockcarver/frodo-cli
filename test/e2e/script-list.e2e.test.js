@@ -49,7 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list -l
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list --long
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list -u
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list -lu
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list -uf test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list --usage --long --file test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list -uD test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script list --usage --long --directory test/e2e/exports/all-separate/everything
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -79,8 +84,38 @@ describe('frodo script list', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo script list --long": should list the names, uuids, languages, contexts, and descriptions of the scripts', async () => {
-        const CMD = `frodo script list --long`;
+    test('"frodo script list -u": should list the usage of the scripts', async () => {
+        const CMD = `frodo script list -u`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo script list -lu": should list the names, uuids, languages, contexts, usage, and descriptions of the scripts', async () => {
+        const CMD = `frodo script list -lu`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo script list -uf test/e2e/exports/all/Alpha.everything.json": should list the usage of the scripts in the Alpha.everything.json file', async () => {
+        const CMD = `frodo script list -uf test/e2e/exports/all/Alpha.everything.json`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo script list --usage --long --file test/e2e/exports/all/Alpha.everything.json": should list the usage of the scripts in the Alpha.everything.json file', async () => {
+        const CMD = `frodo script list --usage --long --file test/e2e/exports/all/Alpha.everything.json`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo script list -uD test/e2e/exports/all-separate/everything": should list the usage of the scripts in the test/e2e/exports/all-separate/everything directory', async () => {
+        const CMD = `frodo script list -uD test/e2e/exports/all-separate/everything`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo script list --usage --long --directory test/e2e/exports/all-separate/everything": should list the usage of the scripts in the test/e2e/exports/all-separate/everything directory', async () => {
+        const CMD = `frodo script list --usage --long --directory test/e2e/exports/all-separate/everything`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

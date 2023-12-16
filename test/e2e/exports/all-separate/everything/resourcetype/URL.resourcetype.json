@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.980Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1595479030487,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
+      "lastModifiedDate": 1702324368314,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*"
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
+    }
+  }
+}
