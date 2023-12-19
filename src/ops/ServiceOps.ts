@@ -11,8 +11,8 @@ import {
   succeedSpinner,
 } from '../utils/Console';
 
-const { getRealmName } = frodo.utils;
 const {
+  getRealmName,
   getTypedFilename,
   titleCase,
   saveJsonToFile,
@@ -61,8 +61,13 @@ export async function listServices(long = false, globalConfig = false) {
 /**
  * Export all services to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportServicesToFile(file, globalConfig = false) {
+export async function exportServicesToFile(
+  file,
+  globalConfig = false,
+  includeMeta = true
+) {
   const exportData = await exportServices(globalConfig);
   let fileName = getTypedFilename(
     `all${
@@ -73,31 +78,37 @@ export async function exportServicesToFile(file, globalConfig = false) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export service to file
  * @param {string} serviceId service id
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportServiceToFile(
   serviceId: string,
   file: string,
-  globalConfig = false
+  globalConfig = false,
+  includeMeta = true
 ) {
   const exportData = await exportService(serviceId, globalConfig);
   let fileName = getTypedFilename(serviceId, `service`);
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all services to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportServicesToFiles(globalConfig = false) {
+export async function exportServicesToFiles(
+  globalConfig = false,
+  includeMeta = true
+) {
   debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
   const services = await getFullServices(globalConfig);
   for (const service of services) {
@@ -108,7 +119,7 @@ export async function exportServicesToFiles(globalConfig = false) {
     debugMessage(
       `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
     );
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
   }
   debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
 }

@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --secret-id esv-test-secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret.secret.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -D secretExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -Ni esv-test-secret -D secretExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a --file my-allAlphaSecrets.secret.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -aD secretExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -NaD secretExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all-separate --directory secretExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all-separate --no-metadata --directory secretExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo esv secret export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo esv secret export -i esv-test-secret -D secretExportTestDir1": should export the secret with secret id "esv-test-secret" into the directory named secretExportTestDir1', async () => {
+    test('"frodo esv secret export -Ni esv-test-secret -D secretExportTestDir1": should export the secret with secret id "esv-test-secret" into the directory named secretExportTestDir1', async () => {
         const exportDirectory = "secretExportTestDir1";
-        const CMD = `frodo esv secret export -i esv-test-secret -D ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo esv secret export -Ni esv-test-secret -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo esv secret export --all": should export all secrets to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo esv secret export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo esv secret export -aD secretExportTestDir2": should export all secrets to a single file in the directory secretExportTestDir2', async () => {
+    test('"frodo esv secret export -NaD secretExportTestDir2": should export all secrets to a single file in the directory secretExportTestDir2', async () => {
         const exportDirectory = "secretExportTestDir2";
-        const CMD = `frodo esv secret export -aD ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo esv secret export -NaD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo esv secret export -A": should export all secrets to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo esv secret export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo esv secret export --all-separate --directory secretExportTestDir3": should export all secrets to separate files in the directory secretExportTestDir3', async () => {
+    test('"frodo esv secret export --all-separate --no-metadata --directory secretExportTestDir3": should export all secrets to separate files in the directory secretExportTestDir3', async () => {
         const exportDirectory = "secretExportTestDir3";
-        const CMD = `frodo esv secret export --all-separate --directory ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo esv secret export --all-separate --no-metadata --directory ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

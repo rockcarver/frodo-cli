@@ -50,12 +50,12 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -i iSPAzure
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export --entity-id iSPAzure
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -i iSPAzure -f my-iSPAzure.saml.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -i iSPAzure -D samlExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -Ni iSPAzure -D samlExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export --all --file my-allAlphaProviders.saml.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -aD samlExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -NaD samlExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export --all-separate --directory samlExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml export --all-separate --no-metadata --directory samlExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -89,10 +89,10 @@ describe('frodo saml export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo saml export -i iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1', async () => {
+  test('"frodo saml export Ni iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1', async () => {
     const exportDirectory = 'samlExportTestDir1';
-    const CMD = `frodo saml export -i iSPAzure -D ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo saml export -Ni iSPAzure -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo saml export -a": should export all saml providers to a single file', async () => {
@@ -107,10 +107,10 @@ describe('frodo saml export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo saml export -aD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2', async () => {
+  test('"frodo saml export -NaD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2', async () => {
     const exportDirectory = 'samlExportTestDir2';
-    const CMD = `frodo saml export -aD ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo saml export -NaD ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo saml export -A": should export all saml providers to separate files', async () => {
@@ -118,9 +118,9 @@ describe('frodo saml export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo saml export --all-separate --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3', async () => {
+  test('"frodo saml export --all-separate --no-metadata --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3', async () => {
     const exportDirectory = 'samlExportTestDir3';
-    const CMD = `frodo saml export --all-separate --directory ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo saml export --all-separate --no-metadata --directory ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });

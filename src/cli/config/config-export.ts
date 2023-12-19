@@ -42,6 +42,12 @@ program
       'Extract scripts from the exported file, and save it to a separate file. Ignored with -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -56,7 +62,7 @@ program
       // --all -a
       if (options.all && (await getTokens())) {
         verboseMessage('Exporting everything to a single file...');
-        await exportEverythingToFile(options.file, {
+        await exportEverythingToFile(options.file, options.metadata, {
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
         });
@@ -71,7 +77,7 @@ program
         // --all-separate -A
       } else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting everything to separate files...');
-        await exportEverythingToFiles(options.extract, {
+        await exportEverythingToFiles(options.extract, options.metadata, {
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
         });

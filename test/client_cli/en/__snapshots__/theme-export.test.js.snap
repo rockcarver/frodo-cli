@@ -59,6 +59,7 @@ Options:
                                MFA (choices: "classic", "cloud", "forgeops")
   -n, --theme-name <name>      Name of the theme. If specified, -a and -A are
                                ignored.
+  -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
   --sa-id <sa-id>              Service account id.
   --sa-jwk-file <file>         File containing the JSON Web Key (JWK)

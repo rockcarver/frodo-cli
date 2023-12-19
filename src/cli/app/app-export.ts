@@ -36,6 +36,12 @@ program
     )
   )
   .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
+  .addOption(
     new Option('--no-deps', 'Do not include any dependencies (scripts).')
   )
   .addHelpText(
@@ -82,6 +88,7 @@ program
         const status = await exportApplicationToFile(
           options.appId,
           options.file,
+          options.metadata,
           {
             useStringArrays: true,
             deps: options.deps,
@@ -92,16 +99,20 @@ program
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all applications to file...');
-        const status = await exportApplicationsToFile(options.file, {
-          useStringArrays: true,
-          deps: options.deps,
-        });
+        const status = await exportApplicationsToFile(
+          options.file,
+          options.metadata,
+          {
+            useStringArrays: true,
+            deps: options.deps,
+          }
+        );
         if (!status) process.exitCode = 1;
       }
       // -A/--all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
-        const status = await exportApplicationsToFiles({
+        const status = await exportApplicationsToFiles(options.metadata, {
           useStringArrays: true,
           deps: options.deps,
         });

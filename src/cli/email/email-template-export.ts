@@ -39,6 +39,12 @@ program
       'Export all email templates as separate files <template-id>.template.email.json. Ignored with -i, and -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -57,17 +63,21 @@ program
             options.templateId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportEmailTemplateToFile(options.templateId, options.file);
+        await exportEmailTemplateToFile(
+          options.templateId,
+          options.file,
+          options.metadata
+        );
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all email templates to a single file...');
-        await exportEmailTemplatesToFile(options.file);
+        await exportEmailTemplatesToFile(options.file, options.metadata);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all email templates to separate files...');
-        await exportEmailTemplatesToFiles();
+        await exportEmailTemplatesToFiles(options.metadata);
       }
       // unrecognized combination of options or no options
       else {

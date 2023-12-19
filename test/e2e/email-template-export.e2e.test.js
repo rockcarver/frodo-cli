@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --template-id welcome
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i welcome -f my-welcome.template.email.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i welcome -D emailTemplateExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -Ni welcome -D emailTemplateExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --all --file my-allEmailTemplates.template.email.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -aD emailTemplateExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -NaD emailTemplateExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --all-separate --directory emailTemplateExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo email template export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo email template export -i welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1', async () => {
+  test('"frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1', async () => {
     const exportDirectory = 'emailTemplateExportTestDir1';
-    const CMD = `frodo email template export -i welcome -D ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo email template export -Ni welcome -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo email template export -a": should export all email templates to a single file', async () => {
@@ -100,19 +100,19 @@ describe('frodo email template export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo email template export -aD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2', async () => {
+  test('"frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2', async () => {
     const exportDirectory = 'emailTemplateExportTestDir2';
-    const CMD = `frodo email template export -aD ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo email template export -NaD ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo email template export -A": should export all email templates to separate files', async () => {
     const CMD = `frodo email template export -A`;
     await testExport(CMD, env, type);
   });
-  test('"frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3', async () => {
+  test('"frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3', async () => {
     const exportDirectory = 'emailTemplateExportTestDir3';
-    const CMD = `frodo email template export --all-separate --directory ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo email template export --all-separate --no-metadata --directory ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });

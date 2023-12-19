@@ -49,18 +49,18 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -i policyconfiguration
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -i policyconfiguration -D serviceExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -Ni policyconfiguration -D serviceExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -gi dashboard
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --global --service-id dashboard -f my-dashboard.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -gi dashboard -D serviceExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -Ngi dashboard -D serviceExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --all --file my-allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -ga
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export --global --all -f my-allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -aD serviceExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -NaD serviceExportTestDir3
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -g --all-separate
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -A --directory serviceExportTestDir4
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service export -A --no-metadata --directory serviceExportTestDir4
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -88,10 +88,10 @@ describe('frodo service export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo service export -i policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1', async () => {
+  test('"frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1', async () => {
     const exportDirectory = 'serviceExportTestDir1';
-    const CMD = `frodo service export -i policyconfiguration -D ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo service export -Ni policyconfiguration -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo service export -gi dashboard": should export the global service with id "dashboard"', async () => {
@@ -106,10 +106,10 @@ describe('frodo service export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo service export -gi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2', async () => {
+  test('"frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2', async () => {
     const exportDirectory = 'serviceExportTestDir2';
-    const CMD = `frodo service export -gi dashboard -D ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo service export -Ngi dashboard -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo service export -a": should export all services to a single file', async () => {
@@ -136,10 +136,10 @@ describe('frodo service export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo service export -aD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3', async () => {
+  test('"frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3', async () => {
     const exportDirectory = 'serviceExportTestDir3';
-    const CMD = `frodo service export -aD ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo service export -NaD ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo service export -A": should export all services to separate files', async () => {
@@ -152,10 +152,10 @@ describe('frodo service export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4', async () => {
+  test('"frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4', async () => {
     const exportDirectory = "serviceExportTestDir4";
-    const CMD = `frodo service export -A --directory ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo service export -A --no-metadata --directory ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
 });

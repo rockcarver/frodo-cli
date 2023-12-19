@@ -39,6 +39,12 @@ program
       'Export all the circles of trust in a realm as separate files <cot-id>.cot.saml.json. Ignored with -i, and -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -59,20 +65,24 @@ program
         );
         const outcome = await exportCircleOfTrustToFile(
           options.cotId,
-          options.file
+          options.file,
+          options.metadata
         );
         if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to a single file...');
-        const outcome = await exportCirclesOfTrustToFile(options.file);
+        const outcome = await exportCirclesOfTrustToFile(
+          options.file,
+          options.metadata
+        );
         if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all circles of trust to separate files...');
-        const outcome = await exportCirclesOfTrustToFiles();
+        const outcome = await exportCirclesOfTrustToFiles(options.metadata);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

@@ -12,9 +12,9 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { saveTextToFile } from '../utils/ExportImportUtils';
 
-const { decodeBase64, getFilePath, getWorkingDirectory } = frodo.utils;
+const { decodeBase64, saveTextToFile, getFilePath, getWorkingDirectory } =
+  frodo.utils;
 const { getTypedFilename, saveJsonToFile, getRealmString, validateImport } =
   frodo.utils;
 const {
@@ -170,8 +170,13 @@ export async function exportSaml2MetadataToFile(entityId, file = null) {
  * Export a single entity provider to file
  * @param {String} entityId Provider entity id
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSaml2ProviderToFile(entityId, file = null) {
+export async function exportSaml2ProviderToFile(
+  entityId,
+  file = null,
+  includeMeta = true
+) {
   debugMessage(
     `cli.Saml2Ops.exportSaml2ProviderToFile: start [entityId=${entityId}, file=${file}]`
   );
@@ -187,7 +192,7 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
       `Exporting provider ${entityId}`
     );
     const fileData = await exportSaml2Provider(entityId);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
     stopProgressIndicator(
       indicatorId,
@@ -206,15 +211,19 @@ export async function exportSaml2ProviderToFile(entityId, file = null) {
 /**
  * Export all entity providers to one file
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSaml2ProvidersToFile(file = null) {
+export async function exportSaml2ProvidersToFile(
+  file = null,
+  includeMeta = true
+) {
   debugMessage(`cli.Saml2Ops.exportSaml2ProviderToFile: start [file=${file}]`);
   if (!file) {
     file = getTypedFilename(`all${getRealmString()}Providers`, 'saml');
   }
   try {
     const exportData = await exportSaml2Providers();
-    saveJsonToFile(exportData, getFilePath(file, true));
+    saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
   } catch (error) {
     printMessage(error.message, 'error');
     printMessage(
@@ -227,8 +236,9 @@ export async function exportSaml2ProvidersToFile(file = null) {
 
 /**
  * Export all entity providers to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSaml2ProvidersToFiles() {
+export async function exportSaml2ProvidersToFiles(includeMeta = true) {
   const stubs = await readSaml2ProviderStubs();
   if (stubs.length > 0) {
     const indicatorId = createProgressIndicator(
@@ -239,7 +249,7 @@ export async function exportSaml2ProvidersToFiles() {
     for (const stub of stubs) {
       const file = getFilePath(getTypedFilename(stub.entityId, 'saml'), true);
       const fileData = await exportSaml2Provider(stub.entityId);
-      saveJsonToFile(fileData, file);
+      saveJsonToFile(fileData, file, includeMeta);
       updateProgressIndicator(
         indicatorId,
         `Exported provider ${stub.entityId}`

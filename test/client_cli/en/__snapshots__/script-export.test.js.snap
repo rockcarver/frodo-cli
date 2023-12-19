@@ -56,6 +56,7 @@ Options:
                                MFA (choices: "classic", "cloud", "forgeops")
   -n, --script-name <name>     Name of the script. If specified, -a and -A are
                                ignored.
+  -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
   -s, --script <script>        DEPRECATED! Use -n/--script-name instead. Name
                                of the script.

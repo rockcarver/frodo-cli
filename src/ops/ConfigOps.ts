@@ -24,10 +24,12 @@ const { stringify } = frodo.utils.json;
 /**
  * Export everything to separate files
  * @param file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  */
 export async function exportEverythingToFile(
   file,
+  includeMeta = true,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -41,16 +43,18 @@ export async function exportEverythingToFile(
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export everything to separate files
  * @param extract Extracts the scripts from the exports into separate files if true
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  */
 export async function exportEverythingToFiles(
   extract = false,
+  includeMeta = true,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -86,7 +90,8 @@ export async function exportEverythingToFiles(
             };
             saveJsonToFile(
               samlData,
-              `${baseDirectory}/cot/${getTypedFilename(id, 'cot.saml')}`
+              `${baseDirectory}/cot/${getTypedFilename(id, 'cot.saml')}`,
+              includeMeta
             );
           });
           samlData.saml.cot = {};
@@ -104,7 +109,11 @@ export async function exportEverythingToFiles(
             samlData.saml.metadata = {
               [id]: obj.metadata[id],
             };
-            saveJsonToFile(samlData, `${baseDirectory}/${type}/${filename}`);
+            saveJsonToFile(
+              samlData,
+              `${baseDirectory}/${type}/${filename}`,
+              includeMeta
+            );
             samlData.saml[samlType] = {};
           });
       } else if (type == 'authentication') {
@@ -116,7 +125,8 @@ export async function exportEverythingToFiles(
           {
             authentication: obj,
           },
-          `${baseDirectory}/${type}/${fileName}`
+          `${baseDirectory}/${type}/${fileName}`,
+          includeMeta
         );
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -166,7 +176,8 @@ export async function exportEverythingToFiles(
                   [id]: value,
                 },
               },
-              `${baseDirectory}/${type}/${filename}`
+              `${baseDirectory}/${type}/${filename}`,
+              includeMeta
             );
           }
         });

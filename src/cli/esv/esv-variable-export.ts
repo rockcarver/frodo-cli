@@ -40,6 +40,12 @@ program
       'Do not include decoded variable value in export'
     ).default(false, 'false')
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -60,19 +66,24 @@ program
         const outcome = await exportVariableToFile(
           options.variableId,
           options.file,
-          options.decode
+          options.decode,
+          options.metadata
         );
         if (!outcome) process.exitCode = 1;
       } else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all variables to a single file...');
         const outcome = await exportVariablesToFile(
           options.file,
-          options.decode
+          options.decode,
+          options.metadata
         );
         if (!outcome) process.exitCode = 1;
       } else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all variables to separate files...');
-        const outcome = await exportVariablesToFiles(options.decode);
+        const outcome = await exportVariablesToFiles(
+          options.decode,
+          options.metadata
+        );
         if (!outcome) process.exitCode = 1;
       } else {
         printMessage(

@@ -46,6 +46,12 @@ program
       'Export all the themes in a realm as separate files <theme name>.theme.json. Ignored with -n, -i, and -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -64,7 +70,11 @@ program
             options.themeName
           }" from realm "${state.getRealm()}"...`
         );
-        await exportThemeByName(options.themeName, options.file);
+        await exportThemeByName(
+          options.themeName,
+          options.file,
+          options.metadata
+        );
       }
       // export by id
       else if (options.themeId && (await getTokens())) {
@@ -73,17 +83,17 @@ program
             options.themeId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportThemeById(options.themeId, options.file);
+        await exportThemeById(options.themeId, options.file, options.metadata);
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all themes to a single file...');
-        await exportThemesToFile(options.file);
+        await exportThemesToFile(options.file, options.metadata);
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all themes to separate files...');
-        await exportThemesToFiles();
+        await exportThemesToFiles(options.metadata);
       }
       // unrecognized combination of options or no options
       else {

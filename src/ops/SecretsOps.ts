@@ -15,12 +15,6 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
-  getTypedFilename,
-  saveJsonToFile,
-  saveToFile,
-  titleCase,
-} from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
 const { resolveUserName } = frodo.idm.managed;
@@ -39,7 +33,8 @@ const {
   deleteVersionOfSecret: _deleteVersionOfSecret,
 } = frodo.cloud.secret;
 
-const { getFilePath } = frodo.utils;
+const { getFilePath, getTypedFilename, saveJsonToFile, saveToFile, titleCase } =
+  frodo.utils;
 
 /**
  * List secrets
@@ -416,11 +411,13 @@ export async function describeSecret(secretId: string): Promise<boolean> {
  * Export a single secret to file
  * @param {String} secretId Secret id
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretToFile(
   secretId: string,
-  file: string | null
+  file: string | null,
+  includeMeta: boolean
 ): Promise<boolean> {
   debugMessage(
     `Cli.SecretsOps.exportSecretToFile: start [secretId=${secretId}, file=${file}]`
@@ -439,7 +436,7 @@ export async function exportSecretToFile(
       `Exporting secret ${secretId}`
     );
     const fileData = await exportSecret(secretId);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported ${secretId['brightCyan']} to ${filePath['brightCyan']}.`,
@@ -462,9 +459,13 @@ export async function exportSecretToFile(
 /**
  * Export all secrets to single file
  * @param {string} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportSecretsToFile(file: string): Promise<boolean> {
+export async function exportSecretsToFile(
+  file: string,
+  includeMeta: boolean
+): Promise<boolean> {
   debugMessage(`Cli.SecretsOps.exportSecretsToFile: start [file=${file}]`);
   let outcome = false;
   let fileName = file;
@@ -476,7 +477,7 @@ export async function exportSecretsToFile(file: string): Promise<boolean> {
   }
   try {
     const secretsExport = await exportSecrets();
-    saveJsonToFile(secretsExport, getFilePath(fileName, true));
+    saveJsonToFile(secretsExport, getFilePath(fileName, true), includeMeta);
     outcome = true;
   } catch (error) {
     printMessage(error.message, 'error');
@@ -488,9 +489,12 @@ export async function exportSecretsToFile(file: string): Promise<boolean> {
 
 /**
  * Export all secrets to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportSecretsToFiles(): Promise<boolean> {
+export async function exportSecretsToFiles(
+  includeMeta: boolean
+): Promise<boolean> {
   let outcome = false;
   let secrets: SecretSkeleton[] = [];
   const spinnerId = createProgressIndicator(
@@ -521,7 +525,13 @@ export async function exportSecretsToFiles(): Promise<boolean> {
   for (const secret of secrets) {
     updateProgressIndicator(indicatorId, `Writing secret ${secret._id}`);
     const fileName = getTypedFilename(secret._id, 'secret');
-    saveToFile('secret', secret, '_id', getFilePath(fileName, true));
+    saveToFile(
+      'secret',
+      secret,
+      '_id',
+      getFilePath(fileName, true),
+      includeMeta
+    );
   }
   stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
   outcome = true;
