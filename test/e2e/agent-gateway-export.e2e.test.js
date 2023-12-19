@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --agent-id frodo-test-ig-agent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -aD agentGatewayExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -NaD agentGatewayExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo agent gateway export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent gateway export -i frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1', async () => {
+    test('"frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1', async () => {
         const exportDirectory = "agentGatewayExportTestDir1";
-        const CMD = `frodo agent gateway export -i frodo-test-ig-agent -D ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent gateway export -Ni frodo-test-ig-agent -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo agent gateway export --all": should export all gateway agents to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo agent gateway export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent gateway export -aD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2', async () => {
+    test('"frodo agent gateway export -NaD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2', async () => {
         const exportDirectory = "agentGatewayExportTestDir2";
-        const CMD = `frodo agent gateway export -aD ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent gateway export -NaD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo agent gateway export -A": should export all gateway agents to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo agent gateway export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3', async () => {
+    test('"frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3', async () => {
         const exportDirectory = "agentGatewayExportTestDir3";
-        const CMD = `frodo agent gateway export --all-separate --directory agentGatewayExportTestDir3`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

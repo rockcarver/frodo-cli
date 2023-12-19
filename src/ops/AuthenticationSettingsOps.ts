@@ -9,9 +9,8 @@ import {
   showSpinner,
   succeedSpinner,
 } from '../utils/Console';
-import { saveJsonToFile } from '../utils/ExportImportUtils';
 
-const { getTypedFilename, getFilePath } = frodo.utils;
+const { saveJsonToFile, getTypedFilename, getFilePath } = frodo.utils;
 const {
   exportAuthenticationSettings: _exportAuthenticationSettings,
   importAuthenticationSettings: _importAuthenticationSettings,
@@ -21,10 +20,12 @@ const {
 /**
  * Export authentication settings to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAuthenticationSettingsToFile(
-  file: string
+  file: string,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(
@@ -45,7 +46,7 @@ export async function exportAuthenticationSettingsToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportAuthenticationSettings();
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(
       `Exported ${frodo.utils.getRealmName(
         state.getRealm()

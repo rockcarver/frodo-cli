@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --agent-id frodo-test-java-agent
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-web-agent -f my-frodo-test-web-agent.agent.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -i frodo-test-web-agent -D agentExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -Ni frodo-test-web-agent -D agentExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a --file my-allAlphaAgents.agent.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -aD agentExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -NaD agentExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all-separate --directory agentExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all-separate --no-metadata --directory agentExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo agent export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent export -i frodo-test-web-agent -D agentExportTestDir1": should export the agent with agent id "frodo-test-web-agent" into the directory named agentExportTestDir1', async () => {
+    test('"frodo agent export -Ni frodo-test-web-agent -D agentExportTestDir1": should export the agent with agent id "frodo-test-web-agent" into the directory named agentExportTestDir1', async () => {
         const exportDirectory = "agentExportTestDir1";
-        const CMD = `frodo agent export -i frodo-test-web-agent -D ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent export -Ni frodo-test-web-agent -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo agent export --all": should export all agents to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo agent export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo agent export -aD agentExportTestDir2": should export all agents to a single file in the directory agentExportTestDir2', async () => {
+    test('"frodo agent export -NaD agentExportTestDir2": should export all agents to a single file in the directory agentExportTestDir2', async () => {
         const exportDirectory = "agentExportTestDir2";
-        const CMD = `frodo agent export -aD ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent export -NaD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo agent export -A": should export all agents to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo agent export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo agent export --all-separate --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3', async () => {
+    test('"frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3', async () => {
         const exportDirectory = "agentExportTestDir3";
-        const CMD = `frodo agent export --all-separate --directory ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo agent export --all-separate --no-metadata --directory ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

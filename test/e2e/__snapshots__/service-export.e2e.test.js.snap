@@ -1067,11 +1067,10 @@ exports[`frodo service export "frodo service export --service-id policyconfigura
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4 1`] = `""`;
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4 1`] = `""`;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/SocialIdentityProviders.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/SocialIdentityProviders.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "SocialIdentityProviders": {
       "_id": "",
@@ -1094,7 +1093,6 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
           "authorizationEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "297338177925-mho17cgnm540s2gre8h27feb6sbs1msd.apps.googleusercontent.com",
-          "clientSecret": null,
           "enableNativeNonce": true,
           "enabled": true,
           "encryptJwtRequestParameter": false,
@@ -1144,7 +1142,6 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
           "authorizationEndpoint": "https://github.com/login/oauth/authorize",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "bdae6d141d4dcf95a630",
-          "clientSecret": null,
           "enabled": true,
           "issuerComparisonCheckType": "EXACT",
           "jwtEncryptionAlgorithm": "NONE",
@@ -1173,195 +1170,6 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
           "userInfoEndpoint": "https://ig.mytestrun.com/user",
         },
         {
-          "_id": "facebook",
-          "_type": {
-            "_id": "oauth2Config",
-            "collection": true,
-            "name": "Client configuration for providers that implement the OAuth2 specification.",
-          },
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://www.facebook.com/dialog/oauth",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "123741918345526",
-          "clientSecret": null,
-          "enabled": true,
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 3600,
-          "redirectURI": "https://idc.scheuber.io/am/XUI/?realm=%2Falpha",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "email",
-          ],
-          "tokenEndpoint": "https://graph.facebook.com/v2.7/oauth/access_token",
-          "transform": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
-          "uiConfig": {
-            "buttonClass": "fa-facebook-official",
-            "buttonCustomStyle": "background-color: #3b5998; border-color: #3b5998; color: white;",
-            "buttonCustomStyleHover": "background-color: #334b7d; border-color: #334b7d; color: white;",
-            "buttonDisplayName": "Facebook",
-            "buttonImage": "",
-            "iconBackground": "#3b5998",
-            "iconClass": "fa-facebook",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://graph.facebook.com/me?fields=id,name,picture,email,first_name,last_name,locale",
-        },
-        {
-          "_id": "apple-stoyan",
-          "_type": {
-            "_id": "appleConfig",
-            "collection": true,
-            "name": "Client configuration for Apple.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "sub",
-          "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "CHANGE ME",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": false,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://appleid.apple.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectAfterFormPostURI": "https://openam-volker-dev.forgeblocks.com/login",
-          "redirectURI": "https://openam-volker-dev.forgeblocks.com/am/oauth2/alpha/client/form_post/apple-stoyan",
-          "requestNativeAppForUserInfo": false,
-          "responseMode": "FORM_POST",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "name",
-            "email",
-          ],
-          "tokenEndpoint": "https://appleid.apple.com/auth/token",
-          "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonDisplayName": "Apple",
-            "buttonImage": "/login/images/apple-logo.png",
-            "iconBackground": "#000000",
-            "iconClass": "fa-apple",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
-        },
-        {
-          "_id": "apple_web",
-          "_type": {
-            "_id": "appleConfig",
-            "collection": true,
-            "name": "Client configuration for Apple.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "sub",
-          "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "io.scheuber.idc.signinWithApple.service",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": true,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://appleid.apple.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectAfterFormPostURI": "https://idc.scheuber.io/login",
-          "redirectURI": "https://idc.scheuber.io/am/oauth2/client/form_post/apple_web",
-          "requestNativeAppForUserInfo": false,
-          "responseMode": "FORM_POST",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "name",
-            "email",
-          ],
-          "tokenEndpoint": "https://appleid.apple.com/auth/token",
-          "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonDisplayName": "Apple",
-            "buttonImage": "/login/images/apple-logo.png",
-            "iconBackground": "#000000",
-            "iconClass": "fa-apple",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
-        },
-        {
-          "_id": "okta-trial-5735851",
-          "_type": {
-            "_id": "oidcConfig",
-            "collection": true,
-            "name": "Client configuration for providers that implement the OpenID Connect specification.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://trial-5735851.okta.com/oauth2/v1/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "0oa13r2cp29Rynmyw697",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": true,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://trial-5735851.okta.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectURI": "https://idc.scheuber.io/login",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "openid",
-            "profile",
-            "email",
-          ],
-          "tokenEndpoint": "https://trial-5735851.okta.com/oauth2/v1/token",
-          "transform": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
-          "uiConfig": {
-            "buttonDisplayName": "Okta",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://trial-5735851.okta.com/oauth2/v1/userinfo",
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://trial-5735851.okta.com/.well-known/openid-configuration",
-        },
-        {
           "_id": "adfs",
           "_type": {
             "_id": "oidcConfig",
@@ -1373,7 +1181,6 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
           "authorizationEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/authorize",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "aa9a179e-cdba-4db8-8477-3d1069d5ec04",
-          "clientSecret": null,
           "enableNativeNonce": true,
           "enabled": true,
           "encryptJwtRequestParameter": false,
@@ -1412,57 +1219,14 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
           "userInfoResponseType": "JSON",
           "wellKnownEndpoint": "https://adfs.mytestrun.com/adfs/.well-known/openid-configuration",
         },
-        {
-          "_id": "azure",
-          "_type": {
-            "_id": "microsoftConfig",
-            "collection": true,
-            "name": "Client configuration for Microsoft.",
-          },
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "c42a3dc8-f276-496b-a722-269f131cc21c",
-          "clientSecret": null,
-          "enabled": true,
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectURI": "https://idc.scheuber.io/login",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "User.Read",
-            "openid",
-          ],
-          "tokenEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/token",
-          "transform": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-            "buttonCustomStyleHover": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-            "buttonDisplayName": "Microsoft Azure",
-            "buttonImage": "/login/images/microsoft-logo.png",
-            "iconBackground": "#0078d7",
-            "iconClass": "fa-windows",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://graph.microsoft.com/v1.0/me",
-        },
       ],
     },
   },
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/baseurl.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/baseurl.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "baseurl": {
       "_id": "",
@@ -1480,9 +1244,8 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/oauth-oidc.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/oauth-oidc.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "oauth-oidc": {
       "_id": "",
@@ -1527,7 +1290,7 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
         "moduleMessageEnabledInPasswordGrant": false,
         "nbfClaimRequiredInRequestObject": false,
         "parRequestUriLifetime": 90,
-        "passwordGrantAuthService": "PasswordGrant",
+        "passwordGrantAuthService": "Login",
         "persistentClaims": [],
         "refreshTokenGracePeriod": 0,
         "requestObjectProcessing": "OIDC",
@@ -1902,9 +1665,8 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/policyconfiguration.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/policyconfiguration.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "policyconfiguration": {
       "_id": "",
@@ -1926,6 +1688,7 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
         "userstore-2.userstore:1389",
       ],
       "maximumSearchResults": 100,
+      "mtlsEnabled": false,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,
       "policyHeartbeatTimeUnit": "SECONDS",
@@ -1945,9 +1708,8 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/selfServiceTrees.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/selfServiceTrees.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "selfServiceTrees": {
       "_id": "",
@@ -1969,9 +1731,8 @@ exports[`frodo service export "frodo service export -A --directory serviceExport
 }
 `;
 
-exports[`frodo service export "frodo service export -A --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/validation.service.json 1`] = `
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/validation.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "validation": {
       "_id": "",
@@ -2911,11 +2672,10 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -a": should export all services to a single file 1`] = `""`;
+exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3 1`] = `""`;
 
-exports[`frodo service export "frodo service export -a": should export all services to a single file: allAlphaServices.service.json 1`] = `
+exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3: serviceExportTestDir3/allAlphaServices.service.json 1`] = `
 {
-  "meta": Any<Object>,
   "service": {
     "SocialIdentityProviders": {
       "_id": "",
@@ -2938,7 +2698,6 @@ exports[`frodo service export "frodo service export -a": should export all servi
           "authorizationEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "297338177925-mho17cgnm540s2gre8h27feb6sbs1msd.apps.googleusercontent.com",
-          "clientSecret": null,
           "enableNativeNonce": true,
           "enabled": true,
           "encryptJwtRequestParameter": false,
@@ -2988,7 +2747,6 @@ exports[`frodo service export "frodo service export -a": should export all servi
           "authorizationEndpoint": "https://github.com/login/oauth/authorize",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "bdae6d141d4dcf95a630",
-          "clientSecret": null,
           "enabled": true,
           "issuerComparisonCheckType": "EXACT",
           "jwtEncryptionAlgorithm": "NONE",
@@ -3017,195 +2775,6 @@ exports[`frodo service export "frodo service export -a": should export all servi
           "userInfoEndpoint": "https://ig.mytestrun.com/user",
         },
         {
-          "_id": "facebook",
-          "_type": {
-            "_id": "oauth2Config",
-            "collection": true,
-            "name": "Client configuration for providers that implement the OAuth2 specification.",
-          },
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://www.facebook.com/dialog/oauth",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "123741918345526",
-          "clientSecret": null,
-          "enabled": true,
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 3600,
-          "redirectURI": "https://idc.scheuber.io/am/XUI/?realm=%2Falpha",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "email",
-          ],
-          "tokenEndpoint": "https://graph.facebook.com/v2.7/oauth/access_token",
-          "transform": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
-          "uiConfig": {
-            "buttonClass": "fa-facebook-official",
-            "buttonCustomStyle": "background-color: #3b5998; border-color: #3b5998; color: white;",
-            "buttonCustomStyleHover": "background-color: #334b7d; border-color: #334b7d; color: white;",
-            "buttonDisplayName": "Facebook",
-            "buttonImage": "",
-            "iconBackground": "#3b5998",
-            "iconClass": "fa-facebook",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://graph.facebook.com/me?fields=id,name,picture,email,first_name,last_name,locale",
-        },
-        {
-          "_id": "apple-stoyan",
-          "_type": {
-            "_id": "appleConfig",
-            "collection": true,
-            "name": "Client configuration for Apple.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "sub",
-          "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "CHANGE ME",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": false,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://appleid.apple.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectAfterFormPostURI": "https://openam-volker-dev.forgeblocks.com/login",
-          "redirectURI": "https://openam-volker-dev.forgeblocks.com/am/oauth2/alpha/client/form_post/apple-stoyan",
-          "requestNativeAppForUserInfo": false,
-          "responseMode": "FORM_POST",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "name",
-            "email",
-          ],
-          "tokenEndpoint": "https://appleid.apple.com/auth/token",
-          "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonDisplayName": "Apple",
-            "buttonImage": "/login/images/apple-logo.png",
-            "iconBackground": "#000000",
-            "iconClass": "fa-apple",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
-        },
-        {
-          "_id": "apple_web",
-          "_type": {
-            "_id": "appleConfig",
-            "collection": true,
-            "name": "Client configuration for Apple.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "sub",
-          "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "io.scheuber.idc.signinWithApple.service",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": true,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://appleid.apple.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectAfterFormPostURI": "https://idc.scheuber.io/login",
-          "redirectURI": "https://idc.scheuber.io/am/oauth2/client/form_post/apple_web",
-          "requestNativeAppForUserInfo": false,
-          "responseMode": "FORM_POST",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "name",
-            "email",
-          ],
-          "tokenEndpoint": "https://appleid.apple.com/auth/token",
-          "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
-            "buttonDisplayName": "Apple",
-            "buttonImage": "/login/images/apple-logo.png",
-            "iconBackground": "#000000",
-            "iconClass": "fa-apple",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration",
-        },
-        {
-          "_id": "okta-trial-5735851",
-          "_type": {
-            "_id": "oidcConfig",
-            "collection": true,
-            "name": "Client configuration for providers that implement the OpenID Connect specification.",
-          },
-          "acrValues": [],
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://trial-5735851.okta.com/oauth2/v1/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "0oa13r2cp29Rynmyw697",
-          "clientSecret": null,
-          "enableNativeNonce": true,
-          "enabled": true,
-          "encryptJwtRequestParameter": false,
-          "encryptedIdTokens": false,
-          "issuer": "https://trial-5735851.okta.com",
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtRequestParameterOption": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectURI": "https://idc.scheuber.io/login",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "openid",
-            "profile",
-            "email",
-          ],
-          "tokenEndpoint": "https://trial-5735851.okta.com/oauth2/v1/token",
-          "transform": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
-          "uiConfig": {
-            "buttonDisplayName": "Okta",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://trial-5735851.okta.com/oauth2/v1/userinfo",
-          "userInfoResponseType": "JSON",
-          "wellKnownEndpoint": "https://trial-5735851.okta.com/.well-known/openid-configuration",
-        },
-        {
           "_id": "adfs",
           "_type": {
             "_id": "oidcConfig",
@@ -3217,7 +2786,6 @@ exports[`frodo service export "frodo service export -a": should export all servi
           "authorizationEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/authorize",
           "clientAuthenticationMethod": "CLIENT_SECRET_POST",
           "clientId": "aa9a179e-cdba-4db8-8477-3d1069d5ec04",
-          "clientSecret": null,
           "enableNativeNonce": true,
           "enabled": true,
           "encryptJwtRequestParameter": false,
@@ -3255,48 +2823,6 @@ exports[`frodo service export "frodo service export -a": should export all servi
           "useCustomTrustStore": false,
           "userInfoResponseType": "JSON",
           "wellKnownEndpoint": "https://adfs.mytestrun.com/adfs/.well-known/openid-configuration",
-        },
-        {
-          "_id": "azure",
-          "_type": {
-            "_id": "microsoftConfig",
-            "collection": true,
-            "name": "Client configuration for Microsoft.",
-          },
-          "authenticationIdKey": "id",
-          "authorizationEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/authorize",
-          "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-          "clientId": "c42a3dc8-f276-496b-a722-269f131cc21c",
-          "clientSecret": null,
-          "enabled": true,
-          "issuerComparisonCheckType": "EXACT",
-          "jwtEncryptionAlgorithm": "NONE",
-          "jwtEncryptionMethod": "NONE",
-          "jwtSigningAlgorithm": "NONE",
-          "pkceMethod": "S256",
-          "privateKeyJwtExpTime": 600,
-          "redirectURI": "https://idc.scheuber.io/login",
-          "responseMode": "DEFAULT",
-          "revocationCheckOptions": [],
-          "scopeDelimiter": " ",
-          "scopes": [
-            "User.Read",
-            "openid",
-          ],
-          "tokenEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/token",
-          "transform": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
-          "uiConfig": {
-            "buttonClass": "",
-            "buttonCustomStyle": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-            "buttonCustomStyleHover": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-            "buttonDisplayName": "Microsoft Azure",
-            "buttonImage": "/login/images/microsoft-logo.png",
-            "iconBackground": "#0078d7",
-            "iconClass": "fa-windows",
-            "iconFontColor": "white",
-          },
-          "useCustomTrustStore": false,
-          "userInfoEndpoint": "https://graph.microsoft.com/v1.0/me",
         },
       ],
     },
@@ -3355,7 +2881,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "moduleMessageEnabledInPasswordGrant": false,
         "nbfClaimRequiredInRequestObject": false,
         "parRequestUriLifetime": 90,
-        "passwordGrantAuthService": "PasswordGrant",
+        "passwordGrantAuthService": "Login",
         "persistentClaims": [],
         "refreshTokenGracePeriod": 0,
         "requestObjectProcessing": "OIDC",
@@ -3746,6 +3272,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "userstore-2.userstore:1389",
       ],
       "maximumSearchResults": 100,
+      "mtlsEnabled": false,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,
       "policyHeartbeatTimeUnit": "SECONDS",
@@ -3793,9 +3320,118 @@ exports[`frodo service export "frodo service export -a": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -aD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3 1`] = `""`;
+exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2 1`] = `""`;
 
-exports[`frodo service export "frodo service export -aD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3: serviceExportTestDir3/allAlphaServices.service.json 1`] = `
+exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2: serviceExportTestDir2/dashboard.service.json 1`] = `
+{
+  "service": {
+    "dashboard": {
+      "_id": "",
+      "_type": {
+        "_id": "dashboard",
+        "collection": false,
+        "name": "Dashboard",
+      },
+      "defaults": {
+        "assignedDashboard": [],
+      },
+      "nextDescendents": [
+        {
+          "_id": "Google",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance",
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "Google",
+          "icfIdentifier": "idm magic 34",
+          "icon": "images/logos/googleplus.png",
+          "login": "http://www.google.com",
+          "name": "Google",
+        },
+        {
+          "_id": "SalesForce",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance",
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "SalesForce",
+          "icfIdentifier": "idm magic 12",
+          "icon": "images/logos/salesforce.png",
+          "login": "http://www.salesforce.com",
+          "name": "SalesForce",
+        },
+        {
+          "_id": "ZenDesk",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance",
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "ZenDesk",
+          "icfIdentifier": "idm magic 56",
+          "icon": "images/logos/zendesk.png",
+          "login": "http://www.ZenDesk.com",
+          "name": "ZenDesk",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1 1`] = `""`;
+
+exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1: serviceExportTestDir1/policyconfiguration.service.json 1`] = `
+{
+  "service": {
+    "policyconfiguration": {
+      "_id": "",
+      "_type": {
+        "_id": "policyconfiguration",
+        "collection": false,
+        "name": "Policy Configuration",
+      },
+      "bindDn": "&{am.stores.user.username}",
+      "bindPassword": {
+        "$string": "&{am.stores.user.password}",
+      },
+      "checkIfResourceTypeExists": true,
+      "connectionPoolMaximumSize": 10,
+      "connectionPoolMinimumSize": 1,
+      "ldapServer": [
+        "userstore-1.userstore:1389",
+        "userstore-0.userstore:1389",
+        "userstore-2.userstore:1389",
+      ],
+      "maximumSearchResults": 100,
+      "mtlsEnabled": false,
+      "nextDescendents": [],
+      "policyHeartbeatInterval": 10,
+      "policyHeartbeatTimeUnit": "SECONDS",
+      "realmSearchFilter": "(objectclass=sunismanagedorganization)",
+      "searchTimeout": 5,
+      "sslEnabled": {
+        "$bool": "&{am.stores.ssl.enabled}",
+      },
+      "subjectsResultTTL": 10,
+      "userAliasEnabled": false,
+      "usersBaseDn": "ou=identities",
+      "usersSearchAttribute": "uid",
+      "usersSearchFilter": "(objectclass=inetorgperson)",
+      "usersSearchScope": "SCOPE_SUB",
+    },
+  },
+}
+`;
+
+exports[`frodo service export "frodo service export -a": should export all services to a single file 1`] = `""`;
+
+exports[`frodo service export "frodo service export -a": should export all services to a single file: allAlphaServices.service.json 1`] = `
 {
   "meta": Any<Object>,
   "service": {
@@ -4833,71 +4469,6 @@ exports[`frodo service export "frodo service export -ga": should export all glob
 }
 `;
 
-exports[`frodo service export "frodo service export -gi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2 1`] = `""`;
-
-exports[`frodo service export "frodo service export -gi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2: serviceExportTestDir2/dashboard.service.json 1`] = `
-{
-  "meta": Any<Object>,
-  "service": {
-    "dashboard": {
-      "_id": "",
-      "_type": {
-        "_id": "dashboard",
-        "collection": false,
-        "name": "Dashboard",
-      },
-      "defaults": {
-        "assignedDashboard": [],
-      },
-      "nextDescendents": [
-        {
-          "_id": "Google",
-          "_type": {
-            "_id": "instances",
-            "collection": true,
-            "name": "instance",
-          },
-          "className": "SAML2ApplicationClass",
-          "displayName": "Google",
-          "icfIdentifier": "idm magic 34",
-          "icon": "images/logos/googleplus.png",
-          "login": "http://www.google.com",
-          "name": "Google",
-        },
-        {
-          "_id": "SalesForce",
-          "_type": {
-            "_id": "instances",
-            "collection": true,
-            "name": "instance",
-          },
-          "className": "SAML2ApplicationClass",
-          "displayName": "SalesForce",
-          "icfIdentifier": "idm magic 12",
-          "icon": "images/logos/salesforce.png",
-          "login": "http://www.salesforce.com",
-          "name": "SalesForce",
-        },
-        {
-          "_id": "ZenDesk",
-          "_type": {
-            "_id": "instances",
-            "collection": true,
-            "name": "instance",
-          },
-          "className": "SAML2ApplicationClass",
-          "displayName": "ZenDesk",
-          "icfIdentifier": "idm magic 56",
-          "icon": "images/logos/zendesk.png",
-          "login": "http://www.ZenDesk.com",
-          "name": "ZenDesk",
-        },
-      ],
-    },
-  },
-}
-`;
-
 exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard" 1`] = `""`;
 
 exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard": dashboard.service.json 1`] = `
@@ -4958,51 +4529,6 @@ exports[`frodo service export "frodo service export -gi dashboard": should expor
           "name": "ZenDesk",
         },
       ],
-    },
-  },
-}
-`;
-
-exports[`frodo service export "frodo service export -i policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1 1`] = `""`;
-
-exports[`frodo service export "frodo service export -i policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1: serviceExportTestDir1/policyconfiguration.service.json 1`] = `
-{
-  "meta": Any<Object>,
-  "service": {
-    "policyconfiguration": {
-      "_id": "",
-      "_type": {
-        "_id": "policyconfiguration",
-        "collection": false,
-        "name": "Policy Configuration",
-      },
-      "bindDn": "&{am.stores.user.username}",
-      "bindPassword": {
-        "$string": "&{am.stores.user.password}",
-      },
-      "checkIfResourceTypeExists": true,
-      "connectionPoolMaximumSize": 10,
-      "connectionPoolMinimumSize": 1,
-      "ldapServer": [
-        "userstore-1.userstore:1389",
-        "userstore-0.userstore:1389",
-        "userstore-2.userstore:1389",
-      ],
-      "maximumSearchResults": 100,
-      "nextDescendents": [],
-      "policyHeartbeatInterval": 10,
-      "policyHeartbeatTimeUnit": "SECONDS",
-      "realmSearchFilter": "(objectclass=sunismanagedorganization)",
-      "searchTimeout": 5,
-      "sslEnabled": {
-        "$bool": "&{am.stores.ssl.enabled}",
-      },
-      "subjectsResultTTL": 10,
-      "userAliasEnabled": false,
-      "usersBaseDn": "ou=identities",
-      "usersSearchAttribute": "uid",
-      "usersSearchFilter": "(objectclass=inetorgperson)",
-      "usersSearchScope": "SCOPE_SUB",
     },
   },
 }

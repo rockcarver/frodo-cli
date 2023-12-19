@@ -11,13 +11,15 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
+
+const {
+  getRealmName,
   getTypedFilename,
   saveJsonToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-
-const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
+  getFilePath,
+  getWorkingDirectory,
+} = frodo.utils;
 const {
   readCirclesOfTrust,
   exportCircleOfTrust,
@@ -110,10 +112,12 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
  * Export a single circle of trust to file
  * @param {String} cotId circle of trust id/name
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportCircleOfTrustToFile(
   cotId: string,
-  file: string = null
+  file: string = null,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.CirclesOfTrustOps.exportCircleOfTrustToFile: begin`);
@@ -129,7 +133,7 @@ export async function exportCircleOfTrustToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportCircleOfTrust(cotId);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
       `Exported ${cotId} to ${filePath}.`,
@@ -150,9 +154,11 @@ export async function exportCircleOfTrustToFile(
 /**
  * Export all circles of trust to one file
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportCirclesOfTrustToFile(
-  file: string = null
+  file: string = null,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFile: begin`);
@@ -171,7 +177,7 @@ export async function exportCirclesOfTrustToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportCirclesOfTrust();
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
       `Exported all circles of trust to ${filePath}.`,
@@ -191,8 +197,11 @@ export async function exportCirclesOfTrustToFile(
 
 /**
  * Export all circles of trust to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportCirclesOfTrustToFiles(): Promise<boolean> {
+export async function exportCirclesOfTrustToFiles(
+  includeMeta = true
+): Promise<boolean> {
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: begin`);
   const errors = [];
   let indicatorId: string;
@@ -208,7 +217,7 @@ export async function exportCirclesOfTrustToFiles(): Promise<boolean> {
       try {
         const exportData: CirclesOfTrustExportInterface =
           await exportCircleOfTrust(cot._id);
-        saveJsonToFile(exportData, getFilePath(file, true));
+        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
         updateProgressIndicator(indicatorId, `Exported ${cot.name}.`);
       } catch (error) {
         errors.push(error);

@@ -5,9 +5,8 @@ import os from 'os';
 import slugify from 'slugify';
 
 import { printMessage } from './Console';
-import { readFiles } from './ExportImportUtils';
 
-const { getFilePath } = frodo.utils;
+const { getFilePath, readFiles } = frodo.utils;
 
 const { exportFullConfiguration } = frodo.config;
 

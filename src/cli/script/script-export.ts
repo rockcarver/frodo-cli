@@ -40,6 +40,12 @@ program
       'Export all scripts to separate files (*.script.json) in the current directory. Ignored with -n or -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   // deprecated option
   .addOption(
     new Option(
@@ -76,19 +82,20 @@ program
         verboseMessage('Exporting script...');
         await exportScriptByNameToFile(
           options.scriptName || options.script,
-          options.file
+          options.file,
+          options.metadata
         );
       }
       // -a / --all
       else if (options.all) {
         verboseMessage('Exporting all scripts to a single file...');
-        await exportScriptsToFile(options.file);
+        await exportScriptsToFile(options.file, options.metadata);
       }
       // -A / --all-separate
       else if (options.allSeparate) {
         verboseMessage('Exporting all scripts to separate files...');
         // -x / --extract
-        await exportScriptsToFiles(options.extract);
+        await exportScriptsToFiles(options.extract, options.metadata);
       }
 
       // unrecognized combination of options or no options

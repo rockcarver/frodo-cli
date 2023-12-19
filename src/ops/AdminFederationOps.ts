@@ -8,7 +8,6 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { getTypedFilename, saveJsonToFile } from '../utils/ExportImportUtils';
 
 const {
   readAdminFederationProviders,
@@ -19,7 +18,8 @@ const {
   importFirstAdminFederationProvider,
 } = frodo.cloud.adminFed;
 
-const { getFilePath, getWorkingDirectory } = frodo.utils;
+const { getTypedFilename, saveJsonToFile, getFilePath, getWorkingDirectory } =
+  frodo.utils;
 
 /**
  * List providers
@@ -45,11 +45,13 @@ export async function listAdminFederationProviders(): Promise<boolean> {
  * Export provider by id
  * @param {string} providerId provider id/name
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAdminFederationProviderToFile(
   providerId: string,
-  file = ''
+  file = '',
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   let fileName = file;
@@ -65,7 +67,7 @@ export async function exportAdminFederationProviderToFile(
   try {
     updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = await exportAdminFederationProvider(providerId);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
       `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
@@ -81,10 +83,12 @@ export async function exportAdminFederationProviderToFile(
 /**
  * Export all providers
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAdminFederationProvidersToFile(
-  file = ''
+  file = '',
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   const spinnerId = createProgressIndicator(
@@ -99,7 +103,7 @@ export async function exportAdminFederationProvidersToFile(
     }
     const filePath = getFilePath(fileName, true);
     const fileData = await exportAdminFederationProviders();
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported all providers to ${filePath}`,
@@ -115,9 +119,12 @@ export async function exportAdminFederationProvidersToFile(
 
 /**
  * Export all providers to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportAdminFederationProvidersToFiles(): Promise<boolean> {
+export async function exportAdminFederationProvidersToFiles(
+  includeMeta = true
+): Promise<boolean> {
   let outcome = false;
   let indicatorId: string;
   try {
@@ -131,7 +138,7 @@ export async function exportAdminFederationProvidersToFiles(): Promise<boolean> 
       updateProgressIndicator(indicatorId, `Writing provider ${idpData._id}`);
       const fileName = getTypedFilename(idpData._id, 'admin.federation');
       const fileData = await exportAdminFederationProvider(idpData._id);
-      saveJsonToFile(fileData, getFilePath(fileName, true));
+      saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
     }
     stopProgressIndicator(
       indicatorId,

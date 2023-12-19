@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'authz policy' should be expected english 1`] = `
+"Usage: frodo authz policy [options] [command]
+
+Manages authorization policies.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  delete          Delete authorization policies.
+  describe        Describe authorization policies.
+  export          Export authorization policies.
+  help [command]  display help for command
+  import          Import authorization policies.
+  list            List authorization policies.
+"
+`;

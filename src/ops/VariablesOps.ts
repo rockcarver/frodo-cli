@@ -14,15 +14,16 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
+import wordwrap from './utils/Wordwrap';
+
+const {
+  decodeBase64,
+  getFilePath,
   getTypedFilename,
   saveJsonToFile,
   saveToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-import wordwrap from './utils/Wordwrap';
-
-const { decodeBase64, getFilePath } = frodo.utils;
+} = frodo.utils;
 const { resolvePerpetratorUuid } = frodo.idm.managed;
 const {
   readVariables,
@@ -373,12 +374,14 @@ export async function describeVariable(variableId, json = false) {
  * @param {String} variableId Variable id
  * @param {String} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariableToFile(
   variableId: string,
   file: string | null,
-  noDecode: boolean
+  noDecode: boolean,
+  includeMeta: boolean
 ) {
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
@@ -397,7 +400,7 @@ export async function exportVariableToFile(
       `Exporting variable ${variableId}`
     );
     const fileData = await exportVariable(variableId, noDecode);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
     stopProgressIndicator(
       indicatorId,
@@ -419,11 +422,13 @@ export async function exportVariableToFile(
  * Export all variables to single file
  * @param {string} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFile(
   file: string | null,
-  noDecode: boolean
+  noDecode: boolean,
+  includeMeta: boolean
 ) {
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
   let outcome = false;
@@ -440,7 +445,7 @@ export async function exportVariablesToFile(
   }
   try {
     const variablesExport = await exportVariables(noDecode);
-    saveJsonToFile(variablesExport, getFilePath(file, true));
+    saveJsonToFile(variablesExport, getFilePath(file, true), includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported variables to ${file}`,
@@ -463,9 +468,13 @@ export async function exportVariablesToFile(
 /**
  * Export all variables to seperate files
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportVariablesToFiles(noDecode: boolean) {
+export async function exportVariablesToFiles(
+  noDecode: boolean,
+  includeMeta: boolean
+) {
   let outcome = false;
   let spinnerId: string;
   let indicatorId: string;
@@ -501,7 +510,13 @@ export async function exportVariablesToFiles(noDecode: boolean) {
       }
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
       const fileName = getTypedFilename(variable._id, 'variable');
-      saveToFile('variable', variable, '_id', getFilePath(fileName, true));
+      saveToFile(
+        'variable',
+        variable,
+        '_id',
+        getFilePath(fileName, true),
+        includeMeta
+      );
     }
     stopProgressIndicator(
       indicatorId,

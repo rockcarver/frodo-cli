@@ -9,12 +9,8 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
-  getRealmString,
-  getTypedFilename,
-  saveJsonToFile,
-} from '../utils/ExportImportUtils';
 
+const { getRealmString, getTypedFilename, saveJsonToFile } = frodo.utils;
 const {
   readSocialIdentityProviders,
   exportSocialIdentityProvider,
@@ -81,10 +77,12 @@ export async function listSocialProviders() {
  * Export provider by id
  * @param {string} providerId provider id/name
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportSocialIdentityProviderToFile(
   providerId: string,
-  file = ''
+  file = '',
+  includeMeta = true
 ) {
   debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: start`);
   let fileName = file;
@@ -100,7 +98,7 @@ export async function exportSocialIdentityProviderToFile(
   try {
     updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = await exportSocialIdentityProvider(providerId);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       indicatorId,
       `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
@@ -115,20 +113,25 @@ export async function exportSocialIdentityProviderToFile(
 /**
  * Export all providers
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSocialIdentityProvidersToFile(file = '') {
+export async function exportSocialIdentityProvidersToFile(
+  file = '',
+  includeMeta = true
+) {
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(`all${getRealmString()}Providers`, 'idp');
   }
   const fileData = await exportSocialIdentityProviders();
-  saveJsonToFile(fileData, getFilePath(fileName, true));
+  saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all providers to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSocialIdentityProvidersToFiles() {
+export async function exportSocialIdentityProvidersToFiles(includeMeta = true) {
   debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: start`);
   let indicatorId: string;
   try {
@@ -142,7 +145,7 @@ export async function exportSocialIdentityProvidersToFiles() {
       try {
         const fileName = getTypedFilename(idpData._id, 'idp');
         const fileData = await exportSocialIdentityProvider(idpData._id);
-        saveJsonToFile(fileData, getFilePath(fileName, true));
+        saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
         updateProgressIndicator(
           indicatorId,
           `Exported provider ${idpData._id}`

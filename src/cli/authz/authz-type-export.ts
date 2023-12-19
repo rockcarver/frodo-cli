@@ -41,6 +41,12 @@ program
       'Export all resource types to separate files (*.resourcetype.authz.json) in the current directory. Ignored with -i, -n, or -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -57,7 +63,8 @@ program
         verboseMessage('Exporting authorization resource type to file...');
         const outcome = await exportResourceTypeToFile(
           options.typeId,
-          options.file
+          options.file,
+          options.metadata
         );
         if (!outcome) process.exitCode = 1;
       }
@@ -66,14 +73,18 @@ program
         verboseMessage('Exporting authorization resource type to file...');
         const outcome = await exportResourceTypeByNameToFile(
           options.typeName,
-          options.file
+          options.file,
+          options.metadata
         );
         if (!outcome) process.exitCode = 1;
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all authorization resource types to file...');
-        const outcome = await exportResourceTypesToFile(options.file);
+        const outcome = await exportResourceTypesToFile(
+          options.file,
+          options.metadata
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
@@ -81,7 +92,7 @@ program
         verboseMessage(
           'Exporting all authorization resource types to separate files...'
         );
-        const outcome = await exportResourceTypesToFiles();
+        const outcome = await exportResourceTypesToFiles(options.metadata);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

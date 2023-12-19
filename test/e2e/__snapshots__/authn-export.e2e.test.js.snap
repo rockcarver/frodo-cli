@@ -1,0 +1,224 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `""`;
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir1/authnExportTest.json 1`] = `
+{
+  "authentication": {
+    "_id": "",
+    "_type": {
+      "_id": "EMPTY",
+      "collection": false,
+      "name": "Core",
+    },
+    "accountlockout": {
+      "lockoutDuration": 0,
+      "lockoutDurationMultiplier": 1,
+      "lockoutWarnUserCount": 0,
+      "loginFailureCount": 5,
+      "loginFailureDuration": 300,
+      "loginFailureLockoutMode": false,
+      "storeInvalidAttemptsInDataStore": true,
+    },
+    "core": {
+      "adminAuthModule": "Login",
+      "orgConfig": "Login",
+    },
+    "general": {
+      "defaultAuthLevel": 0,
+      "identityType": [
+        "agent",
+        "user",
+      ],
+      "locale": "en_US",
+      "statelessSessionsEnabled": false,
+      "twoFactorRequired": false,
+      "userStatusCallbackPlugins": [],
+    },
+    "postauthprocess": {
+      "loginFailureUrl": [],
+      "loginPostProcessClass": [],
+      "loginSuccessUrl": [
+        "/enduser/?realm=/alpha",
+      ],
+      "userAttributeSessionMapping": [],
+      "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+      "usernameGeneratorEnabled": true,
+    },
+    "security": {
+      "addClearSiteDataHeader": true,
+      "keyAlias": "test",
+      "moduleBasedAuthEnabled": false,
+      "sharedSecret": {
+        "$string": "&{am.authentication.shared.secret}",
+      },
+      "zeroPageLoginAllowedWithoutReferrer": true,
+      "zeroPageLoginEnabled": false,
+      "zeroPageLoginReferrerWhiteList": [],
+    },
+    "trees": {
+      "authenticationSessionsMaxDuration": 5,
+      "authenticationSessionsStateManagement": "JWT",
+      "authenticationSessionsWhitelist": false,
+      "authenticationTreeCookieHttpOnly": true,
+      "suspendedAuthenticationTimeout": 1440,
+    },
+    "userprofile": {
+      "aliasAttributeName": [
+        "uid",
+      ],
+      "defaultRole": [],
+      "dynamicProfileCreation": "false",
+    },
+  },
+}
+`;
+
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 1`] = `""`;
+
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory: authnExportDir1/alphaRealm.authentication.settings.json 1`] = `
+{
+  "authentication": {
+    "_id": "",
+    "_type": {
+      "_id": "EMPTY",
+      "collection": false,
+      "name": "Core",
+    },
+    "accountlockout": {
+      "lockoutDuration": 0,
+      "lockoutDurationMultiplier": 1,
+      "lockoutWarnUserCount": 0,
+      "loginFailureCount": 5,
+      "loginFailureDuration": 300,
+      "loginFailureLockoutMode": false,
+      "storeInvalidAttemptsInDataStore": true,
+    },
+    "core": {
+      "adminAuthModule": "Login",
+      "orgConfig": "Login",
+    },
+    "general": {
+      "defaultAuthLevel": 0,
+      "identityType": [
+        "agent",
+        "user",
+      ],
+      "locale": "en_US",
+      "statelessSessionsEnabled": false,
+      "twoFactorRequired": false,
+      "userStatusCallbackPlugins": [],
+    },
+    "postauthprocess": {
+      "loginFailureUrl": [],
+      "loginPostProcessClass": [],
+      "loginSuccessUrl": [
+        "/enduser/?realm=/alpha",
+      ],
+      "userAttributeSessionMapping": [],
+      "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+      "usernameGeneratorEnabled": true,
+    },
+    "security": {
+      "addClearSiteDataHeader": true,
+      "keyAlias": "test",
+      "moduleBasedAuthEnabled": false,
+      "sharedSecret": {
+        "$string": "&{am.authentication.shared.secret}",
+      },
+      "zeroPageLoginAllowedWithoutReferrer": true,
+      "zeroPageLoginEnabled": false,
+      "zeroPageLoginReferrerWhiteList": [],
+    },
+    "trees": {
+      "authenticationSessionsMaxDuration": 5,
+      "authenticationSessionsStateManagement": "JWT",
+      "authenticationSessionsWhitelist": false,
+      "authenticationTreeCookieHttpOnly": true,
+      "suspendedAuthenticationTimeout": 1440,
+    },
+    "userprofile": {
+      "aliasAttributeName": [
+        "uid",
+      ],
+      "defaultRole": [],
+      "dynamicProfileCreation": "false",
+    },
+  },
+}
+`;
+
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 1`] = `""`;
+
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json": authnExportTest.json 1`] = `
+{
+  "authentication": {
+    "_id": "",
+    "_type": {
+      "_id": "EMPTY",
+      "collection": false,
+      "name": "Core",
+    },
+    "accountlockout": {
+      "lockoutDuration": 0,
+      "lockoutDurationMultiplier": 1,
+      "lockoutWarnUserCount": 0,
+      "loginFailureCount": 5,
+      "loginFailureDuration": 300,
+      "loginFailureLockoutMode": false,
+      "storeInvalidAttemptsInDataStore": true,
+    },
+    "core": {
+      "adminAuthModule": "Login",
+      "orgConfig": "Login",
+    },
+    "general": {
+      "defaultAuthLevel": 0,
+      "identityType": [
+        "agent",
+        "user",
+      ],
+      "locale": "en_US",
+      "statelessSessionsEnabled": false,
+      "twoFactorRequired": false,
+      "userStatusCallbackPlugins": [],
+    },
+    "postauthprocess": {
+      "loginFailureUrl": [],
+      "loginPostProcessClass": [],
+      "loginSuccessUrl": [
+        "/enduser/?realm=/alpha",
+      ],
+      "userAttributeSessionMapping": [],
+      "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+      "usernameGeneratorEnabled": true,
+    },
+    "security": {
+      "addClearSiteDataHeader": true,
+      "keyAlias": "test",
+      "moduleBasedAuthEnabled": false,
+      "sharedSecret": {
+        "$string": "&{am.authentication.shared.secret}",
+      },
+      "zeroPageLoginAllowedWithoutReferrer": true,
+      "zeroPageLoginEnabled": false,
+      "zeroPageLoginReferrerWhiteList": [],
+    },
+    "trees": {
+      "authenticationSessionsMaxDuration": 5,
+      "authenticationSessionsStateManagement": "JWT",
+      "authenticationSessionsWhitelist": false,
+      "authenticationTreeCookieHttpOnly": true,
+      "suspendedAuthenticationTimeout": 1440,
+    },
+    "userprofile": {
+      "aliasAttributeName": [
+        "uid",
+      ],
+      "defaultRole": [],
+      "dynamicProfileCreation": "false",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;

@@ -19,13 +19,15 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
+
+const {
+  getRealmName,
   getTypedFilename,
   saveJsonToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-
-const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
+  getFilePath,
+  getWorkingDirectory,
+} = frodo.utils;
 const {
   readPolicies,
   readPoliciesByPolicySet,
@@ -287,12 +289,14 @@ export async function deletePoliciesByPolicySet(
  * Export policy to file
  * @param {string} policyId policy id/name
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicyToFile(
   policyId: string,
   file: string,
+  includeMeta = true,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -309,7 +313,7 @@ export async function exportPolicyToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicy(policyId, options);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${policyId} to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -322,11 +326,13 @@ export async function exportPolicyToFile(
 /**
  * Export policies to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesToFile(
   file: string,
+  includeMeta = true,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -346,7 +352,7 @@ export async function exportPoliciesToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicies(options);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all policy sets to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -360,12 +366,14 @@ export async function exportPoliciesToFile(
  * Export policies to file
  * @param {string} policySetId policy set id/name
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesByPolicySetToFile(
   policySetId: string,
   file: string,
+  includeMeta = true,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -387,7 +395,7 @@ export async function exportPoliciesByPolicySetToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPoliciesByPolicySet(policySetId, options);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all policy sets to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -399,10 +407,12 @@ export async function exportPoliciesByPolicySetToFile(
 
 /**
  * Export all policies to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesToFiles(
+  includeMeta = true,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -426,7 +436,7 @@ export async function exportPoliciesToFiles(
           policy._id,
           options
         );
-        saveJsonToFile(exportData, getFilePath(file, true));
+        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
         updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);
@@ -444,11 +454,13 @@ export async function exportPoliciesToFiles(
 
 /**
  * Export all policies to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesByPolicySetToFiles(
   policySetId: string,
+  includeMeta = true,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -473,7 +485,7 @@ export async function exportPoliciesByPolicySetToFiles(
           policy._id,
           options
         );
-        saveJsonToFile(exportData, getFilePath(file, true));
+        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
         updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);

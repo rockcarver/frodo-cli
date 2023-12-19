@@ -9,13 +9,15 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
-import {
+
+const {
+  getRealmName,
   getTypedFilename,
   saveJsonToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-
-const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
+  getFilePath,
+  getWorkingDirectory,
+} = frodo.utils;
 const {
   createAgentExportTemplate,
   readAgents,
@@ -172,8 +174,9 @@ export async function listWebAgents(long = false) {
 /**
  * Export all agents to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportAgentsToFile(file) {
+export async function exportAgentsToFile(file, includeMeta = true) {
   const exportData = await exportAgents();
   let fileName = getTypedFilename(
     `all${titleCase(getRealmName(state.getRealm()))}Agents`,
@@ -182,14 +185,18 @@ export async function exportAgentsToFile(file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all identity gateway agents to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportIdentityGatewayAgentsToFile(file) {
+export async function exportIdentityGatewayAgentsToFile(
+  file,
+  includeMeta = true
+) {
   const exportData = await exportIdentityGatewayAgents();
   let fileName = getTypedFilename(
     `all${titleCase(getRealmName(state.getRealm()))}Agents`,
@@ -198,14 +205,15 @@ export async function exportIdentityGatewayAgentsToFile(file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all java agents to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportJavaAgentsToFile(file) {
+export async function exportJavaAgentsToFile(file, includeMeta = true) {
   const exportData = await exportJavaAgents();
   let fileName = getTypedFilename(
     `all${titleCase(getRealmName(state.getRealm()))}Agents`,
@@ -214,14 +222,15 @@ export async function exportJavaAgentsToFile(file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all web agents to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportWebAgentsToFile(file) {
+export async function exportWebAgentsToFile(file, includeMeta = true) {
   const exportData = await exportWebAgents();
   let fileName = getTypedFilename(
     `all${titleCase(getRealmName(state.getRealm()))}Agents`,
@@ -230,15 +239,16 @@ export async function exportWebAgentsToFile(file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export agent to file
  * @param {string} agentId agent id
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportAgentToFile(agentId, file) {
+export async function exportAgentToFile(agentId, file, includeMeta = true) {
   const exportData = await exportAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
@@ -247,15 +257,20 @@ export async function exportAgentToFile(agentId, file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export identity gateway agent to file
  * @param {string} agentId agent id
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportIdentityGatewayAgentToFile(agentId, file) {
+export async function exportIdentityGatewayAgentToFile(
+  agentId,
+  file,
+  includeMeta = true
+) {
   const exportData = await exportIdentityGatewayAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
@@ -264,15 +279,16 @@ export async function exportIdentityGatewayAgentToFile(agentId, file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export java agent to file
  * @param {string} agentId agent id
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportJavaAgentToFile(agentId, file) {
+export async function exportJavaAgentToFile(agentId, file, includeMeta = true) {
   const exportData = await exportJavaAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
@@ -281,15 +297,16 @@ export async function exportJavaAgentToFile(agentId, file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export web agent to file
  * @param {string} agentId agent id
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportWebAgentToFile(agentId, file) {
+export async function exportWebAgentToFile(agentId, file, includeMeta = true) {
   const exportData = await exportWebAgent(agentId);
   let fileName = getTypedFilename(
     agentId,
@@ -298,13 +315,14 @@ export async function exportWebAgentToFile(agentId, file) {
   if (file) {
     fileName = file;
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true));
+  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
 }
 
 /**
  * Export all agents to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportAgentsToFiles() {
+export async function exportAgentsToFiles(includeMeta = true) {
   const agents = await readAgents();
   debugMessage(`exportAgentsToFiles: ${agents.length} agents`);
   for (const agent of agents) {
@@ -316,15 +334,16 @@ export async function exportAgentsToFiles() {
     const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
     debugMessage(`exportAgentsToFiles: exporting ${agent._id} to ${filePath}`);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
   }
   debugMessage(`exportAgentsToFiles: done.`);
 }
 
 /**
  * Export all identity gateway agents to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportIdentityGatewayAgentsToFiles() {
+export async function exportIdentityGatewayAgentsToFiles(includeMeta = true) {
   const agents = await readIdentityGatewayAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
@@ -333,14 +352,15 @@ export async function exportIdentityGatewayAgentsToFiles() {
     );
     const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
-    saveJsonToFile(exportData, getFilePath(fileName, true));
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
   }
 }
 
 /**
  * Export all java agents to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportJavaAgentsToFiles() {
+export async function exportJavaAgentsToFiles(includeMeta = true) {
   const agents = await readJavaAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
@@ -349,14 +369,15 @@ export async function exportJavaAgentsToFiles() {
     );
     const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
-    saveJsonToFile(exportData, getFilePath(fileName, true));
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
   }
 }
 
 /**
  * Export all web agents to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportWebAgentsToFiles() {
+export async function exportWebAgentsToFiles(includeMeta = true) {
   const agents = await readWebAgents();
   for (const agent of agents) {
     const fileName = getTypedFilename(
@@ -365,7 +386,7 @@ export async function exportWebAgentsToFiles() {
     );
     const exportData = createAgentExportTemplate();
     exportData.agents[agent._id] = agent;
-    saveJsonToFile(exportData, getFilePath(fileName, true));
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
   }
 }
 
