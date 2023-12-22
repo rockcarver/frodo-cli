@@ -27,6 +27,7 @@ const {
   readEmailTemplate,
   exportEmailTemplates,
   updateEmailTemplate,
+  importEmailTemplates,
 } = frodo.email.template;
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
@@ -297,30 +298,28 @@ export async function importEmailTemplateFromFile(
  * @param {string} file optional filename
  */
 export async function importEmailTemplatesFromFile(file: string) {
+  const filePath = getFilePath(file);
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Importing email templates from ${filePath}...`
+  );
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    const indicatorId = createProgressIndicator(
-      'determinate',
-      Object.keys(fileData.emailTemplate).length,
-      `Importing email templates`
+    await importEmailTemplates(fileData);
+    stopProgressIndicator(
+      indicatorId,
+      `Successfully imported email templates from ${filePath}.`,
+      'success'
     );
-    for (const id of Object.keys(fileData.emailTemplate)) {
-      const templateId = id.replace(regexEmailTemplateType, '');
-      try {
-        await updateEmailTemplate(
-          templateId,
-          fileData.emailTemplate[templateId]
-        );
-        updateProgressIndicator(indicatorId, `Imported ${templateId}`);
-      } catch (updateEmailTemplateError) {
-        printMessage(`\nError importing ${templateId}`, 'error');
-        printMessage(updateEmailTemplateError.response.data, 'error');
-      }
-    }
-    stopProgressIndicator(indicatorId, `Done.`);
   } catch (error) {
-    printMessage(`Error importing email templates: ${error}`, 'error');
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing email templates from ${filePath}.`,
+      'fail'
+    );
+    printMessage(error.response?.data || error, 'error');
   }
 }
 

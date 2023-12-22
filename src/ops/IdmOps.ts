@@ -1,4 +1,5 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo } from '@rockcarver/frodo-lib';
+import { type ConfigEntityImportOptions } from '@rockcarver/frodo-lib/src/ops/IdmConfigOps';
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
@@ -19,12 +20,14 @@ const {
   getFilePath,
   getTypedFilename,
   readFiles,
+  getWorkingDirectory,
 } = frodo.utils;
 const {
   readConfigEntities,
   readConfigEntity,
   exportConfigEntities,
   updateConfigEntity,
+  importConfigEntities,
 } = frodo.idm.config;
 const { queryManagedObjects } = frodo.idm.managed;
 const { testConnectorServers } = frodo.idm.system;
@@ -247,143 +250,95 @@ export async function importConfigEntityFromFile(
 
 /**
  * Import all IDM configuration objects from separate JSON files in a directory specified by <directory>
- * @param validate validate script hooks
+ * @param options import options
  */
-export async function importAllRawConfigEntities(validate?: boolean) {
-  const baseDirectory = state.getDirectory();
-  if (!fs.existsSync(baseDirectory)) {
-    return;
+export async function importAllRawConfigEntities(
+  options: ConfigEntityImportOptions = {
+    validate: false,
   }
+) {
+  const baseDirectory = getWorkingDirectory();
   const files = await readFiles(baseDirectory);
-  const jsonFiles = files
+  const jsonObjects = files
     .filter(({ path }) => path.toLowerCase().endsWith('.json'))
-    .map(({ path, content }) => ({
-      // Remove .json extension
-      entityId: path.substring(0, path.length - 5),
-      content,
-      path,
-    }));
+    .map(({ content }) => JSON.parse(content))
+    .map((entity) => [entity._id, entity]);
+  const importData = {
+    config: Object.fromEntries(jsonObjects),
+  };
 
-  let everyScriptValid = true;
-  for (const file of jsonFiles) {
-    const jsObject = JSON.parse(file.content);
-    const isScriptValid = areScriptHooksValid(jsObject);
-    if (!isScriptValid) {
-      printMessage(`Invalid script hook in ${file.path}`, 'error');
-      everyScriptValid = false;
-    }
-  }
-
-  if (validate && !everyScriptValid) {
-    return;
-  }
-
-  createProgressIndicator(
+  const indicatorId = createProgressIndicator(
     'indeterminate',
-    undefined,
-    'Importing config objects...'
+    0,
+    `Importing config entities from ${baseDirectory}...`
   );
 
-  const entityPromises = jsonFiles.map((file) => {
-    return updateConfigEntity(file.entityId, JSON.parse(file.content));
-  });
-
-  const results = await Promise.allSettled(entityPromises);
-  const errors = results.filter(
-    (result): result is PromiseRejectedResult => result.status === 'rejected'
-  );
-
-  if (errors.length > 0) {
-    printMessage(`Failed to import ${errors.length} config objects:`, 'error');
-    for (const error of errors) {
-      printMessage(`- ${error.reason}`, 'error');
-    }
+  try {
+    await importConfigEntities(importData, options);
     stopProgressIndicator(
-      `Failed to import ${errors.length} config objects`,
-      'error'
+      indicatorId,
+      `Imported ${jsonObjects.length} config entities`,
+      'success'
     );
-    return;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing config entities from ${baseDirectory}.`,
+      'fail'
+    );
+    printMessage(error.response?.data || error, 'error');
   }
-
-  stopProgressIndicator(`Imported ${results.length} config objects`, 'success');
 }
 
 /**
  * Import all IDM configuration objects
  * @param entitiesFile JSON file that specifies the config entities to export/import
  * @param envFile File that defines environment specific variables for replacement during configuration export/import
- * @param validate validate script hooks
+ * @param options import options
  */
 export async function importAllConfigEntities(
   entitiesFile: string,
   envFile: string,
-  validate?: boolean
-) {
-  const baseDirectory = state.getDirectory();
-  if (!fs.existsSync(baseDirectory)) {
-    return;
+  options: ConfigEntityImportOptions = {
+    validate: false,
   }
+) {
   const entriesToImport = JSON.parse(fs.readFileSync(entitiesFile, 'utf8')).idm;
-
   const envReader = propertiesReader(envFile);
 
+  const baseDirectory = getWorkingDirectory();
   const files = await readFiles(baseDirectory);
-  const jsonFiles = files
+  const jsonObjects = files
     .filter(({ path }) => path.toLowerCase().endsWith('.json'))
-    .map(({ content, path }) => ({
-      // Remove .json extension
-      entityId: path.substring(0, path.length - 5),
-      content,
-      path,
-    }));
+    .map(({ content }) => JSON.parse(unSubstituteEnvParams(content, envReader)))
+    .filter((entity) => entriesToImport.includes(entity._id))
+    .map((entity) => [entity._id, entity]);
 
-  let everyScriptValid = true;
-  for (const file of jsonFiles) {
-    const jsObject = JSON.parse(file.content);
-    const isScriptValid = areScriptHooksValid(jsObject);
-    if (!isScriptValid) {
-      printMessage(`Invalid script hook in ${file.path}`, 'error');
-      everyScriptValid = false;
-    }
-  }
+  const importData = {
+    config: Object.fromEntries(jsonObjects),
+  };
 
-  if (validate && !everyScriptValid) {
-    return;
-  }
-
-  createProgressIndicator(
+  const indicatorId = createProgressIndicator(
     'indeterminate',
-    undefined,
-    'Importing config objects...'
+    0,
+    `Importing config entities from ${baseDirectory}...`
   );
 
-  const entityPromises = jsonFiles
-    .filter(({ entityId }) => {
-      return entriesToImport.includes(entityId);
-    })
-    .map(({ entityId, content }) => {
-      const unsubstituted = unSubstituteEnvParams(content, envReader);
-      return updateConfigEntity(entityId, JSON.parse(unsubstituted));
-    });
-
-  const results = await Promise.allSettled(entityPromises);
-  const errors = results.filter(
-    (result): result is PromiseRejectedResult => result.status === 'rejected'
-  );
-
-  if (errors.length > 0) {
-    printMessage(`Failed to import ${errors.length} config objects:`, 'error');
-    for (const error of errors) {
-      printMessage(`- ${error.reason}`, 'error');
-    }
+  try {
+    await importConfigEntities(importData, options);
     stopProgressIndicator(
-      `Failed to import ${errors.length} config objects`,
-      'error'
+      indicatorId,
+      `Imported ${jsonObjects.length} config entities`,
+      'success'
     );
-    return;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing config entities from ${baseDirectory}.`,
+      'fail'
+    );
+    printMessage(error.response?.data || error, 'error');
   }
-
-  stopProgressIndicator(`Imported ${results.length} config objects`, 'success');
 }
 
 /**
