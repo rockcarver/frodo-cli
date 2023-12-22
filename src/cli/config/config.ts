@@ -19,7 +19,10 @@ export default function setup() {
     'Export full cloud configuration for all ops that currently support export..'
   );
 
-  //program.command('import', 'Import full cloud configuration.');
+  program.command(
+    'import',
+    'Import full cloud configuration for all ops that currently support import.'
+  );
 
   //program.command('delete', 'Delete full cloud configuration.');
 

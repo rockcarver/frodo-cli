@@ -80,7 +80,18 @@ export async function getFullExportConfig(
       noDecode: false,
     });
   }
-  // Go through files in directory and reconstruct the full export
+  // Go through files in the working directory and reconstruct the full export
+  return getFullExportConfigFromDirectory(workingDirectory);
+}
+
+/**
+ * Reconstructs the full export config from files in the given directory
+ * @param directory The directory
+ * @return The full export config
+ */
+export async function getFullExportConfigFromDirectory(
+  directory: string
+): Promise<FullExportInterface> {
   const fullExportConfig = {
     meta: {},
     agents: {},
@@ -106,7 +117,7 @@ export async function getFullExportConfig(
     trees: {},
     variables: {},
   } as FullExportInterface;
-  const files = await readFiles(workingDirectory);
+  const files = await readFiles(directory);
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
   const idmConfigFiles = jsonFiles.filter((f) => f.path.startsWith('config/'));
   const samlFiles = jsonFiles.filter(

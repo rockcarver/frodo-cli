@@ -12,5 +12,7 @@ Commands:
   export          Export full cloud configuration for all ops that currently
                   support export..
   help [command]  display help for command
+  import          Import full cloud configuration for all ops that currently
+                  support import.
 "
 `;

@@ -1,12 +1,17 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import {
-  FullExportInterface,
-  FullExportOptions,
+  type FullExportInterface,
+  type FullExportOptions,
+  type FullImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
 import fse from 'fs-extra';
 
+import {
+  getFullExportConfig,
+  getFullExportConfigFromDirectory,
+} from '../utils/Config';
 import { printMessage } from '../utils/Console';
 import { extractScriptToFile } from './ScriptOps';
 
@@ -18,18 +23,18 @@ const {
   getFilePath,
   getWorkingDirectory,
 } = frodo.utils;
-const { exportFullConfiguration } = frodo.config;
+const { exportFullConfiguration, importFullConfiguration } = frodo.config;
 const { stringify } = frodo.utils.json;
 
 /**
  * Export everything to separate files
- * @param file file name
+ * @param {String} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  */
 export async function exportEverythingToFile(
-  file,
-  includeMeta = true,
+  file: string,
+  includeMeta: boolean = true,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -48,13 +53,13 @@ export async function exportEverythingToFile(
 
 /**
  * Export everything to separate files
- * @param extract Extracts the scripts from the exports into separate files if true
+ * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  */
 export async function exportEverythingToFiles(
-  extract = false,
-  includeMeta = true,
+  extract: boolean = false,
+  includeMeta: boolean = true,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -184,4 +189,39 @@ export async function exportEverythingToFiles(
       }
     }
   });
+}
+
+/**
+ * Import everything from a single file
+ * @param {String} file The file path
+ * @param {FullImportOptions} options import options
+ */
+export async function importEverythingFromFile(
+  file: string,
+  options: FullImportOptions = {
+    reUuidJourneys: false,
+    reUuidScripts: false,
+    cleanServices: false,
+    global: false,
+    realm: false,
+  }
+) {
+  const data = await getFullExportConfig(file);
+  await importFullConfiguration(data, options);
+}
+
+/**
+ * Import everything from separate files
+ */
+export async function importEverythingFromFiles(
+  options: FullImportOptions = {
+    reUuidJourneys: false,
+    reUuidScripts: false,
+    cleanServices: false,
+    global: false,
+    realm: false,
+  }
+) {
+  const data = await getFullExportConfigFromDirectory(state.getDirectory());
+  await importFullConfiguration(data, options);
 }
