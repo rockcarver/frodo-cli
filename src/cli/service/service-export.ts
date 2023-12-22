@@ -24,6 +24,7 @@ interface ServiceExportOptions {
   debug?: boolean;
   curlirize?: boolean;
   global?: boolean;
+  metadata?: boolean;
 }
 
 program
@@ -40,6 +41,12 @@ program
     new Option(
       '-A, --all-separate',
       'Export all services to separate files (*.service.json) in the current directory. Ignored with -a.'
+    )
+  )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
     )
   )
   .addOption(new Option('-g, --global', 'Export global services.'))
@@ -69,18 +76,23 @@ program
         await exportServiceToFile(
           options.serviceId,
           options.file,
-          globalConfig
+          globalConfig,
+          options.metadata
         );
       }
       // -a / --all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all services to a single file...');
-        await exportServicesToFile(options.file, globalConfig);
+        await exportServicesToFile(
+          options.file,
+          globalConfig,
+          options.metadata
+        );
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all services to separate files...');
-        await exportServicesToFiles(globalConfig);
+        await exportServicesToFiles(globalConfig, options.metadata);
       }
       // unrecognized combination of options or no options
       else {

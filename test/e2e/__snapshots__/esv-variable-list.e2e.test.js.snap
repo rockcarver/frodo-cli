@@ -1,63 +1,64 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable list "frodo esv variable list --long": should list the ids, values, statuses, descriptions, modifiers, and modified times of the esv variables 1`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier                            │Modified (UTC)               
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:21:38 GMT
-esv-ipv4-cidr-access-rules       │{  "allow": [    "150.128.0.0/16",      │loaded│IPv4 CIDR access rules:                 │8efaa5b6-8c98-4489-9b21-ee41f5589ab7│Thu, 25 Aug 2022 22:54:28 GMT
-                                 │"139.35.0.0/16",    "101.216.0.0/16",   │      │{                                       │                                    │                             
-                                 │"99.72.28.182/32"  ]}                   │      │"allow": [                              │                                    │                             
-                                 │                                        │      │"address/mask"                          │                                    │                             
-                                 │                                        │      │]                                       │                                    │                             
-                                 │                                        │      │}                                       │                                    │                             
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 21:59:58 GMT
-                                 │                                        │      │hovercraft.                             │                                    │                             
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:09:54 GMT
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                                    │                             
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:21:23 GMT
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │8efaa5b6-8c98-4489-9b21-ee41f5589ab7│Fri, 02 Sep 2022 04:23:56 GMT
-esv-test-var-1                   │test var 1 value2                       │loaded│test var one                            │b672336b-41ef-428d-ae4a-e0c082875377│Wed, 09 Aug 2023 17:42:41 GMT
-esv-test-var-2                   │testval                                 │loaded│A temporary test variable               │b672336b-41ef-428d-ae4a-e0c082875377│Wed, 02 Aug 2023 21:09:01 GMT
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 20:33:28 GMT
-                                 │                                        │      │phone number Trinity is calling from is │                                    │                             
-                                 │                                        │      │traced to (312)-555-0690                │                                    │                             
-esv-volkerstestvariable1         │for jest                                │loaded│variable created for api testing        │10ecab02-f357-4522-bc17-dfcc64744064│Wed, 30 Nov 2022 00:13:52 GMT
+exports[`frodo esv variable list "frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/everything": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all-separate/everything directory 1`] = `
+"Id                         │Value                          │Status│Description                            │Modifier                            │Modified (UTC)               │Used                                                                                
+esv-test-variable-belphegor│1000000000000066600000000000001│loaded│A test variable containing belphegor's │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:31:06 GMT│no                                                                                  
+                           │                               │      │palindromic prime number (as a string).│                                    │                             │                                                                                    
+esv-test-variable-light    │299792458                      │loaded│Test variable containing the speed of  │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:34:13 GMT│yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+                           │                               │      │light in meters per second (as an int).│                                    │                             │                                                                                    
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list --usage --long --file test/e2e/exports/all/Alpha.everything.json": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the Alpha.everything.json file 1`] = `
+"Id                         │Value                          │Status│Description                            │Modifier                            │Modified (UTC)               │Used                                                                                
+esv-test-variable-belphegor│1000000000000066600000000000001│loaded│A test variable containing belphegor's │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:31:06 GMT│no                                                                                  
+                           │                               │      │palindromic prime number (as a string).│                                    │                             │                                                                                    
+esv-test-variable-light    │299792458                      │loaded│Test variable containing the speed of  │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:34:13 GMT│yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+                           │                               │      │light in meters per second (as an int).│                                    │                             │                                                                                    
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -l": should list the ids, values, statuses, descriptions, modifiers, and modified times of the esv variables 1`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier                            │Modified (UTC)               
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:21:38 GMT
-esv-ipv4-cidr-access-rules       │{  "allow": [    "150.128.0.0/16",      │loaded│IPv4 CIDR access rules:                 │8efaa5b6-8c98-4489-9b21-ee41f5589ab7│Thu, 25 Aug 2022 22:54:28 GMT
-                                 │"139.35.0.0/16",    "101.216.0.0/16",   │      │{                                       │                                    │                             
-                                 │"99.72.28.182/32"  ]}                   │      │"allow": [                              │                                    │                             
-                                 │                                        │      │"address/mask"                          │                                    │                             
-                                 │                                        │      │]                                       │                                    │                             
-                                 │                                        │      │}                                       │                                    │                             
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 21:59:58 GMT
-                                 │                                        │      │hovercraft.                             │                                    │                             
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:09:54 GMT
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                                    │                             
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 22:21:23 GMT
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │8efaa5b6-8c98-4489-9b21-ee41f5589ab7│Fri, 02 Sep 2022 04:23:56 GMT
-esv-test-var-1                   │test var 1 value2                       │loaded│test var one                            │b672336b-41ef-428d-ae4a-e0c082875377│Wed, 09 Aug 2023 17:42:41 GMT
-esv-test-var-2                   │testval                                 │loaded│A temporary test variable               │b672336b-41ef-428d-ae4a-e0c082875377│Wed, 02 Aug 2023 21:09:01 GMT
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│b672336b-41ef-428d-ae4a-e0c082875377│Tue, 18 Jul 2023 20:33:28 GMT
-                                 │                                        │      │phone number Trinity is calling from is │                                    │                             
-                                 │                                        │      │traced to (312)-555-0690                │                                    │                             
-esv-volkerstestvariable1         │for jest                                │loaded│variable created for api testing        │10ecab02-f357-4522-bc17-dfcc64744064│Wed, 30 Nov 2022 00:13:52 GMT
+"Id                         │Value                          │Status│Description                            │Modifier                            │Modified (UTC)               
+esv-test-variable-belphegor│1000000000000066600000000000001│loaded│A test variable containing belphegor's │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:31:06 GMT
+                           │                               │      │palindromic prime number (as a string).│                                    │                             
+esv-test-variable-light    │299792458                      │loaded│Test variable containing the speed of  │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:34:13 GMT
+                           │                               │      │light in meters per second (as an int).│                                    │                             
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 1`] = `
+"Id                         │Value                          │Status│Description                            │Modifier                            │Modified (UTC)               │Used                                                                                
+esv-test-variable-belphegor│1000000000000066600000000000001│loaded│A test variable containing belphegor's │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:31:06 GMT│no                                                                                  
+                           │                               │      │palindromic prime number (as a string).│                                    │                             │                                                                                    
+esv-test-variable-light    │299792458                      │loaded│Test variable containing the speed of  │1e9280f6-eab6-467e-889c-83d147c8b936│Thu, 14 Dec 2023 15:34:13 GMT│yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+                           │                               │      │light in meters per second (as an int).│                                    │                             │                                                                                    
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 1`] = `
+"Id                         │Used                                                                                
+esv-test-variable-belphegor│no                                                                                  
+esv-test-variable-light    │yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -uD test/e2e/exports/all-separate/everything": should list the usage of the esv variables in the test/e2e/exports/all-separate/everything directory 1`] = `
+"Id                         │Used                                                                                
+esv-test-variable-belphegor│no                                                                                  
+esv-test-variable-light    │yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -uf test/e2e/exports/all/Alpha.everything.json": should list the usage of the esv variables in the Alpha.everything.json file 1`] = `
+"Id                         │Used                                                                                
+esv-test-variable-belphegor│no                                                                                  
+esv-test-variable-light    │yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list": should list the ids of the esv variables 1`] = `
-"esv-blue-piller
-esv-ipv4-cidr-access-rules
-esv-nebuchadnezzar-crew
-esv-nebuchadnezzar-crew-structure
-esv-neo-age
-esv-test-var
-esv-test-var-1
-esv-test-var-2
-esv-trinity-phone
-esv-volkerstestvariable1
+"esv-test-variable-belphegor
+esv-test-variable-light
 "
 `;

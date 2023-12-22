@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.986Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "739bdc48-fd24-4c52-b353-88706d75558a": {
+      "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Check if username has already been collected.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Check Username",
+      "script": "file://test/e2e/exports/all-separate/everything/script/Check-Username.script.js"
+    }
+  }
+}

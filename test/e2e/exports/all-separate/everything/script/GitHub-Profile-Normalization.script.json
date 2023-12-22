@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.985Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "a7a78773-445b-4eca-bb93-409e86bced81": {
+      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "GitHub Profile Normalization",
+      "script": "file://test/e2e/exports/all-separate/everything/script/GitHub-Profile-Normalization.script.groovy"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.980Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "saml": {
+    "cot": {
+      "2f04818d-561e-4f8a-82e8-af2426112138": {
+        "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": [
+          "benefits-IDP|saml2",
+          "iSPAzure|saml2"
+        ]
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.994Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "248b8a56-df81-4b1b-b4ba-45d994f6504c": {
+      "_id": "248b8a56-df81-4b1b-b4ba-45d994f6504c",
+      "context": "SAML2_IDP_ADAPTER",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for SAML2 IDP Adapter",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "SAML2 IDP Adapter Script",
+      "script": "file://test/e2e/exports/all-separate/everything/script/SAML2-IDP-Adapter-Script.script.js"
+    }
+  }
+}

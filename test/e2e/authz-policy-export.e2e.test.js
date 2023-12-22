@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -i 'Test Policy'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --policy-id 'Test Policy' -f my-Test-Policy.policy.authz.json --set-id test-policy-set --no-deps --prereqs
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -i 'Test Policy' -D authzPolicyExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -Ni 'Test Policy' -D authzPolicyExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --all --file my-allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -aD authzPolicyExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -NaD authzPolicyExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --all-separate --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo authz policy export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo authz policy export -i \'Test Policy\' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1', async () => {
+    test('"frodo authz policy export -Ni \'Test Policy\' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1', async () => {
         const exportDirectory = "authzPolicyExportTestDir1";
-        const CMD = `frodo authz policy export -i 'Test Policy' -D ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo authz policy export -Ni 'Test Policy' -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo authz policy export -a": should export all policies to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo authz policy export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo authz policy export -aD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2', async () => {
+    test('"frodo authz policy export -NaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2', async () => {
         const exportDirectory = "authzPolicyExportTestDir2";
-        const CMD = `frodo authz policy export -aD ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo authz policy export -NaD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo authz policy export -A": should export all policies to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo authz policy export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo authz policy export --all-separate --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs', async () => {
+    test('"frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs', async () => {
         const exportDirectory = "authzPolicyExportTestDir3";
-        const CMD = `frodo authz policy export --all-separate --directory ${exportDirectory} --set-id test-policy-set --no-deps --prereqs`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo authz policy export --all-separate --no-metadata --directory ${exportDirectory} --set-id test-policy-set --no-deps --prereqs`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

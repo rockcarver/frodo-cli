@@ -47,14 +47,14 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -i test2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export --app-id test2 --no-deps -f my-nodeps-test2.oauth2.app.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -i test2 -D oauthClientExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -i RCSClient
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -aD oauthClientExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -NaD oauthClientExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export --all-separate --directory oauthClientExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -70,22 +70,22 @@ env.env.FRODO_SA_JWK = c.saJwk;
 const type = 'oauth2.app';
 
 describe('frodo oauth client export', () => {
-    test('"frodo oauth client export -i test2": should export the oauth client with oauth client id "test2"', async () => {
-        const exportFile = "test2.oauth2.app.json";
-        const CMD = `frodo oauth client export -i test2`;
+    test('"frodo oauth client export -i RCSClient": should export the oauth client with oauth client id "RCSClient"', async () => {
+        const exportFile = "RCSClient.oauth2.app.json";
+        const CMD = `frodo oauth client export -i RCSClient`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo oauth client export --app-id test2 --no-deps -f my-nodeps-test2.oauth2.app.json": should export the oauth client with oauth client id "test2" with no dependencies into a file named my-nodeps-test2.oauth2.app.json', async () => {
-        const exportFile = "my-nodeps-test2.oauth2.app.json";
-        const CMD = `frodo oauth client export --app-id test2 --no-deps -f ${exportFile}`;
+    test('"frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json": should export the oauth client with oauth client id "RCSClient" with no dependencies into a file named my-nodeps-RCSClient.oauth2.app.json', async () => {
+        const exportFile = "my-nodeps-RCSClient.oauth2.app.json";
+        const CMD = `frodo oauth client export --app-id RCSClient --no-deps -f ${exportFile}`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo oauth client export -i test2 -D oauthClientExportTestDir1": should export the oauth client with oauth client id "test2" to the directory oauthClientExportTestDir1', async () => {
+    test('"frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1": should export the oauth client with oauth client id "RCSClient" to the directory oauthClientExportTestDir1', async () => {
         const exportDirectory = "oauthClientExportTestDir1";
-        const CMD = `frodo oauth client export -i test2 -D ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo oauth client export -Ni RCSClient -D ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo oauth client export -a": should export all oauth clients to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo oauth client export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo oauth client export -aD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2', async () => {
+    test('"frodo oauth client export -NaD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2', async () => {
         const exportDirectory = "oauthClientExportTestDir2";
-        const CMD = `frodo oauth client export -aD ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, "oauthClientExportTestDir2");
+        const CMD = `frodo oauth client export -NaD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, "oauthClientExportTestDir2", false);
     });
 
     test('"frodo oauth client export -A": should export all oauth clients to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo oauth client export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo oauth client export --all-separate --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3', async () => {
+    test('"frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3', async () => {
         const exportDirectory = 'oauthClientExportTestDir3';
-        const CMD = `frodo oauth client export --all-separate --directory ${exportDirectory}`;
-        await testExport(CMD, env, type, undefined, exportDirectory);
+        const CMD = `frodo oauth client export --all-separate --no-metadata --directory ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

@@ -5,6 +5,7 @@ import {
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
 
+import { getFullExportConfig, isIdUsed } from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -14,12 +15,6 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
-  getTypedFilename,
-  saveJsonToFile,
-  saveToFile,
-  titleCase,
-} from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
 const { resolveUserName } = frodo.idm.managed;
@@ -38,15 +33,21 @@ const {
   deleteVersionOfSecret: _deleteVersionOfSecret,
 } = frodo.cloud.secret;
 
-const { getFilePath } = frodo.utils;
+const { getFilePath, getTypedFilename, saveJsonToFile, saveToFile, titleCase } =
+  frodo.utils;
 
 /**
  * List secrets
- * @param {boolean} long Long version, all the fields
+ * @param {boolean} long Long version, all the fields besides usage
+ * @param {boolean} usage Display usage field
+ * @param {String | null} file Optional filename to determine usage
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listSecrets(long: boolean): Promise<boolean> {
-  let outcome = false;
+export async function listSecrets(
+  long: boolean = false,
+  usage: boolean = false,
+  file: string | null = null
+): Promise<boolean> {
   let spinnerId: string;
   let secrets: SecretSkeleton[] = [];
   try {
@@ -68,19 +69,44 @@ export async function listSecrets(long: boolean): Promise<boolean> {
       `Error reading secrets: ${error.response?.data || error.message}`,
       'fail'
     );
+    return false;
   }
-  if (long) {
-    const table = createTable([
-      'Id'['brightCyan'],
-      { hAlign: 'right', content: 'Active\nVersion'['brightCyan'] },
-      { hAlign: 'right', content: 'Loaded\nVersion'['brightCyan'] },
-      'Status'['brightCyan'],
-      'Description'['brightCyan'],
-      'Modifier'['brightCyan'],
-      'Modified (UTC)'['brightCyan'],
-    ]);
-    for (const secret of secrets) {
-      let lastChangedBy = secret.lastChangedBy;
+  if (!long && !usage) {
+    secrets.forEach((variable) => {
+      printMessage(variable._id, 'data');
+    });
+    return true;
+  }
+  let fullExport = null;
+  const headers = long
+    ? [
+        'Id'['brightCyan'],
+        { hAlign: 'right', content: 'Active\nVersion'['brightCyan'] },
+        { hAlign: 'right', content: 'Loaded\nVersion'['brightCyan'] },
+        'Status'['brightCyan'],
+        'Description'['brightCyan'],
+        'Modifier'['brightCyan'],
+        'Modified (UTC)'['brightCyan'],
+      ]
+    : ['Id'['brightCyan']];
+  if (usage) {
+    try {
+      fullExport = await getFullExportConfig(file);
+    } catch (error) {
+      printMessage(
+        `Error getting full export: ${error.response?.data || error.message}`,
+        'error'
+      );
+      return false;
+    }
+    //Delete secrets from full export so they aren't mistakenly used for determining usage
+    delete fullExport.secrets;
+    headers.push('Used'['brightCyan']);
+  }
+  const table = createTable(headers);
+  for (const secret of secrets) {
+    let lastChangedBy = secret.lastChangedBy;
+    if (long) {
       try {
         lastChangedBy = state.getUseBearerTokenForAmApis()
           ? secret.lastChangedBy
@@ -88,25 +114,30 @@ export async function listSecrets(long: boolean): Promise<boolean> {
       } catch (error) {
         // ignore
       }
-      table.push([
-        secret._id,
-        { hAlign: 'right', content: secret.activeVersion },
-        { hAlign: 'right', content: secret.loadedVersion },
-        secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-        wordwrap(secret.description, 40),
-        lastChangedBy,
-        new Date(secret.lastChangeDate).toUTCString(),
-      ]);
     }
-    printMessage(table.toString(), 'data');
-    outcome = true;
-  } else {
-    secrets.forEach((secret) => {
-      printMessage(secret._id, 'data');
-    });
-    outcome = true;
+    const values = long
+      ? [
+          secret._id,
+          { hAlign: 'right', content: secret.activeVersion },
+          { hAlign: 'right', content: secret.loadedVersion },
+          secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          wordwrap(secret.description, 40),
+          lastChangedBy,
+          new Date(secret.lastChangeDate).toUTCString(),
+        ]
+      : [secret._id];
+    if (usage) {
+      const isEsvUsed = isIdUsed(fullExport, secret._id, true);
+      values.push(
+        isEsvUsed.used
+          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+          : 'no'['brightRed']
+      );
+    }
+    table.push(values);
   }
-  return outcome;
+  printMessage(table.toString(), 'data');
+  return true;
 }
 
 /**
@@ -380,11 +411,13 @@ export async function describeSecret(secretId: string): Promise<boolean> {
  * Export a single secret to file
  * @param {String} secretId Secret id
  * @param {String} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretToFile(
   secretId: string,
-  file: string | null
+  file: string | null,
+  includeMeta: boolean
 ): Promise<boolean> {
   debugMessage(
     `Cli.SecretsOps.exportSecretToFile: start [secretId=${secretId}, file=${file}]`
@@ -403,7 +436,7 @@ export async function exportSecretToFile(
       `Exporting secret ${secretId}`
     );
     const fileData = await exportSecret(secretId);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported ${secretId['brightCyan']} to ${filePath['brightCyan']}.`,
@@ -426,9 +459,13 @@ export async function exportSecretToFile(
 /**
  * Export all secrets to single file
  * @param {string} file Optional filename
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportSecretsToFile(file: string): Promise<boolean> {
+export async function exportSecretsToFile(
+  file: string,
+  includeMeta: boolean
+): Promise<boolean> {
   debugMessage(`Cli.SecretsOps.exportSecretsToFile: start [file=${file}]`);
   let outcome = false;
   let fileName = file;
@@ -440,7 +477,7 @@ export async function exportSecretsToFile(file: string): Promise<boolean> {
   }
   try {
     const secretsExport = await exportSecrets();
-    saveJsonToFile(secretsExport, getFilePath(fileName, true));
+    saveJsonToFile(secretsExport, getFilePath(fileName, true), includeMeta);
     outcome = true;
   } catch (error) {
     printMessage(error.message, 'error');
@@ -452,9 +489,12 @@ export async function exportSecretsToFile(file: string): Promise<boolean> {
 
 /**
  * Export all secrets to individual files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportSecretsToFiles(): Promise<boolean> {
+export async function exportSecretsToFiles(
+  includeMeta: boolean
+): Promise<boolean> {
   let outcome = false;
   let secrets: SecretSkeleton[] = [];
   const spinnerId = createProgressIndicator(
@@ -485,7 +525,13 @@ export async function exportSecretsToFiles(): Promise<boolean> {
   for (const secret of secrets) {
     updateProgressIndicator(indicatorId, `Writing secret ${secret._id}`);
     const fileName = getTypedFilename(secret._id, 'secret');
-    saveToFile('secret', secret, '_id', getFilePath(fileName, true));
+    saveToFile(
+      'secret',
+      secret,
+      '_id',
+      getFilePath(fileName, true),
+      includeMeta
+    );
   }
   stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
   outcome = true;

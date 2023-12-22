@@ -49,12 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --idp-id google
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -i google -f my-google.idp.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -i google -D idpExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -Ni google -D idpExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -a --file my-allAlphaProviders.idp.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -aD idpExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -NaD idpExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --all-separate --directory idpExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp export --all-separate --no-metadata --directory idpExportTestDir3
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -82,10 +82,10 @@ describe('frodo idp export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo idp export -i google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1', async () => {
+  test('"frodo idp export -Ni google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1', async () => {
     const exportDirectory = 'idpExportTestDir1';
-    const CMD = `frodo idp export -i google -D ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo idp export -Ni google -D ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo idp export --all": should export all idp providers to a single file', async () => {
@@ -100,10 +100,10 @@ describe('frodo idp export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo idp export -aD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2', async () => {
+  test('"frodo idp export -NaD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2', async () => {
     const exportDirectory = 'idpExportTestDir2';
-    const CMD = `frodo idp export -aD ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo idp export -NaD ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
   test('"frodo idp export -A": should export all idp providers to separate files', async () => {
@@ -111,9 +111,9 @@ describe('frodo idp export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo idp export --all-separate --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3', async () => {
+  test('"frodo idp export --all-separate --no-metadata --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3', async () => {
     const exportDirectory = "idpExportTestDir3";
-    const CMD = `frodo idp export --all-separate --directory ${exportDirectory}`;
-    await testExport(CMD, env, type, undefined, exportDirectory);
+    const CMD = `frodo idp export --all-separate --no-metadata --directory ${exportDirectory}`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });

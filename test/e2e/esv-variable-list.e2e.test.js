@@ -49,7 +49,12 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list -l
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list --long
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list -u
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list -lu
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list -uf test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list --usage --long --file test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list -uD test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/everything
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -79,8 +84,38 @@ describe('frodo esv variable list', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo esv variable list --long": should list the ids, values, statuses, descriptions, modifiers, and modified times of the esv variables', async () => {
-        const CMD = `frodo esv variable list --long`;
+    test('"frodo esv variable list -u": should list the usage of the esv variables', async () => {
+        const CMD = `frodo esv variable list -u`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables', async () => {
+        const CMD = `frodo esv variable list -lu`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo esv variable list -uf test/e2e/exports/all/Alpha.everything.json": should list the usage of the esv variables in the Alpha.everything.json file', async () => {
+        const CMD = `frodo esv variable list -uf test/e2e/exports/all/Alpha.everything.json`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo esv variable list --usage --long --file test/e2e/exports/all/Alpha.everything.json": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the Alpha.everything.json file', async () => {
+        const CMD = `frodo esv variable list --usage --long --file test/e2e/exports/all/Alpha.everything.json`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo esv variable list -uD test/e2e/exports/all-separate/everything": should list the usage of the esv variables in the test/e2e/exports/all-separate/everything directory', async () => {
+        const CMD = `frodo esv variable list -uD test/e2e/exports/all-separate/everything`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test('"frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/everything": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all-separate/everything directory', async () => {
+        const CMD = `frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/everything`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

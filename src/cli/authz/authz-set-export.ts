@@ -36,6 +36,12 @@ program
   )
   .addOption(
     new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
+  .addOption(
+    new Option(
       '--no-deps',
       'Do not include any dependencies (policies, scripts).'
     )
@@ -58,6 +64,7 @@ program
         const outcome = await exportPolicySetToFile(
           options.setId,
           options.file,
+          options.metadata,
           {
             useStringArrays: true,
             deps: options.deps,
@@ -69,11 +76,15 @@ program
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all authorization policy sets to file...');
-        const outcome = await exportPolicySetsToFile(options.file, {
-          useStringArrays: true,
-          deps: options.deps,
-          prereqs: options.prereqs,
-        });
+        const outcome = await exportPolicySetsToFile(
+          options.file,
+          options.metadata,
+          {
+            useStringArrays: true,
+            deps: options.deps,
+            prereqs: options.prereqs,
+          }
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
@@ -81,7 +92,7 @@ program
         verboseMessage(
           'Exporting all authorization policy sets to separate files...'
         );
-        const outcome = await exportPolicySetsToFiles({
+        const outcome = await exportPolicySetsToFiles(options.metadata, {
           useStringArrays: true,
           deps: options.deps,
           prereqs: options.prereqs,

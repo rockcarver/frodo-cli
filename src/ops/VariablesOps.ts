@@ -4,6 +4,7 @@ import {
   VariableSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
+import { getFullExportConfig, isIdUsed } from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -13,15 +14,16 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
+import wordwrap from './utils/Wordwrap';
+
+const {
+  decodeBase64,
+  getFilePath,
   getTypedFilename,
   saveJsonToFile,
   saveToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-import wordwrap from './utils/Wordwrap';
-
-const { decodeBase64, getFilePath } = frodo.utils;
+} = frodo.utils;
 const { resolvePerpetratorUuid } = frodo.idm.managed;
 const {
   readVariables,
@@ -35,11 +37,16 @@ const {
 
 /**
  * List variables
- * @param {boolean} long Long version, all the fields
+ * @param {boolean} long Long version, all the fields besides usage
+ * @param {boolean} usage Display usage field
+ * @param {String | null} file Optional filename to determine usage
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listVariables(long: boolean): Promise<boolean> {
-  let outcome = false;
+export async function listVariables(
+  long: boolean = false,
+  usage: boolean = false,
+  file: string | null = null
+): Promise<boolean> {
   let spinnerId: string;
   let variables: VariableSkeleton[] = [];
   try {
@@ -61,37 +68,65 @@ export async function listVariables(long: boolean): Promise<boolean> {
       `Error reading variables: ${error.response?.data || error.message}`,
       'fail'
     );
+    return false;
   }
-  if (long) {
-    const table = createTable([
-      'Id'['brightCyan'],
-      'Value'['brightCyan'],
-      'Status'['brightCyan'],
-      'Description'['brightCyan'],
-      'Modifier'['brightCyan'],
-      'Modified (UTC)'['brightCyan'],
-    ]);
-    for (const variable of variables) {
-      table.push([
-        variable._id,
-        wordwrap(decodeBase64(variable.valueBase64), 40),
-        variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-        wordwrap(variable.description, 40),
-        state.getUseBearerTokenForAmApis()
-          ? variable.lastChangedBy
-          : await resolvePerpetratorUuid(variable.lastChangedBy),
-        new Date(variable.lastChangeDate).toUTCString(),
-      ]);
-    }
-    printMessage(table.toString(), 'data');
-    outcome = true;
-  } else {
+  if (!long && !usage) {
     variables.forEach((variable) => {
       printMessage(variable._id, 'data');
     });
-    outcome = true;
+    return true;
   }
-  return outcome;
+  let fullExport = null;
+  const headers = long
+    ? [
+        'Id'['brightCyan'],
+        'Value'['brightCyan'],
+        'Status'['brightCyan'],
+        'Description'['brightCyan'],
+        'Modifier'['brightCyan'],
+        'Modified (UTC)'['brightCyan'],
+      ]
+    : ['Id'['brightCyan']];
+  if (usage) {
+    try {
+      fullExport = await getFullExportConfig(file);
+    } catch (error) {
+      printMessage(
+        `Error getting full export: ${error.response?.data || error.message}`,
+        'error'
+      );
+      return false;
+    }
+    //Delete variables from full export so they aren't mistakenly used for determining usage
+    delete fullExport.variables;
+    headers.push('Used'['brightCyan']);
+  }
+  const table = createTable(headers);
+  for (const variable of variables) {
+    const values = long
+      ? [
+          variable._id,
+          wordwrap(decodeBase64(variable.valueBase64), 40),
+          variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          wordwrap(variable.description, 40),
+          state.getUseBearerTokenForAmApis()
+            ? variable.lastChangedBy
+            : await resolvePerpetratorUuid(variable.lastChangedBy),
+          new Date(variable.lastChangeDate).toUTCString(),
+        ]
+      : [variable._id];
+    if (usage) {
+      const isEsvUsed = isIdUsed(fullExport, variable._id, true);
+      values.push(
+        isEsvUsed.used
+          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+          : 'no'['brightRed']
+      );
+    }
+    table.push(values);
+  }
+  printMessage(table.toString(), 'data');
+  return true;
 }
 
 /**
@@ -339,12 +374,14 @@ export async function describeVariable(variableId, json = false) {
  * @param {String} variableId Variable id
  * @param {String} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariableToFile(
   variableId: string,
   file: string | null,
-  noDecode: boolean
+  noDecode: boolean,
+  includeMeta: boolean
 ) {
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
@@ -363,7 +400,7 @@ export async function exportVariableToFile(
       `Exporting variable ${variableId}`
     );
     const fileData = await exportVariable(variableId, noDecode);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
     stopProgressIndicator(
       indicatorId,
@@ -385,11 +422,13 @@ export async function exportVariableToFile(
  * Export all variables to single file
  * @param {string} file Optional filename
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFile(
   file: string | null,
-  noDecode: boolean
+  noDecode: boolean,
+  includeMeta: boolean
 ) {
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
   let outcome = false;
@@ -406,7 +445,7 @@ export async function exportVariablesToFile(
   }
   try {
     const variablesExport = await exportVariables(noDecode);
-    saveJsonToFile(variablesExport, getFilePath(file, true));
+    saveJsonToFile(variablesExport, getFilePath(file, true), includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported variables to ${file}`,
@@ -429,9 +468,13 @@ export async function exportVariablesToFile(
 /**
  * Export all variables to seperate files
  * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportVariablesToFiles(noDecode: boolean) {
+export async function exportVariablesToFiles(
+  noDecode: boolean,
+  includeMeta: boolean
+) {
   let outcome = false;
   let spinnerId: string;
   let indicatorId: string;
@@ -467,7 +510,13 @@ export async function exportVariablesToFiles(noDecode: boolean) {
       }
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
       const fileName = getTypedFilename(variable._id, 'variable');
-      saveToFile('variable', variable, '_id', getFilePath(fileName, true));
+      saveToFile(
+        'variable',
+        variable,
+        '_id',
+        getFilePath(fileName, true),
+        includeMeta
+      );
     }
     stopProgressIndicator(
       indicatorId,

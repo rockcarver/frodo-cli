@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'authz type' should be expected english 1`] = `
+"Usage: frodo authz type [options] [command]
+
+Manage authorization resource types.
+
+Options:
+  -h, --help      Help
+
+Commands:
+  delete          Delete authorization resource types.
+  describe        Describe authorization resource types.
+  export          Export authorization resource types.
+  help [command]  display help for command
+  import          Import authorization resource types.
+  list            List authorization resource types.
+"
+`;

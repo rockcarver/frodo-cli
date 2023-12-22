@@ -17,11 +17,15 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import { saveJsonToFile } from '../utils/ExportImportUtils';
 import wordwrap from './utils/Wordwrap';
 
-const { getTypedFilename, titleCase, getFilePath, getWorkingDirectory } =
-  frodo.utils;
+const {
+  getTypedFilename,
+  titleCase,
+  getFilePath,
+  getWorkingDirectory,
+  saveJsonToFile,
+} = frodo.utils;
 const {
   readApplications: _readApplications,
   deleteApplicationByName: _deleteApplicationByName,
@@ -131,12 +135,14 @@ export async function deleteApplications(deep: boolean): Promise<boolean> {
  * Export application to file
  * @param {string} applicationName application name
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportApplicationToFile(
   applicationName: string,
   file: string,
+  includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ) {
   let outcome = false;
@@ -149,7 +155,7 @@ export async function exportApplicationToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplicationByName(applicationName, options);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${applicationName} to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -162,11 +168,13 @@ export async function exportApplicationToFile(
 /**
  * Export all applications to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportApplicationsToFile(
   file: string,
+  includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ): Promise<boolean> {
   let outcome = false;
@@ -182,7 +190,7 @@ export async function exportApplicationsToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplications(options);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all applications to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -195,10 +203,12 @@ export async function exportApplicationsToFile(
 
 /**
  * Export all applications to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportApplicationsToFiles(
+  includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ) {
   debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: begin`);
@@ -224,7 +234,7 @@ export async function exportApplicationsToFiles(
       try {
         updateProgressIndicator(barId, `Exporting ${application.name}.`);
         const exportData = await _exportApplication(application._id, options);
-        saveJsonToFile(exportData, file);
+        saveJsonToFile(exportData, file, includeMeta);
         updateProgressIndicator(
           fileBarId,
           `Saving ${application.name} to ${file}.`

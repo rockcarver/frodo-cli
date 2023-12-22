@@ -42,6 +42,12 @@ program
       'Export policies to separate files (*.policy.authz.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .addOption(new Option('--no-deps', 'Do not include dependencies (scripts).'))
   .addOption(
     new Option(
@@ -66,6 +72,7 @@ program
         const outcome = await exportPolicyToFile(
           options.policyId,
           options.file,
+          options.metadata,
           {
             deps: options.deps,
             prereqs: options.prereqs,
@@ -82,6 +89,7 @@ program
         const outcome = await exportPoliciesByPolicySetToFile(
           options.setId,
           options.file,
+          options.metadata,
           {
             deps: options.deps,
             prereqs: options.prereqs,
@@ -93,11 +101,15 @@ program
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all authorization policies to file...');
-        const outcome = await exportPoliciesToFile(options.file, {
-          deps: options.deps,
-          prereqs: options.prereqs,
-          useStringArrays: true,
-        });
+        const outcome = await exportPoliciesToFile(
+          options.file,
+          options.metadata,
+          {
+            deps: options.deps,
+            prereqs: options.prereqs,
+            useStringArrays: true,
+          }
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate by policy set
@@ -105,11 +117,15 @@ program
         verboseMessage(
           `Exporting all authorization policies in policy set ${options.setId} to separate files...`
         );
-        const outcome = await exportPoliciesByPolicySetToFiles(options.setId, {
-          deps: options.deps,
-          prereqs: options.prereqs,
-          useStringArrays: true,
-        });
+        const outcome = await exportPoliciesByPolicySetToFiles(
+          options.setId,
+          options.metadata,
+          {
+            deps: options.deps,
+            prereqs: options.prereqs,
+            useStringArrays: true,
+          }
+        );
         if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
@@ -117,7 +133,7 @@ program
         verboseMessage(
           'Exporting all authorization policies to separate files...'
         );
-        const outcome = await exportPoliciesToFiles({
+        const outcome = await exportPoliciesToFiles(options.metadata, {
           deps: options.deps,
           prereqs: options.prereqs,
           useStringArrays: true,

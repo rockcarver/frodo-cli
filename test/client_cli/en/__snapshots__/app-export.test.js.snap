@@ -56,6 +56,7 @@ Options:
                                templates or how to walk through the tenant
                                admin login flow of Identity Cloud and handle
                                MFA (choices: "classic", "cloud", "forgeops")
+  -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
   --no-deps                    Do not include any dependencies (scripts).
   --sa-id <sa-id>              Service account id.

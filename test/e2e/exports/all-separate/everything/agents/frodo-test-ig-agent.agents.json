@@ -1,0 +1,27 @@
+{
+  "agents": {
+    "frodo-test-ig-agent": {
+      "_id": "frodo-test-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+      "igCdssoRedirectUrls": [
+        "http://testurl.com:8080/frodo"
+      ],
+      "igTokenIntrospection": "Realm",
+      "status": "Inactive"
+    }
+  },
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.958Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.988Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "c827d2b4-3608-4693-868e-bbcf86bd87c7": {
+      "_id": "c827d2b4-3608-4693-868e-bbcf86bd87c7",
+      "context": "AUTHENTICATION_CLIENT_SIDE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for client side Scripted Authentication Module",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Scripted Module - Client Side",
+      "script": "file://test/e2e/exports/all-separate/everything/script/Scripted-Module-Client-Side.script.js"
+    }
+  }
+}

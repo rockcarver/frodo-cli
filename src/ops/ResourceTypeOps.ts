@@ -15,13 +15,15 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import {
+
+const {
+  getRealmName,
   getTypedFilename,
   saveJsonToFile,
   titleCase,
-} from '../utils/ExportImportUtils';
-
-const { getRealmName, getFilePath, getWorkingDirectory } = frodo.utils;
+  getFilePath,
+  getWorkingDirectory,
+} = frodo.utils;
 const {
   readResourceTypes,
   readResourceType,
@@ -264,11 +266,13 @@ export async function deleteResourceTypes(): Promise<
  * Export resource type to file
  * @param {string} resourceTypeUuid resource type uuid
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeToFile(
   resourceTypeUuid: string,
-  file: string
+  file: string,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: begin`);
@@ -280,7 +284,7 @@ export async function exportResourceTypeToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceType(resourceTypeUuid);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${resourceTypeUuid} to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -294,11 +298,13 @@ export async function exportResourceTypeToFile(
  * Export resource type by name to file
  * @param {string} resourceTypeName resource type name
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeByNameToFile(
   resourceTypeName: string,
-  file: string
+  file: string,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: begin`);
@@ -310,7 +316,7 @@ export async function exportResourceTypeByNameToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypeByName(resourceTypeName);
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${resourceTypeName} to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -323,10 +329,12 @@ export async function exportResourceTypeByNameToFile(
 /**
  * Export resource types to file
  * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFile(
-  file: string
+  file: string,
+  includeMeta = true
 ): Promise<boolean> {
   let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: begin`);
@@ -341,7 +349,7 @@ export async function exportResourceTypesToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypes();
-    saveJsonToFile(exportData, filePath);
+    saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all resource types to ${filePath}.`);
     outcome = true;
   } catch (error) {
@@ -353,9 +361,12 @@ export async function exportResourceTypesToFile(
 
 /**
  * Export all resource types to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportResourceTypesToFiles(): Promise<boolean> {
+export async function exportResourceTypesToFiles(
+  includeMeta = true
+): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
   let indicatorId: string;
@@ -371,7 +382,7 @@ export async function exportResourceTypesToFiles(): Promise<boolean> {
       try {
         const exportData: ResourceTypeExportInterface =
           await exportResourceType(resourceType.uuid);
-        saveJsonToFile(exportData, getFilePath(file, true));
+        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
         updateProgressIndicator(indicatorId, `Exported ${resourceType.name}.`);
       } catch (error) {
         errors.push(error);

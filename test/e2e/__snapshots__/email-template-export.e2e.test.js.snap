@@ -99,9 +99,9 @@ exports[`frodo email template export "frodo email template export --all --file m
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `""`;
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `""`;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/forgottenUsername.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/forgottenUsername.template.email.json 1`] = `
 {
   "emailTemplate": {
     "forgottenUsername": {
@@ -125,11 +125,10 @@ exports[`frodo email template export "frodo email template export --all-separate
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/registration.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/registration.template.email.json 1`] = `
 {
   "emailTemplate": {
     "registration": {
@@ -153,11 +152,10 @@ exports[`frodo email template export "frodo email template export --all-separate
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/resetPassword.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/resetPassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "resetPassword": {
@@ -176,11 +174,10 @@ exports[`frodo email template export "frodo email template export --all-separate
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/updatePassword.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/updatePassword.template.email.json 1`] = `
 {
   "emailTemplate": {
     "updatePassword": {
@@ -201,32 +198,48 @@ exports[`frodo email template export "frodo email template export --all-separate
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/welcome.template.email.json 1`] = `
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/welcome.template.email.json 1`] = `
 {
   "emailTemplate": {
     "welcome": {
       "_id": "emailTemplate/welcome",
       "defaultLocale": "en",
+      "displayName": "Welcome",
       "enabled": true,
-      "from": "",
+      "from": "saas@forgerock.com",
       "html": {
-        "en": "<html><body><p>Welcome. Your username is '{{object.userName}}'.</p></body></html>",
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
       },
       "message": {
         "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
       },
       "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
       "subject": {
         "en": "Your account has been created",
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 
@@ -388,6 +401,166 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
+exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 1`] = `""`;
+
+exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2: emailTemplateExportTestDir2/allEmailTemplates.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "forgottenUsername": {
+      "_id": "emailTemplate/forgottenUsername",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "html": {
+        "en": "<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<p><a href="{{object.resumeURI}}">Click here to login</a></p></body></html>",
+        "fr": "<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></p></body></html>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #455469; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>{{#if object.userName}}Your username is '{{object.userName}}'.</p><p>{{else}}If you received this email in error, please disregard.{{/if}}</p><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Click here to login</a></p></div></body></html>",
+        "fr": "<html><head></head><body style="background-color: #324054; color: #455469; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;">{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Cliquez ici pour vous connecter</a></p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "subject": {
+        "en": "Account Information - username",
+        "fr": "Informations sur le compte - nom d'utilisateur",
+      },
+    },
+    "registration": {
+      "_id": "emailTemplate/registration",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "html": {
+        "en": "<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>",
+        "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Email verification link</a></p></div></body></html>",
+        "fr": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Lien de vérification email</a></p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "subject": {
+        "en": "Register new account",
+        "fr": "Créer un nouveau compte",
+      },
+    },
+    "resetPassword": {
+      "_id": "emailTemplate/resetPassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Click to reset your password</h3><h4><a href="{{object.resumeURI}}">Password reset link</a></h4>",
+        "fr": "<h3>Cliquez pour réinitialiser votre mot de passe</h3><h4><a href="{{object.resumeURI}}">Mot de passe lien de réinitialisation</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Reset your password",
+        "fr": "Réinitialisez votre mot de passe",
+      },
+    },
+    "updatePassword": {
+      "_id": "emailTemplate/updatePassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "html": {
+        "en": "<h3>Verify email to update password</h3><p><a href="{{object.resumeURI}}">Update password link</a></p>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3 id="verifyemailtoupdatepassword">Verify email to update password</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Update password link</a></p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+      "subject": {
+        "en": "Update your password",
+      },
+    },
+    "welcome": {
+      "_id": "emailTemplate/welcome",
+      "defaultLocale": "en",
+      "displayName": "Welcome",
+      "enabled": true,
+      "from": "saas@forgerock.com",
+      "html": {
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
+      "subject": {
+        "en": "Your account has been created",
+      },
+    },
+  },
+}
+`;
+
+exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1 1`] = `""`;
+
+exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1: emailTemplateExportTestDir1/welcome.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "welcome": {
+      "_id": "emailTemplate/welcome",
+      "defaultLocale": "en",
+      "displayName": "Welcome",
+      "enabled": true,
+      "from": "saas@forgerock.com",
+      "html": {
+        "en": "<div class="content"><p>Welcome. Your username is '{{object.userName}}'.</p></div>",
+      },
+      "message": {
+        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
+      },
+      "mimeType": "text/html",
+      "styles": "body{
+ background-color:#324054;
+ color:#5e6d82;
+ padding:60px;
+ text-align:center
+}
+a{
+ text-decoration:none;
+ color:#109cf1
+}
+.content{
+ background-color:#fff;
+ border-radius:4px;
+ margin:0 auto;
+ padding:48px;
+ width:235px
+}
+",
+      "subject": {
+        "en": "Your account has been created",
+      },
+    },
+  },
+}
+`;
+
 exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 1`] = `""`;
 
 exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file: allEmailTemplates.template.email.json 1`] = `
@@ -465,132 +638,6 @@ exports[`frodo email template export "frodo email template export -a": should ex
         "en": "Update your password",
       },
     },
-    "welcome": {
-      "_id": "emailTemplate/welcome",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "html": {
-        "en": "<html><body><p>Welcome. Your username is '{{object.userName}}'.</p></body></html>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
-      "subject": {
-        "en": "Your account has been created",
-      },
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -aD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 1`] = `""`;
-
-exports[`frodo email template export "frodo email template export -aD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2: emailTemplateExportTestDir2/allEmailTemplates.template.email.json 1`] = `
-{
-  "emailTemplate": {
-    "forgottenUsername": {
-      "_id": "emailTemplate/forgottenUsername",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "html": {
-        "en": "<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<p><a href="{{object.resumeURI}}">Click here to login</a></p></body></html>",
-        "fr": "<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></p></body></html>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #455469; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>{{#if object.userName}}Your username is '{{object.userName}}'.</p><p>{{else}}If you received this email in error, please disregard.{{/if}}</p><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Click here to login</a></p></div></body></html>",
-        "fr": "<html><head></head><body style="background-color: #324054; color: #455469; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;">{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Cliquez ici pour vous connecter</a></p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
-      "subject": {
-        "en": "Account Information - username",
-        "fr": "Informations sur le compte - nom d'utilisateur",
-      },
-    },
-    "registration": {
-      "_id": "emailTemplate/registration",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "html": {
-        "en": "<html><body><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}">Email verification link</a></p></body></html>",
-        "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}">Lien de vérification email</a></p></body></html>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>This is your registration email.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Email verification link</a></p></div></body></html>",
-        "fr": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3>Ceci est votre mail d'inscription.</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Lien de vérification email</a></p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
-      "subject": {
-        "en": "Register new account",
-        "fr": "Créer un nouveau compte",
-      },
-    },
-    "resetPassword": {
-      "_id": "emailTemplate/resetPassword",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "message": {
-        "en": "<h3>Click to reset your password</h3><h4><a href="{{object.resumeURI}}">Password reset link</a></h4>",
-        "fr": "<h3>Cliquez pour réinitialiser votre mot de passe</h3><h4><a href="{{object.resumeURI}}">Mot de passe lien de réinitialisation</a></h4>",
-      },
-      "mimeType": "text/html",
-      "subject": {
-        "en": "Reset your password",
-        "fr": "Réinitialisez votre mot de passe",
-      },
-    },
-    "updatePassword": {
-      "_id": "emailTemplate/updatePassword",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "html": {
-        "en": "<h3>Verify email to update password</h3><p><a href="{{object.resumeURI}}">Update password link</a></p>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><h3 id="verifyemailtoupdatepassword">Verify email to update password</h3><p><a href="{{object.resumeURI}}" style="text-decoration: none; color: #109cf1;">Update password link</a></p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
-      "subject": {
-        "en": "Update your password",
-      },
-    },
-    "welcome": {
-      "_id": "emailTemplate/welcome",
-      "defaultLocale": "en",
-      "enabled": true,
-      "from": "",
-      "html": {
-        "en": "<html><body><p>Welcome. Your username is '{{object.userName}}'.</p></body></html>",
-      },
-      "message": {
-        "en": "<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome. Your username is '{{object.userName}}'.</p></div></body></html>",
-      },
-      "mimeType": "text/html",
-      "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
-      "subject": {
-        "en": "Your account has been created",
-      },
-    },
-  },
-  "meta": Any<Object>,
-}
-`;
-
-exports[`frodo email template export "frodo email template export -i welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1 1`] = `""`;
-
-exports[`frodo email template export "frodo email template export -i welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1: emailTemplateExportTestDir1/welcome.template.email.json 1`] = `
-{
-  "emailTemplate": {
     "welcome": {
       "_id": "emailTemplate/welcome",
       "defaultLocale": "en",

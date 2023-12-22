@@ -824,9 +824,9 @@ exports[`frodo agent web export "frodo agent web export --all": should export al
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export --all-separate --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3 1`] = `""`;
 
-exports[`frodo agent web export "frodo agent web export --all-separate --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3: agentWebExportTestDir3/frodo-test-web-agent.web.agent.json 1`] = `
+exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3: agentWebExportTestDir3/frodo-test-web-agent.web.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-web-agent": {
@@ -991,7 +991,174 @@ exports[`frodo agent web export "frodo agent web export --all-separate --directo
       },
     },
   },
-  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3: agentWebExportTestDir3/frodo-test-web-agent2.web.agent.json 1`] = `
+{
+  "agents": {
+    "frodo-test-web-agent2": {
+      "_id": "frodo-test-web-agent2",
+      "_type": {
+        "_id": "WebAgent",
+        "collection": true,
+        "name": "Web Agents",
+      },
+      "advancedWebAgentConfig": {
+        "apacheAuthDirectives": null,
+        "clientHostnameHeader": null,
+        "clientIpHeader": null,
+        "customProperties": [],
+        "fragmentRedirectEnabled": false,
+        "hostnameToIpAddress": [],
+        "logonAndImpersonation": false,
+        "overrideRequestHost": false,
+        "overrideRequestPort": false,
+        "overrideRequestProtocol": false,
+        "pdpJavascriptRepost": false,
+        "pdpSkipPostUrl": [
+          "",
+        ],
+        "pdpStickySessionCookieName": null,
+        "pdpStickySessionMode": "OFF",
+        "pdpStickySessionValue": null,
+        "postDataCachePeriod": 10,
+        "postDataPreservation": false,
+        "replayPasswordKey": null,
+        "retainSessionCache": false,
+        "showPasswordInHeader": false,
+      },
+      "amServicesWebAgent": {
+        "amLoginUrl": [],
+        "amLogoutUrl": [
+          "http://testserverurl.com:8080/UI/Logout",
+        ],
+        "applicationLogoutUrls": [
+          "",
+        ],
+        "conditionalLoginUrl": [
+          "",
+        ],
+        "customLoginMode": 0,
+        "enableLogoutRegex": false,
+        "fetchPoliciesFromRootResource": false,
+        "invalidateLogoutSession": true,
+        "logoutRedirectDisabled": false,
+        "logoutRedirectUrl": null,
+        "logoutResetCookies": [
+          "",
+        ],
+        "logoutUrlRegex": null,
+        "policyCachePollingInterval": 3,
+        "policyClockSkew": 0,
+        "policyEvaluationApplication": "iPlanetAMWebAgentService",
+        "policyEvaluationRealm": "/",
+        "publicAmUrl": null,
+        "regexConditionalLoginPattern": [
+          "",
+        ],
+        "regexConditionalLoginUrl": [
+          "",
+        ],
+        "retrieveClientHostname": false,
+        "ssoCachePollingInterval": 3,
+        "userIdParameter": "UserToken",
+        "userIdParameterType": "session",
+      },
+      "applicationWebAgentConfig": {
+        "attributeMultiValueSeparator": "|",
+        "clientIpValidation": false,
+        "continuousSecurityCookies": {},
+        "continuousSecurityHeaders": {},
+        "fetchAttributesForNotEnforcedUrls": false,
+        "ignorePathInfoForNotEnforcedUrls": true,
+        "invertNotEnforcedUrls": false,
+        "notEnforcedIps": [
+          "",
+        ],
+        "notEnforcedIpsList": [
+          "",
+        ],
+        "notEnforcedIpsRegex": false,
+        "notEnforcedUrls": [
+          "",
+        ],
+        "notEnforcedUrlsRegex": false,
+        "profileAttributeFetchMode": "NONE",
+        "profileAttributeMap": {},
+        "responseAttributeFetchMode": "NONE",
+        "responseAttributeMap": {},
+        "sessionAttributeFetchMode": "NONE",
+        "sessionAttributeMap": {},
+      },
+      "globalWebAgentConfig": {
+        "accessDeniedUrl": null,
+        "agentConfigChangeNotificationsEnabled": true,
+        "agentDebugLevel": "Error",
+        "agentUriPrefix": "http://testagenturl.com:8080/amagent",
+        "agentgroup": null,
+        "amLbCookieEnable": false,
+        "auditAccessType": "LOG_NONE",
+        "auditLogLocation": "REMOTE",
+        "cdssoRootUrl": [
+          "agentRootURL=http://testagenturl.com:8080/",
+        ],
+        "configurationPollingInterval": 60,
+        "disableJwtAudit": false,
+        "fqdnCheck": false,
+        "fqdnDefault": "testagenturl.com",
+        "fqdnMapping": {},
+        "jwtAuditWhitelist": null,
+        "jwtName": "am-auth-jwt",
+        "notificationsEnabled": true,
+        "repositoryLocation": "centralized",
+        "resetIdleTime": false,
+        "ssoOnlyMode": false,
+        "status": "Inactive",
+        "webSocketConnectionIntervalInMinutes": 30,
+      },
+      "miscWebAgentConfig": {
+        "addCacheControlHeader": false,
+        "anonymousUserEnabled": false,
+        "anonymousUserId": "anonymous",
+        "caseInsensitiveUrlComparison": true,
+        "compositeAdviceEncode": false,
+        "compositeAdviceRedirect": false,
+        "encodeSpecialCharsInCookies": false,
+        "encodeUrlSpecialCharacters": false,
+        "gotoParameterName": "goto",
+        "headerJsonResponse": {},
+        "ignorePathInfo": false,
+        "invalidUrlRegex": null,
+        "invertUrlJsonResponse": false,
+        "mineEncodeHeader": 0,
+        "profileAttributesCookieMaxAge": 300,
+        "profileAttributesCookiePrefix": "HTTP_",
+        "statusCodeJsonResponse": 202,
+        "urlJsonResponse": [
+          "",
+        ],
+      },
+      "ssoWebAgentConfig": {
+        "acceptSsoToken": false,
+        "cdssoCookieDomain": [
+          "",
+        ],
+        "cdssoRedirectUri": "agent/cdsso-oauth2",
+        "cookieName": "iPlanetDirectoryPro",
+        "cookieResetEnabled": false,
+        "cookieResetList": [
+          "",
+        ],
+        "cookieResetOnRedirect": false,
+        "httpOnly": true,
+        "multivaluePreAuthnCookie": false,
+        "persistentJwtCookie": false,
+        "sameSite": null,
+        "secureCookies": false,
+      },
+    },
+  },
 }
 `;
 
@@ -1336,9 +1503,9 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -aD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2 1`] = `""`;
 
-exports[`frodo agent web export "frodo agent web export -aD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2: agentWebExportTestDir2/allAlphaAgents.web.agent.json 1`] = `
+exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2: agentWebExportTestDir2/allAlphaAgents.web.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-web-agent": {
@@ -1502,14 +1669,174 @@ exports[`frodo agent web export "frodo agent web export -aD agentWebExportTestDi
         "secureCookies": false,
       },
     },
+    "frodo-test-web-agent2": {
+      "_id": "frodo-test-web-agent2",
+      "_type": {
+        "_id": "WebAgent",
+        "collection": true,
+        "name": "Web Agents",
+      },
+      "advancedWebAgentConfig": {
+        "apacheAuthDirectives": null,
+        "clientHostnameHeader": null,
+        "clientIpHeader": null,
+        "customProperties": [],
+        "fragmentRedirectEnabled": false,
+        "hostnameToIpAddress": [],
+        "logonAndImpersonation": false,
+        "overrideRequestHost": false,
+        "overrideRequestPort": false,
+        "overrideRequestProtocol": false,
+        "pdpJavascriptRepost": false,
+        "pdpSkipPostUrl": [
+          "",
+        ],
+        "pdpStickySessionCookieName": null,
+        "pdpStickySessionMode": "OFF",
+        "pdpStickySessionValue": null,
+        "postDataCachePeriod": 10,
+        "postDataPreservation": false,
+        "replayPasswordKey": null,
+        "retainSessionCache": false,
+        "showPasswordInHeader": false,
+      },
+      "amServicesWebAgent": {
+        "amLoginUrl": [],
+        "amLogoutUrl": [
+          "http://testserverurl.com:8080/UI/Logout",
+        ],
+        "applicationLogoutUrls": [
+          "",
+        ],
+        "conditionalLoginUrl": [
+          "",
+        ],
+        "customLoginMode": 0,
+        "enableLogoutRegex": false,
+        "fetchPoliciesFromRootResource": false,
+        "invalidateLogoutSession": true,
+        "logoutRedirectDisabled": false,
+        "logoutRedirectUrl": null,
+        "logoutResetCookies": [
+          "",
+        ],
+        "logoutUrlRegex": null,
+        "policyCachePollingInterval": 3,
+        "policyClockSkew": 0,
+        "policyEvaluationApplication": "iPlanetAMWebAgentService",
+        "policyEvaluationRealm": "/",
+        "publicAmUrl": null,
+        "regexConditionalLoginPattern": [
+          "",
+        ],
+        "regexConditionalLoginUrl": [
+          "",
+        ],
+        "retrieveClientHostname": false,
+        "ssoCachePollingInterval": 3,
+        "userIdParameter": "UserToken",
+        "userIdParameterType": "session",
+      },
+      "applicationWebAgentConfig": {
+        "attributeMultiValueSeparator": "|",
+        "clientIpValidation": false,
+        "continuousSecurityCookies": {},
+        "continuousSecurityHeaders": {},
+        "fetchAttributesForNotEnforcedUrls": false,
+        "ignorePathInfoForNotEnforcedUrls": true,
+        "invertNotEnforcedUrls": false,
+        "notEnforcedIps": [
+          "",
+        ],
+        "notEnforcedIpsList": [
+          "",
+        ],
+        "notEnforcedIpsRegex": false,
+        "notEnforcedUrls": [
+          "",
+        ],
+        "notEnforcedUrlsRegex": false,
+        "profileAttributeFetchMode": "NONE",
+        "profileAttributeMap": {},
+        "responseAttributeFetchMode": "NONE",
+        "responseAttributeMap": {},
+        "sessionAttributeFetchMode": "NONE",
+        "sessionAttributeMap": {},
+      },
+      "globalWebAgentConfig": {
+        "accessDeniedUrl": null,
+        "agentConfigChangeNotificationsEnabled": true,
+        "agentDebugLevel": "Error",
+        "agentUriPrefix": "http://testagenturl.com:8080/amagent",
+        "agentgroup": null,
+        "amLbCookieEnable": false,
+        "auditAccessType": "LOG_NONE",
+        "auditLogLocation": "REMOTE",
+        "cdssoRootUrl": [
+          "agentRootURL=http://testagenturl.com:8080/",
+        ],
+        "configurationPollingInterval": 60,
+        "disableJwtAudit": false,
+        "fqdnCheck": false,
+        "fqdnDefault": "testagenturl.com",
+        "fqdnMapping": {},
+        "jwtAuditWhitelist": null,
+        "jwtName": "am-auth-jwt",
+        "notificationsEnabled": true,
+        "repositoryLocation": "centralized",
+        "resetIdleTime": false,
+        "ssoOnlyMode": false,
+        "status": "Inactive",
+        "webSocketConnectionIntervalInMinutes": 30,
+      },
+      "miscWebAgentConfig": {
+        "addCacheControlHeader": false,
+        "anonymousUserEnabled": false,
+        "anonymousUserId": "anonymous",
+        "caseInsensitiveUrlComparison": true,
+        "compositeAdviceEncode": false,
+        "compositeAdviceRedirect": false,
+        "encodeSpecialCharsInCookies": false,
+        "encodeUrlSpecialCharacters": false,
+        "gotoParameterName": "goto",
+        "headerJsonResponse": {},
+        "ignorePathInfo": false,
+        "invalidUrlRegex": null,
+        "invertUrlJsonResponse": false,
+        "mineEncodeHeader": 0,
+        "profileAttributesCookieMaxAge": 300,
+        "profileAttributesCookiePrefix": "HTTP_",
+        "statusCodeJsonResponse": 202,
+        "urlJsonResponse": [
+          "",
+        ],
+      },
+      "ssoWebAgentConfig": {
+        "acceptSsoToken": false,
+        "cdssoCookieDomain": [
+          "",
+        ],
+        "cdssoRedirectUri": "agent/cdsso-oauth2",
+        "cookieName": "iPlanetDirectoryPro",
+        "cookieResetEnabled": false,
+        "cookieResetList": [
+          "",
+        ],
+        "cookieResetOnRedirect": false,
+        "httpOnly": true,
+        "multivaluePreAuthnCookie": false,
+        "persistentJwtCookie": false,
+        "sameSite": null,
+        "secureCookies": false,
+      },
+    },
   },
-  "meta": Any<Object>,
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1 1`] = `""`;
 
-exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1: agentWebExportTestDir1/frodo-test-web-agent.web.agent.json 1`] = `
+exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1: agentWebExportTestDir1/frodo-test-web-agent.web.agent.json 1`] = `
 {
   "agents": {
     "frodo-test-web-agent": {
@@ -1993,7 +2320,6 @@ exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent 
       },
     },
   },
-  "meta": Any<Object>,
 }
 `;
 

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2023-12-14T18:51:20.993Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
+      "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
+      "context": "OIDC_CLAIMS",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for OIDC claims",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "OIDC Claims Script",
+      "script": "file://test/e2e/exports/all-separate/everything/script/OIDC-Claims-Script.script.js"
+    }
+  }
+}

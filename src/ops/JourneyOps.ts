@@ -153,12 +153,17 @@ export async function listJourneys(
  * Export journey by id/name to file
  * @param {string} journeyId journey id/name
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
  */
 export async function exportJourneyToFile(
   journeyId: string,
   file: string,
-  options: TreeExportOptions
+  includeMeta = true,
+  options: TreeExportOptions = {
+    deps: false,
+    useStringArrays: false,
+  }
 ): Promise<void> {
   debugMessage(`exportJourneyToFile: start`);
   const verbose = state.getVerbose();
@@ -176,7 +181,7 @@ export async function exportJourneyToFile(
     );
     if (verbose)
       spinnerId = createProgressIndicator('indeterminate', 0, `${journeyId}`);
-    saveJsonToFile(fileData, filePath);
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`,
@@ -196,10 +201,12 @@ export async function exportJourneyToFile(
 /**
  * Export all journeys to file
  * @param {string} file optional export file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
  */
 export async function exportJourneysToFile(
   file: string,
+  includeMeta = true,
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
@@ -210,15 +217,20 @@ export async function exportJourneysToFile(
   }
   const filePath = getFilePath(file, true);
   const fileData: MultiTreeExportInterface = await exportJourneys(options);
-  saveJsonToFile(fileData, filePath);
+  saveJsonToFile(fileData, filePath, includeMeta);
 }
 
 /**
  * Export all journeys to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
  */
 export async function exportJourneysToFiles(
-  options: TreeExportOptions
+  includeMeta = true,
+  options: TreeExportOptions = {
+    deps: false,
+    useStringArrays: false,
+  }
 ): Promise<void> {
   const journeysExport = await exportJourneys(options);
   const trees = Object.entries(journeysExport.trees);
@@ -232,7 +244,7 @@ export async function exportJourneysToFiles(
     treeValue['meta'] = journeysExport.meta;
     try {
       updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
-      saveJsonToFile(treeValue, file);
+      saveJsonToFile(treeValue, file, includeMeta);
       stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
     } catch (error) {
       stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);

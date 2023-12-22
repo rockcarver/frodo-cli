@@ -1,0 +1,174 @@
+{
+  "_id": "ui/dashboard",
+  "adminDashboards": [
+    {
+      "isDefault": true,
+      "name": "Quick Start",
+      "widgets": [
+        {
+          "cards": [
+            {
+              "href": "#resource/managed/alpha_user/list/",
+              "icon": "fa-user",
+              "name": "Manage Users"
+            },
+            {
+              "href": "#resource/managed/alpha_role/list/",
+              "icon": "fa-check-square-o",
+              "name": "Manage Roles"
+            },
+            {
+              "href": "#connectors/add/",
+              "icon": "fa-database",
+              "name": "Add Connector"
+            },
+            {
+              "href": "#mapping/add/",
+              "icon": "fa-map-marker",
+              "name": "Create Mapping"
+            },
+            {
+              "href": "#managed/add/",
+              "icon": "fa-tablet",
+              "name": "Add Device"
+            },
+            {
+              "href": "#settings/",
+              "icon": "fa-user",
+              "name": "Configure System Preferences"
+            }
+          ],
+          "size": "large",
+          "type": "quickStart"
+        }
+      ]
+    },
+    {
+      "isDefault": false,
+      "name": "System Monitoring",
+      "widgets": [
+        {
+          "legendRange": {
+            "month": [
+              500,
+              2500,
+              5000
+            ],
+            "week": [
+              10,
+              30,
+              90,
+              270,
+              810
+            ],
+            "year": [
+              10000,
+              40000,
+              100000,
+              250000
+            ]
+          },
+          "maxRange": "#24423c",
+          "minRange": "#b0d4cd",
+          "size": "large",
+          "type": "audit"
+        },
+        {
+          "size": "large",
+          "type": "clusterStatus"
+        },
+        {
+          "size": "large",
+          "type": "systemHealthFull"
+        },
+        {
+          "barchart": "false",
+          "size": "large",
+          "type": "lastRecon"
+        }
+      ]
+    },
+    {
+      "isDefault": false,
+      "name": "Resource Report",
+      "widgets": [
+        {
+          "selected": "activeUsers",
+          "size": "x-small",
+          "type": "counter"
+        },
+        {
+          "selected": "rolesEnabled",
+          "size": "x-small",
+          "type": "counter"
+        },
+        {
+          "selected": "activeConnectors",
+          "size": "x-small",
+          "type": "counter"
+        },
+        {
+          "size": "large",
+          "type": "resourceList"
+        }
+      ]
+    },
+    {
+      "isDefault": false,
+      "name": "Business Report",
+      "widgets": [
+        {
+          "graphType": "fa-pie-chart",
+          "providers": [
+            "Username/Password"
+          ],
+          "size": "x-small",
+          "type": "signIns",
+          "widgetTitle": "Sign-Ins"
+        },
+        {
+          "graphType": "fa-bar-chart",
+          "size": "x-small",
+          "type": "passwordResets",
+          "widgetTitle": "Password Resets"
+        },
+        {
+          "graphType": "fa-line-chart",
+          "providers": [
+            "Username/Password"
+          ],
+          "size": "x-small",
+          "type": "newRegistrations",
+          "widgetTitle": "New Registrations"
+        },
+        {
+          "size": "x-small",
+          "timezone": {
+            "hours": "07",
+            "minutes": "00",
+            "negative": true
+          },
+          "type": "socialLogin"
+        },
+        {
+          "selected": "socialEnabled",
+          "size": "x-small",
+          "type": "counter"
+        },
+        {
+          "selected": "manualRegistrations",
+          "size": "x-small",
+          "type": "counter"
+        }
+      ]
+    }
+  ],
+  "dashboard": {
+    "widgets": [
+      {
+        "size": "large",
+        "type": "Welcome"
+      }
+    ]
+  }
+}

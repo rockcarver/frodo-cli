@@ -39,6 +39,12 @@ program
       'Export all the providers in a realm as separate files <provider name>.idp.json. Ignored with -t, -i, and -a.'
     )
   )
+  .addOption(
+    new Option(
+      '-N, --no-metadata',
+      'Does not include metadata in the export file.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -58,17 +64,24 @@ program
               options.idpId
             }" from realm "${state.getRealm()}"...`
           );
-          await exportSocialIdentityProviderToFile(options.idpId, options.file);
+          await exportSocialIdentityProviderToFile(
+            options.idpId,
+            options.file,
+            options.metadata
+          );
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all providers to a single file...');
-          await exportSocialIdentityProvidersToFile(options.file);
+          await exportSocialIdentityProvidersToFile(
+            options.file,
+            options.metadata
+          );
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all providers to separate files...');
-          await exportSocialIdentityProvidersToFiles();
+          await exportSocialIdentityProvidersToFiles(options.metadata);
         }
         // unrecognized combination of options or no options
         else {

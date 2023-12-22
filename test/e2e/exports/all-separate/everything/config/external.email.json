@@ -1,0 +1,23 @@
+{
+  "_id": "external.email",
+  "auth": {
+    "enable": true,
+    "password": "&{sendgrid.api.key}",
+    "username": "apikey"
+  },
+  "connectiontimeout": 300000,
+  "debug": false,
+  "from": "&{email.sender.address}",
+  "host": "smtp.sendgrid.net",
+  "port": 587,
+  "smtpProperties": [],
+  "ssl": {
+    "enable": false
+  },
+  "starttls": {
+    "enable": true
+  },
+  "threadPoolSize": 20,
+  "timeout": 300000,
+  "writetimeout": 300000
+}

@@ -1,0 +1,14 @@
+{
+  "_id": "provisioner.openicf.connectorinfoprovider",
+  "connectorsLocation": "connectors",
+  "remoteConnectorClients": [
+    {
+      "enabled": true,
+      "name": "rcs1",
+      "useSSL": true
+    }
+  ],
+  "remoteConnectorClientsGroups": [],
+  "remoteConnectorServers": [],
+  "remoteConnectorServersGroups": []
+}
