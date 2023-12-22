@@ -21,13 +21,13 @@ const {
   readFiles,
 } = frodo.utils;
 const {
-  testConnectorServers,
   readConfigEntities,
   readConfigEntity,
   exportConfigEntities,
   updateConfigEntity,
 } = frodo.idm.config;
 const { queryManagedObjects } = frodo.idm.managed;
+const { testConnectorServers } = frodo.idm.system;
 
 /**
  * Warn about and list offline remote connector servers

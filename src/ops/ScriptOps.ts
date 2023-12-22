@@ -405,7 +405,7 @@ export async function importScriptsFromFile(
       outcome = true;
     } catch (error) {
       printMessage(
-        `Error exporting script '${name}': ${error.message}`,
+        `Error importing script '${name}': ${error.message}`,
         'error'
       );
       debugMessage(error);
