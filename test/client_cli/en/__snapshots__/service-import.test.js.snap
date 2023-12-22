@@ -32,7 +32,7 @@ Options:
   -f, --file <file>              Name of the file to import SAML Entity(s)
                                  from. Ignored with -A.
   --flush-cache                  Flush token cache.
-  -g, --global                   Import global services.
+  -g, --global                   Import service(s) as global service(s).
   -h, --help                     Help
   -i, --service-id <service-id>  Service id. If specified, -a and -A are
                                  ignored.
@@ -58,6 +58,7 @@ Options:
                                  admin login flow of Identity Cloud and handle
                                  MFA (choices: "classic", "cloud", "forgeops")
   --no-cache                     Disable token cache for this operation.
+  -r, --current-realm            Import service(s) into the current realm.
   --sa-id <sa-id>                Service account id.
   --sa-jwk-file <file>           File containing the JSON Web Key (JWK)
                                  associated with the the service account.

@@ -14,6 +14,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
         "name": "Social Identity Provider Service",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [
         {
           "_id": "google",
@@ -398,6 +399,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
       },
       "contextPath": "/am",
       "fixedValue": "https://&{fqdn}",
+      "location": "alpha",
       "nextDescendents": [],
       "source": "REQUEST_VALUES",
     },
@@ -794,6 +796,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
         "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
         "deviceUserCodeLength": 8,
       },
+      "location": "alpha",
       "nextDescendents": [],
       "pluginsConfig": {
         "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
@@ -834,6 +837,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,
@@ -858,6 +862,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
         "name": "Self Service Trees",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [],
       "treeMapping": {
         "forgottenUsername": "ForgottenUsername",
@@ -873,6 +878,7 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
         "collection": false,
         "name": "Validation Service",
       },
+      "location": "alpha",
       "nextDescendents": [],
       "validGotoDestinations": [
         "&{am.server.protocol|https}://&{fqdn}/*?*",
@@ -896,6 +902,7 @@ exports[`frodo service export "frodo service export --global --all -f my-allGlob
         "name": "CORS Service",
       },
       "enabled": true,
+      "location": "global",
       "nextDescendents": [],
     },
     "dashboard": {
@@ -908,6 +915,7 @@ exports[`frodo service export "frodo service export --global --all -f my-allGlob
       "defaults": {
         "assignedDashboard": [],
       },
+      "location": "global",
       "nextDescendents": [
         {
           "_id": "Google",
@@ -973,6 +981,7 @@ exports[`frodo service export "frodo service export --global --service-id dashbo
       "defaults": {
         "assignedDashboard": [],
       },
+      "location": "global",
       "nextDescendents": [
         {
           "_id": "Google",
@@ -1047,6 +1056,7 @@ exports[`frodo service export "frodo service export --service-id policyconfigura
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,
@@ -2685,6 +2695,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
         "name": "Social Identity Provider Service",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [
         {
           "_id": "google",
@@ -2835,6 +2846,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
       },
       "contextPath": "/am",
       "fixedValue": "https://&{fqdn}",
+      "location": "alpha",
       "nextDescendents": [],
       "source": "REQUEST_VALUES",
     },
@@ -3231,6 +3243,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
         "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
         "deviceUserCodeLength": 8,
       },
+      "location": "alpha",
       "nextDescendents": [],
       "pluginsConfig": {
         "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
@@ -3271,6 +3284,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "mtlsEnabled": false,
       "nextDescendents": [],
@@ -3296,6 +3310,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
         "name": "Self Service Trees",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [],
       "treeMapping": {
         "forgottenUsername": "ForgottenUsername",
@@ -3311,6 +3326,7 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
         "collection": false,
         "name": "Validation Service",
       },
+      "location": "alpha",
       "nextDescendents": [],
       "validGotoDestinations": [
         "&{am.server.protocol|https}://&{fqdn}/*?*",
@@ -3335,6 +3351,7 @@ exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExp
       "defaults": {
         "assignedDashboard": [],
       },
+      "location": "global",
       "nextDescendents": [
         {
           "_id": "Google",
@@ -3408,6 +3425,7 @@ exports[`frodo service export "frodo service export -Ni policyconfiguration -D s
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "mtlsEnabled": false,
       "nextDescendents": [],
@@ -3443,6 +3461,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "name": "Social Identity Provider Service",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [
         {
           "_id": "google",
@@ -3827,6 +3846,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
       },
       "contextPath": "/am",
       "fixedValue": "https://&{fqdn}",
+      "location": "alpha",
       "nextDescendents": [],
       "source": "REQUEST_VALUES",
     },
@@ -4223,6 +4243,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
         "deviceUserCodeLength": 8,
       },
+      "location": "alpha",
       "nextDescendents": [],
       "pluginsConfig": {
         "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
@@ -4263,6 +4284,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,
@@ -4287,6 +4309,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "name": "Self Service Trees",
       },
       "enabled": true,
+      "location": "alpha",
       "nextDescendents": [],
       "treeMapping": {
         "forgottenUsername": "ForgottenUsername",
@@ -4302,6 +4325,7 @@ exports[`frodo service export "frodo service export -a": should export all servi
         "collection": false,
         "name": "Validation Service",
       },
+      "location": "alpha",
       "nextDescendents": [],
       "validGotoDestinations": [
         "&{am.server.protocol|https}://&{fqdn}/*?*",
@@ -4408,6 +4432,7 @@ exports[`frodo service export "frodo service export -ga": should export all glob
         "name": "CORS Service",
       },
       "enabled": true,
+      "location": "global",
       "nextDescendents": [],
     },
     "dashboard": {
@@ -4420,6 +4445,7 @@ exports[`frodo service export "frodo service export -ga": should export all glob
       "defaults": {
         "assignedDashboard": [],
       },
+      "location": "global",
       "nextDescendents": [
         {
           "_id": "Google",
@@ -4485,6 +4511,7 @@ exports[`frodo service export "frodo service export -gi dashboard": should expor
       "defaults": {
         "assignedDashboard": [],
       },
+      "location": "global",
       "nextDescendents": [
         {
           "_id": "Google",
@@ -4559,6 +4586,7 @@ exports[`frodo service export "frodo service export -i policyconfiguration": sho
         "userstore-0.userstore:1389",
         "userstore-2.userstore:1389",
       ],
+      "location": "alpha",
       "maximumSearchResults": 100,
       "nextDescendents": [],
       "policyHeartbeatInterval": 10,

@@ -27,6 +27,7 @@ interface ServiceImportOptions {
   debug?: boolean;
   curlirize?: boolean;
   global?: boolean;
+  realm?: boolean;
 }
 
 program
@@ -53,7 +54,15 @@ program
       'Import all services from separate files <id>.service.json.'
     )
   )
-  .addOption(new Option('-g, --global', 'Import global services.'))
+  .addOption(
+    new Option('-g, --global', 'Import service(s) as global service(s).')
+  )
+  .addOption(
+    new Option(
+      '-r, --current-realm',
+      'Import service(s) into the current realm.'
+    )
+  )
   .action(
     async (
       host: string,
@@ -74,31 +83,43 @@ program
 
       const clean = options.clean ?? false;
       const globalConfig = options.global ?? false;
+      const realmConfig = options.realm ?? false;
 
       // import by id
       if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importServiceFromFile(
-          options.serviceId,
-          options.file,
+        await importServiceFromFile(options.serviceId, options.file, {
           clean,
-          globalConfig
-        );
+          global: globalConfig,
+          realm: realmConfig,
+        });
       }
       // -a / --all
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage('Importing all services from a single file...');
-        await importServicesFromFile(options.file, clean, globalConfig);
+        await importServicesFromFile(options.file, {
+          clean,
+          global: globalConfig,
+          realm: realmConfig,
+        });
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
-        await importServicesFromFiles(clean, globalConfig);
+        await importServicesFromFiles({
+          clean,
+          global: globalConfig,
+          realm: realmConfig,
+        });
       }
       // import file
       else if (options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importFirstServiceFromFile(options.file, clean, globalConfig);
+        await importFirstServiceFromFile(options.file, {
+          clean,
+          global: globalConfig,
+          realm: realmConfig,
+        });
       }
       // unrecognized combination of options or no options
       else {
