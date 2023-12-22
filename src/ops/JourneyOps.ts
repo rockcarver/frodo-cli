@@ -468,7 +468,7 @@ export async function importJourneysFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     try {
       const fileData = JSON.parse(data);
-      await importJourneys(fileData.trees, options);
+      await importJourneys(fileData, options);
     } catch (error) {
       if (error.name === 'UnresolvedDependenciesError') {
         for (const journey of Object.keys(error.unresolvedJourneys)) {
@@ -502,10 +502,7 @@ export async function importJourneysFromFiles(options: TreeImportOptions) {
     allJourneysData.trees[journeyData.tree._id] = journeyData;
   }
   try {
-    await importJourneys(
-      allJourneysData.trees as MultiTreeExportInterface,
-      options
-    );
+    await importJourneys(allJourneysData as MultiTreeExportInterface, options);
   } catch (error) {
     printMessage(`${error.response?.data?.message || error.message}`, 'error');
   }
