@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml import "frodo saml import --all --file test/e2e/exports/all/allAlphaProviders.saml.json": should import all saml providers from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+exports[`frodo saml import "frodo saml import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.saml.json": should import all saml providers from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
 
-exports[`frodo saml import "frodo saml import --all-separate --directory test/e2e/exports/all-separate/saml": should import all saml providers from the 'test/e2e/exports/all-separate/saml' directory" 1`] = `""`;
+exports[`frodo saml import "frodo saml import --all-separate --no-deps --directory test/e2e/exports/all-separate/saml": should import all saml providers from the 'test/e2e/exports/all-separate/saml' directory" 1`] = `""`;
 
-exports[`frodo saml import "frodo saml import --entity-id iSPAzure --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the saml provider with the id "iSPAzure" from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+exports[`frodo saml import "frodo saml import --no-deps --entity-id iSPAzure --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the saml provider with the id "iSPAzure" from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
 
-exports[`frodo saml import "frodo saml import --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the first saml from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
+exports[`frodo saml import "frodo saml import --no-deps --file test/e2e/exports/all/allAlphaProviders.saml.json": should import the first saml from the file "test/e2e/exports/all/allAlphaProviders.saml.json" 1`] = `""`;
 
 exports[`frodo saml import "frodo saml import -AD test/e2e/exports/all-separate/saml": should import all saml providers from the 'test/e2e/exports/all-separate/saml' directory" 1`] = `""`;
 

@@ -48,16 +48,16 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -i google -f test/e2e/exports/all/allAlphaProviders.idp.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --idp-id google --file test/e2e/exports/all/allAlphaProviders.idp.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --no-deps --idp-id google --file test/e2e/exports/all/allAlphaProviders.idp.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -i google -f allAlphaProviders.idp.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -f test/e2e/exports/all/allAlphaProviders.idp.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --file test/e2e/exports/all/allAlphaProviders.idp.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -f allAlphaProviders.idp.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -af test/e2e/exports/all/allAlphaProviders.idp.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all --file test/e2e/exports/all/allAlphaProviders.idp.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -af allAlphaProviders.idp.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -AD test/e2e/exports/all-separate/idp
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all-separate --directory test/e2e/exports/all-separate/idp
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all-separate --no-deps --directory test/e2e/exports/all-separate/idp
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -86,8 +86,8 @@ describe('frodo idp import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo idp import --idp-id google --file ${allAlphaProvidersExport}": should import the idp with the id "google" from the file "${allAlphaProvidersExport}"`, async () => {
-        const CMD = `frodo idp import --idp-id google --file ${allAlphaProvidersExport}`;
+    test(`"frodo idp import --no-deps --idp-id google --file ${allAlphaProvidersExport}": should import the idp with the id "google" from the file "${allAlphaProvidersExport}"`, async () => {
+        const CMD = `frodo idp import --no-deps --idp-id google --file ${allAlphaProvidersExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -104,8 +104,8 @@ describe('frodo idp import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo idp import --file ${allAlphaProvidersExport}": should import the first idp from the file "${allAlphaProvidersExport}"`, async () => {
-        const CMD = `frodo idp import --file ${allAlphaProvidersExport}`;
+    test(`"frodo idp import --no-deps --file ${allAlphaProvidersExport}": should import the first idp from the file "${allAlphaProvidersExport}"`, async () => {
+        const CMD = `frodo idp import --no-deps --file ${allAlphaProvidersExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -122,8 +122,8 @@ describe('frodo idp import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo idp import --all --file ${allAlphaProvidersExport}": should import all idps from the file "${allAlphaProvidersExport}"`, async () => {
-        const CMD = `frodo idp import --all --file ${allAlphaProvidersExport}`;
+    test(`"frodo idp import --all --no-deps --file ${allAlphaProvidersExport}": should import all idps from the file "${allAlphaProvidersExport}"`, async () => {
+        const CMD = `frodo idp import --all --no-deps --file ${allAlphaProvidersExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -140,8 +140,8 @@ describe('frodo idp import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo idp import --all-separate --directory ${allSeparateProvidersDirectory}": should import all idps from the ${allSeparateProvidersDirectory} directory"`, async () => {
-        const CMD = `frodo idp import --all-separate --directory ${allSeparateProvidersDirectory}`;
+    test(`"frodo idp import --all-separate --no-deps --directory ${allSeparateProvidersDirectory}": should import all idps from the ${allSeparateProvidersDirectory} directory"`, async () => {
+        const CMD = `frodo idp import --all-separate --no-deps --directory ${allSeparateProvidersDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
