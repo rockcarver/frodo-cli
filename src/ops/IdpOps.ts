@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/SocialIdentityProvidersApi';
+import { type SocialIdentityProviderImportOptions } from '@rockcarver/frodo-lib/types/ops/IdpOps';
 import fs from 'fs';
 
 import {
@@ -169,11 +170,13 @@ export async function exportSocialIdentityProvidersToFiles(includeMeta = true) {
  * Import provider by id/name
  * @param {string} providerId provider id/name
  * @param {string} file import file name
+ * @param {SocialIdentityProviderImportOptions} options import options
  * @returns {Promise<boolean>} true if provider was imported successfully, false otherwise
  */
 export async function importSocialIdentityProviderFromFile(
   providerId: string,
-  file: string
+  file: string,
+  options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
   let outcome = false;
   const filePath = getFilePath(file);
@@ -185,7 +188,7 @@ export async function importSocialIdentityProviderFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importSocialIdentityProvider(providerId, fileData);
+    await importSocialIdentityProvider(providerId, fileData, options);
     outcome = true;
     stopProgressIndicator(
       indicatorId,
@@ -206,10 +209,12 @@ export async function importSocialIdentityProviderFromFile(
 /**
  * Import first provider from file
  * @param {String} file import file name
+ * @param {SocialIdentityProviderImportOptions} options import options
  * @returns {Promise<boolean>} true if first provider was imported successfully, false otherwise
  */
 export async function importFirstSocialIdentityProviderFromFile(
-  file: string
+  file: string,
+  options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
   let outcome = false;
   const filePath = getFilePath(file);
@@ -221,7 +226,7 @@ export async function importFirstSocialIdentityProviderFromFile(
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
-    await importFirstSocialIdentityProvider(fileData);
+    await importFirstSocialIdentityProvider(fileData, options);
     outcome = true;
     stopProgressIndicator(
       indicatorId,
@@ -242,10 +247,12 @@ export async function importFirstSocialIdentityProviderFromFile(
 /**
  * Import all providers from file
  * @param {string} file import file name
+ * @param {SocialIdentityProviderImportOptions} options import options
  * @returns {Promise<boolean>} true if all providers were imported successfully, false otherwise
  */
 export async function importSocialIdentityProvidersFromFile(
-  file: string
+  file: string,
+  options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
   let outcome = false;
   const filePath = getFilePath(file);
@@ -257,7 +264,7 @@ export async function importSocialIdentityProvidersFromFile(
   const data = fs.readFileSync(filePath, 'utf8');
   try {
     const fileData = JSON.parse(data);
-    await importSocialIdentityProviders(fileData);
+    await importSocialIdentityProviders(fileData, options);
     outcome = true;
     stopProgressIndicator(
       indicatorId,
@@ -277,8 +284,11 @@ export async function importSocialIdentityProvidersFromFile(
 
 /**
  * Import providers from *.idp.json files in current working directory
+ * @param {SocialIdentityProviderImportOptions} options import options
  */
-export async function importSocialIdentityProvidersFromFiles() {
+export async function importSocialIdentityProvidersFromFiles(
+  options: SocialIdentityProviderImportOptions = { deps: true }
+) {
   const names = fs.readdirSync(getWorkingDirectory());
   const jsonFiles = names
     .filter((name) => name.toLowerCase().endsWith('.idp.json'))
@@ -295,7 +305,7 @@ export async function importSocialIdentityProvidersFromFiles() {
     const fileData = JSON.parse(data);
     const count = Object.keys(fileData.idp).length;
     total += count;
-    await importSocialIdentityProviders(fileData);
+    await importSocialIdentityProviders(fileData, options);
     updateProgressIndicator(
       indicatorId,
       `Imported ${count} provider(s) from ${file}`

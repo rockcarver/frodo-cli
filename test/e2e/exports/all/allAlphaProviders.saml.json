@@ -1,26 +1,43 @@
 {
   "meta": {
-    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.4.0",
-    "exportedBy": "volker.scheuber@forgerock.com",
-    "exportDate": "2023-09-14T17:15:05.103Z",
+    "exportDate": "2023-12-20T23:49:57.826Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-trivir.2 [v18.5.0]"
+    "exportToolVersion": "v2.0.0-55 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
   },
-  "script": {},
   "saml": {
     "hosted": {
       "aVNQQXp1cmU": {
         "_id": "aVNQQXp1cmU",
-        "_rev": "1379466460",
         "entityId": "iSPAzure",
         "serviceProvider": {
-          "assertionContent": {
-            "signingAndEncryption": {
-              "requestResponseSigning": {},
-              "encryption": {},
-              "secretIdAndAlgorithms": {}
+          "advanced": {
+            "ecpConfiguration": {
+              "ecpRequestIdpListFinderImpl": "com.sun.identity.saml2.plugins.ECPIDPFinder"
             },
+            "idpProxy": {},
+            "relayStateUrlList": {},
+            "saeConfiguration": {
+              "spUrl": "https://idc.scheuber.io/am/spsaehandler/metaAlias/alpha/iSPAzure"
+            }
+          },
+          "assertionContent": {
+            "assertionTimeSkew": 300,
+            "authenticationContext": {
+              "authContextItems": [
+                {
+                  "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+                  "defaultItem": true,
+                  "level": 0
+                }
+              ],
+              "authenticationComparisonType": "Exact",
+              "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper",
+              "includeRequestedAuthenticationContext": true
+            },
+            "basicAuthentication": {},
             "nameIdFormat": {
               "nameIdFormatList": [
                 "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
@@ -32,24 +49,21 @@
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
               ]
             },
-            "authenticationContext": {
-              "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper",
-              "authContextItems": [
-                {
-                  "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
-                  "level": 0,
-                  "defaultItem": true
-                }
-              ],
-              "authenticationComparisonType": "Exact",
-              "includeRequestedAuthenticationContext": true
-            },
-            "assertionTimeSkew": 300,
-            "basicAuthentication": {}
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {},
+              "secretIdAndAlgorithms": {}
+            }
           },
           "assertionProcessing": {
+            "accountMapping": {
+              "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
+              "useNameIDAsSPUserID": true
+            },
+            "adapter": {
+              "spAdapterScript": "07ee6240-d106-4e25-a781-5fcabc477d22"
+            },
             "attributeMapper": {
-              "attributeMapper": "com.sun.identity.saml2.plugins.DefaultSPAttributeMapper",
               "attributeMap": [
                 {
                   "key": "http://schemas.microsoft.com/identity/claims/displayname",
@@ -71,38 +85,38 @@
                   "key": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
                   "value": "uid"
                 }
-              ]
+              ],
+              "attributeMapper": "com.sun.identity.saml2.plugins.DefaultSPAttributeMapper"
             },
             "autoFederation": {
               "autoFedEnabled": false
             },
-            "accountMapping": {
-              "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
-              "useNameIDAsSPUserID": true
-            },
             "responseArtifactMessageEncoding": {
               "encoding": "URI"
             },
-            "url": {},
-            "adapter": {}
+            "url": {}
           },
           "services": {
             "metaAlias": "/alpha/iSPAzure",
             "serviceAttributes": {
-              "singleLogoutService": [
+              "assertionConsumerService": [
                 {
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-                  "location": "https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure",
-                  "responseLocation": "https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure"
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
+                  "index": 0,
+                  "isDefault": true,
+                  "location": "https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure"
                 },
                 {
                   "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                  "location": "https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure",
-                  "responseLocation": "https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure"
+                  "index": 1,
+                  "isDefault": false,
+                  "location": "https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure"
                 },
                 {
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
-                  "location": "https://idc.scheuber.io/am/SPSloSoap/metaAlias/alpha/iSPAzure"
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
+                  "index": 2,
+                  "isDefault": false,
+                  "location": "https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure"
                 }
               ],
               "nameIdService": [
@@ -122,227 +136,28 @@
                   "responseLocation": "https://idc.scheuber.io/am/SPMniSoap/metaAlias/alpha/iSPAzure"
                 }
               ],
-              "assertionConsumerService": [
-                {
-                  "isDefault": true,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
-                  "location": "https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure",
-                  "index": 0
-                },
-                {
-                  "isDefault": false,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                  "location": "https://idc.scheuber.io/am/AuthConsumer/metaAlias/alpha/iSPAzure",
-                  "index": 1
-                },
-                {
-                  "isDefault": false,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
-                  "location": "https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure",
-                  "index": 2
-                }
-              ]
-            }
-          },
-          "advanced": {
-            "saeConfiguration": {
-              "spUrl": "https://idc.scheuber.io/am/spsaehandler/metaAlias/alpha/iSPAzure"
-            },
-            "ecpConfiguration": {
-              "ecpRequestIdpListFinderImpl": "com.sun.identity.saml2.plugins.ECPIDPFinder"
-            },
-            "idpProxy": {},
-            "relayStateUrlList": {}
-          }
-        }
-      }
-    },
-    "remote": {
-      "aHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzExZmZhOWMtNTk3Mi00NzEzLWFjZTMtNjg4Yzk3MzI2MTRhLw": {
-        "_id": "aHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzExZmZhOWMtNTk3Mi00NzEzLWFjZTMtNjg4Yzk3MzI2MTRhLw",
-        "_rev": "-859975283",
-        "entityId": "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/",
-        "identityProvider": {
-          "assertionContent": {
-            "signingAndEncryption": {
-              "requestResponseSigning": {},
-              "encryption": {},
-              "secretIdAndAlgorithms": {}
-            },
-            "nameIdFormat": {},
-            "basicAuthentication": {}
-          },
-          "services": {
-            "serviceAttributes": {
               "singleLogoutService": [
                 {
                   "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-                  "location": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2"
-                }
-              ],
-              "singleSignOnService": [
-                {
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-                  "location": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2"
+                  "location": "https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/SPSloRedirect/metaAlias/alpha/iSPAzure"
                 },
                 {
                   "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                  "location": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2"
+                  "location": "https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/SPSloPOST/metaAlias/alpha/iSPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://idc.scheuber.io/am/SPSloSoap/metaAlias/alpha/iSPAzure"
                 }
               ]
             }
-          }
-        }
-      },
-      "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l": {
-        "_id": "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l",
-        "_rev": "317057337",
-        "entityId": "urn:federation:MicrosoftOnline",
-        "serviceProvider": {
-          "assertionContent": {
-            "signingAndEncryption": {
-              "requestResponseSigning": {
-                "assertion": true
-              },
-              "encryption": {},
-              "secretIdAndAlgorithms": {}
-            },
-            "nameIdFormat": {
-              "nameIdFormatList": [
-                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
-                "urn:mace:shibboleth:1.0:nameIdentifier",
-                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
-                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
-              ]
-            },
-            "basicAuthentication": {}
-          },
-          "assertionProcessing": {
-            "attributeMapper": {
-              "attributeMap": [
-                {
-                  "samlAttribute": "IDPEmail",
-                  "localAttribute": "mail",
-                  "binary": false
-                },
-                {
-                  "samlAttribute": "UOPClassID",
-                  "localAttribute": "UOPClassID",
-                  "binary": false
-                }
-              ]
-            },
-            "responseArtifactMessageEncoding": {
-              "encoding": "URI"
-            }
-          },
-          "services": {
-            "serviceAttributes": {
-              "singleLogoutService": [
-                {
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                  "location": "https://login.microsoftonline.com/login.srf"
-                }
-              ],
-              "assertionConsumerService": [
-                {
-                  "isDefault": true,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                  "location": "https://login.microsoftonline.com/login.srf",
-                  "index": 0
-                },
-                {
-                  "isDefault": false,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign",
-                  "location": "https://login.microsoftonline.com/login.srf",
-                  "index": 1
-                },
-                {
-                  "isDefault": false,
-                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
-                  "location": "https://login.microsoftonline.com/login.srf",
-                  "index": 2
-                }
-              ]
-            }
-          },
-          "advanced": {
-            "saeConfiguration": {},
-            "idpProxy": {}
           }
         }
       }
     },
     "metadata": {
-      "aHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzExZmZhOWMtNTk3Mi00NzEzLWFjZTMtNjg4Yzk3MzI2MTRhLw": [
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
-        "<EntityDescriptor entityID=\"https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/\" ID=\"_e5f839b8-1482-40ae-9261-b6eb35465a16\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
-        "    <IDPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
-        "        <KeyDescriptor use=\"signing\">",
-        "            <ds:KeyInfo>",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                <ds:X509Data>",
-        "                    <ds:X509Certificate>",
-        "MIIC8DCCAdigAwIBAgIQZzae6CymcZhG5gxIgB7mMDANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQD",
-        "EylNaWNyb3NvZnQgQXp1cmUgRmVkZXJhdGVkIFNTTyBDZXJ0aWZpY2F0ZTAeFw0yMTAzMzEyMDI0",
-        "MTdaFw0yNDAzMzEyMDI0MTdaMDQxMjAwBgNVBAMTKU1pY3Jvc29mdCBBenVyZSBGZWRlcmF0ZWQg",
-        "U1NPIENlcnRpZmljYXRlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv62V9U2Wi8gr",
-        "arSBp7s4Bupke9vaXsNOgNZ8Vn/i0mo6Jn0E1HmJ6uIy+QeahQDtxFQyoEW1LeLGBeVwvUvOfSwf",
-        "wPBEHLw9g3F84IdgfIWtezj87BHh3ezwb0r/0Eny3xHcS02wQsIFRIhn7ltCaMFrTja18gBapuRl",
-        "36Ujfod7W1uL1HJTsw8auKXYEhutbeQYpdU6qcPaksJd1r16q+Jc78MHptKMWSNI1OnB9jK8hr/3",
-        "aug+LSeuJScaJQZDo/qKDmoIC6KT6CgfzUy33I/gjU6RjVcwNw4XFpk5ad13HXTtfCLtPtMxGYuk",
-        "cOxX3M80EJMLFr2sJO0vJbA8aQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQB8GmsA4N5KDQ79v+/1",
-        "zVFq8domQYZm8wEAIHn4+T02IluDa9Ty/EqgFzvqAZUILQneFrGCh9uIub/Z3NtkIgs2gbAduxdn",
-        "hzdwhNRNivks4P0CO+9Q1iK/xOsmWo12xsyB4lyAv7HsF+COIPFGhRfzsCxVFKfU8x2r+bb8kWLM",
-        "YpA2NDlz+MTXQEWhFtCLwQRjHlD6C5+yzqoAFBO7RR28mztTF0nVbKj7N+Ri5VLEKJospkwUDtIH",
-        "dcp2bSVwhziAIn05yiw6AVIZnje7cN+kJdCIDgqQ+Ebb96C/Y0JmYvz6sJVP0/u5oR5PrsQqBrw4",
-        "OzVWNFaXuTcN3UicN01V",
-        "                    </ds:X509Certificate>",
-        "                </ds:X509Data>",
-        "            </ds:KeyInfo>",
-        "        </KeyDescriptor>",
-        "        <KeyDescriptor use=\"signing\">",
-        "            <ds:KeyInfo>",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                ",
-        "                <ds:X509Data>",
-        "                    <ds:X509Certificate>",
-        "MIIC8DCCAdigAwIBAgIQfU4A0Hnj17dI0GSzvUwMZTANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQD",
-        "EylNaWNyb3NvZnQgQXp1cmUgRmVkZXJhdGVkIFNTTyBDZXJ0aWZpY2F0ZTAeFw0yMTA2MDYwMTQy",
-        "MzBaFw0yNDA2MDYwMTQyMzBaMDQxMjAwBgNVBAMTKU1pY3Jvc29mdCBBenVyZSBGZWRlcmF0ZWQg",
-        "U1NPIENlcnRpZmljYXRlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+fFmS+eVDho",
-        "FhlYoY1vRkJIblLct3ZT/sT5AmIoCEGxXBeiSCwnSCveXEfrqEHmjlT5qni5spO+OmX7GrLeytHk",
-        "hl3O6XiXyVBlvyTSFd/bLHR2DqdxbUxUs2E7WfwQyq9Ob9i3++4fRIPFw+JcZ99ouZasHn2BJvWh",
-        "liT7yRtYhvwboc8BwWveL70ZJqsCJnlOKQVIccCdNbQe6HleePXgFB4pRge46zmqKVeEpLbBRqgj",
-        "Yf7EkhBJjx0WY2zMW7DLHDCZEY6VS2Kf9gJpGntNSLe0gXydBFtaFPgyaKIVswZ5hY1oRDPHEXEJ",
-        "+a5TVRGLeTlyK0v9Y+c8d3XdoQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBZ5lcYpe13quossxB7",
-        "L2Y1E7hpy7AZgWr/OGYi/tUh1pJ4++3uZvHJLtTfXc7V+Y5EG6LRq9HZyF0hSvubhYkDXlwYbF7U",
-        "/osQjTe1tffPWO3bwzcrBVz7ytvb7DyvikI3C0f3LaCgEwxwYCD33IowNQS/IJA7W/kiFb/7q/Qu",
-        "7T/gDL1RjYdm9WmYW3RNn0Kh1VDBiCfY739xpCwdH11OUQfVc+9Z2KSSQY7EAlVgwpq+UiVdOqY9",
-        "m4cqul7uvjiSTgG0h5RW9xi3a6Lilk1TxsQUu4tRnGsDCAFgkgLN5rNnlQULuahzruoXWqe4g6pn",
-        "Ritpy6bwva8piGPKhVi/",
-        "                    </ds:X509Certificate>",
-        "                </ds:X509Data>",
-        "            </ds:KeyInfo>",
-        "        </KeyDescriptor>",
-        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2\"/>",
-        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2\"/>",
-        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/saml2\"/>",
-        "    </IDPSSODescriptor>",
-        "</EntityDescriptor>",
-        "",
-        ""
-      ],
       "aVNQQXp1cmU": [
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
         "<EntityDescriptor entityID=\"iSPAzure\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
@@ -351,22 +166,22 @@
         "            <ds:KeyInfo>",
         "                <ds:X509Data>",
         "                    <ds:X509Certificate>",
-        "MIIDXzCCAkegAwIBAgIEDvqo1zANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJVSzEQMA4GA1UE",
-        "CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMRkwFwYDVQQD",
-        "ExByc2Fqd3RzaWduaW5na2V5MB4XDTIyMDgxMTAxMzIyOVoXDTMyMDgwODAxMzIyOVowYDELMAkG",
-        "A1UEBhMCVUsxEDAOBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZv",
-        "cmdlUm9jazEZMBcGA1UEAxMQcnNhand0c2lnbmluZ2tleTCCASIwDQYJKoZIhvcNAQEBBQADggEP",
-        "ADCCAQoCggEBAKz4i7AfLdKa2fOueSyaX3rviRZXzY3w8J01B6VZZk+ujatitD8h9uSE7RjK2NS6",
-        "BYSf/wMsg2/Xy/vVbqEMrAl8ptdjXd9rsyL4sz33IRDgs9PqW2X2Ml5et0ASCwwQJWv8aGJJqkOG",
-        "ZorLVGqCS8PvkiN8MoYXGvkMpLPeWuSBqTTC2iBubhenRqcRkvCoeZ0JbrRWfEHKoFM1gkTj/xcn",
-        "L8yrXb5S3e2iAPkRw8+UPf8d4i9syS/jDyUZgrfqOsypbHh0dNMkS5dYpiqnOmJDWkjy1UDdUGmA",
-        "SKglu7c6gKaPaxcqh9VNGnTerQFbpKMV34guBoyBFrVFD1Sq6eUCAwEAAaMhMB8wHQYDVR0OBBYE",
-        "FCRENQBDfGf/R6qys11dPZM1+i5zMA0GCSqGSIb3DQEBCwUAA4IBAQACttnaeWl6CLVhffIlVz28",
-        "CgxJbLB+pY9mL/jy7G0+5AxK7h9Njoe9ZK9k59uMcwD5BfVPl58kxFLJcnFc68R9m2Cdii1aCm/A",
-        "BLlHPhpxHni5INeH9J4P7MLdVwxMa/Inp9tw3gZQ60txgG/mv535kL1mtlUSqbPDf57AtG0tNWKT",
-        "2EBe/aSLndIWAhGf1qjS5Sc3uz+O5QEG7fnkLS4uOh5//coh14wfY3EAnMl/DpkgViliQOu7voX8",
-        "7geBJd5jJhs6Ne2BJUp0q4iylD6WJrcfOLc3mcrgVaey5rLzVvX8vsp+p/m88KKhPzK+C8soYHz4",
-        "T7PNNC7YVB2EQVSm",
+        "MIIDYzCCAkugAwIBAgIIZKO699rkpmYwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVUsxEDAO",
+        "BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazEZMBcG",
+        "A1UEAxMQcnNhand0c2lnbmluZ2tleTAeFw0yMzEyMDEwMDI2NThaFw0zMzExMjgwMDI2NThaMGAx",
+        "CzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQK",
+        "EwlGb3JnZVJvY2sxGTAXBgNVBAMTEHJzYWp3dHNpZ25pbmdrZXkwggEiMA0GCSqGSIb3DQEBAQUA",
+        "A4IBDwAwggEKAoIBAQC32R6yZEUoqnrQLnw3sKCYy5bxo3TdKdew7AvuxCYwVB3c2khauBqDD99Z",
+        "+Dl3Q31vQ3vJ8ZVuXQauHowWT+C6aK/tEhGSeRWPdHzexWW/5OBXHtRJf99HdakUt8HToRquCoyL",
+        "d+KrAvg2Cq/f4vb0dIJ3RDQ7BOgmpJ4Ym6Z5B3jAiRSWEP2ZW+RExpyTq8uIPjQGoYbqQSXC/td5",
+        "27rAw0Pvlo3YTKrJNVWV+hgIUUPwfuF0ijunPTkseFW6ZH0VWnFswPIvzF5Y6iAjcaFj9aQDyejV",
+        "AEWT8mpsPtetbPFWPfZlg4KVbx8tL/u7E27FfWRJr0yRPsXGHvZrUU5lAgMBAAGjITAfMB0GA1Ud",
+        "DgQWBBTY0biEminc++0WTPVXy7CqC+fdQDANBgkqhkiG9w0BAQsFAAOCAQEAG0cE49mQ46hmezGB",
+        "2E24x+7Czwy9LQXB8vn9xyJEcVCudZ7aZzq3Y5NLjuP8y6rbhnd2v1pTpZHhEP4bfGUBnq2dacqY",
+        "LVlQTmEit0p4NNHGNFKQi+96P07bftnVBIf0yN32KPka7nuRsmQNj9PvpnqVMU8Fqhyb26PKQJXA",
+        "MVRC4ZYJZMbX/1gQ1YOCATwcHryZkoOFUOeJya9Ard4xmlyi6gX+D51x3zuQjiIql5Qe/MDOvN6v",
+        "OdLzwiUdh6qt0NvUee+Fxq1R6afHgz+0M2CY74ZzcRYKHrVvySHFLBpfFJVTv6/KWK2Wsr/20FYt",
+        "gKHO7RETEtknWIqelZ2uQg==",
         "                    </ds:X509Certificate>",
         "                </ds:X509Data>",
         "            </ds:KeyInfo>",
@@ -375,21 +190,21 @@
         "            <ds:KeyInfo>",
         "                <ds:X509Data>",
         "                    <ds:X509Certificate>",
-        "MIIDRzCCAi+gAwIBAgIEK9RtfDANBgkqhkiG9w0BAQsFADBUMQswCQYDVQQGEwJVSzEQMA4GA1UE",
-        "CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMQ0wCwYDVQQD",
-        "EwR0ZXN0MB4XDTIyMDgxMTAxMzIzMFoXDTMyMDgwODAxMzIzMFowVDELMAkGA1UEBhMCVUsxEDAO",
+        "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",
-        "A1UEAxMEdGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjkMGOu0kbOsvdp45J6",
-        "FYW5wIn5TsKEPQUlNbYiFITg9o18Ja+6vWouK0fbIkzp8Ejj3U5OPHXqCtXCiDWiNX+bbFZoELW2",
-        "KUigC26QdqbhmA/hTBheyQaUg/I4D64fqebUare9r0zxtMYE8FnR3YRgGeEG2qSlxgmIFvTMnzd4",
-        "UwrUuw8C/uZTRbppDQITpkLDrOKb9608qnRvbXSR7UVP/JTm8Pq6uP2pvXz2F/QSK/wMKOnsjf+B",
-        "XfnqNZ9b+PP+fJvUKIcxjFwgDkmGP+Kr9YV7aFaur5Hgh7Q+q4bSDJMbNDhk5Lqu6qr3oGulyiTX",
-        "htoEkLMcbMA7JrVFCl0CAwEAAaMhMB8wHQYDVR0OBBYEFPoZt1jm2z/0gX/TnN/Sn+T31BU1MA0G",
-        "CSqGSIb3DQEBCwUAA4IBAQAY2Hy1f+lKClRzJFHNVyYZ0ahRCkbGB0FppwI8ZhIt6Aj3p9LBXOdu",
-        "IckDfAjg0/mckuEteA7l1LRqYcQIxpxrJU4FTxeyV1gTgudW43rw9Vd3AxdVocXqdpVxAvECtI+X",
-        "/jdbkk54k0mYTCI9ruNRdof1BpOWkI9Jtdj0GRe7L9nydNb3V/kJzSVMDNsx+Vc0GnmysL7edZDo",
-        "mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx",
-        "328SOTHshVUBtIGbq11vuQleknlVL7A/aYUeUIyOvdYhWD7YoVnBV+QwcrAH",
+        "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",
         "                    </ds:X509Certificate>",
         "                </ds:X509Data>",
         "            </ds:KeyInfo>",
@@ -431,6 +246,48 @@
         "    <SPSSODescriptor WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
         "        <KeyDescriptor use=\"signing\">",
         "            <ds:KeyInfo>",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
         "                ",
         "                ",
         "                ",
@@ -539,6 +396,48 @@
         "                ",
         "                ",
         "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
         "                <ds:X509Data>",
         "                    <ds:X509Certificate>",
         "MIIC/TCCAeWgAwIBAgIQN/GPegnT8blP2EcSdMMbBzANBgkqhkiG9w0BAQsFADApMScwJQYDVQQD",
@@ -561,6 +460,48 @@
         "        </KeyDescriptor>",
         "        <KeyDescriptor use=\"signing\">",
         "            <ds:KeyInfo>",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
         "                ",
         "                ",
         "                ",
@@ -638,6 +579,87 @@
         "",
         ""
       ]
+    },
+    "remote": {
+      "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l": {
+        "_id": "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l",
+        "entityId": "urn:federation:MicrosoftOnline",
+        "serviceProvider": {
+          "advanced": {
+            "idpProxy": {},
+            "saeConfiguration": {}
+          },
+          "assertionContent": {
+            "basicAuthentication": {},
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:mace:shibboleth:1.0:nameIdentifier",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
+              ]
+            },
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {
+                "assertion": true
+              },
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "assertionProcessing": {
+            "attributeMapper": {
+              "attributeMap": [
+                {
+                  "binary": false,
+                  "localAttribute": "mail",
+                  "samlAttribute": "IDPEmail"
+                },
+                {
+                  "binary": false,
+                  "localAttribute": "UOPClassID",
+                  "samlAttribute": "UOPClassID"
+                }
+              ]
+            },
+            "responseArtifactMessageEncoding": {
+              "encoding": "URI"
+            }
+          },
+          "services": {
+            "serviceAttributes": {
+              "assertionConsumerService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "index": 0,
+                  "isDefault": true,
+                  "location": "https://login.microsoftonline.com/login.srf"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign",
+                  "index": 1,
+                  "isDefault": false,
+                  "location": "https://login.microsoftonline.com/login.srf"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
+                  "index": 2,
+                  "isDefault": false,
+                  "location": "https://login.microsoftonline.com/login.srf"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://login.microsoftonline.com/login.srf"
+                }
+              ]
+            }
+          }
+        }
+      }
     }
-  }
+  },
+  "script": {}
 }

@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo service import "frodo service import --all --file test/e2e/exports/all/allGlobalServices.service.json": should import all global services from the file "test/e2e/exports/all/allGlobalServices.service.json" 1`] = `""`;
+
+exports[`frodo service import "frodo service import --all-separate --directory test/e2e/exports/all-separate/service/global": should import all global services from the directory "test/e2e/exports/all-separate/service/global" 1`] = `""`;
+
+exports[`frodo service import "frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json": should import all global services from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old ones 1`] = `""`;
+
+exports[`frodo service import "frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/service/global": should import all global services from the directory "test/e2e/exports/all-separate/service/global", and clean the old ones 1`] = `""`;
+
+exports[`frodo service import "frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json": should import the first global service from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old one 1`] = `""`;
+
+exports[`frodo service import "frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json": should import the global service with the id "CorsService" from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old one 1`] = `""`;
+
+exports[`frodo service import "frodo service import --current-realm -Caf test/e2e/exports/all/allAlphaServices.service.json": should import all services from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old ones 1`] = `""`;
+
+exports[`frodo service import "frodo service import --file test/e2e/exports/all/allGlobalServices.service.json": should import the first global service from the file "test/e2e/exports/all/allGlobalServices.service.json" 1`] = `""`;
+
+exports[`frodo service import "frodo service import --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json": should import the global service with the id "CorsService" from the file "test/e2e/exports/all/allGlobalServices.service.json" 1`] = `""`;
+
+exports[`frodo service import "frodo service import -ACrD test/e2e/exports/all-separate/service/alpha": should import all services from the directory "test/e2e/exports/all-separate/service/alpha", and clean the old ones 1`] = `""`;
+
+exports[`frodo service import "frodo service import -AD test/e2e/exports/all-separate/service/alpha": should import all services from the directory "test/e2e/exports/all-separate/service/alpha" 1`] = `""`;
+
+exports[`frodo service import "frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json": should import the first service from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old one 1`] = `""`;
+
+exports[`frodo service import "frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json": should import the service with the id "baseurl" from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old one 1`] = `""`;
+
+exports[`frodo service import "frodo service import -af test/e2e/exports/all/allAlphaServices.service.json": should import all services from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;
+
+exports[`frodo service import "frodo service import -f test/e2e/exports/all/allAlphaServices.service.json": should import the first service from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;
+
+exports[`frodo service import "frodo service import -i baseurl -f test/e2e/exports/all/allAlphaServices.service.json": should import the service with the id "baseurl" from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;

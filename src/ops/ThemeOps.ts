@@ -29,7 +29,7 @@ const {
   readTheme,
   updateThemeByName,
   updateTheme,
-  updateThemes,
+  importThemes,
   exportThemes,
   deleteTheme,
   deleteThemeByName,
@@ -311,34 +311,15 @@ export async function importThemesFromFile(file) {
     const data = fs.readFileSync(filePath, 'utf8');
     const themeExport: ThemeExportInterface = JSON.parse(data);
     const indicatorId = createProgressIndicator(
-      'determinate',
-      Object.keys(themeExport.theme).length,
-      'Importing themes...'
+      'indeterminate',
+      0,
+      `Importing themes from ${filePath}...`
     );
-    for (const id of Object.keys(themeExport.theme)) {
-      updateProgressIndicator(
-        indicatorId,
-        `Importing ${themeExport.theme[id].name}`
-      );
-    }
-    const result = await updateThemes(themeExport.theme);
-    if (result == null) {
-      stopProgressIndicator(
-        indicatorId,
-        `Error importing ${Object.keys(themeExport.theme).length} themes!`
-      );
-      printMessage(
-        `Error importing ${
-          Object.keys(themeExport.theme).length
-        } themes from ${filePath}`,
-        'error'
-      );
-    } else {
-      stopProgressIndicator(
-        indicatorId,
-        `Successfully imported ${Object.keys(themeExport.theme).length} themes.`
-      );
-    }
+    await importThemes(themeExport);
+    stopProgressIndicator(
+      indicatorId,
+      `Successfully imported ${Object.keys(themeExport.theme).length} themes.`
+    );
   } catch (error) {
     printMessage(`Error importing themes: ${error}`, 'error');
   }
@@ -363,24 +344,27 @@ export async function importThemesFromFiles() {
   let total = 0;
   let files = 0;
   for (const file of jsonFiles) {
-    const data = fs.readFileSync(file, 'utf8');
-    fileData = JSON.parse(data);
-    if (validateImport(fileData.meta)) {
-      count = Object.keys(fileData.theme).length;
-      // eslint-disable-next-line no-await-in-loop
-      const result = await updateThemes(fileData.theme);
-      if (result == null) {
-        printMessage(`Error importing ${count} themes from ${file}`, 'error');
-      } else {
+    try {
+      const data = fs.readFileSync(file, 'utf8');
+      fileData = JSON.parse(data);
+      if (validateImport(fileData.meta)) {
+        count = Object.keys(fileData.theme).length;
+        await importThemes(fileData);
         files += 1;
         total += count;
         updateProgressIndicator(
           indicatorId,
           `Imported ${count} theme(s) from ${file}`
         );
+      } else {
+        printMessage(`Validation of ${file} failed!`, 'error');
       }
-    } else {
-      printMessage(`Validation of ${file} failed!`, 'error');
+    } catch (error) {
+      updateProgressIndicator(
+        indicatorId,
+        `Error importing theme(s) from ${file}`
+      );
+      printMessage(error.response?.data || error, 'error');
     }
   }
   stopProgressIndicator(

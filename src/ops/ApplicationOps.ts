@@ -372,7 +372,7 @@ export async function importApplicationsFromFiles(
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: ApplicationExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.application).length;
+        const count = Object.keys(fileData.managedApplication).length;
         total += count;
         await _importApplications(fileData, options);
         updateProgressIndicator(

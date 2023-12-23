@@ -40,6 +40,9 @@ program
       'Import all entity providers from separate files (*.saml.json) in the current directory. Ignored with -i or -a.'
     )
   )
+  .addOption(
+    new Option('--no-deps', 'Do not include any dependencies (scripts).')
+  )
   .action(
     // implement program logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -58,21 +61,27 @@ program
             options.entityId
           }" into realm "${state.getRealm()}"...`
         );
-        await importSaml2ProviderFromFile(options.entityId, options.file);
+        await importSaml2ProviderFromFile(options.entityId, options.file, {
+          deps: options.deps,
+        });
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        await importSaml2ProvidersFromFile(options.file);
+        await importSaml2ProvidersFromFile(options.file, {
+          deps: options.deps,
+        });
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files (*.saml.json) in current directory...'
         );
-        await importSaml2ProvidersFromFiles();
+        await importSaml2ProvidersFromFiles({
+          deps: options.deps,
+        });
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -81,7 +90,9 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        await importFirstSaml2ProviderFromFile(options.file);
+        await importFirstSaml2ProviderFromFile(options.file, {
+          deps: options.deps,
+        });
       }
       // unrecognized combination of options or no options
       else {

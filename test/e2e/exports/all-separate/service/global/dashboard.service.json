@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "exportDate": "2023-12-21T16:00:51.339Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-55 [v18.5.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "service": {
+    "dashboard": {
+      "_id": "",
+      "_type": {
+        "_id": "dashboard",
+        "collection": false,
+        "name": "Dashboard"
+      },
+      "defaults": {
+        "assignedDashboard": []
+      },
+      "nextDescendents": [
+        {
+          "_id": "Google",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance"
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "Google",
+          "icfIdentifier": "idm magic 34",
+          "icon": "images/logos/googleplus.png",
+          "login": "http://www.google.com",
+          "name": "Google"
+        },
+        {
+          "_id": "SalesForce",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance"
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "SalesForce",
+          "icfIdentifier": "idm magic 12",
+          "icon": "images/logos/salesforce.png",
+          "login": "http://www.salesforce.com",
+          "name": "SalesForce"
+        },
+        {
+          "_id": "ZenDesk",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance"
+          },
+          "className": "SAML2ApplicationClass",
+          "displayName": "ZenDesk",
+          "icfIdentifier": "idm magic 56",
+          "icon": "images/logos/zendesk.png",
+          "login": "http://www.ZenDesk.com",
+          "name": "ZenDesk"
+        }
+      ]
+    }
+  }
+}

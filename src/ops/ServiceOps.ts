@@ -1,5 +1,8 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { type ServiceExportInterface } from '@rockcarver/frodo-lib/types/ops/ServiceOps';
+import {
+  type ServiceExportInterface,
+  type ServiceImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/ServiceOps';
 import fs from 'fs';
 
 import {
@@ -128,13 +131,16 @@ export async function exportServicesToFiles(
  * Import a service from file
  * @param {string} serviceId service id/name
  * @param {string} file import file name
- * @param {boolean} clean remove existing service
+ * @param {ServiceImportOptions} options import options
  */
 export async function importServiceFromFile(
   serviceId: string,
   file: string,
-  clean: boolean,
-  globalConfig = false
+  options: ServiceImportOptions = {
+    clean: false,
+    global: false,
+    realm: false,
+  }
 ) {
   const filePath = getFilePath(file);
   debugMessage(
@@ -148,7 +154,7 @@ export async function importServiceFromFile(
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, clean, globalConfig);
+        await importService(serviceId, importData, options);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -169,12 +175,15 @@ export async function importServiceFromFile(
 /**
  * Import first service from file
  * @param {string} file import file name
- * @param {boolean} clean remove existing service
+ * @param {ServiceImportOptions} options import options
  */
 export async function importFirstServiceFromFile(
   file: string,
-  clean: boolean,
-  globalConfig = false
+  options: ServiceImportOptions = {
+    clean: false,
+    global: false,
+    realm: false,
+  }
 ) {
   const filePath = getFilePath(file);
   debugMessage(
@@ -189,7 +198,7 @@ export async function importFirstServiceFromFile(
       if (!verbose) showSpinner(`Importing ${serviceId}...`);
       try {
         if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, clean, globalConfig);
+        await importService(serviceId, importData, options);
         succeedSpinner(`Imported ${serviceId}.`);
       } catch (importError) {
         const message = importError.response?.data?.message;
@@ -210,12 +219,15 @@ export async function importFirstServiceFromFile(
 /**
  * Import services from file
  * @param {String} file file name
- * @param {boolean} clean remove existing service
+ * @param {ServiceImportOptions} options import options
  */
 export async function importServicesFromFile(
   file: string,
-  clean: boolean,
-  globalConfig = false
+  options: ServiceImportOptions = {
+    clean: false,
+    global: false,
+    realm: false,
+  }
 ) {
   const filePath = getFilePath(file);
   debugMessage(
@@ -226,7 +238,7 @@ export async function importServicesFromFile(
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${filePath}`);
     const importData = JSON.parse(data) as ServiceExportInterface;
     try {
-      await importServices(importData, clean, globalConfig);
+      await importServices(importData, options);
     } catch (error) {
       printMessage(`${error.message}`, 'error');
       printMessage(error.response.status, 'error');
@@ -239,19 +251,22 @@ export async function importServicesFromFile(
 
 /**
  * Import all services from separate files
- * @param {boolean} clean remove existing service
+ * @param {ServiceImportOptions} options import options
  */
 export async function importServicesFromFiles(
-  clean: boolean,
-  globalConfig = false
+  options: ServiceImportOptions = {
+    clean: false,
+    global: false,
+    realm: false,
+  }
 ) {
   debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
   const names = fs.readdirSync(getWorkingDirectory());
-  const agentFiles = names
-    .filter((name) => name.toLowerCase().endsWith('.service.json'))
-    .map((name) => getFilePath(name));
-  for (const file of agentFiles) {
-    await importServicesFromFile(file, clean, globalConfig);
+  const serviceFiles = names.filter((name) =>
+    name.toLowerCase().endsWith('.service.json')
+  );
+  for (const file of serviceFiles) {
+    await importServicesFromFile(file, options);
   }
   debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
 }

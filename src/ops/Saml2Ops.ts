@@ -1,6 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { type Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
-import { type Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
+import {
+  type Saml2ExportInterface,
+  type Saml2ProviderImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
 
 import {
@@ -265,10 +268,12 @@ export async function exportSaml2ProvidersToFiles(includeMeta = true) {
  * Import a SAML entity provider by entity id from file
  * @param {String} entityId Provider entity id
  * @param {String} file Import file name
+ * @param {Saml2ProviderImportOptions} options import options
  */
 export async function importSaml2ProviderFromFile(
   entityId: string,
-  file: string
+  file: string,
+  options: Saml2ProviderImportOptions = { deps: true }
 ) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -279,7 +284,7 @@ export async function importSaml2ProviderFromFile(
       `Importing ${entityId}...`
     );
     try {
-      await importSaml2Provider(entityId, fileData);
+      await importSaml2Provider(entityId, fileData, options);
       stopProgressIndicator(indicatorId, `Imported ${entityId}.`, 'success');
     } catch (error) {
       stopProgressIndicator(
@@ -299,8 +304,12 @@ export async function importSaml2ProviderFromFile(
 /**
  * Import a SAML entity provider by entity id from file
  * @param {String} file Import file name
+ * @param {Saml2ProviderImportOptions} options import options
  */
-export async function importFirstSaml2ProviderFromFile(file: string) {
+export async function importFirstSaml2ProviderFromFile(
+  file: string,
+  options: Saml2ProviderImportOptions = { deps: true }
+) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data) as Saml2ExportInterface;
@@ -315,7 +324,7 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
       `Importing ${entityId}...`
     );
     try {
-      await importSaml2Provider(entityId, fileData);
+      await importSaml2Provider(entityId, fileData, options);
       stopProgressIndicator(indicatorId, `Imported ${entityId}.`, 'success');
     } catch (error) {
       stopProgressIndicator(
@@ -332,13 +341,17 @@ export async function importFirstSaml2ProviderFromFile(file: string) {
 /**
  * Import all SAML entity providers from file
  * @param {String} file Import file name
+ * @param {Saml2ProviderImportOptions} options import options
  */
-export async function importSaml2ProvidersFromFile(file: string) {
+export async function importSaml2ProvidersFromFile(
+  file: string,
+  options: Saml2ProviderImportOptions = { deps: true }
+) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     if (validateImport(fileData.meta)) {
-      await importSaml2Providers(fileData);
+      await importSaml2Providers(fileData, options);
     } else {
       printMessage('Import validation failed...', 'error');
     }
@@ -349,8 +362,11 @@ export async function importSaml2ProvidersFromFile(file: string) {
 
 /**
  * Import all SAML entity providers from all *.saml.json files in the current directory
+ * @param {Saml2ProviderImportOptions} options import options
  */
-export async function importSaml2ProvidersFromFiles() {
+export async function importSaml2ProvidersFromFiles(
+  options: Saml2ProviderImportOptions = { deps: true }
+) {
   const names = fs.readdirSync(getWorkingDirectory());
   const jsonFiles = names
     .filter((name) => name.toLowerCase().endsWith('.saml.json'))
@@ -366,7 +382,7 @@ export async function importSaml2ProvidersFromFiles() {
       const data = fs.readFileSync(file, 'utf8');
       const fileData = JSON.parse(data);
       if (validateImport(fileData.meta)) {
-        const result = await importSaml2Providers(fileData);
+        const result = await importSaml2Providers(fileData, options);
         total += result.length;
         updateProgressIndicator(
           indicatorId,

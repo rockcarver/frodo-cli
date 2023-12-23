@@ -147,8 +147,7 @@ describe('frodo journey import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    // TODO: Find out why this test is not passing (skip until it can be fixed)
-    test.skip(`"frodo journey import -af ${allAlphaJourneysExport} --re-uuid": should import all journeys from the file "${allAlphaJourneysExport}" with new uuids`, async () => {
+    test(`"frodo journey import -af ${allAlphaJourneysExport} --re-uuid": should import all journeys from the file "${allAlphaJourneysExport}" with new uuids`, async () => {
         const CMD = `frodo journey import -af ${allAlphaJourneysExport} --re-uuid`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
