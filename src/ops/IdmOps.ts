@@ -1,5 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { type ConfigEntityImportOptions } from '@rockcarver/frodo-lib/src/ops/IdmConfigOps';
+import { type ConfigEntityImportOptions } from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
