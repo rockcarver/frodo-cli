@@ -53,13 +53,7 @@ program
         'brightCyan'
       ] +
       `\nRelated Commands:\n` +
-      `  Run ${
-        'frodo admin generate-rfc7523-authz-grant-artefacts --help'[
-          'brightCyan'
-        ]
-      } to see how to create the required configuration artefacts for ${
-        'frodo admin execute-rfc7523-authz-grant-flow'['brightCyan']
-      }:\n`
+      `  Run ${'frodo admin generate-rfc7523-authz-grant-artefacts --help'['brightCyan']} to see how to create the required configuration artefacts for ${'frodo admin execute-rfc7523-authz-grant-flow'['brightCyan']}:\n`
   )
   .action(
     // implement command logic inside action handler
