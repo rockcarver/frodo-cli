@@ -48,6 +48,12 @@ program
       'Does not include metadata in the export file.'
     )
   )
+  .addOption(
+    new Option(
+      '--no-coords',
+      'Do not include the x and y coordinate positions of the journey/tree nodes.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -65,6 +71,7 @@ program
         await exportEverythingToFile(options.file, options.metadata, {
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
+          coords: options.coords,
         });
         // require --directory -D for all-separate function
       } else if (options.allSeparate && !state.getDirectory()) {
@@ -80,6 +87,7 @@ program
         await exportEverythingToFiles(options.extract, options.metadata, {
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
+          coords: options.coords,
         });
         // unrecognized combination of options or no options
       } else {

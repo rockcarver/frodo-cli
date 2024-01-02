@@ -21025,92 +21025,8 @@
       "secondaryColor": "#69788b",
       "textColor": "#ffffff"
     },
-    "685c6db1-4c0b-471c-a922-9e6d48f33fb5": {
-      "_id": "685c6db1-4c0b-471c-a922-9e6d48f33fb5",
-      "accountFooter": "<footer class=\"w-100\">\n            <div class=\"d-flex flex-column flex-md-row justify-content-center align-items-center py-4\">\n              <div class=\"container w-100\">\n                <div class=\"mt-5 py-4 border-top border-darkened\">\n                  <div class=\"row\" style=\"color: #23282e;\">\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Company</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">About Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Contact Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Support</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Help Center</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Docs</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Community</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Facebook</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Twitter</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Forum</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-12 col-lg-6\" style=\"color: #5e6d82\">\n                      <div class=\"d-flex align-items-center justify-content-lg-end py-4 py-lg-0\">\n                        <span class=\"pr-1\">&copy; 2021</span>\n                        <a href=\"#\" class=\"text-decoration-none\" target=\"_self\" style=\"color: #5e6d82\">Rob Roy Markets, Inc</a>\n                      </div>\n                    </div>\n                  </div>\n                </div> \n              </div>\n            </div>\n          </footer>\n",
-      "accountFooterEnabled": true,
-      "accountPageSections": {
-        "accountControls": {
-          "enabled": false
-        },
-        "accountSecurity": {
-          "enabled": true,
-          "subsections": {
-            "password": {
-              "enabled": true
-            },
-            "securityQuestions": {
-              "enabled": false
-            },
-            "twoStepVerification": {
-              "enabled": true
-            },
-            "username": {
-              "enabled": true
-            }
-          }
-        },
-        "consent": {
-          "enabled": false
-        },
-        "oauthApplications": {
-          "enabled": false
-        },
-        "personalInformation": {
-          "enabled": true
-        },
-        "preferences": {
-          "enabled": false
-        },
-        "social": {
-          "enabled": false
-        },
-        "trustedDevices": {
-          "enabled": true
-        }
-      },
-      "backgroundColor": "#FFFFFF",
-      "backgroundImage": "",
-      "bodyText": "#5E6D82",
-      "buttonRounded": "50",
-      "dangerColor": "#f7685b",
-      "favicon": "",
-      "isDefault": false,
-      "journeyFooter": "<footer class=\"w-100\">\n    <div class=\"d-flex flex-column flex-md-row justify-content-center align-items-center py-4\">\n        <div class=\"container w-100\">\n            <div class=\"mt-5 py-4 border-top border-darkened\">\n                <div class=\"row\" style=\"color: #23282e;\">\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                        <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">\n                            Company\n                        </h5>\n                        <ul class=\"nav mb-4 flex-column\">\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">About Us</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Contact Us</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a>\n                            </li>\n                        </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                        <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">\n                            Support\n                        </h5>\n                        <ul class=\"nav mb-4 flex-column\">\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Help Center</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Docs</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a>\n                            </li>\n                        </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                        <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">\n                            Community\n                        </h5>\n                        <ul class=\"nav mb-4 flex-column\">\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Facebook</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Twitter</a>\n                            </li>\n                            <li class=\"nav-item\">\n                                <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Forum</a>\n                            </li>\n                        </ul>\n                    </div>\n                    <div class=\"col-12 col-lg-6\">\n                        <div class=\"d-flex align-items-center justify-content-lg-end py-4 py-lg-0\">\n                            <span class=\"pr-1\">&copy; 2021</span>\n                            <a href=\"#\" class=\"text-decoration-none\" target=\"_self\">Highlander, Inc.</a>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</footer>\n\n",
-      "journeyFooterEnabled": true,
-      "journeyHeader": "<header>\n            <nav\n              class=\"navbar shadow-lg navbar-light bg-white navbar-expand-lg\"\n            >\n              <a href=\"#\" target=\"_self\" class=\"navbar-brand\">\n                <img\n                  src=\"https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg\"\n                  alt=\"Logo\"\n                  style=\"height: 28px\"\n                />\n              </a>\n              <div\n                class=\"navbar-collapse d-none d-lg-flex\"\n                id=\"navbarSupportedContent\"\n              >\n                <ul class=\"navbar-nav mr-auto\">\n                  <li class=\"nav-item\">\n                    <a class=\"nav-link\" href=\"#\">Link</a>\n                  </li>\n                  <li class=\"nav-item\">\n                    <a\n                      class=\"nav-link disabled\"\n                      href=\"#\"\n                      tabindex=\"-1\"\n                      aria-disabled=\"true\"\n                      >Disabled</a\n                    >\n                  </li>\n                </ul>\n                <ul class=\"navbar-nav ml-auto\">\n                  <li class=\"nav-item\">\n                    <a href=\"#\" target=\"_self\" class=\"nav-link\">Link</a>\n                  </li>\n                </ul>\n              </div>\n            </nav>\n          </header>\n",
-      "journeyHeaderEnabled": true,
-      "journeyJustifiedContent": "",
-      "journeyJustifiedContentEnabled": false,
-      "journeyLayout": "card",
-      "journeyTheaterMode": false,
-      "linkActiveColor": "#C60819",
-      "linkColor": "#EB0A1E",
-      "linkedTrees": [],
-      "logo": "",
-      "logoAltText": "",
-      "logoEnabled": true,
-      "logoHeight": "40",
-      "logoProfile": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg",
-      "logoProfileAltText": "Highlander",
-      "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
-      "logoProfileCollapsedAltText": "Highlander",
-      "logoProfileCollapsedHeight": "28",
-      "logoProfileHeight": "28",
-      "name": "Highlander",
-      "pageTitle": "#23282e",
-      "primaryColor": "#EB0A1E",
-      "primaryOffColor": "#C60819",
-      "profileBackgroundColor": "#FFFFFF",
-      "profileMenuHighlightColor": "#FFFFFF",
-      "profileMenuHoverColor": "#FFFFFF",
-      "profileMenuHoverTextColor": "#455469",
-      "profileMenuTextHighlightColor": "#EB0A1E",
-      "secondaryColor": "#69788b",
-      "textColor": "#ffffff"
-    },
-    "7656c1fd-c81b-4a92-86d0-daf53aa15783": {
-      "_id": "7656c1fd-c81b-4a92-86d0-daf53aa15783",
+    "cd6c93e2-52e2-4340-9770-66a588343841": {
+      "_id": "cd6c93e2-52e2-4340-9770-66a588343841",
       "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
       "accountFooterEnabled": false,
       "accountPageSections": {
@@ -21193,8 +21109,8 @@
       "secondaryColor": "#69788b",
       "textColor": "#ffffff"
     },
-    "91dc3072-1f37-4da7-8479-5ba18bc910f7": {
-      "_id": "91dc3072-1f37-4da7-8479-5ba18bc910f7",
+    "86ce2f64-586d-44fe-8593-b12a85aac68d": {
+      "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
       "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
       "accountFooterEnabled": false,
       "accountPageSections": {
@@ -21276,8 +21192,8 @@
       "secondaryColor": "#69788b",
       "textColor": "#ffffff"
     },
-    "c771e360-f37a-4989-88a7-7502540193dd": {
-      "_id": "c771e360-f37a-4989-88a7-7502540193dd",
+    "4ded6d91-ceea-400a-ae3f-42209f1b0e06": {
+      "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
       "accountFooter": "<footer>\n  <div class=\"container-md\">\n    <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n      <div class=\"text-nowrap\">\n        <span class=\"pr-1\">© 2022</span>\n        <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n      </div>\n      <ul class=\"nav\">\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n        </li>\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n        </li>\n      </ul>\n    </div>\n  </div>\n</footer>\n",
       "accountFooterEnabled": true,
       "accountPageSections": {
@@ -21360,8 +21276,8 @@
       "secondaryColor": "#69788b",
       "textColor": "#ffffff"
     },
-    "dfc85bf3-5464-41f2-8002-f282c1c8d405": {
-      "_id": "dfc85bf3-5464-41f2-8002-f282c1c8d405",
+    "b82755e8-fe9a-4d27-b66b-45e37ae12345": {
+      "_id": "b82755e8-fe9a-4d27-b66b-45e37ae12345",
       "accountFooter": "<footer class=\"w-100\">\n            <div class=\"d-flex flex-column flex-md-row justify-content-center align-items-center py-4\">\n              <div class=\"container w-100\">\n                <div class=\"mt-5 py-4 border-top border-darkened\">\n                  <div class=\"row\" style=\"color: #23282e;\">\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Company</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">About Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Contact Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Support</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Help Center</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Docs</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Community</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Facebook</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Twitter</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Forum</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-12 col-lg-6\">\n                      <div class=\"d-flex align-items-center justify-content-lg-end py-4 py-lg-0\">\n                        <span class=\"pr-1\">&copy; 2021</span>\n                        <a href=\"#\" class=\"text-decoration-none\" target=\"_self\">Rob Roy Markets, Inc</a>\n                      </div>\n                    </div>\n                  </div>\n                </div> \n              </div>\n            </div>\n          </footer>\n",
       "accountFooterEnabled": true,
       "accountPageSections": {
@@ -21577,9 +21493,7 @@
               "outcome": "bf9ea8d5-9802-4f26-9664-a21840faac23"
             },
             "displayName": "Page Node",
-            "nodeType": "PageNode",
-            "x": 139,
-            "y": 146
+            "nodeType": "PageNode"
           },
           "b93ce36e-1976-4610-b24f-8d6760b5463b": {
             "connections": {
@@ -21587,9 +21501,7 @@
               "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
             },
             "displayName": "Inner Tree Evaluator",
-            "nodeType": "InnerTreeEvaluatorNode",
-            "x": 767,
-            "y": 188
+            "nodeType": "InnerTreeEvaluatorNode"
           },
           "bf9ea8d5-9802-4f26-9664-a21840faac23": {
             "connections": {
@@ -21597,33 +21509,20 @@
               "true": "d9a79f01-2ce3-4be2-a28a-975f35c3c8ca"
             },
             "displayName": "Identify Existing User",
-            "nodeType": "IdentifyExistingUserNode",
-            "x": 324,
-            "y": 152
+            "nodeType": "IdentifyExistingUserNode"
           },
           "d9a79f01-2ce3-4be2-a28a-975f35c3c8ca": {
             "connections": {
               "outcome": "b93ce36e-1976-4610-b24f-8d6760b5463b"
             },
             "displayName": "Email Suspend Node",
-            "nodeType": "EmailSuspendNode",
-            "x": 563,
-            "y": 193
+            "nodeType": "EmailSuspendNode"
           }
         },
         "staticNodes": {
-          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
-            "x": 970,
-            "y": 149
-          },
-          "e301438c-0bd0-429c-ab0c-66126501069a": {
-            "x": 982,
-            "y": 252
-          },
-          "startNode": {
-            "x": 50,
-            "y": 25
-          }
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {},
+          "e301438c-0bd0-429c-ab0c-66126501069a": {},
+          "startNode": {}
         },
         "uiConfig": {
           "categories": "[\"Username Reset\"]"

@@ -78,6 +78,7 @@ export async function getFullExportConfig(
     return await exportFullConfiguration({
       useStringArrays: true,
       noDecode: false,
+      coords: true,
     });
   }
   // Go through files in the working directory and reconstruct the full export

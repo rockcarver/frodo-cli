@@ -38,6 +38,7 @@ export async function exportEverythingToFile(
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
+    coords: true,
   }
 ): Promise<void> {
   const exportData = await exportFullConfiguration(options);
@@ -63,6 +64,7 @@ export async function exportEverythingToFiles(
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
+    coords: true,
   }
 ): Promise<void> {
   const exportData: FullExportInterface =

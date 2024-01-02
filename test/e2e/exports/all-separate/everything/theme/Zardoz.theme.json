@@ -8,8 +8,8 @@
     "originAmVersion": "7.5.0"
   },
   "theme": {
-    "60532207-8877-4b5c-9fe2-8e83fad981b9": {
-      "_id": "60532207-8877-4b5c-9fe2-8e83fad981b9",
+    "4ded6d91-ceea-400a-ae3f-42209f1b0e06": {
+      "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
       "accountFooter": "<footer>\n  <div class=\"container-md\">\n    <div class=\"py-3 d-flex flex-column flex-sm-row flex-md-column flex-lg-row justify-content-between align-items-center w-100\">\n      <div class=\"text-nowrap\">\n        <span class=\"pr-1\">© 2022</span>\n        <a href=\"#\" target=\"_blank\" class=\"notranslate text-body\">Zardoz, Inc</a>\n      </div>\n      <ul class=\"nav\">\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Privacy Policy</a>\n        </li>\n        <li class=\"nav-item\">\n          <a href=\"#\" class=\"nav-link\">Terms of Use</a>\n        </li>\n      </ul>\n    </div>\n  </div>\n</footer>\n",
       "accountFooterEnabled": true,
       "accountPageSections": {

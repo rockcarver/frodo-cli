@@ -47,8 +47,16 @@ program
   .addHelpText(
     'after',
     `Important Note:\n`['brightYellow'] +
-      `  The ${'frodo app'['brightCyan']} command to manage OAuth2 clients in v1.x has been renamed to ${'frodo oauth client'['brightCyan']} in v2.x\n` +
-      `  The ${'frodo app'['brightCyan']} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${'frodo oauth client'['brightCyan']} command.\n\n` +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command to manage OAuth2 clients in v1.x has been renamed to ${
+        'frodo oauth client'['brightCyan']
+      } in v2.x\n` +
+      `  The ${
+        'frodo app'['brightCyan']
+      } command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${
+        'frodo oauth client'['brightCyan']
+      } command.\n\n` +
       `Usage Examples:\n` +
       `  Export all applications to a single export file with an auto-generated filename using a connection profile:\n` +
       `  $ frodo app export -a ${s.connId}\n`['brightCyan'] +
