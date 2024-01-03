@@ -8,8 +8,8 @@
     "originAmVersion": "7.5.0"
   },
   "theme": {
-    "ddd53b7d-1fdb-48c6-93c1-a708b8dc7199": {
-      "_id": "ddd53b7d-1fdb-48c6-93c1-a708b8dc7199",
+    "cd6c93e2-52e2-4340-9770-66a588343841": {
+      "_id": "cd6c93e2-52e2-4340-9770-66a588343841",
       "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2021</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
       "accountFooterEnabled": false,
       "accountPageSections": {

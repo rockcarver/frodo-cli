@@ -50,11 +50,11 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -i FrodoTest
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --verbose -i FrodoTest
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -i j01 -f my-j01.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --journey-id j02 --no-metadata --no-deps --use-string-arrays -D journeyTestDirectory1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --all --file my-allAlphaJourneys.journey.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -Na --no-deps --use-string-arrays --directory journeyTestDirectory2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --all-separate --no-deps --use-string-arrays
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export --all-separate --no-deps --no-coords --use-string-arrays
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey export -NAD journeyTestDirectory3
 */
 import { testExport } from './utils/TestUtils';
@@ -90,10 +90,10 @@ describe('frodo journey export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo journey export --journey-id j02 --no-metadata --no-deps --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies and should use string arrays.', async () => {
+    test('"frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies or coordinates, and should use string arrays.', async () => {
         const exportFile = "j02.journey.json";
         const exportDirectory = "journeyTestDirectory1";
-        const CMD = `frodo journey export --journey-id j02 --no-metadata --no-deps --use-string-arrays -D ${exportDirectory}`;
+        const CMD = `frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D ${exportDirectory}`;
         await testExport(CMD, env, type, exportFile, exportDirectory, false);
     });
 
@@ -109,15 +109,15 @@ describe('frodo journey export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo journey export -Na --no-deps --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies and only string arrays in the export.', async () => {
+    test('"frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies, no coordinates, and only string arrays in the export.', async () => {
         const exportFile = "allAlphaJourneys.journey.json";
         const exportDirectory = "journeyTestDirectory2";
-        const CMD = `frodo journey export -Na --no-deps --use-string-arrays --directory ${exportDirectory}`;
+        const CMD = `frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory ${exportDirectory}`;
         await testExport(CMD, env, type, exportFile, exportDirectory, false);
     });
 
-    test('"frodo journey export --all-separate --no-deps --use-string-arrays": should export all journeys to separate files with no dependencies and using string arrays', async () => {
-        const CMD = `frodo journey export --all-separate --no-deps --use-string-arrays`;
+    test('"frodo journey export --all-separate --no-deps --no-coords --use-string-arrays": should export all journeys to separate files with no dependencies, no coordinates, and using string arrays', async () => {
+        const CMD = `frodo journey export --all-separate --no-deps --no-coords --use-string-arrays`;
         await testExport(CMD, env, type);
     });
 

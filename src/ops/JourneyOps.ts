@@ -100,6 +100,7 @@ export async function listJourneys(
               exportJourney(journeyStub['_id'], {
                 useStringArrays: false,
                 deps: false,
+                coords: true,
               })
             );
           }
@@ -163,6 +164,7 @@ export async function exportJourneyToFile(
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
+    coords: true,
   }
 ): Promise<void> {
   debugMessage(`exportJourneyToFile: start`);
@@ -210,6 +212,7 @@ export async function exportJourneysToFile(
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
+    coords: true,
   }
 ): Promise<void> {
   if (!file) {
@@ -230,6 +233,7 @@ export async function exportJourneysToFiles(
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
+    coords: true,
   }
 ): Promise<void> {
   const journeysExport = await exportJourneys(options);

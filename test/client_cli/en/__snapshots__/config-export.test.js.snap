@@ -54,6 +54,8 @@ Options:
                                MFA (choices: "classic", "cloud", "forgeops")
   -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
+  --no-coords                  Do not include the x and y coordinate positions
+                               of the journey/tree nodes.
   --no-decode                  Do not include decoded variable value in
                                variable export
   --sa-id <sa-id>              Service account id.

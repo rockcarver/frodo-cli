@@ -59,6 +59,8 @@ Options:
                                MFA (choices: "classic", "cloud", "forgeops")
   -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
+  --no-coords                  Do not include the x and y coordinate positions
+                               of the journey/tree nodes.
   --no-deps                    Do not include any dependencies (scripts, email
                                templates, SAML entity providers and circles of
                                trust, social identity providers, themes).

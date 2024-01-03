@@ -48,10 +48,10 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -aND exportAllTestDir4
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all --file testExportAll.json --use-string-arrays --no-decode
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all --file testExportAll.json --use-string-arrays --no-decode --no-coords
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -AD exportAllTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -AxD exportAllTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all-separate --no-metadata --directory exportAllTestDir3 --use-string-arrays --no-decode --extract
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all-separate --no-metadata --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -74,9 +74,9 @@ describe('frodo config export', () => {
         await testExport(CMD, env, type, exportFile, exportDirectory, false);
     });
 
-    test('"frodo config export --all --file testExportAll.json --use-string-arrays --no-decode": should export everything to a single file named testExportAll.json with no decoding variables and using string arrays', async () => {
+    test('"frodo config export --all --file testExportAll.json --use-string-arrays --no-decode --no-coords": should export everything to a single file named testExportAll.json with no decoding variables, no journey coordinates, and using string arrays', async () => {
         const exportFile = "testExportAll.json";
-        const CMD = `frodo config export --all --file ${exportFile} --use-string-arrays --no-decode`;
+        const CMD = `frodo config export --all --file ${exportFile} --use-string-arrays --no-decode --no-coords`;
         await testExport(CMD, env, type, exportFile);
     });
 
@@ -92,9 +92,9 @@ describe('frodo config export', () => {
         await testExport(CMD, env, undefined, undefined, exportDirectory, false);
     });
 
-    test('"frodo config export --all-separate --no-metadata --directory exportAllTestDir3 --use-string-arrays --no-decode --extract": should export everything into separate files in the directory exportAllTestDir3 with scripts extracted, no decoding variables, and using string arrays', async () => {
+    test('"frodo config export --all-separate --no-metadata --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract": should export everything into separate files in the directory exportAllTestDir3 with scripts extracted, no decoding variables, no journey coordinates, and using string arrays', async () => {
         const exportDirectory = "exportAllTestDir3";
-        const CMD = `frodo config export --all-separate --no-metadata --directory ${exportDirectory} --use-string-arrays --no-decode --extract`;
+        const CMD = `frodo config export --all-separate --no-metadata --directory ${exportDirectory} --use-string-arrays --no-decode --no-coords --extract`;
         await testExport(CMD, env, undefined, undefined, exportDirectory, false);
     });
 });

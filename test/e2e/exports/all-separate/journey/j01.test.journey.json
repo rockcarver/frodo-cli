@@ -226,18 +226,14 @@
           "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
         },
         "displayName": "shared",
-        "nodeType": "ScriptedDecisionNode",
-        "x": 393,
-        "y": 259.015625
+        "nodeType": "ScriptedDecisionNode"
       },
       "89ce5d57-82fa-4d58-8d15-0329f7dbd7e7": {
         "connections": {
           "true": "bdfbe97c-1ff4-4162-85bc-47f6f14b2c66"
         },
         "displayName": "shared",
-        "nodeType": "ScriptedDecisionNode",
-        "x": 392,
-        "y": 173.015625
+        "nodeType": "ScriptedDecisionNode"
       },
       "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35": {
         "connections": {
@@ -245,27 +241,21 @@
           "true": "e301438c-0bd0-429c-ab0c-66126501069a"
         },
         "displayName": "nest",
-        "nodeType": "InnerTreeEvaluatorNode",
-        "x": 816,
-        "y": 233.015625
+        "nodeType": "InnerTreeEvaluatorNode"
       },
       "bdfbe97c-1ff4-4162-85bc-47f6f14b2c66": {
         "connections": {
           "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
         },
         "displayName": "level",
-        "nodeType": "ScriptedDecisionNode",
-        "x": 598,
-        "y": 173.015625
+        "nodeType": "ScriptedDecisionNode"
       },
       "e92d5139-b8a6-43dc-9b13-95ba1d0dc53c": {
         "connections": {
           "true": "bb1e96af-f316-4eb0-b1c6-36b3f1af9e35"
         },
         "displayName": "level",
-        "nodeType": "ScriptedDecisionNode",
-        "x": 395,
-        "y": 345.015625
+        "nodeType": "ScriptedDecisionNode"
       },
       "f129f0df-b49e-453b-97fb-db508e3893ce": {
         "connections": {
@@ -275,24 +265,13 @@
           "shared only": "6674b4ac-dd89-4e13-9440-6f81194e3a22"
         },
         "displayName": "mode",
-        "nodeType": "ScriptedDecisionNode",
-        "x": 167,
-        "y": 210.015625
+        "nodeType": "ScriptedDecisionNode"
       }
     },
     "staticNodes": {
-      "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
-        "x": 1236,
-        "y": 145
-      },
-      "e301438c-0bd0-429c-ab0c-66126501069a": {
-        "x": 1236,
-        "y": 253
-      },
-      "startNode": {
-        "x": 50,
-        "y": 250
-      }
+      "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {},
+      "e301438c-0bd0-429c-ab0c-66126501069a": {},
+      "startNode": {}
     },
     "uiConfig": {
       "categories": "[]"
