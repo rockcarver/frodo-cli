@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config import "frodo config import --current-realm -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything". Import services as realm services, and clean old services 1`] = `""`;
+exports[`frodo config import "frodo config import --current-realm --default -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything", including default scripts. Import services as realm services, and clean old services 1`] = `""`;
 
 exports[`frodo config import "frodo config import --global -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything". Import services as global services, and clean old services 1`] = `""`;
 
 exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `""`;
 
-exports[`frodo config import "frodo config import -af test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json" 1`] = `""`;
+exports[`frodo config import "frodo config import -adf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json", including default scripts. 1`] = `""`;
 
 exports[`frodo config import "frodo config import -agCf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json". Import services as global services, and clean old services 1`] = `""`;
 

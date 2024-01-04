@@ -39,6 +39,7 @@ export async function exportEverythingToFile(
     useStringArrays: true,
     noDecode: false,
     coords: true,
+    includeDefault: false,
   }
 ): Promise<void> {
   const exportData = await exportFullConfiguration(options);
@@ -65,6 +66,7 @@ export async function exportEverythingToFiles(
     useStringArrays: true,
     noDecode: false,
     coords: true,
+    includeDefault: false,
   }
 ): Promise<void> {
   const exportData: FullExportInterface =
@@ -206,6 +208,7 @@ export async function importEverythingFromFile(
     cleanServices: false,
     global: false,
     realm: false,
+    includeDefault: false,
   }
 ) {
   const data = await getFullExportConfig(file);
@@ -222,6 +225,7 @@ export async function importEverythingFromFiles(
     cleanServices: false,
     global: false,
     realm: false,
+    includeDefault: false,
   }
 ) {
   const data = await getFullExportConfigFromDirectory(state.getDirectory());

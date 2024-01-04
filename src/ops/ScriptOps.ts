@@ -1,6 +1,9 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
-import { type ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
+import {
+  type ScriptExportInterface,
+  type ScriptImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import chokidar from 'chokidar';
 import fs from 'fs';
 
@@ -239,11 +242,13 @@ export async function exportScriptByNameToFile(
  * Export all scripts to single file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
  * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
  */
 export async function exportScriptsToFile(
   file: string,
-  includeMeta = true
+  includeMeta = true,
+  includeDefault = false
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
   try {
@@ -254,7 +259,7 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts();
+    const scriptExport = await exportScripts(includeDefault);
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
     return true;
@@ -268,17 +273,21 @@ export async function exportScriptsToFile(
 
 /**
  * Export all scripts to individual files
- * @param extract Extracts the scripts from the exports into separate files if true
+ * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
  * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
  */
 export async function exportScriptsToFiles(
   extract = false,
-  includeMeta = true
+  includeMeta = true,
+  includeDefault = false
 ): Promise<boolean> {
   let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
-  const scriptList = await readScripts();
+  let scriptList = await readScripts();
+  if (!includeDefault)
+    scriptList = scriptList.filter((script) => !script.default);
   const barId = createProgressIndicator(
     'determinate',
     scriptList.length,
@@ -382,13 +391,16 @@ function isScriptExtracted(importData: ScriptExportInterface): boolean {
  * Import script(s) from file
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
  * @param {string} file file name
- * @param {boolean} reUuid true to generate a new uuid for each script on import, false otherwise
+ * @param {ScriptImportOptions} options Script import options
  * @returns {Promise<boolean>} true if no errors occurred during import, false otherwise
  */
 export async function importScriptsFromFile(
   name: string,
   file: string,
-  reUuid = false
+  options: ScriptImportOptions = {
+    reUuid: false,
+    includeDefault: false,
+  }
 ): Promise<boolean> {
   let outcome = false;
   const filePath = getFilePath(file);
@@ -398,9 +410,9 @@ export async function importScriptsFromFile(
       if (err) throw err;
       const importData: ScriptExportInterface = JSON.parse(data);
       if (isScriptExtracted(importData)) {
-        await handleScriptFileImport(filePath, reUuid, false);
+        await handleScriptFileImport(filePath, options, false);
       } else {
-        await importScripts(name, importData, reUuid);
+        await importScripts(name, importData, options);
       }
       outcome = true;
     } catch (error) {
@@ -418,15 +430,17 @@ export async function importScriptsFromFile(
 /**
  * Import extracted scripts.
  *
- * @param watch whether or not to watch for file changes
+ * @param {boolean} watch whether or not to watch for file changes
+ * @param {ScriptImportOptions} options Script import options
+ * @param {boolean} validateScripts If true, validates Javascript scripts to ensure no errors exist in them. Default: false
  */
 export async function importScriptsFromFiles(
   watch: boolean,
-  reUuid: boolean,
+  options: ScriptImportOptions,
   validateScripts: boolean
 ) {
   // If watch is true, it doesn't make sense to reUuid.
-  reUuid = watch ? false : reUuid;
+  options.reUuid = watch ? false : options.reUuid;
 
   /**
    * Run on file change detection, as well as on initial run.
@@ -434,7 +448,7 @@ export async function importScriptsFromFiles(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onChange(path: string, _stats?: fs.Stats): Promise<void> {
     try {
-      await handleScriptFileImport(path, reUuid, validateScripts);
+      await handleScriptFileImport(path, options, validateScripts);
     } catch (error) {
       printMessage(`${path}: ${error.message}`, 'error');
     }
@@ -472,19 +486,20 @@ export async function importScriptsFromFiles(
 /**
  * Handle a script file import.
  *
- * @param file Either a script file or an extract file
- * @param reUuid whether or not to generate a new uuid for each script on import
+ * @param {string} file Either a script file or an extract file
+ * @param {ScriptImportOptions} options Script import options
+ * @param {boolean} validateScripts If true, validates Javascript scripts to ensure no errors exist in them. Default: false
  */
 async function handleScriptFileImport(
   file: string,
-  reUuid: boolean,
+  options: ScriptImportOptions,
   validateScripts: boolean
 ) {
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
   const scriptFile = getScriptFile(file);
   const script = getScriptExportByScriptFile(scriptFile);
 
-  const imported = await importScripts('', script, reUuid, validateScripts);
+  const imported = await importScripts('', script, options, validateScripts);
   if (imported) {
     printMessage(`Imported '${scriptFile}'`);
   }

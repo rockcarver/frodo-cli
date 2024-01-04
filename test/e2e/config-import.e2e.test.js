@@ -47,14 +47,14 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -af test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -adf test/e2e/exports/all/Alpha.everything.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/Alpha.everything.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -agCf test/e2e/exports/all/Alpha.everything.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -arCf test/e2e/exports/all/Alpha.everything.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/everything
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory test/e2e/exports/all-separate/everything
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --global -CAD test/e2e/exports/all-separate/everything
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --current-realm -CAD test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --current-realm --default -CAD test/e2e/exports/all-separate/everything
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -78,8 +78,8 @@ const allSeparateAlphaDirectory = `test/e2e/exports/all-separate/everything`;
 
 describe('frodo config import', () => {
 
-    test(`"frodo config import -af ${allAlphaExport}" Import everything from "${allAlphaFileName}"`, async () => {
-        const CMD = `frodo config import -af ${allAlphaExport}`;
+    test(`"frodo config import -adf ${allAlphaExport}" Import everything from "${allAlphaFileName}", including default scripts.`, async () => {
+        const CMD = `frodo config import -adf ${allAlphaExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
@@ -122,8 +122,8 @@ describe('frodo config import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo config import --current-realm -CAD ${allSeparateAlphaDirectory}" Import everything from directory "${allSeparateAlphaDirectory}". Import services as realm services, and clean old services`, async () => {
-        const CMD = `frodo config import --current-realm -CAD ${allSeparateAlphaDirectory}`;
+    test(`"frodo config import --current-realm --default -CAD ${allSeparateAlphaDirectory}" Import everything from directory "${allSeparateAlphaDirectory}", including default scripts. Import services as realm services, and clean old services`, async () => {
+        const CMD = `frodo config import --current-realm --default -CAD ${allSeparateAlphaDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

@@ -46,6 +46,12 @@ program
       'Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with -A.'
     ).default(false, 'false')
   )
+  .addOption(
+    new Option(
+      '-d, --default',
+      'Import all scripts including the default scripts. Ignored with -n.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -71,11 +77,21 @@ program
         const outcome = await importScriptsFromFile(
           options.scriptName || options.script,
           options.file,
-          options.reUuid
+          {
+            reUuid: options.reUuid,
+            includeDefault: options.default,
+          }
         );
         if (!outcome) process.exitCode = 1;
       } else if (options.allSeparate) {
-        await importScriptsFromFiles(options.watch, options.reUuid, true);
+        await importScriptsFromFiles(
+          options.watch,
+          {
+            reUuid: options.reUuid,
+            includeDefault: options.default,
+          },
+          true
+        );
       }
     }
     // end command logic inside action handler

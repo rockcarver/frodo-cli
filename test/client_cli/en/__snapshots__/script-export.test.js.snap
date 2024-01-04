@@ -26,6 +26,8 @@ Options:
                                (*.script.json) in the current directory.
                                Ignored with -n or -a.
   --curlirize                  Output all network calls in curl format.
+  -d, --default                Export all scripts including the default
+                               scripts. Ignored with -n.
   -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
