@@ -24,6 +24,8 @@ Options:
   -A, --all-separate           Export everything to separate files in the -D
                                directory. Ignored with -a.
   --curlirize                  Output all network calls in curl format.
+  -d, --default                Export all scripts including the default
+                               scripts.
   -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional

@@ -51,6 +51,12 @@ program
       'Create new UUIDs for the scripts upon import. Use this to duplicate scripts or create a new versions of the same scripts.'
     ).default(false, 'off')
   )
+  .addOption(
+    new Option(
+      '-d, --default',
+      'Import all scripts including the default scripts.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -76,6 +82,7 @@ program
           cleanServices: options.clean,
           global: options.global,
           realm: options.realm,
+          includeDefault: options.default,
         });
         // require --directory -D for all-separate function
       } else if (options.allSeparate && !state.getDirectory()) {
@@ -94,6 +101,7 @@ program
           cleanServices: options.clean,
           global: options.global,
           realm: options.realm,
+          includeDefault: options.default,
         });
         // unrecognized combination of options or no options
       } else {

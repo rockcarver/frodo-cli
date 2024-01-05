@@ -79,6 +79,7 @@ export async function getFullExportConfig(
       useStringArrays: true,
       noDecode: false,
       coords: true,
+      includeDefault: true,
     });
   }
   // Go through files in the working directory and reconstruct the full export

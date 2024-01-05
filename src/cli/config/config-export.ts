@@ -54,6 +54,12 @@ program
       'Do not include the x and y coordinate positions of the journey/tree nodes.'
     )
   )
+  .addOption(
+    new Option(
+      '-d, --default',
+      'Export all scripts including the default scripts.'
+    )
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -72,6 +78,7 @@ program
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
           coords: options.coords,
+          includeDefault: options.default,
         });
         // require --directory -D for all-separate function
       } else if (options.allSeparate && !state.getDirectory()) {
@@ -88,6 +95,7 @@ program
           useStringArrays: options.useStringArrays,
           noDecode: options.decode,
           coords: options.coords,
+          includeDefault: options.default,
         });
         // unrecognized combination of options or no options
       } else {
