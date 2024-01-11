@@ -45,6 +45,9 @@ program
       'Does not include metadata in the export file.'
     )
   )
+  .addOption(
+    new Option('--no-deps', 'Do not include any dependencies (scripts).')
+  )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -66,18 +69,25 @@ program
         await exportSaml2ProviderToFile(
           options.entityId,
           options.file,
-          options.metadata
+          options.metadata,
+          {
+            deps: options.deps,
+          }
         );
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all providers to a single file...');
-        await exportSaml2ProvidersToFile(options.file, options.metadata);
+        await exportSaml2ProvidersToFile(options.file, options.metadata, {
+          deps: options.deps,
+        });
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all providers to separate files...');
-        await exportSaml2ProvidersToFiles(options.metadata);
+        await exportSaml2ProvidersToFiles(options.metadata, {
+          deps: options.deps,
+        });
       }
       // unrecognized combination of options or no options
       else {

@@ -1,8 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { type Saml2ProviderSkeleton } from '@rockcarver/frodo-lib/types/api/Saml2Api';
-import {
-  type Saml2ExportInterface,
-  type Saml2ProviderImportOptions,
+import type {
+  Saml2EntitiesExportOptions,
+  Saml2EntitiesImportOptions,
+  Saml2ExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
 
@@ -176,9 +177,10 @@ export async function exportSaml2MetadataToFile(entityId, file = null) {
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportSaml2ProviderToFile(
-  entityId,
-  file = null,
-  includeMeta = true
+  entityId: string,
+  file: string = null,
+  includeMeta = true,
+  options: Saml2EntitiesExportOptions = { deps: true }
 ) {
   debugMessage(
     `cli.Saml2Ops.exportSaml2ProviderToFile: start [entityId=${entityId}, file=${file}]`
@@ -194,7 +196,7 @@ export async function exportSaml2ProviderToFile(
       1,
       `Exporting provider ${entityId}`
     );
-    const fileData = await exportSaml2Provider(entityId);
+    const fileData = await exportSaml2Provider(entityId, options);
     saveJsonToFile(fileData, filePath, includeMeta);
     updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
     stopProgressIndicator(
@@ -217,15 +219,16 @@ export async function exportSaml2ProviderToFile(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportSaml2ProvidersToFile(
-  file = null,
-  includeMeta = true
+  file: string = null,
+  includeMeta = true,
+  options: Saml2EntitiesExportOptions = { deps: true }
 ) {
   debugMessage(`cli.Saml2Ops.exportSaml2ProviderToFile: start [file=${file}]`);
   if (!file) {
     file = getTypedFilename(`all${getRealmString()}Providers`, 'saml');
   }
   try {
-    const exportData = await exportSaml2Providers();
+    const exportData = await exportSaml2Providers(options);
     saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
   } catch (error) {
     printMessage(error.message, 'error');
@@ -241,7 +244,10 @@ export async function exportSaml2ProvidersToFile(
  * Export all entity providers to individual files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
-export async function exportSaml2ProvidersToFiles(includeMeta = true) {
+export async function exportSaml2ProvidersToFiles(
+  includeMeta = true,
+  options: Saml2EntitiesExportOptions = { deps: true }
+) {
   const stubs = await readSaml2ProviderStubs();
   if (stubs.length > 0) {
     const indicatorId = createProgressIndicator(
@@ -251,7 +257,7 @@ export async function exportSaml2ProvidersToFiles(includeMeta = true) {
     );
     for (const stub of stubs) {
       const file = getFilePath(getTypedFilename(stub.entityId, 'saml'), true);
-      const fileData = await exportSaml2Provider(stub.entityId);
+      const fileData = await exportSaml2Provider(stub.entityId, options);
       saveJsonToFile(fileData, file, includeMeta);
       updateProgressIndicator(
         indicatorId,
@@ -273,7 +279,7 @@ export async function exportSaml2ProvidersToFiles(includeMeta = true) {
 export async function importSaml2ProviderFromFile(
   entityId: string,
   file: string,
-  options: Saml2ProviderImportOptions = { deps: true }
+  options: Saml2EntitiesImportOptions = { deps: true }
 ) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -307,9 +313,8 @@ export async function importSaml2ProviderFromFile(
  * @param {Saml2ProviderImportOptions} options import options
  */
 export async function importFirstSaml2ProviderFromFile(
-  file: string,
-  options: Saml2ProviderImportOptions = { deps: true }
-) {
+  file: string, 
+  options: Saml2EntitiesImportOptions = { deps: true }) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data) as Saml2ExportInterface;
@@ -345,7 +350,7 @@ export async function importFirstSaml2ProviderFromFile(
  */
 export async function importSaml2ProvidersFromFile(
   file: string,
-  options: Saml2ProviderImportOptions = { deps: true }
+  options: Saml2EntitiesImportOptions = { deps: true }
 ) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -365,7 +370,7 @@ export async function importSaml2ProvidersFromFile(
  * @param {Saml2ProviderImportOptions} options import options
  */
 export async function importSaml2ProvidersFromFiles(
-  options: Saml2ProviderImportOptions = { deps: true }
+  options: Saml2EntitiesImportOptions = { deps: true }
 ) {
   const names = fs.readdirSync(getWorkingDirectory());
   const jsonFiles = names
