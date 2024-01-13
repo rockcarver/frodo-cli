@@ -15,10 +15,23 @@ ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platfo
 
 ## Quick start
 
+### For the impatient
+The below steps install the latest unstable (next) version of the cli using homebrew (only for MacOS and linux):
+```console
+$ brew tap rockcarver/frodo-cli
+$ brew install frodo-cli-next
+$ frodo conn add https://openam-my-tenant.forgeblocks.com/am john.doe@company.com '5uP3r-53cr3t!'
+$ frodo info my-tenant
+$ frodo journey export .... # or whatever you need to use frodo for
+```
+
+Detailed quick-start follows.
+
 ### Install
 
-#### Homebrew (preferred for Mac OS (x86 and M1) and linux)
-Make sure you have a working [homebrew](https://brew.sh/). Then, to install frodo binary:
+#### Homebrew (preferred for Mac OS [x86 and M1] and linux)
+1. Make sure you have a working [homebrew](https://brew.sh/). 
+2. [Tap](https://docs.brew.sh/Taps) the custom formula as below:
 ```console
 $ brew tap rockcarver/frodo-cli
 ==> Tapping rockcarver/frodo-cli
@@ -27,6 +40,10 @@ remote: Enumerating objects: 8, done.
 .
 .
 ```
+3. Once its tapped, you can install either the STABLE major version or the latest/unstable (next) version, as below
+
+STABLE
+
 ```console
 $ brew install frodo-cli
 ==> Fetching rockcarver/frodo-cli/frodo-cli
@@ -34,30 +51,57 @@ $ brew install frodo-cli
 .
 .
 ```
-This will build the frodo binary locally and add it to the path (homebrew bin). To verify the installation, run `frodo -v`, it should print something like:
+
+Or latest/unstable (next)
+
+```console
+$ brew install frodo-cli-next
+==> Fetching rockcarver/frodo-cli/frodo-cli-next
+==> Cloning https://github.com/rockcarver/frodo-cli.git
+.
+.
+```
+To verify the installation, run `frodo -v`, it should print something like:
 ```console
 $ frodo -v
-You seem to be running the binary package
+You are running the binary release.
 Installed versions:
-cli: v0.23.0
-lib: v0.18.8
-node: v18.5.0
+cli: v2.0.0-43
+lib: v2.0.0-59
+node: v18.18.2
 ```
+
+If you have the STABLE version installed and you want to get the latest, do:
+```console
+$ brew uninstall frodo-cli
+$ brew uninstall frodo-cli-next
+```
+Or vice-versa.
 
 To upgrade to latest frodo
 ```console
 $ brew upgrade frodo-cli
-==> Downloading https://formulae.brew.sh/api/formula.jws.json
-######################################################################## 100.0%
-==> Downloading https://formulae.brew.sh/api/cask.jws.json
-######################################################################## 100.0%
-Warning: rockcarver/frodo-cli/frodo-cli 0.23.0 already installed
+==> Upgrading 1 outdated package:
+rockcarver/frodo-cli/frodo-cli-next 2.0.0-43 -> 2.0.0-44
+==> Fetching rockcarver/frodo-cli/frodo-cli-next
+==> Cloning https://github.com/rockcarver/frodo-cli.git
+Updating /Users/sandeep.chaturvedi/Library/Caches/Homebrew/frodo-cli-next--git
+From https://github.com/rockcarver/frodo-cli
+ * [new tag]           v2.0.0-44  -> v2.0.0-44
+==> Checking out tag v2.0.0-44
+Previous HEAD position was 9a968346 Updated changelog and version for release v2.0.0-43
+HEAD is now at e687fdf6 Updated changelog and version for release v2.0.0-44
+HEAD is now at e687fdf6 Updated changelog and version for release v2.0.0-44
+==> Upgrading rockcarver/frodo-cli/frodo-cli-next
+  2.0.0-43 -> 2.0.0-44
 ```
 
 #### Alternate method - download precompiled binary
 Alternatively, for MacOS (x86 only), linux and Windows, you can also download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory. For MacOS (x86 only) and Windows, you may have to allow running unsigned binaries on those platforms. How to do that is out of scope for this README.
 
-#### Run
+### Using / running
+
+You can either run with a saved connection profile (most common way) or not. To run with a connection profile, you need to create one:
 1. Run `frodo conn add` (example below) to setup `frodo` for your ForgeRock environment. If all parameters are correct, `frodo` creates a new [connection profile](#connection-profiles). If you are offline and don't want to validate the data you enter, you can use the --no-validate paramter and frodo stores the [connection profile](#connection-profiles) without validating it.
 
    ```console
@@ -88,7 +132,7 @@ Alternatively, for MacOS (x86 only), linux and Windows, you can also download th
    eyJ0eXAiOiJKV......
    ```
 
-   Note how the command does not specify the complete tenant URL nor username nor password. I only uses a unique substring that matches the tenant URL and frodo looks up and uses the right [connection profile](#connection-profiles).
+   Note how the command does not specify the complete tenant URL nor username nor password. It only needs a unique substring that matches the tenant URL and frodo looks up and uses the right [connection profile](#connection-profiles).
 
 3. Now you can use other frodo commands, like `journey`, `logs`, `applications` etc. as desired. **For detailed usage, refer to [this](#usage)**
 
