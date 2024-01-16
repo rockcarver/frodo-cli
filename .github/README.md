@@ -74,7 +74,7 @@ node: v18.18.2
 If you have the STABLE version installed and you want to get the latest, do:
 ```console
 $ brew uninstall frodo-cli
-$ brew uninstall frodo-cli-next
+$ brew install frodo-cli-next
 ```
 Or vice-versa.
 
