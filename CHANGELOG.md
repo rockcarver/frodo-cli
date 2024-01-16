@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- pem and base64hmac encoded ESV secret creation
+
 ## [2.0.0-44] - 2024-01-11
 
 ## [2.0.0-43] - 2024-01-05
