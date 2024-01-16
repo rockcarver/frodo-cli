@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-45] - 2024-01-16
+
 ### Added
 
-- pem and base64hmac encoded ESV secret creation
+-   pem and base64hmac encoded ESV secret creation
 
 ## [2.0.0-44] - 2024-01-11
 
@@ -1459,7 +1461,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-44...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-45...HEAD
+
+[2.0.0-45]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-44...v2.0.0-45
 
 [2.0.0-44]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-43...v2.0.0-44
 
