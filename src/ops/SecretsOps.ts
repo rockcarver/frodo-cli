@@ -4,6 +4,7 @@ import {
   SecretSkeleton,
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
+import fs from 'fs';
 
 import { getFullExportConfig, isIdUsed } from '../utils/Config';
 import {
@@ -157,6 +158,45 @@ export async function createSecret(
   useInPlaceholders: boolean
 ): Promise<boolean> {
   let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Creating secret ${id}...`
+  );
+  try {
+    await _createSecret(id, value, description, encoding, useInPlaceholders);
+    stopProgressIndicator(spinnerId, `Created secret ${id}`, 'success');
+    outcome = true;
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      error.response
+        ? `Error: ${error.response.data.code} - ${error.response.data.message}`
+        : error,
+      'fail'
+    );
+  }
+  return outcome;
+}
+
+/**
+ * Create PEM certificate from file
+ * @param {string} id secret id
+ * @param {string} file certificate file name
+ * @param {string} description secret description
+ * @param {SecretEncodingType} encoding secret encoding
+ * @param {boolean} useInPlaceholders use secret in placeholders
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function createSecretFromFile(
+  id: string,
+  file: string,
+  description: string,
+  encoding: SecretEncodingType,
+  useInPlaceholders: boolean
+): Promise<boolean> {
+  let outcome = false;
+  const value = fs.readFileSync(getFilePath(file), 'utf8');
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
