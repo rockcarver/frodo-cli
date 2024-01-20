@@ -203,7 +203,6 @@ export async function createSecretFromFile(
     `Creating secret ${id}...`
   );
   try {
-    console.log(`sandlog: value: ${value} encoding: ${encoding}`);
     await _createSecret(id, value, description, encoding, useInPlaceholders);
     stopProgressIndicator(spinnerId, `Created secret ${id}`, 'success');
     outcome = true;
