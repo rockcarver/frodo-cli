@@ -180,7 +180,7 @@ export async function createSecret(
 }
 
 /**
- * Create PEM certificate from file
+ * Create secret from file (pem / base64hmac)
  * @param {string} id secret id
  * @param {string} file certificate file name
  * @param {string} description secret description
@@ -589,6 +589,41 @@ export async function createVersionOfSecret(
   value: string
 ): Promise<boolean> {
   let outcome = false;
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Creating new version of secret ${secretId}...`
+  );
+  try {
+    const version = await _createVersionOfSecret(secretId, value);
+    stopProgressIndicator(
+      spinnerId,
+      `Created version ${version.version} of secret ${secretId}`,
+      'success'
+    );
+    outcome = true;
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      'fail'
+    );
+  }
+  return outcome;
+}
+
+/**
+ * Create new version of secret from file
+ * @param {string} secretId secret id
+ * @param {string} file filename
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function createVersionOfSecretFromFile(
+  secretId: string,
+  file: string
+): Promise<boolean> {
+  let outcome = false;
+  const value = fs.readFileSync(getFilePath(file), 'utf8');
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
