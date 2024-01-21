@@ -197,7 +197,7 @@ export class FrodoStubCommand extends Command {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.hook('postAction', (thisCommand, actionCommand) => {
       debugMessage(
-        `postAction: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
+        `FrodoCommand: running postAction hook: this command: ${thisCommand.name()}, action command: ${actionCommand.name()}`
       );
       cleanupProgressIndicators();
     });

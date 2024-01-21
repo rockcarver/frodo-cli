@@ -20,7 +20,7 @@
  *    In mock record mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=record frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!
+ *    $ FRODO_MOCK=record FRODO_MASTER_KEY=<master key> frodo conn save https://nightly.gcp.forgeops.com/am amadmin <password>
  *
  *    Wait until you see all the Polly instances (mock recording adapters) have
  *    shutdown before you try to run step #1 again.
@@ -53,9 +53,11 @@ import { writeFileSync, rmSync } from 'fs';
 
 const exec = promisify(cp.exec);
 
+const connectionsSaveFile = './test/e2e/env/ConnectionsSave.json';
+
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
-  './test/e2e/env/Connections.json';
+  './test/e2e/env/ConnectionsSave.json';
 const env = {
   env: process.env,
 };
@@ -64,17 +66,19 @@ const jwkFile = 'test/fs_tmp/conn-save-jwk.json';
 
 beforeAll(() => {
   writeFileSync(jwkFile, c.saJwk);
+  writeFileSync(connectionsSaveFile, '{}');
 });
 
 afterAll(() => {
   rmSync(jwkFile);
+  rmSync(connectionsSaveFile);
 });
 
 describe('frodo conn save', () => {
   testif(process.env['FRODO_MASTER_KEY'])(
-    `"frodo conn save ${c.host} ${c.user} ${c.pass}": save new connection profile using an admin account.`,
+    `"frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}": save new connection profile using an admin account.`,
     async () => {
-      const CMD = `frodo conn save ${c.host} ${c.user} ${c.pass}`;
+      const CMD = `frodo conn save --no-validate ${c.host} ${c.user} ${c.pass}`;
       const { stderr } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     }

@@ -5,7 +5,7 @@
  *    In mock mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=1 frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!
+ *    $ FRODO_MOCK=1 frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  *    If your command completes without errors and with the expected results,
  *    all the required mocks already exist and you are good to write your
@@ -20,7 +20,7 @@
  *    In mock record mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=record frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!
+ *    $ FRODO_MOCK=record FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY=<master key> frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  *    Wait until you see all the Polly instances (mock recording adapters) have
  *    shutdown before you try to run step #1 again.

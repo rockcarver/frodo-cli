@@ -137,6 +137,8 @@ jobs:
         run: npm i -g
 
       - name: CLI Tests
+        env:
+          FRODO_MASTER_KEY: ${{ secrets.FRODO_MASTER_KEY }}
         run: npm test
 
       - name: Version Test
