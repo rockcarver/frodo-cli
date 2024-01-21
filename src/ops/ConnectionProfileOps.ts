@@ -100,6 +100,7 @@ export async function describeConnectionProfile(
     }
     const keyMap = {
       tenant: 'Host',
+      deploymentType: 'Deployment Type',
       username: 'Username',
       password: 'Password',
       logApiKey: 'Log API Key',

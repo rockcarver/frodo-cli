@@ -1,7 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
-import { createVersionOfSecret, createVersionOfSecretFromFile } from '../../ops/SecretsOps';
+import {
+  createVersionOfSecret,
+  createVersionOfSecretFromFile,
+} from '../../ops/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

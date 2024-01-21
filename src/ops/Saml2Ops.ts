@@ -313,8 +313,9 @@ export async function importSaml2ProviderFromFile(
  * @param {Saml2ProviderImportOptions} options import options
  */
 export async function importFirstSaml2ProviderFromFile(
-  file: string, 
-  options: Saml2EntitiesImportOptions = { deps: true }) {
+  file: string,
+  options: Saml2EntitiesImportOptions = { deps: true }
+) {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data) as Saml2ExportInterface;
