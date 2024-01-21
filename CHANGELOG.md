@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   rockcarver/frodo-cli#360: Frodo now saves the deployment type in connection profiles.
+-   \#360: Frodo now saves the deployment type in connection profiles.
 
 ### Changed
 
