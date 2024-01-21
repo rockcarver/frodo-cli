@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   rockcarver/frodo-cli#360: Frodo now saves the deployment type in connection profiles.
+
+### Changed
+
+-   Update to frodo-lib 2.0.0-67
+
 ## [2.0.0-46] - 2024-01-20
 
 ## [2.0.0-45] - 2024-01-16
