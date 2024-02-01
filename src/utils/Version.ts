@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 const { getVersion, getAllVersions } = frodo.utils.version;
 
 const VERSION_CACHE_FILE = `${os.homedir()}/.frodo/Versions.json`;
-const VERSION_CHECK_INTERVAL = 3600;
+const VERSION_CHECK_INTERVAL = 86400;
 
 const GITHUB_REPOS_URL = `https://api.github.com`;
 const GITHUB_RELEASES_PATH_CLI = `/repos/rockcarver/frodo-cli/releases`;
