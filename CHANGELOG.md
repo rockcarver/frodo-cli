@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- \#363: Doing a full export of IDM from FIDC started hanging between v2.0.0.32 and v2.0.0.33
+
 ## [2.0.0-48] - 2024-02-01
 
 ## [2.0.0-47] - 2024-01-21

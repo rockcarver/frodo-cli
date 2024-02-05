@@ -86,7 +86,7 @@ program
             options.envFile
           } for variable replacement...`
         );
-        exportAllConfigEntities(options.entitiesFile, options.envFile);
+        await exportAllConfigEntities(options.entitiesFile, options.envFile);
         await warnAboutOfflineConnectorServers();
       }
       // --all-separate -A without variable replacement
@@ -94,7 +94,7 @@ program
         verboseMessage(
           `Exporting all IDM configuration objects into separate files in ${state.getDirectory()}...`
         );
-        exportAllRawConfigEntities();
+        await exportAllRawConfigEntities();
         await warnAboutOfflineConnectorServers();
       }
       // unrecognized combination of options or no options
