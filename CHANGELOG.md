@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-49] - 2024-02-05
+
 ### Fixed
 
-- \#363: Doing a full export of IDM from FIDC started hanging between v2.0.0.32 and v2.0.0.33
+-   \#363: Doing a full export of IDM from FIDC started hanging between v2.0.0.32 and v2.0.0.33
 
 ## [2.0.0-48] - 2024-02-01
 
@@ -1479,7 +1481,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-48...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-49...HEAD
+
+[2.0.0-49]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-48...v2.0.0-49
 
 [2.0.0-48]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-47...v2.0.0-48
 
