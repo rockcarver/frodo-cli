@@ -24,7 +24,13 @@ export function getNodeClassification(nodeType: string): string[] {
       case 'custom':
         return it.toString()['brightRed'];
 
+      case 'excluded':
+        return it.toString()['brightRed'];
+
       case 'premium':
+        return it.toString()['brightYellow'];
+
+      case 'deprecated':
         return it.toString()['brightYellow'];
     }
   });
@@ -47,7 +53,13 @@ export function getNodeClassificationMd(nodeType: string): string[] {
       case 'custom':
         return `:red_circle: \`${it.toString()}\``;
 
+      case 'excluded':
+        return `:red_circle: \`${it.toString()}\``;
+
       case 'premium':
+        return `:yellow_circle: \`${it.toString()}\``;
+
+      case 'deprecated':
         return `:yellow_circle: \`${it.toString()}\``;
     }
   });
