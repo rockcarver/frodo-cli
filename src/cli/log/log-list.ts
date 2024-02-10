@@ -1,10 +1,10 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { provisionCreds } from '../../ops/LogOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 const { getLogSources } = frodo.cloud.log;
 

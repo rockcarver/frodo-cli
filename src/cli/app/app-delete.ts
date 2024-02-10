@@ -1,4 +1,3 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import * as s from '../../help/SampleData';
@@ -6,10 +5,9 @@ import {
   deleteApplication,
   deleteApplications,
 } from '../../ops/ApplicationOps';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo app delete');
 

@@ -1,6 +1,6 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   exportPoliciesByPolicySetToFile,
   exportPoliciesByPolicySetToFiles,
@@ -10,8 +10,6 @@ import {
 } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo authz policy export');
 

@@ -1,6 +1,7 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   importFirstSaml2ProviderFromFile,
   importSaml2ProviderFromFile,
@@ -9,8 +10,6 @@ import {
 } from '../../ops/Saml2Ops';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo saml import');
 

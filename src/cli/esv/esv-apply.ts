@@ -2,10 +2,10 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import yesno from 'yesno';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { createTable, printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { checkForUpdates, applyUpdates } = frodo.cloud.startup;
 const { resolveUserName } = frodo.idm.managed;
 

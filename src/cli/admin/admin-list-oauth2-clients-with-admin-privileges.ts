@@ -1,9 +1,9 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { listOAuth2AdminClients } = frodo.admin;
 
 const program = new FrodoCommand(

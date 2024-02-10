@@ -1,10 +1,10 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { removeCustomDomain } = frodo.realm;
 
 const program = new FrodoCommand('frodo realm remove-custom-domain');

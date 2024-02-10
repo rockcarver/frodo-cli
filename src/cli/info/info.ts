@@ -2,6 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import * as s from '../../help/SampleData';
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   createObjectTable,
   printMessage,
@@ -9,7 +10,6 @@ import {
 } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { getInfo } = frodo.info;
 
 export default function setup() {

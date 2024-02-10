@@ -1,6 +1,6 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   exportOAuth2ClientsToFile,
   exportOAuth2ClientsToFiles,
@@ -8,8 +8,6 @@ import {
 } from '../../ops/OAuth2ClientOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo oauth client export');
 
