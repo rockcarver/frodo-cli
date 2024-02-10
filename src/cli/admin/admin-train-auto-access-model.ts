@@ -1,10 +1,10 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand.js';
 
-const { getTokens } = frodo.login;
 const { trainAA } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin train-auto-access-model');

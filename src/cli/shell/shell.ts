@@ -4,10 +4,9 @@ import inquirer from 'inquirer';
 import inquirerPrompt from 'inquirer-autocomplete-prompt';
 
 import * as s from '../../help/SampleData';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const exits = ['exit', 'quit', 'q'];
 const functions = frodo.utils.json.getPaths(frodo, 'this.');

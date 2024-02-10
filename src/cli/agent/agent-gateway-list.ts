@@ -1,10 +1,8 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { listIdentityGatewayAgents } from '../../ops/AgentOps.js';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo agent gateway list');
 

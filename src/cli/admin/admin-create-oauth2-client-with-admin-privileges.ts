@@ -3,10 +3,10 @@ import Table from 'cli-table3';
 import { Option } from 'commander';
 import { v4 as uuidv4 } from 'uuid';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { getTokens } = frodo.login;
 const { createOAuth2ClientWithAdminPrivileges, createLongLivedToken } =
   frodo.admin;
 

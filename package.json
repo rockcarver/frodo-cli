@@ -116,7 +116,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-71",
+    "@rockcarver/frodo-lib": "2.0.0-72",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
@@ -129,6 +129,7 @@
     "inquirer-autocomplete-prompt": "^2.0.0",
     "nanospinner": "^1.1.0",
     "properties-reader": "^2.2.0",
+    "readline-sync": "^1.4.10",
     "replaceall": "^0.1.6",
     "resolve": "^1.22.1",
     "slugify": "^1.6.5",

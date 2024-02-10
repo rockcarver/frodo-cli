@@ -2,12 +2,12 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import fs from 'fs';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { saveTextToFile } = frodo.utils;
-const { getTokens } = frodo.login;
 const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
   frodo.authn.journey;
 

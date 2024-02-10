@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
 import { Option } from 'commander';
 import fs from 'fs';
@@ -6,10 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import * as s from '../../help/SampleData';
 import { generateRfc7523AuthZGrantArtefacts } from '../../ops/AdminOps.js';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand.js';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand(
   'frodo admin generate-rfc7523-authz-grant-artefacts'

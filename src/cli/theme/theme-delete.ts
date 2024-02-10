@@ -1,6 +1,7 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   deleteAllThemes,
   deleteThemeByNameCmd,
@@ -8,8 +9,6 @@ import {
 } from '../../ops/ThemeOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo theme delete');
 

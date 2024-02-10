@@ -1,6 +1,6 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   deletePolicies,
   deletePoliciesByPolicySet,
@@ -8,8 +8,6 @@ import {
 } from '../../ops/PolicyOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo authz policy delete');
 

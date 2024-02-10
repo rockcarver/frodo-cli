@@ -1,4 +1,3 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import * as s from '../../help/SampleData';
@@ -8,10 +7,9 @@ import {
   importApplicationsFromFiles,
   importFirstApplicationFromFile,
 } from '../../ops/ApplicationOps';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { getTokens } = frodo.login;
 
 const program = new FrodoCommand('frodo app import');
 
