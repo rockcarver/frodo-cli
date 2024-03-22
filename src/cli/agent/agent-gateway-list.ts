@@ -23,7 +23,8 @@ program
         command
       );
       if (await getTokens()) {
-        await listIdentityGatewayAgents(options.long);
+        const outcome = await listIdentityGatewayAgents(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { SocialIdpSkeleton } from '@rockcarver/frodo-lib/types/api/SocialIdentityProvidersApi';
 import { type SocialIdentityProviderImportOptions } from '@rockcarver/frodo-lib/types/ops/IdpOps';
 import fs from 'fs';
@@ -6,6 +6,7 @@ import fs from 'fs';
 import {
   createProgressIndicator,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -60,18 +61,20 @@ export function getTableRowMd(socialIdpObj: SocialIdpSkeleton): string {
 
 /**
  * List providers
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
-export async function listSocialProviders() {
+export async function listSocialProviders(): Promise<boolean> {
   try {
     const providers = await readSocialIdentityProviders();
     providers.sort((a, b) => a._id.localeCompare(b._id));
     providers.forEach((socialIdentityProvider) => {
       printMessage(`${socialIdentityProvider._id}`, 'data');
     });
-  } catch (err) {
-    printMessage(`listSocialProviders ERROR: ${err.message}`, 'error');
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -79,12 +82,13 @@ export async function listSocialProviders() {
  * @param {string} providerId provider id/name
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportSocialIdentityProviderToFile(
   providerId: string,
-  file = '',
-  includeMeta = true
-) {
+  file: string = '',
+  includeMeta: boolean = true
+): Promise<boolean> {
   debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: start`);
   let fileName = file;
   if (!fileName) {
@@ -104,37 +108,50 @@ export async function exportSocialIdentityProviderToFile(
       indicatorId,
       `Exported ${providerId['brightCyan']} to ${filePath['brightCyan']}.`
     );
-  } catch (err) {
-    stopProgressIndicator(indicatorId, `${err}`);
-    printMessage(`${err}`, 'error');
+    debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `${error}`);
+    printError(error);
   }
-  debugMessage(`cli.IdpOps.exportSocialIdentityProviderToFile: end`);
+  return false;
 }
 
 /**
  * Export all providers
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportSocialIdentityProvidersToFile(
-  file = '',
-  includeMeta = true
-) {
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(`all${getRealmString()}Providers`, 'idp');
+  file: string = '',
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    let fileName = file;
+    if (!fileName) {
+      fileName = getTypedFilename(`all${getRealmString()}Providers`, 'idp');
+    }
+    const fileData = await exportSocialIdentityProviders();
+    saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  const fileData = await exportSocialIdentityProviders();
-  saveJsonToFile(fileData, getFilePath(fileName, true), includeMeta);
+  return false;
 }
 
 /**
  * Export all providers to individual files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
-export async function exportSocialIdentityProvidersToFiles(includeMeta = true) {
+export async function exportSocialIdentityProvidersToFiles(
+  includeMeta: boolean = true
+): Promise<boolean> {
   debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: start`);
   let indicatorId: string;
+  const errors: Error[] = [];
   try {
     const allIdpsData = await readSocialIdentityProviders();
     indicatorId = createProgressIndicator(
@@ -152,18 +169,23 @@ export async function exportSocialIdentityProvidersToFiles(includeMeta = true) {
           `Exported provider ${idpData._id}`
         );
       } catch (error) {
-        printMessage(`Error exporting ${idpData._id}: ${error}`, 'error');
+        errors.push(error);
       }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting dependencies`, errors);
     }
     stopProgressIndicator(
       indicatorId,
       `${allIdpsData.length} providers exported.`
     );
+    debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: end`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `${error}`);
-    printMessage(`${error}`, 'error');
+    stopProgressIndicator(indicatorId, `Error exporting providers`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.IdpOps.exportSocialIdentityProvidersToFiles: end`);
+  return false;
 }
 
 /**
@@ -178,7 +200,6 @@ export async function importSocialIdentityProviderFromFile(
   file: string,
   options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -189,21 +210,21 @@ export async function importSocialIdentityProviderFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importSocialIdentityProvider(providerId, fileData, options);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
       `Successfully imported provider ${providerId} from ${filePath}.`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error importing provider ${providerId} from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -216,7 +237,6 @@ export async function importFirstSocialIdentityProviderFromFile(
   file: string,
   options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -227,21 +247,21 @@ export async function importFirstSocialIdentityProviderFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstSocialIdentityProvider(fileData, options);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
       `Successfully imported first provider from ${filePath}.`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error importing first provider from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -254,65 +274,81 @@ export async function importSocialIdentityProvidersFromFile(
   file: string,
   options: SocialIdentityProviderImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Importing providers from ${filePath}...`
   );
-  const data = fs.readFileSync(filePath, 'utf8');
   try {
+    const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importSocialIdentityProviders(fileData, options);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
       `Successfully imported providers from ${filePath}.`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error importing providers from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
  * Import providers from *.idp.json files in current working directory
  * @param {SocialIdentityProviderImportOptions} options import options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importSocialIdentityProvidersFromFiles(
   options: SocialIdentityProviderImportOptions = { deps: true }
-) {
-  const names = fs.readdirSync(getWorkingDirectory());
-  const jsonFiles = names
-    .filter((name) => name.toLowerCase().endsWith('.idp.json'))
-    .map((name) => getFilePath(name));
+): Promise<boolean> {
+  let indicatorId: string;
+  const errors: Error[] = [];
+  try {
+    const names = fs.readdirSync(getWorkingDirectory());
+    const jsonFiles = names
+      .filter((name) => name.toLowerCase().endsWith('.idp.json'))
+      .map((name) => getFilePath(name));
 
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    jsonFiles.length,
-    'Importing providers...'
-  );
-  let total = 0;
-  for (const file of jsonFiles) {
-    const data = fs.readFileSync(file, 'utf8');
-    const fileData = JSON.parse(data);
-    const count = Object.keys(fileData.idp).length;
-    total += count;
-    await importSocialIdentityProviders(fileData, options);
-    updateProgressIndicator(
-      indicatorId,
-      `Imported ${count} provider(s) from ${file}`
+    indicatorId = createProgressIndicator(
+      'determinate',
+      jsonFiles.length,
+      'Importing providers...'
     );
+    let total = 0;
+    for (const file of jsonFiles) {
+      try {
+        const data = fs.readFileSync(file, 'utf8');
+        const fileData = JSON.parse(data);
+        const count = Object.keys(fileData.idp).length;
+        total += count;
+        await importSocialIdentityProviders(fileData, options);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} provider(s) from ${file}`
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing providers`, errors);
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `Finished importing ${total} provider(s) from ${jsonFiles.length} file(s).`
+    );
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing providers`, 'fail');
+    printError(error);
   }
-  stopProgressIndicator(
-    indicatorId,
-    `Finished importing ${total} provider(s) from ${jsonFiles.length} file(s).`
-  );
+  return false;
 }

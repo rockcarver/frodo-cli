@@ -12,7 +12,12 @@ exports[`frodo authz policy delete "frodo authz policy delete --all": should do 
 exports[`frodo authz policy delete "frodo authz policy delete --policy-id 'Test Policy'": should display error when the policies with id 'Test Policy' cannot be deleted since it does not exist 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting Test Policy...
-✖ Error deleting policy Test Policy: AxiosError: Request failed with status code 404
+✖ Error deleting policy Test Policy
+Error deleting policy Test Policy
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Message: Policy Test Policy does not exist.
 "
 `;
 

@@ -1,0 +1,392 @@
+{
+  "frIndexedDate1": {
+    "description": "Generic Indexed Date 1",
+    "isPersonal": false,
+    "title": "Generic Indexed Date 1",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedDate2": {
+    "description": "Generic Indexed Date 2",
+    "isPersonal": false,
+    "title": "Generic Indexed Date 2",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedDate3": {
+    "description": "Generic Indexed Date 3",
+    "isPersonal": false,
+    "title": "Generic Indexed Date 3",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedDate4": {
+    "description": "Generic Indexed Date 4",
+    "isPersonal": false,
+    "title": "Generic Indexed Date 4",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedDate5": {
+    "description": "Generic Indexed Date 5",
+    "isPersonal": false,
+    "title": "Generic Indexed Date 5",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedInteger1": {
+    "description": "Generic Indexed Integer 1",
+    "isPersonal": false,
+    "title": "Generic Indexed Integer 1",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedInteger2": {
+    "description": "Generic Indexed Integer 2",
+    "isPersonal": false,
+    "title": "Generic Indexed Integer 2",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedInteger3": {
+    "description": "Generic Indexed Integer 3",
+    "isPersonal": false,
+    "title": "Generic Indexed Integer 3",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedInteger4": {
+    "description": "Generic Indexed Integer 4",
+    "isPersonal": false,
+    "title": "Generic Indexed Integer 4",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedInteger5": {
+    "description": "Generic Indexed Integer 5",
+    "isPersonal": false,
+    "title": "Generic Indexed Integer 5",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedMultivalued1": {
+    "description": "Generic Indexed Multivalue 1",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Indexed Multivalue 1",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedMultivalued2": {
+    "description": "Generic Indexed Multivalue 2",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Indexed Multivalue 2",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedMultivalued3": {
+    "description": "Generic Indexed Multivalue 3",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Indexed Multivalue 3",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedMultivalued4": {
+    "description": "Generic Indexed Multivalue 4",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Indexed Multivalue 4",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedMultivalued5": {
+    "description": "Generic Indexed Multivalue 5",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Indexed Multivalue 5",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString1": {
+    "description": "Generic Indexed String 1",
+    "isPersonal": false,
+    "title": "Generic Indexed String 1",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString2": {
+    "description": "Generic Indexed String 2",
+    "isPersonal": false,
+    "title": "Generic Indexed String 2",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString3": {
+    "description": "Generic Indexed String 3",
+    "isPersonal": false,
+    "title": "Generic Indexed String 3",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString4": {
+    "description": "Generic Indexed String 4",
+    "isPersonal": false,
+    "title": "Generic Indexed String 4",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString5": {
+    "description": "Generic Indexed String 5",
+    "isPersonal": false,
+    "title": "Generic Indexed String 5",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedDate1": {
+    "description": "Generic Unindexed Date 1",
+    "isPersonal": false,
+    "title": "Generic Unindexed Date 1",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedDate2": {
+    "description": "Generic Unindexed Date 2",
+    "isPersonal": false,
+    "title": "Generic Unindexed Date 2",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedDate3": {
+    "description": "Generic Unindexed Date 3",
+    "isPersonal": false,
+    "title": "Generic Unindexed Date 3",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedDate4": {
+    "description": "Generic Unindexed Date 4",
+    "isPersonal": false,
+    "title": "Generic Unindexed Date 4",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedDate5": {
+    "description": "Generic Unindexed Date 5",
+    "isPersonal": false,
+    "title": "Generic Unindexed Date 5",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedInteger1": {
+    "description": "Generic Unindexed Integer 1",
+    "isPersonal": false,
+    "title": "Generic Unindexed Integer 1",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedInteger2": {
+    "description": "Generic Unindexed Integer 2",
+    "isPersonal": false,
+    "title": "Generic Unindexed Integer 2",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedInteger3": {
+    "description": "Generic Unindexed Integer 3",
+    "isPersonal": false,
+    "title": "Generic Unindexed Integer 3",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedInteger4": {
+    "description": "Generic Unindexed Integer 4",
+    "isPersonal": false,
+    "title": "Generic Unindexed Integer 4",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedInteger5": {
+    "description": "Generic Unindexed Integer 5",
+    "isPersonal": false,
+    "title": "Generic Unindexed Integer 5",
+    "type": "number",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedMultivalued1": {
+    "description": "Generic Unindexed Multivalue 1",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Unindexed Multivalue 1",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedMultivalued2": {
+    "description": "Generic Unindexed Multivalue 2",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Unindexed Multivalue 2",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedMultivalued3": {
+    "description": "Generic Unindexed Multivalue 3",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Unindexed Multivalue 3",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedMultivalued4": {
+    "description": "Generic Unindexed Multivalue 4",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Unindexed Multivalue 4",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedMultivalued5": {
+    "description": "Generic Unindexed Multivalue 5",
+    "isPersonal": false,
+    "items": {
+      "type": "string"
+    },
+    "title": "Generic Unindexed Multivalue 5",
+    "type": "array",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedString1": {
+    "description": "Generic Unindexed String 1",
+    "isPersonal": false,
+    "title": "Generic Unindexed String 1",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedString2": {
+    "description": "Generic Unindexed String 2",
+    "isPersonal": false,
+    "title": "Generic Unindexed String 2",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedString3": {
+    "description": "Generic Unindexed String 3",
+    "isPersonal": false,
+    "title": "Generic Unindexed String 3",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedString4": {
+    "description": "Generic Unindexed String 4",
+    "isPersonal": false,
+    "title": "Generic Unindexed String 4",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frUnindexedString5": {
+    "description": "Generic Unindexed String 5",
+    "isPersonal": false,
+    "title": "Generic Unindexed String 5",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  }
+}

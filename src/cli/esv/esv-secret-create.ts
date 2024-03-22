@@ -1,7 +1,7 @@
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
-import { createSecret, createSecretFromFile } from '../../ops/SecretsOps';
+import { createSecret, createSecretFromFile } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

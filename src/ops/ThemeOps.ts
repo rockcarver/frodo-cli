@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
   ThemeExportInterface,
   type ThemeSkeleton,
@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   createProgressIndicator,
   createTable,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -16,7 +17,6 @@ import {
 
 const {
   getRealmString,
-  validateImport,
   getTypedFilename,
   saveJsonToFile,
   saveToFile,
@@ -31,9 +31,9 @@ const {
   updateTheme,
   importThemes,
   exportThemes,
-  deleteTheme,
-  deleteThemeByName,
-  deleteThemes,
+  deleteTheme: _deleteTheme,
+  deleteThemeByName: _deleteThemeByName,
+  deleteThemes: _deleteThemes,
 } = frodo.theme;
 
 /**
@@ -76,61 +76,76 @@ export function getTableRowMd(themeObj: ThemeSkeleton): string {
 /**
  * List all the themes
  * @param {boolean} long Long version, more fields
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listThemes(long = false) {
-  const themeList = await readThemes();
-  themeList.sort((a, b) => a.name.localeCompare(b.name));
-  if (!long) {
-    themeList.forEach((theme) => {
-      printMessage(
-        `${theme.isDefault ? theme.name['brightCyan'] : theme.name}`,
-        'data'
-      );
-    });
-  } else {
-    const table = createTable([
-      'Name'['brightCyan'],
-      'Id'['brightCyan'],
-      'Default'['brightCyan'],
-    ]);
-    themeList.forEach((theme) => {
-      table.push([
-        `${theme.name}`,
-        `${theme._id}`,
-        `${theme.isDefault ? 'Yes'['brightGreen'] : ''}`,
+export async function listThemes(long: boolean = false): Promise<boolean> {
+  try {
+    const themeList = await readThemes();
+    themeList.sort((a, b) => a.name.localeCompare(b.name));
+    if (!long) {
+      themeList.forEach((theme) => {
+        printMessage(
+          `${theme.isDefault ? theme.name['brightCyan'] : theme.name}`,
+          'data'
+        );
+      });
+    } else {
+      const table = createTable([
+        'Name'['brightCyan'],
+        'Id'['brightCyan'],
+        'Default'['brightCyan'],
       ]);
-    });
-    printMessage(table.toString(), 'data');
+      themeList.forEach((theme) => {
+        table.push([
+          `${theme.name}`,
+          `${theme._id}`,
+          `${theme.isDefault ? 'Yes'['brightGreen'] : ''}`,
+        ]);
+      });
+      printMessage(table.toString(), 'data');
+    }
+    return true;
+  } catch (error) {
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Export theme by name to file
- * @param {String} name theme name
- * @param {String} file optional export file name
+ * @param {string} name theme name
+ * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportThemeByName(name, file, includeMeta = true) {
-  let fileName = getTypedFilename(name, 'theme');
-  if (file) {
-    fileName = file;
-  }
-  const filePath = getFilePath(fileName, true);
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    1,
-    `Exporting ${name}`
-  );
+export async function exportThemeByName(
+  name: string,
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  let indicatorId: string;
   try {
+    let fileName = getTypedFilename(name, 'theme');
+    if (file) {
+      fileName = file;
+    }
+    const filePath = getFilePath(fileName, true);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting ${name}`
+    );
     const themeData = await readThemeByName(name);
     if (!themeData._id) themeData._id = uuidv4();
     updateProgressIndicator(indicatorId, `Writing file to ${filePath}`);
     saveToFile('theme', [themeData], '_id', filePath, includeMeta);
     stopProgressIndicator(indicatorId, `Successfully exported theme ${name}.`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `${error.message}`);
-    printMessage(`${error.message}`, 'error');
+    stopProgressIndicator(indicatorId, `Error exporting theme ${name}`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -138,216 +153,230 @@ export async function exportThemeByName(name, file, includeMeta = true) {
  * @param {String} id theme uuid
  * @param {String} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportThemeById(id, file, includeMeta = true) {
-  let fileName = getTypedFilename(id, 'theme');
-  if (file) {
-    fileName = file;
-  }
-  const filePath = getFilePath(fileName, true);
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    1,
-    `Exporting ${id}`
-  );
+export async function exportThemeById(
+  id: string,
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  let indicatorId: string;
   try {
+    let fileName = getTypedFilename(id, 'theme');
+    if (file) {
+      fileName = file;
+    }
+    const filePath = getFilePath(fileName, true);
+    indicatorId = createProgressIndicator('determinate', 1, `Exporting ${id}`);
     const themeData = await readTheme(id);
     updateProgressIndicator(indicatorId, `Writing file to ${filePath}`);
     saveToFile('theme', [themeData], '_id', filePath, includeMeta);
     stopProgressIndicator(indicatorId, `Successfully exported theme ${id}.`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `${error.message}`);
-    printMessage(`${error.message}`, 'error');
+    stopProgressIndicator(indicatorId, `Error exporting theme ${id}`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Export all themes to file
  * @param {String} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function exportThemesToFile(file, includeMeta = true) {
-  let fileName = getTypedFilename(`all${getRealmString()}Themes`, 'theme');
-  if (file) {
-    fileName = file;
+export async function exportThemesToFile(
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    let fileName = getTypedFilename(`all${getRealmString()}Themes`, 'theme');
+    if (file) {
+      fileName = file;
+    }
+    const filePath = getFilePath(fileName, true);
+    const exportData = await exportThemes();
+    saveJsonToFile(exportData, filePath, includeMeta);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  const filePath = getFilePath(fileName, true);
-  const exportData = await exportThemes();
-  saveJsonToFile(exportData, filePath, includeMeta);
+  return false;
 }
 
 /**
  * Export all themes to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportThemesToFiles(includeMeta = true) {
-  const themes = await readThemes();
-  const barId = createProgressIndicator(
-    'determinate',
-    themes.length,
-    'Exporting themes'
-  );
-  for (const theme of themes) {
-    if (!theme._id) theme._id = uuidv4();
-    const fileBarId = createProgressIndicator(
+  let barId: string;
+  try {
+    const themes = await readThemes();
+    barId = createProgressIndicator(
       'determinate',
-      1,
-      `Exporting theme ${theme.name}...`
+      themes.length,
+      'Exporting themes'
     );
-    updateProgressIndicator(barId, `Exporting theme ${theme.name}`);
-    const file = getFilePath(getTypedFilename(theme.name, 'theme'), true);
-    saveToFile('theme', theme, '_id', file, includeMeta);
-    updateProgressIndicator(fileBarId, `${theme.name} saved to ${file}`);
-    stopProgressIndicator(fileBarId, `${theme.name} saved to ${file}.`);
+    for (const theme of themes) {
+      if (!theme._id) theme._id = uuidv4();
+      const fileBarId = createProgressIndicator(
+        'determinate',
+        1,
+        `Exporting theme ${theme.name}...`
+      );
+      updateProgressIndicator(barId, `Exporting theme ${theme.name}`);
+      const file = getFilePath(getTypedFilename(theme.name, 'theme'), true);
+      saveToFile('theme', theme, '_id', file, includeMeta);
+      updateProgressIndicator(fileBarId, `${theme.name} saved to ${file}`);
+      stopProgressIndicator(fileBarId, `${theme.name} saved to ${file}.`);
+    }
+    return true;
+  } catch (error) {
+    stopProgressIndicator(barId, `Error exporting themes`, 'fail');
+    printError(error);
   }
-  stopProgressIndicator(barId, `${themes.length} themes exported.`);
+  return false;
 }
 
 /**
  * Import theme by name from file
- * @param {String} name theme name
- * @param {String} file import file name
+ * @param {string} name theme name
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importThemeByName(name, file) {
+export async function importThemeByName(
+  name: string,
+  file: string
+): Promise<boolean> {
+  let indicatorId: string;
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
-    const indicatorId = createProgressIndicator(
+    indicatorId = createProgressIndicator(
       'determinate',
       1,
       'Importing theme...'
     );
-    let found = false;
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const themeExport: ThemeExportInterface = JSON.parse(data);
     for (const id of Object.keys(themeExport.theme)) {
       if (themeExport.theme[id].name === name) {
-        found = true;
         updateProgressIndicator(
           indicatorId,
           `Importing ${themeExport.theme[id].name}`
         );
-        try {
-          await updateThemeByName(name, themeExport.theme[id]);
-          stopProgressIndicator(
-            indicatorId,
-            `Successfully imported theme ${name}.`
-          );
-        } catch (error) {
-          stopProgressIndicator(
-            indicatorId,
-            `Error importing theme ${themeExport.theme[id].name}: ${error.message}`
-          );
-          printMessage(
-            `Error importing theme ${themeExport.theme[id].name}: ${error.message}`,
-            'error'
-          );
-        }
-        break;
+        await updateThemeByName(name, themeExport.theme[id]);
+        stopProgressIndicator(
+          indicatorId,
+          `Successfully imported theme ${name}.`
+        );
+        return true;
       }
     }
-    if (!found) {
-      stopProgressIndicator(indicatorId, `Theme ${name} not found!`);
-    }
+    stopProgressIndicator(indicatorId, `Theme ${name} not found!`, 'fail');
   } catch (error) {
-    printMessage(`Error importing theme ${name}: ${error}`, 'error');
+    stopProgressIndicator(indicatorId, `Error importing theme ${name}`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import theme by uuid from file
- * @param {String} id theme uuid
- * @param {String} file import file name
+ * @param {string} id theme uuid
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importThemeById(id, file) {
+export async function importThemeById(
+  id: string,
+  file: string
+): Promise<boolean> {
+  let indicatorId: string;
   try {
-    const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
-    const indicatorId = createProgressIndicator(
+    indicatorId = createProgressIndicator(
       'determinate',
       1,
       'Importing theme...'
     );
-    let found = false;
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const themeExport: ThemeExportInterface = JSON.parse(data);
     for (const themeId of Object.keys(themeExport.theme)) {
       if (themeId === id) {
-        found = true;
         updateProgressIndicator(
           indicatorId,
           `Importing ${themeExport.theme[themeId]._id}`
         );
-        try {
-          await updateTheme(themeId, themeExport.theme[themeId]);
-          stopProgressIndicator(
-            indicatorId,
-            `Successfully imported theme ${id}.`
-          );
-        } catch (error) {
-          stopProgressIndicator(
-            indicatorId,
-            `Error importing theme ${themeExport.theme[themeId]._id}: ${error.message}`
-          );
-          printMessage(
-            `Error importing theme ${themeExport.theme[themeId]._id}: ${error.message}`,
-            'error'
-          );
-        }
-        break;
+        await updateTheme(themeId, themeExport.theme[themeId]);
+        stopProgressIndicator(
+          indicatorId,
+          `Successfully imported theme ${id}.`
+        );
+        return true;
       }
     }
-    if (!found) {
-      stopProgressIndicator(indicatorId, `Theme ${id} not found!`);
-    }
+    stopProgressIndicator(indicatorId, `Theme ${id} not found!`, 'fail');
   } catch (error) {
-    printMessage(`Error importing theme ${id}: ${error}`, 'error');
+    stopProgressIndicator(indicatorId, `Error importing theme ${id}`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import all themes from single file
- * @param {String} file import file name
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importThemesFromFile(file) {
-  const filePath = getFilePath(file);
+export async function importThemesFromFile(file: string): Promise<boolean> {
+  let indicatorId: string;
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const themeExport: ThemeExportInterface = JSON.parse(data);
-    const indicatorId = createProgressIndicator(
+    const filePath = getFilePath(file);
+    indicatorId = createProgressIndicator(
       'indeterminate',
       0,
       `Importing themes from ${filePath}...`
     );
+    const data = fs.readFileSync(filePath, 'utf8');
+    const themeExport: ThemeExportInterface = JSON.parse(data);
     await importThemes(themeExport);
     stopProgressIndicator(
       indicatorId,
       `Successfully imported ${Object.keys(themeExport.theme).length} themes.`
     );
+    return true;
   } catch (error) {
-    printMessage(`Error importing themes: ${error}`, 'error');
+    stopProgressIndicator(indicatorId, `Error importing themes`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import themes from separate files
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importThemesFromFiles() {
-  const names = fs.readdirSync(getWorkingDirectory());
-  const jsonFiles = names
-    .filter((name) => name.toLowerCase().endsWith('.theme.json'))
-    .map((name) => getFilePath(name));
+export async function importThemesFromFiles(): Promise<boolean> {
+  let indicatorId: string;
+  const errors: Error[] = [];
+  try {
+    const names = fs.readdirSync(getWorkingDirectory());
+    const jsonFiles = names
+      .filter((name) => name.toLowerCase().endsWith('.theme.json'))
+      .map((name) => getFilePath(name));
 
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    jsonFiles.length,
-    'Importing themes...'
-  );
-  let fileData = null;
-  let count = 0;
-  let total = 0;
-  let files = 0;
-  for (const file of jsonFiles) {
-    try {
-      const data = fs.readFileSync(file, 'utf8');
-      fileData = JSON.parse(data);
-      if (validateImport(fileData.meta)) {
+    indicatorId = createProgressIndicator(
+      'determinate',
+      jsonFiles.length,
+      'Importing themes...'
+    );
+    let fileData = null;
+    let count = 0;
+    let total = 0;
+    let files = 0;
+    for (const file of jsonFiles) {
+      try {
+        const data = fs.readFileSync(file, 'utf8');
+        fileData = JSON.parse(data);
         count = Object.keys(fileData.theme).length;
         await importThemes(fileData);
         files += 1;
@@ -356,32 +385,36 @@ export async function importThemesFromFiles() {
           indicatorId,
           `Imported ${count} theme(s) from ${file}`
         );
-      } else {
-        printMessage(`Validation of ${file} failed!`, 'error');
+      } catch (error) {
+        errors.push(error);
       }
-    } catch (error) {
-      updateProgressIndicator(
-        indicatorId,
-        `Error importing theme(s) from ${file}`
-      );
-      printMessage(error.response?.data || error, 'error');
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing themes`, errors);
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `Finished importing ${total} theme(s) from ${files} file(s).`
+    );
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing themes`, 'fail');
+    printError(error);
   }
-  stopProgressIndicator(
-    indicatorId,
-    `Finished importing ${total} theme(s) from ${files} file(s).`
-  );
+  return false;
 }
 
 /**
  * Import first theme from file
- * @param {String} file import file name
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importFirstThemeFromFile(file) {
+export async function importFirstThemeFromFile(file: string): Promise<boolean> {
+  let indicatorId: string;
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const themeExport = JSON.parse(data);
-    const indicatorId = createProgressIndicator(
+    indicatorId = createProgressIndicator(
       'determinate',
       1,
       'Importing theme...'
@@ -391,87 +424,79 @@ export async function importFirstThemeFromFile(file) {
         indicatorId,
         `Importing ${themeExport.theme[id].name}`
       );
-      updateTheme(id, themeExport.theme[id]).then((result) => {
-        if (result == null) {
-          stopProgressIndicator(
-            indicatorId,
-            `Error importing theme ${themeExport.theme[id].name}`
-          );
-          printMessage(
-            `Error importing theme ${themeExport.theme[id].name}`,
-            'error'
-          );
-        } else {
-          stopProgressIndicator(
-            indicatorId,
-            `Successfully imported theme ${themeExport.theme[id].name}`
-          );
-        }
-      });
-      break;
+      await updateTheme(id, themeExport.theme[id]);
+      stopProgressIndicator(
+        indicatorId,
+        `Successfully imported theme ${themeExport.theme[id].name}`
+      );
+      return true;
     }
   } catch (error) {
-    printMessage(`Error importing themes: ${error}`, 'error');
+    stopProgressIndicator(indicatorId, `Error importing first theme`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Delete theme by id
- * @param {String} id theme id
+ * @param {string} id theme id
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteThemeCmd(id) {
+export async function deleteTheme(id: string): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting ${id}...`
   );
   try {
-    await deleteTheme(id);
+    await _deleteTheme(id);
     stopProgressIndicator(indicatorId, `Deleted ${id}.`, 'success');
+    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error: ${error.message}`, 'fail');
+    stopProgressIndicator(indicatorId, `Error deleting theme`, 'fail');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Delete theme by name
- * @param {String} name theme name
+ * @param {string} name theme name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteThemeByNameCmd(name) {
+export async function deleteThemeByName(name: string): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting ${name}...`
   );
   try {
-    await deleteThemeByName(name);
+    await _deleteThemeByName(name);
     stopProgressIndicator(indicatorId, `Deleted ${name}.`, 'success');
+    return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error: ${error.message}`, 'fail');
   }
+  return false;
 }
 
 /**
  * Delete all themes
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAllThemes() {
+export async function deleteThemes(): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all realm themes...`
   );
   try {
-    await deleteThemes();
+    await _deleteThemes();
     stopProgressIndicator(indicatorId, `Deleted all realm themes.`, 'success');
+    return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error: ${error.message}`, 'fail');
   }
-}
-
-/**
- * Delete all themes
- * @deprecated since version 0.14.0
- */
-export async function deleteThemesCmd() {
-  return deleteAllThemes();
+  return false;
 }

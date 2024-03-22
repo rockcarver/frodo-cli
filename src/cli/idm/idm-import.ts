@@ -76,12 +76,17 @@ program
       // import by id/name
       if (options.name && (await getTokens())) {
         verboseMessage(`Importing object "${options.name}"...`);
-        await importConfigEntityByIdFromFile(options.name, options.file);
+        const outcome = await importConfigEntityByIdFromFile(
+          options.name,
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // import from file
       else if (options.file && (await getTokens())) {
         verboseMessage(`Importing object from file...`);
-        await importConfigEntityFromFile(options.file);
+        const outcome = await importConfigEntityFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // require --directory -D for all-separate functions
       else if (options.allSeparate && !state.getDirectory()) {
@@ -106,14 +111,19 @@ program
             options.envFile
           } for variable replacement...`
         );
-        await importAllConfigEntities(options.entitiesFile, options.envFile);
+        const outcome = await importAllConfigEntities(
+          options.entitiesFile,
+          options.envFile
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A without variable replacement
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage(
           `Importing all IDM configuration objects from separate files in ${state.getDirectory()}...`
         );
-        await importAllRawConfigEntities();
+        const outcome = await importAllRawConfigEntities();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

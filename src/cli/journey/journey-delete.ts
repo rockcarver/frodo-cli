@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
+import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { deleteJourney, deleteJourneys } = frodo.authn.journey;
 
 const program = new FrodoCommand('frodo journey delete');
 
@@ -53,12 +52,14 @@ program
             options.journeyId
           } in realm "${state.getRealm()}"...`
         );
-        await deleteJourney(options.journeyId, options);
+        const outcome = await deleteJourney(options.journeyId, options);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all journeys...');
-        await deleteJourneys(options);
+        const outcome = await deleteJourneys(options);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

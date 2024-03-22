@@ -62,21 +62,27 @@ program
             options.templateId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportEmailTemplateToFile(
+        const outcome = await exportEmailTemplateToFile(
           options.templateId,
           options.file,
           options.metadata
         );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all email templates to a single file...');
-        await exportEmailTemplatesToFile(options.file, options.metadata);
+        const outcome = await exportEmailTemplatesToFile(
+          options.file,
+          options.metadata
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all email templates to separate files...');
-        await exportEmailTemplatesToFiles(options.metadata);
+        const outcome = await exportEmailTemplatesToFiles(options.metadata);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

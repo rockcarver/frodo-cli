@@ -60,27 +60,34 @@ program
             options.entityId
           }" into realm "${state.getRealm()}"...`
         );
-        await importSaml2ProviderFromFile(options.entityId, options.file, {
-          deps: options.deps,
-        });
+        const outcome = await importSaml2ProviderFromFile(
+          options.entityId,
+          options.file,
+          {
+            deps: options.deps,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        await importSaml2ProvidersFromFile(options.file, {
+        const outcome = await importSaml2ProvidersFromFile(options.file, {
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files (*.saml.json) in current directory...'
         );
-        await importSaml2ProvidersFromFiles({
+        const outcome = await importSaml2ProvidersFromFiles({
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -89,9 +96,10 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        await importFirstSaml2ProviderFromFile(options.file, {
+        const outcome = await importFirstSaml2ProviderFromFile(options.file, {
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

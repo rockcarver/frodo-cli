@@ -76,44 +76,44 @@ program
       // import by id
       if (options.file && options.appId && (await getTokens())) {
         verboseMessage(`Importing application "${options.appId}"...`);
-        const status = await importApplicationFromFile(
+        const outcome = await importApplicationFromFile(
           options.appId,
           options.file,
           {
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all applications from a single file (${options.file})...`
         );
-        const status = await importApplicationsFromFile(options.file, {
+        const outcome = await importApplicationsFromFile(options.file, {
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all applications from separate files in current directory...'
         );
-        const status = await importApplicationsFromFiles({
+        const outcome = await importApplicationsFromFiles({
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first application from file "${options.file}"...`
         );
-        const status = await importFirstApplicationFromFile(options.file, {
+        const outcome = await importFirstApplicationFromFile(options.file, {
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { EmailTemplateSkeleton } from '@rockcarver/frodo-lib/types/ops/EmailTemplateOps';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +7,7 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -96,14 +97,17 @@ export function getTableRowMd(templateObj: EmailTemplateSkeleton): string {
 /**
  * List email templates
  * @param {boolean} long Long list format with details
- * @return {Promise<unknown[]>} a promise that resolves to an array of email template objects
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function listEmailTemplates(long = false): Promise<unknown[]> {
+export async function listEmailTemplates(
+  long: boolean = false
+): Promise<boolean> {
   let emailTemplates = [];
   try {
     emailTemplates = await readEmailTemplates();
   } catch (error) {
-    printMessage(`Error retrieving email templates: ${error.message}`, 'error');
+    printError(error);
+    return false;
   }
   emailTemplates.sort((a, b) => a._id.localeCompare(b._id));
   if (!long) {
@@ -148,7 +152,7 @@ export async function listEmailTemplates(long = false): Promise<unknown[]> {
     }
     printMessage(table.toString(), 'data');
   }
-  return emailTemplates;
+  return true;
 }
 
 /**
@@ -156,23 +160,25 @@ export async function listEmailTemplates(long = false): Promise<unknown[]> {
  * @param {string} templateId email template id to export
  * @param {string} file filename where to export the template data
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEmailTemplateToFile(
   templateId: string,
   file: string,
-  includeMeta = true
-) {
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
-  }
-  const filePath = getFilePath(fileName, true);
-  const indicatorId = createProgressIndicator(
-    'determinate',
-    1,
-    `Exporting ${templateId}`
-  );
+  includeMeta: boolean = true
+): Promise<boolean> {
+  let indicatorId: string;
   try {
+    let fileName = file;
+    if (!fileName) {
+      fileName = getTypedFilename(templateId, EMAIL_TEMPLATE_FILE_TYPE);
+    }
+    const filePath = getFilePath(fileName, true);
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting ${templateId}`
+    );
     const templateData = await readEmailTemplate(templateId);
     updateProgressIndicator(indicatorId, `Writing file ${filePath}`);
     const fileData = getFileDataTemplate();
@@ -182,36 +188,50 @@ export async function exportEmailTemplateToFile(
       indicatorId,
       `Exported ${templateId['brightCyan']} to ${filePath['brightCyan']}.`
     );
-  } catch (err) {
-    stopProgressIndicator(indicatorId, `${err}`);
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `${error}`);
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Export all email templates to file
- * @param {String} file optional filename
+ * @param {string} file optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function exportEmailTemplatesToFile(file, includeMeta = true) {
-  let fileName = file;
-  if (!fileName) {
-    fileName = getTypedFilename(`allEmailTemplates`, EMAIL_TEMPLATE_FILE_TYPE);
-  }
-  const filePath = getFilePath(fileName, true);
+export async function exportEmailTemplatesToFile(
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
   try {
+    let fileName = file;
+    if (!fileName) {
+      fileName = getTypedFilename(
+        `allEmailTemplates`,
+        EMAIL_TEMPLATE_FILE_TYPE
+      );
+    }
+    const filePath = getFilePath(fileName, true);
     const exportData = await exportEmailTemplates();
     saveJsonToFile(exportData, filePath, includeMeta);
-  } catch (err) {
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Export all email templates to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function exportEmailTemplatesToFiles(includeMeta = true) {
+export async function exportEmailTemplatesToFiles(
+  includeMeta: boolean = true
+): Promise<boolean> {
   let indicatorId;
   try {
     const exportData = Object.entries(
@@ -233,10 +253,12 @@ export async function exportEmailTemplatesToFiles(includeMeta = true) {
       indicatorId,
       `${exportData.length} templates written.`
     );
-  } catch (err) {
-    stopProgressIndicator(indicatorId, `${err}`);
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `${error}`);
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -244,12 +266,13 @@ export async function exportEmailTemplatesToFiles(includeMeta = true) {
  * @param {string} templateId email template id
  * @param {string} file optional filename
  * @param {boolean} raw import raw data file lacking frodo export envelop
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEmailTemplateFromFile(
   templateId: string,
   file: string,
-  raw = false
-) {
+  raw: boolean = false
+): Promise<boolean> {
   templateId = templateId.replaceAll(`${EMAIL_TEMPLATE_TYPE}/`, '');
   const filePath = getFilePath(file);
   try {
@@ -271,9 +294,10 @@ export async function importEmailTemplateFromFile(
         await updateEmailTemplate(templateId, emailTemplateData);
         updateProgressIndicator(indicatorId, `Importing ${templateId}`);
         stopProgressIndicator(indicatorId, `Imported ${templateId}`);
-      } catch (updateEmailTemplateError) {
-        stopProgressIndicator(indicatorId, `${updateEmailTemplateError}`);
-        printMessage(updateEmailTemplateError, 'error');
+        return true;
+      } catch (error) {
+        stopProgressIndicator(indicatorId, `${error}`);
+        printError(error);
       }
     } else {
       stopProgressIndicator(
@@ -286,18 +310,19 @@ export async function importEmailTemplateFromFile(
       );
     }
   } catch (error) {
-    printMessage(
-      `Error importing email template ${templateId}: ${error}`,
-      'error'
-    );
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import all email templates from file
  * @param {string} file optional filename
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function importEmailTemplatesFromFile(file: string) {
+export async function importEmailTemplatesFromFile(
+  file: string
+): Promise<boolean> {
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -313,14 +338,16 @@ export async function importEmailTemplatesFromFile(file: string) {
       `Successfully imported email templates from ${filePath}.`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error importing email templates from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -328,12 +355,14 @@ export async function importEmailTemplatesFromFile(file: string) {
  * @param {string} file file name
  * @returns {string} email template id/name
  */
-function getTemplateIdFromFileName(file: string) {
+function getTemplateIdFromFileName(file: string): string {
   debugMessage(`cli.EmailTemplateOps.getTemplateIdFromFileName: file=${file}`);
   const basename = path.basename(file);
   const keys = basename.split('-');
   if (keys[0] !== EMAIL_TEMPLATE_TYPE || keys.length <= 1)
-    throw new Error(`Filename does not indicate a raw email template: ${file}`);
+    throw new FrodoError(
+      `Filename does not indicate a raw email template: ${file}`
+    );
   const templateId = keys[1].split('.')[0];
   debugMessage(
     `cli.EmailTemplateOps.getTemplateIdFromFileName: templateId=${templateId}`
@@ -364,8 +393,11 @@ function s2sConvert(
 /**
  * Import all email templates from separate files
  * @param {boolean} raw import raw data file lacking frodo export envelop
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function importEmailTemplatesFromFiles(raw = false) {
+export async function importEmailTemplatesFromFiles(
+  raw: boolean = false
+): Promise<boolean> {
   const names = fs.readdirSync(getWorkingDirectory());
   const jsonFiles = names
     .filter((name) =>
@@ -395,11 +427,9 @@ export async function importEmailTemplatesFromFiles(raw = false) {
         try {
           const templateData = s2sConvert(fileData);
           await updateEmailTemplate(templateId, templateData);
-        } catch (updateEmailTemplateError) {
+        } catch (error) {
           errors += 1;
-          printMessage(`\nError importing ${templateId}`, 'error');
-          printMessage(updateEmailTemplateError, 'error');
-          printMessage(updateEmailTemplateError.response?.data, 'error');
+          printError(error);
         }
       } else {
         total += Object.keys(fileData.emailTemplate).length;
@@ -411,10 +441,9 @@ export async function importEmailTemplatesFromFiles(raw = false) {
                 templateId,
                 fileData.emailTemplate[templateId]
               );
-            } catch (updateEmailTemplateError) {
+            } catch (error) {
               errors += 1;
-              printMessage(`\nError importing ${templateId}`, 'error');
-              printMessage(updateEmailTemplateError.response.data, 'error');
+              printError(error);
             }
           }
         }
@@ -431,16 +460,19 @@ export async function importEmailTemplatesFromFiles(raw = false) {
       jsonFiles.length
     } file(s).`
   );
+  if (totalErrors === 0) return true;
+  return false;
 }
 
 /**
  * Import first email template from file
- * @param {String} file optional filename
+ * @param {string} file optional filename
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importFirstEmailTemplateFromFile(
   file: string,
-  raw = false
-) {
+  raw: boolean = false
+): Promise<boolean> {
   let indicatorId: string;
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -456,13 +488,14 @@ export async function importFirstEmailTemplateFromFile(
         const templateData = s2sConvert(fileData);
         await updateEmailTemplate(templateId, templateData);
         stopProgressIndicator(indicatorId, `Imported ${templateId}`, 'success');
+        return true;
       } catch (error) {
         stopProgressIndicator(
           indicatorId,
           `Error importing email template: ${error}`,
           'fail'
         );
-        printMessage(error.response?.data, 'error');
+        printError(error);
       }
     } else {
       for (const id of Object.keys(fileData.emailTemplate)) {
@@ -472,9 +505,10 @@ export async function importFirstEmailTemplateFromFile(
             fileData.emailTemplate[id]
           );
           stopProgressIndicator(indicatorId, `Imported ${id}`, 'success');
-        } catch (updateEmailTemplateError) {
+          return true;
+        } catch (error) {
           stopProgressIndicator(indicatorId, `Error importing ${id}`, 'fail');
-          printMessage(updateEmailTemplateError.response?.data, 'error');
+          printError(error);
         }
         break;
       }
@@ -485,6 +519,7 @@ export async function importFirstEmailTemplateFromFile(
       `Error importing first email template`,
       'fail'
     );
-    printMessage(`Error importing first email template: ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }

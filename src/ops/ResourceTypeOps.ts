@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ResourceTypeSkeleton } from '@rockcarver/frodo-lib/types/api/ResourceTypesApi';
 import { type ResourceTypeExportInterface } from '@rockcarver/frodo-lib/types/ops/ResourceTypeOps';
 import fs from 'fs';
@@ -9,6 +9,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   stopProgressIndicator,
@@ -44,8 +45,9 @@ const {
  * @param {boolean} long more fields
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listResourceTypes(long = false): Promise<boolean> {
-  let outcome = false;
+export async function listResourceTypes(
+  long: boolean = false
+): Promise<boolean> {
   try {
     const resourceTypes = await readResourceTypes();
     resourceTypes.sort((a, b) => a.name.localeCompare(b.name));
@@ -64,12 +66,11 @@ export async function listResourceTypes(long = false): Promise<boolean> {
         printMessage(`${resourceType.name}`, 'data');
       }
     }
-    outcome = true;
-  } catch (err) {
-    printMessage(`listResourceTypes ERROR: ${err.message}`, 'error');
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -82,7 +83,6 @@ export async function describeResourceType(
   resourceTypeUuid: string,
   json = false
 ): Promise<boolean> {
-  let outcome = false;
   try {
     const resourceType = await readResourceType(resourceTypeUuid);
     if (json) {
@@ -91,18 +91,18 @@ export async function describeResourceType(
       const table = createObjectTable(resourceType);
       printMessage(table.toString(), 'data');
     }
-    outcome = true;
+    return true;
   } catch (error) {
-    if (error.response?.status === 404) {
+    if ((error as FrodoError).httpStatus === 404) {
       printMessage(
         `Resource Type with uuid ${resourceTypeUuid} does not exist in realm ${state.getRealm()}`,
         'error'
       );
     } else {
-      printMessage(error.response?.data?.message || error.message, 'error');
+      printError(error);
     }
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -113,9 +113,8 @@ export async function describeResourceType(
  */
 export async function describeResourceTypeByName(
   resourceTypeName: string,
-  json = false
+  json: boolean = false
 ): Promise<boolean> {
-  let outcome = false;
   try {
     const resourceType = await readResourceTypeByName(resourceTypeName);
     if (json) {
@@ -124,18 +123,18 @@ export async function describeResourceTypeByName(
       const table = createObjectTable(resourceType);
       printMessage(table.toString(), 'data');
     }
-    outcome = true;
+    return true;
   } catch (error) {
-    if (error.response?.status === 404) {
+    if ((error as FrodoError).httpStatus === 404) {
       printMessage(
         `Resource Type with name ${resourceTypeName} does not exist in realm ${state.getRealm()}`,
         'error'
       );
     } else {
-      printMessage(error.response?.data?.message || error.message, 'error');
+      printError(error);
     }
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -148,23 +147,17 @@ export async function deleteResourceTypeById(
 ): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceType: begin`);
   showSpinner(`Deleting ${resourceTypeUuid}...`);
-  let outcome = false;
   try {
     debugMessage(`Deleting resource type ${resourceTypeUuid}`);
     await deleteResourceType(resourceTypeUuid);
     succeedSpinner(`Deleted ${resourceTypeUuid}.`);
-    outcome = true;
+    debugMessage(`cli.ResourceTypeOps.deleteResourceType: end`);
+    return true;
   } catch (error) {
-    failSpinner(
-      `Error deleting ${resourceTypeUuid}: ${
-        error.response?.data?.message || error.message
-      }`
-    );
+    failSpinner(`Error deleting resource type ${resourceTypeUuid}`);
+    printError(error);
   }
-  debugMessage(
-    `cli.ResourceTypeOps.deleteResourceType: end [outcome=${outcome}]`
-  );
-  return outcome;
+  return false;
 }
 
 /**
@@ -177,23 +170,17 @@ export async function deleteResourceTypeUsingName(
 ): Promise<boolean | ResourceTypeSkeleton> {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: begin`);
   showSpinner(`Deleting ${resourceTypeName}...`);
-  let outcome = false;
   try {
     debugMessage(`Deleting resource type ${resourceTypeName}`);
     await deleteResourceTypeByName(resourceTypeName);
     succeedSpinner(`Deleted ${resourceTypeName}.`);
-    outcome = true;
+    debugMessage(`cli.ResourceTypeOps.deleteResourceTypeByName: end`);
+    return true;
   } catch (error) {
-    failSpinner(
-      `Error deleting ${resourceTypeName}: ${
-        error.response?.data?.message || error.message
-      }`
-    );
+    failSpinner(`Error deleting resource type ${resourceTypeName}`);
+    printError(error);
   }
-  debugMessage(
-    `cli.ResourceTypeOps.deleteResourceTypeByName: end [outcome=${outcome}]`
-  );
-  return outcome;
+  return false;
 }
 
 /**
@@ -204,7 +191,6 @@ export async function deleteResourceTypes(): Promise<
   boolean | ResourceTypeSkeleton
 > {
   debugMessage(`cli.ResourceTypeOps.deleteResourceTypes: begin`);
-  let outcome = false;
   const errors = [];
   let resourceTypes: ResourceTypeSkeleton[] = [];
   let indicatorId: string;
@@ -214,9 +200,8 @@ export async function deleteResourceTypes(): Promise<
       resourceTypes = await readResourceTypes();
       succeedSpinner(`Found ${resourceTypes.length} resource types.`);
     } catch (error) {
-      error.message = `Error retrieving all resource types: ${error.message}`;
-      failSpinner(error.message);
-      throw error;
+      failSpinner(`Error retrieving all resource types`);
+      throw new FrodoError(`Error retrieving all resource types`, error);
     }
     if (resourceTypes.length)
       indicatorId = createProgressIndicator(
@@ -231,35 +216,28 @@ export async function deleteResourceTypes(): Promise<
         await deleteResourceType(resourceTypeId);
         updateProgressIndicator(indicatorId, `Deleted ${resourceTypeId}`);
       } catch (error) {
-        error.message = `Error deleting resource type ${resourceTypeId}: ${error}`;
-        updateProgressIndicator(indicatorId, error.message);
         errors.push(error);
       }
     }
   } catch (error) {
-    error.message = `Error deleting resource types: ${error}`;
-    errors.push(error);
+    errors.push(new FrodoError(`Error deleting resource types`, error));
   } finally {
-    if (errors.length) {
-      const errorMessages = errors.map((error) => error.message).join('\n');
+    if (errors.length > 0) {
       if (resourceTypes.length)
-        stopProgressIndicator(
-          indicatorId,
-          `Error deleting all resource types: ${errorMessages}`
-        );
+        stopProgressIndicator(indicatorId, `Error deleting all resource types`);
+      for (const error of errors) {
+        printError(error);
+      }
     } else {
       if (resourceTypes.length)
         stopProgressIndicator(
           indicatorId,
           `Deleted ${resourceTypes.length} resource types.`
         );
-      outcome = true;
     }
   }
-  debugMessage(
-    `cli.ResourceTypeOps.deleteResourceTypes: end [outcome=${outcome}]`
-  );
-  return outcome;
+  debugMessage(`cli.ResourceTypeOps.deleteResourceTypes: end`);
+  return errors.length === 0;
 }
 
 /**
@@ -272,9 +250,8 @@ export async function deleteResourceTypes(): Promise<
 export async function exportResourceTypeToFile(
   resourceTypeUuid: string,
   file: string,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: begin`);
   showSpinner(`Exporting ${resourceTypeUuid}...`);
   try {
@@ -286,12 +263,13 @@ export async function exportResourceTypeToFile(
     const exportData = await exportResourceType(resourceTypeUuid);
     saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${resourceTypeUuid} to ${filePath}.`);
-    outcome = true;
+    debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting ${resourceTypeUuid}: ${error.message}`);
+    failSpinner(`Error exporting resource type ${resourceTypeUuid}`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -304,9 +282,8 @@ export async function exportResourceTypeToFile(
 export async function exportResourceTypeByNameToFile(
   resourceTypeName: string,
   file: string,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: begin`);
   showSpinner(`Exporting ${resourceTypeName}...`);
   try {
@@ -318,12 +295,13 @@ export async function exportResourceTypeByNameToFile(
     const exportData = await exportResourceTypeByName(resourceTypeName);
     saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${resourceTypeName} to ${filePath}.`);
-    outcome = true;
+    debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting ${resourceTypeName}: ${error.message}`);
+    failSpinner(`Error exporting resource type ${resourceTypeName}`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -334,9 +312,8 @@ export async function exportResourceTypeByNameToFile(
  */
 export async function exportResourceTypesToFile(
   file: string,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: begin`);
   showSpinner(`Exporting all resource types...`);
   try {
@@ -351,12 +328,12 @@ export async function exportResourceTypesToFile(
     const exportData = await exportResourceTypes();
     saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all resource types to ${filePath}.`);
-    outcome = true;
+    debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting resource types: ${error.message}`);
+    failSpinner(`Error exporting resource types`);
   }
-  debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -365,7 +342,7 @@ export async function exportResourceTypesToFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFiles(
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
@@ -386,22 +363,23 @@ export async function exportResourceTypesToFiles(
         updateProgressIndicator(indicatorId, `Exported ${resourceType.name}.`);
       } catch (error) {
         errors.push(error);
-        updateProgressIndicator(
-          indicatorId,
-          `Error exporting ${resourceType.name}.`
-        );
       }
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting policies`, errors);
+    }
     stopProgressIndicator(indicatorId, `Export complete.`);
+    debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
     stopProgressIndicator(
       indicatorId,
-      `Error exporting resource types to files`
+      `Error exporting resource types to files`,
+      'fail'
     );
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: end`);
-  return 0 === errors.length;
+  return false;
 }
 
 /**
@@ -414,21 +392,20 @@ export async function importResourceTypeFromFile(
   resourceTypeId: string,
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: begin`);
   showSpinner(`Importing ${resourceTypeId}...`);
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importResourceType(resourceTypeId, fileData);
-    outcome = true;
     succeedSpinner(`Imported ${resourceTypeId}.`);
+    debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${resourceTypeId}: ${error.message}`);
-    printMessage(error, 'error');
+    failSpinner(`Error importing resource type ${resourceTypeId}`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.importResourceTypeFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -441,21 +418,20 @@ export async function importResourceTypeByNameFromFile(
   resourceTypeName: string,
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: begin`);
   showSpinner(`Importing ${resourceTypeName}...`);
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importResourceTypeByName(resourceTypeName, fileData);
-    outcome = true;
     succeedSpinner(`Imported ${resourceTypeName}.`);
+    debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${resourceTypeName}: ${error.message}`);
-    printMessage(error, 'error');
+    failSpinner(`Error importing resource type ${resourceTypeName}`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.importResourceTypeByNameFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -466,7 +442,6 @@ export async function importResourceTypeByNameFromFile(
 export async function importFirstResourceTypeFromFile(
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: begin`);
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
@@ -474,14 +449,14 @@ export async function importFirstResourceTypeFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstResourceType(fileData);
-    outcome = true;
     succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    failSpinner(`Error importing first resource type`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.importFirstResourceTypeFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -492,7 +467,6 @@ export async function importFirstResourceTypeFromFile(
 export async function importResourceTypesFromFile(
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: begin`);
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
@@ -500,14 +474,14 @@ export async function importResourceTypesFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importResourceTypes(fileData);
-    outcome = true;
     succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    failSpinner(`Error importing resource types`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -542,25 +516,20 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
         );
       } catch (error) {
         errors.push(error);
-        updateProgressIndicator(
-          indicatorId,
-          `Error importing resource types from ${file}`
-        );
-        printMessage(error, 'error');
       }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing resource types`, errors);
     }
     stopProgressIndicator(
       indicatorId,
       `Finished importing ${total} resource types from ${files.length} files.`
     );
+    debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(
-      indicatorId,
-      `Error importing resource types from files.`
-    );
-    printMessage(error, 'error');
+    stopProgressIndicator(indicatorId, `Error importing resource types`);
+    printError(error);
   }
-  debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: end`);
-  return 0 === errors.length;
+  return false;
 }

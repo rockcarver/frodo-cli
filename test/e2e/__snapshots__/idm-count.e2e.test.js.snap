@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo idm count "frodo idm count --managed-object alpha_user": should count all alpha_users 1`] = `
-"alpha_user: 5
+"alpha_user: 3
 "
 `;
 
 exports[`frodo idm count "frodo idm count -o alpha_user": should count all alpha_users 1`] = `
-"alpha_user: 5
+"alpha_user: 3
 "
 `;

@@ -1,0 +1,637 @@
+{
+  "application": {
+    "testclient": {
+      "_id": "testclient",
+      "_provider": {
+        "_id": "",
+        "_type": {
+          "_id": "oauth-oidc",
+          "collection": false,
+          "name": "OAuth2 Provider"
+        },
+        "advancedOAuth2Config": {
+          "allowedAudienceValues": [],
+          "authenticationAttributes": [
+            "uid"
+          ],
+          "codeVerifierEnforced": "passwordless",
+          "customLoginUrlTemplate": "https://www.example.com/account/#/login?goto=${goto}",
+          "defaultScopes": [],
+          "displayNameAttribute": "cn",
+          "grantTypes": [
+            "implicit",
+            "authorization_code",
+            "urn:ietf:params:oauth:grant-type:saml2-bearer",
+            "urn:ietf:params:oauth:grant-type:device_code",
+            "urn:ietf:params:oauth:grant-type:token-exchange",
+            "refresh_token",
+            "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "password",
+            "client_credentials",
+            "urn:openid:params:grant-type:ciba",
+            "urn:ietf:params:oauth:grant-type:uma-ticket"
+          ],
+          "hashSalt": "changeme",
+          "macaroonTokenFormat": "V2",
+          "moduleMessageEnabledInPasswordGrant": false,
+          "passwordGrantAuthService": "[Empty]",
+          "responseTypeClasses": [
+            "token|org.forgerock.oauth2.core.TokenResponseTypeHandler",
+            "code|org.forgerock.oauth2.core.AuthorizationCodeResponseTypeHandler",
+            "device_code|org.forgerock.oauth2.core.TokenResponseTypeHandler",
+            "id_token|org.forgerock.openidconnect.IdTokenResponseTypeHandler"
+          ],
+          "scopeImplementationClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+          "supportedScopes": [],
+          "supportedSubjectTypes": [
+            "public",
+            "pairwise"
+          ],
+          "tlsCertificateBoundAccessTokensEnabled": true,
+          "tlsCertificateRevocationCheckingEnabled": false,
+          "tlsClientCertificateHeaderFormat": "URLENCODED_PEM",
+          "tokenCompressionEnabled": false,
+          "tokenEncryptionEnabled": false,
+          "tokenExchangeClasses": [
+            "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToIdTokenExchanger",
+            "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToAccessTokenExchanger",
+            "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToAccessTokenExchanger",
+            "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToIdTokenExchanger"
+          ],
+          "tokenSigningAlgorithm": "HS256",
+          "tokenValidatorClasses": [
+            "urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.OidcIdTokenValidator",
+            "urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.OAuth2AccessTokenValidator"
+          ]
+        },
+        "advancedOIDCConfig": {
+          "alwaysAddClaimsToToken": true,
+          "amrMappings": {},
+          "authorisedIdmDelegationClients": [],
+          "authorisedOpenIdConnectSSOClients": [],
+          "claimsParameterSupported": false,
+          "defaultACR": [],
+          "idTokenInfoClientAuthenticationEnabled": true,
+          "includeAllKtyAlgCombinationsInJwksUri": false,
+          "loaMapping": {},
+          "storeOpsTokens": true,
+          "supportedRequestParameterEncryptionAlgorithms": [
+            "RSA-OAEP-256",
+            "ECDH-ES",
+            "ECDH-ES+A192KW",
+            "ECDH-ES+A128KW",
+            "A256KW",
+            "RSA-OAEP",
+            "dir",
+            "A128KW",
+            "ECDH-ES+A256KW",
+            "A192KW"
+          ],
+          "supportedRequestParameterEncryptionEnc": [
+            "A128GCM",
+            "A256GCM",
+            "A192CBC-HS384",
+            "A256CBC-HS512",
+            "A128CBC-HS256",
+            "A192GCM"
+          ],
+          "supportedRequestParameterSigningAlgorithms": [
+            "RS256",
+            "ES512",
+            "PS512",
+            "RS384",
+            "HS512",
+            "ES256",
+            "ES384",
+            "HS256",
+            "HS384",
+            "PS384",
+            "RS512",
+            "PS256"
+          ],
+          "supportedTokenEndpointAuthenticationSigningAlgorithms": [
+            "RS512",
+            "RS384",
+            "RS256",
+            "ES512",
+            "HS256",
+            "HS384",
+            "PS512",
+            "ES384",
+            "PS256",
+            "ES256",
+            "HS512",
+            "PS384"
+          ],
+          "supportedTokenIntrospectionResponseEncryptionAlgorithms": [
+            "RSA-OAEP-256",
+            "ECDH-ES+A256KW",
+            "A128KW",
+            "A192KW",
+            "RSA-OAEP",
+            "ECDH-ES+A192KW",
+            "A256KW",
+            "ECDH-ES",
+            "ECDH-ES+A128KW",
+            "dir"
+          ],
+          "supportedTokenIntrospectionResponseEncryptionEnc": [
+            "A128CBC-HS256",
+            "A192CBC-HS384",
+            "A256GCM",
+            "A256CBC-HS512",
+            "A128GCM",
+            "A192GCM"
+          ],
+          "supportedTokenIntrospectionResponseSigningAlgorithms": [
+            "ES384",
+            "PS384",
+            "ES256",
+            "PS256",
+            "PS512",
+            "EdDSA",
+            "HS512",
+            "RS384",
+            "RS256",
+            "RS512",
+            "HS256",
+            "ES512",
+            "HS384"
+          ],
+          "supportedUserInfoEncryptionAlgorithms": [
+            "RSA-OAEP",
+            "dir",
+            "A256KW",
+            "ECDH-ES+A256KW",
+            "ECDH-ES",
+            "RSA-OAEP-256",
+            "A128KW",
+            "ECDH-ES+A192KW",
+            "A192KW",
+            "ECDH-ES+A128KW"
+          ],
+          "supportedUserInfoEncryptionEnc": [
+            "A256GCM",
+            "A128CBC-HS256",
+            "A192CBC-HS384",
+            "A192GCM",
+            "A128GCM",
+            "A256CBC-HS512"
+          ],
+          "supportedUserInfoSigningAlgorithms": [
+            "ES256",
+            "HS512",
+            "ES512",
+            "HS384",
+            "RS256",
+            "ES384",
+            "HS256"
+          ],
+          "useForceAuthnForPromptLogin": false
+        },
+        "cibaConfig": {
+          "cibaAuthReqIdLifetime": 600,
+          "cibaMinimumPollingInterval": 2,
+          "supportedCibaSigningAlgorithms": [
+            "ES256",
+            "PS256"
+          ]
+        },
+        "clientDynamicRegistrationConfig": {
+          "allowDynamicRegistration": false,
+          "dynamicClientRegistrationScope": "dynamic_client_registration",
+          "dynamicClientRegistrationSoftwareStatementRequired": false,
+          "generateRegistrationAccessTokens": true,
+          "requiredSoftwareStatementAttestedAttributes": [
+            "redirect_uris"
+          ]
+        },
+        "consent": {
+          "clientsCanSkipConsent": true,
+          "enableRemoteConsent": false,
+          "remoteConsentServiceId": "[Empty]",
+          "supportedRcsRequestEncryptionAlgorithms": [
+            "dir",
+            "A192KW",
+            "RSA-OAEP-256",
+            "ECDH-ES+A256KW",
+            "RSA-OAEP",
+            "ECDH-ES",
+            "A256KW",
+            "A128KW",
+            "ECDH-ES+A128KW",
+            "ECDH-ES+A192KW"
+          ],
+          "supportedRcsRequestEncryptionMethods": [
+            "A256GCM",
+            "A256CBC-HS512",
+            "A192GCM",
+            "A128CBC-HS256",
+            "A128GCM",
+            "A192CBC-HS384"
+          ],
+          "supportedRcsRequestSigningAlgorithms": [
+            "RS512",
+            "PS384",
+            "PS256",
+            "HS256",
+            "HS384",
+            "ES512",
+            "RS256",
+            "RS384",
+            "HS512",
+            "ES384",
+            "ES256",
+            "PS512"
+          ],
+          "supportedRcsResponseEncryptionAlgorithms": [
+            "ECDH-ES+A256KW",
+            "dir",
+            "A256KW",
+            "ECDH-ES+A192KW",
+            "RSA-OAEP-256",
+            "ECDH-ES",
+            "ECDH-ES+A128KW",
+            "A128KW",
+            "A192KW",
+            "RSA-OAEP"
+          ],
+          "supportedRcsResponseEncryptionMethods": [
+            "A256CBC-HS512",
+            "A192CBC-HS384",
+            "A256GCM",
+            "A128GCM",
+            "A192GCM",
+            "A128CBC-HS256"
+          ],
+          "supportedRcsResponseSigningAlgorithms": [
+            "PS256",
+            "ES384",
+            "RS512",
+            "ES256",
+            "HS512",
+            "PS384",
+            "RS256",
+            "ES512",
+            "PS512",
+            "HS384",
+            "HS256",
+            "RS384"
+          ]
+        },
+        "coreOAuth2Config": {
+          "accessTokenLifetime": 3600,
+          "accessTokenMayActScript": "[Empty]",
+          "accessTokenModificationScript": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
+          "codeLifetime": 120,
+          "issueRefreshToken": true,
+          "issueRefreshTokenOnRefreshedToken": true,
+          "macaroonTokensEnabled": false,
+          "oidcMayActScript": "[Empty]",
+          "refreshTokenLifetime": 14400,
+          "statelessTokensEnabled": false,
+          "usePolicyEngineForScope": false
+        },
+        "coreOIDCConfig": {
+          "jwtTokenLifetime": 3600,
+          "oidcClaimsScript": "eef8e364-d4a8-484d-89c3-1bc083c5cfc0",
+          "oidcDiscoveryEndpointEnabled": false,
+          "overrideableOIDCClaims": [],
+          "supportedClaims": [],
+          "supportedIDTokenEncryptionAlgorithms": [
+            "A128KW",
+            "A192KW",
+            "ECDH-ES+A256KW",
+            "RSA-OAEP-256",
+            "RSA-OAEP",
+            "A256KW",
+            "ECDH-ES+A128KW",
+            "ECDH-ES+A192KW",
+            "ECDH-ES",
+            "dir"
+          ],
+          "supportedIDTokenEncryptionMethods": [
+            "A256GCM",
+            "A128GCM",
+            "A256CBC-HS512",
+            "A128CBC-HS256",
+            "A192CBC-HS384",
+            "A192GCM"
+          ],
+          "supportedIDTokenSigningAlgorithms": [
+            "RS384",
+            "RS256",
+            "PS512",
+            "ES512",
+            "HS384",
+            "HS256",
+            "PS256",
+            "ES256",
+            "PS384",
+            "ES384",
+            "RS512",
+            "HS512"
+          ]
+        },
+        "deviceCodeConfig": {
+          "deviceCodeLifetime": 300,
+          "devicePollInterval": 5
+        }
+      },
+      "_type": {
+        "_id": "OAuth2Client",
+        "collection": true,
+        "name": "OAuth2 Clients"
+      },
+      "advancedOAuth2ClientConfig": {
+        "clientUri": {
+          "inherited": false,
+          "value": []
+        },
+        "contacts": {
+          "inherited": false,
+          "value": []
+        },
+        "customProperties": {
+          "inherited": false,
+          "value": []
+        },
+        "descriptions": {
+          "inherited": false,
+          "value": []
+        },
+        "grantTypes": {
+          "inherited": false,
+          "value": [
+            "authorization_code"
+          ]
+        },
+        "isConsentImplied": {
+          "inherited": false,
+          "value": false
+        },
+        "javascriptOrigins": {
+          "inherited": false,
+          "value": []
+        },
+        "logoUri": {
+          "inherited": false,
+          "value": []
+        },
+        "mixUpMitigation": {
+          "inherited": false,
+          "value": false
+        },
+        "name": {
+          "inherited": false,
+          "value": []
+        },
+        "policyUri": {
+          "inherited": false,
+          "value": []
+        },
+        "requestUris": {
+          "inherited": false,
+          "value": []
+        },
+        "responseTypes": {
+          "inherited": false,
+          "value": [
+            "code",
+            "token",
+            "id_token",
+            "code token",
+            "token id_token",
+            "code id_token",
+            "code token id_token",
+            "device_code",
+            "device_code id_token"
+          ]
+        },
+        "sectorIdentifierUri": {
+          "inherited": false
+        },
+        "softwareIdentity": {
+          "inherited": false
+        },
+        "softwareVersion": {
+          "inherited": false
+        },
+        "subjectType": {
+          "inherited": false,
+          "value": "public"
+        },
+        "tokenEndpointAuthMethod": {
+          "inherited": false,
+          "value": "client_secret_basic"
+        },
+        "tokenExchangeAuthLevel": {
+          "inherited": false,
+          "value": 0
+        },
+        "tosURI": {
+          "inherited": false,
+          "value": []
+        },
+        "updateAccessToken": {
+          "inherited": false
+        }
+      },
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "authorizationCodeLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "clientName": {
+          "inherited": false,
+          "value": []
+        },
+        "clientType": {
+          "inherited": false,
+          "value": "Confidential"
+        },
+        "defaultScopes": {
+          "inherited": false,
+          "value": []
+        },
+        "loopbackInterfaceRedirection": {
+          "inherited": false,
+          "value": false
+        },
+        "redirectionUris": {
+          "inherited": false,
+          "value": []
+        },
+        "refreshTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "scopes": {
+          "inherited": false,
+          "value": [
+            "email",
+            "openid",
+            "profile"
+          ]
+        },
+        "status": {
+          "inherited": false,
+          "value": "Active"
+        },
+        "userpassword": null,
+        "userpassword-encrypted": "AAAAA0FFUwIQRBHOeJ4ki/TTxQzzDyLwwYtZQNr2NEomAKyNeHjBrM8="
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": {
+          "inherited": false,
+          "value": false
+        },
+        "backchannel_logout_uri": {
+          "inherited": false
+        },
+        "claims": {
+          "inherited": false,
+          "value": []
+        },
+        "clientSessionUri": {
+          "inherited": false
+        },
+        "defaultAcrValues": {
+          "inherited": false,
+          "value": []
+        },
+        "defaultMaxAge": {
+          "inherited": false,
+          "value": 600
+        },
+        "defaultMaxAgeEnabled": {
+          "inherited": false,
+          "value": false
+        },
+        "jwtTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "postLogoutRedirectUri": {
+          "inherited": false,
+          "value": []
+        }
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": {
+          "inherited": false,
+          "value": []
+        }
+      },
+      "signEncOAuth2ClientConfig": {
+        "clientJwtPublicKey": {
+          "inherited": false
+        },
+        "idTokenEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "RSA-OAEP-256"
+        },
+        "idTokenEncryptionEnabled": {
+          "inherited": false,
+          "value": false
+        },
+        "idTokenEncryptionMethod": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "idTokenPublicEncryptionKey": {
+          "inherited": false
+        },
+        "idTokenSignedResponseAlg": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "jwkSet": {
+          "inherited": false
+        },
+        "jwkStoreCacheMissCacheTime": {
+          "inherited": false,
+          "value": 60000
+        },
+        "jwksCacheTimeout": {
+          "inherited": false,
+          "value": 3600000
+        },
+        "jwksUri": {
+          "inherited": false
+        },
+        "mTLSCertificateBoundAccessTokens": {
+          "inherited": false,
+          "value": false
+        },
+        "mTLSSubjectDN": {
+          "inherited": false
+        },
+        "mTLSTrustedCert": {
+          "inherited": false
+        },
+        "publicKeyLocation": {
+          "inherited": false,
+          "value": "jwks_uri"
+        },
+        "requestParameterEncryptedAlg": {
+          "inherited": false
+        },
+        "requestParameterEncryptedEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "requestParameterSignedAlg": {
+          "inherited": false
+        },
+        "tokenEndpointAuthSigningAlgorithm": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "tokenIntrospectionEncryptedResponseAlg": {
+          "inherited": false,
+          "value": "RSA-OAEP-256"
+        },
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "tokenIntrospectionResponseFormat": {
+          "inherited": false,
+          "value": "JSON"
+        },
+        "tokenIntrospectionSignedResponseAlg": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "userinfoEncryptedResponseAlg": {
+          "inherited": false
+        },
+        "userinfoEncryptedResponseEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "userinfoResponseFormat": {
+          "inherited": false,
+          "value": "JSON"
+        },
+        "userinfoSignedResponseAlg": {
+          "inherited": false
+        }
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2024-03-20T14:24:49.039Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-72 [v18.18.2]",
+    "exportedBy": "amadmin",
+    "origin": "https://www.example.com/openam",
+    "originAmVersion": "7.1.2"
+  },
+  "script": {}
+}

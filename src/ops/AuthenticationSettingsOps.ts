@@ -3,11 +3,11 @@ import fs from 'fs';
 
 import {
   createObjectTable,
+  createProgressIndicator,
   debugMessage,
-  failSpinner,
+  printError,
   printMessage,
-  showSpinner,
-  succeedSpinner,
+  stopProgressIndicator,
 } from '../utils/Console';
 
 const { saveJsonToFile, getTypedFilename, getFilePath } = frodo.utils;
@@ -27,16 +27,16 @@ export async function exportAuthenticationSettingsToFile(
   file: string,
   includeMeta = true
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(
-    `cli.AuthenticationSettingsOps.exportAuthenticationSettingsToFile: begin`
-  );
-  showSpinner(
-    `Exporting ${frodo.utils.getRealmName(
-      state.getRealm()
-    )} realm authentication settings...`
-  );
+  let spinnerId: string;
   try {
+    debugMessage(
+      `cli.AuthenticationSettingsOps.exportAuthenticationSettingsToFile: begin`
+    );
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Exporting authentication settings...`
+    );
     let fileName = getTypedFilename(
       `${frodo.utils.getRealmName(state.getRealm())}Realm`,
       'authentication.settings'
@@ -47,23 +47,26 @@ export async function exportAuthenticationSettingsToFile(
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportAuthenticationSettings();
     saveJsonToFile(exportData, filePath, includeMeta);
-    succeedSpinner(
+    stopProgressIndicator(
+      spinnerId,
       `Exported ${frodo.utils.getRealmName(
         state.getRealm()
-      )} realm authentication settings to ${filePath}.`
+      )} realm authentication settings to ${filePath}.`,
+      'success'
     );
-    outcome = true;
+    debugMessage(
+      `cli.AuthenticationSettingsOps.exportAuthenticationSettingsToFile: end`
+    );
+    return true;
   } catch (error) {
-    failSpinner(
-      `Error exporting ${frodo.utils.getRealmName(
-        state.getRealm()
-      )} realm authentication settings: ${error.message}`
+    stopProgressIndicator(
+      spinnerId,
+      `Error exporting authentication settings`,
+      'fail'
     );
+    printError(error);
   }
-  debugMessage(
-    `cli.AuthenticationSettingsOps.exportAuthenticationSettingsToFile: end`
-  );
-  return outcome;
+  return false;
 }
 
 /**
@@ -74,37 +77,39 @@ export async function exportAuthenticationSettingsToFile(
 export async function importAuthenticationSettingsFromFile(
   file: string
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(
-    `cli.AuthenticationSettingsOps.importAuthenticationSettingsFromFile: begin`
-  );
-  showSpinner(
-    `Importing ${frodo.utils.getRealmName(
-      state.getRealm()
-    )} realm authentication settings...`
-  );
+  let spinnerId: string;
   try {
+    debugMessage(
+      `cli.AuthenticationSettingsOps.importAuthenticationSettingsFromFile: begin`
+    );
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing authentication settings...`
+    );
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await _importAuthenticationSettings(fileData);
-    outcome = true;
-    succeedSpinner(
+    stopProgressIndicator(
+      spinnerId,
       `Imported ${frodo.utils.getRealmName(
         state.getRealm()
-      )} realm authentication settings.`
+      )} realm authentication settings.`,
+      'success'
     );
+    debugMessage(
+      `cli.AuthenticationSettingsOps.importAuthenticationSettingsFromFile: end`
+    );
+    return true;
   } catch (error) {
-    failSpinner(
-      `Error importing ${frodo.utils.getRealmName(
-        state.getRealm()
-      )} realm authentication settings.`
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing authentication settings`,
+      'fail'
     );
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(
-    `cli.AuthenticationSettingsOps.importAuthenticationSettingsFromFile: end`
-  );
-  return outcome;
+  return false;
 }
 
 /**
@@ -115,7 +120,6 @@ export async function importAuthenticationSettingsFromFile(
 export async function describeAuthenticationSettings(
   json = false
 ): Promise<boolean> {
-  let outcome = false;
   try {
     const settings = await _readAuthenticationSettings();
     delete settings._id;
@@ -123,14 +127,13 @@ export async function describeAuthenticationSettings(
     delete settings._type;
     if (json) {
       printMessage(settings, 'data');
-      outcome = true;
     } else {
       const table = createObjectTable(settings);
       printMessage(table.toString(), 'data');
-      outcome = true;
     }
+    return true;
   } catch (error) {
-    printMessage(error.message, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }

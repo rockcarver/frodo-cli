@@ -53,14 +53,14 @@ program
       // delete app by name
       if (options.appId && (await getTokens())) {
         verboseMessage('Deleting application...');
-        const status = await deleteApplication(options.appId, options.deep);
-        if (!status) process.exitCode = 1;
+        const outcome = await deleteApplication(options.appId, options.deep);
+        if (!outcome) process.exitCode = 1;
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all applications...');
-        const status = await deleteApplications(options.deep);
-        if (!status) process.exitCode = 1;
+        const outcome = await deleteApplications(options.deep);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

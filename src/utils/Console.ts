@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   ProgressIndicatorStatusType,
   ProgressIndicatorType,
@@ -187,6 +187,46 @@ export function printMessage(message, type = 'text', newline = true) {
       break;
     default:
       text(message, newline);
+  }
+}
+
+/**
+ * Prints an error message from an error object and an optional custom message
+ *
+ * @param error error object
+ */
+export function printError(error: Error, message?: string) {
+  if (message) printMessage('' + message, 'error');
+  switch (error.name) {
+    case 'FrodoError':
+      printMessage('' + (error as FrodoError).getCombinedMessage(), 'error');
+      break;
+
+    case 'AxiosError': {
+      const code = error['code'];
+      const status = error['response'] ? error['response'].status : null;
+      const message = error['response']
+        ? error['response'].data
+          ? error['response'].data.message
+          : null
+        : null;
+      const detail = error['response']
+        ? error['response'].data
+          ? error['response'].data.detail
+          : null
+        : null;
+      let errorMessage = 'HTTP client error';
+      errorMessage += code ? `\n  Code: ${code}` : '';
+      errorMessage += status ? `\n  Status: ${status}` : '';
+      errorMessage += message ? `\n  Message: ${message}` : '';
+      errorMessage += detail ? `\n  Detail: ${detail}` : '';
+      printMessage(errorMessage, 'error');
+      break;
+    }
+
+    default:
+      printMessage(error.message, 'error');
+      break;
   }
 }
 

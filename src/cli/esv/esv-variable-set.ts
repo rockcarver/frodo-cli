@@ -1,5 +1,8 @@
 import { getTokens } from '../../ops/AuthenticateOps';
-import { setVariableDescription, updateVariable } from '../../ops/VariablesOps';
+import {
+  setVariableDescription,
+  updateVariable,
+} from '../../ops/cloud/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

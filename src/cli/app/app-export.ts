@@ -75,7 +75,7 @@ program
       // export
       if (options.appId && (await getTokens())) {
         verboseMessage('Exporting application...');
-        const status = await exportApplicationToFile(
+        const outcome = await exportApplicationToFile(
           options.appId,
           options.file,
           options.metadata,
@@ -84,12 +84,12 @@ program
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all applications to file...');
-        const status = await exportApplicationsToFile(
+        const outcome = await exportApplicationsToFile(
           options.file,
           options.metadata,
           {
@@ -97,16 +97,16 @@ program
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
-        const status = await exportApplicationsToFiles(options.metadata, {
+        const outcome = await exportApplicationsToFiles(options.metadata, {
           useStringArrays: true,
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

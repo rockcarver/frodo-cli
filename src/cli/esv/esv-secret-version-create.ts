@@ -4,7 +4,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import {
   createVersionOfSecret,
   createVersionOfSecretFromFile,
-} from '../../ops/SecretsOps';
+} from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

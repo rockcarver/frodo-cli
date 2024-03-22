@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import type {
   ApplicationExportInterface,
   ApplicationExportOptions,
@@ -10,11 +10,9 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
-  failSpinner,
+  printError,
   printMessage,
-  showSpinner,
   stopProgressIndicator,
-  succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
 import wordwrap from './utils/Wordwrap';
@@ -41,7 +39,7 @@ const {
 /**
  * List applications
  */
-export async function listApplications(long = false) {
+export async function listApplications(long = false): Promise<boolean> {
   try {
     const applications = await _readApplications();
     applications.sort((a, b) => a.name.localeCompare(b.name));
@@ -82,9 +80,11 @@ export async function listApplications(long = false) {
         printMessage(`${app.name}`, 'data');
       });
     }
+    return true;
   } catch (error) {
-    printMessage(`Error listing applications - ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -97,18 +97,27 @@ export async function deleteApplication(
   applicationName: string,
   deep: boolean
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.deleteApplication: begin`);
-  showSpinner(`Deleting ${applicationName}...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.deleteApplication: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Deleting ${applicationName}...`
+    );
     await _deleteApplicationByName(applicationName, deep);
-    outcome = true;
-    succeedSpinner(`Deleted ${applicationName}`);
+    stopProgressIndicator(spinnerId, `Deleted ${applicationName}`, 'success');
+    debugMessage(`cli.ApplicationOps.deleteApplication: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error deleting ${applicationName}: ${error.message}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Error deleting ${applicationName}`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.deleteApplication: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -117,18 +126,27 @@ export async function deleteApplication(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteApplications(deep: boolean): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.deleteApplications: begin`);
-  showSpinner(`Deleting all applications...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.deleteApplications: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Deleting applications...`
+    );
     const deleted = await _deleteApplications(deep);
-    outcome = true;
-    succeedSpinner(`Deleted ${deleted.length} applications`);
+    stopProgressIndicator(
+      spinnerId,
+      `Deleted ${deleted.length} applications`,
+      'success'
+    );
+    debugMessage(`cli.ApplicationOps.deleteApplications: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error deleting applications: ${error.message}`);
+    stopProgressIndicator(spinnerId, `Error deleting applications`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.deleteApplications: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -145,10 +163,14 @@ export async function exportApplicationToFile(
   includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ) {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.exportApplicationToFile: begin`);
-  showSpinner(`Exporting ${applicationName}...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.exportApplicationToFile: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Exporting ${applicationName}...`
+    );
     let fileName = getTypedFilename(applicationName, 'application');
     if (file) {
       fileName = file;
@@ -156,13 +178,22 @@ export async function exportApplicationToFile(
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplicationByName(applicationName, options);
     saveJsonToFile(exportData, filePath, includeMeta);
-    succeedSpinner(`Exported ${applicationName} to ${filePath}.`);
-    outcome = true;
+    stopProgressIndicator(
+      spinnerId,
+      `Exported ${applicationName} to ${filePath}.`,
+      'success'
+    );
+    debugMessage(`cli.ApplicationOps.exportApplicationToFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting ${applicationName}: ${error.message}`);
+    stopProgressIndicator(
+      spinnerId,
+      `Error exporting ${applicationName}`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.exportApplicationToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -177,10 +208,14 @@ export async function exportApplicationsToFile(
   includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.exportApplicationsToFile: begin`);
-  showSpinner(`Exporting all applications...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.exportApplicationsToFile: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Exporting applications...`
+    );
     let fileName = getTypedFilename(
       `all${titleCase(frodo.utils.getRealmName(state.getRealm()))}Applications`,
       'application'
@@ -191,14 +226,18 @@ export async function exportApplicationsToFile(
     const filePath = getFilePath(fileName, true);
     const exportData = await _exportApplications(options);
     saveJsonToFile(exportData, filePath, includeMeta);
-    succeedSpinner(`Exported all applications to ${filePath}.`);
-    outcome = true;
+    stopProgressIndicator(
+      spinnerId,
+      `Exported applications to ${filePath}.`,
+      'success'
+    );
+    debugMessage(`cli.ApplicationOps.exportApplicationsToFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting all applications`);
-    printMessage(`${error.message}`, 'error');
+    stopProgressIndicator(spinnerId, `Error exporting applications`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.exportApplicationsToFile: end [${outcome}]`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -212,11 +251,11 @@ export async function exportApplicationsToFiles(
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ) {
   debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: begin`);
-  const errors = [];
-  let barId: string;
+  const errors: Error[] = [];
+  let totalBarId: string;
   try {
     const applications = await _readApplications();
-    barId = createProgressIndicator(
+    totalBarId = createProgressIndicator(
       'determinate',
       applications.length,
       'Exporting applications...'
@@ -232,7 +271,7 @@ export async function exportApplicationsToFiles(
         true
       );
       try {
-        updateProgressIndicator(barId, `Exporting ${application.name}.`);
+        updateProgressIndicator(totalBarId, `Exporting ${application.name}.`);
         const exportData = await _exportApplication(application._id, options);
         saveJsonToFile(exportData, file, includeMeta);
         updateProgressIndicator(
@@ -245,20 +284,35 @@ export async function exportApplicationsToFiles(
         );
       } catch (error) {
         errors.push(error);
-        updateProgressIndicator(barId, `Error exporting ${application.name}.`);
+        updateProgressIndicator(
+          totalBarId,
+          `Error exporting ${application.name}.`
+        );
         stopProgressIndicator(
           fileBarId,
-          `Error saving ${application.name} to ${file}.`
+          `Error saving ${application.name} to ${file}.`,
+          'fail'
         );
       }
     }
-    stopProgressIndicator(barId, `Export complete.`);
+    stopProgressIndicator(totalBarId, `Export complete.`);
+    if (errors.length > 0) {
+      throw new FrodoError(
+        `Error exporting applications(s) to file(s)`,
+        errors
+      );
+    }
+    debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(barId, `Error exporting applications(s) to file(s)`);
+    stopProgressIndicator(
+      totalBarId,
+      `Error exporting applications(s) to file(s)`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.exportApplicationsToFiles: end`);
-  return 0 === errors.length;
+  return false;
 }
 
 /**
@@ -273,21 +327,29 @@ export async function importApplicationFromFile(
   file: string,
   options: ApplicationImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.importApplicationFromFile: begin`);
-  showSpinner(`Importing ${applicationName}...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.importApplicationFromFile: begin`);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Exporting applications...`
+    );
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await _importApplicationByName(applicationName, fileData, options);
-    outcome = true;
-    succeedSpinner(`Imported ${applicationName}.`);
+    stopProgressIndicator(spinnerId, `Imported ${applicationName}`, 'success');
+    debugMessage(`cli.ApplicationOps.importApplicationFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${applicationName}.`);
-    printMessage(error, 'error');
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing ${applicationName}`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.importApplicationFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -300,22 +362,30 @@ export async function importFirstApplicationFromFile(
   file: string,
   options: ApplicationImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: begin`);
-  const filePath = getFilePath(file);
-  showSpinner(`Importing ${filePath}...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: begin`);
+    const filePath = getFilePath(file);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${filePath}...`
+    );
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await _importFirstApplication(fileData, options);
-    outcome = true;
-    succeedSpinner(`Imported ${filePath}.`);
+    stopProgressIndicator(spinnerId, `Imported ${filePath}`, 'success');
+    debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing first application`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.importFirstApplicationFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -328,22 +398,30 @@ export async function importApplicationsFromFile(
   file: string,
   options: ApplicationImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
-  debugMessage(`cli.ApplicationOps.importApplicationsFromFile: begin`);
-  const filePath = getFilePath(file);
-  showSpinner(`Importing ${filePath}...`);
+  let spinnerId: string;
   try {
+    debugMessage(`cli.ApplicationOps.importApplicationsFromFile: begin`);
+    const filePath = getFilePath(file);
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${filePath}...`
+    );
     const data = fs.readFileSync(filePath, 'utf8');
     const applicationData = JSON.parse(data);
     await _importApplications(applicationData, options);
-    outcome = true;
-    succeedSpinner(`Imported ${filePath}.`);
+    stopProgressIndicator(spinnerId, `Imported ${filePath}`, 'success');
+    debugMessage(`cli.ApplicationOps.importApplicationsFromFile: end`);
+    return true;
   } catch (error) {
-    failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    stopProgressIndicator(
+      spinnerId,
+      `Error importing first application`,
+      'fail'
+    );
+    printError(error);
   }
-  debugMessage(`cli.ApplicationOps.importApplicationsFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -388,18 +466,18 @@ export async function importApplicationsFromFiles(
         printMessage(error, 'error');
       }
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing applications`, errors);
+    }
     stopProgressIndicator(
       barId,
       `Finished importing ${total} application(s) from ${files.length} file(s).`
     );
+    debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(
-      barId,
-      `Error importing application(s) from file(s).`
-    );
+    stopProgressIndicator(barId, `Error importing applications`);
     printMessage(error, 'error');
   }
-  debugMessage(`cli.ApplicationOps.importApplicationsFromFiles: end`);
-  return 0 === errors.length;
+  return false;
 }

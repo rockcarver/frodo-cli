@@ -43,9 +43,11 @@ program
       const globalConfig = options.global ?? false;
 
       if (options.id && (await getTokens())) {
-        await deleteService(options.id, globalConfig);
+        const outcome = await deleteService(options.id, globalConfig);
+        if (!outcome) process.exitCode = 1;
       } else if (options.all && (await getTokens())) {
-        await deleteServices(globalConfig);
+        const outcome = await deleteServices(globalConfig);
+        if (!outcome) process.exitCode = 1;
       } else {
         program.help();
         process.exitCode = 1;

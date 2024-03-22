@@ -26,7 +26,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing themes in realm "${state.getRealm()}"...`);
-        await listThemes(options.long);
+        const outcome = await listThemes(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

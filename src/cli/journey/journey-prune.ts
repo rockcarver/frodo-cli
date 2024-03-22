@@ -2,7 +2,7 @@ import { frodo, state } from '@rockcarver/frodo-lib';
 import yesno from 'yesno';
 
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
@@ -41,10 +41,8 @@ program
             printMessage('No orphaned nodes found.');
           }
         } catch (error) {
-          printMessage(
-            `Error pruning orphaned nodes: ${error.message}`,
-            'error'
-          );
+          printError(error);
+          process.exitCode = 1;
         }
       } else {
         process.exitCode = 1;

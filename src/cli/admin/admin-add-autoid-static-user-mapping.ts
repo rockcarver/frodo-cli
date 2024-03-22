@@ -1,10 +1,7 @@
-import { frodo } from '@rockcarver/frodo-lib';
-
+import { addAutoIdStaticUserMapping } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { addAutoIdStaticUserMapping } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin add-autoid-static-user-mapping');
 
@@ -25,8 +22,8 @@ program
       );
       if (await getTokens()) {
         printMessage(`Adding AutoId static user mapping...`);
-        await addAutoIdStaticUserMapping();
-        printMessage('Done.');
+        const outcome = await addAutoIdStaticUserMapping();
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

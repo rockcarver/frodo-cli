@@ -5,6 +5,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   succeedSpinner,
@@ -39,7 +40,7 @@ export async function listLogApiKeys(long = false): Promise<boolean> {
     }
     outcome = true;
   } catch (error) {
-    printMessage(`Error listing log API keys: ${error}`, 'error');
+    printError(error);
   }
   return outcome;
 }
@@ -57,29 +58,20 @@ export async function provisionCreds() {
       }
       try {
         const resp = await createLogApiKey(keyName);
-        // if (resp.name !== keyName) {
-        //   printMessage(
-        //     `create keys ERROR: could not create log API key ${keyName} [new key name: ${resp.name}]`,
-        //     'error'
-        //   );
-        //   return null;
-        // }
         verboseMessage(
           `Created a new log API key [${keyName}] in ${state.getHost()}`
         );
         return resp;
       } catch (error) {
-        printMessage(
-          `create keys ERROR: create keys call returned ${error}`,
-          'error'
-        );
+        printError(error);
         return null;
       }
     } catch (error) {
-      printMessage(`get keys ERROR: get keys call returned ${error}`, 'error');
+      printError(error);
+      return null;
     }
-  } catch (e) {
-    printMessage(`create keys ERROR: create keys data error - ${e}`, 'error');
+  } catch (error) {
+    printError(error);
     return null;
   }
 }
@@ -93,7 +85,8 @@ export async function deleteLogApiKey(keyId) {
     succeedSpinner(`Deleted ${keyId}.`);
     outcome = true;
   } catch (error) {
-    failSpinner(`Error deleting ${keyId}: ${error.message}`);
+    failSpinner(`Error deleting ${keyId}`);
+    printError(error);
   }
   debugMessage(`cli.LogOps.deleteKey: end [${outcome}]`);
   return outcome;
@@ -108,7 +101,8 @@ export async function deleteLogApiKeys() {
     succeedSpinner(`Deleted ${response.length} keys.`);
     outcome = true;
   } catch (error) {
-    failSpinner(`Error deleting keys: ${error.message}`);
+    failSpinner(`Error deleting keys`);
+    printError(error);
   }
   debugMessage(`cli.LogOps.deleteKeys: end [${outcome}]`);
   return outcome;
@@ -148,10 +142,8 @@ export async function tailLogs(
     setTimeout(() => {
       tailLogs(source, levels, txid, logsObject.pagedResultsCookie, nf);
     }, 5000);
-    return null;
-  } catch (e) {
-    printMessage(`tail ERROR: tail data error - ${e}`, 'error');
-    return `tail ERROR: tail data error - ${e}`;
+  } catch (error) {
+    printError(error);
   }
 }
 
@@ -207,9 +199,7 @@ export async function fetchLogs(
         nf
       );
     }
-    return null;
-  } catch (e) {
-    printMessage(`fetch ERROR: fetch data error - ${e}`, 'error');
-    return `fetch ERROR: fetch data error - ${e}`;
+  } catch (error) {
+    printError(error);
   }
 }

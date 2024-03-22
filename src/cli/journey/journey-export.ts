@@ -84,7 +84,7 @@ program
       // export
       if (options.journeyId && (await getTokens())) {
         verboseMessage('Exporting journey...');
-        await exportJourneyToFile(
+        const outcome = await exportJourneyToFile(
           options.journeyId,
           options.file,
           options.metadata,
@@ -94,24 +94,31 @@ program
             coords: options.coords,
           }
         );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all journeys to a single file...');
-        await exportJourneysToFile(options.file, options.metadata, {
-          useStringArrays: options.useStringArrays,
-          deps: options.deps,
-          coords: options.coords,
-        });
+        const outcome = await exportJourneysToFile(
+          options.file,
+          options.metadata,
+          {
+            useStringArrays: options.useStringArrays,
+            deps: options.deps,
+            coords: options.coords,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all journeys to separate files...');
-        await exportJourneysToFiles(options.metadata, {
+        const outcome = await exportJourneysToFiles(options.metadata, {
           useStringArrays: options.useStringArrays,
           deps: options.deps,
           coords: options.coords,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   type ServiceExportInterface,
   type ServiceImportOptions,
@@ -9,6 +9,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   succeedSpinner,
@@ -36,8 +37,14 @@ const {
 
 /**
  * List services
+ * @param {boolean} [long=false] detailed list
+ * @param {boolean} [globalConfig=false] global services
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listServices(long = false, globalConfig = false) {
+export async function listServices(
+  long: boolean = false,
+  globalConfig: boolean = false
+): Promise<boolean> {
   try {
     const services = await getListOfServices(globalConfig);
     services.sort((a, b) => a._id.localeCompare(b._id));
@@ -55,33 +62,41 @@ export async function listServices(long = false, globalConfig = false) {
         printMessage(`${service._id}`, 'data');
       }
     }
+    return true;
   } catch (error) {
-    printMessage(`Error listing agents - ${error}`, 'error');
-    printMessage(error.stack, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Export all services to file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportServicesToFile(
-  file,
-  globalConfig = false,
-  includeMeta = true
-) {
-  const exportData = await exportServices(globalConfig);
-  let fileName = getTypedFilename(
-    `all${
-      globalConfig ? 'Global' : titleCase(getRealmName(state.getRealm()))
-    }Services`,
-    `service`
-  );
-  if (file) {
-    fileName = file;
+  file: string,
+  globalConfig: boolean = false,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    const exportData = await exportServices(globalConfig);
+    let fileName = getTypedFilename(
+      `all${
+        globalConfig ? 'Global' : titleCase(getRealmName(state.getRealm()))
+      }Services`,
+      `service`
+    );
+    if (file) {
+      fileName = file;
+    }
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+  return false;
 }
 
 /**
@@ -89,42 +104,56 @@ export async function exportServicesToFile(
  * @param {string} serviceId service id
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportServiceToFile(
   serviceId: string,
   file: string,
-  globalConfig = false,
-  includeMeta = true
-) {
-  const exportData = await exportService(serviceId, globalConfig);
-  let fileName = getTypedFilename(serviceId, `service`);
-  if (file) {
-    fileName = file;
+  globalConfig: boolean = false,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    const exportData = await exportService(serviceId, globalConfig);
+    let fileName = getTypedFilename(serviceId, `service`);
+    if (file) {
+      fileName = file;
+    }
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+  return false;
 }
 
 /**
  * Export all services to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportServicesToFiles(
-  globalConfig = false,
-  includeMeta = true
-) {
-  debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
-  const services = await getFullServices(globalConfig);
-  for (const service of services) {
-    const fileName = getTypedFilename(service._type._id, `service`);
-    const filePath = getFilePath(fileName, true);
-    const exportData = createServiceExportTemplate();
-    exportData.service[service._type._id] = service;
-    debugMessage(
-      `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
-    );
-    saveJsonToFile(exportData, filePath, includeMeta);
+  globalConfig: boolean = false,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
+    const services = await getFullServices(globalConfig);
+    for (const service of services) {
+      const fileName = getTypedFilename(service._type._id, `service`);
+      const filePath = getFilePath(fileName, true);
+      const exportData = createServiceExportTemplate();
+      exportData.service[service._type._id] = service;
+      debugMessage(
+        `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
+      );
+      saveJsonToFile(exportData, filePath, includeMeta);
+    }
+    debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
+  return false;
 }
 
 /**
@@ -132,6 +161,7 @@ export async function exportServicesToFiles(
  * @param {string} serviceId service id/name
  * @param {string} file import file name
  * @param {ServiceImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServiceFromFile(
   serviceId: string,
@@ -141,41 +171,33 @@ export async function importServiceFromFile(
     global: false,
     realm: false,
   }
-) {
-  const filePath = getFilePath(file);
-  debugMessage(
-    `cli.ServiceOps.importServiceFromFile: start [serviceId=${serviceId}, file=${filePath}]`
-  );
-  const verbose = state.getVerbose();
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    if (err) throw err;
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.ServiceOps.importServiceFromFile: start`);
+    showSpinner(`Importing service ${serviceId}...`);
+    const filePath = getFilePath(file);
+    const data = fs.readFileSync(filePath, 'utf8');
     const importData = JSON.parse(data);
-    if (importData && importData.service[serviceId]) {
-      if (!verbose) showSpinner(`Importing ${serviceId}...`);
-      try {
-        if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, options);
-        succeedSpinner(`Imported ${serviceId}.`);
-      } catch (importError) {
-        const message = importError.response?.data?.message;
-        const detail = importError.response?.data?.detail;
-        if (verbose) showSpinner(`Importing ${serviceId}...`);
-        failSpinner(`${detail ? message + ' - ' + detail : message}`);
-      }
+    if (importData?.service[serviceId]) {
+      await importService(serviceId, importData, options);
+      succeedSpinner(`Imported ${serviceId}.`);
     } else {
-      showSpinner(`Importing ${serviceId}...`);
       failSpinner(`${serviceId} not found!`);
     }
-  });
-  debugMessage(
-    `cli.ServiceOps.importServiceFromFile: end [serviceId=${serviceId}, file=${filePath}]`
-  );
+    debugMessage(`cli.ServiceOps.importServiceFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing service ${serviceId}`);
+    printError(error);
+  }
+  return false;
 }
 
 /**
  * Import first service from file
  * @param {string} file import file name
  * @param {ServiceImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importFirstServiceFromFile(
   file: string,
@@ -184,42 +206,36 @@ export async function importFirstServiceFromFile(
     global: false,
     realm: false,
   }
-) {
-  const filePath = getFilePath(file);
-  debugMessage(
-    `cli.ServiceOps.importFirstServiceFromFile: start [file=${filePath}]`
-  );
-  const verbose = state.getVerbose();
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    if (err) throw err;
+): Promise<boolean> {
+  try {
+    showSpinner(`Importing first service...`);
+    const filePath = getFilePath(file);
+    debugMessage(
+      `cli.ServiceOps.importFirstServiceFromFile: start [file=${filePath}]`
+    );
+    const data = fs.readFileSync(filePath, 'utf8');
     const importData = JSON.parse(data);
     if (importData && Object.keys(importData.service).length) {
       const serviceId = Object.keys(importData.service)[0];
-      if (!verbose) showSpinner(`Importing ${serviceId}...`);
-      try {
-        if (verbose) showSpinner(`Importing ${serviceId}...`);
-        await importService(serviceId, importData, options);
-        succeedSpinner(`Imported ${serviceId}.`);
-      } catch (importError) {
-        const message = importError.response?.data?.message;
-        const detail = importError.response?.data?.detail;
-        if (verbose) showSpinner(`Importing ${serviceId}...`);
-        failSpinner(`${detail ? message + ' - ' + detail : message}`);
-      }
+      await importService(serviceId, importData, options);
+      succeedSpinner(`Imported first service ${serviceId}.`);
     } else {
-      showSpinner(`Importing service...`);
-      failSpinner(`No service found in ${filePath}!`);
+      failSpinner(`No services found in ${filePath}!`);
     }
-    debugMessage(
-      `cli.ServiceOps.importFirstServiceFromFile: end [file=${filePath}]`
-    );
-  });
+    debugMessage(`cli.ServiceOps.importFirstServiceFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing first service`);
+    printError(error);
+  }
+  return false;
 }
 
 /**
  * Import services from file
  * @param {String} file file name
  * @param {ServiceImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServicesFromFile(
   file: string,
@@ -228,30 +244,30 @@ export async function importServicesFromFile(
     global: false,
     realm: false,
   }
-) {
-  const filePath = getFilePath(file);
-  debugMessage(
-    `cli.ServiceOps.importServiceFromFile: start [file=${filePath}]`
-  );
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    if (err) throw err;
+): Promise<boolean> {
+  try {
+    const filePath = getFilePath(file);
+    debugMessage(
+      `cli.ServiceOps.importServiceFromFile: start [file=${filePath}]`
+    );
+    const data = fs.readFileSync(filePath, 'utf8');
     debugMessage(`cli.ServiceOps.importServiceFromFile: importing ${filePath}`);
     const importData = JSON.parse(data) as ServiceExportInterface;
-    try {
-      await importServices(importData, options);
-    } catch (error) {
-      printMessage(`${error.message}`, 'error');
-      printMessage(error.response.status, 'error');
-    }
+    await importServices(importData, options);
     debugMessage(
       `cli.ServiceOps.importServiceFromFile: end [file=${filePath}]`
     );
-  });
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
 }
 
 /**
  * Import all services from separate files
  * @param {ServiceImportOptions} options import options
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importServicesFromFiles(
   options: ServiceImportOptions = {
@@ -259,34 +275,60 @@ export async function importServicesFromFiles(
     global: false,
     realm: false,
   }
-) {
-  debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
-  const names = fs.readdirSync(getWorkingDirectory());
-  const serviceFiles = names.filter((name) =>
-    name.toLowerCase().endsWith('.service.json')
-  );
-  for (const file of serviceFiles) {
-    await importServicesFromFile(file, options);
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.ServiceOps.importServicesFromFiles: start`);
+    const errors: Error[] = [];
+    const names = fs.readdirSync(getWorkingDirectory());
+    const serviceFiles = names.filter((name) =>
+      name.toLowerCase().endsWith('.service.json')
+    );
+    for (const file of serviceFiles) {
+      try {
+        await importServicesFromFile(file, options);
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing services from files`, errors);
+    }
+    debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  debugMessage(`cli.ServiceOps.importServicesFromFiles: end`);
+  return false;
 }
 
 /**
  * Delete a service by id/name
  * @param {string} serviceId Reference to the service to delete
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteService(serviceId: string, globalConfig = false) {
+export async function deleteService(
+  serviceId: string,
+  globalConfig = false
+): Promise<boolean> {
   try {
     await deleteFullService(serviceId, globalConfig);
+    return true;
   } catch (error) {
-    const message = error.response?.data?.message;
-    printMessage(`Delete service '${serviceId}': ${message}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Delete all services
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteServices(globalConfig = false) {
-  await deleteFullServices(globalConfig);
+export async function deleteServices(globalConfig = false): Promise<boolean> {
+  try {
+    await deleteFullServices(globalConfig);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
 }

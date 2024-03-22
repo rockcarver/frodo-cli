@@ -4,17 +4,18 @@ import {
   VariableSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
 
-import { getFullExportConfig, isIdUsed } from '../utils/Config';
+import { getFullExportConfig, isIdUsed } from '../../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
   createTable,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
-} from '../utils/Console';
-import wordwrap from './utils/Wordwrap';
+} from '../../utils/Console';
+import wordwrap from '../utils/Wordwrap';
 
 const {
   decodeBase64,
@@ -63,11 +64,8 @@ export async function listVariables(
       'success'
     );
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error reading variables: ${error.response?.data || error.message}`,
-      'fail'
-    );
+    stopProgressIndicator(spinnerId, `Error reading variables`, 'fail');
+    printError(error);
     return false;
   }
   if (!long && !usage) {
@@ -91,10 +89,8 @@ export async function listVariables(
     try {
       fullExport = await getFullExportConfig(file);
     } catch (error) {
-      printMessage(
-        `Error getting full export: ${error.response?.data || error.message}`,
-        'error'
-      );
+      printMessage(`Error determining variable usage`, 'error');
+      printError(error);
       return false;
     }
     //Delete variables from full export so they aren't mistakenly used for determining usage
@@ -143,7 +139,6 @@ export async function createVariable(
   description: string,
   type: VariableExpressionType = 'string'
 ): Promise<boolean> {
-  let outcome = false;
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -156,17 +151,16 @@ export async function createVariable(
       `Created variable ${variableId}`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
-      error.response
-        ? `Error: ${error.response.data.code} - ${error.response.data.message}`
-        : error,
+      error.response ? `Error creating variable ${variableId}` : error,
       'fail'
     );
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -177,7 +171,6 @@ export async function createVariable(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function updateVariable(variableId, value, description) {
-  let outcome = false;
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -190,15 +183,16 @@ export async function updateVariable(variableId, value, description) {
       `Updated variable ${variableId}`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
-      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      `Error updating variable ${variableId}`,
       'fail'
     );
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -207,8 +201,10 @@ export async function updateVariable(variableId, value, description) {
  * @param {string} description variable description
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function setVariableDescription(variableId, description) {
-  let outcome = false;
+export async function setVariableDescription(
+  variableId: string,
+  description: string
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -221,15 +217,16 @@ export async function setVariableDescription(variableId, description) {
       `Set description of variable ${variableId}`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
-      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      `Error setting description of variable ${variableId}`,
       'fail'
     );
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -237,8 +234,7 @@ export async function setVariableDescription(variableId, description) {
  * @param {string} variableId variable id
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteVariableById(variableId) {
-  let outcome = false;
+export async function deleteVariableById(variableId: string): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -251,23 +247,23 @@ export async function deleteVariableById(variableId) {
       `Deleted variable ${variableId}`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
-      `Error: ${error.response.data.code} - ${error.response.data.message}`,
+      `Error deleting variable ${variableId}`,
       'fail'
     );
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
  * Delete all variables
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteVariables() {
-  let outcome = false;
+export async function deleteVariables(): Promise<boolean> {
   let indicatorId: string;
   try {
     const variables = await readVariables();
@@ -290,19 +286,13 @@ export async function deleteVariables() {
         );
       }
     }
-    outcome = true;
-    stopProgressIndicator(indicatorId, `Variables deleted.`);
+    stopProgressIndicator(indicatorId, `Variables deleted`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(
-      indicatorId,
-      `Error: ${error.response.data.code} - ${error.response.data.message}`
-    );
-    printMessage(
-      `Error: ${error.response.data.code} - ${error.response.data.message}`,
-      'error'
-    );
+    stopProgressIndicator(indicatorId, `Error deleting variables`);
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -310,8 +300,10 @@ export async function deleteVariables() {
  * @param {string} variableId variable id
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function describeVariable(variableId, json = false) {
-  let outcome = false;
+export async function describeVariable(
+  variableId: string,
+  json = false
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -358,15 +350,16 @@ export async function describeVariable(variableId, json = false) {
       table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
       printMessage(table.toString(), 'data');
     }
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
       `Error describing variable ${variableId}`,
       'fail'
     );
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -386,7 +379,6 @@ export async function exportVariableToFile(
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
   );
-  let outcome = false;
   let fileName = file;
   if (!fileName) {
     fileName = getTypedFilename(variableId, 'variable');
@@ -404,18 +396,21 @@ export async function exportVariableToFile(
     updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
     stopProgressIndicator(
       indicatorId,
-      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
-      `Exported ${variableId.brightCyan} to ${filePath.brightCyan}.`
+      `Exported ${variableId['brightCyan']} to ${filePath['brightCyan']}.`
     );
-    outcome = true;
-  } catch (err) {
-    stopProgressIndicator(indicatorId, `${err}`);
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error exporting variable ${variableId['brightCyan']} to ${filePath['brightCyan']}`,
+      'fail'
+    );
+    printError(error);
   }
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: end [variableId=${variableId}, file=${file}]`
   );
-  return outcome;
+  return false;
 }
 
 /**
@@ -431,7 +426,6 @@ export async function exportVariablesToFile(
   includeMeta: boolean
 ) {
   debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
-  let outcome = false;
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -451,18 +445,16 @@ export async function exportVariablesToFile(
       `Exported variables to ${file}`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       spinnerId,
-      `Error exporting variables: ${error.response?.status || error.message}`,
+      `Error exporting variables to ${getFilePath(file)['brightCyan']}`,
       'fail'
     );
   }
-  debugMessage(
-    `Cli.VariablesOps.exportVariablesToFile: end [outcome=${outcome}, file=${file}]`
-  );
-  return outcome;
+  debugMessage(`Cli.VariablesOps.exportVariablesToFile: end [file=${file}]`);
+  return false;
 }
 
 /**
@@ -474,8 +466,7 @@ export async function exportVariablesToFile(
 export async function exportVariablesToFiles(
   noDecode: boolean,
   includeMeta: boolean
-) {
-  let outcome = false;
+): Promise<boolean> {
   let spinnerId: string;
   let indicatorId: string;
   let variableList: VariableSkeleton[] = [];
@@ -492,11 +483,9 @@ export async function exportVariablesToFiles(
       'success'
     );
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error retrieving variables: ${error.message}`,
-      'fail'
-    );
+    stopProgressIndicator(spinnerId, `Error retrieving variables`, 'fail');
+    printError(error);
+    return false;
   }
   try {
     const indicatorId = createProgressIndicator(
@@ -522,12 +511,10 @@ export async function exportVariablesToFiles(
       indicatorId,
       `${variableList.length} variables exported`
     );
-    outcome = true;
+    return true;
   } catch (error) {
-    stopProgressIndicator(
-      indicatorId,
-      `Error exporting variables: ${error.message}`
-    );
+    stopProgressIndicator(indicatorId, `Error exporting variables`);
+    printError(error);
   }
-  return outcome;
+  return false;
 }

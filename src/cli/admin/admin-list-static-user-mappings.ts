@@ -1,11 +1,9 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { listNonOAuth2AdminStaticUserMappings } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { listNonOAuth2AdminStaticUserMappings } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin list-static-user-mappings');
 
@@ -34,13 +32,10 @@ program
         printMessage(
           'Listing all non-oauth2 client subjects of static user mappings...'
         );
-        const subjects = await listNonOAuth2AdminStaticUserMappings(
+        const outcome = await listNonOAuth2AdminStaticUserMappings(
           options.showProtected
         );
-        subjects.sort((a, b) => a.localeCompare(b));
-        subjects.forEach((item) => {
-          printMessage(`${item}`, 'data');
-        });
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -23,7 +23,8 @@ program
         command
       );
       if (await getTokens()) {
-        await listJavaAgents(options.long);
+        const outcome = await listJavaAgents(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

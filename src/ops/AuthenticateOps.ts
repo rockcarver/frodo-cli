@@ -1,12 +1,11 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { FrodoError } from '@rockcarver/frodo-lib/types/FrodoError';
 import {
   Callback,
   CallbackHandler,
 } from '@rockcarver/frodo-lib/types/ops/CallbackOps';
 import readlineSync from 'readline-sync';
 
-import { printMessage } from '../utils/Console';
+import { printError, printMessage } from '../utils/Console';
 
 const { getTokens: _getTokens } = frodo.login;
 
@@ -26,7 +25,6 @@ export async function getTokens(
   forceLoginAsUser?: boolean,
   autoRefresh?: boolean
 ): Promise<boolean> {
-  let outcome = false;
   try {
     const tokens = await _getTokens(
       forceLoginAsUser,
@@ -39,13 +37,9 @@ export async function getTokens(
       }] as ${tokens.subject}`,
       'info'
     );
-    outcome = true;
+    return true;
   } catch (error) {
-    if (error.name === 'FrodoError') {
-      printMessage((error as FrodoError).getCombinedMessage(), 'error');
-    } else {
-      printMessage(error.message, 'error');
-    }
+    printError(error);
   }
-  return outcome;
+  return false;
 }

@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { deleteJavaAgent, deleteJavaAgents } from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { deleteJavaAgent, deleteJavaAgents } = frodo.agent;
 
 const program = new FrodoCommand('frodo agent java delete');
 
@@ -39,24 +38,14 @@ program
               options.agentId
             }' in realm "${state.getRealm()}"...`
           );
-          try {
-            await deleteJavaAgent(options.agentId);
-          } catch (error) {
-            printMessage(error.message, 'error');
-            process.exitCode = 1;
-            return;
-          }
+          const outcome = await deleteJavaAgent(options.agentId);
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Deleting all agents...');
-          try {
-            await deleteJavaAgents();
-          } catch (error) {
-            printMessage(error.message, 'error');
-            process.exitCode = 1;
-            return;
-          }
+          const outcome = await deleteJavaAgents();
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

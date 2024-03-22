@@ -1,7 +1,10 @@
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
-import { deleteVariableById, deleteVariables } from '../../ops/VariablesOps';
+import {
+  deleteVariableById,
+  deleteVariables,
+} from '../../ops/cloud/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

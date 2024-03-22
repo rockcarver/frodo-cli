@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   \#378: `--llt` option of `frodo admin create-oauth2-client-with-admin-privileges` now works properly again
+-   \#377: Frodo CLI now properly handles FrodoErrors thrown by frodo-lib
+
 ## [2.0.0-51] - 2024-02-10
 
 ## [2.0.0-50] - 2024-02-07

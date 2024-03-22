@@ -50,44 +50,44 @@ program
       // import by id
       if (options.file && options.appId && (await getTokens())) {
         verboseMessage(`Importing OAuth2 application "${options.appId}"...`);
-        const status = await importOAuth2ClientFromFile(
+        const outcome = await importOAuth2ClientFromFile(
           options.appId,
           options.file,
           {
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all OAuth2 applications from a single file (${options.file})...`
         );
-        const status = await importOAuth2ClientsFromFile(options.file, {
+        const outcome = await importOAuth2ClientsFromFile(options.file, {
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all OAuth2 applications from separate files in current directory...'
         );
-        const status = await importOAuth2ClientsFromFiles({
+        const outcome = await importOAuth2ClientsFromFiles({
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first OAuth2 application from file "${options.file}"...`
         );
-        const status = await importFirstOAuth2ClientFromFile(options.file, {
+        const outcome = await importFirstOAuth2ClientFromFile(options.file, {
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

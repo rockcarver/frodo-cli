@@ -27,7 +27,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing journeys in realm "${state.getRealm()}"...`);
-        await listJourneys(options.long, options.analyze);
+        const outcome = await listJourneys(options.long, options.analyze);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

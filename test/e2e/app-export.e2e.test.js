@@ -48,7 +48,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreAD
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreADv2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f my-HRLite.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -Ni HRLite -D appExportTestDir1
@@ -80,9 +80,9 @@ describe('frodo app export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD"', async () => {
-    const exportFile = 'EncoreAD.application.json';
-    const CMD = `frodo app export --app-id EncoreAD`;
+  test('"frodo app export --app-id EncoreADv2": should export the app with app id "EncoreADv2"', async () => {
+    const exportFile = 'EncoreADv2.application.json';
+    const CMD = `frodo app export --app-id EncoreADv2`;
     await testExport(CMD, env, type, exportFile);
   });
 

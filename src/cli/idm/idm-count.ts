@@ -28,7 +28,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Counting managed ${options.managedObject} objects...`);
-        await countManagedObjects(options.managedObject);
+        const outcome = await countManagedObjects(options.managedObject);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -1,6 +1,6 @@
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { createVariable } from '../../ops/VariablesOps';
+import { createVariable } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

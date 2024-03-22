@@ -53,21 +53,27 @@ program
         // export
         if (options.agentId) {
           verboseMessage('Exporting java agent...');
-          await exportJavaAgentToFile(
+          const outcome = await exportJavaAgentToFile(
             options.agentId,
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all java agents to a single file...');
-          await exportJavaAgentsToFile(options.file, options.metadata);
+          const outcome = await exportJavaAgentsToFile(
+            options.file,
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all java agents to separate files...');
-          await exportJavaAgentsToFiles(options.metadata);
+          const outcome = await exportJavaAgentsToFiles(options.metadata);
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

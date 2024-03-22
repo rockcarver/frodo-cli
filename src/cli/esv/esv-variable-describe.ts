@@ -1,7 +1,7 @@
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
-import { describeVariable } from '../../ops/VariablesOps';
+import { describeVariable } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 

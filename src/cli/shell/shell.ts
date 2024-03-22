@@ -5,7 +5,7 @@ import inquirerPrompt from 'inquirer-autocomplete-prompt';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage } from '../../utils/Console';
+import { printError, printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const exits = ['exit', 'quit', 'q'];
@@ -74,8 +74,7 @@ export default function setup() {
             printMessage(result, 'data');
           }
         } catch (error) {
-          printMessage(error.response?.data, 'error');
-          printMessage(`${error}`, 'error');
+          printError(error);
         }
       } while (!exit);
     });

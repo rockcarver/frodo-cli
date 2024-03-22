@@ -1,5 +1,5 @@
-import { listAdminFederationProviders } from '../../ops/AdminFederationOps';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { listAdminFederationProviders } from '../../ops/cloud/AdminFederationOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 

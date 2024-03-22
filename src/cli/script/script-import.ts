@@ -62,17 +62,11 @@ program
         options,
         command
       );
-      const tokens = await getTokens();
-      if (!tokens) {
-        printMessage('Unable to get tokens. Exiting...', 'error');
-        program.help();
-        process.exitCode = 1;
-        return;
-      }
 
-      verboseMessage(`Importing script(s) into realm "${state.getRealm()}"...`);
-
-      if (options.file) {
+      if (options.file && (await getTokens())) {
+        verboseMessage(
+          `Importing script(s) into realm "${state.getRealm()}"...`
+        );
         const outcome = await importScriptsFromFile(
           options.scriptName || options.script,
           options.file,
@@ -82,15 +76,32 @@ program
           }
         );
         if (!outcome) process.exitCode = 1;
-      } else if (options.allSeparate) {
-        await importScriptsFromFiles(
-          options.watch,
-          {
-            reUuid: options.reUuid,
-            includeDefault: options.default,
-          },
-          true
+      } else if (options.allSeparate && (await getTokens())) {
+        verboseMessage(
+          `Importing script(s) into realm "${state.getRealm()}"...`
         );
+        try {
+          await importScriptsFromFiles(
+            options.watch,
+            {
+              reUuid: options.reUuid,
+              includeDefault: options.default,
+            },
+            true
+          );
+        } catch (error) {
+          process.exitCode = 1;
+        }
+      }
+
+      // unrecognized combination of options or no options
+      else {
+        printMessage(
+          'Unrecognized combination of options or no options...',
+          'error'
+        );
+        program.help();
+        process.exitCode = 1;
       }
     }
     // end command logic inside action handler

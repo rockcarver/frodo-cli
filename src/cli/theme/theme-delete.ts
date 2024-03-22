@@ -3,9 +3,9 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
-  deleteAllThemes,
-  deleteThemeByNameCmd,
-  deleteThemeCmd,
+  deleteTheme,
+  deleteThemeByName,
+  deleteThemes,
 } from '../../ops/ThemeOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
@@ -50,7 +50,8 @@ program
             options.themeName
           }" from realm "${state.getRealm()}"...`
         );
-        await deleteThemeByNameCmd(options.themeName);
+        const outcome = await deleteThemeByName(options.themeName);
+        if (!outcome) process.exitCode = 1;
       }
       // delete by id
       else if (options.themeId && (await getTokens())) {
@@ -59,14 +60,16 @@ program
             options.themeId
           }" from realm "${state.getRealm()}"...`
         );
-        await deleteThemeCmd(options.themeId);
+        const outcome = await deleteTheme(options.themeId);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage(
           `Deleting all themes from realm "${state.getRealm()}"...`
         );
-        await deleteAllThemes();
+        const outcome = await deleteThemes();
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {
