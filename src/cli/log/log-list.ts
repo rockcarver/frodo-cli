@@ -1,4 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { ConnectionProfileInterface } from '@rockcarver/frodo-lib/types/ops/ConnectionProfileOps';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { provisionCreds } from '../../ops/LogOps';
@@ -18,7 +19,12 @@ program
 
     let foundCredentials = false;
 
-    const conn = await getConnectionProfile();
+    let conn: ConnectionProfileInterface;
+    try {
+      conn = await getConnectionProfile();
+    } catch (error) {
+      // ignore
+    }
     if (conn) state.setHost(conn.tenant);
 
     // log api creds have been supplied as username and password arguments
