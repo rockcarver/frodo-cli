@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-52] - 2024-03-23
+
 ### Fixed
 
 -   \#378: `--llt` option of `frodo admin create-oauth2-client-with-admin-privileges` now works properly again
@@ -1490,7 +1492,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed problem with adding connection profiles
 -   Miscellaneous bug fixes
 
-[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-51...HEAD
+[Unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-52...HEAD
+
+[2.0.0-52]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-51...v2.0.0-52
 
 [2.0.0-51]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-50...v2.0.0-51
 
