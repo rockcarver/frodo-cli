@@ -24,7 +24,8 @@ program
     );
     if (await getTokens()) {
       verboseMessage(`Listing all AM services for realm: ${realm}`);
-      await listServices(options.long, options.global);
+      const outcome = await listServices(options.long, options.global);
+      if (!outcome) process.exitCode = 1;
     } else {
       process.exitCode = 1;
     }

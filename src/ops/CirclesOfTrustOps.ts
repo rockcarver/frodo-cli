@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
 import { type CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import fs from 'fs';
@@ -7,6 +7,7 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -70,42 +71,42 @@ export function getTableRowMd(cotObj: CircleOfTrustSkeleton): string {
  * List entity providers
  * @param {String} long Long list format with details
  */
-export async function listCirclesOfTrust(long = false): Promise<boolean> {
-  let outcome = false;
+export async function listCirclesOfTrust(
+  long: boolean = false
+): Promise<boolean> {
   let cotList = [];
   try {
     cotList = await readCirclesOfTrust();
-  } catch (error) {
-    printMessage(`readCirclesOfTrust ERROR: ${error}`, 'error');
-    printMessage(error, 'data');
-  }
-  cotList.sort((a, b) => a._id.localeCompare(b._id));
-  if (!long) {
-    cotList.forEach((cot) => {
-      printMessage(`${cot._id}`, 'data');
-    });
-    outcome = true;
-  } else {
-    const table = createTable([
-      'Name'['brightCyan'],
-      'Description'['brightCyan'],
-      'Status'['brightCyan'],
-      'Trusted Providers'['brightCyan'],
-    ]);
-    cotList.forEach((cot) => {
-      table.push([
-        cot._id,
-        cot.description,
-        cot.status,
-        cot.trustedProviders
-          .map((provider) => provider.split('|')[0])
-          .join('\n'),
+    cotList.sort((a, b) => a._id.localeCompare(b._id));
+    if (!long) {
+      cotList.forEach((cot) => {
+        printMessage(`${cot._id}`, 'data');
+      });
+      return true;
+    } else {
+      const table = createTable([
+        'Name'['brightCyan'],
+        'Description'['brightCyan'],
+        'Status'['brightCyan'],
+        'Trusted Providers'['brightCyan'],
       ]);
-    });
-    printMessage(table.toString(), 'data');
-    outcome = true;
+      cotList.forEach((cot) => {
+        table.push([
+          cot._id,
+          cot.description,
+          cot.status,
+          cot.trustedProviders
+            .map((provider) => provider.split('|')[0])
+            .join('\n'),
+        ]);
+      });
+      printMessage(table.toString(), 'data');
+      return true;
+    }
+  } catch (error) {
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -117,9 +118,8 @@ export async function listCirclesOfTrust(long = false): Promise<boolean> {
 export async function exportCircleOfTrustToFile(
   cotId: string,
   file: string = null,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.CirclesOfTrustOps.exportCircleOfTrustToFile: begin`);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -139,16 +139,13 @@ export async function exportCircleOfTrustToFile(
       `Exported ${cotId} to ${filePath}.`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
-    stopProgressIndicator(
-      indicatorId,
-      `Error exporting ${cotId}: ${error.message}`,
-      'fail'
-    );
+    stopProgressIndicator(indicatorId, `Error exporting ${cotId}`, 'fail');
+    printError(error);
   }
   debugMessage(`cli.CirclesOfTrustOps.exportCircleOfTrustToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -158,9 +155,8 @@ export async function exportCircleOfTrustToFile(
  */
 export async function exportCirclesOfTrustToFile(
   file: string = null,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFile: begin`);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -183,16 +179,17 @@ export async function exportCirclesOfTrustToFile(
       `Exported all circles of trust to ${filePath}.`,
       'success'
     );
-    outcome = true;
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error exporting circles of trust: ${error.message}`,
+      `Error exporting circles of trust`,
       'fail'
     );
+    printError(error);
   }
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -200,7 +197,7 @@ export async function exportCirclesOfTrustToFile(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  */
 export async function exportCirclesOfTrustToFiles(
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: begin`);
   const errors = [];
@@ -224,16 +221,21 @@ export async function exportCirclesOfTrustToFiles(
         updateProgressIndicator(indicatorId, `Error exporting ${cot.name}.`);
       }
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting circles of trust`, errors);
+    }
     stopProgressIndicator(indicatorId, `Export complete.`);
+    return true;
   } catch (error) {
-    errors.push(error);
     stopProgressIndicator(
       indicatorId,
-      `Error exporting circles of trust to files`
+      `Error exporting circles of trust`,
+      'fail'
     );
+    printError(error);
   }
   debugMessage(`cli.CirclesOfTrustOps.exportCirclesOfTrustToFiles: end`);
-  return 0 === errors.length;
+  return false;
 }
 
 /**
@@ -245,7 +247,6 @@ export async function importCircleOfTrustFromFile(
   cotId: string,
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -256,21 +257,21 @@ export async function importCircleOfTrustFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importCircleOfTrust(cotId, fileData);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
-      `Imported circle of trust ${cotId} from ${filePath}.`,
+      `Imported circle of trust ${cotId}`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error importing circle of trust ${cotId} from ${filePath}.`,
+      `Error importing circle of trust ${cotId}`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -280,7 +281,6 @@ export async function importCircleOfTrustFromFile(
 export async function importFirstCircleOfTrustFromFile(
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -291,21 +291,21 @@ export async function importFirstCircleOfTrustFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstCircleOfTrust(fileData);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
-      `Imported first circle of trust from ${filePath}.`,
+      `Imported first circle of trust`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error importing first circle of trust from ${filePath}.`,
+      `Error importing first circle of trust`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -315,7 +315,6 @@ export async function importFirstCircleOfTrustFromFile(
 export async function importCirclesOfTrustFromFile(
   file: string
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -326,21 +325,17 @@ export async function importCirclesOfTrustFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importCirclesOfTrust(fileData);
-    outcome = true;
-    stopProgressIndicator(
-      indicatorId,
-      `Imported circles of trust from ${filePath}.`,
-      'success'
-    );
+    stopProgressIndicator(indicatorId, `Imported circles of trust`, 'success');
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error importing circles of trust from ${filePath}.`,
+      `Error importing circles of trust`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -378,21 +373,22 @@ export async function importCirclesOfTrustFromFiles(): Promise<boolean> {
           indicatorId,
           `Error importing circles of trust from ${file}`
         );
-        printMessage(error, 'error');
+        printError(error);
       }
     }
     stopProgressIndicator(
       indicatorId,
       `Imported ${total} circles of trust from ${files.length} files.`
     );
+    return true;
   } catch (error) {
     errors.push(error);
     stopProgressIndicator(
       indicatorId,
       `Error importing circles of trust from files.`
     );
-    printMessage(error, 'error');
+    printError(error);
   }
   debugMessage(`cli.CirclesOfTrustOps.importCirclesOfTrustFromFiles: end`);
-  return 0 === errors.length;
+  return false;
 }

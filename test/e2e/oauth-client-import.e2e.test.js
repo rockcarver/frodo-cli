@@ -58,6 +58,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -af allAlphaApplications.oauth2.app.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --no-deps -AD test/e2e/exports/all-separate/oauth/client
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import --all-separate --directory test/e2e/exports/all-separate/oauth/client
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo oauth client import -f testclient.oauth2.app.json --directory test/e2e/exports/all-separate/oauth/client
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -142,6 +143,12 @@ describe('frodo oauth client import', () => {
 
     test(`"frodo oauth client import --all-separate --directory ${allSeparateOauthApplicationsDirectory}": should import all oauth clients from the ${allSeparateOauthApplicationsDirectory} directory"`, async () => {
         const CMD = `frodo oauth client import --all-separate --directory ${allSeparateOauthApplicationsDirectory}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"Regression rockcarver/frodo-lib#393: frodo oauth client import -f 'testclient.oauth2.app.json' -D ${allSeparateOauthApplicationsDirectory}": should import the first oauth client from the file "testclient.oauth2.app.json"`, async () => {
+        const CMD = `frodo oauth client import -f testclient.oauth2.app.json --directory ${allSeparateOauthApplicationsDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

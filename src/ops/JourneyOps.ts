@@ -1,7 +1,8 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
 import { type TreeSkeleton } from '@rockcarver/frodo-lib/types/api/TreeApi';
 import {
+  DeleteJourneysStatus,
   type JourneyClassificationType,
   type MultiTreeExportInterface,
   type SingleTreeExportInterface,
@@ -16,6 +17,7 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -50,18 +52,20 @@ const {
   getJourneyClassification: _getJourneyClassification,
   disableJourney: _disableJourney,
   enableJourney: _enableJourney,
+  deleteJourney: _deleteJourney,
+  deleteJourneys: _deleteJourneys,
 } = frodo.authn.journey;
 
 /**
  * List all the journeys/trees
  * @param {boolean} long Long version, all the fields
  * @param {boolean} analyze Analyze journeys/trees for custom nodes (expensive)
- * @returns {Promise<TreeSkeleton[]>} a promise that resolves to an array journey objects
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function listJourneys(
-  long = false,
-  analyze = false
-): Promise<TreeSkeleton[]> {
+  long: boolean = false,
+  analyze: boolean = false
+): Promise<boolean> {
   let journeys = [];
   try {
     journeys = await readJourneys();
@@ -69,6 +73,7 @@ export async function listJourneys(
       for (const journeyStub of journeys) {
         printMessage(`${journeyStub['_id']}`, 'data');
       }
+      return true;
     } else {
       if (!analyze) {
         const table = createTable(['Name', 'Status', 'Tags']);
@@ -87,6 +92,7 @@ export async function listJourneys(
           ]);
         }
         printMessage(table.toString(), 'data');
+        return true;
       } else {
         const spinnerId = createProgressIndicator(
           'indeterminate',
@@ -134,20 +140,21 @@ export async function listJourneys(
             ]);
           }
           printMessage(table.toString(), 'data');
+          return true;
         } catch (error) {
           stopProgressIndicator(
             spinnerId,
             'Error retrieving details of all journeys.',
             'fail'
           );
-          printMessage(error.response.data, 'error');
+          printError(error);
         }
       }
     }
   } catch (error) {
-    printMessage(error.response?.data, 'error');
+    printError(error);
   }
-  return journeys;
+  return false;
 }
 
 /**
@@ -156,17 +163,18 @@ export async function listJourneys(
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportJourneyToFile(
   journeyId: string,
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
     coords: true,
   }
-): Promise<void> {
+): Promise<boolean> {
   debugMessage(`exportJourneyToFile: start`);
   const verbose = state.getVerbose();
   if (!file) {
@@ -189,6 +197,7 @@ export async function exportJourneyToFile(
       `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`,
       'success'
     );
+    return true;
   } catch (error) {
     if (verbose)
       spinnerId = createProgressIndicator('indeterminate', 0, `${journeyId}`);
@@ -197,7 +206,9 @@ export async function exportJourneyToFile(
       `Error exporting journey ${journeyId}: ${error}`,
       'fail'
     );
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -205,55 +216,68 @@ export async function exportJourneyToFile(
  * @param {string} file optional export file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportJourneysToFile(
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
     coords: true,
   }
-): Promise<void> {
-  if (!file) {
-    file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
+): Promise<boolean> {
+  try {
+    if (!file) {
+      file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
+    }
+    const filePath = getFilePath(file, true);
+    const fileData: MultiTreeExportInterface = await exportJourneys(options);
+    saveJsonToFile(fileData, filePath, includeMeta);
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  const filePath = getFilePath(file, true);
-  const fileData: MultiTreeExportInterface = await exportJourneys(options);
-  saveJsonToFile(fileData, filePath, includeMeta);
 }
 
 /**
  * Export all journeys to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {TreeExportOptions} options export options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function exportJourneysToFiles(
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: TreeExportOptions = {
     deps: false,
     useStringArrays: false,
     coords: true,
   }
-): Promise<void> {
-  const journeysExport = await exportJourneys(options);
-  const trees = Object.entries(journeysExport.trees);
-  for (const [treeId, treeValue] of trees) {
-    const indicatorId = createProgressIndicator(
-      'determinate',
-      1,
-      `Saving ${treeId}...`
-    );
-    const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
-    treeValue['meta'] = journeysExport.meta;
-    try {
-      updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
-      saveJsonToFile(treeValue, file, includeMeta);
-      stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
-    } catch (error) {
-      stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
+): Promise<boolean> {
+  try {
+    const journeysExport = await exportJourneys(options);
+    const trees = Object.entries(journeysExport.trees);
+    for (const [treeId, treeValue] of trees) {
+      const indicatorId = createProgressIndicator(
+        'determinate',
+        1,
+        `Saving ${treeId}...`
+      );
+      const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
+      treeValue['meta'] = journeysExport.meta;
+      try {
+        updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
+        saveJsonToFile(treeValue, file, includeMeta);
+        stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
+      } catch (error) {
+        stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
+      }
     }
+    return true;
+  } catch (error) {
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -261,12 +285,13 @@ export async function exportJourneysToFiles(
  * @param {string} journeyId journey id/name
  * @param {string} file import file name
  * @param {TreeImportOptions} options import options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importJourneyFromFile(
   journeyId: string,
   file: string,
   options: TreeImportOptions
-) {
+): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -322,6 +347,7 @@ export async function importJourneyFromFile(
             `Imported ${journeyId}.`,
             'success'
           );
+          return true;
         } catch (importError) {
           if (verbose)
             indicatorId2 = createProgressIndicator(
@@ -350,19 +376,21 @@ export async function importJourneyFromFile(
       stopProgressIndicator(indicatorId3, `${journeyId} not found!`, 'fail');
     }
   } catch (error) {
-    printMessage(`Error importing journey ${journeyId}: ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import first journey from file
  * @param {string} file import file name
  * @param {TreeImportOptions} options import options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importFirstJourneyFromFile(
   file: string,
   options: TreeImportOptions
-) {
+): Promise<boolean> {
   const verbose = state.getVerbose();
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
@@ -427,6 +455,7 @@ export async function importFirstJourneyFromFile(
             `Imported ${journeyId}.`,
             'success'
           );
+          return true;
         } catch (importError) {
           if (verbose)
             importSpinnerId = createProgressIndicator(
@@ -455,61 +484,56 @@ export async function importFirstJourneyFromFile(
     }
     // end dependency resolution for single tree import
   } catch (error) {
-    printMessage(`Error importing first journey: ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import all journeys from file
  * @param {string} file import file name
  * @param {TreeImportOptions} options import options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function importJourneysFromFile(
   file: string,
   options: TreeImportOptions
-) {
+): Promise<boolean> {
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    try {
-      const fileData = JSON.parse(data);
-      await importJourneys(fileData, options);
-    } catch (error) {
-      if (error.name === 'UnresolvedDependenciesError') {
-        for (const journey of Object.keys(error.unresolvedJourneys)) {
-          printMessage({
-            message: `  - ${journey} requires ${error.unresolvedJourneys[journey]}`,
-            type: 'info',
-            state,
-          });
-        }
-      } else {
-        printMessage(`${error.message}`, 'error');
-      }
-    }
+    const fileData = JSON.parse(data);
+    await importJourneys(fileData, options);
+    return true;
   } catch (error) {
-    printMessage(`Error importing journeys: ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
  * Import all journeys from separate files
  * @param {TreeImportOptions} options import options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
-export async function importJourneysFromFiles(options: TreeImportOptions) {
-  const names = fs.readdirSync(getWorkingDirectory());
-  const jsonFiles = names
-    .filter((name) => name.toLowerCase().endsWith('.journey.json'))
-    .map((name) => getFilePath(name));
-  const allJourneysData = { trees: {} };
-  for (const file of jsonFiles) {
-    const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
-    allJourneysData.trees[journeyData.tree._id] = journeyData;
-  }
+export async function importJourneysFromFiles(
+  options: TreeImportOptions
+): Promise<boolean> {
   try {
+    const names = fs.readdirSync(getWorkingDirectory());
+    const jsonFiles = names
+      .filter((name) => name.toLowerCase().endsWith('.journey.json'))
+      .map((name) => getFilePath(name));
+    const allJourneysData = { trees: {} };
+    for (const file of jsonFiles) {
+      const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      allJourneysData.trees[journeyData.tree._id] = journeyData;
+    }
     await importJourneys(allJourneysData as MultiTreeExportInterface, options);
+    return true;
   } catch (error) {
-    printMessage(`${error.response?.data?.message || error.message}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -654,191 +678,205 @@ function describeTreeDescendentsMd(
  * - SAML2 circles of trust
  * @param {SingleTreeExportInterface} journeyData journey export object
  * @param {TreeExportResolverInterface} resolveTreeExport tree export resolver callback function
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function describeJourney(
   journeyData: SingleTreeExportInterface,
   resolveTreeExport: TreeExportResolverInterface = onlineTreeExportResolver
-): Promise<void> {
-  const allNodes = {
-    ...journeyData.nodes,
-    ...journeyData.innerNodes,
-  };
-  const nodeTypeMap = {};
-
-  for (const nodeData of Object.values(allNodes)) {
-    if (nodeTypeMap[nodeData._type._id]) {
-      nodeTypeMap[nodeData._type._id] += 1;
-    } else {
-      nodeTypeMap[nodeData._type._id] = 1;
-    }
-  }
-
-  // initialize AM version from file
-  if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
-    state.setAmVersion(journeyData.meta.originAmVersion);
-  }
-
-  // Journey Name
-  printMessage(`${getOneLineDescription(journeyData.tree)}`, 'data');
-  printMessage(Array(`[${journeyData.tree._id}]`['length']).fill('=').join(''));
-
-  // Description
-  if (journeyData.tree.description) {
-    printMessage(`\n${journeyData.tree.description}`, 'data');
-  }
-
-  // Status
-  printMessage(
-    `\nStatus\n${
-      journeyData.tree.enabled === false
-        ? 'disabled'['brightRed']
-        : 'enabled'['brightGreen']
-    }`
-  );
-
-  // Classification
-  if (state.getAmVersion()) {
-    printMessage(
-      `\nClassification\n${getJourneyClassification(journeyData).join(', ')}`,
-      'data'
-    );
-  }
-
-  // Categories/Tags
-  if (
-    journeyData.tree.uiConfig?.categories &&
-    journeyData.tree.uiConfig.categories != '[]'
-  ) {
-    printMessage('\nCategories/Tags', 'data');
-    printMessage(
-      `${JSON.parse(journeyData.tree.uiConfig.categories).join(', ')}`,
-      'data'
-    );
-  }
-
-  // Dependency Tree
+): Promise<boolean> {
+  const errors: Error[] = [];
   try {
-    const descendents = await getTreeDescendents(
-      journeyData,
-      resolveTreeExport
+    const allNodes = {
+      ...journeyData.nodes,
+      ...journeyData.innerNodes,
+    };
+    const nodeTypeMap = {};
+
+    for (const nodeData of Object.values(allNodes)) {
+      if (nodeTypeMap[nodeData._type._id]) {
+        nodeTypeMap[nodeData._type._id] += 1;
+      } else {
+        nodeTypeMap[nodeData._type._id] = 1;
+      }
+    }
+
+    // initialize AM version from file
+    if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
+      state.setAmVersion(journeyData.meta.originAmVersion);
+    }
+
+    // Journey Name
+    printMessage(`${getOneLineDescription(journeyData.tree)}`, 'data');
+    printMessage(
+      Array(`[${journeyData.tree._id}]`['length']).fill('=').join('')
     );
-    describeTreeDescendents(descendents);
+
+    // Description
+    if (journeyData.tree.description) {
+      printMessage(`\n${journeyData.tree.description}`, 'data');
+    }
+
+    // Status
+    printMessage(
+      `\nStatus\n${
+        journeyData.tree.enabled === false
+          ? 'disabled'['brightRed']
+          : 'enabled'['brightGreen']
+      }`
+    );
+
+    // Classification
+    if (state.getAmVersion()) {
+      printMessage(
+        `\nClassification\n${getJourneyClassification(journeyData).join(', ')}`,
+        'data'
+      );
+    }
+
+    // Categories/Tags
+    if (
+      journeyData.tree.uiConfig?.categories &&
+      journeyData.tree.uiConfig.categories != '[]'
+    ) {
+      printMessage('\nCategories/Tags', 'data');
+      printMessage(
+        `${JSON.parse(journeyData.tree.uiConfig.categories).join(', ')}`,
+        'data'
+      );
+    }
+
+    // Dependency Tree
+    try {
+      const descendents = await getTreeDescendents(
+        journeyData,
+        resolveTreeExport
+      );
+      describeTreeDescendents(descendents);
+    } catch (error) {
+      errors.push(error);
+    }
+
+    // Node Types
+    if (Object.entries(nodeTypeMap).length) {
+      printMessage(
+        `\nNode Types (${Object.entries(nodeTypeMap).length}):`,
+        'data'
+      );
+      for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
+        printMessage(
+          `- ${String(count)} [${
+            nodeType['brightCyan']
+          }] (${Node.getNodeClassification(nodeType).join(', ')})`,
+          'data'
+        );
+      }
+    }
+
+    // Nodes
+    if (Object.entries(allNodes).length) {
+      printMessage(`\nNodes (${Object.entries(allNodes).length}):`, 'data');
+      for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
+        printMessage(
+          `- ${Node.getOneLineDescription(
+            nodeObj,
+            getNodeRef(nodeObj, journeyData)
+          )}`,
+          'data'
+        );
+      }
+    }
+
+    // Themes
+    if (journeyData.themes?.length) {
+      printMessage(`\nThemes (${journeyData.themes.length}):`, 'data');
+      for (const themeData of journeyData.themes) {
+        printMessage(`- ${Theme.getOneLineDescription(themeData)}`, 'data');
+      }
+    }
+
+    // Scripts
+    if (Object.entries(journeyData.scripts).length) {
+      printMessage(
+        `\nScripts (${Object.entries(journeyData.scripts).length}):`,
+        'data'
+      );
+      for (const scriptData of Object.values(journeyData.scripts)) {
+        printMessage(`- ${Script.getOneLineDescription(scriptData)}`, 'data');
+      }
+    }
+
+    // Email Templates
+    if (Object.entries(journeyData.emailTemplates).length) {
+      printMessage(
+        `\nEmail Templates (${
+          Object.entries(journeyData.emailTemplates).length
+        }):`,
+        'data'
+      );
+      for (const templateData of Object.values(journeyData.emailTemplates)) {
+        printMessage(
+          `- ${EmailTemplate.getOneLineDescription(templateData)}`,
+          'data'
+        );
+      }
+    }
+
+    // Social Identity Providers
+    if (Object.entries(journeyData.socialIdentityProviders).length) {
+      printMessage(
+        `\nSocial Identity Providers (${
+          Object.entries(journeyData.socialIdentityProviders).length
+        }):`,
+        'data'
+      );
+      for (const socialIdpData of Object.values(
+        journeyData.socialIdentityProviders
+      )) {
+        printMessage(`- ${Idp.getOneLineDescription(socialIdpData)}`, 'data');
+      }
+    }
+
+    // SAML2 Entity Providers
+    if (Object.entries(journeyData.saml2Entities).length) {
+      printMessage(
+        `\nSAML2 Entity Providers (${
+          Object.entries(journeyData.saml2Entities).length
+        }):`,
+        'data'
+      );
+      for (const entityProviderData of Object.values(
+        journeyData.saml2Entities
+      )) {
+        printMessage(
+          `- ${Saml2.getOneLineDescription(entityProviderData)}`,
+          'data'
+        );
+      }
+    }
+
+    // SAML2 Circles Of Trust
+    if (Object.entries(journeyData.circlesOfTrust).length) {
+      printMessage(
+        `\nSAML2 Circles Of Trust (${
+          Object.entries(journeyData.circlesOfTrust).length
+        }):`,
+        'data'
+      );
+      for (const cotData of Object.values(journeyData.circlesOfTrust)) {
+        printMessage(
+          `- ${CirclesOfTrust.getOneLineDescription(cotData)}`,
+          'data'
+        );
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error describing journey`, errors);
+    }
+    return true;
   } catch (error) {
-    printMessage(`Error resolving inner tree dependencies:`, 'error');
-    printMessage(error.stack, 'error');
+    printError(error);
   }
-
-  // Node Types
-  if (Object.entries(nodeTypeMap).length) {
-    printMessage(
-      `\nNode Types (${Object.entries(nodeTypeMap).length}):`,
-      'data'
-    );
-    for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
-      printMessage(
-        `- ${String(count)} [${
-          nodeType['brightCyan']
-        }] (${Node.getNodeClassification(nodeType).join(', ')})`,
-        'data'
-      );
-    }
-  }
-
-  // Nodes
-  if (Object.entries(allNodes).length) {
-    printMessage(`\nNodes (${Object.entries(allNodes).length}):`, 'data');
-    for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
-      printMessage(
-        `- ${Node.getOneLineDescription(
-          nodeObj,
-          getNodeRef(nodeObj, journeyData)
-        )}`,
-        'data'
-      );
-    }
-  }
-
-  // Themes
-  if (journeyData.themes?.length) {
-    printMessage(`\nThemes (${journeyData.themes.length}):`, 'data');
-    for (const themeData of journeyData.themes) {
-      printMessage(`- ${Theme.getOneLineDescription(themeData)}`, 'data');
-    }
-  }
-
-  // Scripts
-  if (Object.entries(journeyData.scripts).length) {
-    printMessage(
-      `\nScripts (${Object.entries(journeyData.scripts).length}):`,
-      'data'
-    );
-    for (const scriptData of Object.values(journeyData.scripts)) {
-      printMessage(`- ${Script.getOneLineDescription(scriptData)}`, 'data');
-    }
-  }
-
-  // Email Templates
-  if (Object.entries(journeyData.emailTemplates).length) {
-    printMessage(
-      `\nEmail Templates (${
-        Object.entries(journeyData.emailTemplates).length
-      }):`,
-      'data'
-    );
-    for (const templateData of Object.values(journeyData.emailTemplates)) {
-      printMessage(
-        `- ${EmailTemplate.getOneLineDescription(templateData)}`,
-        'data'
-      );
-    }
-  }
-
-  // Social Identity Providers
-  if (Object.entries(journeyData.socialIdentityProviders).length) {
-    printMessage(
-      `\nSocial Identity Providers (${
-        Object.entries(journeyData.socialIdentityProviders).length
-      }):`,
-      'data'
-    );
-    for (const socialIdpData of Object.values(
-      journeyData.socialIdentityProviders
-    )) {
-      printMessage(`- ${Idp.getOneLineDescription(socialIdpData)}`, 'data');
-    }
-  }
-
-  // SAML2 Entity Providers
-  if (Object.entries(journeyData.saml2Entities).length) {
-    printMessage(
-      `\nSAML2 Entity Providers (${
-        Object.entries(journeyData.saml2Entities).length
-      }):`,
-      'data'
-    );
-    for (const entityProviderData of Object.values(journeyData.saml2Entities)) {
-      printMessage(
-        `- ${Saml2.getOneLineDescription(entityProviderData)}`,
-        'data'
-      );
-    }
-  }
-
-  // SAML2 Circles Of Trust
-  if (Object.entries(journeyData.circlesOfTrust).length) {
-    printMessage(
-      `\nSAML2 Circles Of Trust (${
-        Object.entries(journeyData.circlesOfTrust).length
-      }):`,
-      'data'
-    );
-    for (const cotData of Object.values(journeyData.circlesOfTrust)) {
-      printMessage(
-        `- ${CirclesOfTrust.getOneLineDescription(cotData)}`,
-        'data'
-      );
-    }
-  }
+  return false;
 }
 
 /**
@@ -855,215 +893,297 @@ export async function describeJourney(
  * - SAML2 circles of trust
  * @param {SingleTreeExportInterface} journeyData journey export object
  * @param {TreeExportResolverInterface} resolveTreeExport tree export resolver callback function
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
 export async function describeJourneyMd(
   journeyData: SingleTreeExportInterface,
   resolveTreeExport: TreeExportResolverInterface = onlineTreeExportResolver
 ) {
-  const allNodes = {
-    ...journeyData.nodes,
-    ...journeyData.innerNodes,
-  };
-  const nodeTypeMap = {};
+  const errors: Error[] = [];
+  try {
+    const allNodes = {
+      ...journeyData.nodes,
+      ...journeyData.innerNodes,
+    };
+    const nodeTypeMap = {};
 
-  for (const nodeData of Object.values(allNodes)) {
-    if (nodeTypeMap[nodeData._type._id]) {
-      nodeTypeMap[nodeData._type._id] += 1;
-    } else {
-      nodeTypeMap[nodeData._type._id] = 1;
+    for (const nodeData of Object.values(allNodes)) {
+      if (nodeTypeMap[nodeData._type._id]) {
+        nodeTypeMap[nodeData._type._id] += 1;
+      } else {
+        nodeTypeMap[nodeData._type._id] = 1;
+      }
     }
-  }
 
-  // initialize AM version from file
-  if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
-    state.setAmVersion(journeyData.meta.originAmVersion);
-  }
+    // initialize AM version from file
+    if (!state.getAmVersion() && journeyData.meta?.originAmVersion) {
+      state.setAmVersion(journeyData.meta.originAmVersion);
+    }
 
-  // Journey Name
-  printMessage(
-    `# ${getOneLineDescriptionMd(journeyData.tree)} - ${
-      journeyData.tree.enabled === false
-        ? ':o: `disabled`'
-        : ':white_check_mark: `enabled`'
-    }, ${getJourneyClassificationMd(journeyData).join(', ')}`,
-    'data'
-  );
-
-  // Categories/Tags
-  if (
-    journeyData.tree.uiConfig?.categories &&
-    journeyData.tree.uiConfig.categories != '[]'
-  ) {
+    // Journey Name
     printMessage(
-      `\`${JSON.parse(journeyData.tree.uiConfig.categories).join('`, `')}\``,
+      `# ${getOneLineDescriptionMd(journeyData.tree)} - ${
+        journeyData.tree.enabled === false
+          ? ':o: `disabled`'
+          : ':white_check_mark: `enabled`'
+      }, ${getJourneyClassificationMd(journeyData).join(', ')}`,
       'data'
     );
-  }
 
-  // Description
-  if (journeyData.tree.description) {
-    printMessage(`\n${journeyData.tree.description}`, 'data');
-  }
-
-  // Journey image
-  printMessage(`\n[![](./${journeyData.tree._id}.png)]()\n`, 'data');
-
-  // Dependency Tree
-  const descendents = await getTreeDescendents(journeyData, resolveTreeExport);
-  printMessage(describeTreeDescendentsMd(descendents), 'data');
-
-  // Node Types
-  if (Object.entries(nodeTypeMap).length) {
-    printMessage(
-      `## Node Types (${Object.entries(nodeTypeMap).length})`,
-      'data'
-    );
-    printMessage('| Count | Type | Classification |', 'data');
-    printMessage('| -----:| ---- | -------------- |', 'data');
-    for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
+    // Categories/Tags
+    if (
+      journeyData.tree.uiConfig?.categories &&
+      journeyData.tree.uiConfig.categories != '[]'
+    ) {
       printMessage(
-        `| ${String(count)} | ${nodeType} | ${Node.getNodeClassificationMd(
-          nodeType
-        ).join('<br>')} |`,
+        `\`${JSON.parse(journeyData.tree.uiConfig.categories).join('`, `')}\``,
         'data'
       );
     }
-  }
 
-  // Nodes
-  if (Object.entries(allNodes).length) {
-    printMessage(`## Nodes (${Object.entries(allNodes).length})`, 'data');
-    printMessage(Node.getTableHeaderMd(), 'data');
-    for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
+    // Description
+    if (journeyData.tree.description) {
+      printMessage(`\n${journeyData.tree.description}`, 'data');
+    }
+
+    // Journey image
+    printMessage(`\n[![](./${journeyData.tree._id}.png)]()\n`, 'data');
+
+    // Dependency Tree
+    const descendents = await getTreeDescendents(
+      journeyData,
+      resolveTreeExport
+    );
+    printMessage(describeTreeDescendentsMd(descendents), 'data');
+
+    // Node Types
+    if (Object.entries(nodeTypeMap).length) {
       printMessage(
-        `${Node.getTableRowMd(nodeObj, getNodeRef(nodeObj, journeyData))}`,
+        `## Node Types (${Object.entries(nodeTypeMap).length})`,
         'data'
       );
+      printMessage('| Count | Type | Classification |', 'data');
+      printMessage('| -----:| ---- | -------------- |', 'data');
+      for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
+        printMessage(
+          `| ${String(count)} | ${nodeType} | ${Node.getNodeClassificationMd(
+            nodeType
+          ).join('<br>')} |`,
+          'data'
+        );
+      }
     }
-  }
 
-  // Themes
-  if (journeyData.themes?.length) {
-    printMessage(`## Themes (${journeyData.themes.length})`, 'data');
-    printMessage(Theme.getTableHeaderMd(), 'data');
-    for (const themeData of journeyData.themes) {
-      printMessage(`${Theme.getTableRowMd(themeData)}`, 'data');
+    // Nodes
+    if (Object.entries(allNodes).length) {
+      printMessage(`## Nodes (${Object.entries(allNodes).length})`, 'data');
+      printMessage(Node.getTableHeaderMd(), 'data');
+      for (const nodeObj of Object.values<NodeSkeleton>(allNodes)) {
+        printMessage(
+          `${Node.getTableRowMd(nodeObj, getNodeRef(nodeObj, journeyData))}`,
+          'data'
+        );
+      }
     }
-  }
 
-  // Scripts
-  if (Object.entries(journeyData.scripts).length) {
-    printMessage(
-      `## Scripts (${Object.entries(journeyData.scripts).length})`,
-      'data'
-    );
-    printMessage(Script.getTableHeaderMd(), 'data');
-    for (const scriptData of Object.values(journeyData.scripts)) {
-      printMessage(`${Script.getTableRowMd(scriptData)}`, 'data');
+    // Themes
+    if (journeyData.themes?.length) {
+      printMessage(`## Themes (${journeyData.themes.length})`, 'data');
+      printMessage(Theme.getTableHeaderMd(), 'data');
+      for (const themeData of journeyData.themes) {
+        printMessage(`${Theme.getTableRowMd(themeData)}`, 'data');
+      }
     }
-  }
 
-  // Email Templates
-  if (Object.entries(journeyData.emailTemplates).length) {
-    printMessage(
-      `## Email Templates (${
-        Object.entries(journeyData.emailTemplates).length
-      })`,
-      'data'
-    );
-    printMessage(EmailTemplate.getTableHeaderMd(), 'data');
-    for (const templateData of Object.values(journeyData.emailTemplates)) {
-      printMessage(`${EmailTemplate.getTableRowMd(templateData)}`, 'data');
+    // Scripts
+    if (Object.entries(journeyData.scripts).length) {
+      printMessage(
+        `## Scripts (${Object.entries(journeyData.scripts).length})`,
+        'data'
+      );
+      printMessage(Script.getTableHeaderMd(), 'data');
+      for (const scriptData of Object.values(journeyData.scripts)) {
+        printMessage(`${Script.getTableRowMd(scriptData)}`, 'data');
+      }
     }
-  }
 
-  // Social Identity Providers
-  if (Object.entries(journeyData.socialIdentityProviders).length) {
-    printMessage(
-      `## Social Identity Providers (${
-        Object.entries(journeyData.socialIdentityProviders).length
-      })`,
-      'data'
-    );
-    printMessage(Idp.getTableHeaderMd(), 'data');
-    for (const socialIdpData of Object.values(
-      journeyData.socialIdentityProviders
-    )) {
-      printMessage(`${Idp.getTableRowMd(socialIdpData)}`, 'data');
+    // Email Templates
+    if (Object.entries(journeyData.emailTemplates).length) {
+      printMessage(
+        `## Email Templates (${
+          Object.entries(journeyData.emailTemplates).length
+        })`,
+        'data'
+      );
+      printMessage(EmailTemplate.getTableHeaderMd(), 'data');
+      for (const templateData of Object.values(journeyData.emailTemplates)) {
+        printMessage(`${EmailTemplate.getTableRowMd(templateData)}`, 'data');
+      }
     }
-  }
 
-  // SAML2 Entity Providers
-  if (Object.entries(journeyData.saml2Entities).length) {
-    printMessage(
-      `## SAML2 Entity Providers (${
-        Object.entries(journeyData.saml2Entities).length
-      })`,
-      'data'
-    );
-    printMessage(Saml2.getTableHeaderMd(), 'data');
-    for (const entityProviderData of Object.values(journeyData.saml2Entities)) {
-      printMessage(`${Saml2.getTableRowMd(entityProviderData)}`, 'data');
+    // Social Identity Providers
+    if (Object.entries(journeyData.socialIdentityProviders).length) {
+      printMessage(
+        `## Social Identity Providers (${
+          Object.entries(journeyData.socialIdentityProviders).length
+        })`,
+        'data'
+      );
+      printMessage(Idp.getTableHeaderMd(), 'data');
+      for (const socialIdpData of Object.values(
+        journeyData.socialIdentityProviders
+      )) {
+        printMessage(`${Idp.getTableRowMd(socialIdpData)}`, 'data');
+      }
     }
-  }
 
-  // SAML2 Circles Of Trust
-  if (Object.entries(journeyData.circlesOfTrust).length) {
-    printMessage(
-      `## SAML2 Circles Of Trust (${
-        Object.entries(journeyData.circlesOfTrust).length
-      })`,
-      'data'
-    );
-    printMessage(CirclesOfTrust.getTableHeaderMd(), 'data');
-    for (const cotData of Object.values(journeyData.circlesOfTrust)) {
-      printMessage(`${CirclesOfTrust.getTableRowMd(cotData)}`, 'data');
+    // SAML2 Entity Providers
+    if (Object.entries(journeyData.saml2Entities).length) {
+      printMessage(
+        `## SAML2 Entity Providers (${
+          Object.entries(journeyData.saml2Entities).length
+        })`,
+        'data'
+      );
+      printMessage(Saml2.getTableHeaderMd(), 'data');
+      for (const entityProviderData of Object.values(
+        journeyData.saml2Entities
+      )) {
+        printMessage(`${Saml2.getTableRowMd(entityProviderData)}`, 'data');
+      }
     }
+
+    // SAML2 Circles Of Trust
+    if (Object.entries(journeyData.circlesOfTrust).length) {
+      printMessage(
+        `## SAML2 Circles Of Trust (${
+          Object.entries(journeyData.circlesOfTrust).length
+        })`,
+        'data'
+      );
+      printMessage(CirclesOfTrust.getTableHeaderMd(), 'data');
+      for (const cotData of Object.values(journeyData.circlesOfTrust)) {
+        printMessage(`${CirclesOfTrust.getTableRowMd(cotData)}`, 'data');
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error describing journey`, errors);
+    }
+    return true;
+  } catch (error) {
+    printError(error);
   }
+  return false;
 }
 
+/**
+ * Enable a journey
+ * @param {string} journeyId id/name of journey
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
 export async function enableJourney(journeyId: string): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Enabling journey ${journeyId}...`
   );
-  if (_enableJourney(journeyId)) {
+  try {
+    await _enableJourney(journeyId);
     stopProgressIndicator(
       indicatorId,
       `Enabled journey ${journeyId}.`,
       'success'
     );
     return true;
-  } else {
+  } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error enabling journey ${journeyId}`,
       'fail'
     );
-    return false;
+    printError(error);
   }
+  return false;
 }
 
+/**
+ * Disable a journey
+ * @param {string} journeyId id/name of journey
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
 export async function disableJourney(journeyId: string): Promise<boolean> {
   const indicatorId = createProgressIndicator(
     'indeterminate',
     0,
     `Disabling journey ${journeyId}...`
   );
-  if (_disableJourney(journeyId)) {
+  try {
+    await _disableJourney(journeyId);
     stopProgressIndicator(
       indicatorId,
       `Disabled journey ${journeyId}.`,
       'success'
     );
     return true;
-  } else {
+  } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error disabling journey ${journeyId}`,
       'fail'
     );
-    return false;
   }
+  return false;
+}
+
+/**
+ * Delete a journey
+ * @param {string} journeyId id/name of journey
+ * @param {{ deep: boolean; verbose: boolean }} [options] delete journey options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+export async function deleteJourney(
+  journeyId: string,
+  options: { deep: boolean; verbose: boolean; progress?: boolean } = {
+    deep: true,
+    verbose: false,
+    progress: true,
+  }
+): Promise<boolean> {
+  try {
+    await _deleteJourney(journeyId, options);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all journeys
+ * @param {{ deep: boolean; verbose: boolean }} [options] delete journey options
+ * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
+ */
+export async function deleteJourneys(
+  options: { deep: boolean; verbose: boolean } = {
+    deep: true,
+    verbose: false,
+  }
+): Promise<boolean> {
+  const indicatorId = createProgressIndicator(
+    'indeterminate',
+    null,
+    `Deleting journeys...`
+  );
+  try {
+    const status: DeleteJourneysStatus = await _deleteJourneys(options);
+    stopProgressIndicator(
+      indicatorId,
+      `Deleted ${Object.keys(status).length} journeys`
+    );
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error deleting journeys`);
+    printError(error);
+  }
+  return false;
 }

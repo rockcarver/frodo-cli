@@ -28,7 +28,8 @@ program
         verboseMessage(
           `Listing SAML entity providers in realm "${state.getRealm()}"...`
         );
-        await listSaml2Providers(options.long);
+        const outcome = await listSaml2Providers(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

@@ -5,7 +5,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { addExistingServiceAccount } from '../../ops/ConnectionProfileOps.js';
 import { provisionCreds } from '../../ops/LogOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -124,11 +124,7 @@ program
                 `Created and added service account ${sa.name} with id ${sa._id} to profile.`
               );
             } catch (error) {
-              printMessage(error.response?.data, 'error');
-              printMessage(
-                `Error creating service account: ${error.response?.data?.message}`,
-                'error'
-              );
+              printError(error);
               process.exitCode = 1;
             }
           }
@@ -190,9 +186,11 @@ program
         }
         // add existing log api key and secret without validation
         // storing log API key and secret in the connection profile is happening default, therefore no code required here
-        if (await saveConnectionProfile(host)) {
+        try {
+          await saveConnectionProfile(host);
           printMessage(`Saved connection profile ${state.getHost()}`);
-        } else {
+        } catch (error) {
+          printError(error);
           process.exitCode = 1;
         }
       } else {

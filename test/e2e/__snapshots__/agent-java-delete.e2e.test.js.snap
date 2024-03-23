@@ -2,7 +2,8 @@
 
 exports[`frodo agent java delete "frodo agent java delete --agent-id frodo-test-java-agent": should display error when the java agent with id 'frodo-test-java-agent' cannot be deleted since it does not exist 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
-Java agent 'frodo-test-java-agent' not found!
+Error deleting java agent frodo-test-java-agent
+  Java agent 'frodo-test-java-agent' not found!
 "
 `;
 

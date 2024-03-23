@@ -60,31 +60,37 @@ program
             options.idpId
           }" into realm "${state.getRealm()}"...`
         );
-        await importSocialIdentityProviderFromFile(
+        const outcome = await importSocialIdentityProviderFromFile(
           options.idpId,
           options.file,
           {
             deps: options.deps,
           }
         );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all providers from a single file (${options.file})...`
         );
-        await importSocialIdentityProvidersFromFile(options.file, {
-          deps: options.deps,
-        });
+        const outcome = await importSocialIdentityProvidersFromFile(
+          options.file,
+          {
+            deps: options.deps,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all providers from separate files in current directory...'
         );
-        await importSocialIdentityProvidersFromFiles({
+        const outcome = await importSocialIdentityProvidersFromFiles({
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // import first provider from file
       else if (options.file && (await getTokens())) {
@@ -93,9 +99,13 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        await importFirstSocialIdentityProviderFromFile(options.file, {
-          deps: options.deps,
-        });
+        const outcome = await importFirstSocialIdentityProviderFromFile(
+          options.file,
+          {
+            deps: options.deps,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

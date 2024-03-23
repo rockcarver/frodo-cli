@@ -6,7 +6,7 @@ import {
   exportVariablesToFile,
   exportVariablesToFiles,
   exportVariableToFile,
-} from '../../ops/VariablesOps';
+} from '../../ops/cloud/VariablesOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 

@@ -74,40 +74,36 @@ program
         options,
         command
       );
-      const tokens = await getTokens();
-      if (!tokens) {
-        printMessage('Unable to get tokens. Exiting...', 'error');
-        program.help();
-        process.exitCode = 1;
-        return;
-      }
       // export by name
-      if (options.scriptName || options.script) {
+      if ((options.scriptName || options.script) && (await getTokens())) {
         verboseMessage('Exporting script...');
-        await exportScriptByNameToFile(
+        const outcome = await exportScriptByNameToFile(
           options.scriptName || options.script,
           options.file,
           options.metadata
         );
+        if (!outcome) process.exitCode = 1;
       }
       // -a / --all
-      else if (options.all) {
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all scripts to a single file...');
-        await exportScriptsToFile(
+        const outcome = await exportScriptsToFile(
           options.file,
           options.metadata,
           options.default
         );
+        if (!outcome) process.exitCode = 1;
       }
       // -A / --all-separate
-      else if (options.allSeparate) {
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all scripts to separate files...');
         // -x / --extract
-        await exportScriptsToFiles(
+        const outcome = await exportScriptsToFiles(
           options.extract,
           options.metadata,
           options.default
         );
+        if (!outcome) process.exitCode = 1;
       }
 
       // unrecognized combination of options or no options

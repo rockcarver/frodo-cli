@@ -3024,6 +3024,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -3067,6 +3068,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -3110,6 +3112,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -3153,6 +3156,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -3186,14 +3190,14 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
 }
 `;
 
-exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD" 1`] = `""`;
+exports[`frodo app export "frodo app export --app-id EncoreADv2": should export the app with app id "EncoreADv2" 1`] = `""`;
 
-exports[`frodo app export "frodo app export --app-id EncoreAD": should export the app with app id "EncoreAD": EncoreAD.application.json 1`] = `
+exports[`frodo app export "frodo app export --app-id EncoreADv2": should export the app with app id "EncoreADv2": EncoreADv2.application.json 1`] = `
 {
   "application": {},
   "connector": {
-    "EncoreAD": {
-      "_id": "provisioner.openicf/EncoreAD",
+    "EncoreADv2": {
+      "_id": "provisioner.openicf/EncoreADv2",
       "configurationProperties": {
         "accountObjectClasses": [
           "top",
@@ -3204,8 +3208,7 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
         "accountSearchFilter": "(objectClass=User)",
         "accountSynchronizationFilter": null,
         "accountUserNameAttributes": [
-          "uid",
-          "cn",
+          "sAMAccountName",
         ],
         "allowTreeDelete": false,
         "alternateKeyStore": null,
@@ -3237,12 +3240,12 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
             "type": "x-simple-encryption",
             "value": {
               "cipher": "AES/CBC/PKCS5Padding",
-              "data": "ReilS5BMTftYl2t8OZvtaQ==",
-              "iv": "jdqo9Kvv2ZxpWoywTUmT7w==",
+              "data": "CTj3bUp5X751CH2Rp+gNCQ==",
+              "iv": "MLlGLkkY8lewkImEL5okww==",
               "keySize": 16,
-              "mac": "N7QnFAv3SNRsBzEau1iDDg==",
+              "mac": "/fmm6tTVDtoEIaaekXtZIQ==",
               "purpose": "idm.config.encryption",
-              "salt": "ut6NNENf3Op7SOjJuXdSdw==",
+              "salt": "DzyYuBYWadeSW8BlhX0Jqw==",
               "stableId": "openidm-sym-default",
             },
           },
@@ -3261,7 +3264,8 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
         "host": "volker-demo.ad-volker-demo.encore.forgerock.org",
         "hostNameVerification": false,
         "hostNameVerifierPattern": null,
-        "lastCheckAlive": 1674482716432,
+        "lastCheckAlive": 1690969088087,
+        "ldapGroupsUseStaticGroups": false,
         "maintainLdapGroupMembership": false,
         "maintainPosixGroupMembership": false,
         "modifiersNamesToFilterOut": [],
@@ -3291,7 +3295,7 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
       },
       "connectorRef": {
         "bundleName": "org.forgerock.openicf.connectors.ldap-connector",
-        "bundleVersion": "1.5.20.12",
+        "bundleVersion": "[1.5.20.12, 1.5.21.0)",
         "connectorHostRef": "adrcs",
         "connectorName": "org.identityconnectors.ldap.LdapConnector",
         "displayName": "LDAP Connector",
@@ -3304,6 +3308,12 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "id": "__GROUP__",
           "nativeType": "__GROUP__",
           "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
             "cn": {
               "flags": [
                 "NOT_CREATABLE",
@@ -3383,9 +3393,7 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
             "__ENABLE__": {
               "nativeName": "__ENABLE__",
               "nativeType": "JAVA_TYPE_PRIMITIVE_BOOLEAN",
-              "required": false,
               "type": "boolean",
-              "userSpecific": true,
             },
             "__NAME__": {
               "nativeName": "__NAME__",
@@ -3395,11 +3403,12 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
             },
             "__PASSWORD__": {
               "flags": [
+                "NOT_READABLE",
                 "NOT_RETURNED_BY_DEFAULT",
               ],
               "nativeName": "__PASSWORD__",
               "nativeType": "JAVA_TYPE_GUARDEDSTRING",
-              "type": "JAVA_TYPE_GUARDEDSTRING",
+              "type": "string",
             },
             "accountExpires": {
               "nativeName": "accountExpires",
@@ -3418,7 +3427,6 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
               ],
               "nativeName": "cn",
               "nativeType": "string",
-              "required": false,
               "type": "string",
             },
             "co": {
@@ -3518,7 +3526,6 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
               "nativeType": "string",
               "required": false,
               "type": "array",
-              "userSpecific": false,
             },
             "lockoutTime": {
               "flags": [
@@ -3719,45 +3726,59 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
     },
   },
   "managedApplication": {
-    "d7f62815-a835-4e2f-a69e-25e7f9019fc2": {
-      "_id": "d7f62815-a835-4e2f-a69e-25e7f9019fc2",
+    "26968c01-3c25-42c4-803c-3c9c0571cae6": {
+      "_id": "26968c01-3c25-42c4-803c-3c9c0571cae6",
       "authoritative": false,
-      "connectorId": "EncoreAD",
-      "description": "Example",
+      "connectorId": "EncoreADv2",
+      "description": "Encore Workforce AD",
       "icon": "",
       "mappingNames": [
-        "systemEncoreadUser_managedAlpha_user",
-        "managedAlpha_user_systemEncoreadUser",
+        "systemEncoreadv2User_managedAlpha_user",
+        "managedAlpha_user_systemEncoreadv2User",
+        "systemEncoreadv2Group_managedAlpha_assignment",
       ],
-      "name": "EncoreAD",
+      "name": "EncoreADv2",
       "templateName": "active.directory",
-      "templateVersion": "1.0.0",
+      "templateVersion": "2.0",
       "uiConfig": {
         "objectTypes": {
           "Group": {
             "properties": {
+              "__NAME__": {
+                "order": 2,
+                "userSpecific": true,
+              },
               "cn": {
+                "isDisplay": true,
+                "order": 1,
                 "userSpecific": true,
               },
               "description": {
+                "order": 3,
                 "userSpecific": true,
               },
               "displayName": {
+                "order": 4,
                 "userSpecific": true,
               },
               "objectGUID": {
+                "order": 0,
                 "userSpecific": true,
               },
               "uSNChanged": {
+                "order": 5,
                 "userSpecific": true,
               },
               "uSNCreated": {
+                "order": 6,
                 "userSpecific": true,
               },
               "whenChanged": {
+                "order": 7,
                 "userSpecific": true,
               },
               "whenCreated": {
+                "order": 8,
                 "userSpecific": true,
               },
             },
@@ -3765,142 +3786,193 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "User": {
             "properties": {
               "__ENABLE__": {
+                "order": 2,
                 "userSpecific": true,
               },
               "__NAME__": {
+                "order": 1,
                 "userSpecific": true,
               },
               "__PASSWORD__": {
+                "order": 3,
                 "userSpecific": true,
               },
               "accountExpires": {
+                "order": 36,
                 "userSpecific": true,
               },
               "c": {
+                "order": 32,
                 "userSpecific": true,
               },
               "cn": {
+                "order": 5,
                 "userSpecific": true,
               },
               "co": {
+                "order": 30,
                 "userSpecific": true,
               },
               "company": {
+                "order": 10,
                 "userSpecific": true,
               },
               "countryCode": {
+                "order": 31,
                 "userSpecific": true,
               },
               "department": {
+                "order": 23,
                 "userSpecific": true,
               },
               "description": {
+                "order": 13,
                 "userSpecific": true,
               },
               "displayName": {
+                "order": 12,
                 "userSpecific": true,
               },
               "division": {
+                "order": 11,
                 "userSpecific": true,
               },
               "employeeID": {
+                "order": 27,
                 "userSpecific": true,
               },
               "employeeNumber": {
+                "order": 28,
                 "userSpecific": true,
               },
               "employeeType": {
+                "order": 29,
                 "userSpecific": true,
               },
               "facsimileTelephoneNumber": {
+                "order": 14,
                 "userSpecific": true,
               },
               "givenName": {
+                "order": 7,
                 "userSpecific": true,
               },
               "homePhone": {
+                "order": 15,
                 "userSpecific": true,
               },
               "initials": {
+                "order": 24,
                 "userSpecific": true,
               },
               "l": {
+                "order": 16,
                 "userSpecific": true,
               },
               "lastLogon": {
+                "order": 19,
                 "userSpecific": true,
               },
-              "ldapGroups": {},
+              "ldapGroups": {
+                "isEntitlement": false,
+                "nonAccountObject": "Group",
+                "order": 46,
+              },
               "lockoutTime": {
+                "order": 38,
                 "userSpecific": true,
               },
               "mail": {
+                "order": 8,
                 "userSpecific": true,
               },
               "manager": {
+                "order": 22,
                 "userSpecific": true,
               },
               "memberOf": {
+                "order": 43,
                 "userSpecific": true,
               },
               "middleName": {
+                "order": 9,
                 "userSpecific": true,
               },
               "mobile": {
+                "order": 26,
                 "userSpecific": true,
               },
               "objectGUID": {
+                "order": 0,
                 "userSpecific": true,
               },
               "otherHomePhone": {
+                "order": 44,
                 "userSpecific": true,
               },
               "physicalDeliveryOfficeName": {
+                "order": 20,
                 "userSpecific": true,
               },
               "postOfficeBox": {
+                "order": 18,
                 "userSpecific": true,
               },
               "postalCode": {
+                "order": 17,
                 "userSpecific": true,
               },
               "pwdLastSet": {
+                "order": 37,
                 "userSpecific": true,
               },
               "sAMAccountName": {
+                "isDisplay": true,
+                "order": 45,
                 "userSpecific": true,
               },
               "sn": {
+                "order": 4,
                 "userSpecific": true,
               },
               "st": {
+                "order": 21,
                 "userSpecific": true,
               },
               "streetAddress": {
+                "order": 25,
                 "userSpecific": true,
               },
               "telephoneNumber": {
+                "order": 33,
                 "userSpecific": true,
               },
               "title": {
+                "order": 34,
                 "userSpecific": true,
               },
               "uSNChanged": {
+                "order": 39,
                 "userSpecific": true,
               },
               "uSNCreated": {
+                "order": 40,
                 "userSpecific": true,
               },
               "userAccountControl": {
+                "order": 35,
                 "userSpecific": true,
               },
               "userPrincipalName": {
+                "order": 6,
                 "userSpecific": true,
               },
               "whenChanged": {
+                "order": 41,
                 "userSpecific": true,
               },
               "whenCreated": {
+                "order": 42,
                 "userSpecific": true,
               },
             },
@@ -3910,12 +3982,27 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
     },
   },
   "mapping": {
-    "managedAlpha_user_systemEncoreadUser": {
-      "_id": "sync/managedAlpha_user_systemEncoreadUser",
+    "managedAlpha_user_systemEncoreadv2User": {
+      "_id": "mapping/managedAlpha_user_systemEncoreadv2User",
       "consentRequired": false,
-      "displayName": "managedAlpha_user_systemEncoreadUser",
+      "correlationQuery": [
+        {
+          "linkQualifier": "default",
+          "source": "var qry = {'_queryFilter': 'sAMAccountName eq "' + source.userName + '"'}; qry",
+          "type": "text/javascript",
+        },
+      ],
+      "defaultSourceFields": [
+        "*",
+        "assignments",
+      ],
+      "defaultTargetFields": [
+        "*",
+        "ldapGroups",
+      ],
+      "displayName": "managedAlpha_user_systemEncoreadv2User",
       "icon": null,
-      "name": "managedAlpha_user_systemEncoreadUser",
+      "name": "managedAlpha_user_systemEncoreadv2User",
       "optimizeAssignmentSync": true,
       "policies": [
         {
@@ -3935,7 +4022,12 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "situation": "FOUND_ALREADY_LINKED",
         },
         {
-          "action": "DELETE",
+          "action": {
+            "source": "target.__ENABLE__ = false;
+target.__NAME__ = \`cn=\${source.userName},ou=Inactive,ou=Encore,dc=ad-volker-demo,dc=encore,dc=forgerock,dc=org\`;
+openidm.update('system/EncoreADv2/User/' + target._id, null, target); 'UNLINK';",
+            "type": "text/javascript",
+          },
           "situation": "UNQUALIFIED",
         },
         {
@@ -3963,12 +4055,25 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "situation": "CONFIRMED",
         },
         {
-          "action": "ASYNC",
+          "action": {
+            "source": "target.__ENABLE__ = true;
+target.__NAME__ = \`cn=\${source.userName},ou=Encore,dc=ad-volker-demo,dc=encore,dc=forgerock,dc=org\`;
+'UPDATE'; openidm.update('system/EncoreADv2/User/' + target._id, null, target);",
+            "type": "text/javascript",
+          },
           "situation": "FOUND",
         },
         {
           "action": "CREATE",
           "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_TARGET_CONFLICT",
+        },
+        {
+          "action": "INCORPORATE_CHANGES",
+          "situation": "TARGET_CHANGED",
         },
       ],
       "properties": [
@@ -3977,8 +4082,17 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "target": "givenName",
         },
         {
-          "source": "cn",
+          "source": "",
           "target": "cn",
+          "transform": {
+            "globals": {},
+            "source": "if ((typeof source.cn !== "undefined") && source.cn !== null) {
+  source.cn;
+} else {
+  source.userName;
+}",
+            "type": "text/javascript",
+          },
         },
         {
           "source": "sn",
@@ -4000,7 +4114,7 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
           "source": "",
           "target": "__ENABLE__",
           "transform": {
-            "source": "(source.accountStatus==='active') ? true : false;",
+            "source": "(source.accountStatus==='inactive') ? false : true;",
             "type": "text/javascript",
           },
         },
@@ -4020,87 +4134,261 @@ exports[`frodo app export "frodo app export --app-id EncoreAD": should export th
             "type": "text/javascript",
           },
         },
+        {
+          "source": "",
+          "target": "displayName",
+          "transform": {
+            "source": "source.givenName + ' ' + source.sn",
+            "type": "text/javascript",
+          },
+        },
       ],
       "runTargetPhase": false,
+      "settings": {},
       "source": "managed/alpha_user",
-      "sourceCondition": "/source/effectiveApplications[_id eq "d7f62815-a835-4e2f-a69e-25e7f9019fc2"]",
+      "sourceCondition": "/source/effectiveApplications[_id eq "26968c01-3c25-42c4-803c-3c9c0571cae6"] or /source/effectiveAssignments[(mapping eq "managedAlpha_user_systemEncoreadv2User" and type eq "__ENTITLEMENT__")]",
       "sourceQuery": {
-        "_queryFilter": "effectiveApplications[_id eq "d7f62815-a835-4e2f-a69e-25e7f9019fc2"] or lastSync/managedAlpha_user_systemEncoreadUser pr",
+        "_queryFilter": "effectiveApplications[_id eq "26968c01-3c25-42c4-803c-3c9c0571cae6"] or lastSync/managedAlpha_user_systemEncoreadv2User pr or /source/effectiveAssignments[(mapping eq "managedAlpha_user_systemEncoreadv2User" and type eq "__ENTITLEMENT__")]",
       },
-      "target": "system/EncoreAD/User",
+      "target": "system/EncoreADv2/User",
     },
-    "systemEncoreadUser_managedAlpha_user": {
-      "_id": "sync/systemEncoreadUser_managedAlpha_user",
+    "systemEncoreadv2Group_managedAlpha_assignment": {
+      "_id": "mapping/systemEncoreadv2Group_managedAlpha_assignment",
+      "consentRequired": false,
+      "displayName": "systemEncoreadv2Group_managedAlpha_assignment",
+      "icon": null,
+      "name": "systemEncoreadv2Group_managedAlpha_assignment",
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "DELETE",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "LINK",
+          "situation": "FOUND",
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "default": "__RESOURCE__",
+          "target": "type",
+        },
+        {
+          "source": "",
+          "target": "description",
+          "transform": {
+            "globals": {},
+            "source": "if ((typeof source.description !== "undefined") && source.description !== null) {
+  source.description;
+} else {
+  source._id;
+}",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "default": "managedAlpha_user_systemEncoreadv2User",
+          "target": "mapping",
+        },
+        {
+          "source": "",
+          "target": "name",
+          "transform": {
+            "globals": {},
+            "source": "if ((typeof source.cn !== "undefined") && source.cn !== null) {
+  source.cn;
+} else {
+  source._id;
+}",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "__NAME__",
+          "target": "attributes",
+          "transform": {
+            "globals": {},
+            "source": "[
+  {
+    'name': 'ldapGroups',
+    'value': [source]
+  }
+]",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "source": "_id",
+          "target": "_id",
+          "transform": {
+            "globals": {
+              "sourceObjectSet": "system_EncoreADv2_Group_",
+            },
+            "source": "sourceObjectSet.concat(source)",
+            "type": "text/javascript",
+          },
+        },
+      ],
+      "runTargetPhase": true,
+      "source": "system/EncoreADv2/Group",
+      "target": "managed/alpha_assignment",
+    },
+    "systemEncoreadv2User_managedAlpha_user": {
+      "_id": "mapping/systemEncoreadv2User_managedAlpha_user",
       "consentRequired": false,
       "correlationQuery": [
         {
           "linkQualifier": "default",
-          "source": "var qry = {'_queryFilter': 'mail eq "' + source.userPrincipalName + '"'}; qry",
+          "source": "var qry = {'_queryFilter': 'userName eq "' + source.sAMAccountName + '"'}; qry",
           "type": "text/javascript",
         },
       ],
-      "displayName": "systemEncoreadUser_managedAlpha_user",
+      "defaultSourceFields": [
+        "*",
+        "ldapGroups",
+      ],
+      "defaultTargetFields": [
+        "*",
+        "assignments",
+      ],
+      "displayName": "systemEncoreadv2User_managedAlpha_user",
       "icon": null,
-      "links": "managedAlpha_user_systemEncoreadUser",
-      "name": "systemEncoreadUser_managedAlpha_user",
+      "links": "managedAlpha_user_systemEncoreadv2User",
+      "name": "systemEncoreadv2User_managedAlpha_user",
       "onLink": {
         "globals": {
           "assignmentResCollection": "managed/alpha_assignment",
         },
-        "source": "function javaIsEqual(old, other) {
-  var JsonPatch = org.forgerock.json.JsonPatch;
-  var JsonValue = org.forgerock.json.JsonValue;
-  return JsonPatch.diff(JsonValue(old), JsonValue(other)).asList().size() === 0;
+        "source": "function compare(sourceVal, previewVal, strictEquality) {
+    if (Array.isArray(sourceVal) && Array.isArray(previewVal)) {
+        return arraysAreEqual(sourceVal, previewVal, strictEquality);
+    } else if (elementIsObject(sourceVal) && elementIsObject(previewVal)) {
+        return mapsAreEqual(sourceVal, previewVal, strictEquality);
+    } else {
+        return sourceVal === previewVal;
+    }
+}
+
+function arraysAreEqual(sourceArray, previewArray, strictEquality) {
+    if (!lengthCheck(sourceArray, previewArray, strictEquality)) {
+        return false;
+    }
+
+    return sourceArray.every((sourceEle) => previewArray.some((previewEle) => compare(sourceEle, previewEle)));
+}
+
+function mapsAreEqual(sourceMap, previewMap, strictEquality) {
+    var sourceKeys = Object.keys(sourceMap);
+    var previewKeys = Object.keys(previewMap);
+
+    if (!lengthCheck(sourceKeys, previewKeys, strictEquality)) {
+        return false;
+    }
+
+    if (!sourceKeys.every((sourceKey) => previewKeys.includes(sourceKey))) {
+        return false;
+    }
+    return sourceKeys.every((key) => compare(sourceMap[key], previewMap[key], strictEquality));
+}
+
+function lengthCheck(first, second, strictEquality) {
+    return strictEquality ? (first.length === second.length)
+        : (first.length <= second.length);
+}
+
+function elementIsObject(val) {
+    return typeof val === "object" && val !== null;
 }
 
 if (situation === "FOUND") {
-  var params = {
-    "resourceId": targetId, 
-    "mapping": mappingConfig.links,
-    "linkQualifier": linkQualifier
-  };
-
-  // get the preview of the target object from the outbound mapping
-  var targetPreview = openidm.action("sync", "getTargetPreview", {}, params);
-  var attributes = [];
-
-  // find all values where target app user has different values from the correlated IDM user
-  Object.keys(source).filter(function (key) {
-    if (key in targetPreview) {
-      return !javaIsEqual(source[key], targetPreview[key]); 
-    } else {
-      return false
-    }
-  }).forEach(function (key) {
-    var attribute = {
-      "name": key,
-      "value": source[key]
+    var params = {
+        "resourceId": targetId,
+        "mapping": mappingConfig.links,
+        "linkQualifier": linkQualifier
     };
-    attributes.push(attribute);
-  })
 
-  // create override assignment if any diff was found
-  if (attributes.length > 0) {
-    var assignment = {
-      "name": targetId + "-overrideAssignment",
-      "description": targetId + "override assignment",
-      "mapping": mappingConfig.links,
-      "attributes": attributes,
-      "type": "__OVERRIDE__",
-      "members": [{"_ref": mappingConfig.target + "/" + targetId}]
-    };
-    var assignmentResult = openidm.create(assignmentResCollection, null, assignment);
-    var result = openidm.action("sync", "getTargetPreview", {}, params);
-    Object.keys(source).forEach(function (key) {
-      if (typeof result[key] === "undefined" || javaIsEqual(source[key], result[key])) {
-        return
-      }
-      // unable to successfully recreate object being linked, delete assignment and throw exception
-      openidm.delete(assignmentResCollection + "/" + assignmentResult._id, null);
-      throw "Unable to successfully recreate " + sourceId + " with an assignment for " + targetId;
+    // get the preview of the target object from the outbound mapping
+    var targetPreview = openidm.action("sync", "getTargetPreview", {}, params);
+    var attributes = [];
+
+    // find all values where target app user has different values from the correlated IDM user
+    Object.keys(source).filter(function(key) {
+        return (key in targetPreview) ? !compare(source[key], targetPreview[key], true) : false;
+    }).forEach(function(key) {
+        var attribute = {
+            "name": key,
+            "value": source[key]
+        };
+        attributes.push(attribute);
     })
-  }
-}",
+
+    // create override assignment if any diff was found
+    if (attributes.length > 0) {
+        var assignment = {
+            "name": targetId + "-overrideAssignment",
+            "description": targetId + "override assignment",
+            "mapping": mappingConfig.links,
+            "attributes": attributes,
+            "type": "__OVERRIDE__"
+        };
+        var assignmentResult = openidm.create(assignmentResCollection, null, assignment);
+        openidm.create(mappingConfig.target + "/" + targetId + "/assignments", null, {"_ref": assignmentResCollection + "/" + assignmentResult["_id"]});
+        var result = openidm.action("sync", "getTargetPreview", {}, params);
+        Object.keys(source).forEach(function(key) {
+            if (typeof result[key] === "undefined" || compare(source[key], result[key], false)) {
+                return;
+            }
+            // unable to successfully recreate object being linked, delete assignment and throw exception
+            openidm.delete(assignmentResCollection + "/" + assignmentResult._id, null);
+            throw new org.forgerock.openidm.sync.SynchronizationException("onLink - Unable to successfully preserve differences for source: " + sourceId);
+        })
+    }
+}
+",
         "type": "text/javascript",
       },
       "policies": [
@@ -4145,14 +4433,27 @@ if (situation === "FOUND") {
           "situation": "ALL_GONE",
         },
         {
-          "action": "ASYNC",
+          "action": "UPDATE",
           "situation": "CONFIRMED",
         },
         {
           "action": "LINK",
           "postAction": {
-            "globals": {},
-            "source": "openidm.create("managed/alpha_user/"+target._id+"/applications",null,{_ref:"managed/alpha_application/d7f62815-a835-4e2f-a69e-25e7f9019fc2"})",
+            "globals": {
+              "managedApplicationId": "26968c01-3c25-42c4-803c-3c9c0571cae6",
+            },
+            "source": "let idFound = false;
+if (typeof target.effectiveApplications !== "undefined" && target.effectiveApplications !== null) {
+  target.effectiveApplications.forEach((effectiveApplication) => {
+    if (effectiveApplication._id === managedApplicationId) {
+      idFound = true;
+    }
+  });
+}
+if (!idFound) {
+  openidm.create("managed/alpha_user/"+target._id+"/applications",null,{_ref:"managed/alpha_application/"+managedApplicationId});
+}
+",
             "type": "text/javascript",
           },
           "situation": "FOUND",
@@ -4161,10 +4462,21 @@ if (situation === "FOUND") {
           "action": "ASYNC",
           "situation": "ABSENT",
         },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_TARGET_CONFLICT",
+        },
       ],
-      "properties": [],
+      "properties": [
+        {
+          "referencedObjectField": "__NAME__",
+          "referencedObjectType": "Group",
+          "source": "ldapGroups",
+          "target": "assignments",
+        },
+      ],
       "runTargetPhase": false,
-      "source": "system/EncoreAD/User",
+      "source": "system/EncoreADv2/User",
       "target": "managed/alpha_user",
     },
   },
@@ -6390,6 +6702,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -6748,6 +7061,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -7106,6 +7420,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -7464,6 +7779,7 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -10521,6 +10837,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -10564,6 +10881,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -10607,6 +10925,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -10650,6 +10969,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -10689,8 +11009,316 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
 {
   "application": {},
   "managedApplication": {
-    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
-      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+    "234ae748-fcd5-459d-96a6-dd8d67f16080": {
+      "_id": "234ae748-fcd5-459d-96a6-dd8d67f16080",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/eolic-energy.svg",
+      "name": "company",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fcompany&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fcompany%2Fsaml",
+        "idpPrivateId": "Y29tcGFueS1JRFA",
+        "key": "6f7f7140-16a0-47f8-9d9d-b519ed0530ca-982",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvY29tcGFueS9zYW1s",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "26968c01-3c25-42c4-803c-3c9c0571cae6": {
+      "_id": "26968c01-3c25-42c4-803c-3c9c0571cae6",
+      "authoritative": false,
+      "connectorId": "EncoreADv2",
+      "description": "Encore Workforce AD",
+      "icon": "",
+      "mappingNames": [
+        "systemEncoreadv2User_managedAlpha_user",
+        "managedAlpha_user_systemEncoreadv2User",
+        "systemEncoreadv2Group_managedAlpha_assignment",
+      ],
+      "name": "EncoreADv2",
+      "templateName": "active.directory",
+      "templateVersion": "2.0",
+      "uiConfig": {
+        "objectTypes": {
+          "Group": {
+            "properties": {
+              "__NAME__": {
+                "order": 2,
+                "userSpecific": true,
+              },
+              "cn": {
+                "isDisplay": true,
+                "order": 1,
+                "userSpecific": true,
+              },
+              "description": {
+                "order": 3,
+                "userSpecific": true,
+              },
+              "displayName": {
+                "order": 4,
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "order": 0,
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "order": 5,
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "order": 6,
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "order": 7,
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "order": 8,
+                "userSpecific": true,
+              },
+            },
+          },
+          "User": {
+            "properties": {
+              "__ENABLE__": {
+                "order": 2,
+                "userSpecific": true,
+              },
+              "__NAME__": {
+                "order": 1,
+                "userSpecific": true,
+              },
+              "__PASSWORD__": {
+                "order": 3,
+                "userSpecific": true,
+              },
+              "accountExpires": {
+                "order": 36,
+                "userSpecific": true,
+              },
+              "c": {
+                "order": 32,
+                "userSpecific": true,
+              },
+              "cn": {
+                "order": 5,
+                "userSpecific": true,
+              },
+              "co": {
+                "order": 30,
+                "userSpecific": true,
+              },
+              "company": {
+                "order": 10,
+                "userSpecific": true,
+              },
+              "countryCode": {
+                "order": 31,
+                "userSpecific": true,
+              },
+              "department": {
+                "order": 23,
+                "userSpecific": true,
+              },
+              "description": {
+                "order": 13,
+                "userSpecific": true,
+              },
+              "displayName": {
+                "order": 12,
+                "userSpecific": true,
+              },
+              "division": {
+                "order": 11,
+                "userSpecific": true,
+              },
+              "employeeID": {
+                "order": 27,
+                "userSpecific": true,
+              },
+              "employeeNumber": {
+                "order": 28,
+                "userSpecific": true,
+              },
+              "employeeType": {
+                "order": 29,
+                "userSpecific": true,
+              },
+              "facsimileTelephoneNumber": {
+                "order": 14,
+                "userSpecific": true,
+              },
+              "givenName": {
+                "order": 7,
+                "userSpecific": true,
+              },
+              "homePhone": {
+                "order": 15,
+                "userSpecific": true,
+              },
+              "initials": {
+                "order": 24,
+                "userSpecific": true,
+              },
+              "l": {
+                "order": 16,
+                "userSpecific": true,
+              },
+              "lastLogon": {
+                "order": 19,
+                "userSpecific": true,
+              },
+              "ldapGroups": {
+                "isEntitlement": false,
+                "nonAccountObject": "Group",
+                "order": 46,
+              },
+              "lockoutTime": {
+                "order": 38,
+                "userSpecific": true,
+              },
+              "mail": {
+                "order": 8,
+                "userSpecific": true,
+              },
+              "manager": {
+                "order": 22,
+                "userSpecific": true,
+              },
+              "memberOf": {
+                "order": 43,
+                "userSpecific": true,
+              },
+              "middleName": {
+                "order": 9,
+                "userSpecific": true,
+              },
+              "mobile": {
+                "order": 26,
+                "userSpecific": true,
+              },
+              "objectGUID": {
+                "order": 0,
+                "userSpecific": true,
+              },
+              "otherHomePhone": {
+                "order": 44,
+                "userSpecific": true,
+              },
+              "physicalDeliveryOfficeName": {
+                "order": 20,
+                "userSpecific": true,
+              },
+              "postOfficeBox": {
+                "order": 18,
+                "userSpecific": true,
+              },
+              "postalCode": {
+                "order": 17,
+                "userSpecific": true,
+              },
+              "pwdLastSet": {
+                "order": 37,
+                "userSpecific": true,
+              },
+              "sAMAccountName": {
+                "isDisplay": true,
+                "order": 45,
+                "userSpecific": true,
+              },
+              "sn": {
+                "order": 4,
+                "userSpecific": true,
+              },
+              "st": {
+                "order": 21,
+                "userSpecific": true,
+              },
+              "streetAddress": {
+                "order": 25,
+                "userSpecific": true,
+              },
+              "telephoneNumber": {
+                "order": 33,
+                "userSpecific": true,
+              },
+              "title": {
+                "order": 34,
+                "userSpecific": true,
+              },
+              "uSNChanged": {
+                "order": 39,
+                "userSpecific": true,
+              },
+              "uSNCreated": {
+                "order": 40,
+                "userSpecific": true,
+              },
+              "userAccountControl": {
+                "order": 35,
+                "userSpecific": true,
+              },
+              "userPrincipalName": {
+                "order": 6,
+                "userSpecific": true,
+              },
+              "whenChanged": {
+                "order": 41,
+                "userSpecific": true,
+              },
+              "whenCreated": {
+                "order": 42,
+                "userSpecific": true,
+              },
+            },
+          },
+        },
+      },
+    },
+    "55bb522b-7348-4ab6-b0b3-5d3936359ce6": {
+      "_id": "55bb522b-7348-4ab6-b0b3-5d3936359ce6",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/puzzle.svg",
+      "name": "engineering",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fengineering&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Froles%2Fsaml",
+        "idpPrivateId": "ZW5naW5lZXJpbmctSURQ",
+        "key": "6f7f7140-16a0-47f8-9d9d-b519ed0530ca-997",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvcm9sZXMvc2FtbA",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "bc48b94e-83d0-4f3a-b37a-d6f19c608a33": {
+      "_id": "bc48b94e-83d0-4f3a-b37a-d6f19c608a33",
+      "authoritative": false,
+      "description": "Deployed via Encore",
+      "icon": "https://encore.forgerock.com/media/svg/misc/hot-air-balloon.svg",
+      "name": "benefits",
+      "ssoEntities": {
+        "domain": "openam-volker-demo.forgeblocks.com",
+        "idpLocation": "hosted",
+        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fbenefits&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fbenefits%2Fsaml",
+        "idpPrivateId": "YmVuZWZpdHMtSURQ",
+        "key": "6f7f7140-16a0-47f8-9d9d-b519ed0530ca-991",
+        "spLocation": "remote",
+        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvYmVuZWZpdHMvc2FtbA",
+      },
+      "templateName": "saml",
+      "templateVersion": "1.0.0",
+    },
+    "c7932f33-a3ac-4192-8dee-11fb96df0874": {
+      "_id": "c7932f33-a3ac-4192-8dee-11fb96df0874",
       "authoritative": true,
       "connectorId": "HRLite",
       "description": "Example",
@@ -10736,44 +11364,8 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
         },
       },
     },
-    "0e5811ab-ef31-401b-aaa1-70b523eafa55": {
-      "_id": "0e5811ab-ef31-401b-aaa1-70b523eafa55",
-      "authoritative": false,
-      "description": "Deployed via Encore",
-      "icon": "https://encore.forgerock.com/media/svg/misc/puzzle.svg",
-      "name": "engineering",
-      "ssoEntities": {
-        "domain": "openam-volker-demo.forgeblocks.com",
-        "idpLocation": "hosted",
-        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fengineering&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Froles%2Fsaml",
-        "idpPrivateId": "ZW5naW5lZXJpbmctSURQ",
-        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-497",
-        "spLocation": "remote",
-        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvcm9sZXMvc2FtbA",
-      },
-      "templateName": "saml",
-      "templateVersion": "1.0.0",
-    },
-    "1b3510cf-9352-4573-9cd8-1eaf36cc629c": {
-      "_id": "1b3510cf-9352-4573-9cd8-1eaf36cc629c",
-      "authoritative": false,
-      "description": "Deployed via Encore",
-      "icon": "https://encore.forgerock.com/media/svg/misc/eolic-energy.svg",
-      "name": "company",
-      "ssoEntities": {
-        "domain": "openam-volker-demo.forgeblocks.com",
-        "idpLocation": "hosted",
-        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fcompany&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fcompany%2Fsaml",
-        "idpPrivateId": "Y29tcGFueS1JRFA",
-        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-481",
-        "spLocation": "remote",
-        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvY29tcGFueS9zYW1s",
-      },
-      "templateName": "saml",
-      "templateVersion": "1.0.0",
-    },
-    "368b5b11-d8db-4079-98e9-0573934aef04": {
-      "_id": "368b5b11-d8db-4079-98e9-0573934aef04",
+    "d1488dc0-11c0-49ab-bc4c-3f45876917dc": {
+      "_id": "d1488dc0-11c0-49ab-bc4c-3f45876917dc",
       "authoritative": false,
       "description": "Deployed via Encore",
       "icon": "https://encore.forgerock.com/media/svg/misc/infography.svg",
@@ -10783,238 +11375,12 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
         "idpLocation": "hosted",
         "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fsales&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fsales%2Fsaml",
         "idpPrivateId": "c2FsZXMtSURQ",
-        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-503",
+        "key": "6f7f7140-16a0-47f8-9d9d-b519ed0530ca-1002",
         "spLocation": "remote",
         "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvc2FsZXMvc2FtbA",
       },
       "templateName": "saml",
       "templateVersion": "1.0.0",
-    },
-    "9fb975e4-9723-4fac-9fe7-ee25053c6218": {
-      "_id": "9fb975e4-9723-4fac-9fe7-ee25053c6218",
-      "authoritative": false,
-      "description": "Deployed via Encore",
-      "icon": "https://encore.forgerock.com/media/svg/misc/hot-air-balloon.svg",
-      "name": "benefits",
-      "ssoEntities": {
-        "domain": "openam-volker-demo.forgeblocks.com",
-        "idpLocation": "hosted",
-        "idpLoginUrl": "https://openam-volker-demo.forgeblocks.com/am/idpssoinit?metaAlias=%2Falpha%2Fbenefits&spEntityID=https%3A%2F%2Fvolker-demo.encore.forgerock.com%3A443%2Fapps%2Fweb%2Fbenefits%2Fsaml",
-        "idpPrivateId": "YmVuZWZpdHMtSURQ",
-        "key": "c88e6422-561c-4362-9cd1-6a377ad97b36-492",
-        "spLocation": "remote",
-        "spPrivateId": "aHR0cHM6Ly92b2xrZXItZGVtby5lbmNvcmUuZm9yZ2Vyb2NrLmNvbTo0NDMvYXBwcy93ZWIvYmVuZWZpdHMvc2FtbA",
-      },
-      "templateName": "saml",
-      "templateVersion": "1.0.0",
-    },
-    "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322": {
-      "_id": "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322",
-      "description": "Test App",
-      "name": "testapp",
-      "ssoEntities": {
-        "oidcId": "testapp",
-      },
-      "templateName": "web",
-      "templateVersion": "1.0",
-    },
-    "d7f62815-a835-4e2f-a69e-25e7f9019fc2": {
-      "_id": "d7f62815-a835-4e2f-a69e-25e7f9019fc2",
-      "authoritative": false,
-      "connectorId": "EncoreAD",
-      "description": "Example",
-      "icon": "",
-      "mappingNames": [
-        "systemEncoreadUser_managedAlpha_user",
-        "managedAlpha_user_systemEncoreadUser",
-      ],
-      "name": "EncoreAD",
-      "templateName": "active.directory",
-      "templateVersion": "1.0.0",
-      "uiConfig": {
-        "objectTypes": {
-          "Group": {
-            "properties": {
-              "cn": {
-                "userSpecific": true,
-              },
-              "description": {
-                "userSpecific": true,
-              },
-              "displayName": {
-                "userSpecific": true,
-              },
-              "objectGUID": {
-                "userSpecific": true,
-              },
-              "uSNChanged": {
-                "userSpecific": true,
-              },
-              "uSNCreated": {
-                "userSpecific": true,
-              },
-              "whenChanged": {
-                "userSpecific": true,
-              },
-              "whenCreated": {
-                "userSpecific": true,
-              },
-            },
-          },
-          "User": {
-            "properties": {
-              "__ENABLE__": {
-                "userSpecific": true,
-              },
-              "__NAME__": {
-                "userSpecific": true,
-              },
-              "__PASSWORD__": {
-                "userSpecific": true,
-              },
-              "accountExpires": {
-                "userSpecific": true,
-              },
-              "c": {
-                "userSpecific": true,
-              },
-              "cn": {
-                "userSpecific": true,
-              },
-              "co": {
-                "userSpecific": true,
-              },
-              "company": {
-                "userSpecific": true,
-              },
-              "countryCode": {
-                "userSpecific": true,
-              },
-              "department": {
-                "userSpecific": true,
-              },
-              "description": {
-                "userSpecific": true,
-              },
-              "displayName": {
-                "userSpecific": true,
-              },
-              "division": {
-                "userSpecific": true,
-              },
-              "employeeID": {
-                "userSpecific": true,
-              },
-              "employeeNumber": {
-                "userSpecific": true,
-              },
-              "employeeType": {
-                "userSpecific": true,
-              },
-              "facsimileTelephoneNumber": {
-                "userSpecific": true,
-              },
-              "givenName": {
-                "userSpecific": true,
-              },
-              "homePhone": {
-                "userSpecific": true,
-              },
-              "initials": {
-                "userSpecific": true,
-              },
-              "l": {
-                "userSpecific": true,
-              },
-              "lastLogon": {
-                "userSpecific": true,
-              },
-              "ldapGroups": {},
-              "lockoutTime": {
-                "userSpecific": true,
-              },
-              "mail": {
-                "userSpecific": true,
-              },
-              "manager": {
-                "userSpecific": true,
-              },
-              "memberOf": {
-                "userSpecific": true,
-              },
-              "middleName": {
-                "userSpecific": true,
-              },
-              "mobile": {
-                "userSpecific": true,
-              },
-              "objectGUID": {
-                "userSpecific": true,
-              },
-              "otherHomePhone": {
-                "userSpecific": true,
-              },
-              "physicalDeliveryOfficeName": {
-                "userSpecific": true,
-              },
-              "postOfficeBox": {
-                "userSpecific": true,
-              },
-              "postalCode": {
-                "userSpecific": true,
-              },
-              "pwdLastSet": {
-                "userSpecific": true,
-              },
-              "sAMAccountName": {
-                "userSpecific": true,
-              },
-              "sn": {
-                "userSpecific": true,
-              },
-              "st": {
-                "userSpecific": true,
-              },
-              "streetAddress": {
-                "userSpecific": true,
-              },
-              "telephoneNumber": {
-                "userSpecific": true,
-              },
-              "title": {
-                "userSpecific": true,
-              },
-              "uSNChanged": {
-                "userSpecific": true,
-              },
-              "uSNCreated": {
-                "userSpecific": true,
-              },
-              "userAccountControl": {
-                "userSpecific": true,
-              },
-              "userPrincipalName": {
-                "userSpecific": true,
-              },
-              "whenChanged": {
-                "userSpecific": true,
-              },
-              "whenCreated": {
-                "userSpecific": true,
-              },
-            },
-          },
-        },
-      },
-    },
-    "e9f2ecd5-3d50-4da0-9ca2-587dbca390e2": {
-      "_id": "e9f2ecd5-3d50-4da0-9ca2-587dbca390e2",
-      "description": "This is a bookmark",
-      "name": "MrAnderson",
-      "ssoEntities": {},
-      "templateName": "bookmark",
-      "templateVersion": "1.0",
-      "url": "https://mranderson.scheuber.io",
     },
   },
   "meta": Any<Object>,
@@ -14045,6 +14411,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -14088,6 +14455,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -14131,6 +14499,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -14174,6 +14543,7 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
                 "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
               ],
             },
+            "secrets": {},
             "signingAndEncryption": {
               "encryption": {},
               "requestResponseSigning": {
@@ -14213,8 +14583,8 @@ exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRL
 {
   "application": {},
   "managedApplication": {
-    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
-      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+    "c7932f33-a3ac-4192-8dee-11fb96df0874": {
+      "_id": "c7932f33-a3ac-4192-8dee-11fb96df0874",
       "authoritative": true,
       "connectorId": "HRLite",
       "description": "Example",
@@ -14317,12 +14687,12 @@ exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.j
             "type": "x-simple-encryption",
             "value": {
               "cipher": "AES/CBC/PKCS5Padding",
-              "data": "73doNZivdgZ7KmuOlzFBdD/7blip0OU6uRwBDv53wcQ=",
-              "iv": "/C0QyOAnnUNQCovrsMgzEw==",
+              "data": "gpigd7hcpjldqu81aCo67bUfjxHldBGf6LAdsfXBJIc=",
+              "iv": "I0rXA4v5KVb5Z2FgirVyVA==",
               "keySize": 16,
-              "mac": "EAPShe6oCwxlTCHYC2wBlQ==",
+              "mac": "zXSltI9rpo9MEJKPuop/zQ==",
               "purpose": "idm.config.encryption",
-              "salt": "zYm6JkzqEzE1/0Y+o9K3+Q==",
+              "salt": "sFzdBL01YZWyjilDZimG/A==",
               "stableId": "openidm-sym-default",
             },
           },
@@ -14458,6 +14828,12 @@ exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.j
               "required": true,
               "type": "string",
             },
+            "manager": {
+              "nativeName": "manager",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
             "phone": {
               "nativeName": "phone",
               "nativeType": "string",
@@ -14560,8 +14936,8 @@ exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.j
     },
   },
   "managedApplication": {
-    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
-      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+    "c7932f33-a3ac-4192-8dee-11fb96df0874": {
+      "_id": "c7932f33-a3ac-4192-8dee-11fb96df0874",
       "authoritative": true,
       "connectorId": "HRLite",
       "description": "Example",
@@ -14672,13 +15048,33 @@ if (queryResult.resultCount > 0) {
 }
 target.userName = checkuserName;
 target.cn = checkuserName + " " + givenName + " " + sn;
-target.mail = checkuserName+"@ad-volker-demo.encore.forgerock.org"; 
+target.mail =  "volker.scheuber+" + checkuserName+ "-volker-demo"+ "@forgerock.com"; 
 target.password = 'Frdp-2010';
+var managerEmployeeNumber = source.manager;
+var queryManagerEmployeeNumber = {_queryFilter: "/frIndexedInteger1 eq '" + managerEmployeeNumber + "'"
+};
+var queryResult = openidm.query("/managed/alpha_user",queryManagerEmployeeNumber,["*"]);
+if (queryResult.resultCount > 0) {
+target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refProperties":{}}
+}
 //Mail domain is dependent on your AD domain name….
 logger.info ("Final userName " + checkuserName);
 // Role assignment scripts must always return targetObject, otherwise
 // other scripts and code that occur downstream of your script will
 // not work as expected.
+",
+        "type": "text/javascript",
+      },
+      "onUpdate": {
+        "globals": {},
+        "source": "var managerEmployeeNumber = source.manager;
+var queryManagerEmployeeNumber = {
+    _queryFilter: "/frIndexedInteger1 eq '" + managerEmployeeNumber + "'"
+};
+var queryResult = openidm.query("/managed/alpha_user",queryManagerEmployeeNumber,["*"]);
+if (queryResult.resultCount > 0) {
+target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refProperties":{}}
+}
 ",
         "type": "text/javascript",
       },
@@ -14816,6 +15212,10 @@ logger.info ("Final userName " + checkuserName);
         {
           "source": "externalMail",
           "target": "frIndexedString5",
+        },
+        {
+          "source": "manager",
+          "target": "frIndexedString3",
         },
         {
           "source": "",
@@ -14888,12 +15288,12 @@ exports[`frodo app export "frodo app export -i HRLite": should export the app wi
             "type": "x-simple-encryption",
             "value": {
               "cipher": "AES/CBC/PKCS5Padding",
-              "data": "73doNZivdgZ7KmuOlzFBdD/7blip0OU6uRwBDv53wcQ=",
-              "iv": "/C0QyOAnnUNQCovrsMgzEw==",
+              "data": "gpigd7hcpjldqu81aCo67bUfjxHldBGf6LAdsfXBJIc=",
+              "iv": "I0rXA4v5KVb5Z2FgirVyVA==",
               "keySize": 16,
-              "mac": "EAPShe6oCwxlTCHYC2wBlQ==",
+              "mac": "zXSltI9rpo9MEJKPuop/zQ==",
               "purpose": "idm.config.encryption",
-              "salt": "zYm6JkzqEzE1/0Y+o9K3+Q==",
+              "salt": "sFzdBL01YZWyjilDZimG/A==",
               "stableId": "openidm-sym-default",
             },
           },
@@ -15029,6 +15429,12 @@ exports[`frodo app export "frodo app export -i HRLite": should export the app wi
               "required": true,
               "type": "string",
             },
+            "manager": {
+              "nativeName": "manager",
+              "nativeType": "string",
+              "required": true,
+              "type": "string",
+            },
             "phone": {
               "nativeName": "phone",
               "nativeType": "string",
@@ -15131,8 +15537,8 @@ exports[`frodo app export "frodo app export -i HRLite": should export the app wi
     },
   },
   "managedApplication": {
-    "08505c1b-87ea-4ed0-ab89-20432dcc6249": {
-      "_id": "08505c1b-87ea-4ed0-ab89-20432dcc6249",
+    "c7932f33-a3ac-4192-8dee-11fb96df0874": {
+      "_id": "c7932f33-a3ac-4192-8dee-11fb96df0874",
       "authoritative": true,
       "connectorId": "HRLite",
       "description": "Example",
@@ -15243,13 +15649,33 @@ if (queryResult.resultCount > 0) {
 }
 target.userName = checkuserName;
 target.cn = checkuserName + " " + givenName + " " + sn;
-target.mail = checkuserName+"@ad-volker-demo.encore.forgerock.org"; 
+target.mail =  "volker.scheuber+" + checkuserName+ "-volker-demo"+ "@forgerock.com"; 
 target.password = 'Frdp-2010';
+var managerEmployeeNumber = source.manager;
+var queryManagerEmployeeNumber = {_queryFilter: "/frIndexedInteger1 eq '" + managerEmployeeNumber + "'"
+};
+var queryResult = openidm.query("/managed/alpha_user",queryManagerEmployeeNumber,["*"]);
+if (queryResult.resultCount > 0) {
+target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refProperties":{}}
+}
 //Mail domain is dependent on your AD domain name….
 logger.info ("Final userName " + checkuserName);
 // Role assignment scripts must always return targetObject, otherwise
 // other scripts and code that occur downstream of your script will
 // not work as expected.
+",
+        "type": "text/javascript",
+      },
+      "onUpdate": {
+        "globals": {},
+        "source": "var managerEmployeeNumber = source.manager;
+var queryManagerEmployeeNumber = {
+    _queryFilter: "/frIndexedInteger1 eq '" + managerEmployeeNumber + "'"
+};
+var queryResult = openidm.query("/managed/alpha_user",queryManagerEmployeeNumber,["*"]);
+if (queryResult.resultCount > 0) {
+target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refProperties":{}}
+}
 ",
         "type": "text/javascript",
       },
@@ -15387,6 +15813,10 @@ logger.info ("Final userName " + checkuserName);
         {
           "source": "externalMail",
           "target": "frIndexedString5",
+        },
+        {
+          "source": "manager",
+          "target": "frIndexedString3",
         },
         {
           "source": "",

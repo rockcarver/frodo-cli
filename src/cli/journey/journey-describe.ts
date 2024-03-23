@@ -4,7 +4,7 @@ import fs from 'fs';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { saveTextToFile } = frodo.utils;
@@ -110,19 +110,21 @@ program
           }
           // ANSI text output
           if (!options.markdown) {
-            await describeJourney(
+            const outcome = await describeJourney(
               journeyData,
               createFileParamTreeExportResolver(options.file)
             );
+            if (!outcome) process.exitCode = 1;
           }
           // Markdown output
           else {
             // reset output file
             if (options.outputFile) saveTextToFile('', options.outputFile);
-            await describeJourneyMd(
+            const outcome = await describeJourneyMd(
               journeyData,
               createFileParamTreeExportResolver(options.file)
             );
+            if (!outcome) process.exitCode = 1;
           }
         } catch (error) {
           printMessage(error.message, 'error');
@@ -145,16 +147,18 @@ program
               const treeData = await exportJourney(journey['_id']);
               // ANSI text output
               if (!options.markdown) {
-                await describeJourney(treeData);
+                const outcome = await describeJourney(treeData);
+                if (!outcome) process.exitCode = 1;
               }
               // Markdown output
               else {
                 // reset output file
                 if (options.outputFile) saveTextToFile('', options.outputFile);
-                await describeJourneyMd(treeData);
+                const outcome = await describeJourneyMd(treeData);
+                if (!outcome) process.exitCode = 1;
               }
             } catch (error) {
-              printMessage(error.message, 'error');
+              printError(error);
               process.exitCode = 1;
             }
           }
@@ -163,16 +167,18 @@ program
             const treeData = await exportJourney(options.journeyId);
             // ANSI text output
             if (!options.markdown) {
-              await describeJourney(treeData);
+              const outcome = await describeJourney(treeData);
+              if (!outcome) process.exitCode = 1;
             }
             // Markdown output
             else {
               // reset output file
               if (options.outputFile) saveTextToFile('', options.outputFile);
-              await describeJourneyMd(treeData);
+              const outcome = await describeJourneyMd(treeData);
+              if (!outcome) process.exitCode = 1;
             }
           } catch (error) {
-            printMessage(error.message, 'error');
+            printError(error);
             process.exitCode = 1;
           }
         }

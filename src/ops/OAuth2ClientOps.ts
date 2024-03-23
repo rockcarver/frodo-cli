@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { Readable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import type {
   OAuth2ClientExportInterface,
@@ -12,6 +12,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   stopProgressIndicator,
@@ -37,6 +38,8 @@ const {
 
 /**
  * List OAuth2 clients
+ * @param [long=false] list with additional details
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function listOAuth2Clients(long = false) {
   try {
@@ -85,14 +88,17 @@ export async function listOAuth2Clients(long = false) {
         ]);
       });
       printMessage(table.toString(), 'data');
+      return true;
     } else {
       clients.forEach((client) => {
         printMessage(`${client._id}`, 'data');
       });
+      return true;
     }
   } catch (error) {
-    printMessage(`Error listing oauth2 clients - ${error}`, 'error');
+    printError(error);
   }
+  return false;
 }
 
 /**
@@ -106,13 +112,12 @@ export async function listOAuth2Clients(long = false) {
 export async function exportOAuth2ClientToFile(
   clientId: string,
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: OAuth2ClientExportOptions = {
     useStringArrays: true,
     deps: true,
   }
-) {
-  let outcome = false;
+): Promise<boolean> {
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientToFile: begin`);
   showSpinner(`Exporting ${clientId}...`);
   try {
@@ -124,12 +129,13 @@ export async function exportOAuth2ClientToFile(
     const exportData = await exportOAuth2Client(clientId, options);
     saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported ${clientId} to ${filePath}.`);
-    outcome = true;
+    return true;
   } catch (error) {
-    failSpinner(`Error exporting ${clientId}: ${error.message}`);
+    failSpinner(`Error exporting ${clientId}`);
+    printError(error);
   }
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -141,13 +147,12 @@ export async function exportOAuth2ClientToFile(
  */
 export async function exportOAuth2ClientsToFile(
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: OAuth2ClientExportOptions = {
     useStringArrays: true,
     deps: true,
   }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFile: begin`);
   showSpinner(`Exporting all clients...`);
   try {
@@ -162,15 +167,13 @@ export async function exportOAuth2ClientsToFile(
     const exportData = await exportOAuth2Clients(options);
     saveJsonToFile(exportData, filePath, includeMeta);
     succeedSpinner(`Exported all clients to ${filePath}.`);
-    outcome = true;
+    debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFile: end]`);
+    return true;
   } catch (error) {
     failSpinner(`Error exporting all clients`);
-    printMessage(`${error.message}`, 'error');
+    printError(error);
   }
-  debugMessage(
-    `cli.OAuth2ClientOps.exportOAuth2ClientsToFile: end [${outcome}]`
-  );
-  return outcome;
+  return false;
 }
 
 /**
@@ -180,12 +183,12 @@ export async function exportOAuth2ClientsToFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportOAuth2ClientsToFiles(
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: OAuth2ClientExportOptions = {
     useStringArrays: true,
     deps: true,
   }
-) {
+): Promise<boolean> {
   debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: begin`);
   const errors = [];
   let indicatorId: string;
@@ -208,13 +211,17 @@ export async function exportOAuth2ClientsToFiles(
         updateProgressIndicator(indicatorId, `Error exporting ${client._id}.`);
       }
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting oauth2 clients`, errors);
+    }
     stopProgressIndicator(indicatorId, `Export complete.`);
+    debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
     stopProgressIndicator(indicatorId, `Error exporting client(s) to file(s)`);
+    printError(error);
   }
-  debugMessage(`cli.OAuth2ClientOps.exportOAuth2ClientsToFiles: end`);
-  return 0 === errors.length;
+  return false;
 }
 
 /**
@@ -229,21 +236,20 @@ export async function importOAuth2ClientFromFile(
   file: string,
   options: OAuth2ClientImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientFromFile: begin`);
   showSpinner(`Importing ${clientId}...`);
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importOAuth2Client(clientId, fileData, options);
-    outcome = true;
     succeedSpinner(`Imported ${clientId}.`);
+    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientFromFile: end`);
+    return true;
   } catch (error) {
     failSpinner(`Error importing ${clientId}.`);
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -256,7 +262,6 @@ export async function importFirstOAuth2ClientFromFile(
   file: string,
   options: OAuth2ClientImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.importFirstOAuth2ClientFromFile: begin`);
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
@@ -264,14 +269,14 @@ export async function importFirstOAuth2ClientFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importFirstOAuth2Client(fileData, options);
-    outcome = true;
     succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.OAuth2ClientOps.importFirstOAuth2ClientFromFile: end`);
+    return true;
   } catch (error) {
     failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(`cli.OAuth2ClientOps.importFirstOAuth2ClientFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -284,7 +289,6 @@ export async function importOAuth2ClientsFromFile(
   file: string,
   options: OAuth2ClientImportOptions = { deps: true }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: begin`);
   const filePath = getFilePath(file);
   showSpinner(`Importing ${filePath}...`);
@@ -292,14 +296,14 @@ export async function importOAuth2ClientsFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const clientData = JSON.parse(data);
     await importOAuth2Clients(clientData, options);
-    outcome = true;
     succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: end`);
+    return true;
   } catch (error) {
     failSpinner(`Error importing ${filePath}.`);
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -341,21 +345,20 @@ export async function importOAuth2ClientsFromFiles(
           indicatorId,
           `Error importing client(s) from ${file}`
         );
-        printMessage(error, 'error');
       }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing oauth2 clients`, errors);
     }
     stopProgressIndicator(
       indicatorId,
       `Finished importing ${total} client(s) from ${files.length} file(s).`
     );
+    debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(
-      indicatorId,
-      `Error importing client(s) from file(s).`
-    );
-    printMessage(error, 'error');
+    stopProgressIndicator(indicatorId, `Error importing oauth2 clients.`);
+    printError(error);
   }
-  debugMessage(`cli.OAuth2ClientOps.importOAuth2ClientsFromFiles: end`);
-  return 0 === errors.length;
+  return false;
 }

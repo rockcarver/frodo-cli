@@ -64,38 +64,46 @@ program
       // import
       if (options.journeyId && (await getTokens())) {
         printMessage(`Importing journey ${options.journeyId}...`);
-        await importJourneyFromFile(options.journeyId, options.file, {
-          reUuid: options.reUuid,
-          deps: options.deps,
-        });
+        const outcome = await importJourneyFromFile(
+          options.journeyId,
+          options.file,
+          {
+            reUuid: options.reUuid,
+            deps: options.deps,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         printMessage(
           `Importing all journeys from a single file (${options.file})...`
         );
-        await importJourneysFromFile(options.file, {
+        const outcome = await importJourneysFromFile(options.file, {
           reUuid: options.reUuid,
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         printMessage(
           'Importing all journeys from separate files in current directory...'
         );
-        await importJourneysFromFiles({
+        const outcome = await importJourneysFromFiles({
           reUuid: options.reUuid,
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // import first journey in file
       else if (options.file && (await getTokens())) {
         printMessage('Importing first journey in file...');
-        await importFirstJourneyFromFile(options.file, {
+        const outcome = await importFirstJourneyFromFile(options.file, {
           reUuid: options.reUuid,
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

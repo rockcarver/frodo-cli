@@ -53,21 +53,27 @@ program
         // export
         if (options.agentId) {
           verboseMessage('Exporting web agent...');
-          await exportWebAgentToFile(
+          const outcome = await exportWebAgentToFile(
             options.agentId,
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all web agents to a single file...');
-          await exportWebAgentsToFile(options.file, options.metadata);
+          const outcome = await exportWebAgentsToFile(
+            options.file,
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all web agents to separate files...');
-          await exportWebAgentsToFiles(options.metadata);
+          const outcome = await exportWebAgentsToFiles(options.metadata);
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

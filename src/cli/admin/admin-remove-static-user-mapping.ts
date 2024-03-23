@@ -1,11 +1,9 @@
-import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { removeStaticUserMapping } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { removeStaticUserMapping } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin remove-static-user-mapping');
 
@@ -25,8 +23,8 @@ program
       );
       if (await getTokens()) {
         printMessage("Removing a subject's static user mapping...");
-        await removeStaticUserMapping(options.subId);
-        printMessage('Done.');
+        const outcome = await removeStaticUserMapping(options.subId);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

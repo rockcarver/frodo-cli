@@ -60,7 +60,8 @@ program
       // export by id/name
       if (options.name && (await getTokens())) {
         verboseMessage(`Exporting object "${options.name}"...`);
-        await exportConfigEntity(options.name, options.file);
+        const outcome = await exportConfigEntity(options.name, options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // require --directory -D for all-separate functions
       else if (options.allSeparate && !state.getDirectory()) {
@@ -85,7 +86,11 @@ program
             options.envFile
           } for variable replacement...`
         );
-        await exportAllConfigEntities(options.entitiesFile, options.envFile);
+        const outcome = await exportAllConfigEntities(
+          options.entitiesFile,
+          options.envFile
+        );
+        if (!outcome) process.exitCode = 1;
         await warnAboutOfflineConnectorServers();
       }
       // --all-separate -A without variable replacement
@@ -93,7 +98,8 @@ program
         verboseMessage(
           `Exporting all IDM configuration objects into separate files in ${state.getDirectory()}...`
         );
-        await exportAllRawConfigEntities();
+        const outcome = await exportAllRawConfigEntities();
+        if (!outcome) process.exitCode = 1;
         await warnAboutOfflineConnectorServers();
       }
       // unrecognized combination of options or no options

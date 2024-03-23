@@ -41,7 +41,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing applications...`);
-        await listApplications(options.long);
+        const outcome = await listApplications(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

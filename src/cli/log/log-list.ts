@@ -1,8 +1,9 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { ConnectionProfileInterface } from '@rockcarver/frodo-lib/types/ops/ConnectionProfileOps';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { provisionCreds } from '../../ops/LogOps';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
@@ -18,7 +19,12 @@ program
 
     let foundCredentials = false;
 
-    const conn = await getConnectionProfile();
+    let conn: ConnectionProfileInterface;
+    try {
+      conn = await getConnectionProfile();
+    } catch (error) {
+      // ignore
+    }
     if (conn) state.setHost(conn.tenant);
 
     // log api creds have been supplied as username and password arguments
@@ -51,7 +57,11 @@ program
         const creds = await provisionCreds();
         state.setLogApiKey(creds.api_key_id as string);
         state.setLogApiSecret(creds.api_key_secret as string);
-        await saveConnectionProfile(state.getHost());
+        try {
+          await saveConnectionProfile(state.getHost());
+        } catch (error) {
+          printError(error);
+        }
         foundCredentials = true;
       }
       // unable to create credentials

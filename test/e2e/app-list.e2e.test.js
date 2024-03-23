@@ -63,7 +63,7 @@ const env = {
     env: process.env,
 };
 env.env.FRODO_HOST = 'https://openam-volker-demo.forgeblocks.com/am'; //c.host;
-env.env.FRODO_SA_ID = c.saId;
+env.env.FRODO_SA_ID = '759525cf-3cf9-4a18-a641-cdd6e6f8fe47'; // c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 describe('frodo app list', () => {

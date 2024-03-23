@@ -37,14 +37,16 @@
     "build": "tsc && npm run build:local && npm run build:binary",
     "clean-esm": "rimraf esm",
     "transpile-esm": "babel --out-dir esm --extensions \".ts\" --source-maps --config-file ./babel.config.esm.json src",
-    "build:local": "tsc && npm run clean-esm && npm run transpile-esm && npm run clean-cjs && npm run transpile-cjs",
+    "resources-esm": "copyfiles -u 1 \"src/**/*.json\" esm",
+    "build:local": "tsc && npm run clean-esm && npm run transpile-esm && npm run resources-esm && npm run clean-cjs && npm run transpile-cjs && npm run resources-cjs",
     "clean-cjs": "rimraf cjs",
     "transpile-cjs": "babel --out-dir cjs --extensions \".ts\" --source-maps --config-file ./babel.config.cjs.json src && echo {\\\"type\\\": \\\"commonjs\\\"} > cjs/package.json",
+    "resources-cjs": "copyfiles -u 1 \"src/**/*.json\" cjs",
     "dist-pkg": "pkg -C Gzip -t node18 --config package.json -o frodo cjs/app.js",
     "dist-pkg-linux": "pkg -C Gzip -t node18-linux --config package.json -o frodo-linux cjs/app.js",
     "dist-pkg-macos": "pkg -C Gzip -t node18-macos --config package.json -o frodo-macos cjs/app.js",
     "dist-pkg-win": "pkg -C Gzip -t node18-win --config package.json -o frodo.exe cjs/app.js",
-    "build:binary": "tsc && npm run clean-cjs && npm run transpile-cjs && npm run dist-pkg",
+    "build:binary": "tsc && npm run clean-cjs && npm run transpile-cjs && npm run resources-cjs && npm run dist-pkg",
     "link-frodo-lib": "npm link ../frodo-lib",
     "watch": "npm run link-frodo-lib && babel --watch --out-dir esm --extensions \".ts\" --source-maps --config-file ./babel.config.esm.json src"
   },
@@ -104,9 +106,10 @@
   "pkg": {
     "assets": [
       "package.json",
+      "cjs/ops/templates/*.json",
+      "cjs/ops/templates/**/*.json",
       "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/*.json",
-      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json",
-      "node_modules/@rockcarver/frodo-lib/mocks/**/*.har"
+      "node_modules/@rockcarver/frodo-lib/cjs/ops/templates/**/*.json"
     ],
     "scripts": [
       "cjs/cli/**/*.js",
@@ -116,7 +119,7 @@
     ]
   },
   "dependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-72",
+    "@rockcarver/frodo-lib": "2.0.0-73",
     "chokidar": "^3.5.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
@@ -151,6 +154,7 @@
     "@typescript-eslint/parser": "^6.5.0",
     "@yao-pkg/pkg": "^5.11.0",
     "babel-plugin-transform-import-meta": "^2.1.1",
+    "copyfiles": "^2.4.1",
     "del": "^6.0.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^9.0.0",

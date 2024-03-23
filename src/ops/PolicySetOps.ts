@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type PolicySkeleton } from '@rockcarver/frodo-lib/types/api/PoliciesApi';
 import { type PolicySetSkeleton } from '@rockcarver/frodo-lib/types/api/PolicySetApi';
 import {
@@ -12,6 +12,7 @@ import {
   createObjectTable,
   createProgressIndicator,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
@@ -42,19 +43,17 @@ const {
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function listPolicySets(): Promise<boolean> {
-  let outcome = false;
   try {
     const policySets = await readPolicySets();
     policySets.sort((a, b) => a.name.localeCompare(b.name));
     for (const policySet of policySets) {
       printMessage(`${policySet.name}`, 'data');
     }
-    outcome = true;
-  } catch (err) {
-    printMessage(`listPolicySets ERROR: ${err.message}`, 'error');
-    printMessage(err, 'error');
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -65,18 +64,21 @@ export async function listPolicySets(): Promise<boolean> {
  */
 export async function describePolicySet(
   policySetId: string,
-  json = false
+  json: boolean = false
 ): Promise<boolean> {
-  let outcome = false;
-  const policySet = await readPolicySet(policySetId);
-  outcome = true;
-  if (json) {
-    printMessage(policySet, 'data');
-  } else {
-    const table = createObjectTable(policySet);
-    printMessage(table.toString(), 'data');
+  try {
+    const policySet = await readPolicySet(policySetId);
+    if (json) {
+      printMessage(policySet, 'data');
+    } else {
+      const table = createObjectTable(policySet);
+      printMessage(table.toString(), 'data');
+    }
+    return true;
+  } catch (error) {
+    printError(error);
   }
-  return outcome;
+  return false;
 }
 
 /**
@@ -93,7 +95,6 @@ export async function deletePolicySetById(
     0,
     `Deleting ${policySetId}...`
   );
-  let outcome = false;
   const errors = [];
   const policies: PolicySkeleton[] = await readPoliciesByPolicySet(policySetId);
   for (const policy of policies) {
@@ -101,33 +102,40 @@ export async function deletePolicySetById(
       debugMessage(`Deleting policy ${policy._id}`);
       await deletePolicy(policy._id);
     } catch (error) {
-      error.message = `Error deleting policy ${policy._id} in policy set ${policySetId}: ${error}`;
-      errors.push(error);
+      errors.push(
+        new FrodoError(
+          `Error deleting policy ${policy._id} in policy set ${policySetId}`,
+          error
+        )
+      );
     }
   }
-  if (errors.length) {
-    const errorMessages = errors.map((error) => error.message).join('\n');
+  if (errors.length > 0) {
     stopProgressIndicator(
       indicatorId,
-      `Error deleting policies in policy set ${policySetId}: ${errorMessages}`,
+      `Error deleting policies in policy set ${policySetId}`,
       'fail'
     );
+    for (const error of errors) {
+      printError(error);
+    }
   } else {
     try {
       debugMessage(`Deleting policy set ${policySetId}`);
       await deletePolicySet(policySetId);
       stopProgressIndicator(indicatorId, `Deleted ${policySetId}.`, 'success');
-      outcome = true;
+      debugMessage(`cli.PolicySetOps.deletePolicySet: end`);
+      return true;
     } catch (error) {
       stopProgressIndicator(
         indicatorId,
-        `Error deleting policy set ${policySetId}: ${error}`,
+        `Error deleting policy set ${policySetId}`,
         'fail'
       );
+      printError(error);
     }
   }
-  debugMessage(`cli.PolicySetOps.deletePolicySet: end [outcome=${outcome}]`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -136,7 +144,6 @@ export async function deletePolicySetById(
  */
 export async function deletePolicySets(): Promise<boolean> {
   debugMessage(`cli.PolicySetOps.deletePolicySets: begin`);
-  let outcome = false;
   const errors = [];
   let policySets: PolicySetSkeleton[] = [];
   let indicatorId: string;
@@ -155,9 +162,12 @@ export async function deletePolicySets(): Promise<boolean> {
         'success'
       );
     } catch (error) {
-      error.message = `Error retrieving all policy sets: ${error.message}`;
-      stopProgressIndicator(indicatorId, error.message, 'fail');
-      throw error;
+      stopProgressIndicator(
+        indicatorId,
+        `Error retrieving all policy sets`,
+        'fail'
+      );
+      throw new FrodoError(`Error retrieving all policy sets`, error);
     }
     if (policySets.length)
       indicatorId2 = createProgressIndicator(
@@ -175,9 +185,12 @@ export async function deletePolicySets(): Promise<boolean> {
             debugMessage(`Deleting policy ${policy._id}`);
             await deletePolicy(policy._id);
           } catch (error) {
-            error.message = `Error deleting policy ${policy._id} in policy set ${policySetId}: ${error}`;
-            printMessage(error.message, 'error');
-            errors.push(error);
+            errors.push(
+              new FrodoError(
+                `Error deleting policy ${policy._id} in policy set ${policySetId}`,
+                error
+              )
+            );
           }
         }
       } catch (error) {
@@ -188,33 +201,27 @@ export async function deletePolicySets(): Promise<boolean> {
         await deletePolicySet(policySetId);
         updateProgressIndicator(indicatorId2, `Deleted ${policySetId}`);
       } catch (error) {
-        error.message = `Error deleting policy set ${policySetId}: ${error}`;
-        updateProgressIndicator(indicatorId2, error.message);
-        errors.push(error);
+        errors.push(
+          new FrodoError(`Error deleting policy set ${policySetId}`, error)
+        );
       }
     }
   } catch (error) {
-    error.message = `Error deleting policy sets: ${error}`;
-    errors.push(error);
+    errors.push(new FrodoError(`Error deleting policy sets`, error));
   } finally {
     if (errors.length) {
-      const errorMessages = errors.map((error) => error.message).join('\n');
       if (policySets.length)
-        stopProgressIndicator(
-          indicatorId2,
-          `Error deleting all policy sets: ${errorMessages}`
-        );
+        stopProgressIndicator(indicatorId2, `Error deleting all policy sets`);
     } else {
       if (policySets.length)
         stopProgressIndicator(
           indicatorId2,
           `Deleted ${policySets.length} policy sets.`
         );
-      outcome = true;
     }
   }
-  debugMessage(`cli.PolicySetOps.deletePolicySets: end [outcome=${outcome}]`);
-  return outcome;
+  debugMessage(`cli.PolicySetOps.deletePolicySets: end`);
+  return errors.length === 0;
 }
 
 /**
@@ -228,14 +235,13 @@ export async function deletePolicySets(): Promise<boolean> {
 export async function exportPolicySetToFile(
   policySetId: string,
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
     useStringArrays: true,
   }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetToFile: begin`);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -255,16 +261,17 @@ export async function exportPolicySetToFile(
       `Exported ${policySetId} to ${filePath}.`,
       'success'
     );
-    outcome = true;
+    debugMessage(`cli.PolicySetOps.exportPolicySetToFile: end`);
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error exporting ${policySetId}: ${error.message}`,
+      `Error exporting ${policySetId}`,
       'fail'
     );
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.exportPolicySetToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -276,14 +283,13 @@ export async function exportPolicySetToFile(
  */
 export async function exportPolicySetsToFile(
   file: string,
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
     useStringArrays: true,
   }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: begin`);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -306,16 +312,13 @@ export async function exportPolicySetsToFile(
       `Exported all policy sets to ${filePath}.`,
       'success'
     );
-    outcome = true;
+    debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: end`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(
-      indicatorId,
-      `Error exporting policy sets: ${error.message}`,
-      'fail'
-    );
+    stopProgressIndicator(indicatorId, `Error exporting policy sets`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.exportPolicySetsToFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -325,7 +328,7 @@ export async function exportPolicySetsToFile(
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicySetsToFiles(
-  includeMeta = true,
+  includeMeta: boolean = true,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
@@ -359,13 +362,17 @@ export async function exportPolicySetsToFiles(
         );
       }
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting policy sets`, errors);
+    }
     stopProgressIndicator(indicatorId, `Export complete.`);
+    debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: end`);
+    return true;
   } catch (error) {
-    errors.push(error);
-    stopProgressIndicator(indicatorId, `Error exporting policy sets to files`);
+    stopProgressIndicator(indicatorId, `Error exporting policy sets`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.exportPolicySetsToFiles: end`);
-  return 0 === errors.length;
+  return false;
 }
 
 /**
@@ -380,7 +387,6 @@ export async function importPolicySetFromFile(
   file: string,
   options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetFromFile: begin`);
   const indicatorId = createProgressIndicator(
     'indeterminate',
@@ -391,18 +397,18 @@ export async function importPolicySetFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySet(policySetId, fileData, options);
-    outcome = true;
     stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
+    debugMessage(`cli.PolicySetOps.importPolicySetFromFile: end`);
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
       `Error importing ${policySetId}.`,
       'fail'
     );
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.importPolicySetFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -415,7 +421,6 @@ export async function importFirstPolicySetFromFile(
   file: string,
   options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: begin`);
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
@@ -427,22 +432,22 @@ export async function importFirstPolicySetFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     const policySet = await importFirstPolicySet(fileData, options);
-    outcome = true;
     stopProgressIndicator(
       indicatorId,
-      `Imported first policy set with name '${policySet.name}' from ${filePath}.`,
+      `Imported first policy set '${policySet.name}'`,
       'success'
     );
+    debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: end`);
+    return true;
   } catch (error) {
     stopProgressIndicator(
       indicatorId,
-      `Error importing first policy set from ${filePath}.`,
+      `Error importing first policy set`,
       'fail'
     );
-    printMessage(error, 'error');
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.importFirstPolicySetFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -455,7 +460,6 @@ export async function importPolicySetsFromFile(
   file: string,
   options: PolicySetImportOptions = { deps: true, prereqs: false }
 ): Promise<boolean> {
-  let outcome = false;
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: begin`);
   const filePath = getFilePath(file);
   const indicatorId = createProgressIndicator(
@@ -467,14 +471,14 @@ export async function importPolicySetsFromFile(
     const data = fs.readFileSync(filePath, 'utf8');
     const fileData = JSON.parse(data);
     await importPolicySets(fileData, options);
-    outcome = true;
     stopProgressIndicator(indicatorId, `Imported ${filePath}.`, 'success');
+    debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
+    return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing ${filePath}.`, 'fail');
-    printMessage(error, 'error');
+    stopProgressIndicator(indicatorId, `Error importing policy sets`, 'fail');
+    printError(error);
   }
-  debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
-  return outcome;
+  return false;
 }
 
 /**
@@ -516,7 +520,7 @@ export async function importPolicySetsFromFiles(
           indicatorId,
           `Error importing policy sets from ${file}`
         );
-        printMessage(error, 'error');
+        printError(error);
       }
     }
     stopProgressIndicator(
@@ -529,7 +533,7 @@ export async function importPolicySetsFromFiles(
       indicatorId,
       `Error importing policy sets from files.`
     );
-    printMessage(error, 'error');
+    printError(error);
   }
   debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: end`);
   return 0 === errors.length;

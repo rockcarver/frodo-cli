@@ -53,28 +53,33 @@ program
         // export
         if (options.agentId) {
           verboseMessage('Exporting identity gateway agent...');
-          await exportIdentityGatewayAgentToFile(
+          const outcome = await exportIdentityGatewayAgentToFile(
             options.agentId,
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage(
             'Exporting all identity gateway agents to a single file...'
           );
-          await exportIdentityGatewayAgentsToFile(
+          const outcome = await exportIdentityGatewayAgentsToFile(
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage(
             'Exporting all identity gateway agents to separate files...'
           );
-          await exportIdentityGatewayAgentsToFiles(options.metadata);
+          const outcome = await exportIdentityGatewayAgentsToFiles(
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

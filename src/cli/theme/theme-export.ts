@@ -69,11 +69,12 @@ program
             options.themeName
           }" from realm "${state.getRealm()}"...`
         );
-        await exportThemeByName(
+        const outcome = await exportThemeByName(
           options.themeName,
           options.file,
           options.metadata
         );
+        if (!outcome) process.exitCode = 1;
       }
       // export by id
       else if (options.themeId && (await getTokens())) {
@@ -82,17 +83,27 @@ program
             options.themeId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportThemeById(options.themeId, options.file, options.metadata);
+        const outcome = await exportThemeById(
+          options.themeId,
+          options.file,
+          options.metadata
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all themes to a single file...');
-        await exportThemesToFile(options.file, options.metadata);
+        const outcome = await exportThemesToFile(
+          options.file,
+          options.metadata
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all themes to separate files...');
-        await exportThemesToFiles(options.metadata);
+        const outcome = await exportThemesToFiles(options.metadata);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

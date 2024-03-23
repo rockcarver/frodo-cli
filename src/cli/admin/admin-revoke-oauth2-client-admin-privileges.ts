@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { revokeOAuth2ClientAdminPrivileges } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { revokeOAuth2ClientAdminPrivileges } = frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin revoke-oauth2-client-admin-privileges'
@@ -37,10 +36,10 @@ program
             options.target
           }" in realm "${state.getRealm()}"...`
         );
-        await revokeOAuth2ClientAdminPrivileges(
+        const outcome = await revokeOAuth2ClientAdminPrivileges(
           options.clientId || options.target
         );
-        printMessage('Done.');
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

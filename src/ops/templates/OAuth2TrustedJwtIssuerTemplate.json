@@ -1,0 +1,38 @@
+{
+  "allowedSubjects": {
+    "inherited": false,
+    "value": []
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000
+  },
+  "jwkSet": {
+    "inherited": false,
+    "value": ""
+  },
+  "consentedScopesClaim": {
+    "inherited": false,
+    "value": "scope"
+  },
+  "issuer": {
+    "inherited": false,
+    "value": ""
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000
+  },
+  "resourceOwnerIdentityClaim": {
+    "inherited": false,
+    "value": "sub"
+  },
+  "jwksUri": {
+    "inherited": false
+  },
+  "_type": {
+    "_id": "TrustedJwtIssuer",
+    "name": "OAuth2 Trusted JWT Issuer",
+    "collection": true
+  }
+}

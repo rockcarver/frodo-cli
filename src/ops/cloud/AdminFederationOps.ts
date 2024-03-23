@@ -4,10 +4,11 @@ import fs from 'fs';
 import {
   createProgressIndicator,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
-} from '../utils/Console';
+} from '../../utils/Console';
 
 const {
   readAdminFederationProviders,
@@ -35,8 +36,7 @@ export async function listAdminFederationProviders(): Promise<boolean> {
     });
     outcome = true;
   } catch (err) {
-    printMessage(`listAdminFederationProviders ERROR: ${err.message}`, 'error');
-    printMessage(err, 'error');
+    printError(err);
   }
   return outcome;
 }
@@ -75,7 +75,7 @@ export async function exportAdminFederationProviderToFile(
     outcome = true;
   } catch (err) {
     stopProgressIndicator(indicatorId, `${err}`);
-    printMessage(`${err}`, 'error');
+    printError(err);
   }
   return outcome;
 }
@@ -112,7 +112,7 @@ export async function exportAdminFederationProvidersToFile(
     outcome = true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error exporting all providers.`, 'fail');
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
   return outcome;
 }
@@ -151,7 +151,7 @@ export async function exportAdminFederationProvidersToFiles(
       `Error exporting all providers.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
   return outcome;
 }
@@ -189,7 +189,7 @@ export async function importAdminFederationProviderFromFile(
       `Error importing provider ${providerId} from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
   return outcome;
 }
@@ -228,7 +228,7 @@ export async function importFirstAdminFederationProviderFromFile(
       `Error importing first provider from ${filePath}.`,
       'fail'
     );
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
   debugMessage(
     `cli.AdminFederationOps.importFirstAdminFederationProviderFromFile: end`
@@ -266,7 +266,7 @@ export async function importAdminFederationProvidersFromFile(
     outcome = true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error importing ${filePath}.`, 'fail');
-    printMessage(error.response?.data || error, 'error');
+    printError(error);
   }
   debugMessage(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFile: end`
@@ -312,7 +312,7 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
           indicatorId,
           `Error importing provider(s) from ${file}`
         );
-        printMessage(error, 'error');
+        printError(error);
       }
     }
     stopProgressIndicator(
@@ -325,7 +325,7 @@ export async function importAdminFederationProvidersFromFiles(): Promise<boolean
       indicatorId,
       `Error importing provider(s) from file(s).`
     );
-    printMessage(error, 'error');
+    printError(error);
   }
   debugMessage(
     `cli.AdminFederationOps.importAdminFederationProvidersFromFiles: end`

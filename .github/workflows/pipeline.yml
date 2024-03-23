@@ -64,10 +64,14 @@ jobs:
         run: echo "version=$(echo '${{ steps.version-bump.outputs.newTag }}' | sed 's/v//')" >> "$GITHUB_OUTPUT"
 
       - name: Build frodo-cli esm
-        run: npm run transpile-esm
+        run: |
+          npm run transpile-esm
+          npm run resources-esm
 
       - name: Build frodo-cli cjs
-        run: npm run transpile-cjs
+        run: |
+          npm run transpile-cjs
+          npm run resources-cjs
 
       - name: Lint
         run: npm run lint

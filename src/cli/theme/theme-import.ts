@@ -64,7 +64,11 @@ program
             options.themeName
           }" into realm "${state.getRealm()}"...`
         );
-        await importThemeByName(options.themeName, options.file);
+        const outcome = await importThemeByName(
+          options.themeName,
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // import by id
       else if (options.file && options.themeId && (await getTokens())) {
@@ -73,21 +77,24 @@ program
             options.themeId
           }" into realm "${state.getRealm()}"...`
         );
-        await importThemeById(options.themeId, options.file);
+        const outcome = await importThemeById(options.themeId, options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all themes from a single file (${options.file})...`
         );
-        await importThemesFromFile(options.file);
+        const outcome = await importThemesFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all themes from separate files in current directory...'
         );
-        importThemesFromFiles();
+        const outcome = await importThemesFromFiles();
+        if (!outcome) process.exitCode = 1;
       }
       // import single theme from file
       else if (options.file && (await getTokens())) {
@@ -96,7 +103,8 @@ program
             options.file
           }" into realm "${state.getRealm()}"...`
         );
-        await importFirstThemeFromFile(options.file);
+        const outcome = await importFirstThemeFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

@@ -53,32 +53,39 @@ program
       // import by id
       if (options.file && options.templateId && (await getTokens())) {
         verboseMessage(`Importing email template "${options.templateId}"...`);
-        await importEmailTemplateFromFile(
+        const outcome = await importEmailTemplateFromFile(
           options.templateId,
           options.file,
           options.raw
         );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage(
           `Importing all email templates from a single file (${options.file})...`
         );
-        await importEmailTemplatesFromFile(options.file);
+        const outcome = await importEmailTemplatesFromFile(options.file);
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && !options.file && (await getTokens())) {
         verboseMessage(
           'Importing all email templates from separate files (*.template.email.json) in current directory...'
         );
-        await importEmailTemplatesFromFiles(options.raw);
+        const outcome = await importEmailTemplatesFromFiles(options.raw);
+        if (!outcome) process.exitCode = 1;
       }
       // import first template from file
       else if (options.file && (await getTokens())) {
         verboseMessage(
           `Importing first email template from file "${options.file}"...`
         );
-        await importFirstEmailTemplateFromFile(options.file, options.raw);
+        const outcome = await importFirstEmailTemplateFromFile(
+          options.file,
+          options.raw
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

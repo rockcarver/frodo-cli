@@ -22,12 +22,12 @@ program
       'Name of the file to write the exported metadata to. Ignored with -A. If not specified, the export file is named <entity-id>.metadata.xml.'
     )
   )
-  .addOption(
-    new Option(
-      '-A, --all-separate',
-      'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
-    )
-  )
+  // .addOption(
+  //   new Option(
+  //     '-A, --all-separate',
+  //     'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
+  //   )
+  // )
   .action(
     // implement command logic inside action handler
     async (host, realm, user, password, options, command) => {
@@ -46,7 +46,11 @@ program
             options.entityId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportSaml2MetadataToFile(options.entityId, options.file);
+        const outcome = await exportSaml2MetadataToFile(
+          options.entityId,
+          options.file
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // // --all-separate -A
       // else if (options.allSeparate && (await getTokens())) {

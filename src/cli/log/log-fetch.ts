@@ -4,7 +4,7 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { fetchLogs, provisionCreds } from '../../ops/LogOps';
 import * as config from '../../utils/Config';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 import { sourcesOptionM } from './log';
 
@@ -100,7 +100,11 @@ Cannot be more than 30 days in the past. If not specified, logs from one hour ag
         const creds = await provisionCreds();
         state.setLogApiKey(creds.api_key_id as string);
         state.setLogApiSecret(creds.api_key_secret as string);
-        await saveConnectionProfile(state.getHost());
+        try {
+          await saveConnectionProfile(state.getHost());
+        } catch (error) {
+          printError(error);
+        }
         foundCredentials = true;
       }
       // unable to create credentials

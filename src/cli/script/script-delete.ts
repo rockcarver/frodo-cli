@@ -49,18 +49,24 @@ program
             options.scriptId
           } in realm "${state.getRealm()}"...`
         );
-        deleteScriptId(options.scriptId);
+        const outcome = await deleteScriptId(options.scriptId);
+        if (!outcome) process.exitCode = 1;
       } else if (options.scriptName && (await getTokens())) {
         verboseMessage(
           `Deleting script ${
             options.scriptName
           } in realm "${state.getRealm()}"...`
         );
-        deleteScriptName(options.scriptName);
+        const outcome = await deleteScriptName(options.scriptName);
+        if (!outcome) process.exitCode = 1;
       } else if (options.all && (await getTokens())) {
         verboseMessage('Deleting all non-default scripts...');
-        deleteAllScripts();
-      } else {
+        const outcome = await deleteAllScripts();
+        if (!outcome) process.exitCode = 1;
+      }
+
+      // unrecognized combination of options or no options
+      else {
         printMessage(
           'Unrecognized combination of options or no options...',
           'error'

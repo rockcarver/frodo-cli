@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo oauth client import "Regression rockcarver/frodo-lib#393: frodo oauth client import -f 'testclient.oauth2.app.json' -D test/e2e/exports/all-separate/oauth/client": should import the first oauth client from the file "testclient.oauth2.app.json" 1`] = `""`;
+
 exports[`frodo oauth client import "frodo oauth client import --all --file test/e2e/exports/all/allAlphaApplications.oauth2.app.json": should import all oauth clients from the file "test/e2e/exports/all/allAlphaApplications.oauth2.app.json" 1`] = `""`;
 
 exports[`frodo oauth client import "frodo oauth client import --all-separate --directory test/e2e/exports/all-separate/oauth/client": should import all oauth clients from the test/e2e/exports/all-separate/oauth/client directory" 1`] = `""`;

@@ -25,7 +25,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage(`Listing OAuth2 applications...`);
-        await listOAuth2Clients(options.long);
+        const outcome = await listOAuth2Clients(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

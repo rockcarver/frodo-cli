@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { showGenericExtensionAttributes } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { showGenericExtensionAttributes } = frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin show-generic-extension-attributes'
@@ -40,11 +39,11 @@ program
         printMessage(
           `Showing generic extension attributes in realm "${state.getRealm()}"...`
         );
-        await showGenericExtensionAttributes(
+        const outcome = await showGenericExtensionAttributes(
           options.includeCustomized,
           options.dryRun
         );
-        printMessage('Done.');
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

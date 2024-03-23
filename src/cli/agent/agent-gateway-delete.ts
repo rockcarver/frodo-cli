@@ -1,11 +1,13 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import {
+  deleteIdentityGatewayAgent,
+  deleteIdentityGatewayAgents,
+} from '../../ops/AgentOps';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../utils/Console.js';
+import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { deleteIdentityGatewayAgent, deleteIdentityGatewayAgents } = frodo.agent;
 
 const program = new FrodoCommand('frodo agent gateway delete');
 
@@ -42,24 +44,14 @@ program
               options.agentId
             }' in realm "${state.getRealm()}"...`
           );
-          try {
-            await deleteIdentityGatewayAgent(options.agentId);
-          } catch (error) {
-            printMessage(error.message, 'error');
-            process.exitCode = 1;
-            return;
-          }
+          const outcome = await deleteIdentityGatewayAgent(options.agentId);
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Deleting all agents...');
-          try {
-            await deleteIdentityGatewayAgents();
-          } catch (error) {
-            printMessage(error.message, 'error');
-            process.exitCode = 1;
-            return;
-          }
+          const outcome = await deleteIdentityGatewayAgents();
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

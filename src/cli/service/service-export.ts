@@ -71,26 +71,32 @@ program
       // export by name
       if (options.serviceId && (await getTokens())) {
         verboseMessage('Exporting service...');
-        await exportServiceToFile(
+        const outcome = await exportServiceToFile(
           options.serviceId,
           options.file,
           globalConfig,
           options.metadata
         );
+        if (!outcome) process.exitCode = 1;
       }
       // -a / --all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all services to a single file...');
-        await exportServicesToFile(
+        const outcome = await exportServicesToFile(
           options.file,
           globalConfig,
           options.metadata
         );
+        if (!outcome) process.exitCode = 1;
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all services to separate files...');
-        await exportServicesToFiles(globalConfig, options.metadata);
+        const outcome = await exportServicesToFiles(
+          globalConfig,
+          options.metadata
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

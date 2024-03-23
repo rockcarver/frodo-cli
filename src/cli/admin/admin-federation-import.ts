@@ -1,12 +1,12 @@
 import { Option } from 'commander';
 
+import { getTokens } from '../../ops/AuthenticateOps';
 import {
   importAdminFederationProviderFromFile,
   importAdminFederationProvidersFromFile,
   importAdminFederationProvidersFromFiles,
   importFirstAdminFederationProviderFromFile,
-} from '../../ops/AdminFederationOps';
-import { getTokens } from '../../ops/AuthenticateOps';
+} from '../../ops/cloud/AdminFederationOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 

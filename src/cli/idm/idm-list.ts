@@ -26,7 +26,8 @@ program
       );
       if (await getTokens()) {
         verboseMessage('Listing all IDM configuration objects...');
-        await listAllConfigEntities();
+        const outcome = await listAllConfigEntities();
+        if (!outcome) process.exitCode = 1;
         await warnAboutOfflineConnectorServers();
       } else {
         process.exitCode = 1;

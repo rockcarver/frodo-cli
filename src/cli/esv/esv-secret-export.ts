@@ -6,7 +6,7 @@ import {
   exportSecretsToFile,
   exportSecretsToFiles,
   exportSecretToFile,
-} from '../../ops/SecretsOps';
+} from '../../ops/cloud/SecretsOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 

@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 
+import { printError, printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const program = new FrodoCommand('frodo conn delete', [
@@ -15,7 +16,12 @@ program.description('Delete connection profiles.').action(
   // implement command logic inside action handler
   async (host, options, command) => {
     command.handleDefaultArgsAndOpts(host, options, command);
-    frodo.conn.deleteConnectionProfile(host);
+    try {
+      frodo.conn.deleteConnectionProfile(host);
+      printMessage(`Deleted connection profile ${host}`);
+    } catch (error) {
+      printError(error);
+    }
   }
   // end command logic inside action handler
 );

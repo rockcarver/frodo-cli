@@ -6,6 +6,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   succeedSpinner,
@@ -17,15 +18,15 @@ const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 /**
  * List connection profiles
  * @param {boolean} long Long list format with details
- * @param {State} state library state
+ * @returns {void} void
  */
-export function listConnectionProfiles(long = false) {
+export function listConnectionProfiles(long: boolean = false): void {
   const filename = getConnectionProfilesPath();
   try {
     const data = fs.readFileSync(filename, 'utf8');
     const connectionsData = JSON.parse(data);
     if (Object.keys(connectionsData).length < 1) {
-      printMessage(`No connections defined yet in ${filename}`, 'info');
+      printMessage(`No connection profiles in ${filename}`, 'info');
     } else {
       if (long) {
         const table = createTable([
@@ -54,8 +55,9 @@ export function listConnectionProfiles(long = false) {
         'info'
       );
     }
-  } catch (e) {
-    printMessage(`No connections found in ${filename} (${e.message})`, 'error');
+  } catch (error) {
+    printMessage(`No connection profiles found in ${filename}`, 'error');
+    printError(error);
   }
 }
 
@@ -148,10 +150,11 @@ export async function addExistingServiceAccount(
     state.setServiceAccountId(serviceAccountId);
     state.setServiceAccountJwk(jwk);
     return true;
-  } catch (err) {
+  } catch (error) {
     failSpinner(
-      `Failed to validate service account ${serviceAccountId}: ${err}.`
+      `Failed to validate service account ${serviceAccountId}: ${error}.`
     );
+    printError(error);
   }
   return false;
 }

@@ -55,7 +55,7 @@ program
       // export
       if (options.appId && (await getTokens())) {
         verboseMessage('Exporting OAuth2 application...');
-        const status = await exportOAuth2ClientToFile(
+        const outcome = await exportOAuth2ClientToFile(
           options.appId,
           options.file,
           options.metadata,
@@ -64,12 +64,12 @@ program
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // -a/--all
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all OAuth2 applications to file...');
-        const status = await exportOAuth2ClientsToFile(
+        const outcome = await exportOAuth2ClientsToFile(
           options.file,
           options.metadata,
           {
@@ -77,16 +77,16 @@ program
             deps: options.deps,
           }
         );
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // -A/--all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all applications to separate files...');
-        const status = await exportOAuth2ClientsToFiles(options.metadata, {
+        const outcome = await exportOAuth2ClientsToFiles(options.metadata, {
           useStringArrays: true,
           deps: options.deps,
         });
-        if (!status) process.exitCode = 1;
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

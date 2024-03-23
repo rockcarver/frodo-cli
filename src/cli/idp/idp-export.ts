@@ -63,24 +63,29 @@ program
               options.idpId
             }" from realm "${state.getRealm()}"...`
           );
-          await exportSocialIdentityProviderToFile(
+          const outcome = await exportSocialIdentityProviderToFile(
             options.idpId,
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all) {
           verboseMessage('Exporting all providers to a single file...');
-          await exportSocialIdentityProvidersToFile(
+          const outcome = await exportSocialIdentityProvidersToFile(
             options.file,
             options.metadata
           );
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate) {
           verboseMessage('Exporting all providers to separate files...');
-          await exportSocialIdentityProvidersToFiles(options.metadata);
+          const outcome = await exportSocialIdentityProvidersToFiles(
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

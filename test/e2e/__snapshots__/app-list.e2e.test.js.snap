@@ -2,38 +2,32 @@
 
 exports[`frodo app list "frodo app list --long": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the apps 1`] = `
 "Name       │Id                                  │Template        │Version│Authoritative│Description        
-benefits   │9fb975e4-9723-4fac-9fe7-ee25053c6218│saml            │  1.0.0│        false│Deployed via Encore
-company    │1b3510cf-9352-4573-9cd8-1eaf36cc629c│saml            │  1.0.0│        false│Deployed via Encore
-EncoreAD   │d7f62815-a835-4e2f-a69e-25e7f9019fc2│active.directory│  1.0.0│        false│Example            
-engineering│0e5811ab-ef31-401b-aaa1-70b523eafa55│saml            │  1.0.0│        false│Deployed via Encore
-HRLite     │08505c1b-87ea-4ed0-ab89-20432dcc6249│scripted.sql    │  1.0.0│         true│Example            
-MrAnderson │e9f2ecd5-3d50-4da0-9ca2-587dbca390e2│bookmark        │    1.0│             │This is a bookmark 
-sales      │368b5b11-d8db-4079-98e9-0573934aef04│saml            │  1.0.0│        false│Deployed via Encore
-testapp    │ab00f0cd-e7a0-44fe-9ae9-f80f0e193322│web             │    1.0│             │Test App           
+benefits   │bc48b94e-83d0-4f3a-b37a-d6f19c608a33│saml            │  1.0.0│        false│Deployed via Encore
+company    │234ae748-fcd5-459d-96a6-dd8d67f16080│saml            │  1.0.0│        false│Deployed via Encore
+EncoreADv2 │26968c01-3c25-42c4-803c-3c9c0571cae6│active.directory│    2.0│        false│Encore Workforce AD
+engineering│55bb522b-7348-4ab6-b0b3-5d3936359ce6│saml            │  1.0.0│        false│Deployed via Encore
+HRLite     │c7932f33-a3ac-4192-8dee-11fb96df0874│scripted.sql    │  1.0.0│         true│Example            
+sales      │d1488dc0-11c0-49ab-bc4c-3f45876917dc│saml            │  1.0.0│        false│Deployed via Encore
 "
 `;
 
 exports[`frodo app list "frodo app list -l": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the apps 1`] = `
 "Name       │Id                                  │Template        │Version│Authoritative│Description        
-benefits   │9fb975e4-9723-4fac-9fe7-ee25053c6218│saml            │  1.0.0│        false│Deployed via Encore
-company    │1b3510cf-9352-4573-9cd8-1eaf36cc629c│saml            │  1.0.0│        false│Deployed via Encore
-EncoreAD   │d7f62815-a835-4e2f-a69e-25e7f9019fc2│active.directory│  1.0.0│        false│Example            
-engineering│0e5811ab-ef31-401b-aaa1-70b523eafa55│saml            │  1.0.0│        false│Deployed via Encore
-HRLite     │08505c1b-87ea-4ed0-ab89-20432dcc6249│scripted.sql    │  1.0.0│         true│Example            
-MrAnderson │e9f2ecd5-3d50-4da0-9ca2-587dbca390e2│bookmark        │    1.0│             │This is a bookmark 
-sales      │368b5b11-d8db-4079-98e9-0573934aef04│saml            │  1.0.0│        false│Deployed via Encore
-testapp    │ab00f0cd-e7a0-44fe-9ae9-f80f0e193322│web             │    1.0│             │Test App           
+benefits   │bc48b94e-83d0-4f3a-b37a-d6f19c608a33│saml            │  1.0.0│        false│Deployed via Encore
+company    │234ae748-fcd5-459d-96a6-dd8d67f16080│saml            │  1.0.0│        false│Deployed via Encore
+EncoreADv2 │26968c01-3c25-42c4-803c-3c9c0571cae6│active.directory│    2.0│        false│Encore Workforce AD
+engineering│55bb522b-7348-4ab6-b0b3-5d3936359ce6│saml            │  1.0.0│        false│Deployed via Encore
+HRLite     │c7932f33-a3ac-4192-8dee-11fb96df0874│scripted.sql    │  1.0.0│         true│Example            
+sales      │d1488dc0-11c0-49ab-bc4c-3f45876917dc│saml            │  1.0.0│        false│Deployed via Encore
 "
 `;
 
 exports[`frodo app list "frodo app list": should list the ids of the apps 1`] = `
 "benefits
 company
-EncoreAD
+EncoreADv2
 engineering
 HRLite
-MrAnderson
 sales
-testapp
 "
 `;

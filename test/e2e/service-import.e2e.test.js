@@ -73,115 +73,126 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = {
-    env: process.env,
+  env: process.env,
 };
 env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = c.saId;
+env.env.FRODO_SA_ID = 'ba58ff99-76d3-4c69-9c4a-7f150ac70e2c'; // c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
-const allDirectory = "test/e2e/exports/all";
-const allAlphaServicesFileName = "allAlphaServices.service.json";
-const allGlobalServicesFileName = "allGlobalServices.service.json";
+const allDirectory = 'test/e2e/exports/all';
+const allAlphaServicesFileName = 'allAlphaServices.service.json';
+const allGlobalServicesFileName = 'allGlobalServices.service.json';
 const allAlphaServicesExport = `${allDirectory}/${allAlphaServicesFileName}`;
 const allGlobalServicesExport = `${allDirectory}/${allGlobalServicesFileName}`;
 const allSeparateAlphaServicesDirectory = `test/e2e/exports/all-separate/service/alpha`;
 const allSeparateGlobalServicesDirectory = `test/e2e/exports/all-separate/service/global`;
 
 describe('frodo service import', () => {
-    test(`"frodo service import -i baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}"`, async () => {
-        const CMD = `frodo service import -i baseurl -f ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -i baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}"`, async () => {
+    const CMD = `frodo service import -i baseurl -f ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import -Cri baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
-        const CMD = `frodo service import -Cri baseurl -f ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -Cri baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
+    const CMD = `frodo service import -Cri baseurl -f ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --service-id dashboard --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}"`, async () => {
-        const CMD = `frodo service import --service-id CorsService --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --service-id dashboard --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --service-id dashboard --file ${allGlobalServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --clean -g --service-id dashboard --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}", and clean the old one`, async () => {
-        const CMD = `frodo service import --clean -g --service-id CorsService --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --clean -g --service-id dashboard --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
+    const CMD = `frodo service import --clean -g --service-id dashboard --file ${allGlobalServicesExport}`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed");
+    } catch (e) {
+      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    }
+  });
 
-    test(`"frodo service import -f ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}"`, async () => {
-        const CMD = `frodo service import -f ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -f ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}"`, async () => {
+    const CMD = `frodo service import -f ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import -Crf ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
-        const CMD = `frodo service import -Crf ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -Crf ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
+    const CMD = `frodo service import -Crf ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {
-        const CMD = `frodo service import --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --file ${allGlobalServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --clean --global --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}", and clean the old one`, async () => {
-        const CMD = `frodo service import --clean --global --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --clean --global --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
+    const CMD = `frodo service import --clean --global --file ${allGlobalServicesExport}`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed");
+    } catch (e) {
+      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    }
+  });
 
-    test(`"frodo service import -af ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}"`, async () => {
-        const CMD = `frodo service import -af ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -af ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}"`, async () => {
+    const CMD = `frodo service import -af ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --current-realm -Caf ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}", and clean the old ones`, async () => {
-        const CMD = `frodo service import --current-realm -Caf ${allAlphaServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --current-realm -Caf ${allAlphaServicesExport}": should import all services from the file "${allAlphaServicesExport}", and clean the old ones`, async () => {
+    const CMD = `frodo service import --current-realm -Caf ${allAlphaServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --all --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}"`, async () => {
-        const CMD = `frodo service import --all --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --all --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --all --file ${allGlobalServicesExport}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --clean --global --all --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}", and clean the old ones`, async () => {
-        const CMD = `frodo service import --clean --global --all --file ${allGlobalServicesExport}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --clean --global --all --file ${allGlobalServicesExport}": should fail because global singleton services cannot be deleted (--clean option).`, async () => {
+    const CMD = `frodo service import --clean --global --all --file ${allGlobalServicesExport}`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed");
+    } catch (e) {
+      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    }
+  });
 
-    test(`"frodo service import -AD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}"`, async () => {
-        const CMD = `frodo service import -AD ${allSeparateAlphaServicesDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -AD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}"`, async () => {
+    const CMD = `frodo service import -AD ${allSeparateAlphaServicesDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import -ACrD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}", and clean the old ones`, async () => {
-        const CMD = `frodo service import -ACrD ${allSeparateAlphaServicesDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import -ACrD ${allSeparateAlphaServicesDirectory}": should import all services from the directory "${allSeparateAlphaServicesDirectory}", and clean the old ones`, async () => {
+    const CMD = `frodo service import -ACrD ${allSeparateAlphaServicesDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}"`, async () => {
-        const CMD = `frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
+  test(`"frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}"`, async () => {
+    const CMD = `frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 
-    test(`"frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}", and clean the old ones`, async () => {
-        const CMD = `frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-
+  test(`"frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}", and clean the old ones`, async () => {
+    const CMD = `frodo service import --clean --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
 });

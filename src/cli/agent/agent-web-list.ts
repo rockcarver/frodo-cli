@@ -23,7 +23,8 @@ program
         command
       );
       if (await getTokens()) {
-        await listWebAgents(options.long);
+        const outcome = await listWebAgents(options.long);
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

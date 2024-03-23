@@ -48,24 +48,31 @@ program
         // import
         if (options.agentId) {
           verboseMessage(`Importing web agent ${options.agentId} from file...`);
-          await importJavaAgentFromFile(options.agentId, options.file);
+          const outcome = await importJavaAgentFromFile(
+            options.agentId,
+            options.file
+          );
+          if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all && options.file) {
           verboseMessage(
             `Importing all web agents from a single file (${options.file})...`
           );
-          await importJavaAgentsFromFile(options.file);
+          const outcome = await importJavaAgentsFromFile(options.file);
+          if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
         else if (options.allSeparate && !options.file) {
           verboseMessage('Importing all web agents from separate files...');
-          await importJavaAgentsFromFiles();
+          const outcome = await importJavaAgentsFromFiles();
+          if (!outcome) process.exitCode = 1;
         }
         // import first journey in file
         else if (options.file) {
           verboseMessage('Importing first web agent in file...');
-          await importFirstJavaAgentFromFile(options.file);
+          const outcome = await importFirstJavaAgentFromFile(options.file);
+          if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options
         else {

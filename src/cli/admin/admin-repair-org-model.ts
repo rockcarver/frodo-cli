@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { repairOrgModel } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { repairOrgModel } = frodo.admin;
 
 const program = new FrodoCommand('frodo admin repair-org-model');
 
@@ -37,12 +36,12 @@ program
       );
       if (await getTokens()) {
         printMessage(`Repairing org model in realm "${state.getRealm()}"...`);
-        await repairOrgModel(
+        const outcome = await repairOrgModel(
           options.excludeCustomized,
           options.extendPermissions,
           options.dryRun
         );
-        printMessage('Done.');
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

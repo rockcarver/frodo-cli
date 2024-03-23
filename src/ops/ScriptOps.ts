@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 import {
   type ScriptExportInterface,
@@ -13,6 +13,7 @@ import {
   createTable,
   debugMessage,
   failSpinner,
+  printError,
   printMessage,
   showSpinner,
   spinSpinner,
@@ -84,7 +85,7 @@ export function getTableRowMd(scriptObj: ScriptSkeleton): string {
  * @param {boolean} long detail list
  * @param {boolean} usage display usage field
  * @param {String | null} file Optional filename to determine usage
- * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function listScripts(
   long: boolean = false,
@@ -108,20 +109,15 @@ export async function listScripts(
       'success'
     );
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error reading scripts: ${error.response?.data || error.message}`,
-      'fail'
-    );
-    debugMessage(error);
-    debugMessage(`Cli.ScriptOps.listScripts: end [false]`);
+    stopProgressIndicator(spinnerId, `Error reading scripts`, 'fail');
+    printError(error);
     return false;
   }
   if (!long && !usage) {
     scripts.forEach((script) => {
       printMessage(`${script.name}`, 'data');
     });
-    debugMessage(`Cli.ScriptOps.listScripts: end [true]`);
+    debugMessage(`Cli.ScriptOps.listScripts: end`);
     return true;
   }
   let fullExport = null;
@@ -132,11 +128,7 @@ export async function listScripts(
     try {
       fullExport = await getFullExportConfig(file);
     } catch (error) {
-      printMessage(
-        `Error getting full export: ${error.response?.data || error.message}`,
-        'error'
-      );
-      debugMessage(`Cli.ScriptOps.listScripts: end [false]`);
+      printError(error);
       return false;
     }
     //Delete scripts from full export so they aren't mistakenly used for determining usage
@@ -166,7 +158,7 @@ export async function listScripts(
     table.push(values);
   });
   printMessage(table.toString(), 'data');
-  debugMessage(`Cli.ScriptOps.listScripts: end [true]`);
+  debugMessage(`Cli.ScriptOps.listScripts: end`);
   return true;
 }
 
@@ -175,12 +167,12 @@ export async function listScripts(
  * @param {string} scriptId script uuid
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptToFile(
   scriptId: string,
   file: string,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptToFile: start`);
   try {
@@ -194,13 +186,12 @@ export async function exportScriptToFile(
     const scriptExport = await exportScript(scriptId);
     saveJsonToFile(scriptExport, filePath, includeMeta);
     succeedSpinner(`Exported script '${scriptId}' to '${filePath}'.`);
-    debugMessage(`Cli.ScriptOps.exportScriptToFile: end [true]`);
+    debugMessage(`Cli.ScriptOps.exportScriptToFile: end`);
     return true;
   } catch (error) {
-    failSpinner(`Error exporting script '${scriptId}': ${error.message}`);
-    debugMessage(error);
+    failSpinner(`Error exporting script '${scriptId}'`);
+    printError(error);
   }
-  debugMessage(`Cli.ScriptOps.exportScriptToFile: end [false]`);
   return false;
 }
 
@@ -209,12 +200,12 @@ export async function exportScriptToFile(
  * @param {string} name script name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptByNameToFile(
   name: string,
   file: string,
-  includeMeta = true
+  includeMeta: boolean = true
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: start`);
   try {
@@ -228,13 +219,12 @@ export async function exportScriptByNameToFile(
     const scriptExport = await exportScriptByName(name);
     saveJsonToFile(scriptExport, filePath, includeMeta);
     succeedSpinner(`Exported script '${name}' to '${filePath}'.`);
-    debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [true]`);
+    debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end`);
     return true;
   } catch (error) {
     failSpinner(`Error exporting script '${name}': ${error.message}`);
-    debugMessage(error);
+    printError(error);
   }
-  debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end [false]`);
   return false;
 }
 
@@ -243,12 +233,12 @@ export async function exportScriptByNameToFile(
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
- * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFile(
   file: string,
-  includeMeta = true,
-  includeDefault = false
+  includeMeta: boolean = true,
+  includeDefault: boolean = false
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
   try {
@@ -261,13 +251,11 @@ export async function exportScriptsToFile(
     }
     const scriptExport = await exportScripts(includeDefault);
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
-    debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [true]`);
+    debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
   } catch (error) {
-    printMessage(`Error exporting scripts: ${error.message}`, 'error');
-    debugMessage(error);
+    printError(error);
   }
-  debugMessage(`Cli.ScriptOps.exportScriptsToFile: end [false]`);
   return false;
 }
 
@@ -276,89 +264,100 @@ export async function exportScriptsToFile(
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
- * @returns {Promise<boolean>} true if no errors occurred during export, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFiles(
-  extract = false,
-  includeMeta = true,
-  includeDefault = false
+  extract: boolean = false,
+  includeMeta: boolean = true,
+  includeDefault: boolean = false
 ): Promise<boolean> {
-  let outcome = true;
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
-  let scriptList = await readScripts();
-  if (!includeDefault)
-    scriptList = scriptList.filter((script) => !script.default);
-  const barId = createProgressIndicator(
-    'determinate',
-    scriptList.length,
-    'Exporting scripts to individual files...'
-  );
-  for (const script of scriptList) {
-    const fileBarId = createProgressIndicator(
+  const errors: Error[] = [];
+  let barId: string;
+  try {
+    let scriptList = await readScripts();
+    if (!includeDefault)
+      scriptList = scriptList.filter((script) => !script.default);
+    barId = createProgressIndicator(
       'determinate',
-      1,
-      `Exporting script ${script.name}...`
+      scriptList.length,
+      'Exporting scripts to individual files...'
     );
-    updateProgressIndicator(barId, `Reading script ${script.name}`);
-    const file = getFilePath(getTypedFilename(script.name, 'script'), true);
-    try {
-      const scriptExport = await exportScriptByName(script.name);
-      if (extract) extractScriptToFile(scriptExport);
-      saveJsonToFile(scriptExport, file, includeMeta);
-      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
-      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
-    } catch (error) {
-      outcome = false;
-      updateProgressIndicator(barId, `Error exporting ${script.name}.`);
-      stopProgressIndicator(
-        fileBarId,
-        `Error saving ${script.name} to ${file}.`
+    for (const script of scriptList) {
+      const fileBarId = createProgressIndicator(
+        'determinate',
+        1,
+        `Exporting script ${script.name}...`
       );
-      printMessage(
-        `Error exporting script '${script.name}': ${error.message}`,
-        'error'
-      );
-      debugMessage(error);
+      const file = getFilePath(getTypedFilename(script.name, 'script'), true);
+      try {
+        const scriptExport = await exportScriptByName(script.name);
+        if (extract) extractScriptToFile(scriptExport);
+        saveJsonToFile(scriptExport, file, includeMeta);
+        updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+        stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
+      } catch (error) {
+        stopProgressIndicator(
+          fileBarId,
+          `Error exporting ${script.name}`,
+          'fail'
+        );
+        errors.push(error);
+      }
+      updateProgressIndicator(barId, `Exported script ${script.name}`);
     }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error exporting scripts`, errors);
+    }
+    stopProgressIndicator(
+      barId,
+      `Exported ${scriptList.length} scripts to individual files.`
+    );
+    debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(barId, `Error exporting scripts`);
+    printError(error);
   }
-  stopProgressIndicator(
-    barId,
-    `Exported ${scriptList.length} scripts to individual files.`
-  );
-  debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end [${outcome}]`);
-  return outcome;
 }
 
 /**
  * Extracts a script from a script export into a separate file.
- * @param scriptExport The script export
- * @param scriptId The script id (optional if there is only one script in the export)
- * @param directory The directory within the base directory to save the script file
+ * @param {ScriptExportInterface} scriptExport The script export
+ * @param {string} scriptId The script id (optional if there is only one script in the export)
+ * @param {string} directory The directory within the base directory to save the script file
+ * @returns {boolean} true if successful, false otherwise
  */
 export function extractScriptToFile(
   scriptExport: ScriptExportInterface,
   scriptId?: string,
   directory?: string
-) {
-  const scriptSkeleton = scriptId
-    ? scriptExport.script[scriptId]
-    : getScriptSkeleton(scriptExport);
-  const fileExtension =
-    scriptSkeleton.language === 'JAVASCRIPT' ? 'js' : 'groovy';
-  const scriptFileName = getTypedFilename(
-    scriptSkeleton.name,
-    'script',
-    fileExtension
-  );
-  const scriptFilePath = getFilePath(
-    (directory ? `${directory}/` : '') + scriptFileName,
-    true
-  );
-  const scriptText = Array.isArray(scriptSkeleton.script)
-    ? scriptSkeleton.script.join('\n')
-    : scriptSkeleton.script;
-  scriptSkeleton.script = `file://${scriptFilePath}`;
-  saveTextToFile(scriptText, scriptFilePath);
+): boolean {
+  try {
+    const scriptSkeleton = scriptId
+      ? scriptExport.script[scriptId]
+      : getScriptSkeleton(scriptExport);
+    const fileExtension =
+      scriptSkeleton.language === 'JAVASCRIPT' ? 'js' : 'groovy';
+    const scriptFileName = getTypedFilename(
+      scriptSkeleton.name,
+      'script',
+      fileExtension
+    );
+    const scriptFilePath = getFilePath(
+      (directory ? `${directory}/` : '') + scriptFileName,
+      true
+    );
+    const scriptText = Array.isArray(scriptSkeleton.script)
+      ? scriptSkeleton.script.join('\n')
+      : scriptSkeleton.script;
+    scriptSkeleton.script = `file://${scriptFilePath}`;
+    saveTextToFile(scriptText, scriptFilePath);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
 }
 
 function isScriptExtracted(importData: ScriptExportInterface): boolean {
@@ -392,7 +391,7 @@ function isScriptExtracted(importData: ScriptExportInterface): boolean {
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
  * @param {string} file file name
  * @param {ScriptImportOptions} options Script import options
- * @returns {Promise<boolean>} true if no errors occurred during import, false otherwise
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importScriptsFromFile(
   name: string,
@@ -402,29 +401,22 @@ export async function importScriptsFromFile(
     includeDefault: false,
   }
 ): Promise<boolean> {
-  let outcome = false;
   const filePath = getFilePath(file);
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: start`);
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    try {
-      if (err) throw err;
-      const importData: ScriptExportInterface = JSON.parse(data);
-      if (isScriptExtracted(importData)) {
-        await handleScriptFileImport(filePath, options, false);
-      } else {
-        await importScripts(name, importData, options);
-      }
-      outcome = true;
-    } catch (error) {
-      printMessage(
-        `Error importing script '${name}': ${error.message}`,
-        'error'
-      );
-      debugMessage(error);
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const importData: ScriptExportInterface = JSON.parse(data);
+    if (isScriptExtracted(importData)) {
+      await handleScriptFileImport(filePath, options, false);
+    } else {
+      await importScripts(name, importData, options);
     }
-  });
-  debugMessage(`Cli.ScriptOps.importScriptsFromFile: end [${outcome}]`);
-  return outcome;
+    debugMessage(`Cli.ScriptOps.importScriptsFromFile: end`);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
 }
 
 /**
@@ -438,7 +430,7 @@ export async function importScriptsFromFiles(
   watch: boolean,
   options: ScriptImportOptions,
   validateScripts: boolean
-) {
+): Promise<void> {
   // If watch is true, it doesn't make sense to reUuid.
   options.reUuid = watch ? false : options.reUuid;
 
@@ -450,7 +442,7 @@ export async function importScriptsFromFiles(
     try {
       await handleScriptFileImport(path, options, validateScripts);
     } catch (error) {
-      printMessage(`${path}: ${error.message}`, 'error');
+      printError(error, `${path}`);
     }
   }
 
@@ -470,7 +462,7 @@ export async function importScriptsFromFiles(
     .on('add', onChange)
     .on('change', onChange)
     .on('error', (error) => {
-      printMessage(`Watcher error: ${error}`, 'error');
+      printError(error, `Watcher error`);
       watcher.close();
     })
     .on('ready', () => {
@@ -512,7 +504,7 @@ async function handleScriptFileImport(
  * @param file Either a script file or an extract file
  * @returns The script file
  */
-function getScriptFile(file: string) {
+function getScriptFile(file: string): string {
   if (file.endsWith('.script.json')) {
     return file;
   }
@@ -605,8 +597,9 @@ function getScriptId(script: ScriptExportInterface): string {
 /**
  * Delete script by id
  * @param {String} id script id
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteScriptId(id) {
+export async function deleteScriptId(id: string): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
@@ -615,16 +608,19 @@ export async function deleteScriptId(id) {
   try {
     await deleteScript(id);
     stopProgressIndicator(spinnerId, `Deleted ${id}.`, 'success');
+    return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
+  return false;
 }
 
 /**
  * Delete script by name
  * @param {String} name script name
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteScriptName(name) {
+export async function deleteScriptName(name: string): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
@@ -633,15 +629,18 @@ export async function deleteScriptName(name) {
   try {
     await deleteScriptByName(name);
     stopProgressIndicator(spinnerId, `Deleted ${name}.`, 'success');
+    return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
+  return false;
 }
 
 /**
  * Delete all non-default scripts
+ * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAllScripts() {
+export async function deleteAllScripts(): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
@@ -654,7 +653,9 @@ export async function deleteAllScripts() {
       `Deleted all non-default scripts.`,
       'success'
     );
+    return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
   }
+  return false;
 }

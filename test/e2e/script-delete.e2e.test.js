@@ -76,10 +76,14 @@ describe('frodo script delete', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test("\"frodo script delete --script-name 'hashdeviceProfile'\": should display error when the script named 'hashdeviceProfile' cannot be deleted since it hashdeviceProfile", async () => {
+    test("\"frodo script delete --script-name 'hashdeviceProfile'\": should display error when the script named 'hashdeviceProfile' cannot be deleted since it does not exist", async () => {
         const CMD = `frodo script delete --script-name 'hashdeviceProfile'`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+          await exec(CMD, env);
+          fail("Command should've failed");
+        } catch (e) {
+          expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
     test('"frodo script delete -i e15a13ee-9168-40cf-934f-656a5f568a6a": should delete the script with id \'e15a13ee-9168-40cf-934f-656a5f568a6a\'', async () => {
@@ -88,10 +92,14 @@ describe('frodo script delete', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id \'e15a13ee-9168-40cf-934f-656a5f568a6a\' cannot be deleted since it hashdeviceProfile', async () => {
+    test('"frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a": should display error when the script with id \'e15a13ee-9168-40cf-934f-656a5f568a6a\' cannot be deleted since it does not exist', async () => {
         const CMD = `frodo script delete --script-id e15a13ee-9168-40cf-934f-656a5f568a6a`;
-        const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed");
+          } catch (e) {
+            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+          }
     });
 
     //TODO: Generate mock for this test (skip for meantime)

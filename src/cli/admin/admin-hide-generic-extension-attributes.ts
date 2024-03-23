@@ -1,11 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { hideGenericExtensionAttributes } from '../../ops/AdminOps';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-
-const { hideGenericExtensionAttributes } = frodo.admin;
 
 const program = new FrodoCommand(
   'frodo admin hide-generic-extension-attributes'
@@ -32,11 +31,11 @@ program
         printMessage(
           `Hiding generic extension attributes in realm "${state.getRealm()}"...`
         );
-        await hideGenericExtensionAttributes(
+        const outcome = await hideGenericExtensionAttributes(
           options.includeCustomized,
           options.dryRun
         );
-        printMessage('Done.');
+        if (!outcome) process.exitCode = 1;
       } else {
         process.exitCode = 1;
       }

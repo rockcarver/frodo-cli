@@ -1,4 +1,4 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Command } from 'commander';
 
 // commands
@@ -25,7 +25,12 @@ import shell from './cli/shell/shell';
 // enable sample command template.
 // import something from './cli/_template/something';
 import theme from './cli/theme/theme';
-import { printMessage } from './utils/Console';
+import {
+  debugMessage,
+  printError,
+  printMessage,
+  verboseMessage,
+} from './utils/Console';
 import { getVersions } from './utils/Version';
 
 const { initConnectionProfiles } = frodo.conn;
@@ -33,6 +38,12 @@ const { initTokenCache } = frodo.cache;
 
 (async () => {
   try {
+    // override default library output handlers with our own
+    state.setPrintHandler(printMessage);
+    state.setErrorHandler(printError);
+    state.setDebugHandler(debugMessage);
+    state.setVerboseHandler(verboseMessage);
+
     const program = new Command('frodo').version(
       await getVersions(false),
       '-v, --version'

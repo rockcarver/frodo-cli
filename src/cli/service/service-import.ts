@@ -86,38 +86,46 @@ program
       // import by id
       if (options.serviceId && options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importServiceFromFile(options.serviceId, options.file, {
-          clean,
-          global: globalConfig,
-          realm: realmConfig,
-        });
+        const outcome = await importServiceFromFile(
+          options.serviceId,
+          options.file,
+          {
+            clean,
+            global: globalConfig,
+            realm: realmConfig,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // -a / --all
       else if (options.all && options.file && (await getTokens())) {
         verboseMessage('Importing all services from a single file...');
-        await importServicesFromFile(options.file, {
+        const outcome = await importServicesFromFile(options.file, {
           clean,
           global: globalConfig,
           realm: realmConfig,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // -A / --all-separate
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing all services from separate files...');
-        await importServicesFromFiles({
+        const outcome = await importServicesFromFiles({
           clean,
           global: globalConfig,
           realm: realmConfig,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // import file
       else if (options.file && (await getTokens())) {
         verboseMessage('Importing service...');
-        await importFirstServiceFromFile(options.file, {
+        const outcome = await importFirstServiceFromFile(options.file, {
           clean,
           global: globalConfig,
           realm: realmConfig,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

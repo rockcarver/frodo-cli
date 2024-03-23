@@ -65,7 +65,7 @@ program
             options.entityId
           }" from realm "${state.getRealm()}"...`
         );
-        await exportSaml2ProviderToFile(
+        const outcome = await exportSaml2ProviderToFile(
           options.entityId,
           options.file,
           options.metadata,
@@ -73,20 +73,27 @@ program
             deps: options.deps,
           }
         );
+        if (!outcome) process.exitCode = 1;
       }
       // --all -a
       else if (options.all && (await getTokens())) {
         verboseMessage('Exporting all providers to a single file...');
-        await exportSaml2ProvidersToFile(options.file, options.metadata, {
-          deps: options.deps,
-        });
+        const outcome = await exportSaml2ProvidersToFile(
+          options.file,
+          options.metadata,
+          {
+            deps: options.deps,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
       }
       // --all-separate -A
       else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting all providers to separate files...');
-        await exportSaml2ProvidersToFiles(options.metadata, {
+        const outcome = await exportSaml2ProvidersToFiles(options.metadata, {
           deps: options.deps,
         });
+        if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
       else {

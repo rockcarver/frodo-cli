@@ -4,13 +4,54 @@ exports[`frodo service import "frodo service import --all --file test/e2e/export
 
 exports[`frodo service import "frodo service import --all-separate --directory test/e2e/exports/all-separate/service/global": should import all global services from the directory "test/e2e/exports/all-separate/service/global" 1`] = `""`;
 
-exports[`frodo service import "frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json": should import all global services from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old ones 1`] = `""`;
+exports[`frodo service import "frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json": should fail because global singleton services cannot be deleted (--clean option). 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
+Error importing services
+  Error putting global full service configs
+  Error putting global full service config CorsService
+  Error deleting service 'CorsService' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Message: The singleton resource cannot be deleted
+  Error putting global full service config dashboard
+  Error deleting service 'dashboard' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Message: The singleton resource cannot be deleted
+"
+`;
 
 exports[`frodo service import "frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/service/global": should import all global services from the directory "test/e2e/exports/all-separate/service/global", and clean the old ones 1`] = `""`;
 
-exports[`frodo service import "frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json": should import the first global service from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old one 1`] = `""`;
+exports[`frodo service import "frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json": should fail because global singleton services cannot be deleted (--clean option). 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
+- Importing first service...
+✖ Error importing first service
+Error importing service CorsService
+  Error putting global full service config CorsService
+  Error deleting service 'CorsService' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Message: The singleton resource cannot be deleted
+"
+`;
 
-exports[`frodo service import "frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json": should import the global service with the id "CorsService" from the file "test/e2e/exports/all/allGlobalServices.service.json", and clean the old one 1`] = `""`;
+exports[`frodo service import "frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json": should fail because global singleton services cannot be deleted (--clean option). 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
+- Importing service dashboard...
+✖ Error importing service dashboard
+Error importing service dashboard
+  Error putting global full service config dashboard
+  Error deleting service 'dashboard' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Message: The singleton resource cannot be deleted
+"
+`;
 
 exports[`frodo service import "frodo service import --current-realm -Caf test/e2e/exports/all/allAlphaServices.service.json": should import all services from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old ones 1`] = `""`;
 
