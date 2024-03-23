@@ -93,6 +93,7 @@ export async function describeConnectionProfile(
       delete profile.svcacctId;
       delete profile.svcacctJwk;
       delete profile.svcacctName;
+      delete profile.svcacctScope;
     }
     if (showSecrets && jwk) {
       (profile as unknown)['svcacctJwk'] = 'see below';
@@ -112,6 +113,7 @@ export async function describeConnectionProfile(
       svcacctName: 'Service Account Name',
       svcacctId: 'Service Account Id',
       svcacctJwk: 'Service Account JWK',
+      svcacctScope: 'Service Account Scope',
     };
     const table = createObjectTable(profile, keyMap);
     printMessage(table.toString(), 'data');
