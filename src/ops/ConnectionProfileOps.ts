@@ -95,6 +95,9 @@ export async function describeConnectionProfile(
       delete profile.svcacctName;
       delete profile.svcacctScope;
     }
+    if (!profile.svcacctScope) {
+      delete profile.svcacctScope;
+    }
     if (showSecrets && jwk) {
       (profile as unknown)['svcacctJwk'] = 'see below';
     }
