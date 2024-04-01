@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 2.0.0-75
+
+### Fixed
+
+-   rockcarver/frodo-lib#397: Service accounts now use the proper scopes when created using the `frodo conn save` command
+
 ## [2.0.0-53] - 2024-03-24
 
 ### Changed
