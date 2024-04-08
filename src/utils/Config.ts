@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import fs from 'fs';
 import os from 'os';
@@ -172,7 +172,7 @@ export async function getFullExportConfigFromDirectory(
           }) === name
       );
       if (!script) {
-        throw Error(
+        throw new FrodoError(
           `Can't find the script corresponding to the file '${f.path}' in the export files`
         );
       }

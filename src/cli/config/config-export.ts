@@ -73,31 +73,44 @@ program
       // --all -a
       if (options.all && (await getTokens())) {
         verboseMessage('Exporting everything to a single file...');
-        await exportEverythingToFile(options.file, options.metadata, {
-          useStringArrays: options.useStringArrays,
-          noDecode: options.decode,
-          coords: options.coords,
-          includeDefault: options.default,
-        });
-        // require --directory -D for all-separate function
-      } else if (options.allSeparate && !state.getDirectory()) {
+        const outcome = await exportEverythingToFile(
+          options.file,
+          options.metadata,
+          {
+            useStringArrays: options.useStringArrays,
+            noDecode: options.decode,
+            coords: options.coords,
+            includeDefault: options.default,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
+      }
+      // require --directory -D for all-separate function
+      else if (options.allSeparate && !state.getDirectory()) {
         printMessage(
           '-D or --directory required when using -A or --all-separate',
           'error'
         );
         program.help();
         process.exitCode = 1;
-        // --all-separate -A
-      } else if (options.allSeparate && (await getTokens())) {
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Exporting everything to separate files...');
-        await exportEverythingToFiles(options.extract, options.metadata, {
-          useStringArrays: options.useStringArrays,
-          noDecode: options.decode,
-          coords: options.coords,
-          includeDefault: options.default,
-        });
-        // unrecognized combination of options or no options
-      } else {
+        const outcome = await exportEverythingToFiles(
+          options.extract,
+          options.metadata,
+          {
+            useStringArrays: options.useStringArrays,
+            noDecode: options.decode,
+            coords: options.coords,
+            includeDefault: options.default,
+          }
+        );
+        if (!outcome) process.exitCode = 1;
+      }
+      // unrecognized combination of options or no options
+      else {
         verboseMessage('Unrecognized combination of options or no options...');
         program.help();
         process.exitCode = 1;

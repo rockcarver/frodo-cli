@@ -18,6 +18,21 @@ export function removeAnsiEscapeCodes(text) {
   return text ? text.replace(ansiEscapeCodes, '') : text;
 }
 
+const progressBarOutput =
+  // eslint-disable-next-line no-control-regex
+  /\[[-=]+].+\n+/g;
+
+/**
+ * Remove progress bar output, e.g.:
+ * [========================================] 100% | 16/16 | Finished Importing Everything!
+ * [========================================] 100% | 22/22 | Finished importing journeys
+ * @param {string} text Text containing ANSI escape codes
+ * @returns {string} Text without ANSI escape codes
+ */
+export function removeProgressBarOutput(text) {
+  return text ? text.replace(progressBarOutput, '') : text;
+}
+
 /**
  * Method that runs an export command and tests that it was executed correctly.
  * @param {string} command The export command to run

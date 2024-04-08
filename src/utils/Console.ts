@@ -249,6 +249,9 @@ function createProgressBar(
     hideCursor: true,
     format: '[{bar}] {percentage}% | {value}/{total} | {data}',
     noTTYOutput: true,
+    forceRedraw: true,
+    gracefulExit: true,
+    stopOnComplete: true,
   }
 ): string {
   debugMessage(`cli.Console.createProgressBar: start`);
@@ -259,6 +262,9 @@ function createProgressBar(
       hideCursor: true,
       format: '[{bar}] {percentage}% | {value}/{total}',
       noTTYOutput: true,
+      forceRedraw: true,
+      gracefulExit: true,
+      stopOnComplete: true,
     };
   }
   if (!multiBarContainer) {

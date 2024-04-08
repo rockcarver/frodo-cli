@@ -8,6 +8,7 @@ Error deleting resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404
+    Reason: Not Found
     Message: Resource Type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 does not exist in realm /alpha
 "
 `;

@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   FullExportInterface,
   FullExportOptions,
@@ -12,7 +12,7 @@ import {
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
-import { printError, printMessage } from '../utils/Console';
+import { cleanupProgressIndicators, printError, printMessage } from '../utils/Console';
 import { extractScriptToFile } from './ScriptOps';
 
 const {
@@ -31,6 +31,7 @@ const { exportFullConfiguration, importFullConfiguration } = frodo.config;
  * @param {String} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFile(
   file: string,
@@ -41,9 +42,10 @@ export async function exportEverythingToFile(
     coords: true,
     includeDefault: false,
   }
-): Promise<void> {
+): Promise<boolean> {
   try {
-    const exportData = await exportFullConfiguration(options);
+    const collectErrors: Error[] = [];
+    const exportData = await exportFullConfiguration(options, collectErrors);
     let fileName = getTypedFilename(
       `${titleCase(getRealmName(state.getRealm()))}`,
       `everything`
@@ -52,9 +54,14 @@ export async function exportEverythingToFile(
       fileName = file;
     }
     saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    if (collectErrors.length > 0) {
+      throw new FrodoError(`Errors occurred during full export`, collectErrors);
+    }
+    return true;
   } catch (error) {
     printError(error);
   }
+  return false;
 }
 
 /**
@@ -62,6 +69,7 @@ export async function exportEverythingToFile(
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFiles(
   extract: boolean = false,
@@ -72,10 +80,13 @@ export async function exportEverythingToFiles(
     coords: true,
     includeDefault: false,
   }
-): Promise<void> {
+): Promise<boolean> {
   try {
-    const exportData: FullExportInterface =
-      await exportFullConfiguration(options);
+    const collectErrors: Error[] = [];
+    const exportData: FullExportInterface = await exportFullConfiguration(
+      options,
+      collectErrors
+    );
     delete exportData.meta;
     const baseDirectory = getWorkingDirectory(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,7 +185,9 @@ export async function exportEverythingToFiles(
               }
             } else {
               const filename = getTypedFilename(
-                value && value.name ? value.name : id,
+                value && value.name && type !== 'emailTemplate'
+                  ? value.name
+                  : id,
                 type
               );
               if (extract && type == 'script') {
@@ -198,15 +211,21 @@ export async function exportEverythingToFiles(
         }
       }
     });
+    if (collectErrors.length > 0) {
+      throw new FrodoError(`Errors occurred during full export`, collectErrors);
+    }
+    return true;
   } catch (error) {
     printError(error);
   }
+  return false;
 }
 
 /**
  * Import everything from a single file
- * @param {String} file The file path
+ * @param {string} file The file path
  * @param {FullImportOptions} options import options
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEverythingFromFile(
   file: string,
@@ -218,17 +237,28 @@ export async function importEverythingFromFile(
     realm: false,
     includeDefault: false,
   }
-) {
+): Promise<boolean> {
   try {
     const data = await getFullExportConfig(file);
-    await importFullConfiguration(data, options);
+    const collectErrors: Error[] = [];
+    await importFullConfiguration(data, options, collectErrors);
+    if (collectErrors.length > 0) {
+      throw new FrodoError(
+        `Errors occurred during full config import`,
+        collectErrors
+      );
+    }
+    return true;
   } catch (error) {
+    cleanupProgressIndicators();
     printError(error);
   }
+  return false;
 }
 
 /**
  * Import everything from separate files
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function importEverythingFromFiles(
   options: FullImportOptions = {
@@ -239,11 +269,20 @@ export async function importEverythingFromFiles(
     realm: false,
     includeDefault: false,
   }
-) {
+): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(state.getDirectory());
-    await importFullConfiguration(data, options);
+    const collectErrors: Error[] = [];
+    await importFullConfiguration(data, options, collectErrors);
+    if (collectErrors.length > 0) {
+      throw new FrodoError(
+        `Errors occurred during full config import`,
+        collectErrors
+      );
+    }
+    return true;
   } catch (error) {
     printError(error);
   }
+  return false;
 }

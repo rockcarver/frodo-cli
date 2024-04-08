@@ -17,6 +17,7 @@ Error deleting policy Test Policy
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404
+    Reason: Not Found
     Message: Policy Test Policy does not exist.
 "
 `;

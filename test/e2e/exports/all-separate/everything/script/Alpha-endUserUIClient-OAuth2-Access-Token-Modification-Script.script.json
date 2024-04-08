@@ -1,9 +1,9 @@
 {
   "meta": {
-    "exportDate": "2023-12-14T18:51:20.992Z",
+    "exportDate": "2024-03-29T19:29:02.735Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
-    "exportedBy": "phales@trivir.com",
+    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
     "originAmVersion": "7.5.0"
   },
@@ -20,7 +20,21 @@
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha endUserUIClient OAuth2 Access Token Modification Script",
-      "script": "file://test/e2e/exports/all-separate/everything/script/Alpha-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js"
+      "script": [
+        "(function () {",
+        "  if (scopes.contains('fr:autoaccess:*') || scopes.contains('fr:iga:*') || scopes.contains('fr:idc:analytics:*')) {",
+        "    var fr = JavaImporter(",
+        "      com.sun.identity.idm.IdType",
+        "    );",
+        "    var groups = [];",
+        "    identity.getMemberships(fr.IdType.GROUP).toArray().forEach(function (group) {",
+        "      groups.push(group.getAttribute('cn').toArray()[0]);",
+        "    });",
+        "    accessToken.setField('groups', groups);",
+        "  }",
+        "}());",
+        ""
+      ]
     }
   }
 }

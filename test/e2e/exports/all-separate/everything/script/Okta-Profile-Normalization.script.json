@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "exportDate": "2024-03-29T19:29:02.730Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
+      "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Okta Profile Normalization",
+      "script": [
+        "/*",
+        " * Copyright 2022 ForgeRock AS. All Rights Reserved",
+        " *",
+        " * Use of this code requires a commercial software license with ForgeRock AS.",
+        " * or with one of its affiliates. All use shall be exclusively subject",
+        " * to such license between the licensee and ForgeRock AS.",
+        " */",
+        "",
+        "import static org.forgerock.json.JsonValue.field",
+        "import static org.forgerock.json.JsonValue.json",
+        "import static org.forgerock.json.JsonValue.object",
+        "",
+        "logger.warning(\"Okta rawProfile: \"+rawProfile)",
+        "",
+        "return json(object(",
+        "        field(\"id\", rawProfile.id),",
+        "        field(\"displayName\", rawProfile.name),",
+        "        field(\"givenName\", rawProfile.first_name),",
+        "        field(\"familyName\", rawProfile.last_name),",
+        "        field(\"photoUrl\", rawProfile.picture.data.url),",
+        "        field(\"email\", rawProfile.email),",
+        "        field(\"username\", rawProfile.preferred_username)))"
+      ]
+    }
+  }
+}

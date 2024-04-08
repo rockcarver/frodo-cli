@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "exportDate": "2024-03-29T19:29:02.723Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "saml": {
+    "cot": {},
+    "hosted": {
+      "aHR0cHM6Ly9pZGMuc2NoZXViZXIuaW8vYW0vc2FtbDIvSURQQXp1cmU": {
+        "_id": "aHR0cHM6Ly9pZGMuc2NoZXViZXIuaW8vYW0vc2FtbDIvSURQQXp1cmU",
+        "entityId": "https://idc.scheuber.io/am/saml2/IDPAzure",
+        "identityProvider": {
+          "advanced": {
+            "ecpConfiguration": {
+              "idpSessionMapper": "com.sun.identity.saml2.plugins.DefaultIDPECPSessionMapper"
+            },
+            "idpAdapter": {
+              "idpAdapterScript": "85523e71-2d77-4577-b078-6f9674cc54e2"
+            },
+            "idpFinderImplementation": {
+              "enableProxyIdpFinderForAllSps": false
+            },
+            "relayStateUrlList": {},
+            "saeConfiguration": {
+              "idpUrl": "https://idc.scheuber.io/am/idpsaehandler/metaAlias/alpha/IDPAzure"
+            },
+            "sessionSynchronization": {
+              "enabled": false
+            }
+          },
+          "assertionContent": {
+            "assertionCache": {
+              "enabled": false
+            },
+            "assertionTime": {
+              "effectiveTime": 600,
+              "notBeforeTimeSkew": 600
+            },
+            "authenticationContext": {
+              "authContextItems": [
+                {
+                  "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+                  "key": "service",
+                  "level": 0,
+                  "value": "Login"
+                }
+              ],
+              "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultIDPAuthnContextMapper"
+            },
+            "basicAuthentication": {
+              "enabled": false
+            },
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+              ],
+              "nameIdValueMap": [
+                {
+                  "binary": false,
+                  "key": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                  "value": "mail"
+                },
+                {
+                  "binary": false,
+                  "key": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                  "value": "mail"
+                }
+              ]
+            },
+            "signingAndEncryption": {
+              "encryption": {
+                "nameIdEncryption": false
+              },
+              "requestResponseSigning": {
+                "artifactResolve": false,
+                "authenticationRequest": false,
+                "logoutRequest": false,
+                "logoutResponse": false,
+                "manageNameIdRequest": false,
+                "manageNameIdResponse": false
+              },
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "assertionProcessing": {
+            "accountMapper": {
+              "accountMapper": "com.sun.identity.saml2.plugins.DefaultIDPAccountMapper",
+              "disableNameIdPersistence": true
+            },
+            "attributeMapper": {
+              "attributeMap": [
+                {
+                  "binary": false,
+                  "localAttribute": "mail",
+                  "samlAttribute": "IDPEmail"
+                },
+                {
+                  "binary": false,
+                  "localAttribute": "UOPClassID",
+                  "samlAttribute": "UOPClassID"
+                }
+              ],
+              "attributeMapper": "com.sun.identity.saml2.plugins.DefaultIDPAttributeMapper"
+            },
+            "localConfiguration": {
+              "authUrl": ""
+            }
+          },
+          "services": {
+            "assertionIdRequest": [
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                "location": "https://idc.scheuber.io/am/AIDReqSoap/IDPRole/metaAlias/alpha/IDPAzure"
+              },
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:URI",
+                "location": "https://idc.scheuber.io/am/AIDReqUri/IDPRole/metaAlias/alpha/IDPAzure"
+              }
+            ],
+            "metaAlias": "/alpha/IDPAzure",
+            "nameIdMapping": [
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                "location": "https://idc.scheuber.io/am/NIMSoap/metaAlias/alpha/IDPAzure"
+              }
+            ],
+            "serviceAttributes": {
+              "artifactResolutionService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://idc.scheuber.io/am/ArtifactResolver/metaAlias/alpha/IDPAzure"
+                }
+              ],
+              "nameIdService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://idc.scheuber.io/am/IDPMniRedirect/metaAlias/alpha/IDPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/IDPMniRedirect/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://idc.scheuber.io/am/IDPMniPOST/metaAlias/alpha/IDPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/IDPMniPOST/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://idc.scheuber.io/am/IDPMniSoap/metaAlias/alpha/IDPAzure"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://idc.scheuber.io/am/IDPSloRedirect/metaAlias/alpha/IDPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/IDPSloRedirect/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://idc.scheuber.io/am/IDPSloPOST/metaAlias/alpha/IDPAzure",
+                  "responseLocation": "https://idc.scheuber.io/am/IDPSloPOST/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://idc.scheuber.io/am/IDPSloSoap/metaAlias/alpha/IDPAzure"
+                }
+              ],
+              "singleSignOnService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://idc.scheuber.io/am/SSORedirect/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://idc.scheuber.io/am/SSOPOST/metaAlias/alpha/IDPAzure"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://idc.scheuber.io/am/SSOSoap/metaAlias/alpha/IDPAzure"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "aHR0cHM6Ly9pZGMuc2NoZXViZXIuaW8vYW0vc2FtbDIvSURQQXp1cmU": [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
+        "<EntityDescriptor entityID=\"https://idc.scheuber.io/am/saml2/IDPAzure\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
+        "    <IDPSSODescriptor WantAuthnRequestsSigned=\"false\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
+        "        <KeyDescriptor use=\"signing\">",
+        "            <ds:KeyInfo>",
+        "                <ds:X509Data>",
+        "                    <ds:X509Certificate>",
+        "MIIDYzCCAkugAwIBAgIIZKO699rkpmYwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVUsxEDAO",
+        "BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazEZMBcG",
+        "A1UEAxMQcnNhand0c2lnbmluZ2tleTAeFw0yMzEyMDEwMDI2NThaFw0zMzExMjgwMDI2NThaMGAx",
+        "CzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQK",
+        "EwlGb3JnZVJvY2sxGTAXBgNVBAMTEHJzYWp3dHNpZ25pbmdrZXkwggEiMA0GCSqGSIb3DQEBAQUA",
+        "A4IBDwAwggEKAoIBAQC32R6yZEUoqnrQLnw3sKCYy5bxo3TdKdew7AvuxCYwVB3c2khauBqDD99Z",
+        "+Dl3Q31vQ3vJ8ZVuXQauHowWT+C6aK/tEhGSeRWPdHzexWW/5OBXHtRJf99HdakUt8HToRquCoyL",
+        "d+KrAvg2Cq/f4vb0dIJ3RDQ7BOgmpJ4Ym6Z5B3jAiRSWEP2ZW+RExpyTq8uIPjQGoYbqQSXC/td5",
+        "27rAw0Pvlo3YTKrJNVWV+hgIUUPwfuF0ijunPTkseFW6ZH0VWnFswPIvzF5Y6iAjcaFj9aQDyejV",
+        "AEWT8mpsPtetbPFWPfZlg4KVbx8tL/u7E27FfWRJr0yRPsXGHvZrUU5lAgMBAAGjITAfMB0GA1Ud",
+        "DgQWBBTY0biEminc++0WTPVXy7CqC+fdQDANBgkqhkiG9w0BAQsFAAOCAQEAG0cE49mQ46hmezGB",
+        "2E24x+7Czwy9LQXB8vn9xyJEcVCudZ7aZzq3Y5NLjuP8y6rbhnd2v1pTpZHhEP4bfGUBnq2dacqY",
+        "LVlQTmEit0p4NNHGNFKQi+96P07bftnVBIf0yN32KPka7nuRsmQNj9PvpnqVMU8Fqhyb26PKQJXA",
+        "MVRC4ZYJZMbX/1gQ1YOCATwcHryZkoOFUOeJya9Ard4xmlyi6gX+D51x3zuQjiIql5Qe/MDOvN6v",
+        "OdLzwiUdh6qt0NvUee+Fxq1R6afHgz+0M2CY74ZzcRYKHrVvySHFLBpfFJVTv6/KWK2Wsr/20FYt",
+        "gKHO7RETEtknWIqelZ2uQg==",
+        "                    </ds:X509Certificate>",
+        "                </ds:X509Data>",
+        "            </ds:KeyInfo>",
+        "        </KeyDescriptor>",
+        "        <KeyDescriptor use=\"encryption\">",
+        "            <ds:KeyInfo>",
+        "                <ds:X509Data>",
+        "                    <ds:X509Certificate>",
+        "MIIDSzCCAjOgAwIBAgIIGacRljg0x5UwDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUsxEDAO",
+        "BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG",
+        "A1UEAxMEdGVzdDAeFw0yMzEyMDEwMDI3MDBaFw0zMzExMjgwMDI3MDBaMFQxCzAJBgNVBAYTAlVL",
+        "MRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQKEwlGb3JnZVJvY2sx",
+        "DTALBgNVBAMTBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3tiqY0i+wRCQk",
+        "CPTsBvJOjoG5T9X3hKxhYwVSPMZ9MAjP95FOqNXzx+pG9gudjH3deAcqXWCzI8NkAHeG0RVASL1i",
+        "Va47wsXn3zzydQFC19C1kOdyLOS69TJp329CkvLF0s14HHvzgMzlWd3tZ9MNbXmSNt8Nn1j+huvv",
+        "Ef82c+R3SRZgaOVfTXFTTI7/ITRdybt6khE3nPEO1ad5SfqW0BZuhhh8PNxXMd8LFSjmyY07ThVR",
+        "SapJWOx4O/gMbSDumhNzwhB4TD3OFWSRHQ5oX4eO6QzU3pGKz+sLSam6EwyjYboEBlSyFY1Tyld0",
+        "CIi0NMOM/0cSsPqxUbwqo3DrAgMBAAGjITAfMB0GA1UdDgQWBBRjGMVgIxS05j+MceyZoMllwO9P",
+        "jzANBgkqhkiG9w0BAQsFAAOCAQEAVFikGxSq+8dpg/QEEo0Q1k5tVNbK46cp6jao2nM8nAiXQrho",
+        "PEei/H9qo7peubMTLKtkcSMtLII/f71AuuztdurlQLJxxii1qn+1vJSNo2QXLGPS6vgdPXDkoyFf",
+        "TiSbfTejYrJAdodf7xXuA3A2hs0T32NIuOuo1DLIPKpRAIxk+0GrEMlEy62ZWUKjx8vuigDRnFqc",
+        "Ov4G6GYydrTz9pv9UBTRUl4mnz3sGyspaKg3Ows4GbBGHgwGo87KzcSnwH91Jz7IalGBglL0+pYX",
+        "fKi+4s5iLtznKxYoDI3+ZnriQ0VZP/r/sm+U9jRZ0ntw0HtAaZRHKQcMOOQ7XiVFcQ==",
+        "                    </ds:X509Certificate>",
+        "                </ds:X509Data>",
+        "            </ds:KeyInfo>",
+        "            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p\">",
+        "                <ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>",
+        "            </EncryptionMethod>",
+        "            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes128-cbc\">",
+        "                <xenc:KeySize>128</xenc:KeySize>",
+        "            </EncryptionMethod>",
+        "        </KeyDescriptor>",
+        "        <ArtifactResolutionService index=\"0\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/ArtifactResolver/metaAlias/alpha/IDPAzure\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://idc.scheuber.io/am/IDPSloRedirect/metaAlias/alpha/IDPAzure\" ResponseLocation=\"https://idc.scheuber.io/am/IDPSloRedirect/metaAlias/alpha/IDPAzure\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://idc.scheuber.io/am/IDPSloPOST/metaAlias/alpha/IDPAzure\" ResponseLocation=\"https://idc.scheuber.io/am/IDPSloPOST/metaAlias/alpha/IDPAzure\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/IDPSloSoap/metaAlias/alpha/IDPAzure\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://idc.scheuber.io/am/IDPMniRedirect/metaAlias/alpha/IDPAzure\" ResponseLocation=\"https://idc.scheuber.io/am/IDPMniRedirect/metaAlias/alpha/IDPAzure\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://idc.scheuber.io/am/IDPMniPOST/metaAlias/alpha/IDPAzure\" ResponseLocation=\"https://idc.scheuber.io/am/IDPMniPOST/metaAlias/alpha/IDPAzure\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/IDPMniSoap/metaAlias/alpha/IDPAzure\"/>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://idc.scheuber.io/am/SSORedirect/metaAlias/alpha/IDPAzure\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://idc.scheuber.io/am/SSOPOST/metaAlias/alpha/IDPAzure\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/SSOSoap/metaAlias/alpha/IDPAzure\"/>",
+        "        <NameIDMappingService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/NIMSoap/metaAlias/alpha/IDPAzure\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://idc.scheuber.io/am/AIDReqSoap/IDPRole/metaAlias/alpha/IDPAzure\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:URI\" Location=\"https://idc.scheuber.io/am/AIDReqUri/IDPRole/metaAlias/alpha/IDPAzure\"/>",
+        "    </IDPSSODescriptor>",
+        "</EntityDescriptor>",
+        "",
+        ""
+      ]
+    },
+    "remote": {}
+  }
+}
