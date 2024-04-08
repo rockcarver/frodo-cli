@@ -1,16 +1,18 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Command } from 'commander';
 
 import { FrodoStubCommand } from '../FrodoCommand';
+import { addFederation } from './admin-federation';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export default function setup(command: Command) {
+  // this stays for the moment in order to set up some process wide stuff - though that
+  // could be set in the cli start up instead
+  const program = new FrodoStubCommand('admin');
 
-export default function setup() {
-  const program = new FrodoStubCommand('admin')
-    .description('Platform admin tasks.')
-    .executableDir(__dirname);
+  const adminCommand = command
+    .command('admin')
+    .description('Platform admin tasks.');
 
-  program.command('federation', 'Manage admin federation configuration.');
+  addFederation(adminCommand);
 
   program.command(
     'create-oauth2-client-with-admin-privileges',

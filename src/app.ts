@@ -54,7 +54,7 @@ const { initTokenCache } = frodo.cache;
     await initConnectionProfiles();
     await initTokenCache();
 
-    program.addCommand(admin());
+    admin(program);
     program.addCommand(agent());
     program.addCommand(authn());
     program.addCommand(authz());

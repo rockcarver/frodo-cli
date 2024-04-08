@@ -1,17 +1,15 @@
-import { FrodoStubCommand } from '../FrodoCommand';
+import { Command } from 'commander';
 
-const program = new FrodoStubCommand('frodo admin federation');
+import { addFederationExport } from './admin-federation-export';
+import { addFederationImport } from './admin-federation-import';
+import { addFederationList } from './admin-federation-list';
 
-program.description('Manages admin federation configuration.');
+export const addFederation = (command: Command) => {
+  const federationCommand = command
+    .command('federation')
+    .description('Manage admin federation configuration.');
 
-// program.command('delete', 'Delete admin federation provider.');
-
-// program.command('describe', 'Describe admin federation provider.');
-
-program.command('export', 'Export admin federation providers.');
-
-program.command('import', 'Import admin federation providers.');
-
-program.command('list', 'List admin federation providers.');
-
-program.parse();
+  addFederationExport(federationCommand);
+  addFederationImport(federationCommand);
+  addFederationList(federationCommand);
+};
