@@ -61,8 +61,8 @@ export async function testExport(
     fileName
       ? fileName
       : type
-      ? `.*\\.${type}\\.(json|js|groovy|xml)`
-      : `.*\\.(json|js|groovy|xml)`
+        ? `.*\\.${type}\\.(json|js|groovy|xml)`
+        : `.*\\.(json|js|groovy|xml)`
   );
   const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
     regex.test(p)

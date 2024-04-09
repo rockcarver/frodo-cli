@@ -118,8 +118,6 @@ Errors occurred during full config import
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
-[========================================] 100% | 16/16 | Finished Importing Everything!
-[========================================] 100% | 22/22 | Finished importing journeys
 "
 `;
 
