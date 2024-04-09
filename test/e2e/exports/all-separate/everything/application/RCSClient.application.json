@@ -423,7 +423,6 @@
       "advancedOAuth2ClientConfig": {
         "clientUri": [],
         "contacts": [],
-        "customProperties": [],
         "descriptions": [],
         "grantTypes": [
           "client_credentials"
@@ -434,9 +433,7 @@
         "mixUpMitigation": false,
         "name": [],
         "policyUri": [],
-        "refreshTokenGracePeriod": 0,
         "requestUris": [],
-        "require_pushed_authorization_requests": false,
         "responseTypes": [
           "code",
           "token",
@@ -449,17 +446,12 @@
           "device_code id_token"
         ],
         "sectorIdentifierUri": null,
-        "softwareIdentity": null,
-        "softwareVersion": null,
         "subjectType": "Public",
         "tokenEndpointAuthMethod": "client_secret_basic",
-        "tokenExchangeAuthLevel": 0,
-        "tosURI": [],
         "updateAccessToken": null
       },
       "coreOAuth2ClientConfig": {
         "accessTokenLifetime": 0,
-        "agentgroup": null,
         "authorizationCodeLifetime": 0,
         "clientName": [],
         "clientType": "Confidential",
@@ -473,8 +465,6 @@
         "status": "Active"
       },
       "coreOpenIDClientConfig": {
-        "backchannel_logout_session_required": false,
-        "backchannel_logout_uri": null,
         "claims": [],
         "clientSessionUri": null,
         "defaultAcrValues": [],
@@ -487,41 +477,15 @@
         "claimsRedirectionUris": []
       },
       "overrideOAuth2ClientConfig": {
-        "accessTokenMayActScript": "[Empty]",
         "accessTokenModificationPluginType": "SCRIPTED",
         "accessTokenModificationScript": "c234ba0b-58a1-4cfd-9567-09edde980745",
-        "accessTokenModifierClass": null,
-        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
-        "authorizeEndpointDataProviderPluginType": "PROVIDER",
-        "authorizeEndpointDataProviderScript": "[Empty]",
         "clientsCanSkipConsent": true,
-        "customLoginUrlTemplate": null,
-        "enableRemoteConsent": false,
-        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
-        "evaluateScopePluginType": "PROVIDER",
-        "evaluateScopeScript": "[Empty]",
-        "issueRefreshToken": true,
-        "issueRefreshTokenOnRefreshedToken": true,
-        "oidcClaimsClass": null,
         "oidcClaimsPluginType": "SCRIPTED",
         "oidcClaimsScript": "1f389a3d-21cf-417c-a6d3-42ea620071f0",
-        "oidcMayActScript": "[Empty]",
-        "overrideableOIDCClaims": [],
         "providerOverridesEnabled": true,
-        "remoteConsentServiceId": null,
-        "scopesPolicySet": "oauth2Scopes",
-        "statelessTokensEnabled": true,
-        "tokenEncryptionEnabled": false,
-        "useForceAuthnForMaxAge": false,
-        "usePolicyEngineForScope": false,
-        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
-        "validateScopePluginType": "PROVIDER",
-        "validateScopeScript": "[Empty]"
+        "statelessTokensEnabled": true
       },
       "signEncOAuth2ClientConfig": {
-        "authorizationResponseEncryptionAlgorithm": null,
-        "authorizationResponseEncryptionMethod": null,
-        "authorizationResponseSigningAlgorithm": "RS256",
         "clientJwtPublicKey": null,
         "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
         "idTokenEncryptionEnabled": false,
@@ -531,7 +495,7 @@
         "jwkSet": null,
         "jwkStoreCacheMissCacheTime": 60000,
         "jwksCacheTimeout": 3600000,
-        "jwksUri": "http://am.fr-platform:80/am/oauth2/connect/jwk_uri",
+        "jwksUri": "http://am:80/am/oauth2/connect/jwk_uri",
         "mTLSCertificateBoundAccessTokens": false,
         "mTLSSubjectDN": null,
         "mTLSTrustedCert": null,
@@ -552,10 +516,10 @@
     }
   },
   "meta": {
-    "exportDate": "2023-12-14T18:51:20.962Z",
+    "exportDate": "2024-03-29T19:29:02.706Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-54 [v18.5.0]",
-    "exportedBy": "phales@trivir.com",
+    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
     "originAmVersion": "7.5.0"
   }

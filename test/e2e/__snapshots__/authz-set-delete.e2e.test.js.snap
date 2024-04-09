@@ -15,6 +15,7 @@ Error deleting policy set test-policy-set
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404
+    Reason: Not Found
     Message: test-policy-set application not found in realm.
 "
 `;

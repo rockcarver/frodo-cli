@@ -72,10 +72,11 @@ program
         printMessage('-f or --file required when using -a or --all', 'error');
         program.help();
         process.exitCode = 1;
-        // --all -a
-      } else if (options.all && (await getTokens())) {
+      }
+      // --all -a
+      else if (options.all && (await getTokens())) {
         verboseMessage('Exporting everything from a single file...');
-        await importEverythingFromFile(options.file, {
+        const outcome = await importEverythingFromFile(options.file, {
           reUuidJourneys: options.reUuidJourneys,
           reUuidScripts: options.reUuidScripts,
           cleanServices: options.clean,
@@ -83,18 +84,21 @@ program
           realm: options.realm,
           includeDefault: options.default,
         });
-        // require --directory -D for all-separate function
-      } else if (options.allSeparate && !state.getDirectory()) {
+        if (!outcome) process.exitCode = 1;
+      }
+      // require --directory -D for all-separate function
+      else if (options.allSeparate && !state.getDirectory()) {
         printMessage(
           '-D or --directory required when using -A or --all-separate',
           'error'
         );
         program.help();
         process.exitCode = 1;
-        // --all-separate -A
-      } else if (options.allSeparate && (await getTokens())) {
+      }
+      // --all-separate -A
+      else if (options.allSeparate && (await getTokens())) {
         verboseMessage('Importing everything from separate files...');
-        await importEverythingFromFiles({
+        const outcome = await importEverythingFromFiles({
           reUuidJourneys: options.reUuidJourneys,
           reUuidScripts: options.reUuidScripts,
           cleanServices: options.clean,
@@ -102,8 +106,10 @@ program
           realm: options.realm,
           includeDefault: options.default,
         });
-        // unrecognized combination of options or no options
-      } else {
+        if (!outcome) process.exitCode = 1;
+      }
+      // unrecognized combination of options or no options
+      else {
         verboseMessage('Unrecognized combination of options or no options...');
         program.help();
         process.exitCode = 1;

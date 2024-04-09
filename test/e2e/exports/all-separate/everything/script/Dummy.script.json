@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "exportDate": "2024-03-29T19:29:02.737Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.5.0"
+  },
+  "script": {
+    "4c963bb3-7084-43d0-bcdc-a47482cf1825": {
+      "_id": "4c963bb3-7084-43d0-bcdc-a47482cf1825",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": null,
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Dummy",
+      "script": [
+        "",
+        "outcome = \"true\";",
+        ""
+      ]
+    }
+  }
+}

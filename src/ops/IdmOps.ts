@@ -248,9 +248,16 @@ export async function importConfigEntityFromFile(
   file: string,
   validate?: boolean
 ): Promise<boolean> {
+  const filePath = getFilePath(file);
+  let indicatorId: string;
   try {
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${filePath}...`
+    );
     const fileData = fs.readFileSync(
-      path.resolve(process.cwd(), getFilePath(file)),
+      path.resolve(process.cwd(), filePath),
       'utf8'
     );
     const entityData = JSON.parse(fileData);
@@ -262,8 +269,14 @@ export async function importConfigEntityFromFile(
     }
 
     await updateConfigEntity(entityId, entityData);
+    stopProgressIndicator(
+      indicatorId,
+      `Imported ${entityId} from ${filePath}.`,
+      'success'
+    );
     return true;
   } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing ${filePath}.`, 'fail');
     printError(error);
   }
   return false;

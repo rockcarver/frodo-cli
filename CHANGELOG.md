@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 2.0.0-77
+
+### Fixed
+
+-   Improved filtering out secrets from recordings
+-   rockcarver/frodo-lib#392: Implemented error handling pattern for methods with unusual amounts of REST calls like `frodo.config.exportFullConfiguration` and `frodo.config.importFullConfiguration` used in the `frodo config import` and `frodo config export` commands
+
 ## [2.0.0-54] - 2024-04-01
 
 ### Changed

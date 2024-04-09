@@ -6,13 +6,12 @@ import {
 import fs from 'fs';
 
 import {
+  createProgressIndicator,
   createTable,
   debugMessage,
-  failSpinner,
   printError,
   printMessage,
-  showSpinner,
-  succeedSpinner,
+  stopProgressIndicator,
 } from '../utils/Console';
 
 const {
@@ -172,22 +171,31 @@ export async function importServiceFromFile(
     realm: false,
   }
 ): Promise<boolean> {
+  let indicatorId: string;
   try {
     debugMessage(`cli.ServiceOps.importServiceFromFile: start`);
-    showSpinner(`Importing service ${serviceId}...`);
     const filePath = getFilePath(file);
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${serviceId} from ${filePath}...`
+    );
     const data = fs.readFileSync(filePath, 'utf8');
     const importData = JSON.parse(data);
     if (importData?.service[serviceId]) {
       await importService(serviceId, importData, options);
-      succeedSpinner(`Imported ${serviceId}.`);
+      stopProgressIndicator(
+        indicatorId,
+        `Imported ${serviceId} from ${filePath}.`,
+        'success'
+      );
     } else {
-      failSpinner(`${serviceId} not found!`);
+      stopProgressIndicator(indicatorId, `${serviceId} not found`, 'fail');
     }
     debugMessage(`cli.ServiceOps.importServiceFromFile: end`);
     return true;
   } catch (error) {
-    failSpinner(`Error importing service ${serviceId}`);
+    stopProgressIndicator(indicatorId, `Error importing ${serviceId}.`, 'fail');
     printError(error);
   }
   return false;
@@ -207,25 +215,36 @@ export async function importFirstServiceFromFile(
     realm: false,
   }
 ): Promise<boolean> {
+  let indicatorId: string;
   try {
-    showSpinner(`Importing first service...`);
+    debugMessage(`cli.ServiceOps.importFirstServiceFromFile: start`);
     const filePath = getFilePath(file);
-    debugMessage(
-      `cli.ServiceOps.importFirstServiceFromFile: start [file=${filePath}]`
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing ${filePath}...`
     );
     const data = fs.readFileSync(filePath, 'utf8');
     const importData = JSON.parse(data);
     if (importData && Object.keys(importData.service).length) {
       const serviceId = Object.keys(importData.service)[0];
       await importService(serviceId, importData, options);
-      succeedSpinner(`Imported first service ${serviceId}.`);
+      stopProgressIndicator(
+        indicatorId,
+        `Imported ${serviceId} from ${filePath}.`,
+        'success'
+      );
     } else {
-      failSpinner(`No services found in ${filePath}!`);
+      stopProgressIndicator(
+        indicatorId,
+        `No service found in import data`,
+        'fail'
+      );
     }
     debugMessage(`cli.ServiceOps.importFirstServiceFromFile: end`);
     return true;
   } catch (error) {
-    failSpinner(`Error importing first service`);
+    stopProgressIndicator(indicatorId, `Error importing first service`, 'fail');
     printError(error);
   }
   return false;

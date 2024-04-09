@@ -191,10 +191,6 @@
             "type": "simple",
             "writability": "createOnly"
           },
-          "_rev": {
-            "ldapAttribute": "etag",
-            "type": "simple"
-          },
           "condition": {
             "ldapAttribute": "fr-idm-managed-group-condition",
             "type": "simple"
@@ -338,10 +334,6 @@
             "primaryKey": "uid",
             "resourcePath": "internal/notification",
             "type": "reference"
-          },
-          "_rev": {
-            "ldapAttribute": "etag",
-            "type": "simple"
           },
           "accountStatus": {
             "ldapAttribute": "inetUserStatus",
@@ -809,10 +801,6 @@
             "type": "simple",
             "writability": "createOnly"
           },
-          "_rev": {
-            "ldapAttribute": "etag",
-            "type": "simple"
-          },
           "condition": {
             "ldapAttribute": "fr-idm-managed-group-condition",
             "type": "simple"
@@ -956,10 +944,6 @@
             "primaryKey": "uid",
             "resourcePath": "internal/notification",
             "type": "reference"
-          },
-          "_rev": {
-            "ldapAttribute": "etag",
-            "type": "simple"
           },
           "accountStatus": {
             "ldapAttribute": "inetUserStatus",
