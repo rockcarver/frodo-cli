@@ -458,6 +458,7 @@ export async function importScriptsFromFiles(
     ],
     {
       persistent: watch,
+      ignoreInitial: watch,
     }
   );
 
