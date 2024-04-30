@@ -25,7 +25,7 @@ interface ServiceImportOptions {
   debug?: boolean;
   curlirize?: boolean;
   global?: boolean;
-  realm?: boolean;
+  currentRealm?: boolean;
 }
 
 program
@@ -53,13 +53,16 @@ program
     )
   )
   .addOption(
-    new Option('-g, --global', 'Import service(s) as global service(s).')
+    new Option(
+      '-g, --global',
+      'Import service(s) as global service(s).'
+    ).default(false)
   )
   .addOption(
     new Option(
       '-r, --current-realm',
       'Import service(s) into the current realm.'
-    )
+    ).default(true)
   )
   .action(
     async (
@@ -81,7 +84,7 @@ program
 
       const clean = options.clean ?? false;
       const globalConfig = options.global ?? false;
-      const realmConfig = options.realm ?? false;
+      const realmConfig = options.currentRealm ?? false;
 
       // import by id
       if (options.serviceId && options.file && (await getTokens())) {
