@@ -49,7 +49,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --script-name 'GitHub Profile Normalization'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -Nn 'GitHub Profile Normalization' -D scriptExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -ad --file my-allAlphaScripts.script.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -NaD scriptExportTestDir2
@@ -83,9 +83,9 @@ describe('frodo script export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo script export -Nn \'GitHub Profile Normalization\' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1', async () => {
+  test('"frodo script export -Nxn \'GitHub Profile Normalization\' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1', async () => {
     const exportDirectory = 'scriptExportTestDir1';
-    const CMD = `frodo script export -Nn 'GitHub Profile Normalization' -D ${exportDirectory}`;
+    const CMD = `frodo script export -Nxn 'GitHub Profile Normalization' -D ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
