@@ -200,12 +200,14 @@ export async function exportScriptToFile(
  * @param {string} name script name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptByNameToFile(
   name: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  extract: boolean = false
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: start`);
   try {
@@ -217,6 +219,7 @@ export async function exportScriptByNameToFile(
     const filePath = getFilePath(fileName, true);
     spinSpinner(`Exporting script '${name}' to '${filePath}'...`);
     const scriptExport = await exportScriptByName(name);
+    if (extract) extractScriptToFile(scriptExport);
     saveJsonToFile(scriptExport, filePath, includeMeta);
     succeedSpinner(`Exported script '${name}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end`);
@@ -455,6 +458,7 @@ export async function importScriptsFromFiles(
     ],
     {
       persistent: watch,
+      ignoreInitial: watch,
     }
   );
 

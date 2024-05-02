@@ -16144,9 +16144,28 @@ exports[`frodo script export "frodo script export -NaD scriptExportTestDir2": sh
 }
 `;
 
-exports[`frodo script export "frodo script export -Nn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1 1`] = `""`;
+exports[`frodo script export "frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1 1`] = `""`;
 
-exports[`frodo script export "frodo script export -Nn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1: scriptExportTestDir1/GitHub-Profile-Normalization.script.json 1`] = `
+exports[`frodo script export "frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1: scriptExportTestDir1/GitHub-Profile-Normalization.script.groovy 1`] = `
+"/*
+ * Copyright 2022 ForgeRock AS. All Rights Reserved
+ *
+ * Use of this code requires a commercial software license with ForgeRock AS.
+ * or with one of its affiliates. All use shall be exclusively subject
+ * to such license between the licensee and ForgeRock AS.
+ */
+
+import static org.forgerock.json.JsonValue.field
+import static org.forgerock.json.JsonValue.json
+import static org.forgerock.json.JsonValue.object
+
+return json(object(
+        field("id", rawProfile.id),
+        field("displayName", rawProfile.name),
+        field("username", rawProfile.login)))"
+`;
+
+exports[`frodo script export "frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1: scriptExportTestDir1/GitHub-Profile-Normalization.script.json 1`] = `
 {
   "script": {
     "a7a78773-445b-4eca-bb93-409e86bced81": {
@@ -16161,24 +16180,7 @@ exports[`frodo script export "frodo script export -Nn 'GitHub Profile Normalizat
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization",
-      "script": [
-        "/*",
-        " * Copyright 2022 ForgeRock AS. All Rights Reserved",
-        " *",
-        " * Use of this code requires a commercial software license with ForgeRock AS.",
-        " * or with one of its affiliates. All use shall be exclusively subject",
-        " * to such license between the licensee and ForgeRock AS.",
-        " */",
-        "",
-        "import static org.forgerock.json.JsonValue.field",
-        "import static org.forgerock.json.JsonValue.json",
-        "import static org.forgerock.json.JsonValue.object",
-        "",
-        "return json(object(",
-        "        field("id", rawProfile.id),",
-        "        field("displayName", rawProfile.name),",
-        "        field("username", rawProfile.login)))",
-      ],
+      "script": "file://scriptExportTestDir1/GitHub-Profile-Normalization.script.groovy",
     },
   },
 }

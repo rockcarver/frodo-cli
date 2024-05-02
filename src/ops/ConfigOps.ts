@@ -12,7 +12,11 @@ import {
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
-import { cleanupProgressIndicators, printError, printMessage } from '../utils/Console';
+import {
+  cleanupProgressIndicators,
+  printError,
+  printMessage,
+} from '../utils/Console';
 import { extractScriptToFile } from './ScriptOps';
 
 const {

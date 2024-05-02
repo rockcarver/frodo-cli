@@ -54,7 +54,7 @@ program
   .addOption(
     new Option(
       '-x, --extract',
-      'Extract the script from the exported file, and save it to a separate file. Ignored with -n or -a.'
+      'Extract the script from the exported file, and save it to a separate file. Ignored with -a.'
     )
   )
   .addOption(
@@ -80,7 +80,8 @@ program
         const outcome = await exportScriptByNameToFile(
           options.scriptName || options.script,
           options.file,
-          options.metadata
+          options.metadata,
+          options.extract
         );
         if (!outcome) process.exitCode = 1;
       }
