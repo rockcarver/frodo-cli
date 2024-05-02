@@ -33,6 +33,7 @@ Options:
                                  from. Ignored with -A.
   --flush-cache                  Flush token cache.
   -g, --global                   Import service(s) as global service(s).
+                                 (default: false)
   -h, --help                     Help
   -i, --service-id <service-id>  Service id. If specified, -a and -A are
                                  ignored.
@@ -58,7 +59,10 @@ Options:
                                  admin login flow of Identity Cloud and handle
                                  MFA (choices: "classic", "cloud", "forgeops")
   --no-cache                     Disable token cache for this operation.
-  -r, --current-realm            Import service(s) into the current realm.
+  -r, --current-realm            Import service(s) into the current realm. Use
+                                 this flag if you exported a service from one
+                                 realm and are importing into another realm.
+                                 (default: false)
   --sa-id <sa-id>                Service account id.
   --sa-jwk-file <file>           File containing the JSON Web Key (JWK)
                                  associated with the the service account.
