@@ -53,7 +53,7 @@ const GENERIC_EXTENSION_ATTRIBUTES = JSON.parse(
   fs.readFileSync(
     path.resolve(
       __dirname,
-      './templates/cloud/GenericExtensionAttributesTemplate.json'
+      './templates/GenericExtensionAttributesTemplate.json'
     ),
     'utf8'
   )
@@ -906,32 +906,33 @@ export async function hideGenericExtensionAttributes(
   try {
     const response = await readConfigEntity('managed');
     const managed = cloneDeep(response);
-    const propertyNames = Object.keys(GENERIC_EXTENSION_ATTRIBUTES);
     const updatedObjects = managed.objects.map((object) => {
       // ignore all other objects
       if (object.name !== getCurrentRealmManagedUser()) {
         return object;
       }
-      propertyNames.forEach((name) => {
+      for (const property of Object.keys(
+        cloneDeep(GENERIC_EXTENSION_ATTRIBUTES)
+      )) {
         if (
           isEqualJson(
-            GENERIC_EXTENSION_ATTRIBUTES[name],
-            object.schema.properties[name],
-            ['viewable', 'usageDescription']
+            GENERIC_EXTENSION_ATTRIBUTES[property],
+            object.schema.properties[property],
+            ['viewable', 'usageDescription', 'searchable']
           ) ||
           includeCustomized
         ) {
-          if (object.schema.properties[name].viewable) {
-            printMessage(`${name}: hide`);
+          if (object.schema.properties[property].viewable) {
+            printMessage(`${property}: hide`);
             // eslint-disable-next-line no-param-reassign
-            object.schema.properties[name].viewable = false;
+            object.schema.properties[property].viewable = false;
           } else {
-            printMessage(`${name}: ignore (already hidden)`);
+            printMessage(`${property}: ignore (already hidden)`);
           }
         } else {
-          printMessage(`${name}: skip (customized)`);
+          printMessage(`${property}: skip (customized)`);
         }
-      });
+      }
       return object;
     });
     managed.objects = updatedObjects;
@@ -955,32 +956,33 @@ export async function showGenericExtensionAttributes(
   try {
     const response = await readConfigEntity('managed');
     const managed = cloneDeep(response);
-    const propertyNames = Object.keys(GENERIC_EXTENSION_ATTRIBUTES);
     const updatedObjects = managed.objects.map((object) => {
       // ignore all other objects
       if (object.name !== getCurrentRealmManagedUser()) {
         return object;
       }
-      propertyNames.forEach((name) => {
+      for (const property of Object.keys(
+        cloneDeep(GENERIC_EXTENSION_ATTRIBUTES)
+      )) {
         if (
           isEqualJson(
-            GENERIC_EXTENSION_ATTRIBUTES[name],
-            object.schema.properties[name],
+            GENERIC_EXTENSION_ATTRIBUTES[property],
+            object.schema.properties[property],
             ['viewable', 'usageDescription']
           ) ||
           includeCustomized
         ) {
-          if (!object.schema.properties[name].viewable) {
-            printMessage(`${name}: show`);
+          if (!object.schema.properties[property].viewable) {
+            printMessage(`${property}: show`);
             // eslint-disable-next-line no-param-reassign
-            object.schema.properties[name].viewable = true;
+            object.schema.properties[property].viewable = true;
           } else {
-            printMessage(`${name}: ignore (already showing)`);
+            printMessage(`${property}: ignore (already showing)`);
           }
         } else {
-          printMessage(`${name}: skip (customized)`);
+          printMessage(`${property}: skip (customized)`);
         }
-      });
+      }
       return object;
     });
     managed.objects = updatedObjects;

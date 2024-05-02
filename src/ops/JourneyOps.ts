@@ -463,7 +463,12 @@ export async function importFirstJourneyFromFile(
               0,
               `Importing ${journeyId}...`
             );
-          stopProgressIndicator(importSpinnerId, `${importError}`, 'fail');
+          stopProgressIndicator(
+            importSpinnerId,
+            `Error importing ${journeyId}`,
+            'fail'
+          );
+          printError(importError);
         }
       } else {
         stopProgressIndicator(depSpinnerId, `Unresolved dependencies:`, 'fail');

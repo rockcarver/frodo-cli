@@ -2,6 +2,7 @@
   "frIndexedDate1": {
     "description": "Generic Indexed Date 1",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Date 1",
     "type": "string",
     "usageDescription": "",
@@ -11,6 +12,7 @@
   "frIndexedDate2": {
     "description": "Generic Indexed Date 2",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Date 2",
     "type": "string",
     "usageDescription": "",
@@ -20,6 +22,7 @@
   "frIndexedDate3": {
     "description": "Generic Indexed Date 3",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Date 3",
     "type": "string",
     "usageDescription": "",
@@ -29,6 +32,7 @@
   "frIndexedDate4": {
     "description": "Generic Indexed Date 4",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Date 4",
     "type": "string",
     "usageDescription": "",
@@ -38,6 +42,7 @@
   "frIndexedDate5": {
     "description": "Generic Indexed Date 5",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Date 5",
     "type": "string",
     "usageDescription": "",
@@ -47,6 +52,7 @@
   "frIndexedInteger1": {
     "description": "Generic Indexed Integer 1",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Integer 1",
     "type": "number",
     "usageDescription": "",
@@ -56,6 +62,7 @@
   "frIndexedInteger2": {
     "description": "Generic Indexed Integer 2",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Integer 2",
     "type": "number",
     "usageDescription": "",
@@ -65,6 +72,7 @@
   "frIndexedInteger3": {
     "description": "Generic Indexed Integer 3",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Integer 3",
     "type": "number",
     "usageDescription": "",
@@ -74,6 +82,7 @@
   "frIndexedInteger4": {
     "description": "Generic Indexed Integer 4",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Integer 4",
     "type": "number",
     "usageDescription": "",
@@ -83,6 +92,7 @@
   "frIndexedInteger5": {
     "description": "Generic Indexed Integer 5",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed Integer 5",
     "type": "number",
     "usageDescription": "",
@@ -95,6 +105,7 @@
     "items": {
       "type": "string"
     },
+    "searchable": true,
     "title": "Generic Indexed Multivalue 1",
     "type": "array",
     "usageDescription": "",
@@ -107,6 +118,7 @@
     "items": {
       "type": "string"
     },
+    "searchable": true,
     "title": "Generic Indexed Multivalue 2",
     "type": "array",
     "usageDescription": "",
@@ -119,6 +131,7 @@
     "items": {
       "type": "string"
     },
+    "searchable": true,
     "title": "Generic Indexed Multivalue 3",
     "type": "array",
     "usageDescription": "",
@@ -131,6 +144,7 @@
     "items": {
       "type": "string"
     },
+    "searchable": true,
     "title": "Generic Indexed Multivalue 4",
     "type": "array",
     "usageDescription": "",
@@ -143,6 +157,7 @@
     "items": {
       "type": "string"
     },
+    "searchable": true,
     "title": "Generic Indexed Multivalue 5",
     "type": "array",
     "usageDescription": "",
@@ -152,6 +167,7 @@
   "frIndexedString1": {
     "description": "Generic Indexed String 1",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed String 1",
     "type": "string",
     "usageDescription": "",
@@ -161,6 +177,7 @@
   "frIndexedString2": {
     "description": "Generic Indexed String 2",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed String 2",
     "type": "string",
     "usageDescription": "",
@@ -170,6 +187,7 @@
   "frIndexedString3": {
     "description": "Generic Indexed String 3",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed String 3",
     "type": "string",
     "usageDescription": "",
@@ -179,6 +197,7 @@
   "frIndexedString4": {
     "description": "Generic Indexed String 4",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed String 4",
     "type": "string",
     "usageDescription": "",
@@ -188,6 +207,7 @@
   "frIndexedString5": {
     "description": "Generic Indexed String 5",
     "isPersonal": false,
+    "searchable": true,
     "title": "Generic Indexed String 5",
     "type": "string",
     "usageDescription": "",
