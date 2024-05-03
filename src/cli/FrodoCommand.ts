@@ -1,5 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { Argument, Command, Option } from 'commander';
+import { Argument, Command, Help, Option } from 'commander';
 import fs from 'fs';
 
 import * as globalConfig from '../storage/StaticStorage';
@@ -201,6 +201,17 @@ export class FrodoStubCommand extends Command {
       );
       cleanupProgressIndicators();
     });
+  }
+
+  createHelp() {
+    return Object.assign(new FrodoStubHelp(), this.configureHelp());
+  }
+}
+
+class FrodoStubHelp extends Help {
+  subcommandTerm(cmd) {
+    return cmd._name +
+        (cmd._aliases[0] ? '|' + cmd._aliases[0] : '');
   }
 }
 
