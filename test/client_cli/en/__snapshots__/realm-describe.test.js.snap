@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'realm describe' should be expected english 1`] = `
-"Usage: frodo realm describe [options] [host] [realm] [username] [password]
+"Usage: frodo realm describe|details [options] [host] [realm] [username] [password]
 
 Describe realms.
 

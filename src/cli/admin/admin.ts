@@ -1,85 +1,97 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import AddAutoidStaticUserMappingCmd from './admin-add-autoid-static-user-mapping.js';
+import CreateOAuth2ClientWithAdminPrivilegesCmd from './admin-create-oauth2-client-with-admin-privileges.js';
+import ExecuteRfc7523AuthzGrantFlowCmd from './admin-execute-rfc7523-authz-grant-flow.js';
+import FederationCmd from './admin-federation.js';
+import GenerateRfc7523AuthzGrantArtefactsCmd from './admin-generate-rfc7523-authz-grant-artefacts.js';
+import GetAccessTokenCmd from './admin-get-access-token.js';
+import GrantOauth2ClientAdminPrivilegesCmd from './admin-grant-oauth2-client-admin-privileges.js';
+import HideGenericExtensionAttributesCmd from './admin-hide-generic-extension-attributes.js';
+import ListOauth2ClientsWithAdminPrivilegesCmd from './admin-list-oauth2-clients-with-admin-privileges.js';
+import ListOauth2ClientsWithCustomPrivilegesCmd from './admin-list-oauth2-clients-with-custom-privileges.js';
+import ListStaticUserMappingsCmd from './admin-list-static-user-mappings.js';
+import RemoveStaticUserMappingCmd from './admin-remove-static-user-mapping.js';
+import RepairOrgModelCmd from './admin-repair-org-model.js';
+import RevokeOauth2ClientAdminPrivilegesCmd from './admin-revoke-oauth2-client-admin-privileges.js';
+import ShowGenericExtensionAttributesCmd from './admin-show-generic-extension-attributes.js';
+// import TrainAutoAccessModelCmd from './admin-train-auto-access-model.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('admin')
-    .description('Platform admin tasks.')
-    .executableDir(__dirname);
-
-  program.command('federation', 'Manage admin federation configuration.');
-
-  program.command(
-    'create-oauth2-client-with-admin-privileges',
-    'Create an oauth2 client with admin privileges.'
+  const program = new FrodoStubCommand('admin').description(
+    'Platform admin tasks.'
   );
 
-  program.command(
-    'generate-rfc7523-authz-grant-artefacts',
-    'Generate RFC7523 authorization grant artefacts.'
+  program.addCommand(FederationCmd().name('federation'));
+
+  program.addCommand(
+    CreateOAuth2ClientWithAdminPrivilegesCmd().name(
+      'create-oauth2-client-with-admin-privileges'
+    )
   );
 
-  program.command(
-    'execute-rfc7523-authz-grant-flow',
-    'Execute RFC7523 authorization grant flow.'
+  program.addCommand(
+    GenerateRfc7523AuthzGrantArtefactsCmd().name(
+      'generate-rfc7523-authz-grant-artefacts'
+    )
   );
 
-  program.command(
-    'get-access-token',
-    'Get an access token using client credentials grant type.'
+  program.addCommand(
+    ExecuteRfc7523AuthzGrantFlowCmd().name('execute-rfc7523-authz-grant-flow')
   );
 
-  program.command(
-    'list-oauth2-clients-with-admin-privileges',
-    'List oauth2 clients with admin privileges.'
+  program.addCommand(GetAccessTokenCmd().name('get-access-token'));
+
+  program.addCommand(
+    ListOauth2ClientsWithAdminPrivilegesCmd().name(
+      'list-oauth2-clients-with-admin-privileges'
+    )
   );
 
-  program.command(
-    'grant-oauth2-client-admin-privileges',
-    'Grant an oauth2 client admin privileges.'
+  program.addCommand(
+    GrantOauth2ClientAdminPrivilegesCmd().name(
+      'grant-oauth2-client-admin-privileges'
+    )
   );
 
-  program.command(
-    'revoke-oauth2-client-admin-privileges',
-    'Revoke admin privileges from an oauth2 client.'
+  program.addCommand(
+    RevokeOauth2ClientAdminPrivilegesCmd().name(
+      'revoke-oauth2-client-admin-privileges'
+    )
   );
 
-  program.command(
-    'list-oauth2-clients-with-custom-privileges',
-    'List oauth2 clients with custom privileges.'
+  program.addCommand(
+    ListOauth2ClientsWithCustomPrivilegesCmd().name(
+      'list-oauth2-clients-with-custom-privileges'
+    )
   );
 
-  program.command(
-    'list-static-user-mappings',
-    'List all subjects of static user mappings that are not oauth2 clients.'
+  program.addCommand(
+    ListStaticUserMappingsCmd().name('list-static-user-mappings')
   );
 
-  program.command(
-    'remove-static-user-mapping',
-    "Remove a subject's static user mapping."
+  program.addCommand(
+    RemoveStaticUserMappingCmd().name('remove-static-user-mapping')
   );
 
-  program.command(
-    'add-autoid-static-user-mapping',
-    'Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.'
+  program.addCommand(
+    AddAutoidStaticUserMappingCmd().name('add-autoid-static-user-mapping')
   );
 
-  program.command(
-    'hide-generic-extension-attributes',
-    'Hide generic extension attributes.'
+  program.addCommand(
+    HideGenericExtensionAttributesCmd().name(
+      'hide-generic-extension-attributes'
+    )
   );
 
-  program.command(
-    'show-generic-extension-attributes',
-    'Show generic extension attributes.'
+  program.addCommand(
+    ShowGenericExtensionAttributesCmd().name(
+      'show-generic-extension-attributes'
+    )
   );
 
-  program.command('repair-org-model', 'Repair org model.');
+  program.addCommand(RepairOrgModelCmd().name('repair-org-model'));
 
-  // program.command('train-auto-access-model', 'Train Auto Access model.');
+  // program.addCommand(TrainAutoAccessModelCmd().name('train-auto-access-model'));
 
   return program;
 }

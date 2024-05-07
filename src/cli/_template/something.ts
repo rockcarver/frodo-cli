@@ -1,28 +1,30 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './something-delete.js';
+import DescribeCmd from './something-describe.js';
+import ElseCmd from './something-else.js';
+import ExportCmd from './something-export.js';
+import ImportCmd from './something-import.js';
+import ListCmd from './something-list.js';
+import OtherCmd from './something-other.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('something')
-    .description('Manage something.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('something').description(
+    'Manage something.'
+  );
 
-  program.command('else', 'Manage something else.');
+  program.addCommand(ElseCmd().name('else'));
 
-  program.command('other', 'Manage something other.');
+  program.addCommand(OtherCmd().name('other'));
 
-  program.command('list', 'List something.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('describe', 'Describe something.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export something.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import something.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('delete', 'Delete something.');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './authz-set-delete.js';
+import DescribeCmd from './authz-set-describe.js';
+import ExportCmd from './authz-set-export.js';
+import ImportCmd from './authz-set-import.js';
+import ListCmd from './authz-set-list.js';
 
-const program = new FrodoStubCommand('frodo authz set').alias('policyset');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo authz set').alias('policyset');
 
-program.description('Manage authorization policy sets.');
+  program.description('Manage authorization policy sets.');
 
-program.command('delete', 'Delete authorization policy sets.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.command('describe', 'Describe authorization policy sets.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export authorization policy sets.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import authorization policy sets.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('list', 'List authorization policy sets.');
+  program.addCommand(ListCmd().name('list'));
 
-program.parse();
+  return program;
+}

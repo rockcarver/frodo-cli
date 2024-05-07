@@ -35,7 +35,7 @@ Options:
                                capability. (default: Don't allow insecure
                                connections)
   -l, --level <level>          Set log level filter. You can specify the level
-                               as a number or a string. Following values are
+                               as a number or a string.   Following values are
                                possible (values on the same line are
                                equivalent):
                                0, SEVERE, FATAL, or ERROR
@@ -107,7 +107,7 @@ Options:
                                capability. (default: Don't allow insecure
                                connections)
   -l, --level <level>          Set log level filter. You can specify the level
-                               as a number or a string. Following values are
+                               as a number or a string.   Following values are
                                possible (values on the same line are
                                equivalent):
                                0, SEVERE, FATAL, or ERROR

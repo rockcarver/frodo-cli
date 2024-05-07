@@ -6,13 +6,12 @@ exports[`CLI help interface for 'config' should be expected english 1`] = `
 Manage full cloud configuration.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  export          Export full cloud configuration for all ops that currently
-                  support export..
-  help [command]  display help for command
-  import          Import full cloud configuration for all ops that currently
-                  support import.
+  export      Export full cloud configuration for all ops that currently
+              support export.
+  help        display help for command
+  import      Import full cloud configuration.
 "
 `;

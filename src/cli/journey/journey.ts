@@ -1,36 +1,33 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './journey-delete.js';
+import DescribeCmd from './journey-describe.js';
+import DisableCmd from './journey-disable.js';
+import EnableCmd from './journey-enable.js';
+import ExportCmd from './journey-export.js';
+import ImportCmd from './journey-import.js';
+import ListCmd from './journey-list.js';
+import PruneCmd from './journey-prune.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('journey')
-    .description('Manage journeys/trees.')
-    .executableDir(__dirname);
-
-  program.command('list', 'List journeys/trees.');
-
-  program.command(
-    'describe',
-    'If host argument is supplied, describe the journey/tree indicated by -t, or all journeys/trees in the realm if no -t is supplied, otherwise describe the journey/tree export file indicated by -f.'
+  const program = new FrodoStubCommand('journey').description(
+    'Manage journeys/trees.'
   );
 
-  program.command('export', 'Export journeys/trees.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('import', 'Import journeys/trees.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('delete', 'Delete journeys/trees.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command(
-    'prune',
-    'Prune orphaned configuration artifacts left behind after deleting authentication trees. You will be prompted before any destructive operations are performed.'
-  );
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('enable', 'Enable journeys/trees.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-  program.command('disable', 'Disable journeys/trees.');
+  program.addCommand(PruneCmd().name('prune'));
+
+  program.addCommand(EnableCmd().name('enable'));
+
+  program.addCommand(DisableCmd().name('disable'));
 
   return program;
 }

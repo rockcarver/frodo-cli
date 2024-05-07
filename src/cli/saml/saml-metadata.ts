@@ -1,9 +1,14 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import ExportCmd from './saml-metadata-export.js';
 
-const program = new FrodoStubCommand('frodo saml metadata');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo saml metadata');
 
-program.description('SAML metadata operations.');
+  program.description('SAML metadata operations.');
 
-program.command('export', 'Export metadata.');
+  program.addCommand(
+    ExportCmd().name('export').description('Export metadata.')
+  );
 
-program.parse();
+  return program;
+}

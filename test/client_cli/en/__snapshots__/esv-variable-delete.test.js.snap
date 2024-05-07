@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CLI help interface for 'esv variable delete' should be expected english 1`] = `
-"Usage: frodo cmd sub2 delete [options] [host] [realm] [username] [password]
+"Usage: frodo esv variable delete [options] [host] [realm] [username] [password]
 
 Delete variables.
 

@@ -5,67 +5,69 @@ import { createSecret, createSecretFromFile } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo esv secret create');
+export default function setup() {
+  const program = new FrodoCommand('frodo esv secret create');
 
-program
-  .description('Create secrets.')
-  .requiredOption('-i, --secret-id <secret-id>', 'Secret id.')
-  .option('--value <value>', 'Secret value. Overrides "--file"')
-  .addOption(
-    new Option(
-      '-f, --file [file]',
-      'Name of the file to read pem or base64hmac encoded secret from. Ignored if --value is specified'
+  program
+    .description('Create secrets.')
+    .requiredOption('-i, --secret-id <secret-id>', 'Secret id.')
+    .option('--value <value>', 'Secret value. Overrides "--file"')
+    .addOption(
+      new Option(
+        '-f, --file [file]',
+        'Name of the file to read pem or base64hmac encoded secret from. Ignored if --value is specified'
+      )
     )
-  )
-  .option('--description [description]', 'Secret description.')
-  .addOption(
-    new Option('--encoding [encoding]', 'Secret encoding')
-      .choices(['generic', 'pem', 'base64hmac'])
-      .default('generic', 'generic')
-  )
-  .addOption(
-    new Option(
-      '--no-use-in-placeholders',
-      'Secret cannot be used in placeholders.'
+    .option('--description [description]', 'Secret description.')
+    .addOption(
+      new Option('--encoding [encoding]', 'Secret encoding')
+        .choices(['generic', 'pem', 'base64hmac'])
+        .default('generic', 'generic')
     )
-  )
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
-      if (await getTokens()) {
-        verboseMessage('Creating secret...');
-        let outcome = null;
-        if (options.value) {
-          outcome = await createSecret(
-            options.secretId,
-            options.value,
-            options.description,
-            options.encoding,
-            options.useInPlaceholders
-          );
+    .addOption(
+      new Option(
+        '--no-use-in-placeholders',
+        'Secret cannot be used in placeholders.'
+      )
+    )
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
+        );
+        if (await getTokens()) {
+          verboseMessage('Creating secret...');
+          let outcome = null;
+          if (options.value) {
+            outcome = await createSecret(
+              options.secretId,
+              options.value,
+              options.description,
+              options.encoding,
+              options.useInPlaceholders
+            );
+          } else {
+            outcome = await createSecretFromFile(
+              options.secretId,
+              options.file,
+              options.description,
+              options.encoding,
+              options.useInPlaceholders
+            );
+          }
+          if (!outcome) process.exitCode = 1;
         } else {
-          outcome = await createSecretFromFile(
-            options.secretId,
-            options.file,
-            options.description,
-            options.encoding,
-            options.useInPlaceholders
-          );
+          process.exitCode = 1;
         }
-        if (!outcome) process.exitCode = 1;
-      } else {
-        process.exitCode = 1;
       }
-    }
-    // end command logic inside action handler
-  );
+      // end command logic inside action handler
+    );
 
-program.parse();
+  return program;
+}

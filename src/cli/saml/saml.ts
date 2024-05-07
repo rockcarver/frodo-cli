@@ -1,28 +1,30 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import CotCmd from './saml-cot.js';
+import DeleteCmd from './saml-delete.js';
+import DescribeCmd from './saml-describe.js';
+import ExportCmd from './saml-export.js';
+import ImportCmd from './saml-import.js';
+import ListCmd from './saml-list.js';
+import MetadataCmd from './saml-metadata.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('saml')
-    .description('Manage SAML entity providers and circles of trust.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('saml').description(
+    'Manage SAML entity providers and circles of trust.'
+  );
 
-  program.command('list', 'List entity providers.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('describe', 'Describe entity providers.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export entity providers.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import entity providers.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('cot', 'Manage circles of trust.');
+  program.addCommand(CotCmd().name('cot'));
 
-  program.command('metadata', 'Metadata operations.');
+  program.addCommand(MetadataCmd().name('metadata'));
 
-  program.command('delete', 'Delete an SAML Entity');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

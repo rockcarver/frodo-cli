@@ -1,14 +1,13 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './app-delete.js';
+// import DescribeCmd from './app-describe.js';
+import ExportCmd from './app-export.js';
+import ImportCmd from './app-import.js';
+import ListCmd from './app-list.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('app')
     .description('Manage applications.')
-    .executableDir(__dirname)
     .addHelpText(
       'after',
       `\nImportant Note:\n`['brightYellow'] +
@@ -16,16 +15,15 @@ export default function setup() {
         `  The ${'frodo app'['brightCyan']} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${'frodo oauth client'['brightCyan']} command.\n\n`
     );
 
-  program.command('list', 'List applications.');
+  program.addCommand(ListCmd().name('list'));
 
-  // program
-  //   .command('describe', 'Describe applications.');
+  // program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export applications.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import applications.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('delete', 'Delete applications.');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

@@ -1,13 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import ExportCmd from './email-template-export.js';
+import ImportCmd from './email-template-import.js';
+import ListCmd from './email-template-list.js';
 
-const program = new FrodoStubCommand('frodo email template');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo email template');
 
-program.description('Manage email templates.');
+  program.description('Manage email templates.');
 
-program.command('list', 'List email templates.');
+  program.addCommand(
+    ListCmd().name('list').description('List email templates.')
+  );
 
-program.command('export', 'Export email templates.');
+  program.addCommand(
+    ExportCmd().name('export').description('Export email templates.')
+  );
 
-program.command('import', 'Import email templates.');
+  program.addCommand(
+    ImportCmd().name('import').description('Import email templates.')
+  );
 
-program.parse();
+  return program;
+}

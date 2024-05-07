@@ -20,9 +20,9 @@ Arguments:
 Options:
   -b, --begin-timestamp <beginTs>  Begin timestamp for period (in ISO8601,
                                    example: "2022-10-13T19:06:28Z", or
-                                   "2022-09.30". Cannot be more than 30 days in
-                                   the past. If not specified, logs from one
-                                   hour ago are fetched (-e is ignored)
+                                   "2022-09.30".   Cannot be more than 30 days
+                                   in the past. If not specified, logs from one
+                                   hour ago are fetched   (-e is ignored)
   -c, --sources <sources>          Comma separated list of log sources
                                    (default: Log everything)
   --curlirize                      Output all network calls in curl format.
@@ -43,7 +43,7 @@ Options:
                                    case the proxy must provide this capability.
                                    (default: Don't allow insecure connections)
   -l, --level <level>              Set log level filter. You can specify the
-                                   level as a number or a string. Following
+                                   level as a number or a string.   Following
                                    values are possible (values on the same line
                                    are equivalent):
                                    0, SEVERE, FATAL, or ERROR
@@ -102,9 +102,9 @@ Arguments:
 Options:
   -b, --begin-timestamp <beginTs>  Begin timestamp for period (in ISO8601,
                                    example: "2022-10-13T19:06:28Z", or
-                                   "2022-09.30". Cannot be more than 30 days in
-                                   the past. If not specified, logs from one
-                                   hour ago are fetched (-e is ignored)
+                                   "2022-09.30".   Cannot be more than 30 days
+                                   in the past. If not specified, logs from one
+                                   hour ago are fetched   (-e is ignored)
   -c, --sources <sources>          Comma separated list of log sources
                                    (default: Log everything)
   --curlirize                      Output all network calls in curl format.
@@ -125,7 +125,7 @@ Options:
                                    case the proxy must provide this capability.
                                    (default: Don't allow insecure connections)
   -l, --level <level>              Set log level filter. You can specify the
-                                   level as a number or a string. Following
+                                   level as a number or a string.   Following
                                    values are possible (values on the same line
                                    are equivalent):
                                    0, SEVERE, FATAL, or ERROR

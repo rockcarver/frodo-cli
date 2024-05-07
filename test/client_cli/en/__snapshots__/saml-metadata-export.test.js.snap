@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'saml metadata export' should be expected english 1`] = `
 "Usage: frodo saml metadata export [options] [host] [realm] [username] [password]
 
-Export SAML metadata.
+Export metadata.
 
 Arguments:
   host                         Access Management base URL, e.g.:

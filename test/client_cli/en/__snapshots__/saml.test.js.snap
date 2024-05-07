@@ -6,16 +6,16 @@ exports[`CLI help interface for 'saml' should be expected english 1`] = `
 Manage SAML entity providers and circles of trust.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  cot             Manage circles of trust.
-  delete          Delete an SAML Entity
-  describe        Describe entity providers.
-  export          Export entity providers.
-  help [command]  display help for command
-  import          Import entity providers.
-  list            List entity providers.
-  metadata        Metadata operations.
+  cot         Manage circles of trust.
+  delete      Delete SAML entity providers.
+  describe    Describe the configuration of an entity provider.
+  export      Export SAML entity providers.
+  help        display help for command
+  import      Import SAML entity providers.
+  list        List SAML entity providers.
+  metadata    SAML metadata operations.
 "
 `;

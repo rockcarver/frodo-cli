@@ -6,13 +6,13 @@ exports[`CLI help interface for 'service' should be expected english 1`] = `
 Manage AM services.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  delete          Delete AM services.
-  export          Export AM services.
-  help [command]  display help for command
-  import          Import AM services.
-  list            List AM services.
+  delete      Delete AM services.
+  export      Export AM services.
+  help        display help for command
+  import      Import AM services.
+  list        List AM services.
 "
 `;

@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import ExportCmd from './admin-federation-export.js';
+import ImportCmd from './admin-federation-import.js';
+import ListCmd from './admin-federation-list.js';
+// import DeleteCmd from './admin-federation-delete.js';
+// import DescribeCmd from './admin-federation-describe.js';
 
-const program = new FrodoStubCommand('frodo admin federation');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo admin federation');
 
-program.description('Manages admin federation configuration.');
+  program.description('Manages admin federation configuration.');
 
-// program.command('delete', 'Delete admin federation provider.');
+  // program.addCommand(DeleteCmd().name('delete'));
 
-// program.command('describe', 'Describe admin federation provider.');
+  // program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export admin federation providers.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import admin federation providers.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('list', 'List admin federation providers.');
+  program.addCommand(ListCmd().name('list'));
 
-program.parse();
+  return program;
+}

@@ -1,23 +1,33 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import CreateCmd from './esv-secret-create.js';
+// import ImportCmd from './esv-secret-import.js';
+import DeleteCmd from './esv-secret-delete.js';
+import DescribeCmd from './esv-secret-describe.js';
+import ExportCmd from './esv-secret-export.js';
+import ListCmd from './esv-secret-list.js';
+import SetCmd from './esv-secret-set.js';
+import VersionCmd from './esv-secret-version.js';
 
-const program = new FrodoStubCommand('frodo esv secret');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo esv secret');
 
-program.description('Manages secrets.');
+  program.description('Manages secrets.');
 
-program.command('create', 'Create secrets.');
+  program.addCommand(CreateCmd().name('create'));
 
-program.command('delete', 'Delete secrets.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.command('describe', 'Describe secret.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export secrets.');
+  program.addCommand(ExportCmd().name('export'));
 
-// program.command('import', 'Import secrets.');
+  // program.addCommand(ImportCmd().name('import'));
 
-program.command('list', 'List secrets.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('set', 'Set secret descriptions.');
+  program.addCommand(SetCmd().name('set'));
 
-program.command('version', 'Manage secret versions.');
+  program.addCommand(VersionCmd().name('version'));
 
-program.parse();
+  return program;
+}

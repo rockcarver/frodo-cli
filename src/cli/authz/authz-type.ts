@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './authz-type-delete.js';
+import DescribeCmd from './authz-type-describe.js';
+import ExportCmd from './authz-type-export.js';
+import ImportCmd from './authz-type-import.js';
+import ListCmd from './authz-type-list.js';
 
-const program = new FrodoStubCommand('frodo authz type');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo authz type');
 
-program.description('Manage authorization resource types.');
+  program.description('Manage authorization resource types.');
 
-program.command('delete', 'Delete authorization resource types.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.command('describe', 'Describe authorization resource types.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export authorization resource types.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import authorization resource types.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('list', 'List authorization resource types.');
+  program.addCommand(ListCmd().name('list'));
 
-program.parse();
+  return program;
+}

@@ -1,30 +1,27 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import AddCustomDomainCmd from './realm-add-custom-domain.js';
+import DescribeCmd from './realm-describe.js';
+import ListCmd from './realm-list.js';
+import RemoveCustomDomainCmd from './realm-remove-custom-domain.js';
+// import DeleteCmd from './realm-delete.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('realm')
-    .description('Manage realms.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('realm').description('Manage realms.');
 
-  program.command('list', 'List realms.');
+  program.addCommand(ListCmd().name('list'));
 
-  program
-    .command('describe', 'Describe realms.')
-    // for backwards compatibility
-    .alias('details');
-
-  program.command('add-custom-domain', 'Add custom domain (realm DNS alias).');
-
-  program.command(
-    'remove-custom-domain',
-    'Remove custom domain (realm DNS alias).'
+  program.addCommand(
+    DescribeCmd()
+      .name('describe')
+      // for backwards compatibility
+      .alias('details')
   );
 
-  // program.command('delete', 'Delete realms.');
+  program.addCommand(AddCustomDomainCmd().name('add-custom-domain'));
+
+  program.addCommand(RemoveCustomDomainCmd().name('remove-custom-domain'));
+
+  // program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

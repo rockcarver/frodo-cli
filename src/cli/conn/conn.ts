@@ -1,25 +1,23 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './conn-delete.js';
+import DescribeCmd from './conn-describe.js';
+import ListCmd from './conn-list.js';
+import SaveCmd from './conn-save.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('conn')
     .alias('connection')
     // for backwards compatibility
     .alias('connections')
-    .description('Manage connection profiles.')
-    .executableDir(__dirname);
+    .description('Manage connection profiles.');
 
-  program.command('save', 'Save connection profiles.').alias('add');
+  program.addCommand(SaveCmd().name('save'));
 
-  program.command('delete', 'Delete connection profiles.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-  program.command('describe', 'Describe connection profiles.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('list', 'List connection profiles.');
+  program.addCommand(ListCmd().name('list'));
 
   return program;
 }

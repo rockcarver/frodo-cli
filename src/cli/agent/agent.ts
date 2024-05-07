@@ -1,30 +1,31 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './agent-delete.js';
+import DescribeCmd from './agent-describe.js';
+import ExportCmd from './agent-export.js';
+import GatewayCmd from './agent-gateway.js';
+import ImportCmd from './agent-import.js';
+import JavaCmd from './agent-java.js';
+import ListCmd from './agent-list.js';
+import WebCmd from './agent-web.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('agent')
-    .description('Manage agents.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('agent').description('Manage agents.');
 
-  program.command('gateway', 'Manage gateway agents.').alias('ig');
+  program.addCommand(GatewayCmd().name('gateway').alias('ig'));
 
-  program.command('java', 'Manage java agents.');
+  program.addCommand(JavaCmd().name('java'));
 
-  program.command('web', 'Manage web agents.');
+  program.addCommand(WebCmd().name('web'));
 
-  program.command('list', 'List agents.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('describe', 'Describe agents.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export agents.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import agents.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('delete', 'Delete agents.');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

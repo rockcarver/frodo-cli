@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './something-else-delete.js';
+import DescribeCmd from './something-else-describe.js';
+import ExportCmd from './something-else-export.js';
+import ImportCmd from './something-else-import.js';
+import ListCmd from './something-else-list.js';
 
-const program = new FrodoStubCommand('frodo something else');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo something else');
 
-program.description('Manage something else.');
+  program.description('Manage something else.');
 
-program.command('list', 'List something else.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('describe', 'Describe something else.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export something else.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import something else.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('delete', 'Delete something else.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

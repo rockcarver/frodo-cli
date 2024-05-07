@@ -6,14 +6,14 @@ exports[`CLI help interface for 'agent java' should be expected english 1`] = `
 Manage java agents.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  delete          Delete java agents.
-  describe        Describe java agents.
-  export          Export java agents.
-  help [command]  display help for command
-  import          Import java agents.
-  list            List java agents.
+  delete      Delete java agents.
+  describe    Describe java agents.
+  export      Export java agents.
+  help        display help for command
+  import      Import java agents.
+  list        List java agents.
 "
 `;

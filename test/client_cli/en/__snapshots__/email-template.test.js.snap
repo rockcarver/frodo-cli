@@ -6,12 +6,12 @@ exports[`CLI help interface for 'email template' should be expected english 1`] 
 Manage email templates.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  export          Export email templates.
-  help [command]  display help for command
-  import          Import email templates.
-  list            List email templates.
+  export      Export email templates.
+  help        display help for command
+  import      Import email templates.
+  list        List email templates.
 "
 `;

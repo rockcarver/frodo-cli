@@ -12,11 +12,11 @@ Commands:
   add-autoid-static-user-mapping              Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.
   create-oauth2-client-with-admin-privileges  Create an oauth2 client with admin privileges.
   execute-rfc7523-authz-grant-flow            Execute RFC7523 authorization grant flow.
-  federation                                  Manage admin federation configuration.
+  federation                                  Manages admin federation configuration.
   generate-rfc7523-authz-grant-artefacts      Generate RFC7523 authorization grant artefacts.
   get-access-token                            Get an access token using client credentials grant type.
   grant-oauth2-client-admin-privileges        Grant an oauth2 client admin privileges.
-  help [command]                              display help for command
+  help                                        display help for command
   hide-generic-extension-attributes           Hide generic extension attributes.
   list-oauth2-clients-with-admin-privileges   List oauth2 clients with admin privileges.
   list-oauth2-clients-with-custom-privileges  List oauth2 clients with custom privileges.

@@ -1,21 +1,30 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import CreateCmd from './esv-variable-create.js';
+// import ImportCmd from './esv-variable-import.js';
+import DeleteCmd from './esv-variable-delete.js';
+import DescribeCmd from './esv-variable-describe.js';
+import ExportCmd from './esv-variable-export.js';
+import ListCmd from './esv-variable-list.js';
+import SetCmd from './esv-variable-set.js';
 
-const program = new FrodoStubCommand('frodo esv variable');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo esv variable');
 
-program.description('Manage variables.');
+  program.description('Manage variables.');
 
-program.command('create', 'Create variables.');
+  program.addCommand(CreateCmd().name('create'));
 
-program.command('delete', 'Delete variables.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.command('describe', 'Describe variables.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export variables.');
+  program.addCommand(ExportCmd().name('export'));
 
-// program.command('import', 'Import variables.');
+  // program.addCommand(ImportCmd().name('import'));
 
-program.command('list', 'List variables.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('set', 'Set variable descriptions.');
+  program.addCommand(SetCmd().name('set'));
 
-program.parse();
+  return program;
+}

@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'oauth client import' should be expected english 1`] = `
 "Usage: frodo oauth client import [options] [host] [realm] [username] [password]
 
-Import OAuth2 applications.
+Import OAuth2 clients.
 
 Arguments:
   host                         Access Management base URL, e.g.:
@@ -20,9 +20,9 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Import all applications from single file.
-                               Ignored with -i.
-  -A, --all-separate           Import all applications from separate files
+  -a, --all                    Import all clients from single file. Ignored
+                               with -i.
+  -A, --all-separate           Import all clients from separate files
                                (*.app.json) in the current directory. Ignored
                                with -i or -a.
   --curlirize                  Output all network calls in curl format.
@@ -33,9 +33,8 @@ Options:
   -f, --file <file>            Name of the file to import.
   --flush-cache                Flush token cache.
   -h, --help                   Help
-  -i, --app-id <id>            Application id. If specified, only one
-                               application is imported and the options -a and
-                               -A are ignored.
+  -i, --app-id <id>            Client id. If specified, only one client is
+                               imported and the options -a and -A are ignored.
   -k, --insecure               Allow insecure connections when using SSL/TLS.
                                Has no effect when using a network proxy for
                                https (HTTPS_PROXY=http://<host>:<port>), in

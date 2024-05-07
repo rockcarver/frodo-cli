@@ -6,13 +6,13 @@ exports[`CLI help interface for 'conn' should be expected english 1`] = `
 Manage connection profiles.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  delete          Delete connection profiles.
-  describe        Describe connection profiles.
-  help [command]  display help for command
-  list            List connection profiles.
-  save|add        Save connection profiles.
+  delete      Delete connection profiles.
+  describe    Describe connection profile.
+  help        display help for command
+  list        List connection profiles.
+  save|add    Save connection profiles.
 "
 `;
