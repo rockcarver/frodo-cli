@@ -6,12 +6,12 @@ exports[`CLI help interface for 'saml cot' should be expected english 1`] = `
 Manage circles of trust.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  export          Export circles of trust.
-  help [command]  display help for command
-  import          Import circles of trust.
-  list            List circles of trust.
+  export      Export SAML circles of trust.
+  help        display help for command
+  import      Import SAML circles of trust.
+  list        List SAML circles of trust.
 "
 `;

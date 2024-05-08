@@ -1,20 +1,18 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DescribeCmd from './authn-describe.js';
+import ExportCmd from './authn-export.js';
+import ImportCmd from './authn-import.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('authn')
-    .description('Manage authentication settings.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('authn').description(
+    'Manage authentication settings.'
+  );
 
-  program.command('describe', 'Describe authentication settings.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export authentication settings.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import authentication settings.');
+  program.addCommand(ImportCmd().name('import'));
 
   return program;
 }

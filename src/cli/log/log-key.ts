@@ -1,13 +1,18 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './log-key-delete.js';
+import DescribeCmd from './log-key-describe.js';
+import ListCmd from './log-key-list.js';
 
-const program = new FrodoStubCommand('frodo log key');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo log key');
 
-program.description('Manage Identity Cloud log API keys.');
+  program.description('Manage Identity Cloud log API keys.');
 
-program.command('list', 'List log API keys.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('describe', 'Describe log API keys.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('delete', 'Delete log API keys.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

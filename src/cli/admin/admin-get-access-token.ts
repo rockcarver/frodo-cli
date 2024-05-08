@@ -6,53 +6,54 @@ import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { clientCredentialsGrant } = frodo.oauth2oidc.endpoint;
+export default function setup() {
+  const program = new FrodoCommand('frodo admin get-access-token');
 
-const program = new FrodoCommand('frodo admin get-access-token');
-
-program
-  .description('Get an access token using client credentials grant type.')
-  .addOption(
-    new Option('-i, --client-id [id]', 'Client id.').makeOptionMandatory()
-  )
-  .addOption(
-    new Option(
-      '-s, --client-secret [secret]',
-      'Client secret.'
-    ).makeOptionMandatory()
-  )
-  .addOption(
-    new Option('--scope [scope]', 'Request the following scope(s).').default(
-      'fr:idm:*',
-      'fr:idm:*'
+  program
+    .description('Get an access token using client credentials grant type.')
+    .addOption(
+      new Option('-i, --client-id [id]', 'Client id.').makeOptionMandatory()
     )
-  )
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
-      if (await getTokens()) {
-        printMessage(
-          `Getting an access token using client "${options.clientId}"...`
+    .addOption(
+      new Option(
+        '-s, --client-secret [secret]',
+        'Client secret.'
+      ).makeOptionMandatory()
+    )
+    .addOption(
+      new Option('--scope [scope]', 'Request the following scope(s).').default(
+        'fr:idm:*',
+        'fr:idm:*'
+      )
+    )
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
         );
-        const response = await clientCredentialsGrant(
-          state.getHost(),
-          options.clientId,
-          options.clientSecret,
-          options.scope
-        );
-        printMessage(`Token: ${response.access_token}`);
-      } else {
-        process.exitCode = 1;
+        if (await getTokens()) {
+          printMessage(
+            `Getting an access token using client "${options.clientId}"...`
+          );
+          const response = await clientCredentialsGrant(
+            state.getHost(),
+            options.clientId,
+            options.clientSecret,
+            options.scope
+          );
+          printMessage(`Token: ${response.access_token}`);
+        } else {
+          process.exitCode = 1;
+        }
       }
-    }
-    // end command logic inside action handler
-  );
+      // end command logic inside action handler
+    );
 
-program.parse();
+  return program;
+}

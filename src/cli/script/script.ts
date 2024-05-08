@@ -1,24 +1,22 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './script-delete.js';
+// import DescribeCmd from './script-describe.js';
+import ExportCmd from './script-export.js';
+import ImportCmd from './script-import.js';
+import ListCmd from './script-list.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('script')
-    .description('Manage scripts.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('script').description('Manage scripts.');
 
-  program.command('list', 'List scripts.');
+  program.addCommand(ListCmd().name('list'));
 
-  // program.command('describe', 'Describe scripts.');
+  // program.addCommand(DescribeCmd().name('describe'));
 
-  program.command('export', 'Export scripts.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import scripts.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('delete', 'Delete scripts.');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

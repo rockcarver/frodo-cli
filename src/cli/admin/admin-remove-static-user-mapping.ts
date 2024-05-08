@@ -5,31 +5,33 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo admin remove-static-user-mapping');
+export default function setup() {
+  const program = new FrodoCommand('frodo admin remove-static-user-mapping');
 
-program
-  .description("Remove a subject's static user mapping.")
-  .addOption(new Option('-i, --sub-id <id>', 'Subject identifier.'))
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
-      if (await getTokens()) {
-        printMessage("Removing a subject's static user mapping...");
-        const outcome = await removeStaticUserMapping(options.subId);
-        if (!outcome) process.exitCode = 1;
-      } else {
-        process.exitCode = 1;
+  program
+    .description("Remove a subject's static user mapping.")
+    .addOption(new Option('-i, --sub-id <id>', 'Subject identifier.'))
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
+        );
+        if (await getTokens()) {
+          printMessage("Removing a subject's static user mapping...");
+          const outcome = await removeStaticUserMapping(options.subId);
+          if (!outcome) process.exitCode = 1;
+        } else {
+          process.exitCode = 1;
+        }
       }
-    }
-    // end command logic inside action handler
-  );
+      // end command logic inside action handler
+    );
 
-program.parse();
+  return program;
+}

@@ -10,72 +10,73 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo script delete');
+export default function setup() {
+  const program = new FrodoCommand('frodo script delete');
 
-program
-  .description('Delete scripts.')
-  .addOption(
-    new Option(
-      '-i, --script-id <script>',
-      'id of a script. If specified, -a and -A are ignored.'
+  program
+    .description('Delete scripts.')
+    .addOption(
+      new Option(
+        '-i, --script-id <script>',
+        'id of a script. If specified, -a and -A are ignored.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '-n, --script-name <script>',
-      'name of a script. If specified, -a and -A are ignored.'
+    .addOption(
+      new Option(
+        '-n, --script-name <script>',
+        'name of a script. If specified, -a and -A are ignored.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '-a, --all',
-      'Delete all non-default scripts in a realm. Ignored with -i.'
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Delete all non-default scripts in a realm. Ignored with -i.'
+      )
     )
-  )
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
-      if (options.scriptId && (await getTokens())) {
-        verboseMessage(
-          `Deleting script ${
-            options.scriptId
-          } in realm "${state.getRealm()}"...`
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
         );
-        const outcome = await deleteScriptId(options.scriptId);
-        if (!outcome) process.exitCode = 1;
-      } else if (options.scriptName && (await getTokens())) {
-        verboseMessage(
-          `Deleting script ${
-            options.scriptName
-          } in realm "${state.getRealm()}"...`
-        );
-        const outcome = await deleteScriptName(options.scriptName);
-        if (!outcome) process.exitCode = 1;
-      } else if (options.all && (await getTokens())) {
-        verboseMessage('Deleting all non-default scripts...');
-        const outcome = await deleteAllScripts();
-        if (!outcome) process.exitCode = 1;
+        if (options.scriptId && (await getTokens())) {
+          verboseMessage(
+            `Deleting script ${
+              options.scriptId
+            } in realm "${state.getRealm()}"...`
+          );
+          const outcome = await deleteScriptId(options.scriptId);
+          if (!outcome) process.exitCode = 1;
+        } else if (options.scriptName && (await getTokens())) {
+          verboseMessage(
+            `Deleting script ${
+              options.scriptName
+            } in realm "${state.getRealm()}"...`
+          );
+          const outcome = await deleteScriptName(options.scriptName);
+          if (!outcome) process.exitCode = 1;
+        } else if (options.all && (await getTokens())) {
+          verboseMessage('Deleting all non-default scripts...');
+          const outcome = await deleteAllScripts();
+          if (!outcome) process.exitCode = 1;
+        }
+        // unrecognized combination of options or no options
+        else {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          program.help();
+          process.exitCode = 1;
+        }
       }
+      // end command logic inside action handler
+    );
 
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
-        program.help();
-        process.exitCode = 1;
-      }
-    }
-    // end command logic inside action handler
-  );
-
-program.parse();
+  return program;
+}

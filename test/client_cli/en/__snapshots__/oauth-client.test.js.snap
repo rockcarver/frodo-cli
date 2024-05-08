@@ -6,12 +6,12 @@ exports[`CLI help interface for 'oauth client' should be expected english 1`] = 
 Manage OAuth2 clients.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  export          Export OAuth2 clients.
-  help [command]  display help for command
-  import          Import OAuth2 clients.
-  list            List OAuth2 clients.
+  export      Export OAuth2 clients.
+  help        display help for command
+  import      Import OAuth2 clients.
+  list        List OAuth2 clients.
 "
 `;

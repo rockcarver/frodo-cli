@@ -1,13 +1,18 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import ExportCmd from './saml-cot-export.js';
+import ImportCmd from './saml-cot-import.js';
+import ListCmd from './saml-cot-list.js';
 
-const program = new FrodoStubCommand('frodo saml cot');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo saml cot');
 
-program.description('Manage circles of trust.');
+  program.description('Manage circles of trust.');
 
-program.command('list', 'List circles of trust.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('export', 'Export circles of trust.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import circles of trust.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.parse();
+  return program;
+}

@@ -6,12 +6,12 @@ exports[`CLI help interface for 'authz' should be expected english 1`] = `
 Manage authotiztion policies, policy sets, and resource types.
 
 Options:
-  -h, --help      Help
+  -h, --help     Help
 
 Commands:
-  help [command]  display help for command
-  policy          Manages policies.
-  set             Manage policy sets.
-  type            Manage resource types.
+  help           display help for command
+  policy         Manages authorization policies.
+  set|policyset  Manage authorization policy sets.
+  type           Manage authorization resource types.
 "
 `;

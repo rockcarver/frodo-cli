@@ -6,10 +6,10 @@ exports[`CLI help interface for 'saml metadata' should be expected english 1`] =
 SAML metadata operations.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  export          Export metadata.
-  help [command]  display help for command
+  export      Export metadata.
+  help        display help for command
 "
 `;

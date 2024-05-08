@@ -7,14 +7,16 @@ View Identity Cloud logs. If valid tenant admin credentials are specified, a
 log API key and secret are automatically created for that admin user.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  fetch           Fetch Identity Cloud logs for a time window.
-  help [command]  display help for command
-  key             Manage Identity Cloud log API keys.
-  list            List available ID Cloud log sources.
-  tail            Tail Identity Cloud logs.
+  fetch       Fetch Identity Cloud logs between a specified begin and end time
+              period.  WARNING: depending on filters and time period specified,
+              this could take substantial time to complete.
+  help        display help for command
+  key         Manage Identity Cloud log API keys.
+  list        List available ID Cloud log sources.
+  tail        Tail Identity Cloud logs.
 "
 `;
 
@@ -25,13 +27,15 @@ View Identity Cloud logs. If valid tenant admin credentials are specified, a
 log API key and secret are automatically created for that admin user.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  fetch           Fetch Identity Cloud logs for a time window.
-  help [command]  display help for command
-  key             Manage Identity Cloud log API keys.
-  list            List available ID Cloud log sources.
-  tail            Tail Identity Cloud logs.
+  fetch       Fetch Identity Cloud logs between a specified begin and end time
+              period.  WARNING: depending on filters and time period specified,
+              this could take substantial time to complete.
+  help        display help for command
+  key         Manage Identity Cloud log API keys.
+  list        List available ID Cloud log sources.
+  tail        Tail Identity Cloud logs.
 "
 `;

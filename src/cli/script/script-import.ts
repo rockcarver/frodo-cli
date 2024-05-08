@@ -9,102 +9,104 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo script import');
+export default function setup() {
+  const program = new FrodoCommand('frodo script import');
 
-program
-  .description('Import scripts.')
-  .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
-  .addOption(
-    new Option(
-      '-n, --script-name <name>',
-      'Name of the script. If specified, -a and -A are ignored.'
+  program
+    .description('Import scripts.')
+    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-n, --script-name <name>',
+        'Name of the script. If specified, -a and -A are ignored.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '--re-uuid',
-      'Re-UUID. Create a new UUID for the script upon import. Use this to duplicate a script or create a new version of the same script. Note that you must also choose a new name using -n/--script-name to avoid import errors.'
-    ).default(false, 'false')
-  )
-  // deprecated option
-  .addOption(
-    new Option(
-      '-s, --script <script>',
-      'DEPRECATED! Use -n/--script-name instead. Name of the script.'
+    .addOption(
+      new Option(
+        '--re-uuid',
+        'Re-UUID. Create a new UUID for the script upon import. Use this to duplicate a script or create a new version of the same script. Note that you must also choose a new name using -n/--script-name to avoid import errors.'
+      ).default(false, 'false')
     )
-  )
-  .addOption(
-    new Option(
-      '-A, --all-separate',
-      'Import all scripts from separate files (*.script.json) in the current directory. Ignored with -n.'
+    // deprecated option
+    .addOption(
+      new Option(
+        '-s, --script <script>',
+        'DEPRECATED! Use -n/--script-name instead. Name of the script.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '-w, --watch',
-      'Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with -A.'
-    ).default(false, 'false')
-  )
-  .addOption(
-    new Option(
-      '-d, --default',
-      'Import all scripts including the default scripts. Ignored with -n.'
+    .addOption(
+      new Option(
+        '-A, --all-separate',
+        'Import all scripts from separate files (*.script.json) in the current directory. Ignored with -n.'
+      )
     )
-  )
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
+    .addOption(
+      new Option(
+        '-w, --watch',
+        'Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with -A.'
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option(
+        '-d, --default',
+        'Import all scripts including the default scripts. Ignored with -n.'
+      )
+    )
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
+        );
 
-      if (options.file && (await getTokens())) {
-        verboseMessage(
-          `Importing script(s) into realm "${state.getRealm()}"...`
-        );
-        const outcome = await importScriptsFromFile(
-          options.scriptName || options.script,
-          options.file,
-          {
-            reUuid: options.reUuid,
-            includeDefault: options.default,
-          }
-        );
-        if (!outcome) process.exitCode = 1;
-      } else if (options.allSeparate && (await getTokens())) {
-        verboseMessage(
-          `Importing script(s) into realm "${state.getRealm()}"...`
-        );
-        try {
-          await importScriptsFromFiles(
-            options.watch,
+        if (options.file && (await getTokens())) {
+          verboseMessage(
+            `Importing script(s) into realm "${state.getRealm()}"...`
+          );
+          const outcome = await importScriptsFromFile(
+            options.scriptName || options.script,
+            options.file,
             {
               reUuid: options.reUuid,
               includeDefault: options.default,
-            },
-            true
+            }
           );
-        } catch (error) {
+          if (!outcome) process.exitCode = 1;
+        } else if (options.allSeparate && (await getTokens())) {
+          verboseMessage(
+            `Importing script(s) into realm "${state.getRealm()}"...`
+          );
+          try {
+            await importScriptsFromFiles(
+              options.watch,
+              {
+                reUuid: options.reUuid,
+                includeDefault: options.default,
+              },
+              true
+            );
+          } catch (error) {
+            process.exitCode = 1;
+          }
+        }
+
+        // unrecognized combination of options or no options
+        else {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          program.help();
           process.exitCode = 1;
         }
       }
+      // end command logic inside action handler
+    );
 
-      // unrecognized combination of options or no options
-      else {
-        printMessage(
-          'Unrecognized combination of options or no options...',
-          'error'
-        );
-        program.help();
-        process.exitCode = 1;
-      }
-    }
-    // end command logic inside action handler
-  );
-
-program.parse();
+  return program;
+}

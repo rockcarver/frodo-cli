@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './agent-gateway-delete.js';
+import DescribeCmd from './agent-gateway-describe.js';
+import ExportCmd from './agent-gateway-export.js';
+import ImportCmd from './agent-gateway-import.js';
+import ListCmd from './agent-gateway-list.js';
 
-const program = new FrodoStubCommand('frodo agent gateway');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo agent gateway');
 
-program.description('Manage gateway agents.').alias('ig');
+  program.description('Manage gateway agents.').alias('ig');
 
-program.command('list', 'List gateway agents.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('describe', 'Describe gateway agents.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export gateway agents.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import gateway agents.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('delete', 'Delete gateway agents.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

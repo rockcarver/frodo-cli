@@ -11,100 +11,104 @@ import {
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const program = new FrodoCommand('frodo authz type import');
+export default function setup() {
+  const program = new FrodoCommand('frodo authz type import');
 
-program
-  .description('Import authorization resource types.')
-  .addOption(
-    new Option(
-      '-i, --type-id <type-uuid>',
-      'Resource type uuid. If specified, -a and -A are ignored.'
+  program
+    .description('Import authorization resource types.')
+    .addOption(
+      new Option(
+        '-i, --type-id <type-uuid>',
+        'Resource type uuid. If specified, -a and -A are ignored.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '-n, --type-name <type-name>',
-      'Resource type name. If specified, -a and -A are ignored.'
+    .addOption(
+      new Option(
+        '-n, --type-name <type-name>',
+        'Resource type name. If specified, -a and -A are ignored.'
+      )
     )
-  )
-  .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
-  .addOption(
-    new Option(
-      '-a, --all',
-      'Import all resource types from single file. Ignored with -i.'
+    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Import all resource types from single file. Ignored with -i.'
+      )
     )
-  )
-  .addOption(
-    new Option(
-      '-A, --all-separate',
-      'Import all resource types from separate files (*.resourcetype.authz.json) in the current directory. Ignored with -i, -n, or -a.'
+    .addOption(
+      new Option(
+        '-A, --all-separate',
+        'Import all resource types from separate files (*.resourcetype.authz.json) in the current directory. Ignored with -i, -n, or -a.'
+      )
     )
-  )
-  .action(
-    // implement command logic inside action handler
-    async (host, realm, user, password, options, command) => {
-      command.handleDefaultArgsAndOpts(
-        host,
-        realm,
-        user,
-        password,
-        options,
-        command
-      );
-      // import by uuid
-      if (options.typeId && (await getTokens())) {
-        verboseMessage(
-          'Importing authorization resource type by uuid from file...'
+    .action(
+      // implement command logic inside action handler
+      async (host, realm, user, password, options, command) => {
+        command.handleDefaultArgsAndOpts(
+          host,
+          realm,
+          user,
+          password,
+          options,
+          command
         );
-        const outcome = await importResourceTypeFromFile(
-          options.typeId,
-          options.file
-        );
-        if (!outcome) process.exitCode = 1;
+        // import by uuid
+        if (options.typeId && (await getTokens())) {
+          verboseMessage(
+            'Importing authorization resource type by uuid from file...'
+          );
+          const outcome = await importResourceTypeFromFile(
+            options.typeId,
+            options.file
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // import by name
+        else if (options.typeName && (await getTokens())) {
+          verboseMessage(
+            'Importing authorization resource type by name from file...'
+          );
+          const outcome = await importResourceTypeByNameFromFile(
+            options.typeName,
+            options.file
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // -a/--all
+        else if (options.all && (await getTokens())) {
+          verboseMessage(
+            'Importing all authorization resource types from file...'
+          );
+          const outcome = await importResourceTypesFromFile(options.file);
+          if (!outcome) process.exitCode = 1;
+        }
+        // -A/--all-separate
+        else if (options.allSeparate && (await getTokens())) {
+          verboseMessage(
+            'Importing all authorization resource types from separate files...'
+          );
+          const outcome = await importResourceTypesFromFiles();
+          if (!outcome) process.exitCode = 1;
+        }
+        // import first
+        else if (options.file && (await getTokens())) {
+          verboseMessage(
+            `Importing first authorization resource type from file "${options.file}"...`
+          );
+          const outcome = await importFirstResourceTypeFromFile(options.file);
+          if (!outcome) process.exitCode = 1;
+        }
+        // unrecognized combination of options or no options
+        else {
+          verboseMessage(
+            'Unrecognized combination of options or no options...'
+          );
+          program.help();
+          process.exitCode = 1;
+        }
       }
-      // import by name
-      else if (options.typeName && (await getTokens())) {
-        verboseMessage(
-          'Importing authorization resource type by name from file...'
-        );
-        const outcome = await importResourceTypeByNameFromFile(
-          options.typeName,
-          options.file
-        );
-        if (!outcome) process.exitCode = 1;
-      }
-      // -a/--all
-      else if (options.all && (await getTokens())) {
-        verboseMessage(
-          'Importing all authorization resource types from file...'
-        );
-        const outcome = await importResourceTypesFromFile(options.file);
-        if (!outcome) process.exitCode = 1;
-      }
-      // -A/--all-separate
-      else if (options.allSeparate && (await getTokens())) {
-        verboseMessage(
-          'Importing all authorization resource types from separate files...'
-        );
-        const outcome = await importResourceTypesFromFiles();
-        if (!outcome) process.exitCode = 1;
-      }
-      // import first
-      else if (options.file && (await getTokens())) {
-        verboseMessage(
-          `Importing first authorization resource type from file "${options.file}"...`
-        );
-        const outcome = await importFirstResourceTypeFromFile(options.file);
-        if (!outcome) process.exitCode = 1;
-      }
-      // unrecognized combination of options or no options
-      else {
-        verboseMessage('Unrecognized combination of options or no options...');
-        program.help();
-        process.exitCode = 1;
-      }
-    }
-    // end command logic inside action handler
-  );
+      // end command logic inside action handler
+    );
 
-program.parse();
+  return program;
+}

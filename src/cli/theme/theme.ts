@@ -1,22 +1,19 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import DeleteCmd from './theme-delete.js';
+import ExportCmd from './theme-export.js';
+import ImportCmd from './theme-import.js';
+import ListCmd from './theme-list.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('theme')
-    .description('Manage themes.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('theme').description('Manage themes.');
 
-  program.command('list', 'List themes.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('export', 'Export themes.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import themes.');
+  program.addCommand(ImportCmd().name('import'));
 
-  program.command('delete', 'Delete themes.');
+  program.addCommand(DeleteCmd().name('delete'));
 
   return program;
 }

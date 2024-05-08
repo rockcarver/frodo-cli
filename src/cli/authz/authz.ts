@@ -1,22 +1,18 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import PolicyCmd from './authz-policy.js';
+import SetCmd from './authz-set.js';
+import TypeCmd from './authz-type.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('authz')
-    .description(
-      'Manage authotiztion policies, policy sets, and resource types.'
-    )
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('authz').description(
+    'Manage authotiztion policies, policy sets, and resource types.'
+  );
 
-  program.command('set', 'Manage policy sets.');
+  program.addCommand(SetCmd().name('set'));
 
-  program.command('policy', 'Manages policies.');
+  program.addCommand(PolicyCmd().name('policy'));
 
-  program.command('type', 'Manage resource types.');
+  program.addCommand(TypeCmd().name('type'));
 
   return program;
 }

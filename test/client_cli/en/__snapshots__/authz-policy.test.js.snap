@@ -6,14 +6,14 @@ exports[`CLI help interface for 'authz policy' should be expected english 1`] = 
 Manages authorization policies.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  delete          Delete authorization policies.
-  describe        Describe authorization policies.
-  export          Export authorization policies.
-  help [command]  display help for command
-  import          Import authorization policies.
-  list            List authorization policies.
+  delete      Delete authorization policies.
+  describe    Describe authorization policies.
+  export      Export authorization policies.
+  help        display help for command
+  import      Import authorization policies.
+  list        List authorization policies.
 "
 `;

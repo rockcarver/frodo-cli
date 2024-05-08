@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './agent-web-delete.js';
+import DescribeCmd from './agent-web-describe.js';
+import ExportCmd from './agent-web-export.js';
+import ImportCmd from './agent-web-import.js';
+import ListCmd from './agent-web-list.js';
 
-const program = new FrodoStubCommand('frodo agent web');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo agent web');
 
-program.description('Manage web agents.');
+  program.description('Manage web agents.');
 
-program.command('list', 'List web agents.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('describe', 'Describe web agents.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export web agents.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import web agents.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('delete', 'Delete web agents.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

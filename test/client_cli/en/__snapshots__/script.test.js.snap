@@ -6,13 +6,13 @@ exports[`CLI help interface for 'script' should be expected english 1`] = `
 Manage scripts.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  delete          Delete scripts.
-  export          Export scripts.
-  help [command]  display help for command
-  import          Import scripts.
-  list            List scripts.
+  delete      Delete scripts.
+  export      Export scripts.
+  help        display help for command
+  import      Import scripts.
+  list        List scripts.
 "
 `;

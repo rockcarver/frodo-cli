@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'oauth client export' should be expected english 1`] = `
 "Usage: frodo oauth client export [options] [host] [realm] [username] [password]
 
-Export OAuth2 applications.
+Export OAuth2 clients.
 
 Arguments:
   host                         Access Management base URL, e.g.:

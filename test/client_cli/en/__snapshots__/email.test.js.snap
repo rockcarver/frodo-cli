@@ -6,10 +6,10 @@ exports[`CLI help interface for 'email' should be expected english 1`] = `
 Manage email templates and configuration.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  help [command]  display help for command
-  template        Manage email templates.
+  help        display help for command
+  template    Manage email templates.
 "
 `;

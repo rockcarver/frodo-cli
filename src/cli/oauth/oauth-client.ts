@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+// import DescribeCmd from './oauth-client-describe.js';
+import ExportCmd from './oauth-client-export.js';
+import ImportCmd from './oauth-client-import.js';
+import ListCmd from './oauth-client-list.js';
+// import DeleteCmd from './oauth-client-delete.js';
 
-const program = new FrodoStubCommand('frodo oauth client');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo oauth client');
 
-program.description('Manage OAuth2 clients.');
+  program.description('Manage OAuth2 clients.');
 
-program.command('list', 'List OAuth2 clients.');
+  program.addCommand(ListCmd().name('list'));
 
-// program.command('describe', 'Describe OAuth2 clients.');
+  // program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export OAuth2 clients.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import OAuth2 clients.');
+  program.addCommand(ImportCmd().name('import'));
 
-// program.command('delete', 'Delete OAuth2 clients.');
+  // program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

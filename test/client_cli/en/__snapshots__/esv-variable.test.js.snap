@@ -6,15 +6,15 @@ exports[`CLI help interface for 'esv variable' should be expected english 1`] = 
 Manage variables.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  create          Create variables.
-  delete          Delete variables.
-  describe        Describe variables.
-  export          Export variables.
-  help [command]  display help for command
-  list            List variables.
-  set             Set variable descriptions.
+  create      Create variables.
+  delete      Delete variables.
+  describe    Describe variables.
+  export      Export variables.
+  help        display help for command
+  list        List variables.
+  set         Set variable description.
 "
 `;

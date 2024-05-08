@@ -1,17 +1,24 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import DeleteCmd from './agent-java-delete.js';
+import DescribeCmd from './agent-java-describe.js';
+import ExportCmd from './agent-java-export.js';
+import ImportCmd from './agent-java-import.js';
+import ListCmd from './agent-java-list.js';
 
-const program = new FrodoStubCommand('frodo agent java');
+export default function setup() {
+  const program = new FrodoStubCommand('frodo agent java');
 
-program.description('Manage java agents.');
+  program.description('Manage java agents.');
 
-program.command('list', 'List java agents.');
+  program.addCommand(ListCmd().name('list'));
 
-program.command('describe', 'Describe java agents.');
+  program.addCommand(DescribeCmd().name('describe'));
 
-program.command('export', 'Export java agents.');
+  program.addCommand(ExportCmd().name('export'));
 
-program.command('import', 'Import java agents.');
+  program.addCommand(ImportCmd().name('import'));
 
-program.command('delete', 'Delete java agents.');
+  program.addCommand(DeleteCmd().name('delete'));
 
-program.parse();
+  return program;
+}

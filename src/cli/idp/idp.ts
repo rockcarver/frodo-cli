@@ -1,20 +1,18 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import ExportCmd from './idp-export.js';
+import ImportCmd from './idp-import.js';
+import ListCmd from './idp-list.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('idp')
-    .description('Manage (social) identity providers.')
-    .executableDir(__dirname);
+  const program = new FrodoStubCommand('idp').description(
+    'Manage (social) identity providers.'
+  );
 
-  program.command('list', 'List identity providers.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('export', 'Export identity providers.');
+  program.addCommand(ExportCmd().name('export'));
 
-  program.command('import', 'Import identity providers.');
+  program.addCommand(ImportCmd().name('import'));
 
   return program;
 }

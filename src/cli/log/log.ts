@@ -1,10 +1,10 @@
 import { Option } from 'commander';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 import { FrodoStubCommand } from '../FrodoCommand';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import FetchCmd from './log-fetch';
+import KeyCmd from './log-key.js';
+import ListCmd from './log-list.js';
+import TailCmd from './log-tail.js';
 
 export const sourcesOptionM = new Option(
   '-c, --sources <sources>',
@@ -20,16 +20,15 @@ export default function setup() {
     .summary('List/View Identity Cloud logs')
     .description(
       `View Identity Cloud logs. If valid tenant admin credentials are specified, a log API key and secret are automatically created for that admin user.`
-    )
-    .executableDir(__dirname);
+    );
 
-  program.command('list', 'List available ID Cloud log sources.');
+  program.addCommand(ListCmd().name('list'));
 
-  program.command('tail', 'Tail Identity Cloud logs.');
+  program.addCommand(TailCmd().name('tail'));
 
-  program.command('fetch', 'Fetch Identity Cloud logs for a time window.');
+  program.addCommand(FetchCmd().name('fetch'));
 
-  program.command('key', 'Manage Identity Cloud log API keys.');
+  program.addCommand(KeyCmd().name('key'));
 
   return program;
 }

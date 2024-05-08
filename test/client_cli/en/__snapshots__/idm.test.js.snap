@@ -6,13 +6,13 @@ exports[`CLI help interface for 'idm' should be expected english 1`] = `
 Manage IDM configuration.
 
 Options:
-  -h, --help      Help
+  -h, --help  Help
 
 Commands:
-  count           Count number of managed objects of a given type.
-  export          Export IDM configuration objects.
-  help [command]  display help for command
-  import          Import IDM configuration objects.
-  list            List all IDM configuration objects.
+  count       Count managed objects.
+  export      Export IDM configuration objects.
+  help        display help for command
+  import      Import IDM configuration objects.
+  list        List IDM configuration objects.
 "
 `;
