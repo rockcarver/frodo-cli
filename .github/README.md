@@ -1,9 +1,7 @@
 <!-- README.md for GitHub; the one for NPM is ../README.md. -->
 
-# Frodo CLI - @rockcarver/frodo-cli
-
-ForgeROck DO Command Line Interface, frodo-cli, a CLI to manage ForgeRock platform deployments supporting Identity Cloud tenants, ForgeOps deployments, and classic deployments. Frodo-cli is powered by [frodo-lib](https://github.com/rockcarver/frodo-lib), a hybrid (ESM and CJS) library to manage ForgeRock deployments.
-
+# Frodo CLI (@rockcarver/frodo-cli) - Export, import, and manage PingOne Advanced Identity Cloud configuration
+A command line interface to manage ForgeRock platform deployments supporting PingOne Advanced Identity Cloud environments, ForgeOps deployments, and classic deployments. Frodo-cli is powered by [frodo-lib](https://github.com/rockcarver/frodo-lib), a hybrid (ESM and CJS) library to manage ForgeRock deployments.
 ## Quick Nav
 
 - [Quick start](#quick-start)
