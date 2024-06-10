@@ -1,7 +1,0 @@
-{
-  "extends": "./babel.config.esm.json",
-  "plugins": [
-    ["@babel/plugin-transform-modules-commonjs", { "importInterop": "babel" }],
-    ["babel-plugin-transform-import-meta"]
-  ]
-}

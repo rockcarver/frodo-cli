@@ -4,7 +4,8 @@ import { compareVersions } from 'compare-versions';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
+
+import pkg from '../../package.json';
 
 const { getVersion, getAllVersions } = frodo.utils.version;
 
@@ -34,13 +35,7 @@ let versionObject = {
   npm: '',
 };
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 Color.enable();
-
-const pkg = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')
-);
 
 function getCliVersion() {
   return `${pkg.version}`;
