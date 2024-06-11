@@ -7,8 +7,8 @@ const launchArgs = [
   '--no-warnings',
   '--enable-source-maps',
   '--experimental-loader',
-  new URL('./loader.js', import.meta.url).href,
-  fileURLToPath(new URL('./app.js', import.meta.url)),
+  new URL('./loader.cjs', import.meta.url).href,
+  fileURLToPath(new URL('./app.cjs', import.meta.url)),
 ];
 const frodoArgs = process.argv.slice(2);
 

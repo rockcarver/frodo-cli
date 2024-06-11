@@ -63,15 +63,9 @@ jobs:
         id: version-from-tag
         run: echo "version=$(echo '${{ steps.version-bump.outputs.newTag }}' | sed 's/v//')" >> "$GITHUB_OUTPUT"
 
-      - name: Build frodo-cli esm
+      - name: Build frodo-cli
         run: |
-          npm run transpile-esm
-          npm run resources-esm
-
-      - name: Build frodo-cli cjs
-        run: |
-          npm run transpile-cjs
-          npm run resources-cjs
+          npm run build
 
       - name: Lint
         run: npm run lint
@@ -88,8 +82,7 @@ jobs:
           path: |
             package.json
             package-lock.json
-            esm
-            cjs
+            dist
 
     outputs:
       newTag: ${{ steps.version-bump.outputs.newTag }}

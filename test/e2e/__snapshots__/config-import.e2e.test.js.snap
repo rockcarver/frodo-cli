@@ -125,8 +125,6 @@ exports[`frodo config import "frodo config import -adf test/e2e/exports/all/Alph
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
 - Resolving dependencies
 ✔ Resolved all dependencies.
-[========================================] 100% | 16/16 | Finished Importing Everything!
-[========================================] 100% | 6/6 | Finished importing journeys
 Errors occurred during full config import
   Error importing scripts
   Error updating script
@@ -161,8 +159,6 @@ exports[`frodo config import "frodo config import -agCf test/e2e/exports/all/Alp
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
 - Resolving dependencies
 ✔ Resolved all dependencies.
-[========================================] 100% | 16/16 | Finished Importing Everything!
-[========================================] 100% | 6/6 | Finished importing journeys
 Errors occurred during full config import
   Error importing config entities
   Error updating config entity bravoOrgPrivileges
@@ -184,8 +180,10 @@ Errors occurred during full config import
   Error deleting service 'SocialIdentityProviders' before import
   Error deleting global full service config SocialIdentityProviders
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in ForgeRock Identity Cloud.
   Error putting global full service config baseurl
   Error deleting service 'baseurl' before import
   Error deleting global full service config baseurl
@@ -240,11 +238,15 @@ exports[`frodo config import "frodo config import -arCf test/e2e/exports/all/Alp
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
 - Resolving dependencies
 ✔ Resolved all dependencies.
-[========================================] 100% | 16/16 | Finished Importing Everything!
-[========================================] 100% | 6/6 | Finished importing journeys
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity emailTemplate/forgottenUsername
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401

@@ -6,8 +6,6 @@ import { OAuth2TrustedJwtIssuerSkeleton } from '@rockcarver/frodo-lib/types/api/
 import { JwkRsa, JwksInterface } from '@rockcarver/frodo-lib/types/ops/JoseOps';
 import { AccessTokenMetaType } from '@rockcarver/frodo-lib/types/ops/OAuth2OidcOps';
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 import {
   cleanupProgressIndicators,
@@ -18,6 +16,8 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import GENERIC_EXTENSION_ATTRIBUTES from './templates/GenericExtensionAttributesTemplate.json';
+import OAUTH2_CLIENT from './templates/OAuth2ClientTemplate.json';
 import { cloneDeep } from './utils/OpsUtils';
 
 const {
@@ -40,24 +40,6 @@ const { readOAuth2Provider } = frodo.oauth2oidc.provider;
 const { readConfigEntity, updateConfigEntity } = frodo.idm.config;
 const { getRealmManagedOrganization } = frodo.idm.organization;
 const { createSecret } = frodo.cloud.secret;
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const OAUTH2_CLIENT: OAuth2ClientSkeleton = JSON.parse(
-  fs.readFileSync(
-    path.resolve(__dirname, './templates/OAuth2ClientTemplate.json'),
-    'utf8'
-  )
-);
-const GENERIC_EXTENSION_ATTRIBUTES = JSON.parse(
-  fs.readFileSync(
-    path.resolve(
-      __dirname,
-      './templates/GenericExtensionAttributesTemplate.json'
-    ),
-    'utf8'
-  )
-);
 
 const protectedClients = ['ui', 'idm-provisioning'];
 const protectedSubjects = ['amadmin', 'autoid-resource-server'];

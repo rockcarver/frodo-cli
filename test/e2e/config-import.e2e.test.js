@@ -83,7 +83,9 @@ describe('frodo config import', () => {
         await exec(CMD, env);
         fail("Command should've failed")
     } catch (e) {
-        expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
     }
   });
 
@@ -100,7 +102,9 @@ describe('frodo config import', () => {
         await exec(CMD, env);
         fail("Command should've failed")
     } catch (e) {
-        expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
     }
   });
 
@@ -110,7 +114,9 @@ describe('frodo config import', () => {
         await exec(CMD, env);
         fail("Command should've failed")
     } catch (e) {
-        expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
     }
   });
 

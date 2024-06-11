@@ -48,6 +48,7 @@
     "src/**/*.test.ts",
     "src/**/*.test_.ts",
     "test/**/*.test.ts",
-    "test/**/*.test_.ts"
+    "test/**/*.test_.ts",
+    "tsup.config.ts"
   ]
 }
