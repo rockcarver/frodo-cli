@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 2.0.0-85
+-   Update dependencies
+
 ## [2.0.0-59] - 2024-05-21
 
 ### Changed
