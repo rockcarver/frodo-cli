@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 2.0.0-86
+-   rockcarver/frodo-lib#402: Library scripts are now treated as dependencies during script and journey exports and imports.
+
 ### Fixed
 
 -   rockcarver/homebrew-frodo-cli#6: Homebrew formula now properly installs frodo
