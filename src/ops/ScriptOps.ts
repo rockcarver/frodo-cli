@@ -252,7 +252,11 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts(includeDefault);
+    const scriptExport = await exportScripts({
+      includeLibraries: true,
+      includeDefault,
+      useStringArrays: true,
+    });
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
