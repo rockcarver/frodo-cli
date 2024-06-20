@@ -37,7 +37,7 @@
     "build": "npm run build:binary",
     "build:only": "npx tsup && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
-    "dist-pkg": "pkg -C Gzip -t node18 --config package.json -o frodo dist/app.cjs",
+    "dist-pkg": "pkg -C Gzip -t node20 --config package.json -o frodo dist/app.cjs",
     "link": "npm link ../frodo-lib",
     "dev": "npx tsup --watch src"
   },
