@@ -181,9 +181,25 @@ jobs:
         with:
           name: build
 
-      - uses: actions/download-artifact@v4
+      - name: Download MacOS Binary Release
+        uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: macos-binary-release
+
+      - name: Download Linux Binary Release
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binary-release
+
+      - name: Download Linux Arm64 Binary Release
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64-binary-release
+
+      - name: Download Windows Binary Release
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-binary-release
 
       - name: 'Github SHA'
         id: github-sha
@@ -221,7 +237,7 @@ jobs:
           git push
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Frodo CLI ${{ needs.build.outputs.newVersion }}
           tag_name: ${{ needs.build.outputs.newTag }}
@@ -385,7 +401,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: macos-binary-release
           path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
 
   linux-binary-release:
@@ -422,7 +438,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: linux-binary-release
           path: frodo-linux-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
@@ -461,7 +477,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: linux-arm64-binary-release
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
 
   windows-binary-release:
@@ -499,5 +515,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: windows-binary-release
           path: frodo-win-${{ needs.build.outputs.newVersion }}.zip
