@@ -27,13 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Need to specify ref and repository for PRs from forked repos
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -76,7 +76,7 @@ jobs:
       - name: Security Audit
         run: npm audit --omit=dev --audit-level high
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build
           path: |
@@ -110,20 +110,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Need to specify ref and repository for PRs from forked repos
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
@@ -172,13 +172,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dist
 
@@ -187,7 +187,7 @@ jobs:
         run: echo ${{ github.sha }} > Release.txt
 
       - name: Update Changelog
-        uses: thomaseizinger/keep-a-changelog-new-release@1.3.0
+        uses: thomaseizinger/keep-a-changelog-new-release@v2
         with:
           tag: ${{ needs.build.outputs.newTag }}
 
@@ -242,14 +242,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
@@ -284,7 +284,7 @@ jobs:
     needs: [release, build, npm-release]
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v2
+      - uses: mislav/bump-homebrew-formula-action@v3
         if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli
@@ -295,7 +295,7 @@ jobs:
           download-url: https://github.com/rockcarver/frodo-cli.git
         env:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
-      - uses: mislav/bump-homebrew-formula-action@v2
+      - uses: mislav/bump-homebrew-formula-action@v3
         if: ${{ fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli-next
@@ -340,11 +340,11 @@ jobs:
           #security import $INTERMEDIATE_CERTIFICATE_PATH -P "$DEVELOPMENT_CERTIFICATE_PASSPHRASE" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -380,7 +380,7 @@ jobs:
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-${{ needs.build.outputs.newVersion }}.zip
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
@@ -390,11 +390,11 @@ jobs:
     needs: [build, smoke-tests]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -417,7 +417,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-${{ needs.build.outputs.newVersion }}.zip frodo
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: frodo-linux-${{ needs.build.outputs.newVersion }}.zip
@@ -428,11 +428,11 @@ jobs:
     needs: [build, smoke-tests]
     runs-on: self-hosted
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           # runner currently only supports 16 due to GLIBC_2.28 dependency in node 18
           node-version: 16
@@ -456,7 +456,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip frodo
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -467,11 +467,11 @@ jobs:
     needs: [build, smoke-tests]
     runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -494,7 +494,7 @@ jobs:
       - name: Archive distribution binary
         run: 7z a -tzip frodo-win-${{ needs.build.outputs.newVersion }}.zip frodo.exe
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: frodo-win-${{ needs.build.outputs.newVersion }}.zip
