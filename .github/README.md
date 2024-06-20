@@ -1,7 +1,9 @@
 <!-- README.md for GitHub; the one for NPM is ../README.md. -->
 
 # Frodo CLI (@rockcarver/frodo-cli) - Export, import, and manage PingOne Advanced Identity Cloud configuration
-A command line interface to manage ForgeRock platform deployments supporting PingOne Advanced Identity Cloud environments, ForgeOps deployments, and classic deployments. Frodo-cli is powered by [frodo-lib](https://github.com/rockcarver/frodo-lib), a hybrid (ESM and CJS) library to manage ForgeRock deployments.
+
+A command line interface to manage PingOne Advanced Identity Cloud environments, ForgeOps deployments, and classic deployments. Frodo-cli is powered by [frodo-lib](https://github.com/rockcarver/frodo-lib), a hybrid (ESM and CJS) library to manage PingOne Advanced Identity Cloud environments, ForgeOps deployments, and classic deployments.
+
 ## Quick Nav
 
 - [Quick start](#quick-start)
@@ -144,7 +146,7 @@ Individuals who do not intend to develop or contribute to frodo should use this 
 
 For those who want to contribute or are just curious about the build process.
 
-- Make sure you have Node.js v14, v16, or v18 installed ([support for node 19](https://github.com/rockcarver/frodo-cli/issues/186) is pending).
+- Make sure you have **Node.js 18**, **20**, or **22** installed.
 - Clone this repo
   ```console
   git clone https://github.com/rockcarver/frodo-cli.git
@@ -163,10 +165,6 @@ If you are a node developer and want to use frodo as a cli tool or as a library 
 - To install (or update to) the latest version as a cli tool:
   ```console
   npm i -g @rockcarver/frodo-cli
-  ```
-- To install (or update to) the latest version as a dependency for you own application:
-  ```console
-  npm i --save @rockcarver/frodo-cli
   ```
 - To install (or update to) the latest pre-release:
   ```console
