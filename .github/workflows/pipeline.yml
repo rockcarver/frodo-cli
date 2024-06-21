@@ -209,7 +209,7 @@ jobs:
         run: echo ${{ github.sha }} > Release.txt
 
       - name: Update Changelog
-        uses: thomaseizinger/keep-a-changelog-new-release@v2
+        uses: thomaseizinger/keep-a-changelog-new-release@v3
         with:
           tag: ${{ needs.build.outputs.newTag }}
 
@@ -235,7 +235,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md package.json
+          git add CHANGELOG.md package.json package-lock.json
           git commit --message "Updated changelog and version for release ${{ needs.build.outputs.newTag }}"
           git push
 
@@ -448,7 +448,7 @@ jobs:
     # don't run on PRs to speed up the checks
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: self-hosted
+    runs-on: [self-hosted, ARM64]
     steps:
       - uses: actions/download-artifact@v4
         with:
