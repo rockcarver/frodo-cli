@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Update to frodo-lib 2.0.0-88
+-   Updated binary distribution node.js version to 20
+-   Pipeline hygiene
+
 ## [2.0.0-63] - 2024-06-20
 
 ### Changed

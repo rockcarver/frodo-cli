@@ -210,8 +210,7 @@ export class FrodoStubCommand extends Command {
 
 class FrodoStubHelp extends Help {
   subcommandTerm(cmd) {
-    return cmd._name +
-        (cmd._aliases[0] ? '|' + cmd._aliases[0] : '');
+    return cmd._name + (cmd._aliases[0] ? '|' + cmd._aliases[0] : '');
   }
 }
 
