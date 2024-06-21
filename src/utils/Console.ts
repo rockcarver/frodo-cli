@@ -24,7 +24,7 @@ let spinner = null;
  * @param {string | object} message the message
  */
 function data(message: string | object, newline = true) {
-  if (!message) return;
+  if (message === null || message === undefined || message === '') return;
   if (state.getOutputFile()) {
     if (typeof message === 'object') {
       message = JSON.stringify(message, null, 2);
