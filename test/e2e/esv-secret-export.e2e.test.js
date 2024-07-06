@@ -55,18 +55,18 @@ To record, run these:
 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --secret-id esv-test-secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value.secret.json --include-active-values
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value-frodo-dev.secret.json --include-active-values --target frodo-dev
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value-frodo-dev.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret.secret.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -Ni esv-test-secret -D secretExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a -f myAllSecrets_values.secret.json --include-active-values
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a -f myAllSecrets_values-frodo-dev.secret.json --include-active-values --target frodo-dev
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a -f myAllSecrets_values-frodo-dev.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a --file my-allSecrets.secret.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -NaD secretExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all-separate --no-metadata --directory secretExportTestDir3
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -AD secretExportTestDir4 --include-active-values
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -AD secretExportTestDir5 --include-active-values --target frodo-dev
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -AD secretExportTestDir5 --include-active-values
 */
 import { testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -94,9 +94,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value-frodo-dev.secret.json --include-active-values --target frodo-dev": should export the secret with secret id "esv-test-secret" including secret value encrypted in frodo-dev into file named my-esv-test-secret_value-frodo-dev.secret.json', async () => {
+  test('"frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value-frodo-dev.secret.json --include-active-values": should export the secret with secret id "esv-test-secret" including secret value into file named my-esv-test-secret_value-frodo-dev.secret.json', async () => {
     const exportFile = 'my-esv-test-secret_value-frodo-dev.secret.json';
-    const CMD = `frodo esv secret export -i esv-test-secret -f ${exportFile} --include-active-values --target frodo-dev`;
+    const CMD = `frodo esv secret export -i esv-test-secret -f ${exportFile} --include-active-values`;
     await testExport(CMD, env, type, exportFile);
   });
 
@@ -124,9 +124,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo esv secret export -a -f myAllSecrets_values-frodo-dev.secret.json --include-active-values --target frodo-dev": should export all secrets including secret values encrypted in frodo-dev to a single file named myAllSecrets_values-frodo-dev.secret.json', async () => {
+  test('"frodo esv secret export -a -f myAllSecrets_values-frodo-dev.secret.json --include-active-values": should export all secrets including secret values to a single file named myAllSecrets_values-frodo-dev.secret.json', async () => {
     const exportFile = 'myAllSecrets_values-frodo-dev.secret.json';
-    const CMD = `frodo esv secret export -a -f ${exportFile} --include-active-values --target frodo-dev`;
+    const CMD = `frodo esv secret export -a -f ${exportFile} --include-active-values`;
     await testExport(CMD, env, type, exportFile);
   });
 
@@ -159,9 +159,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
-  test('"frodo esv secret export -AD secretExportTestDir5 --include-active-values --target frodo-dev": should export all secrets including secret values encrypted in frodo-dev to separate files in the directory secretExportTestDir5', async () => {
+  test('"frodo esv secret export -AD secretExportTestDir5 --include-active-values": should export all secrets including secret values to separate files in the directory secretExportTestDir5', async () => {
     const exportDirectory = 'secretExportTestDir5';
-    const CMD = `frodo esv secret export -AD ${exportDirectory} --include-active-values --target frodo-dev`;
+    const CMD = `frodo esv secret export -AD ${exportDirectory} --include-active-values`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });
