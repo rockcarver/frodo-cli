@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-65] - 2024-07-06
+
 ### Add
 
 - rockcarver/frodo-lib#387: Support import of ESVs (variables and secrets). Frodo now supports importing ESV variables and secrets with two new commands:
@@ -14,17 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `frodo esv secret import`
 
 - Frodo now supports exporting (and importing) of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo will always encrypt values using either encryption keys from the source environment (default) or the target environment (export option). Frodo will never export secrets in the clear. However, frodo supports importing clear values (as well as importing encrypted values). Use these new commands and parameters to export/import variables and secrets including secret values:
-  - New parameters for existing `frodo esv secret export` and `frodo config export` commands:
-    
-      - `--include-active-values` Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use `--target <host url>` to have another environment perform the encryption.
 
-      - `--target <host url>` Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.
+  - New parameters for existing `frodo esv secret export` and `frodo config export` commands:
+
+    - `--include-active-values` Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use `--target <host url>` to have another environment perform the encryption.
+
+    - `--target <host url>` Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.
 
   - New `frodo esv secret import` and updated existing `frodo config import` command and note-worthy parameters:
 
-      - `--include-active-values` Import any secret values contained in the import file. By default, secret values are encrypted server-side in the environment they are exported from. Use `--source <host url>` to import a file exported from another environment than the one you are importing to.
+    - `--include-active-values` Import any secret values contained in the import file. By default, secret values are encrypted server-side in the environment they are exported from. Use `--source <host url>` to import a file exported from another environment than the one you are importing to.
 
-      - `--source <host url>` Host URL of the environment which performed secret value encryption. The URL must resolve to an existing connection profile. Use this option to import a file that was exported from a different source environment than the one you are importing to.
+    - `--source <host url>` Host URL of the environment which performed secret value encryption. The URL must resolve to an existing connection profile. Use this option to import a file that was exported from a different source environment than the one you are importing to.
 
 - rockcarver/frodo-lib#394: Support for `base64aes` encoding for ESV secrets
 
@@ -1614,7 +1617,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-64...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-65...HEAD
+[2.0.0-65]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-64...v2.0.0-65
 [2.0.0-64]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-63...v2.0.0-64
 [2.0.0-63]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-62...v2.0.0-63
 [2.0.0-62]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-61...v2.0.0-62
