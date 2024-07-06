@@ -5,13 +5,6 @@ exports[`frodo config import "frodo config import --current-realm --default -CAD
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
   Error importing services
   Error putting realm full service configs
   Error putting global full service config CorsService
@@ -29,13 +22,6 @@ exports[`frodo config import "frodo config import --global -CAD test/e2e/exports
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
@@ -71,6 +57,12 @@ Errors occurred during full config import
   Error putting global full service config oauth-oidc
   Error deleting service 'oauth-oidc' before import
   Error deleting global full service config oauth-oidc
+  HTTP client error
+    Code: ERR_BAD_RESPONSE
+    Status: 502
+  Error putting global full service config pingOneWorkerService
+  Error deleting service 'pingOneWorkerService' before import
+  Error deleting global full service config pingOneWorkerService
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
@@ -106,41 +98,17 @@ Errors occurred during full config import
 "
 `;
 
-exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-"
-`;
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything --include-active-values" Import everything with secret values from directory "test/e2e/exports/all-separate/everything" 1`] = `undefined`;
+
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `undefined`;
 
 exports[`frodo config import "frodo config import -adf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json", including default scripts. 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
-  Error importing scripts
-  Error updating script
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error updating script
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
   Error importing config entities
-  Error updating config entity emailTemplate/forgottenUsername
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -161,7 +129,13 @@ exports[`frodo config import "frodo config import -agCf test/e2e/exports/all/Alp
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -180,10 +154,8 @@ Errors occurred during full config import
   Error deleting service 'SocialIdentityProviders' before import
   Error deleting global full service config SocialIdentityProviders
   HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
+    Code: ERR_BAD_RESPONSE
+    Status: 502
   Error putting global full service config baseurl
   Error deleting service 'baseurl' before import
   Error deleting global full service config baseurl
@@ -207,6 +179,12 @@ Errors occurred during full config import
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in ForgeRock Identity Cloud.
+  Error putting global full service config pingOneWorkerService
+  Error deleting service 'pingOneWorkerService' before import
+  Error deleting global full service config pingOneWorkerService
+  HTTP client error
+    Code: ERR_BAD_RESPONSE
+    Status: 502
   Error putting global full service config policyconfiguration
   Error deleting service 'policyconfiguration' before import
   Error deleting global full service config policyconfiguration
@@ -219,18 +197,21 @@ Errors occurred during full config import
   Error deleting service 'selfServiceTrees' before import
   Error deleting global full service config selfServiceTrees
   HTTP client error
+    Code: ERR_BAD_RESPONSE
+    Status: 502
+  Error putting global full service config session
+  Error deleting service 'session' before import
+  HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
   Error putting global full service config validation
   Error deleting service 'validation' before import
   Error deleting global full service config validation
   HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
+    Code: ERR_BAD_RESPONSE
+    Status: 502
 "
 `;
 
@@ -240,7 +221,7 @@ exports[`frodo config import "frodo config import -arCf test/e2e/exports/all/Alp
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity emailTemplate/forgottenUsername
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -252,5 +233,14 @@ Errors occurred during full config import
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
+  Error importing services
+  Error putting realm full service configs
+  Error putting global full service config CorsService
+  Error deleting service 'CorsService' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
 "
 `;

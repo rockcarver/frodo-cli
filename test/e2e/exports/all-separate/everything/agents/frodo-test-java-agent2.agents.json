@@ -34,8 +34,11 @@
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -63,6 +66,7 @@
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           ""
         ],
@@ -146,6 +150,7 @@
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -223,11 +228,11 @@
     }
   },
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.699Z",
+    "exportDate": "2024-07-06T16:10:48.379Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   }
 }

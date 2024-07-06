@@ -37,6 +37,12 @@ Options:
   --flush-cache                Flush token cache.
   -g, --global                 Import service(s) as global service(s).
   -h, --help                   Help
+  --include-active-values      Import any secret values contained in the import
+                               file. By default, secret values are encrypted
+                               server-side in the environment they are exported
+                               from. Use --source <host url> to import a file
+                               exported from another environment than the one
+                               you are importing to.
   -k, --insecure               Allow insecure connections when using SSL/TLS.
                                Has no effect when using a network proxy for
                                https (HTTPS_PROXY=http://<host>:<port>), in
@@ -68,6 +74,12 @@ Options:
   --sa-id <sa-id>              Service account id.
   --sa-jwk-file <file>         File containing the JSON Web Key (JWK)
                                associated with the the service account.
+  --source <host url>          Host URL of the environment which performed
+                               secret value encryption. The URL must resolve to
+                               an existing connection profile. Use this option
+                               to import a file that was exported from a
+                               different source environment than the one you
+                               are importing to.
   --verbose                    Verbose output during command execution. If
                                specified, may or may not produce additional
                                output.
@@ -87,5 +99,18 @@ Evironment Variables:
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
 
+[92mHow Frodo handles secrets:
+[39m[92m  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.
+
+[39mUsage Examples:
+  Restore global and active realm configuration including active secret values from a single file (Note: config export must have been performed using the --include-active-values option):
+[96m  $ frodo config import -a -f Alpha.everything.json --include-active-values matrix
+[39m  Restore global and active realm configuration including active secret values from separate files in a directory structure (Note: config export must have been performed using the --include-active-values option):
+[96m  $ frodo config import -A -D matrix-backup --include-active-values matrix
+[39m  Import global and active realm configuration including active secret values, wich were exported from another environment using the --include-active-values option but without using the --target parameter, therefore requiring the --source parameter on import:
+  The --source parameter instructs frodo to decrypt the secret values during import using the source environment, which was used to encrypt them.
+  Using the --source parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.
+[96m  $ frodo config import -a -f Alpha.everything.json --include-active-values --source matrix zion
+[39m
 "
 `;

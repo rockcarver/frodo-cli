@@ -35,6 +35,7 @@
     "test": "npm run test:only",
     "test:only": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent",
     "test:debug": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --verbose=true --silent=false",
+    "test:update": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --verbose=true --silent=false --updateSnapshot",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "eslint --fix --ext .ts --ignore-path .gitignore .",
     "build": "npm run build:binary",
@@ -113,7 +114,7 @@
     ]
   },
   "devDependencies": {
-    "@rockcarver/frodo-lib": "2.0.0-88",
+    "@rockcarver/frodo-lib": "2.0.0-91",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",

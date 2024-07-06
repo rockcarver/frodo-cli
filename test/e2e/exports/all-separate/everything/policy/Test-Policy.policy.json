@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T16:10:48.435Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime"
+          },
+          {
+            "scriptId": "59f84396-71e4-4c1d-a6ae-c4fc624d9752",
+            "type": "Script"
+          }
+        ],
+        "type": "AND"
+      },
+      "createdBy": "id=ba58ff99-76d3-4c69-9c4a-7f150ac70e2c,ou=user,ou=am-config",
+      "creationDate": "2024-03-29T20:31:08.357Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=ba58ff99-76d3-4c69-9c4a-7f150ac70e2c,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-07-06T05:50:44.377Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value"
+          ],
+          "type": "Static"
+        }
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit"
+      ],
+      "subject": {
+        "type": "NONE"
+      }
+    }
+  }
+}

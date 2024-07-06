@@ -1,9 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   SecretEncodingType,
   SecretSkeleton,
   VersionOfSecretSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
+import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
 import fs from 'fs';
 
 import { getFullExportConfig, isIdUsed } from '../../utils/Config';
@@ -12,9 +13,12 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  failSpinner,
   printError,
   printMessage,
+  showSpinner,
   stopProgressIndicator,
+  succeedSpinner,
   updateProgressIndicator,
 } from '../../utils/Console';
 import wordwrap from '../utils/Wordwrap';
@@ -27,6 +31,8 @@ const {
   readSecret,
   exportSecret,
   exportSecrets,
+  importSecret,
+  importSecrets,
   enableVersionOfSecret,
   disableVersionOfSecret,
   createVersionOfSecret: _createVersionOfSecret,
@@ -35,7 +41,7 @@ const {
   deleteVersionOfSecret: _deleteVersionOfSecret,
 } = frodo.cloud.secret;
 
-const { getFilePath, getTypedFilename, saveJsonToFile, saveToFile, titleCase } =
+const { getFilePath, getTypedFilename, getWorkingDirectory, saveJsonToFile } =
   frodo.utils;
 
 /**
@@ -422,12 +428,16 @@ export async function describeSecret(secretId: string): Promise<boolean> {
  * @param {String} secretId Secret id
  * @param {String} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} includeActiveValue include active value of secret (default: false)
+ * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretToFile(
   secretId: string,
   file: string | null,
-  includeMeta: boolean
+  includeMeta: boolean,
+  includeActiveValue?: boolean,
+  target?: string
 ): Promise<boolean> {
   debugMessage(
     `Cli.SecretsOps.exportSecretToFile: start [secretId=${secretId}, file=${file}]`
@@ -444,7 +454,7 @@ export async function exportSecretToFile(
       0,
       `Exporting secret ${secretId}`
     );
-    const fileData = await exportSecret(secretId);
+    const fileData = await exportSecret(secretId, includeActiveValue, target);
     saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
@@ -470,22 +480,23 @@ export async function exportSecretToFile(
  * Export all secrets to single file
  * @param {string} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} includeActiveValue include active value of secret (default: false)
+ * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretsToFile(
   file: string,
-  includeMeta: boolean
+  includeMeta: boolean,
+  includeActiveValue?: boolean,
+  target?: string
 ): Promise<boolean> {
   try {
     debugMessage(`Cli.SecretsOps.exportSecretsToFile: start [file=${file}]`);
     let fileName = file;
     if (!fileName) {
-      fileName = getTypedFilename(
-        `all${titleCase(state.getRealm())}Secrets`,
-        'secret'
-      );
+      fileName = getTypedFilename(`allSecrets`, 'secret');
     }
-    const secretsExport = await exportSecrets();
+    const secretsExport = await exportSecrets(includeActiveValue, target);
     saveJsonToFile(secretsExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.SecretsOps.exportSecretsToFile: end [file=${file}]`);
     return true;
@@ -498,10 +509,14 @@ export async function exportSecretsToFile(
 /**
  * Export all secrets to individual files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} includeActiveValues include active value of secret (default: false)
+ * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretsToFiles(
-  includeMeta: boolean
+  includeMeta: boolean,
+  includeActiveValues?: boolean,
+  target?: string
 ): Promise<boolean> {
   let secrets: SecretSkeleton[] = [];
   const spinnerId = createProgressIndicator(
@@ -523,15 +538,14 @@ export async function exportSecretsToFiles(
       'Exporting secrets'
     );
     for (const secret of secrets) {
-      updateProgressIndicator(indicatorId, `Writing secret ${secret._id}`);
       const fileName = getTypedFilename(secret._id, 'secret');
-      saveToFile(
-        'secret',
-        secret,
-        '_id',
-        getFilePath(fileName, true),
-        includeMeta
+      const exportData: SecretsExportInterface = await exportSecret(
+        secret._id,
+        includeActiveValues,
+        target
       );
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
     }
     stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
     return true;
@@ -541,6 +555,122 @@ export async function exportSecretsToFiles(
       `Error exporting secrets to files`,
       'fail'
     );
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import secret from file
+ * @param {string} secretId secret id/name
+ * @param {string} file file name
+ * @param {boolean} includeActiveValue include active value of secret (default: false)
+ * @param {string} source Host URL of source environment where the secret was exported from
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importSecretFromFile(
+  secretId: string,
+  file: string,
+  includeActiveValue: boolean = false,
+  source: string
+): Promise<boolean> {
+  debugMessage(
+    `cli.SecretsOps.importSecretFromFile: begin [value=${includeActiveValue}, source=${source}]`
+  );
+  showSpinner(`Importing ${secretId ? secretId : 'first secret'}...`);
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const fileData = JSON.parse(data);
+    await importSecret(secretId, fileData, includeActiveValue, source);
+    succeedSpinner(`Imported ${secretId ? secretId : 'first secret'}.`);
+    debugMessage(`cli.SecretsOps.importSecretFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing ${secretId ? secretId : 'first secret'}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import secrets from file
+ * @param {string} file file name
+ * @param {boolean} includeActiveValues include active values of secrets (default: false)
+ * @param {string} source Host URL of source environment where the secrets were exported from
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importSecretsFromFile(
+  file: string,
+  includeActiveValues: boolean = false,
+  source: string
+): Promise<boolean> {
+  debugMessage(`cli.SecretsOps.importSecretsFromFile: begin`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const fileData = JSON.parse(data);
+    await importSecrets(fileData, includeActiveValues, source);
+    succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.SecretsOps.importSecretsFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing ${filePath}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import secrets from files
+ * @param {boolean} includeActiveValues include active values of secrets (default: false)
+ * @param {string} source Host URL of source environment where the secrets were exported from
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importSecretsFromFiles(
+  includeActiveValues: boolean = false,
+  source: string
+): Promise<boolean> {
+  const errors = [];
+  let indicatorId: string;
+  try {
+    debugMessage(`cli.SecretsOps.importSecretsFromFiles: begin`);
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.secret.json'))
+      .map((name) => getFilePath(name));
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing secrets...'
+    );
+    let total = 0;
+    for (const file of files) {
+      try {
+        const data = fs.readFileSync(file, 'utf8');
+        const fileData = JSON.parse(data);
+        const count = Object.keys(fileData.secrets).length;
+        total += count;
+        await importSecrets(fileData, includeActiveValues, source);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} secrets from ${file}`
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing secrets`, errors);
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `Finished importing ${total} secrets from ${files.length} files.`
+    );
+    debugMessage(`cli.SecretsOps.importSecretsFromFiles: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing secrets`);
     printError(error);
   }
   return false;

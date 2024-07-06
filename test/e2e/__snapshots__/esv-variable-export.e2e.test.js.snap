@@ -2,7 +2,7 @@
 
 exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: allAlphaVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: allVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {
@@ -10,136 +10,100 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2023-07-18T22:21:38.640Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
-      "valueBase64": "ZmFsc2U=",
     },
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
-      "description": "IPv4 CIDR access rules:
-{
-  "allow": [
-    "address/mask"
-  ]
-}",
-      "expressionType": "",
-      "lastChangeDate": "2022-08-25T22:54:28.551Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "{  "allow": [    "150.128.0.0/16",    "139.35.0.0/16",    "101.216.0.0/16",    "99.72.28.182/32"  ]}",
-      "valueBase64": "eyAgImFsbG93IjogWyAgICAiMTUwLjEyOC4wLjAvMTYiLCAgICAiMTM5LjM1LjAuMC8xNiIsICAgICIxMDEuMjE2LjAuMC8xNiIsICAgICI5OS43Mi4yOC4xODIvMzIiICBdfQ==",
+      "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2023-07-18T21:59:58.974Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
-      "valueBase64": "WyJNb3JwaGV1cyIsIlRyaW5pdHkiLCJMaW5rIiwiVGFuayIsIkRvemVyIiwiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl0=",
     },
     "esv-nebuchadnezzar-crew-structure": {
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2023-07-18T22:09:54.630Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
-      "valueBase64": "eyJDYXB0YWluIjoiTW9ycGhldXMiLCJGaXJzdE1hdGUiOiJUcmluaXR5IiwiT3BlcmF0b3IiOlsiTGluayIsIlRhbmsiXSwiTWVkaWMiOiJEb3plciIsIkNyZXdtZW4iOlsiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl19",
     },
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2023-07-18T22:21:23.578Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
-      "valueBase64": "Mjg=",
+    },
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134",
     },
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
-      "expressionType": "",
-      "lastChangeDate": "2022-09-02T04:23:56.075Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
-      "valueBase64": "dGhpcyBpcyBhIHRlc3QgdmFyaWFibGU=",
-    },
-    "esv-test-var-1": {
-      "_id": "esv-test-var-1",
-      "description": "test var one",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-09T17:42:41.684Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "test var 1 value2",
-      "valueBase64": "dGVzdCB2YXIgMSB2YWx1ZTI=",
-    },
-    "esv-test-var-2": {
-      "_id": "esv-test-var-2",
-      "description": "A temporary test variable",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-02T21:09:01.847Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "testval",
-      "valueBase64": "dGVzdHZhbA==",
-    },
-    "esv-test-var-3": {
-      "_id": "esv-test-var-3",
-      "description": "This is a test variable",
-      "expressionType": "int",
-      "lastChangeDate": "2023-10-17T22:22:52.023Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "42",
-      "valueBase64": "NDI=",
     },
     "esv-test-var-pi": {
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2023-10-17T22:28:44.529Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
     },
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2023-10-18T22:05:30.300Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
+    },
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": true,
+      "value": "299792458",
     },
     "esv-trinity-phone": {
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2023-07-18T20:33:28.922Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
-      "valueBase64": "KDMxMiktNTU1LTA2OTA=",
-    },
-    "esv-volkerstestvariable1": {
-      "_id": "esv-volkerstestvariable1",
-      "description": "variable created for api testing",
-      "expressionType": "",
-      "lastChangeDate": "2022-11-30T00:13:52.478Z",
-      "lastChangedBy": "10ecab02-f357-4522-bc17-dfcc64744064",
-      "loaded": true,
-      "value": "for jest",
-      "valueBase64": "Zm9yIGplc3Q=",
     },
   },
 }
@@ -147,35 +111,145 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-blue-piller.variable.json 1`] = `
 {
-  "variable": {
-    "esv-test-var": {
-      "_id": "esv-test-var",
-      "description": "Simple ESV test variable with a boolean value of true",
+  "variables": {
+    "esv-blue-piller": {
+      "_id": "esv-blue-piller",
+      "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2023-12-18T23:02:35.417404838Z",
-      "lastChangedBy": "76618ff6-e851-433e-9704-9d2852a17b7a",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "true",
-      "valueBase64": "dHJ1ZQ==",
+      "value": "false",
     },
   },
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-variable-belphegor.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
-  "variable": {
-    "esv-test-variable-belphegor": {
-      "_id": "esv-test-variable-belphegor",
-      "description": "A test variable containing belphegor's palindromic prime number (as a string).",
-      "expressionType": "string",
-      "lastChangeDate": "2023-12-14T15:31:06.433097476Z",
-      "lastChangedBy": "1e9280f6-eab6-467e-889c-83d147c8b936",
+  "variables": {
+    "esv-ipv4-cidr-access-rules": {
+      "_id": "esv-ipv4-cidr-access-rules",
+      "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "1000000000000066600000000000001",
-      "valueBase64": "MTAwMDAwMDAwMDAwMDA2NjYwMDAwMDAwMDAwMDAwMQ==",
+      "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew.variable.json 1`] = `
+{
+  "variables": {
+    "esv-nebuchadnezzar-crew": {
+      "_id": "esv-nebuchadnezzar-crew",
+      "description": "The crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "array",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
+{
+  "variables": {
+    "esv-nebuchadnezzar-crew-structure": {
+      "_id": "esv-nebuchadnezzar-crew-structure",
+      "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-neo-age.variable.json 1`] = `
+{
+  "variables": {
+    "esv-neo-age": {
+      "_id": "esv-neo-age",
+      "description": "Neo's age in the matrix.",
+      "expressionType": "int",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "28",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-number.variable.json 1`] = `
+{
+  "variables": {
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var.variable.json 1`] = `
+{
+  "variables": {
+    "esv-test-var": {
+      "_id": "esv-test-var",
+      "description": "this is a test description",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "this is a test variable",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi.variable.json 1`] = `
+{
+  "variables": {
+    "esv-test-var-pi": {
+      "_id": "esv-test-var-pi",
+      "description": "This is another test variable.",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi-string.variable.json 1`] = `
+{
+  "variables": {
+    "esv-test-var-pi-string": {
+      "_id": "esv-test-var-pi-string",
+      "description": "This is another test variable.",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926",
     },
   },
 }
@@ -183,16 +257,31 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-variable-light.variable.json 1`] = `
 {
-  "variable": {
+  "variables": {
     "esv-test-variable-light": {
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
       "expressionType": "int",
-      "lastChangeDate": "2023-12-14T15:34:13.446903047Z",
-      "lastChangedBy": "1e9280f6-eab6-467e-889c-83d147c8b936",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
       "loaded": true,
       "value": "299792458",
-      "valueBase64": "Mjk5NzkyNDU4",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-trinity-phone.variable.json 1`] = `
+{
+  "variables": {
+    "esv-trinity-phone": {
+      "_id": "esv-trinity-phone",
+      "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "(312)-555-0690",
     },
   },
 }
@@ -207,12 +296,11 @@ exports[`frodo esv variable export "frodo esv variable export --variable-id esv-
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
-      "expressionType": "",
-      "lastChangeDate": "2022-09-02T04:23:56.075Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
-      "valueBase64": "dGhpcyBpcyBhIHRlc3QgdmFyaWFibGU=",
     },
   },
 }
@@ -223,16 +311,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-blue-piller.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2023-07-18T22:21:38.640Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
-      "valueBase64": "ZmFsc2U=",
     },
   },
 }
@@ -241,21 +328,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
-      "description": "IPv4 CIDR access rules:
-{
-  "allow": [
-    "address/mask"
-  ]
-}",
-      "expressionType": "",
-      "lastChangeDate": "2022-08-25T22:54:28.551Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "{  "allow": [    "150.128.0.0/16",    "139.35.0.0/16",    "101.216.0.0/16",    "99.72.28.182/32"  ]}",
-      "valueBase64": "eyAgImFsbG93IjogWyAgICAiMTUwLjEyOC4wLjAvMTYiLCAgICAiMTM5LjM1LjAuMC8xNiIsICAgICIxMDEuMjE2LjAuMC8xNiIsICAgICI5OS43Mi4yOC4xODIvMzIiICBdfQ==",
+      "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
   },
 }
@@ -264,16 +345,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2023-07-18T21:59:58.974Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
-      "valueBase64": "WyJNb3JwaGV1cyIsIlRyaW5pdHkiLCJMaW5rIiwiVGFuayIsIkRvemVyIiwiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl0=",
     },
   },
 }
@@ -282,16 +362,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-nebuchadnezzar-crew-structure": {
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2023-07-18T22:09:54.630Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
-      "valueBase64": "eyJDYXB0YWluIjoiTW9ycGhldXMiLCJGaXJzdE1hdGUiOiJUcmluaXR5IiwiT3BlcmF0b3IiOlsiTGluayIsIlRhbmsiXSwiTWVkaWMiOiJEb3plciIsIkNyZXdtZW4iOlsiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl19",
     },
   },
 }
@@ -300,16 +379,32 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-neo-age.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2023-07-18T22:21:23.578Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
-      "valueBase64": "Mjg=",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-number.variable.json 1`] = `
+{
+  "meta": Any<Object>,
+  "variables": {
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134",
     },
   },
 }
@@ -318,70 +413,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
-      "expressionType": "",
-      "lastChangeDate": "2022-09-02T04:23:56.075Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
-      "valueBase64": "dGhpcyBpcyBhIHRlc3QgdmFyaWFibGU=",
-    },
-  },
-}
-`;
-
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-1.variable.json 1`] = `
-{
-  "meta": Any<Object>,
-  "variable": {
-    "esv-test-var-1": {
-      "_id": "esv-test-var-1",
-      "description": "test var one",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-09T17:42:41.684Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "test var 1 value2",
-      "valueBase64": "dGVzdCB2YXIgMSB2YWx1ZTI=",
-    },
-  },
-}
-`;
-
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-2.variable.json 1`] = `
-{
-  "meta": Any<Object>,
-  "variable": {
-    "esv-test-var-2": {
-      "_id": "esv-test-var-2",
-      "description": "A temporary test variable",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-02T21:09:01.847Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "testval",
-      "valueBase64": "dGVzdHZhbA==",
-    },
-  },
-}
-`;
-
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-3.variable.json 1`] = `
-{
-  "meta": Any<Object>,
-  "variable": {
-    "esv-test-var-3": {
-      "_id": "esv-test-var-3",
-      "description": "This is a test variable",
-      "expressionType": "int",
-      "lastChangeDate": "2023-10-17T22:22:52.023Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "42",
-      "valueBase64": "NDI=",
     },
   },
 }
@@ -390,16 +430,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-test-var-pi": {
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2023-10-17T22:28:44.529Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
     },
   },
 }
@@ -408,16 +447,32 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi-string.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2023-10-18T22:05:30.300Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
+    },
+  },
+}
+`;
+
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-variable-light.variable.json 1`] = `
+{
+  "meta": Any<Object>,
+  "variables": {
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": true,
+      "value": "299792458",
     },
   },
 }
@@ -426,34 +481,15 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-trinity-phone.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variable": {
+  "variables": {
     "esv-trinity-phone": {
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2023-07-18T20:33:28.922Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
-      "valueBase64": "KDMxMiktNTU1LTA2OTA=",
-    },
-  },
-}
-`;
-
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-volkerstestvariable1.variable.json 1`] = `
-{
-  "meta": Any<Object>,
-  "variable": {
-    "esv-volkerstestvariable1": {
-      "_id": "esv-volkerstestvariable1",
-      "description": "variable created for api testing",
-      "expressionType": "",
-      "lastChangeDate": "2022-11-30T00:13:52.478Z",
-      "lastChangedBy": "10ecab02-f357-4522-bc17-dfcc64744064",
-      "loaded": true,
-      "value": "for jest",
-      "valueBase64": "Zm9yIGplc3Q=",
     },
   },
 }
@@ -461,38 +497,107 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 
 exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allAlphaVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allVariables.variable.json 1`] = `
 {
   "variables": {
+    "esv-blue-piller": {
+      "_id": "esv-blue-piller",
+      "description": "Zion membership criteria.",
+      "expressionType": "bool",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "false",
+    },
+    "esv-ipv4-cidr-access-rules": {
+      "_id": "esv-ipv4-cidr-access-rules",
+      "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
+    },
+    "esv-nebuchadnezzar-crew": {
+      "_id": "esv-nebuchadnezzar-crew",
+      "description": "The crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "array",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
+    },
+    "esv-nebuchadnezzar-crew-structure": {
+      "_id": "esv-nebuchadnezzar-crew-structure",
+      "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
+    },
+    "esv-neo-age": {
+      "_id": "esv-neo-age",
+      "description": "Neo's age in the matrix.",
+      "expressionType": "int",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "28",
+    },
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134",
+    },
     "esv-test-var": {
       "_id": "esv-test-var",
-      "description": "Simple ESV test variable with a boolean value of true",
-      "expressionType": "bool",
-      "lastChangeDate": "2023-12-18T23:02:35.417404838Z",
-      "lastChangedBy": "76618ff6-e851-433e-9704-9d2852a17b7a",
-      "loaded": true,
-      "value": "true",
-      "valueBase64": "dHJ1ZQ==",
-    },
-    "esv-test-variable-belphegor": {
-      "_id": "esv-test-variable-belphegor",
-      "description": "A test variable containing belphegor's palindromic prime number (as a string).",
+      "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2023-12-14T15:31:06.433097476Z",
-      "lastChangedBy": "1e9280f6-eab6-467e-889c-83d147c8b936",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "1000000000000066600000000000001",
-      "valueBase64": "MTAwMDAwMDAwMDAwMDA2NjYwMDAwMDAwMDAwMDAwMQ==",
+      "value": "this is a test variable",
+    },
+    "esv-test-var-pi": {
+      "_id": "esv-test-var-pi",
+      "description": "This is another test variable.",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926",
+    },
+    "esv-test-var-pi-string": {
+      "_id": "esv-test-var-pi-string",
+      "description": "This is another test variable.",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926",
     },
     "esv-test-variable-light": {
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
       "expressionType": "int",
-      "lastChangeDate": "2023-12-14T15:34:13.446903047Z",
-      "lastChangedBy": "1e9280f6-eab6-467e-889c-83d147c8b936",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
       "loaded": true,
       "value": "299792458",
-      "valueBase64": "Mjk5NzkyNDU4",
+    },
+    "esv-trinity-phone": {
+      "_id": "esv-trinity-phone",
+      "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "(312)-555-0690",
     },
   },
 }
@@ -505,21 +610,20 @@ exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -
   "variables": {
     "esv-test-var": {
       "_id": "esv-test-var",
-      "description": "Simple ESV test variable with a boolean value of true",
-      "expressionType": "bool",
-      "lastChangeDate": "2023-12-18T23:02:35.417404838Z",
-      "lastChangedBy": "76618ff6-e851-433e-9704-9d2852a17b7a",
+      "description": "this is a test description",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "true",
-      "valueBase64": "dHJ1ZQ==",
+      "value": "this is a test variable",
     },
   },
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 1`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json: my-allAlphaVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json: my-allVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
   "variables": {
@@ -527,136 +631,100 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allAl
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2023-07-18T22:21:38.640Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
-      "valueBase64": "ZmFsc2U=",
     },
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
-      "description": "IPv4 CIDR access rules:
-{
-  "allow": [
-    "address/mask"
-  ]
-}",
-      "expressionType": "",
-      "lastChangeDate": "2022-08-25T22:54:28.551Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
-      "value": "{  "allow": [    "150.128.0.0/16",    "139.35.0.0/16",    "101.216.0.0/16",    "99.72.28.182/32"  ]}",
-      "valueBase64": "eyAgImFsbG93IjogWyAgICAiMTUwLjEyOC4wLjAvMTYiLCAgICAiMTM5LjM1LjAuMC8xNiIsICAgICIxMDEuMjE2LjAuMC8xNiIsICAgICI5OS43Mi4yOC4xODIvMzIiICBdfQ==",
+      "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2023-07-18T21:59:58.974Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
-      "valueBase64": "WyJNb3JwaGV1cyIsIlRyaW5pdHkiLCJMaW5rIiwiVGFuayIsIkRvemVyIiwiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl0=",
     },
     "esv-nebuchadnezzar-crew-structure": {
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2023-07-18T22:09:54.630Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
-      "valueBase64": "eyJDYXB0YWluIjoiTW9ycGhldXMiLCJGaXJzdE1hdGUiOiJUcmluaXR5IiwiT3BlcmF0b3IiOlsiTGluayIsIlRhbmsiXSwiTWVkaWMiOiJEb3plciIsIkNyZXdtZW4iOlsiQXBvYyIsIkN5cGhlciIsIk1vdXNlIiwiTmVvIiwiU3dpdGNoIl19",
     },
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2023-07-18T22:21:23.578Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
-      "valueBase64": "Mjg=",
+    },
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134",
     },
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
-      "expressionType": "",
-      "lastChangeDate": "2022-09-02T04:23:56.075Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
-      "valueBase64": "dGhpcyBpcyBhIHRlc3QgdmFyaWFibGU=",
-    },
-    "esv-test-var-1": {
-      "_id": "esv-test-var-1",
-      "description": "test var one",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-09T17:42:41.684Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "test var 1 value2",
-      "valueBase64": "dGVzdCB2YXIgMSB2YWx1ZTI=",
-    },
-    "esv-test-var-2": {
-      "_id": "esv-test-var-2",
-      "description": "A temporary test variable",
-      "expressionType": "string",
-      "lastChangeDate": "2023-08-02T21:09:01.847Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "testval",
-      "valueBase64": "dGVzdHZhbA==",
-    },
-    "esv-test-var-3": {
-      "_id": "esv-test-var-3",
-      "description": "This is a test variable",
-      "expressionType": "int",
-      "lastChangeDate": "2023-10-17T22:22:52.023Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
-      "loaded": true,
-      "value": "42",
-      "valueBase64": "NDI=",
     },
     "esv-test-var-pi": {
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2023-10-17T22:28:44.529Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
     },
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2023-10-18T22:05:30.300Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
-      "valueBase64": "My4xNDE1OTI2",
+    },
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": true,
+      "value": "299792458",
     },
     "esv-trinity-phone": {
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2023-07-18T20:33:28.922Z",
-      "lastChangedBy": "b672336b-41ef-428d-ae4a-e0c082875377",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
-      "valueBase64": "KDMxMiktNTU1LTA2OTA=",
-    },
-    "esv-volkerstestvariable1": {
-      "_id": "esv-volkerstestvariable1",
-      "description": "variable created for api testing",
-      "expressionType": "",
-      "lastChangeDate": "2022-11-30T00:13:52.478Z",
-      "lastChangedBy": "10ecab02-f357-4522-bc17-dfcc64744064",
-      "loaded": true,
-      "value": "for jest",
-      "valueBase64": "Zm9yIGplc3Q=",
     },
   },
 }
@@ -671,12 +739,11 @@ exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
-      "expressionType": "",
-      "lastChangeDate": "2022-09-02T04:23:56.075Z",
-      "lastChangedBy": "8efaa5b6-8c98-4489-9b21-ee41f5589ab7",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
-      "valueBase64": "dGhpcyBpcyBhIHRlc3QgdmFyaWFibGU=",
     },
   },
 }

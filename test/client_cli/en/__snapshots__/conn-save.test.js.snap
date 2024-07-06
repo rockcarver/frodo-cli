@@ -55,9 +55,9 @@ Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m
 "
 `;
@@ -117,9 +117,9 @@ Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m
 "
 `;
@@ -179,9 +179,9 @@ Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m
 "
 `;
@@ -241,9 +241,9 @@ Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
-[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix'
+[96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m
 "
 `;

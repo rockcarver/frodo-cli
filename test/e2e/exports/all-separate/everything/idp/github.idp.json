@@ -25,7 +25,7 @@
       "scopes": [
         "user"
       ],
-      "tokenEndpoint": "https://github.com/login/oauth/access_token",
+      "tokenEndpoint": "https://ig.mytestrun.com/login/oauth/access_token",
       "transform": "23143919-6b78-40c3-b25e-beca19b229e0",
       "uiConfig": {
         "buttonCustomStyle": "background-color: #fff; color: #757575; border-color: #ddd;",
@@ -36,15 +36,15 @@
         "iconFontColor": "white"
       },
       "useCustomTrustStore": false,
-      "userInfoEndpoint": "https://api.github.com/user"
+      "userInfoEndpoint": "https://ig.mytestrun.com/user"
     }
   },
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.718Z",
+    "exportDate": "2024-07-06T16:10:48.429Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   }
 }

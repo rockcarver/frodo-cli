@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T16:10:48.435Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "policy": {
+    "actions": {
+      "_id": "actions",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "data",
+      "createdBy": "id=ba58ff99-76d3-4c69-9c4a-7f150ac70e2c,ou=user,ou=am-config",
+      "creationDate": "2024-03-30T23:22:52.30Z",
+      "description": "",
+      "lastModifiedBy": "id=ba58ff99-76d3-4c69-9c4a-7f150ac70e2c,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-07-06T05:50:44.509Z",
+      "name": "actions",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/demo/api/action/actions"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

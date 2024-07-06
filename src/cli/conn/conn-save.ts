@@ -58,11 +58,11 @@ export default function setup() {
           'brightCyan'
         ] +
         `  Save an existing service account to an existing or new connection profile:\n` +
-        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}'\n`[
+        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
           'brightCyan'
         ] +
         `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
-        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}'\n`[
+        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
           'brightCyan'
         ]
     )

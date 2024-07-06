@@ -5,7 +5,7 @@
  *    In mock mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=1 frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!
+ *    $ FRODO_MOCK=1 FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --variable-id esv-test-var
  *
  *    If your command completes without errors and with the expected results,
  *    all the required mocks already exist and you are good to write your
@@ -20,7 +20,7 @@
  *    In mock record mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=record frodo conn save https://openam-frodo-dev.forgeblocks.com/am volker.scheuber@forgerock.com Sup3rS3cr3t!
+ *    $ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --variable-id esv-test-var
  *
  *    Wait until you see all the Polly instances (mock recording adapters) have
  *    shutdown before you try to run step #1 again.
@@ -47,11 +47,25 @@
  */
 
 /*
+To create test data, run these:
+
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create -i esv-test-var --value "this is a test variable" --description "this is a test description"
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id "esv-trinity-phone" --value "(312)-555-0690" --description "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690"
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id "esv-nebuchadnezzar-crew" --variable-type array --value '["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]' --description "The crew of the Nebuchadnezzar hovercraft."
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id "esv-nebuchadnezzar-crew-structure" --variable-type object --value '{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}' --description "The structure of the crew of the Nebuchadnezzar hovercraft."
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id "esv-neo-age" --variable-type int --value '28' --description "Neo's age in the matrix."
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id "esv-blue-piller" --variable-type bool --value 'false' --description "Zion membership criteria."
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id esv-ipv4-cidr-access-rules --variable-type object --value '{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }' --description 'IPv4 CIDR access rules: { "allow": [ "address/mask" ] }'
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create --variable-id esv-test-var-pi-string --value "3.1415926" --description "This is another test variable." --variable-type string
+FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable create -i esv-test-var-pi --value "3.1415926" --description "This is another test variable." --variable-type number
+
+To record, run these:
+
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --variable-id esv-test-var
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -Ni esv-test-var -D variableExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -a --file my-allVariables.variable.json --no-decode
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -NaD variableExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode
@@ -89,13 +103,13 @@ describe('frodo esv variable export', () => {
     });
 
     test('"frodo esv variable export --all": should export all variables to a single file', async () => {
-        const exportFile = "allAlphaVariables.variable.json";
+        const exportFile = "allVariables.variable.json";
         const CMD = `frodo esv variable export --all`;
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo esv variable export -a --file my-allAlphaVariables.variable.json --no-decode": should export all variables to a single file named my-allAlphaVariables.variable.json', async () => {
-        const exportFile = "my-allAlphaVariables.variable.json";
+    test('"frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json', async () => {
+        const exportFile = "my-allVariables.variable.json";
         const CMD = `frodo esv variable export -a --file ${exportFile} --no-decode`;
         await testExport(CMD, env, type, exportFile);
     });

@@ -4,10 +4,11 @@ exports[`frodo esv variable delete "frodo esv variable delete --variable-id esv-
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting variable esv-test-var-pi...
 ✖ Error deleting variable esv-test-var-pi
-HTTP client error
-  Code: ERR_BAD_REQUEST
-  Status: 404
-  Message: The variable does not exist
+Error deleting variable esv-test-var-pi
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Message: The variable does not exist
 "
 `;
 

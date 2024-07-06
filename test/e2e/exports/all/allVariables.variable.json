@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T00:53:09.580Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "variables": {
+    "esv-blue-piller": {
+      "_id": "esv-blue-piller",
+      "description": "Zion membership criteria.",
+      "expressionType": "bool",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "false"
+    },
+    "esv-ipv4-cidr-access-rules": {
+      "_id": "esv-ipv4-cidr-access-rules",
+      "description": "IPv4 CIDR access rules: { \"allow\": [ \"address/mask\" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{ \"allow\": [ \"145.118.0.0/16\", \"132.35.0.0/16\", \"101.226.0.0/16\", \"99.72.28.182/32\" ] }"
+    },
+    "esv-nebuchadnezzar-crew": {
+      "_id": "esv-nebuchadnezzar-crew",
+      "description": "The crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "array",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "[\"Morpheus\",\"Trinity\",\"Link\",\"Tank\",\"Dozer\",\"Apoc\",\"Cypher\",\"Mouse\",\"Neo\",\"Switch\"]"
+    },
+    "esv-nebuchadnezzar-crew-structure": {
+      "_id": "esv-nebuchadnezzar-crew-structure",
+      "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{\"Captain\":\"Morpheus\",\"FirstMate\":\"Trinity\",\"Operator\":[\"Link\",\"Tank\"],\"Medic\":\"Dozer\",\"Crewmen\":[\"Apoc\",\"Cypher\",\"Mouse\",\"Neo\",\"Switch\"]}"
+    },
+    "esv-neo-age": {
+      "_id": "esv-neo-age",
+      "description": "Neo's age in the matrix.",
+      "expressionType": "int",
+      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "28"
+    },
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134"
+    },
+    "esv-test-var": {
+      "_id": "esv-test-var",
+      "description": "this is a test description",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "this is a test variable"
+    },
+    "esv-test-var-pi": {
+      "_id": "esv-test-var-pi",
+      "description": "This is another test variable.",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926"
+    },
+    "esv-test-var-pi-string": {
+      "_id": "esv-test-var-pi-string",
+      "description": "This is another test variable.",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926"
+    },
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": true,
+      "value": "299792458"
+    },
+    "esv-trinity-phone": {
+      "_id": "esv-trinity-phone",
+      "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "(312)-555-0690"
+    }
+  }
+}

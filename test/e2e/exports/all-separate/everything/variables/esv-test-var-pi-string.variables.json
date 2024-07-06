@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T16:10:48.534Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "variables": {
+    "esv-test-var-pi-string": {
+      "_id": "esv-test-var-pi-string",
+      "description": "This is another test variable.",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "3.1415926"
+    }
+  }
+}

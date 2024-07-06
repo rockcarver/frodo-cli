@@ -1,11 +1,11 @@
 {
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.731Z",
+    "exportDate": "2024-07-06T16:10:48.454Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   },
   "script": {
     "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {

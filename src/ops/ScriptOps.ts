@@ -597,7 +597,7 @@ function getScriptSkeleton(script: ScriptExportInterface): ScriptSkeleton {
 function getScriptId(script: ScriptExportInterface): string {
   const scriptIds = Object.keys(script.script);
   if (scriptIds.length !== 1) {
-    throw new Error(`Expected 1 script, found ${scriptIds.length}`);
+    throw new FrodoError(`Expected 1 script, found ${scriptIds.length}`);
   }
   return scriptIds[0];
 }
@@ -619,6 +619,7 @@ export async function deleteScriptId(id: string): Promise<boolean> {
     return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
+    printError(error);
   }
   return false;
 }
@@ -640,6 +641,7 @@ export async function deleteScriptName(name: string): Promise<boolean> {
     return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
+    printError(error);
   }
   return false;
 }
@@ -664,6 +666,7 @@ export async function deleteAllScripts(): Promise<boolean> {
     return true;
   } catch (error) {
     stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
+    printError(error);
   }
   return false;
 }

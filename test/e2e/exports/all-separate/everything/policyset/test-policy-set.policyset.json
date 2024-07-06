@@ -1,11 +1,11 @@
 {
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.722Z",
+    "exportDate": "2024-07-06T16:10:48.440Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   },
   "policyset": {
     "test-policy-set": {
@@ -39,8 +39,8 @@
       "displayName": "Test Policy Set",
       "editable": true,
       "entitlementCombiner": "DenyOverride",
-      "lastModifiedBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
-      "lastModifiedDate": 1704330436330,
+      "lastModifiedBy": "id=ba58ff99-76d3-4c69-9c4a-7f150ac70e2c,ou=user,ou=am-config",
+      "lastModifiedDate": 1720245043987,
       "name": "test-policy-set",
       "resourceComparator": null,
       "resourceTypeUuids": [
