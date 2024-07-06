@@ -1,11 +1,11 @@
 {
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.723Z",
+    "exportDate": "2024-07-06T16:10:48.442Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   },
   "saml": {
     "cot": {},
@@ -61,9 +61,7 @@
               "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
               "useNameIDAsSPUserID": true
             },
-            "adapter": {
-              "spAdapterScript": "07ee6240-d106-4e25-a781-5fcabc477d22"
-            },
+            "adapter": {},
             "attributeMapper": {
               "attributeMap": [
                 {

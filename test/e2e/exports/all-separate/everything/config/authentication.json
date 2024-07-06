@@ -13,33 +13,6 @@
     ],
     "staticUserMapping": [
       {
-        "localUser": "internal/user/openidm-admin",
-        "roles": [
-          "internal/role/openidm-authorized",
-          "internal/role/openidm-admin"
-        ],
-        "subject": "60b7b032-68fc-45ed-98ca-262c1985fb7e",
-        "userRoles": "authzRoles/*"
-      },
-      {
-        "localUser": "internal/user/openidm-admin",
-        "roles": [
-          "internal/role/openidm-authorized",
-          "internal/role/openidm-admin"
-        ],
-        "subject": "0b48992b-a2dd-4ed5-8b07-1fc5d7306da8",
-        "userRoles": "authzRoles/*"
-      },
-      {
-        "localUser": "internal/user/openidm-admin",
-        "roles": [
-          "internal/role/openidm-authorized",
-          "internal/role/openidm-admin"
-        ],
-        "subject": "da190d6b-0fcc-42aa-b890-0cef7486e6d4",
-        "userRoles": "authzRoles/*"
-      },
-      {
         "localUser": "internal/user/idm-provisioning",
         "roles": [
           "internal/role/openidm-admin"

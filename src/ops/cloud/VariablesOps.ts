@@ -1,8 +1,10 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   VariableExpressionType,
   VariableSkeleton,
 } from '@rockcarver/frodo-lib/types/api/cloud/VariablesApi';
+import { VariablesExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/VariablesOps';
+import fs from 'fs';
 
 import { getFullExportConfig, isIdUsed } from '../../utils/Config';
 import {
@@ -10,9 +12,12 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  failSpinner,
   printError,
   printMessage,
+  showSpinner,
   stopProgressIndicator,
+  succeedSpinner,
   updateProgressIndicator,
 } from '../../utils/Console';
 import wordwrap from '../utils/Wordwrap';
@@ -21,9 +26,8 @@ const {
   decodeBase64,
   getFilePath,
   getTypedFilename,
+  getWorkingDirectory,
   saveJsonToFile,
-  saveToFile,
-  titleCase,
 } = frodo.utils;
 const { resolvePerpetratorUuid } = frodo.idm.managed;
 const {
@@ -34,6 +38,8 @@ const {
   deleteVariable,
   updateVariableDescription,
   updateVariable: _updateVariable,
+  importVariable,
+  importVariables,
 } = frodo.cloud.variable;
 
 /**
@@ -102,7 +108,12 @@ export async function listVariables(
     const values = long
       ? [
           variable._id,
-          wordwrap(decodeBase64(variable.valueBase64), 40),
+          wordwrap(
+            variable.valueBase64
+              ? decodeBase64(variable.valueBase64)
+              : variable.value,
+            40
+          ),
           variable.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
           wordwrap(variable.description, 40),
           state.getUseBearerTokenForAmApis()
@@ -170,7 +181,11 @@ export async function createVariable(
  * @param {string} description variable description
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function updateVariable(variableId, value, description) {
+export async function updateVariable(
+  variableId: string,
+  value: string,
+  description: string
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
@@ -323,7 +338,12 @@ export async function describeVariable(
       table.push(['Name'['brightCyan'], variable._id]);
       table.push([
         'Value'['brightCyan'],
-        wordwrap(decodeBase64(variable.valueBase64), 40),
+        wordwrap(
+          variable.valueBase64
+            ? decodeBase64(variable.valueBase64)
+            : variable.value,
+          40
+        ),
       ]);
       table.push(['Type'['brightCyan'], variable.expressionType]);
       table.push([
@@ -366,18 +386,18 @@ export async function describeVariable(
  * Export a single variable to file
  * @param {String} variableId Variable id
  * @param {String} file Optional filename
- * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} noDecode Do not decode variable value. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariableToFile(
   variableId: string,
   file: string | null,
-  noDecode: boolean,
-  includeMeta: boolean
-) {
+  noDecode: boolean = false,
+  includeMeta: boolean = true
+): Promise<boolean> {
   debugMessage(
-    `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}]`
+    `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}, noDecode=${noDecode}]`
   );
   let fileName = file;
   if (!fileName) {
@@ -416,26 +436,25 @@ export async function exportVariableToFile(
 /**
  * Export all variables to single file
  * @param {string} file Optional filename
- * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} noDecode Do not decode variable values. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFile(
   file: string | null,
-  noDecode: boolean,
-  includeMeta: boolean
-) {
-  debugMessage(`Cli.VariablesOps.exportVariablesToFile: start [file=${file}]`);
+  noDecode: boolean = false,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  debugMessage(
+    `Cli.VariablesOps.exportVariablesToFile: start [file=${file}, noDecode=${noDecode}]`
+  );
   const spinnerId = createProgressIndicator(
     'indeterminate',
     0,
     `Exporting variables...`
   );
   if (!file) {
-    file = getTypedFilename(
-      `all${titleCase(state.getRealm())}Variables`,
-      'variable'
-    );
+    file = getTypedFilename(`allVariables`, 'variable');
   }
   try {
     const variablesExport = await exportVariables(noDecode);
@@ -459,13 +478,13 @@ export async function exportVariablesToFile(
 
 /**
  * Export all variables to seperate files
- * @param {boolean} noDecode Do not include decoded variable value in export
+ * @param {boolean} noDecode Do not decode variable values. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFiles(
-  noDecode: boolean,
-  includeMeta: boolean
+  noDecode: boolean = false,
+  includeMeta: boolean = true
 ): Promise<boolean> {
   let spinnerId: string;
   let indicatorId: string;
@@ -494,18 +513,13 @@ export async function exportVariablesToFiles(
       'Exporting variables'
     );
     for (const variable of variableList) {
-      if (!noDecode) {
-        variable.value = decodeBase64(variable.valueBase64);
-      }
-      updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
       const fileName = getTypedFilename(variable._id, 'variable');
-      saveToFile(
-        'variable',
-        variable,
-        '_id',
-        getFilePath(fileName, true),
-        includeMeta
+      const exportData: VariablesExportInterface = await exportVariable(
+        variable._id,
+        noDecode
       );
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
     }
     stopProgressIndicator(
       indicatorId,
@@ -514,6 +528,107 @@ export async function exportVariablesToFiles(
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error exporting variables`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import variable from file
+ * @param {string} variableId variable id/name
+ * @param {string} file file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importVariableFromFile(
+  variableId: string,
+  file: string
+): Promise<boolean> {
+  debugMessage(`cli.VariablesOps.importVariableFromFile: begin`);
+  showSpinner(`Importing ${variableId ? variableId : 'first variable'}...`);
+  try {
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const importData = JSON.parse(data);
+    await importVariable(variableId, importData);
+    succeedSpinner(`Imported ${variableId ? variableId : 'first variable'}.`);
+    debugMessage(`cli.VariablesOps.importVariableFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(
+      `Error importing ${variableId ? variableId : 'first variable'}`
+    );
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import variables from file
+ * @param {string} file file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importVariablesFromFile(file: string): Promise<boolean> {
+  debugMessage(`cli.VariablesOps.importVariablesFromFile: begin`);
+  const filePath = getFilePath(file);
+  showSpinner(`Importing ${filePath}...`);
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    const fileData = JSON.parse(data);
+    await importVariables(fileData);
+    succeedSpinner(`Imported ${filePath}.`);
+    debugMessage(`cli.VariablesOps.importVariablesFromFile: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error importing ${filePath}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import variables from files
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importVariablesFromFiles(): Promise<boolean> {
+  const errors = [];
+  let indicatorId: string;
+  try {
+    debugMessage(`cli.VariablesOps.importVariablesFromFiles: begin`);
+    const names = fs.readdirSync(getWorkingDirectory());
+    const files = names
+      .filter((name) => name.toLowerCase().endsWith('.variable.json'))
+      .map((name) => getFilePath(name));
+    indicatorId = createProgressIndicator(
+      'determinate',
+      files.length,
+      'Importing variables...'
+    );
+    let total = 0;
+    for (const file of files) {
+      try {
+        const data = fs.readFileSync(file, 'utf8');
+        const fileData: VariablesExportInterface = JSON.parse(data);
+        const count = Object.keys(fileData.variables).length;
+        total += count;
+        await importVariables(fileData);
+        updateProgressIndicator(
+          indicatorId,
+          `Imported ${count} variables from ${file}`
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length > 0) {
+      throw new FrodoError(`Error importing variables`, errors);
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `Finished importing ${total} variables from ${files.length} files.`
+    );
+    debugMessage(`cli.VariablesOps.importVariablesFromFiles: end`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error importing variables`);
     printError(error);
   }
   return false;

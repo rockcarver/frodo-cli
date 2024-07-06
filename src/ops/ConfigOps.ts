@@ -45,6 +45,8 @@ export async function exportEverythingToFile(
     noDecode: false,
     coords: true,
     includeDefault: false,
+    includeActiveValues: false,
+    target: '',
   }
 ): Promise<boolean> {
   try {
@@ -83,6 +85,8 @@ export async function exportEverythingToFiles(
     noDecode: false,
     coords: true,
     includeDefault: false,
+    includeActiveValues: false,
+    target: '',
   }
 ): Promise<boolean> {
   try {
@@ -240,6 +244,8 @@ export async function importEverythingFromFile(
     global: false,
     realm: false,
     includeDefault: false,
+    includeActiveValues: false,
+    source: '',
   }
 ): Promise<boolean> {
   try {
@@ -272,6 +278,8 @@ export async function importEverythingFromFiles(
     global: false,
     realm: false,
     includeDefault: false,
+    includeActiveValues: false,
+    source: '',
   }
 ): Promise<boolean> {
   try {

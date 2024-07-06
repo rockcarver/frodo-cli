@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T16:10:48.463Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "script": {
+    "223739f3-9c54-43b7-9572-3c5338786145": {
+      "_id": "223739f3-9c54-43b7-9572-3c5338786145",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Format Username",
+      "script": [
+        "var username = sharedState.get(\"username\");",
+        "",
+        "sharedState.put(\"displayName\", username);",
+        "outcome = \"continue\";"
+      ]
+    }
+  }
+}

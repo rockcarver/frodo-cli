@@ -1,11 +1,11 @@
 {
   "meta": {
-    "exportDate": "2024-03-29T19:29:02.762Z",
+    "exportDate": "2024-07-06T16:10:48.523Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-75 [v20.5.1]",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
     "exportedBy": "volker.scheuber@forgerock.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   },
   "trees": {
     "Registration": {
@@ -147,7 +147,8 @@
           },
           "pageHeader": {
             "en": "Sign Up"
-          }
+          },
+          "stage": "{\"ValidatedCreatePasswordCallback\":[{\"id\":\"3d8709a1-f09f-4d1f-8094-2850e472c1db\",\"confirmPassword\":true,\"policyDisplayCheckmark\":true}]}"
         },
         "466f8b54-07fb-4e31-a11d-a6842618cc37": {
           "_id": "466f8b54-07fb-4e31-a11d-a6842618cc37",

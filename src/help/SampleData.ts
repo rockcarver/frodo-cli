@@ -4,3 +4,7 @@ export const username = 'thomas.anderson@metacortex.com';
 export const password = 'Blu3P!ll3d';
 export const saId = 'b672336b-41ef-428d-ae4a-e0c082875377';
 export const saJwkFile = './matrix-sa_privateKey.jwk';
+export const amBaseUrl2 = 'https://openam-zion.id.forgerock.io/am';
+export const connId2 = 'zion';
+export const username2 = 'neo@nebuchadnezzar.zion.com';
+export const password2 = 'R3dP!ll3d';

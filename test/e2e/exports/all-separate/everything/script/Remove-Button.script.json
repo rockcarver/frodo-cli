@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "exportDate": "2024-07-06T16:10:48.464Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-91 [v20.5.1]",
+    "exportedBy": "volker.scheuber@forgerock.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "script": {
+    "9535446c-0ff6-4a76-8576-616599119d64": {
+      "_id": "9535446c-0ff6-4a76-8576-616599119d64",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Remove button from page.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Remove Button",
+      "script": [
+        "/* Remove Button",
+        " *",
+        " * Author: volker.scheuber@forgerock.com",
+        " * ",
+        " * Hide buttons on the journey page.",
+        " * ",
+        " * This script does not need to be parametrized. It will work properly as is.",
+        " * ",
+        " * The Scripted Decision Node needs the following outcomes defined:",
+        " * - true",
+        " */",
+        "(function () {",
+        "    var script = \"Array.prototype.slice.call(document.getElementsByTagName('button')).forEach(function (e) {e.style.display = 'none'})\"",
+        "    var fr = JavaImporter(",
+        "        org.forgerock.openam.auth.node.api.Action,",
+        "        javax.security.auth.callback.TextOutputCallback,",
+        "        com.sun.identity.authentication.callbacks.ScriptTextOutputCallback",
+        "    )",
+        "    var message = \" \"",
+        "    if (callbacks.isEmpty()) {",
+        "        action = fr.Action.send(",
+        "            new fr.TextOutputCallback(",
+        "                fr.TextOutputCallback.INFORMATION,",
+        "                message",
+        "            ),",
+        "            new fr.ScriptTextOutputCallback(script)",
+        "        ).build()",
+        "    }",
+        "}());"
+      ]
+    }
+  }
+}

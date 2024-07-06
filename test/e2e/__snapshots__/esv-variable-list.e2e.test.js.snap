@@ -1,26 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo esv variable list "frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/everything": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all-separate/everything directory 1`] = `
-"Id                                          │Value                          │Status│Description                            │Modifier                                      │Modified (UTC)               │Used                                                                                
-esv-global-session-quotas-enable-constraints│ON                             │loaded│                                       │sandeep.chaturvedi@forgerock.com              │Mon, 22 Jan 2024 16:35:58 GMT│no                                                                                  
-esv-test-var                                │true                           │loaded│Simple ESV test variable with a boolean│unknown (76618ff6-e851-433e-9704-9d2852a17b7a)│Mon, 18 Dec 2023 23:02:35 GMT│no                                                                                  
-                                            │                               │      │value of true                          │                                              │                             │                                                                                    
-esv-test-variable-belphegor                 │1000000000000066600000000000001│loaded│A test variable containing belphegor's │phales@trivir.com                             │Thu, 14 Dec 2023 15:31:06 GMT│no                                                                                  
-                                            │                               │      │palindromic prime number (as a string).│                                              │                             │                                                                                    
-esv-test-variable-light                     │299792458                      │loaded│Test variable containing the speed of  │phales@trivir.com                             │Thu, 14 Dec 2023 15:34:13 GMT│yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
-                                            │                               │      │light in meters per second (as an int).│                                              │                             │                                                                                    
+"Id                                          │Value                          │Status│Description                            │Modifier                                      │Modified (UTC)               │Used
+esv-global-session-quotas-enable-constraints│ON                             │loaded│                                       │sandeep.chaturvedi@forgerock.com              │Mon, 22 Jan 2024 16:35:58 GMT│no  
+esv-test-var                                │true                           │loaded│Simple ESV test variable with a boolean│unknown (76618ff6-e851-433e-9704-9d2852a17b7a)│Mon, 18 Dec 2023 23:02:35 GMT│no  
+                                            │                               │      │value of true                          │                                              │                             │    
+esv-test-variable-belphegor                 │1000000000000066600000000000001│loaded│A test variable containing belphegor's │phales@trivir.com                             │Thu, 14 Dec 2023 15:31:06 GMT│no  
+                                            │                               │      │palindromic prime number (as a string).│                                              │                             │    
+esv-test-variable-light                     │299792458                      │loaded│Test variable containing the speed of  │phales@trivir.com                             │Thu, 14 Dec 2023 15:34:13 GMT│no  
+                                            │                               │      │light in meters per second (as an int).│                                              │                             │    
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list --usage --long --file test/e2e/exports/all/Alpha.everything.json": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the Alpha.everything.json file 1`] = `
-"Id                                          │Value                          │Status│Description                            │Modifier                                      │Modified (UTC)               │Used                                                                                
-esv-global-session-quotas-enable-constraints│ON                             │loaded│                                       │sandeep.chaturvedi@forgerock.com              │Mon, 22 Jan 2024 16:35:58 GMT│no                                                                                  
-esv-test-var                                │true                           │loaded│Simple ESV test variable with a boolean│unknown (76618ff6-e851-433e-9704-9d2852a17b7a)│Mon, 18 Dec 2023 23:02:35 GMT│no                                                                                  
-                                            │                               │      │value of true                          │                                              │                             │                                                                                    
-esv-test-variable-belphegor                 │1000000000000066600000000000001│loaded│A test variable containing belphegor's │phales@trivir.com                             │Thu, 14 Dec 2023 15:31:06 GMT│no                                                                                  
-                                            │                               │      │palindromic prime number (as a string).│                                              │                             │                                                                                    
-esv-test-variable-light                     │299792458                      │loaded│Test variable containing the speed of  │phales@trivir.com                             │Thu, 14 Dec 2023 15:34:13 GMT│yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
-                                            │                               │      │light in meters per second (as an int).│                                              │                             │                                                                                    
+"Id                                          │Value                          │Status│Description                            │Modifier                                      │Modified (UTC)               │Used
+esv-global-session-quotas-enable-constraints│ON                             │loaded│                                       │sandeep.chaturvedi@forgerock.com              │Mon, 22 Jan 2024 16:35:58 GMT│no  
+esv-test-var                                │true                           │loaded│Simple ESV test variable with a boolean│unknown (76618ff6-e851-433e-9704-9d2852a17b7a)│Mon, 18 Dec 2023 23:02:35 GMT│no  
+                                            │                               │      │value of true                          │                                              │                             │    
+esv-test-variable-belphegor                 │1000000000000066600000000000001│loaded│A test variable containing belphegor's │phales@trivir.com                             │Thu, 14 Dec 2023 15:31:06 GMT│no  
+                                            │                               │      │palindromic prime number (as a string).│                                              │                             │    
+esv-test-variable-light                     │299792458                      │loaded│Test variable containing the speed of  │phales@trivir.com                             │Thu, 14 Dec 2023 15:34:13 GMT│no  
+                                            │                               │      │light in meters per second (as an int).│                                              │                             │    
 "
 `;
 
@@ -58,20 +58,20 @@ esv-test-variable-light                     │yes (at script.59f84396-71e4-4c1d
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -uD test/e2e/exports/all-separate/everything": should list the usage of the esv variables in the test/e2e/exports/all-separate/everything directory 1`] = `
-"Id                                          │Used                                                                                
-esv-global-session-quotas-enable-constraints│no                                                                                  
-esv-test-var                                │no                                                                                  
-esv-test-variable-belphegor                 │no                                                                                  
-esv-test-variable-light                     │yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+"Id                                          │Used
+esv-global-session-quotas-enable-constraints│no  
+esv-test-var                                │no  
+esv-test-variable-belphegor                 │no  
+esv-test-variable-light                     │no  
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -uf test/e2e/exports/all/Alpha.everything.json": should list the usage of the esv variables in the Alpha.everything.json file 1`] = `
-"Id                                          │Used                                                                                
-esv-global-session-quotas-enable-constraints│no                                                                                  
-esv-test-var                                │no                                                                                  
-esv-test-variable-belphegor                 │no                                                                                  
-esv-test-variable-light                     │yes (at script.59f84396-71e4-4c1d-a6ae-c4fc624d9752(name: 'Test-Script-1').script.1)
+"Id                                          │Used
+esv-global-session-quotas-enable-constraints│no  
+esv-test-var                                │no  
+esv-test-variable-belphegor                 │no  
+esv-test-variable-light                     │no  
 "
 `;
 

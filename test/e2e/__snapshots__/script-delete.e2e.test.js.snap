@@ -4,6 +4,10 @@ exports[`frodo script delete "frodo script delete --script-id e15a13ee-9168-40cf
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting e15a13ee-9168-40cf-934f-656a5f568a6a...
 ✖ Error: Request failed with status code 404
+HTTP client error
+  Code: ERR_BAD_REQUEST
+  Status: 404
+  Message: Script with UUID e15a13ee-9168-40cf-934f-656a5f568a6a could not be found in realm /alpha
 "
 `;
 
@@ -11,6 +15,7 @@ exports[`frodo script delete "frodo script delete --script-name 'hashdeviceProfi
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting hashdeviceProfile...
 ✖ Error: Script with name hashdeviceProfile does not exist.
+Script with name hashdeviceProfile does not exist.
 "
 `;
 

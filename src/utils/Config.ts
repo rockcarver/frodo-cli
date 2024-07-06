@@ -80,6 +80,8 @@ export async function getFullExportConfig(
       noDecode: false,
       coords: true,
       includeDefault: true,
+      includeActiveValues: false,
+      target: '',
     });
   }
   // Go through files in the working directory and reconstruct the full export
