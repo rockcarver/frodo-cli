@@ -1,6 +1,7 @@
 {
   "idm": [
     "script",
-    "repo.ds"
+    "repo.ds",
+    "sync"
   ]
 }

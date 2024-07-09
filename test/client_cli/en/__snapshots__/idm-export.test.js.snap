@@ -35,7 +35,9 @@ Options:
   -e, --env-file [envfile]             Name of the env file. Ignored with -A.
   -E, --entities-file [entities-file]  Name of the entity file. Ignored with
                                        -A.
-  -f, --file [file]                    Export file. Ignored with -A.
+  -f, --file [file]                    Export file (or directory name if
+                                       exporting mappings separately). Ignored
+                                       with -A.
   --flush-cache                        Flush token cache.
   -h, --help                           Help
   -k, --insecure                       Allow insecure connections when using
@@ -67,6 +69,8 @@ Options:
                                        "sync", "provisioner-<connector-name>",
                                        etc.
   --no-cache                           Disable token cache for this operation.
+  -s, --separate-mappings              Export sync.json mappings separately in
+                                       their own directory.
   --sa-id <sa-id>                      Service account id.
   --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
                                        associated with the the service account.

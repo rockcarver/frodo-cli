@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo mapping list "frodo mapping list --long": should list the ids, display names, sources/targets, and other info of the mappings 1`] = `
+"Id                                                    │Display Name                         │Source                   │Target                       │Consent Required│Is Legacy
+sync/managedBravo_user_managedBravo_user              │managedBravo_user_managedBravo_user  │managed/bravo_user       │managed/bravo_user           │no              │yes      
+sync/managedAlpha_application_managedBravo_application│Test Application Mapping             │managed/alpha_application│managed/bravo_application    │yes             │yes      
+sync/managedAlpha_user_managedBravo_user              │Test Mapping for Frodo               │managed/alpha_user       │managed/bravo_user           │yes             │yes      
+sync/managedBravo_user_managedAlpha_user              │Frodo test mapping                   │managed/bravo_user       │managed/alpha_user           │no              │yes      
+sync/AlphaUser2GoogleApps                             │AlphaUser2GoogleApps                 │managed/alpha_user       │system/GoogleApps/__ACCOUNT__│no              │yes      
+mapping/managedBravo_group_managedBravo_group         │managedBravo_group_managedBravo_group│managed/bravo_group      │managed/bravo_group          │no              │no       
+mapping/managedBravo_user_managedBravo_user0          │managedBravo_user_managedBravo_user0 │managed/bravo_user       │managed/bravo_user           │no              │no       
+"
+`;
+
+exports[`frodo mapping list "frodo mapping list -l": should list the ids, display names, sources/targets, and other info of the mappings 1`] = `
+"Id                                                    │Display Name                         │Source                   │Target                       │Consent Required│Is Legacy
+sync/managedBravo_user_managedBravo_user              │managedBravo_user_managedBravo_user  │managed/bravo_user       │managed/bravo_user           │no              │yes      
+sync/managedAlpha_application_managedBravo_application│Test Application Mapping             │managed/alpha_application│managed/bravo_application    │yes             │yes      
+sync/managedAlpha_user_managedBravo_user              │Test Mapping for Frodo               │managed/alpha_user       │managed/bravo_user           │yes             │yes      
+sync/managedBravo_user_managedAlpha_user              │Frodo test mapping                   │managed/bravo_user       │managed/alpha_user           │no              │yes      
+sync/AlphaUser2GoogleApps                             │AlphaUser2GoogleApps                 │managed/alpha_user       │system/GoogleApps/__ACCOUNT__│no              │yes      
+mapping/managedBravo_group_managedBravo_group         │managedBravo_group_managedBravo_group│managed/bravo_group      │managed/bravo_group          │no              │no       
+mapping/managedBravo_user_managedBravo_user0          │managedBravo_user_managedBravo_user0 │managed/bravo_user       │managed/bravo_user           │no              │no       
+"
+`;
+
+exports[`frodo mapping list "frodo mapping list": should list the ids of the mappings 1`] = `
+"sync/managedBravo_user_managedBravo_user
+sync/managedAlpha_application_managedBravo_application
+sync/managedAlpha_user_managedBravo_user
+sync/managedBravo_user_managedAlpha_user
+sync/AlphaUser2GoogleApps
+mapping/managedBravo_group_managedBravo_group
+mapping/managedBravo_user_managedBravo_user0
+"
+`;

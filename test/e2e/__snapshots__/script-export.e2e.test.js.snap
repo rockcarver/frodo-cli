@@ -2238,7 +2238,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
-      "script": "file://scriptExportTestDir4/ADFS-Profile-Normalization-(JS).script.js",
+      "script": "file://ADFS-Profile-Normalization-(JS).script.js",
     },
   },
 }
@@ -2398,7 +2398,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir4/Alpha-OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://Alpha-OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -3043,7 +3043,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha OIDC Claims Script",
-      "script": "file://scriptExportTestDir4/Alpha-OIDC-Claims-Script.script.js",
+      "script": "file://Alpha-OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -3080,7 +3080,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha endUserUIClient OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir4/Alpha-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://Alpha-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -3725,7 +3725,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha endUserUIClient OIDC Claims Script",
-      "script": "file://scriptExportTestDir4/Alpha-endUserUIClient-OIDC-Claims-Script.script.js",
+      "script": "file://Alpha-endUserUIClient-OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -3766,7 +3766,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Amazon Profile Normalization",
-      "script": "file://scriptExportTestDir4/Amazon-Profile-Normalization.script.groovy",
+      "script": "file://Amazon-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -3839,7 +3839,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Apple Profile Normalization",
-      "script": "file://scriptExportTestDir4/Apple-Profile-Normalization.script.groovy",
+      "script": "file://Apple-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -3870,7 +3870,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Authentication Tree Decision Node Script",
-      "script": "file://scriptExportTestDir4/Authentication-Tree-Decision-Node-Script.script.js",
+      "script": "file://Authentication-Tree-Decision-Node-Script.script.js",
     },
   },
 }
@@ -3915,7 +3915,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Check Username",
-      "script": "file://scriptExportTestDir4/Check-Username.script.js",
+      "script": "file://Check-Username.script.js",
     },
   },
 }
@@ -4005,7 +4005,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Config Provider Node Script",
-      "script": "file://scriptExportTestDir4/Config-Provider-Node-Script.script.js",
+      "script": "file://Config-Provider-Node-Script.script.js",
     },
   },
 }
@@ -4034,7 +4034,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Custom Device Match Script",
-      "script": "file://scriptExportTestDir4/Custom-Device-Match-Script.script.js",
+      "script": "file://Custom-Device-Match-Script.script.js",
     },
   },
 }
@@ -4312,7 +4312,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Device Id (Match) - Client Side",
-      "script": "file://scriptExportTestDir4/Device-Id-(Match)-Client-Side.script.js",
+      "script": "file://Device-Id-(Match)-Client-Side.script.js",
     },
   },
 }
@@ -5168,7 +5168,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Device Id (Match) - Server Side",
-      "script": "file://scriptExportTestDir4/Device-Id-(Match)-Server-Side.script.js",
+      "script": "file://Device-Id-(Match)-Server-Side.script.js",
     },
   },
 }
@@ -5273,7 +5273,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Device Profile Match Template - Decision Node Script",
-      "script": "file://scriptExportTestDir4/Device-Profile-Match-Template-Decision-Node-Script.script.js",
+      "script": "file://Device-Profile-Match-Template-Decision-Node-Script.script.js",
     },
   },
 }
@@ -5317,7 +5317,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Facebook Profile Normalization",
-      "script": "file://scriptExportTestDir4/Facebook-Profile-Normalization.script.groovy",
+      "script": "file://Facebook-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -5350,7 +5350,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "ForgeRock Internal: OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir4/ForgeRock-Internal-OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://ForgeRock-Internal-OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -5995,7 +5995,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "ForgeRock Internal: OIDC Claims Script",
-      "script": "file://scriptExportTestDir4/ForgeRock-Internal-OIDC-Claims-Script.script.js",
+      "script": "file://ForgeRock-Internal-OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -6035,7 +6035,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization",
-      "script": "file://scriptExportTestDir4/GitHub-Profile-Normalization.script.groovy",
+      "script": "file://GitHub-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6081,7 +6081,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
-      "script": "file://scriptExportTestDir4/GitHub-Profile-Normalization-(VS).script.groovy",
+      "script": "file://GitHub-Profile-Normalization-(VS).script.groovy",
     },
   },
 }
@@ -6126,7 +6126,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
-      "script": "file://scriptExportTestDir4/Google-Profile-Normalization.script.groovy",
+      "script": "file://Google-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6155,7 +6155,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Inactive Device Match Script",
-      "script": "file://scriptExportTestDir4/Inactive-Device-Match-Script.script.js",
+      "script": "file://Inactive-Device-Match-Script.script.js",
     },
   },
 }
@@ -6194,7 +6194,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Instagram Profile Normalization",
-      "script": "file://scriptExportTestDir4/Instagram-Profile-Normalization.script.groovy",
+      "script": "file://Instagram-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6240,7 +6240,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Itsme Profile Normalization",
-      "script": "file://scriptExportTestDir4/Itsme-Profile-Normalization.script.groovy",
+      "script": "file://Itsme-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6283,7 +6283,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "LinkedIn Profile Normalization",
-      "script": "file://scriptExportTestDir4/LinkedIn-Profile-Normalization.script.groovy",
+      "script": "file://LinkedIn-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6326,7 +6326,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Microsoft Profile Normalization",
-      "script": "file://scriptExportTestDir4/Microsoft-Profile-Normalization.script.groovy",
+      "script": "file://Microsoft-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -6373,7 +6373,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Normalized Profile to Identity",
-      "script": "file://scriptExportTestDir4/Normalized-Profile-to-Identity.script.groovy",
+      "script": "file://Normalized-Profile-to-Identity.script.groovy",
     },
   },
 }
@@ -6435,7 +6435,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Normalized Profile to Managed User",
-      "script": "file://scriptExportTestDir4/Normalized-Profile-to-Managed-User.script.groovy",
+      "script": "file://Normalized-Profile-to-Managed-User.script.groovy",
     },
   },
 }
@@ -6595,7 +6595,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir4/OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -6709,7 +6709,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 Authorize Endpoint Data Provider Script",
-      "script": "file://scriptExportTestDir4/OAuth2-Authorize-Endpoint-Data-Provider-Script.script.js",
+      "script": "file://OAuth2-Authorize-Endpoint-Data-Provider-Script.script.js",
     },
   },
 }
@@ -6785,7 +6785,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 Evaluate Scope Script",
-      "script": "file://scriptExportTestDir4/OAuth2-Evaluate-Scope-Script.script.js",
+      "script": "file://OAuth2-Evaluate-Scope-Script.script.js",
     },
   },
 }
@@ -6884,7 +6884,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 JWT Issuer Script",
-      "script": "file://scriptExportTestDir4/OAuth2-JWT-Issuer-Script.script.js",
+      "script": "file://OAuth2-JWT-Issuer-Script.script.js",
     },
   },
 }
@@ -6950,7 +6950,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 May Act Script",
-      "script": "file://scriptExportTestDir4/OAuth2-May-Act-Script.script.groovy",
+      "script": "file://OAuth2-May-Act-Script.script.groovy",
     },
   },
 }
@@ -7059,7 +7059,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OAuth2 Validate Scope Script",
-      "script": "file://scriptExportTestDir4/OAuth2-Validate-Scope-Script.script.js",
+      "script": "file://OAuth2-Validate-Scope-Script.script.js",
     },
   },
 }
@@ -7704,7 +7704,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "OIDC Claims Script",
-      "script": "file://scriptExportTestDir4/OIDC-Claims-Script.script.js",
+      "script": "file://OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -7750,7 +7750,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Okta Profile Normalization",
-      "script": "file://scriptExportTestDir4/Okta-Profile-Normalization.script.groovy",
+      "script": "file://Okta-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -7924,7 +7924,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
-      "script": "file://scriptExportTestDir4/SAML2-IDP-Adapter-Script.script.js",
+      "script": "file://SAML2-IDP-Adapter-Script.script.js",
     },
   },
 }
@@ -8108,7 +8108,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "SAML2 IDP Attribute Mapper Script",
-      "script": "file://scriptExportTestDir4/SAML2-IDP-Attribute-Mapper-Script.script.js",
+      "script": "file://SAML2-IDP-Attribute-Mapper-Script.script.js",
     },
   },
 }
@@ -8359,7 +8359,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "SAML2 SP Adapter Script",
-      "script": "file://scriptExportTestDir4/SAML2-SP-Adapter-Script.script.js",
+      "script": "file://SAML2-SP-Adapter-Script.script.js",
     },
   },
 }
@@ -8404,7 +8404,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Salesforce Profile Normalization",
-      "script": "file://scriptExportTestDir4/Salesforce-Profile-Normalization.script.groovy",
+      "script": "file://Salesforce-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -8585,7 +8585,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
-      "script": "file://scriptExportTestDir4/Saml2-IDP-Adapter-Always-Auth.script.js",
+      "script": "file://Saml2-IDP-Adapter-Always-Auth.script.js",
     },
   },
 }
@@ -8618,7 +8618,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Scripted Module - Client Side",
-      "script": "file://scriptExportTestDir4/Scripted-Module-Client-Side.script.js",
+      "script": "file://Scripted-Module-Client-Side.script.js",
     },
   },
 }
@@ -8728,7 +8728,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Scripted Module - Server Side",
-      "script": "file://scriptExportTestDir4/Scripted-Module-Server-Side.script.js",
+      "script": "file://Scripted-Module-Server-Side.script.js",
     },
   },
 }
@@ -8895,7 +8895,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Scripted Policy Condition",
-      "script": "file://scriptExportTestDir4/Scripted-Policy-Condition.script.js",
+      "script": "file://Scripted-Policy-Condition.script.js",
     },
   },
 }
@@ -8928,7 +8928,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Social Identity Provider Profile Transformation Script",
-      "script": "file://scriptExportTestDir4/Social-Identity-Provider-Profile-Transformation-Script.script.groovy",
+      "script": "file://Social-Identity-Provider-Profile-Transformation-Script.script.groovy",
     },
   },
 }
@@ -8958,7 +8958,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Test-Script-1",
-      "script": "file://scriptExportTestDir4/Test-Script-1.script.js",
+      "script": "file://Test-Script-1.script.js",
     },
   },
 }
@@ -9000,7 +9000,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Twitter Profile Normalization",
-      "script": "file://scriptExportTestDir4/Twitter-Profile-Normalization.script.groovy",
+      "script": "file://Twitter-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -9057,7 +9057,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "UOP Enrich Session",
-      "script": "file://scriptExportTestDir4/UOP-Enrich-Session.script.js",
+      "script": "file://UOP-Enrich-Session.script.js",
     },
   },
 }
@@ -9101,7 +9101,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "VKontakte Profile Normalization",
-      "script": "file://scriptExportTestDir4/VKontakte-Profile-Normalization.script.groovy",
+      "script": "file://VKontakte-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -9142,7 +9142,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "WeChat Profile Normalization",
-      "script": "file://scriptExportTestDir4/WeChat-Profile-Normalization.script.groovy",
+      "script": "file://WeChat-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -9184,7 +9184,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "WordPress Profile Normalization",
-      "script": "file://scriptExportTestDir4/WordPress-Profile-Normalization.script.groovy",
+      "script": "file://WordPress-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -9229,7 +9229,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Yahoo Profile Normalization",
-      "script": "file://scriptExportTestDir4/Yahoo-Profile-Normalization.script.groovy",
+      "script": "file://Yahoo-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -9314,7 +9314,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "debug",
-      "script": "file://scriptExportTestDir4/debug.script.js",
+      "script": "file://debug.script.js",
     },
   },
 }
@@ -9343,7 +9343,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "level",
-      "script": "file://scriptExportTestDir4/level.script.js",
+      "script": "file://level.script.js",
     },
   },
 }
@@ -9409,7 +9409,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "mode",
-      "script": "file://scriptExportTestDir4/mode.script.js",
+      "script": "file://mode.script.js",
     },
   },
 }
@@ -9438,7 +9438,7 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "shared",
-      "script": "file://scriptExportTestDir4/shared.script.js",
+      "script": "file://shared.script.js",
     },
   },
 }
@@ -11851,7 +11851,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
-      "script": "file://scriptExportTestDir3/ADFS-Profile-Normalization-(JS).script.js",
+      "script": "file://ADFS-Profile-Normalization-(JS).script.js",
     },
   },
 }
@@ -12011,7 +12011,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir3/Alpha-OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://Alpha-OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -12656,7 +12656,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha OIDC Claims Script",
-      "script": "file://scriptExportTestDir3/Alpha-OIDC-Claims-Script.script.js",
+      "script": "file://Alpha-OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -12693,7 +12693,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha endUserUIClient OAuth2 Access Token Modification Script",
-      "script": "file://scriptExportTestDir3/Alpha-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js",
+      "script": "file://Alpha-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js",
     },
   },
 }
@@ -13338,7 +13338,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Alpha endUserUIClient OIDC Claims Script",
-      "script": "file://scriptExportTestDir3/Alpha-endUserUIClient-OIDC-Claims-Script.script.js",
+      "script": "file://Alpha-endUserUIClient-OIDC-Claims-Script.script.js",
     },
   },
 }
@@ -13383,7 +13383,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Check Username",
-      "script": "file://scriptExportTestDir3/Check-Username.script.js",
+      "script": "file://Check-Username.script.js",
     },
   },
 }
@@ -13412,7 +13412,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Custom Device Match Script",
-      "script": "file://scriptExportTestDir3/Custom-Device-Match-Script.script.js",
+      "script": "file://Custom-Device-Match-Script.script.js",
     },
   },
 }
@@ -13458,7 +13458,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
-      "script": "file://scriptExportTestDir3/GitHub-Profile-Normalization-(VS).script.groovy",
+      "script": "file://GitHub-Profile-Normalization-(VS).script.groovy",
     },
   },
 }
@@ -13487,7 +13487,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Inactive Device Match Script",
-      "script": "file://scriptExportTestDir3/Inactive-Device-Match-Script.script.js",
+      "script": "file://Inactive-Device-Match-Script.script.js",
     },
   },
 }
@@ -13533,7 +13533,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Okta Profile Normalization",
-      "script": "file://scriptExportTestDir3/Okta-Profile-Normalization.script.groovy",
+      "script": "file://Okta-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -13714,7 +13714,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
-      "script": "file://scriptExportTestDir3/Saml2-IDP-Adapter-Always-Auth.script.js",
+      "script": "file://Saml2-IDP-Adapter-Always-Auth.script.js",
     },
   },
 }
@@ -13744,7 +13744,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "Test-Script-1",
-      "script": "file://scriptExportTestDir3/Test-Script-1.script.js",
+      "script": "file://Test-Script-1.script.js",
     },
   },
 }
@@ -13801,7 +13801,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "UOP Enrich Session",
-      "script": "file://scriptExportTestDir3/UOP-Enrich-Session.script.js",
+      "script": "file://UOP-Enrich-Session.script.js",
     },
   },
 }
@@ -13886,7 +13886,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "debug",
-      "script": "file://scriptExportTestDir3/debug.script.js",
+      "script": "file://debug.script.js",
     },
   },
 }
@@ -13915,7 +13915,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "level",
-      "script": "file://scriptExportTestDir3/level.script.js",
+      "script": "file://level.script.js",
     },
   },
 }
@@ -13981,7 +13981,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "mode",
-      "script": "file://scriptExportTestDir3/mode.script.js",
+      "script": "file://mode.script.js",
     },
   },
 }
@@ -14010,7 +14010,7 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "shared",
-      "script": "file://scriptExportTestDir3/shared.script.js",
+      "script": "file://shared.script.js",
     },
   },
 }
@@ -16180,7 +16180,7 @@ exports[`frodo script export "frodo script export -Nxn 'GitHub Profile Normaliza
       "lastModifiedBy": "null",
       "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization",
-      "script": "file://scriptExportTestDir1/GitHub-Profile-Normalization.script.groovy",
+      "script": "file://GitHub-Profile-Normalization.script.groovy",
     },
   },
 }

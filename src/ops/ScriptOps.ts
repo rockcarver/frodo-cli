@@ -358,7 +358,7 @@ export function extractScriptToFile(
     const scriptText = Array.isArray(scriptSkeleton.script)
       ? scriptSkeleton.script.join('\n')
       : scriptSkeleton.script;
-    scriptSkeleton.script = `file://${scriptFilePath}`;
+    scriptSkeleton.script = `file://${scriptFileName}`;
     saveTextToFile(scriptText, scriptFilePath);
     return true;
   } catch (error) {
@@ -536,7 +536,10 @@ function getScriptExportByScriptFile(
     return scriptExport;
   }
 
-  const scriptRaw = fs.readFileSync(extractFile, 'utf8');
+  const scriptRaw = fs.readFileSync(
+    `${scriptFile.substring(0, scriptFile.lastIndexOf('/'))}/${extractFile}`,
+    'utf8'
+  );
   scriptSkeleton.script = scriptRaw.split('\n');
 
   return scriptExport;

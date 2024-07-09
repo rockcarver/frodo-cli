@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo mapping import "frodo mapping import --all --no-deps --file allAlphaMappings.mapping.json --directory test/e2e/exports/all": should import all mappings from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import --all-separate --no-deps --directory test/e2e/exports/all-separate/idm": should import all mappings from the test/e2e/exports/all-separate/idm directory" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import --no-deps --file allAlphaMappings.mapping.json --directory test/e2e/exports/all": should import the first mapping from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import --no-deps --mapping-id mapping/managedBravo_group_managedBravo_group --file allAlphaMappings.mapping.json -D test/e2e/exports/all": should import the mapping with the id "mapping/managedBravo_group_managedBravo_group" from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/idm": should import all mappings from the test/e2e/exports/all-separate/idm directory" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import -af test/e2e/exports/all/allAlphaMappings.mapping.json": should import all mappings from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all/allAlphaMappings.mapping.json": should import the first mapping from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f test/e2e/exports/all/allAlphaMappings.mapping.json": should import the mapping with the id "sync/managedAlpha_application_managedBravo_application" from the file "test/e2e/exports/all/allAlphaMappings.mapping.json" 1`] = `""`;
