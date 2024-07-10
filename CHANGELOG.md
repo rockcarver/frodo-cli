@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- \#404: Frodo now saves the `-k`/`--insecure` option in connection profiles.
+
+### Changed
+
+- Update to frodo-lib 2.0.0-92
+
+### Fixed
+
+- \#400: Frodo now properly honors the `-k`/`--insecure` option and allows connecting to platform instances using self-signed certificates.
+
 ## [2.0.0-65] - 2024-07-06
 
 ### Add
