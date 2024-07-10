@@ -1,14 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo conn describe "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
-"Host                │https://openam-frodo-dev.forgeblocks.com/am
-Deployment Type     │cloud                                      
-Username            │volker.scheuber@forgerock.com              
-Password            │[present]                                  
-Log API Key         │2e3e7162c6861fdc50a10b6353ada65a           
-Log API Secret      │[present]                                  
-Service Account Name│Frodo-SA-1687293271764                     
-Service Account Id  │b672336b-41ef-428d-ae4a-e0c082875377       
-Service Account JWK │[present]                                  
+"Host                   │https://openam-frodo-dev.forgeblocks.com/am
+allowInsecureConnection│                                           
+Deployment Type        │cloud                                      
+Username               │volker.scheuber@forgerock.com              
+Password               │[present]                                  
+Log API Key            │2e3e7162c6861fdc50a10b6353ada65a           
+Log API Secret         │[present]                                  
+Service Account Name   │Frodo-SA-1687293271764                     
+Service Account Id     │b672336b-41ef-428d-ae4a-e0c082875377       
+Service Account JWK    │[present]                                  
 "
 `;
