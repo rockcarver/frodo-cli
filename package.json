@@ -34,7 +34,7 @@
   "scripts": {
     "test": "npm run test:only",
     "test:only": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent",
-    "test:debug": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --verbose=true --silent=false",
+    "test:debug": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --verbose=true --silent=false --json --outputFile=./testResults.json",
     "test:update": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --verbose=true --silent=false --updateSnapshot",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "eslint --fix --ext .ts --ignore-path .gitignore .",

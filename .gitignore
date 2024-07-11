@@ -1,4 +1,5 @@
 dist
+testResults.json
 
 *.cer
 *.p12
