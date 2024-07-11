@@ -22,6 +22,7 @@ Commands:
   info [options] [host] [username] [password]           Print versions and tokens.
   journey                                               Manage journeys/trees.
   log|logs                                              List/View Identity Cloud logs
+  mapping                                               Manage IDM mappings.
   oauth                                                 Manage OAuth2 clients and providers.
   realm                                                 Manage realms.
   saml                                                  Manage SAML entity providers and circles of trust.

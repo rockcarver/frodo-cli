@@ -4,19 +4,16 @@ import {
   FullExportOptions,
   FullImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
+import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
-import fse from 'fs-extra';
 
 import {
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
-import {
-  cleanupProgressIndicators,
-  printError,
-  printMessage,
-} from '../utils/Console';
+import { cleanupProgressIndicators, printError } from '../utils/Console';
+import { writeSyncJsonToDirectory } from './MappingOps';
 import { extractScriptToFile } from './ScriptOps';
 
 const {
@@ -27,7 +24,6 @@ const {
   getFilePath,
   getWorkingDirectory,
 } = frodo.utils;
-const { stringify } = frodo.utils.json;
 const { exportFullConfiguration, importFullConfiguration } = frodo.config;
 
 /**
@@ -73,12 +69,14 @@ export async function exportEverythingToFile(
 /**
  * Export everything to separate files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
+ * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFiles(
   extract: boolean = false,
+  separateMappings: boolean = false,
   includeMeta: boolean = true,
   options: FullExportOptions = {
     useStringArrays: true,
@@ -166,30 +164,30 @@ export async function exportEverythingToFiles(
           Object.entries(obj).forEach(([id, value]: [string, any]) => {
             if (type == 'config') {
               if (value != null) {
-                const filename = `${id}.json`;
-                if (filename.includes('/')) {
-                  fs.mkdirSync(
-                    `${baseDirectory}/${type}/${filename.slice(
-                      0,
-                      filename.lastIndexOf('/')
-                    )}`,
-                    {
-                      recursive: true,
-                    }
+                if (separateMappings && id === 'sync') {
+                  writeSyncJsonToDirectory(
+                    value as SyncSkeleton,
+                    `${type}/sync`
+                  );
+                } else {
+                  const filename = `${id}.json`;
+                  if (filename.includes('/')) {
+                    fs.mkdirSync(
+                      `${baseDirectory}/${type}/${filename.slice(
+                        0,
+                        filename.lastIndexOf('/')
+                      )}`,
+                      {
+                        recursive: true,
+                      }
+                    );
+                  }
+                  saveJsonToFile(
+                    value,
+                    `${baseDirectory}/${type}/${filename}`,
+                    false
                   );
                 }
-                fse.outputFile(
-                  `${baseDirectory}/${type}/${filename}`,
-                  stringify(value),
-                  (err) => {
-                    if (err) {
-                      return printMessage(
-                        `ERROR - can't save config ${id} to file - ${err}`,
-                        'error'
-                      );
-                    }
-                  }
-                );
               }
             } else {
               const filename = getTypedFilename(

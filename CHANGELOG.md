@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New commands to manage IDM mappings:
+
+  - `frodo mapping`  Manage IDM mappings.
+    - `delete`   Delete IDM mappings.
+    - `export`   Export IDM mappings.
+    - `import`   Import IDM mappings.
+    - `list`     List IDM mappings.
+    - `rename`   Renames mappings from the combined/default/legacy naming scheme (sync/\<name>) to the separate/new naming scheme (mapping/\<name>). To rename mappings from new back to legacy, use the -l, --legacy flag.
+
 ## [2.0.0-66] - 2024-07-10
 
 ### Added

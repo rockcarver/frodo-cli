@@ -1,0 +1,2779 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file: allMappings.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group",
+    },
+    "mapping/managedBravo_user_managedBravo_user0": {
+      "_id": "mapping/managedBravo_user_managedBravo_user0",
+      "consentRequired": false,
+      "displayName": "managedBravo_user_managedBravo_user0",
+      "icon": null,
+      "name": "managedBravo_user_managedBravo_user0",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_user",
+      "target": "managed/bravo_user",
+    },
+  },
+  "meta": Any<Object>,
+  "sync": {
+    "id": "sync",
+    "mappings": [
+      {
+        "_id": "sync/managedBravo_user_managedBravo_user",
+        "consentRequired": false,
+        "displayName": "managedBravo_user_managedBravo_user",
+        "icon": null,
+        "name": "managedBravo_user_managedBravo_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [],
+        "source": "managed/bravo_user",
+        "syncAfter": [],
+        "target": "managed/bravo_user",
+      },
+      {
+        "_id": "sync/managedAlpha_application_managedBravo_application",
+        "consentRequired": true,
+        "displayName": "Test Application Mapping",
+        "icon": null,
+        "name": "managedAlpha_application_managedBravo_application",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [
+          {
+            "source": "authoritative",
+            "target": "_id",
+          },
+        ],
+        "source": "managed/alpha_application",
+        "sourceQuery": {
+          "_queryFilter": "(eq "" or eq "")",
+        },
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+        ],
+        "target": "managed/bravo_application",
+        "targetQuery": {
+          "_queryFilter": "!(eq "")",
+        },
+      },
+      {
+        "_id": "sync/managedAlpha_user_managedBravo_user",
+        "consentRequired": true,
+        "displayName": "Test Mapping for Frodo",
+        "icon": null,
+        "name": "managedAlpha_user_managedBravo_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "console.log("Hello World!");",
+              "type": "text/javascript",
+            },
+            "default": [
+              "Default value string",
+            ],
+            "source": "accountStatus",
+            "target": "applications",
+            "transform": {
+              "globals": {},
+              "source": "console.log("hello");",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+        ],
+        "target": "managed/bravo_user",
+      },
+      {
+        "_id": "sync/managedBravo_user_managedAlpha_user",
+        "consentRequired": false,
+        "displayName": "Frodo test mapping",
+        "icon": null,
+        "name": "managedBravo_user_managedAlpha_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [],
+        "source": "managed/bravo_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+          "managedAlpha_user_managedBravo_user",
+        ],
+        "target": "managed/alpha_user",
+      },
+      {
+        "_id": "sync/AlphaUser2GoogleApps",
+        "consentRequired": false,
+        "correlationQuery": [
+          {
+            "expressionTree": {
+              "all": [
+                "__NAME__",
+              ],
+            },
+            "file": "ui/correlateTreeToQueryFilter.js",
+            "linkQualifier": "default",
+            "mapping": "AlphaUser2GoogleApps",
+            "type": "text/javascript",
+          },
+        ],
+        "displayName": "AlphaUser2GoogleApps",
+        "enableSync": {
+          "$bool": "&{esv.gac.enable.mapping}",
+        },
+        "icon": null,
+        "name": "AlphaUser2GoogleApps",
+        "onCreate": {
+          "globals": {},
+          "source": "target.orgUnitPath = "/NewAccounts";",
+          "type": "text/javascript",
+        },
+        "onUpdate": {
+          "globals": {},
+          "source": "//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;",
+          "type": "text/javascript",
+        },
+        "policies": [
+          {
+            "action": "EXCEPTION",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+",
+              "type": "text/javascript",
+            },
+            "situation": "MISSING",
+          },
+          {
+            "action": "EXCEPTION",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "UPDATE",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "LINK",
+            "situation": "FOUND",
+          },
+          {
+            "action": "CREATE",
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "object.custom_password_encrypted != null",
+              "type": "text/javascript",
+            },
+            "source": "custom_password_encrypted",
+            "target": "__PASSWORD__",
+            "transform": {
+              "globals": {},
+              "source": "openidm.decrypt(source);",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "cn",
+            "target": "__NAME__",
+            "transform": {
+              "globals": {},
+              "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "givenName",
+            "target": "givenName",
+          },
+          {
+            "source": "",
+            "target": "familyName",
+            "transform": {
+              "globals": {},
+              "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "queuedSync": {
+          "enabled": true,
+          "maxQueueSize": 20000,
+          "maxRetries": 5,
+          "pageSize": 100,
+          "pollingInterval": 1000,
+          "postRetryAction": "logged-ignore",
+          "retryDelay": 1000,
+        },
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+          "managedAlpha_user_managedBravo_user",
+          "managedBravo_user_managedAlpha_user",
+        ],
+        "target": "system/GoogleApps/__ACCOUNT__",
+        "validSource": {
+          "globals": {},
+          "source": "var isGoogleEligible = true;
+//var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
+var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
+
+//Get Applicable userTypes (no Parent accounts)
+if (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " Account type not eligible.";
+}
+
+//Make sure the account has a valid encrypted password.
+if (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " No encrypted password yet.";
+}
+
+//Check that CN exists and has no space.
+if (source.cn && source.cn.includes(' ')) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " CN with a space is not allowed.";
+}
+
+if (!isGoogleEligible) {
+	logMsg = logMsg + " Not sent to Google."
+	logger.info(logMsg);
+} 
+
+if (isGoogleEligible) {
+	logMsg = logMsg + " Sent to Google."
+	logger.info(logMsg);
+}
+
+isGoogleEligible;
+",
+          "type": "text/javascript",
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user": managedAlpha_user_managedBravo_user.sync.json 1`] = `
+{
+  "mapping": {},
+  "meta": Any<Object>,
+  "sync": {
+    "id": "sync",
+    "mappings": [
+      {
+        "_id": "sync/managedAlpha_user_managedBravo_user",
+        "consentRequired": true,
+        "displayName": "Test Mapping for Frodo",
+        "icon": null,
+        "name": "managedAlpha_user_managedBravo_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "console.log("Hello World!");",
+              "type": "text/javascript",
+            },
+            "default": [
+              "Default value string",
+            ],
+            "source": "accountStatus",
+            "target": "applications",
+            "transform": {
+              "globals": {},
+              "source": "console.log("hello");",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+        ],
+        "target": "managed/bravo_user",
+      },
+    ],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps.sync.json 1`] = `
+{
+  "_id": "sync/AlphaUser2GoogleApps",
+  "consentRequired": false,
+  "correlationQuery": [
+    {
+      "expressionTree": {
+        "all": [
+          "__NAME__",
+        ],
+      },
+      "file": "ui/correlateTreeToQueryFilter.js",
+      "linkQualifier": "default",
+      "mapping": "AlphaUser2GoogleApps",
+      "type": "text/javascript",
+    },
+  ],
+  "displayName": "AlphaUser2GoogleApps",
+  "enableSync": {
+    "$bool": "&{esv.gac.enable.mapping}",
+  },
+  "icon": null,
+  "name": "AlphaUser2GoogleApps",
+  "onCreate": {
+    "globals": {},
+    "source": "target.orgUnitPath = "/NewAccounts";",
+    "type": "text/javascript",
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;",
+    "type": "text/javascript",
+  },
+  "policies": [
+    {
+      "action": "EXCEPTION",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "UNLINK",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+",
+        "type": "text/javascript",
+      },
+      "situation": "MISSING",
+    },
+    {
+      "action": "EXCEPTION",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "UNLINK",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "LINK",
+      "situation": "FOUND",
+    },
+    {
+      "action": "CREATE",
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "object.custom_password_encrypted != null",
+        "type": "text/javascript",
+      },
+      "source": "custom_password_encrypted",
+      "target": "__PASSWORD__",
+      "transform": {
+        "globals": {},
+        "source": "openidm.decrypt(source);",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "source": "cn",
+      "target": "__NAME__",
+      "transform": {
+        "globals": {},
+        "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "source": "givenName",
+      "target": "givenName",
+    },
+    {
+      "source": "",
+      "target": "familyName",
+      "transform": {
+        "globals": {},
+        "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}",
+        "type": "text/javascript",
+      },
+    },
+  ],
+  "queuedSync": {
+    "enabled": true,
+    "maxQueueSize": 20000,
+    "maxRetries": 5,
+    "pageSize": 100,
+    "pollingInterval": 1000,
+    "postRetryAction": "logged-ignore",
+    "retryDelay": 1000,
+  },
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_application_managedBravo_application",
+    "managedAlpha_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user",
+  ],
+  "target": "system/GoogleApps/__ACCOUNT__",
+  "validSource": {
+    "globals": {},
+    "source": "var isGoogleEligible = true;
+//var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
+var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
+
+//Get Applicable userTypes (no Parent accounts)
+if (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " Account type not eligible.";
+}
+
+//Make sure the account has a valid encrypted password.
+if (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " No encrypted password yet.";
+}
+
+//Check that CN exists and has no space.
+if (source.cn && source.cn.includes(' ')) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " CN with a space is not allowed.";
+}
+
+if (!isGoogleEligible) {
+	logMsg = logMsg + " Not sent to Google."
+	logger.info(logMsg);
+} 
+
+if (isGoogleEligible) {
+	logMsg = logMsg + " Sent to Google."
+	logger.info(logMsg);
+}
+
+isGoogleEligible;
+",
+    "type": "text/javascript",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/sync.json 1`] = `
+{
+  "id": "sync",
+  "mappings": [
+    "file://AlphaUser2GoogleApps.sync.json",
+  ],
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2: mappingExportTestDir2/allMappings.mapping.json 1`] = `
+{
+  "mapping": {},
+  "sync": {
+    "id": "sync",
+    "mappings": [
+      {
+        "_id": "sync/AlphaUser2GoogleApps",
+        "consentRequired": false,
+        "correlationQuery": [
+          {
+            "expressionTree": {
+              "all": [
+                "__NAME__",
+              ],
+            },
+            "file": "ui/correlateTreeToQueryFilter.js",
+            "linkQualifier": "default",
+            "mapping": "AlphaUser2GoogleApps",
+            "type": "text/javascript",
+          },
+        ],
+        "displayName": "AlphaUser2GoogleApps",
+        "enableSync": {
+          "$bool": "&{esv.gac.enable.mapping}",
+        },
+        "icon": null,
+        "name": "AlphaUser2GoogleApps",
+        "onCreate": {
+          "globals": {},
+          "source": "target.orgUnitPath = "/NewAccounts";",
+          "type": "text/javascript",
+        },
+        "onUpdate": {
+          "globals": {},
+          "source": "//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;",
+          "type": "text/javascript",
+        },
+        "policies": [
+          {
+            "action": "EXCEPTION",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+",
+              "type": "text/javascript",
+            },
+            "situation": "MISSING",
+          },
+          {
+            "action": "EXCEPTION",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "UPDATE",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "LINK",
+            "situation": "FOUND",
+          },
+          {
+            "action": "CREATE",
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "object.custom_password_encrypted != null",
+              "type": "text/javascript",
+            },
+            "source": "custom_password_encrypted",
+            "target": "__PASSWORD__",
+            "transform": {
+              "globals": {},
+              "source": "openidm.decrypt(source);",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "cn",
+            "target": "__NAME__",
+            "transform": {
+              "globals": {},
+              "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "givenName",
+            "target": "givenName",
+          },
+          {
+            "source": "",
+            "target": "familyName",
+            "transform": {
+              "globals": {},
+              "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "queuedSync": {
+          "enabled": true,
+          "maxQueueSize": 20000,
+          "maxRetries": 5,
+          "pageSize": 100,
+          "pollingInterval": 1000,
+          "postRetryAction": "logged-ignore",
+          "retryDelay": 1000,
+        },
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+          "managedAlpha_user_managedBravo_user",
+          "managedBravo_user_managedAlpha_user",
+        ],
+        "target": "system/GoogleApps/__ACCOUNT__",
+        "validSource": {
+          "globals": {},
+          "source": "var isGoogleEligible = true;
+//var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
+var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
+
+//Get Applicable userTypes (no Parent accounts)
+if (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " Account type not eligible.";
+}
+
+//Make sure the account has a valid encrypted password.
+if (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " No encrypted password yet.";
+}
+
+//Check that CN exists and has no space.
+if (source.cn && source.cn.includes(' ')) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " CN with a space is not allowed.";
+}
+
+if (!isGoogleEligible) {
+	logMsg = logMsg + " Not sent to Google."
+	logger.info(logMsg);
+} 
+
+if (isGoogleEligible) {
+	logMsg = logMsg + " Sent to Google."
+	logger.info(logMsg);
+}
+
+isGoogleEligible;
+",
+          "type": "text/javascript",
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/mapping/managedBravo_group_managedBravo_group.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/mapping/managedBravo_user_managedBravo_user0.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_user_managedBravo_user0": {
+      "_id": "mapping/managedBravo_user_managedBravo_user0",
+      "consentRequired": false,
+      "displayName": "managedBravo_user_managedBravo_user0",
+      "icon": null,
+      "name": "managedBravo_user_managedBravo_user0",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_user",
+      "target": "managed/bravo_user",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps.sync.json 1`] = `
+{
+  "_id": "sync/AlphaUser2GoogleApps",
+  "consentRequired": false,
+  "correlationQuery": [
+    {
+      "expressionTree": {
+        "all": [
+          "__NAME__",
+        ],
+      },
+      "file": "ui/correlateTreeToQueryFilter.js",
+      "linkQualifier": "default",
+      "mapping": "AlphaUser2GoogleApps",
+      "type": "text/javascript",
+    },
+  ],
+  "displayName": "AlphaUser2GoogleApps",
+  "enableSync": {
+    "$bool": "&{esv.gac.enable.mapping}",
+  },
+  "icon": null,
+  "name": "AlphaUser2GoogleApps",
+  "onCreate": {
+    "globals": {},
+    "source": "target.orgUnitPath = "/NewAccounts";",
+    "type": "text/javascript",
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;",
+    "type": "text/javascript",
+  },
+  "policies": [
+    {
+      "action": "EXCEPTION",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "UNLINK",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+",
+        "type": "text/javascript",
+      },
+      "situation": "MISSING",
+    },
+    {
+      "action": "EXCEPTION",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "UNLINK",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "IGNORE",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "LINK",
+      "situation": "FOUND",
+    },
+    {
+      "action": "CREATE",
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "object.custom_password_encrypted != null",
+        "type": "text/javascript",
+      },
+      "source": "custom_password_encrypted",
+      "target": "__PASSWORD__",
+      "transform": {
+        "globals": {},
+        "source": "openidm.decrypt(source);",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "source": "cn",
+      "target": "__NAME__",
+      "transform": {
+        "globals": {},
+        "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "source": "givenName",
+      "target": "givenName",
+    },
+    {
+      "source": "",
+      "target": "familyName",
+      "transform": {
+        "globals": {},
+        "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}",
+        "type": "text/javascript",
+      },
+    },
+  ],
+  "queuedSync": {
+    "enabled": true,
+    "maxQueueSize": 20000,
+    "maxRetries": 5,
+    "pageSize": 100,
+    "pollingInterval": 1000,
+    "postRetryAction": "logged-ignore",
+    "retryDelay": 1000,
+  },
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_application_managedBravo_application",
+    "managedAlpha_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user",
+  ],
+  "target": "system/GoogleApps/__ACCOUNT__",
+  "validSource": {
+    "globals": {},
+    "source": "var isGoogleEligible = true;
+//var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
+var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
+
+//Get Applicable userTypes (no Parent accounts)
+if (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " Account type not eligible.";
+}
+
+//Make sure the account has a valid encrypted password.
+if (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " No encrypted password yet.";
+}
+
+//Check that CN exists and has no space.
+if (source.cn && source.cn.includes(' ')) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " CN with a space is not allowed.";
+}
+
+if (!isGoogleEligible) {
+	logMsg = logMsg + " Not sent to Google."
+	logger.info(logMsg);
+} 
+
+if (isGoogleEligible) {
+	logMsg = logMsg + " Sent to Google."
+	logger.info(logMsg);
+}
+
+isGoogleEligible;
+",
+    "type": "text/javascript",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_application_managedBravo_application.sync.json 1`] = `
+{
+  "_id": "sync/managedAlpha_application_managedBravo_application",
+  "consentRequired": true,
+  "displayName": "Test Application Mapping",
+  "icon": null,
+  "name": "managedAlpha_application_managedBravo_application",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+  ],
+  "properties": [
+    {
+      "source": "authoritative",
+      "target": "_id",
+    },
+  ],
+  "source": "managed/alpha_application",
+  "sourceQuery": {
+    "_queryFilter": "(eq "" or eq "")",
+  },
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+  ],
+  "target": "managed/bravo_application",
+  "targetQuery": {
+    "_queryFilter": "!(eq "")",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_user_managedBravo_user.sync.json 1`] = `
+{
+  "_id": "sync/managedAlpha_user_managedBravo_user",
+  "consentRequired": true,
+  "displayName": "Test Mapping for Frodo",
+  "icon": null,
+  "name": "managedAlpha_user_managedBravo_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "console.log("Hello World!");",
+        "type": "text/javascript",
+      },
+      "default": [
+        "Default value string",
+      ],
+      "source": "accountStatus",
+      "target": "applications",
+      "transform": {
+        "globals": {},
+        "source": "console.log("hello");",
+        "type": "text/javascript",
+      },
+    },
+  ],
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_application_managedBravo_application",
+  ],
+  "target": "managed/bravo_user",
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedBravo_user_managedAlpha_user.sync.json 1`] = `
+{
+  "_id": "sync/managedBravo_user_managedAlpha_user",
+  "consentRequired": false,
+  "displayName": "Frodo test mapping",
+  "icon": null,
+  "name": "managedBravo_user_managedAlpha_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+  ],
+  "properties": [],
+  "source": "managed/bravo_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_application_managedBravo_application",
+    "managedAlpha_user_managedBravo_user",
+  ],
+  "target": "managed/alpha_user",
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedBravo_user_managedBravo_user.sync.json 1`] = `
+{
+  "_id": "sync/managedBravo_user_managedBravo_user",
+  "consentRequired": false,
+  "displayName": "managedBravo_user_managedBravo_user",
+  "icon": null,
+  "name": "managedBravo_user_managedBravo_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+  ],
+  "properties": [],
+  "source": "managed/bravo_user",
+  "syncAfter": [],
+  "target": "managed/bravo_user",
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/sync.json 1`] = `
+{
+  "id": "sync",
+  "mappings": [
+    "file://managedBravo_user_managedBravo_user.sync.json",
+    "file://managedAlpha_application_managedBravo_application.sync.json",
+    "file://managedAlpha_user_managedBravo_user.sync.json",
+    "file://managedBravo_user_managedAlpha_user.sync.json",
+    "file://AlphaUser2GoogleApps.sync.json",
+  ],
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1: mappingExportTestDir1/managedBravo_group_managedBravo_group.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group",
+    },
+  },
+  "sync": {
+    "id": "sync",
+    "mappings": [],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json: my-allMappings.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group",
+    },
+    "mapping/managedBravo_user_managedBravo_user0": {
+      "_id": "mapping/managedBravo_user_managedBravo_user0",
+      "consentRequired": false,
+      "displayName": "managedBravo_user_managedBravo_user0",
+      "icon": null,
+      "name": "managedBravo_user_managedBravo_user0",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_user",
+      "target": "managed/bravo_user",
+    },
+  },
+  "meta": Any<Object>,
+  "sync": {
+    "id": "sync",
+    "mappings": [
+      {
+        "_id": "sync/managedBravo_user_managedBravo_user",
+        "consentRequired": false,
+        "displayName": "managedBravo_user_managedBravo_user",
+        "icon": null,
+        "name": "managedBravo_user_managedBravo_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [],
+        "source": "managed/bravo_user",
+        "syncAfter": [],
+        "target": "managed/bravo_user",
+      },
+      {
+        "_id": "sync/managedAlpha_application_managedBravo_application",
+        "consentRequired": true,
+        "displayName": "Test Application Mapping",
+        "icon": null,
+        "name": "managedAlpha_application_managedBravo_application",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [
+          {
+            "source": "authoritative",
+            "target": "_id",
+          },
+        ],
+        "source": "managed/alpha_application",
+        "sourceQuery": {
+          "_queryFilter": "(eq "" or eq "")",
+        },
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+        ],
+        "target": "managed/bravo_application",
+        "targetQuery": {
+          "_queryFilter": "!(eq "")",
+        },
+      },
+      {
+        "_id": "sync/managedAlpha_user_managedBravo_user",
+        "consentRequired": true,
+        "displayName": "Test Mapping for Frodo",
+        "icon": null,
+        "name": "managedAlpha_user_managedBravo_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "console.log("Hello World!");",
+              "type": "text/javascript",
+            },
+            "default": [
+              "Default value string",
+            ],
+            "source": "accountStatus",
+            "target": "applications",
+            "transform": {
+              "globals": {},
+              "source": "console.log("hello");",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+        ],
+        "target": "managed/bravo_user",
+      },
+      {
+        "_id": "sync/managedBravo_user_managedAlpha_user",
+        "consentRequired": false,
+        "displayName": "Frodo test mapping",
+        "icon": null,
+        "name": "managedBravo_user_managedAlpha_user",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [],
+        "source": "managed/bravo_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+          "managedAlpha_user_managedBravo_user",
+        ],
+        "target": "managed/alpha_user",
+      },
+      {
+        "_id": "sync/AlphaUser2GoogleApps",
+        "consentRequired": false,
+        "correlationQuery": [
+          {
+            "expressionTree": {
+              "all": [
+                "__NAME__",
+              ],
+            },
+            "file": "ui/correlateTreeToQueryFilter.js",
+            "linkQualifier": "default",
+            "mapping": "AlphaUser2GoogleApps",
+            "type": "text/javascript",
+          },
+        ],
+        "displayName": "AlphaUser2GoogleApps",
+        "enableSync": {
+          "$bool": "&{esv.gac.enable.mapping}",
+        },
+        "icon": null,
+        "name": "AlphaUser2GoogleApps",
+        "onCreate": {
+          "globals": {},
+          "source": "target.orgUnitPath = "/NewAccounts";",
+          "type": "text/javascript",
+        },
+        "onUpdate": {
+          "globals": {},
+          "source": "//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;",
+          "type": "text/javascript",
+        },
+        "policies": [
+          {
+            "action": "EXCEPTION",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+",
+              "type": "text/javascript",
+            },
+            "situation": "MISSING",
+          },
+          {
+            "action": "EXCEPTION",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "UNLINK",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "IGNORE",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "UPDATE",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "LINK",
+            "situation": "FOUND",
+          },
+          {
+            "action": "CREATE",
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [
+          {
+            "condition": {
+              "globals": {},
+              "source": "object.custom_password_encrypted != null",
+              "type": "text/javascript",
+            },
+            "source": "custom_password_encrypted",
+            "target": "__PASSWORD__",
+            "transform": {
+              "globals": {},
+              "source": "openidm.decrypt(source);",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "cn",
+            "target": "__NAME__",
+            "transform": {
+              "globals": {},
+              "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+              "type": "text/javascript",
+            },
+          },
+          {
+            "source": "givenName",
+            "target": "givenName",
+          },
+          {
+            "source": "",
+            "target": "familyName",
+            "transform": {
+              "globals": {},
+              "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}",
+              "type": "text/javascript",
+            },
+          },
+        ],
+        "queuedSync": {
+          "enabled": true,
+          "maxQueueSize": 20000,
+          "maxRetries": 5,
+          "pageSize": 100,
+          "pollingInterval": 1000,
+          "postRetryAction": "logged-ignore",
+          "retryDelay": 1000,
+        },
+        "source": "managed/alpha_user",
+        "syncAfter": [
+          "managedBravo_user_managedBravo_user",
+          "managedAlpha_application_managedBravo_application",
+          "managedAlpha_user_managedBravo_user",
+          "managedBravo_user_managedAlpha_user",
+        ],
+        "target": "system/GoogleApps/__ACCOUNT__",
+        "validSource": {
+          "globals": {},
+          "source": "var isGoogleEligible = true;
+//var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
+var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
+
+//Get Applicable userTypes (no Parent accounts)
+if (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " Account type not eligible.";
+}
+
+//Make sure the account has a valid encrypted password.
+if (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " No encrypted password yet.";
+}
+
+//Check that CN exists and has no space.
+if (source.cn && source.cn.includes(' ')) {
+	isGoogleEligible = false;
+	logMsg = logMsg + " CN with a space is not allowed.";
+}
+
+if (!isGoogleEligible) {
+	logMsg = logMsg + " Not sent to Google."
+	logger.info(logMsg);
+} 
+
+if (isGoogleEligible) {
+	logMsg = logMsg + " Sent to Google."
+	logger.info(logMsg);
+}
+
+isGoogleEligible;
+",
+          "type": "text/javascript",
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 1`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json: my-frodo-test-mapping.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group",
+    },
+  },
+  "meta": Any<Object>,
+  "sync": {
+    "id": "sync",
+    "mappings": [],
+  },
+}
+`;

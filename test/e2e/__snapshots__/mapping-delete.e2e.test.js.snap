@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo mapping delete "frodo mapping delete --all": should do nothing when no mappings can be deleted 1`] = `""`;
+
+exports[`frodo mapping delete "frodo mapping delete --mapping-id mapping/managedBravo_user_managedBravo_user0": should delete the mapping with id 'mapping/managedBravo_user_managedBravo_user0' 1`] = `""`;
+
+exports[`frodo mapping delete "frodo mapping delete -a": should delete all mappings 1`] = `""`;
+
+exports[`frodo mapping delete "frodo mapping delete -i sync/managedAlpha_user_managedBravo_user": should delete the mapping with id 'sync/managedAlpha_user_managedBravo_user' 1`] = `""`;

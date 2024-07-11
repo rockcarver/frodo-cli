@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import slugify from 'slugify';
 
+import { getIdmImportDataFromIdmDirectory } from '../ops/IdmOps';
 import { printMessage } from './Console';
 
 const { getFilePath, readFiles } = frodo.utils;
@@ -85,7 +86,7 @@ export async function getFullExportConfig(
     });
   }
   // Go through files in the working directory and reconstruct the full export
-  return getFullExportConfigFromDirectory(workingDirectory);
+  return await getFullExportConfigFromDirectory(workingDirectory);
 }
 
 /**
@@ -123,7 +124,6 @@ export async function getFullExportConfigFromDirectory(
   } as FullExportInterface;
   const files = await readFiles(directory);
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
-  const idmConfigFiles = jsonFiles.filter((f) => f.path.startsWith('config/'));
   const samlFiles = jsonFiles.filter(
     (f) => f.path.startsWith('saml/') || f.path.startsWith('cot/')
   );
@@ -154,9 +154,10 @@ export async function getFullExportConfigFromDirectory(
     }
   }
   // Handle idm config files
-  for (const f of idmConfigFiles) {
-    const content = JSON.parse(f.content);
-    fullExportConfig.config[content._id] = content;
+  if (fs.existsSync(directory + '/config')) {
+    fullExportConfig.config = await getIdmImportDataFromIdmDirectory(
+      directory + '/config'
+    );
   }
   // Handle extracted scripts, adding them to their corresponding script objects in the export
   if (scriptFiles.length > 0 && fullExportConfig.script != null) {

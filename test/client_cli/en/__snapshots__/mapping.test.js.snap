@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'mapping' should be expected english 1`] = `
+"Usage: frodo mapping [options] [command]
+
+Manage IDM mappings.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  delete      Delete IDM mappings.
+  export      Export IDM mappings.
+  help        display help for command
+  import      Import IDM mappings.
+  list        List IDM mappings.
+  rename      Renames mappings from the combined/default/legacy naming scheme
+              (sync/<name>) to the separate/new naming scheme (mapping/<name>).
+              To rename mappings from new back to legacy, use the -l, --legacy
+              flag.
+"
+`;

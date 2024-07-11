@@ -1,7 +1,11 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { type ConfigEntityImportOptions } from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
+import { type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import {
+  type ConfigEntityExportInterface,
+  type ConfigEntityImportOptions,
+} from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
+import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
-import fse from 'fs-extra';
 import path from 'path';
 import propertiesReader from 'properties-reader';
 import replaceall from 'replaceall';
@@ -12,6 +16,10 @@ import {
   printMessage,
   stopProgressIndicator,
 } from '../utils/Console';
+import {
+  getLegacyMappingsFromFiles,
+  writeSyncJsonToDirectory,
+} from './MappingOps';
 
 const { stringify } = frodo.utils.json;
 
@@ -22,7 +30,10 @@ const {
   getTypedFilename,
   readFiles,
   getWorkingDirectory,
+  saveJsonToFile,
+  saveTextToFile,
 } = frodo.utils;
+
 const {
   readConfigEntities,
   readConfigEntity,
@@ -78,28 +89,26 @@ export async function listAllConfigEntities(): Promise<boolean> {
 /**
  * Export an IDM configuration object.
  * @param {string} id the desired configuration object
- * @param {string} file optional export file
+ * @param {string} file optional export file name (or directory name if exporting mappings separately)
+ * @param {boolean} separateMappings separate sync.json mappings if true (and id is "sync"), otherwise keep them in a single file
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportConfigEntity(
   id: string,
-  file: string
+  file: string,
+  separateMappings: boolean = false
 ): Promise<boolean> {
   try {
+    const configEntity = await readConfigEntity(id);
+    if (separateMappings && id === 'sync') {
+      writeSyncJsonToDirectory(configEntity as SyncSkeleton, file);
+      return true;
+    }
     let fileName = file;
     if (!fileName) {
       fileName = getTypedFilename(`${id}`, 'idm');
     }
-    const configEntity = await readConfigEntity(id);
-    fs.writeFile(
-      getFilePath(fileName, true),
-      stringify(configEntity),
-      (err) => {
-        if (err) {
-          printError(err, `Error exporting config entity ${id}`);
-        }
-      }
-    );
+    saveJsonToFile(configEntity, getFilePath(fileName, true), false);
     return true;
   } catch (error) {
     printError(error, `Error exporting config entity ${id}`);
@@ -109,22 +118,21 @@ export async function exportConfigEntity(
 
 /**
  * Export all IDM configuration objects into separate JSON files in a directory specified by <directory>
+ * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
-export async function exportAllRawConfigEntities() {
+export async function exportAllRawConfigEntities(
+  separateMappings: boolean = false
+) {
   try {
     const exportedConfigurations = await exportConfigEntities();
     for (const [id, value] of Object.entries(exportedConfigurations.config)) {
       if (value != null) {
-        fse.outputFile(
-          getFilePath(`${id}.json`, true),
-          stringify(value),
-          (err) => {
-            if (err) {
-              printError(err, `Error exporting raw config entity ${id}`);
-            }
-          }
-        );
+        if (separateMappings && id === 'sync') {
+          writeSyncJsonToDirectory(value as SyncSkeleton);
+          continue;
+        }
+        saveJsonToFile(value, getFilePath(`${id}.json`, true), false);
       }
     }
     return true;
@@ -138,11 +146,13 @@ export async function exportAllRawConfigEntities() {
  * Export all IDM configuration objects
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntities(
   entitiesFile: string,
-  envFile: string
+  envFile: string,
+  separateMappings: boolean = false
 ): Promise<boolean> {
   const errors: Error[] = [];
   try {
@@ -179,9 +189,13 @@ export async function exportAllConfigEntities(
               configEntityString
             );
           });
-          fse.outputFileSync(
-            getFilePath(`${item._id}.json`, true),
-            configEntityString
+          if (separateMappings && item._id === 'sync') {
+            writeSyncJsonToDirectory(JSON.parse(configEntityString));
+            continue;
+          }
+          saveTextToFile(
+            configEntityString,
+            getFilePath(`${item._id}.json`, true)
           );
         } catch (error) {
           errors.push(
@@ -295,27 +309,19 @@ export async function importAllRawConfigEntities(
   let indicatorId: string;
   const baseDirectory = getWorkingDirectory();
   try {
-    const files = await readFiles(baseDirectory);
-    const jsonObjects = files
-      .filter(({ path }) => path.toLowerCase().endsWith('.json'))
-      .map(({ content }) => JSON.parse(content))
-      .map((entity) => [entity._id, entity]);
     const importData = {
-      config: Object.fromEntries(jsonObjects),
+      config: await getIdmImportDataFromIdmDirectory(baseDirectory),
     };
-
     indicatorId = createProgressIndicator(
       'indeterminate',
       0,
       `Importing config entities from ${baseDirectory}...`
     );
-
-    await importConfigEntities(importData, options);
-    stopProgressIndicator(
-      indicatorId,
-      `Imported ${jsonObjects.length} config entities`,
-      'success'
+    await importConfigEntities(
+      importData as ConfigEntityExportInterface,
+      options
     );
+    stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
     return true;
   } catch (error) {
     stopProgressIndicator(
@@ -345,36 +351,23 @@ export async function importAllConfigEntities(
   let indicatorId: string;
   const baseDirectory = getWorkingDirectory();
   try {
-    const entriesToImport = JSON.parse(
-      fs.readFileSync(entitiesFile, 'utf8')
-    ).idm;
-    const envReader = propertiesReader(envFile);
-
-    const files = await readFiles(baseDirectory);
-    const jsonObjects = files
-      .filter(({ path }) => path.toLowerCase().endsWith('.json'))
-      .map(({ content }) =>
-        JSON.parse(unSubstituteEnvParams(content, envReader))
-      )
-      .filter((entity) => entriesToImport.includes(entity._id))
-      .map((entity) => [entity._id, entity]);
-
     const importData = {
-      config: Object.fromEntries(jsonObjects),
+      config: await getIdmImportDataFromIdmDirectory(
+        baseDirectory,
+        entitiesFile,
+        envFile
+      ),
     };
-
     indicatorId = createProgressIndicator(
       'indeterminate',
       0,
       `Importing config entities from ${baseDirectory}...`
     );
-
-    await importConfigEntities(importData, options);
-    stopProgressIndicator(
-      indicatorId,
-      `Imported ${jsonObjects.length} config entities`,
-      'success'
+    await importConfigEntities(
+      importData as ConfigEntityExportInterface,
+      options
     );
+    stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
     return true;
   } catch (error) {
     stopProgressIndicator(
@@ -401,4 +394,42 @@ export async function countManagedObjects(type: string): Promise<boolean> {
     printError(error);
   }
   return false;
+}
+
+/**
+ * Helper that reads all the idm config entity data from a directory
+ * @param directory The directory of the idm config entities
+ * @param {string} entitiesFile JSON file that specifies the config entities to export/import
+ * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ */
+export async function getIdmImportDataFromIdmDirectory(
+  directory: string,
+  entitiesFile?: string,
+  envFile?: string
+): Promise<Record<string, IdObjectSkeletonInterface>> {
+  const envReader = envFile ? propertiesReader(envFile) : undefined;
+  const entriesToImport = entitiesFile
+    ? JSON.parse(fs.readFileSync(entitiesFile, 'utf8')).idm
+    : undefined;
+  const importData = {} as Record<string, IdObjectSkeletonInterface>;
+  const idmConfigFiles = await readFiles(directory);
+  idmConfigFiles.forEach(
+    (f) => (f.path = f.path.toLowerCase().replace(/\/$/, ''))
+  );
+  // Process sync mapping file(s)
+  if (!entriesToImport || entriesToImport.includes('sync')) {
+    importData.sync = getLegacyMappingsFromFiles(idmConfigFiles, envReader);
+  }
+  // Process other files
+  for (const f of idmConfigFiles.filter(
+    (f) => !f.path.endsWith('sync.json') && f.path.endsWith('.json')
+  )) {
+    const entity = JSON.parse(
+      envReader ? unSubstituteEnvParams(f.content, envReader) : f.content
+    );
+    if (!entriesToImport || entriesToImport.includes(entity._id)) {
+      importData[entity._id] = entity;
+    }
+  }
+  return importData;
 }

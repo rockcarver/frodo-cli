@@ -63,6 +63,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-s, --separate-mappings',
+        'Export sync.json mappings separately in their own directory. Ignored with -a.'
+      )
+    )
+    .addOption(
+      new Option(
         '--include-active-values',
         'Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use --target <host url> to have another environment perform the encryption.'
       )
@@ -138,6 +144,7 @@ export default function setup() {
           verboseMessage('Exporting everything to separate files...');
           const outcome = await exportEverythingToFiles(
             options.extract,
+            options.separateMappings,
             options.metadata,
             {
               useStringArrays: options.useStringArrays,
