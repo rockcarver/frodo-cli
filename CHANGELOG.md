@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-67] - 2024-07-11
+
 ### Added
 
 - New commands to manage IDM mappings:
@@ -16,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `export`   Export IDM mappings.
     - `import`   Import IDM mappings.
     - `list`     List IDM mappings.
-    - `rename`   Renames mappings from the combined/default/legacy naming scheme (sync/\<name>) to the separate/new naming scheme (mapping/\<name>). To rename mappings from new back to legacy, use the -l, --legacy flag.
+    - `rename`   Renames mappings from the combined/default/legacy naming scheme (sync/\\<name>) to the separate/new naming scheme (mapping/\\<name>). To rename mappings from new back to legacy, use the -l, --legacy flag.
 
 ## [2.0.0-66] - 2024-07-10
 
@@ -1642,7 +1644,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-66...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-67...HEAD
+[2.0.0-67]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-66...v2.0.0-67
 [2.0.0-66]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-65...v2.0.0-66
 [2.0.0-65]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-64...v2.0.0-65
 [2.0.0-64]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-63...v2.0.0-64
