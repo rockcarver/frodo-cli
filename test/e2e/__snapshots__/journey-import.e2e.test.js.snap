@@ -13,7 +13,7 @@ exports[`frodo journey import "frodo journey import --journey-id j00 -f test/e2e
 exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/journey/FrodoTest.journey.json" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/journey/FrodoTest.journey.json" 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [ba58ff99-76d3-4c69-9c4a-7f150ac70e2c]
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 Importing first journey in file...
 - Resolving dependencies
 ✔ Resolved all dependencies.

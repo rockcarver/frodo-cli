@@ -77,7 +77,7 @@ const env = {
     env: process.env,
 };
 env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = 'ba58ff99-76d3-4c69-9c4a-7f150ac70e2c'; // c.saId;
+env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 const allDirectory = "test/e2e/exports/all";

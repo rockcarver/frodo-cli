@@ -62,7 +62,7 @@ const env = {
     env: process.env,
 };
 env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = '76618ff6-e851-433e-9704-9d2852a17b7a' //c.saId;
+env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 
 const type = 'everything';

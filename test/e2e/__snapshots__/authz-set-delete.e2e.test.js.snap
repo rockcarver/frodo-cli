@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo authz set delete "frodo authz set delete --all": should do nothing when no policy sets can be deleted 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Retrieving all policy sets...
 ✔ Found 0 policy sets.
 "
 `;
 
 exports[`frodo authz set delete "frodo authz set delete --set-id test-policy-set": should display error when the policy set with id 'test-policy-set' cannot be deleted since it does not exist 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting test-policy-set...
 ✖ Error deleting policy set test-policy-set
 Error deleting policy set test-policy-set
