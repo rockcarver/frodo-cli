@@ -5,16 +5,20 @@ on:
     branches:
       - 'main'
     paths-ignore:
-      - '**/README.md'
       - '**/CODE_OF_CONDUCT.md'
+      - '**/CONTRIBUTE.md'
+      - '**/PIPELINE.md'
+      - '**/README.md'
       - 'docs/**'
   push:
     branches:
       - 'main'
     paths-ignore:
-      - '**/pipeline.yml'
-      - '**/README.md'
       - '**/CODE_OF_CONDUCT.md'
+      - '**/CONTRIBUTE.md'
+      - '**/PIPELINE.md'
+      - '**/README.md'
+      - '**/pipeline.yml'
       - 'docs/**'
   workflow_dispatch:
 
