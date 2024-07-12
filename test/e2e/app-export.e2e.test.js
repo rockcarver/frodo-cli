@@ -67,7 +67,7 @@ process.env['FRODO_MOCK'] = '1';
 const env = {
   env: process.env,
 };
-env.env.FRODO_HOST = 'https://openam-volker-demo.forgeblocks.com/am'; //c.host;
+env.env.FRODO_HOST = c.host;
 env.env.FRODO_SA_ID = c.saId;
 env.env.FRODO_SA_JWK = c.saJwk;
 

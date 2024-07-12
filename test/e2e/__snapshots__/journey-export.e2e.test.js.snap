@@ -5934,51 +5934,48 @@ exports[`frodo journey export "frodo journey export --journey-id j02 --no-metada
 exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `""`;
 
 exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account frodo-test [b672336b-41ef-428d-ae4a-e0c082875377]
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 Exporting journey...
 - FrodoTest
   - Flow
     - identityResource: managed/alpha_user
     - Done
   - Nodes:
-    - 234526e1-48cf-477e-8ecb-abf15fcd5c67 (SocialProviderHandlerNode)
-    - 4951364c-59be-42cd-9cd7-79c9392214db (ScriptedDecisionNode)
-    - 58ab3ae6-cb79-445f-9a52-170e9b7f1339 (IdentityStoreDecisionNode)
-    - 650203c3-47f7-439d-a554-669cb7b08c57 (product-Saml2Node)
-    - 795108e9-0b4d-4849-80fa-fb8518c6e3b0 (PageNode)
-    - c0bbd39a-ff6b-45d7-af8a-0685e810bc11 (PageNode)
-    - c859d258-79c1-4448-bd52-12e4e414af92 (EmailTemplateNode)
+    - 278bf084-9eea-46fe-8ce9-2600dde3b046 (PageNode)
+    - 64157fca-bd5b-4405-a4c8-64ffd98a5461 (product-Saml2Node)
+    - 731c5810-020b-45c8-a7fc-3c21903ae2b3 (PageNode)
+    - bf153f37-83dd-4f39-aa0c-74135430242e (EmailTemplateNode)
+    - d5cc2d52-6ce4-452d-85ea-3a5b50218b67 (SocialProviderHandlerNode)
+    - e2c39477-847a-4df2-9c5d-b449a752638b (ScriptedDecisionNode)
+    - fc7e47cd-c679-4211-8e05-a36654f23c67 (IdentityStoreDecisionNode)
   - Inner nodes:
-    - fe762924-bc07-4f50-9234-17ab245efff1 (ValidatedUsernameNode)
-    - 051c1939-7dd5-4cf1-866e-48f57541b6ac (ValidatedPasswordNode)
-    - 28595125-e97a-40e7-aa3c-bebdb6821949 (SelectIdPNode)
-    - ac343c95-8873-410e-823b-0931a71fc0c7 (ValidatedPasswordNode)
-    - 9d19d94c-77b1-4386-9c5d-8a2e39e3f5b4 (SelectIdPNode)
+    - 7a351800-fb7e-4145-903c-388554747556 (ValidatedUsernameNode)
+    - 804e6a68-1720-442b-926a-007e90f02782 (ValidatedPasswordNode)
+    - 228a44d5-fd78-4278-8999-fdd470ea7ebf (SelectIdPNode)
+    - dd16c8d4-baca-4ae0-bcd8-fb98b9040524 (ValidatedPasswordNode)
+    - 038f9b2a-36b2-489b-9e03-386c9a62ea21 (SelectIdPNode)
   - Email templates:
     - welcome (Welcome)
   - SAML2 entity providers:
     - hosted iSPAzure
-    - remote urn:federation:MicrosoftOnline
   - SAML2 circles of trust:
+    - 2f04818d-561e-4f8a-82e8-af2426112138
+    - AzureCOT
   - OAuth2/OIDC (social) identity providers:
     - google
     - github
-    - facebook
     - apple-stoyan
     - apple_web
     - okta-trial-5735851
-    - adfs
     - azure
   - Scripts:
     - 58c824ae-84ed-4724-82cd-db128fc3f6c (Normalized Profile to Managed User)
     - 739bdc48-fd24-4c52-b353-88706d75558a (Check Username)
     - 58d29080-4563-480b-89bb-1e7719776a21 (Google Profile Normalization)
     - 23143919-6b78-40c3-b25e-beca19b229e0 (GitHub Profile Normalization (VS))
-    - bae1d54a-e97d-4997-aa5d-c027f21af82c (Facebook Profile Normalization)
     - 484e6246-dbc6-4288-97e6-54e55431402e (Apple Profile Normalization)
     - 484e6246-dbc6-4288-97e6-54e55431402e (Apple Profile Normalization)
     - 6325cf19-a49b-471e-8d26-7e4df76df0e2 (Okta Profile Normalization)
-    - dbe0bf9a-72aa-49d5-8483-9db147985a47 (ADFS Profile Normalization (JS))
     - 73cecbfc-dad0-4395-be6a-6858ee3a80e5 (Microsoft Profile Normalization)
   - Themes:
     - 63e19668-909f-479e-83d7-be7a01cd8187 (NoAccess)
@@ -5989,7 +5986,36 @@ Exporting journey...
 
 exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest": FrodoTest.journey.json 1`] = `
 {
-  "circlesOfTrust": {},
+  "circlesOfTrust": {
+    "2f04818d-561e-4f8a-82e8-af2426112138": {
+      "_id": "2f04818d-561e-4f8a-82e8-af2426112138",
+      "_type": {
+        "_id": "circlesoftrust",
+        "collection": true,
+        "name": "Circle of Trust",
+      },
+      "status": "active",
+      "trustedProviders": [
+        "benefits-IDP|saml2",
+        "iSPAzure|saml2",
+      ],
+    },
+    "AzureCOT": {
+      "_id": "AzureCOT",
+      "_type": {
+        "_id": "circlesoftrust",
+        "collection": true,
+        "name": "Circle of Trust",
+      },
+      "status": "active",
+      "trustedProviders": [
+        "https://sts.windows.net/711ffa9c-5972-4713-ace3-688c9732614a/|saml2",
+        "SPAzure|saml2",
+        "iSPAzure|saml2",
+        "https://idc.scheuber.io/am/saml2/IDPAzure|saml2",
+      ],
+    },
+  },
   "emailTemplates": {
     "welcome": {
       "_id": "emailTemplate/welcome",
@@ -6028,24 +6054,8 @@ a{
     },
   },
   "innerNodes": {
-    "051c1939-7dd5-4cf1-866e-48f57541b6ac": {
-      "_id": "051c1939-7dd5-4cf1-866e-48f57541b6ac",
-      "_outcomes": [
-        {
-          "displayName": "Outcome",
-          "id": "outcome",
-        },
-      ],
-      "_type": {
-        "_id": "ValidatedPasswordNode",
-        "collection": true,
-        "name": "Platform Password",
-      },
-      "passwordAttribute": "password",
-      "validateInput": false,
-    },
-    "28595125-e97a-40e7-aa3c-bebdb6821949": {
-      "_id": "28595125-e97a-40e7-aa3c-bebdb6821949",
+    "038f9b2a-36b2-489b-9e03-386c9a62ea21": {
+      "_id": "038f9b2a-36b2-489b-9e03-386c9a62ea21",
       "_outcomes": [
         {
           "displayName": "Social Authentication",
@@ -6067,8 +6077,8 @@ a{
       "offerOnlyExisting": false,
       "passwordAttribute": "password",
     },
-    "9d19d94c-77b1-4386-9c5d-8a2e39e3f5b4": {
-      "_id": "9d19d94c-77b1-4386-9c5d-8a2e39e3f5b4",
+    "228a44d5-fd78-4278-8999-fdd470ea7ebf": {
+      "_id": "228a44d5-fd78-4278-8999-fdd470ea7ebf",
       "_outcomes": [
         {
           "displayName": "Social Authentication",
@@ -6090,24 +6100,8 @@ a{
       "offerOnlyExisting": false,
       "passwordAttribute": "password",
     },
-    "ac343c95-8873-410e-823b-0931a71fc0c7": {
-      "_id": "ac343c95-8873-410e-823b-0931a71fc0c7",
-      "_outcomes": [
-        {
-          "displayName": "Outcome",
-          "id": "outcome",
-        },
-      ],
-      "_type": {
-        "_id": "ValidatedPasswordNode",
-        "collection": true,
-        "name": "Platform Password",
-      },
-      "passwordAttribute": "password",
-      "validateInput": false,
-    },
-    "fe762924-bc07-4f50-9234-17ab245efff1": {
-      "_id": "fe762924-bc07-4f50-9234-17ab245efff1",
+    "7a351800-fb7e-4145-903c-388554747556": {
+      "_id": "7a351800-fb7e-4145-903c-388554747556",
       "_outcomes": [
         {
           "displayName": "Outcome",
@@ -6122,11 +6116,162 @@ a{
       "usernameAttribute": "userName",
       "validateInput": false,
     },
+    "804e6a68-1720-442b-926a-007e90f02782": {
+      "_id": "804e6a68-1720-442b-926a-007e90f02782",
+      "_outcomes": [
+        {
+          "displayName": "Outcome",
+          "id": "outcome",
+        },
+      ],
+      "_type": {
+        "_id": "ValidatedPasswordNode",
+        "collection": true,
+        "name": "Platform Password",
+      },
+      "passwordAttribute": "password",
+      "validateInput": false,
+    },
+    "dd16c8d4-baca-4ae0-bcd8-fb98b9040524": {
+      "_id": "dd16c8d4-baca-4ae0-bcd8-fb98b9040524",
+      "_outcomes": [
+        {
+          "displayName": "Outcome",
+          "id": "outcome",
+        },
+      ],
+      "_type": {
+        "_id": "ValidatedPasswordNode",
+        "collection": true,
+        "name": "Platform Password",
+      },
+      "passwordAttribute": "password",
+      "validateInput": false,
+    },
   },
   "meta": Any<Object>,
   "nodes": {
-    "234526e1-48cf-477e-8ecb-abf15fcd5c67": {
-      "_id": "234526e1-48cf-477e-8ecb-abf15fcd5c67",
+    "278bf084-9eea-46fe-8ce9-2600dde3b046": {
+      "_id": "278bf084-9eea-46fe-8ce9-2600dde3b046",
+      "_outcomes": [
+        {
+          "displayName": "Social Authentication",
+          "id": "socialAuthentication",
+        },
+        {
+          "displayName": "Local Authentication",
+          "id": "localAuthentication",
+        },
+      ],
+      "_type": {
+        "_id": "PageNode",
+        "collection": true,
+        "name": "Page Node",
+      },
+      "nodes": [
+        {
+          "_id": "7a351800-fb7e-4145-903c-388554747556",
+          "displayName": "Username",
+          "nodeType": "ValidatedUsernameNode",
+        },
+        {
+          "_id": "804e6a68-1720-442b-926a-007e90f02782",
+          "displayName": "Password",
+          "nodeType": "ValidatedPasswordNode",
+        },
+        {
+          "_id": "228a44d5-fd78-4278-8999-fdd470ea7ebf",
+          "displayName": "Select IDP",
+          "nodeType": "SelectIdPNode",
+        },
+      ],
+      "pageDescription": {},
+      "pageHeader": {},
+    },
+    "64157fca-bd5b-4405-a4c8-64ffd98a5461": {
+      "_id": "64157fca-bd5b-4405-a4c8-64ffd98a5461",
+      "_outcomes": [
+        {
+          "displayName": "Account exists",
+          "id": "ACCOUNT_EXISTS",
+        },
+        {
+          "displayName": "No account exists",
+          "id": "NO_ACCOUNT",
+        },
+      ],
+      "_type": {
+        "_id": "product-Saml2Node",
+        "collection": true,
+        "name": "SAML2 Authentication",
+      },
+      "allowCreate": true,
+      "authComparison": "MINIMUM",
+      "authnContextClassRef": [],
+      "authnContextDeclRef": [],
+      "binding": "HTTP_ARTIFACT",
+      "forceAuthn": false,
+      "idpEntityId": "urn:federation:MicrosoftOnline",
+      "isPassive": false,
+      "metaAlias": "/alpha/iSPAzure",
+      "nameIdFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+      "requestBinding": "HTTP_REDIRECT",
+    },
+    "731c5810-020b-45c8-a7fc-3c21903ae2b3": {
+      "_id": "731c5810-020b-45c8-a7fc-3c21903ae2b3",
+      "_outcomes": [
+        {
+          "displayName": "Social Authentication",
+          "id": "socialAuthentication",
+        },
+        {
+          "displayName": "Local Authentication",
+          "id": "localAuthentication",
+        },
+      ],
+      "_type": {
+        "_id": "PageNode",
+        "collection": true,
+        "name": "Page Node",
+      },
+      "nodes": [
+        {
+          "_id": "dd16c8d4-baca-4ae0-bcd8-fb98b9040524",
+          "displayName": "Password",
+          "nodeType": "ValidatedPasswordNode",
+        },
+        {
+          "_id": "038f9b2a-36b2-489b-9e03-386c9a62ea21",
+          "displayName": "Select IDP",
+          "nodeType": "SelectIdPNode",
+        },
+      ],
+      "pageDescription": {},
+      "pageHeader": {},
+    },
+    "bf153f37-83dd-4f39-aa0c-74135430242e": {
+      "_id": "bf153f37-83dd-4f39-aa0c-74135430242e",
+      "_outcomes": [
+        {
+          "displayName": "Email Sent",
+          "id": "EMAIL_SENT",
+        },
+        {
+          "displayName": "Email Not Sent",
+          "id": "EMAIL_NOT_SENT",
+        },
+      ],
+      "_type": {
+        "_id": "EmailTemplateNode",
+        "collection": true,
+        "name": "Email Template Node",
+      },
+      "emailAttribute": "mail",
+      "emailTemplateName": "welcome",
+      "identityAttribute": "userName",
+    },
+    "d5cc2d52-6ce4-452d-85ea-3a5b50218b67": {
+      "_id": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67",
       "_outcomes": [
         {
           "displayName": "Account exists",
@@ -6140,14 +6285,14 @@ a{
       "_type": {
         "_id": "SocialProviderHandlerNode",
         "collection": true,
-        "name": "Social Provider Handler Node",
+        "name": "Legacy Social Provider Handler Node",
       },
       "clientType": "BROWSER",
       "script": "58c824ae-84ed-4724-82cd-db128fc3f6c",
       "usernameAttribute": "userName",
     },
-    "4951364c-59be-42cd-9cd7-79c9392214db": {
-      "_id": "4951364c-59be-42cd-9cd7-79c9392214db",
+    "e2c39477-847a-4df2-9c5d-b449a752638b": {
+      "_id": "e2c39477-847a-4df2-9c5d-b449a752638b",
       "_outcomes": [
         {
           "displayName": "known",
@@ -6175,8 +6320,8 @@ a{
       ],
       "script": "739bdc48-fd24-4c52-b353-88706d75558a",
     },
-    "58ab3ae6-cb79-445f-9a52-170e9b7f1339": {
-      "_id": "58ab3ae6-cb79-445f-9a52-170e9b7f1339",
+    "fc7e47cd-c679-4211-8e05-a36654f23c67": {
+      "_id": "fc7e47cd-c679-4211-8e05-a36654f23c67",
       "_outcomes": [
         {
           "displayName": "True",
@@ -6207,125 +6352,6 @@ a{
       "minimumPasswordLength": 8,
       "mixedCaseForPasswordChangeMessages": false,
       "useUniversalIdForUsername": true,
-    },
-    "650203c3-47f7-439d-a554-669cb7b08c57": {
-      "_id": "650203c3-47f7-439d-a554-669cb7b08c57",
-      "_outcomes": [
-        {
-          "displayName": "Account exists",
-          "id": "ACCOUNT_EXISTS",
-        },
-        {
-          "displayName": "No account exists",
-          "id": "NO_ACCOUNT",
-        },
-      ],
-      "_type": {
-        "_id": "product-Saml2Node",
-        "collection": true,
-        "name": "SAML2 Authentication",
-      },
-      "allowCreate": true,
-      "authComparison": "MINIMUM",
-      "authnContextClassRef": [],
-      "authnContextDeclRef": [],
-      "binding": "HTTP_ARTIFACT",
-      "forceAuthn": false,
-      "idpEntityId": "urn:federation:MicrosoftOnline",
-      "isPassive": false,
-      "metaAlias": "/alpha/iSPAzure",
-      "nameIdFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
-      "requestBinding": "HTTP_REDIRECT",
-    },
-    "795108e9-0b4d-4849-80fa-fb8518c6e3b0": {
-      "_id": "795108e9-0b4d-4849-80fa-fb8518c6e3b0",
-      "_outcomes": [
-        {
-          "displayName": "Social Authentication",
-          "id": "socialAuthentication",
-        },
-        {
-          "displayName": "Local Authentication",
-          "id": "localAuthentication",
-        },
-      ],
-      "_type": {
-        "_id": "PageNode",
-        "collection": true,
-        "name": "Page Node",
-      },
-      "nodes": [
-        {
-          "_id": "fe762924-bc07-4f50-9234-17ab245efff1",
-          "displayName": "Username",
-          "nodeType": "ValidatedUsernameNode",
-        },
-        {
-          "_id": "051c1939-7dd5-4cf1-866e-48f57541b6ac",
-          "displayName": "Password",
-          "nodeType": "ValidatedPasswordNode",
-        },
-        {
-          "_id": "28595125-e97a-40e7-aa3c-bebdb6821949",
-          "displayName": "Select IDP",
-          "nodeType": "SelectIdPNode",
-        },
-      ],
-      "pageDescription": {},
-      "pageHeader": {},
-    },
-    "c0bbd39a-ff6b-45d7-af8a-0685e810bc11": {
-      "_id": "c0bbd39a-ff6b-45d7-af8a-0685e810bc11",
-      "_outcomes": [
-        {
-          "displayName": "Social Authentication",
-          "id": "socialAuthentication",
-        },
-        {
-          "displayName": "Local Authentication",
-          "id": "localAuthentication",
-        },
-      ],
-      "_type": {
-        "_id": "PageNode",
-        "collection": true,
-        "name": "Page Node",
-      },
-      "nodes": [
-        {
-          "_id": "ac343c95-8873-410e-823b-0931a71fc0c7",
-          "displayName": "Password",
-          "nodeType": "ValidatedPasswordNode",
-        },
-        {
-          "_id": "9d19d94c-77b1-4386-9c5d-8a2e39e3f5b4",
-          "displayName": "Select IDP",
-          "nodeType": "SelectIdPNode",
-        },
-      ],
-      "pageDescription": {},
-      "pageHeader": {},
-    },
-    "c859d258-79c1-4448-bd52-12e4e414af92": {
-      "_id": "c859d258-79c1-4448-bd52-12e4e414af92",
-      "_outcomes": [
-        {
-          "displayName": "Email Sent",
-          "id": "EMAIL_SENT",
-        },
-        {
-          "displayName": "Email Not Sent",
-          "id": "EMAIL_NOT_SENT",
-        },
-      ],
-      "_type": {
-        "_id": "EmailTemplateNode",
-        "collection": true,
-        "name": "Email Template Node",
-      },
-      "emailAttribute": "mail",
-      "emailTemplateName": "welcome",
-      "identityAttribute": "userName",
     },
   },
   "saml2Entities": {
@@ -6381,9 +6407,7 @@ a{
             "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper",
             "useNameIDAsSPUserID": true,
           },
-          "adapter": {
-            "spAdapterScript": "07ee6240-d106-4e25-a781-5fcabc477d22",
-          },
+          "adapter": {},
           "attributeMapper": {
             "attributeMap": [
               {
@@ -6471,71 +6495,6 @@ a{
               {
                 "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
                 "location": "https://idc.scheuber.io/am/SPSloSoap/metaAlias/alpha/iSPAzure",
-              },
-            ],
-          },
-        },
-      },
-    },
-    "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l": {
-      "_id": "dXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5l",
-      "base64EntityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI_Pgo8RW50aXR5RGVzY3JpcHRvciBlbnRpdHlJRD0idXJuOmZlZGVyYXRpb246TWljcm9zb2Z0T25saW5lIiBJRD0iX2U0NmExMTkzLWU4YTctNDhlZC04MDRmLTE1MTY3MjllY2I1ZiIgeG1sbnM9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDptZXRhZGF0YSIgeG1sbnM6cXVlcnk9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOm1ldGFkYXRhOmV4dDpxdWVyeSIgeG1sbnM6bWRhdHRyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphdHRyaWJ1dGUiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgeG1sbnM6eGVuYzExPSJodHRwOi8vd3d3LnczLm9yZy8yMDA5L3htbGVuYzExIyIgeG1sbnM6YWxnPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTphbGdzdXBwb3J0IiB4bWxuczp4NTA5cXJ5PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDptZXRhZGF0YTpYNTA5OnF1ZXJ5IiB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI-CiAgICA8RXh0ZW5zaW9ucz4KICAgICAgICA8YWxnOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8-CiAgICAgICAgPGFsZzpTaWduaW5nTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8-CiAgICA8L0V4dGVuc2lvbnM-CiAgICA8U1BTU09EZXNjcmlwdG9yIFdhbnRBc3NlcnRpb25zU2lnbmVkPSJ0cnVlIiBwcm90b2NvbFN1cHBvcnRFbnVtZXJhdGlvbj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRYmdESGZpM3QxSk5HVnF3RDUvN2xtakFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpBeE1qSXhNREF3TURBd1doY05NalV4TWpJeApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFERlQwLzAvMnFRdXJuWWEwTGJKSEY5WVlvemhFSDZyOW1DeFZEQlliZXcKU0c0dEdncldwc2V3US85NnBjY3pHTVFjdE12VStoMmVYMzhIeC9mOUpBSURidVJRelFsc1BoUVM3RERaNldsVFhVK3Q4ZC9nMkM3ZgpwU29MczRLVmRKaWg0eHlqTFVXaitCSy9panNSakJ0NFJpdzlWYkpIL0RkV0t5b1NNYkVDRWlFK3MxUnRMUC9lWW9NbU5meHlRR3FXCmlyQ05xVk5CVGxxellRcDRkZ0YwZm9ZeTRrdG94d21RT1ZvVGNJTUZZcDFJNHBGUEk3Q3h1TUxrZkswWDdhVGJNN1lHcGh2TWZKeEoKa2pyUWR5STdHNWQxdDRETmkzemtFYkJUN0ZHQXI2cVB0M0tuOXJhbHBxSktIZHBFQkE5TjB2TndRbzVYVFlJaFViUFExNklSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCUnM3dFBtZmtrc1NyNjdLdEVsSGpZWmJlYUNUakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCkpxd01aU2pRSjM2eCsxc3R5NkVlTEtRTFFld1F3UGFFQzQ3WnV0KzhiWGVkNlE4ak1aMGJmYS9NTTdYcXVFY2FiYU1aTFF1S0xmdDQKNFlYd1hYUU9mUXJJMnFqUXIzZVRvSkZsRFQ5aFIwcmZwOXdRcXR0RHhkNkFhNlJXd0RUZ281b0tVUUNUS0xIaEV5OHVXelNjSzBlRwp0MmQ3VFdUYURYalJTd05xNnRNN2ZSaFpzMDd0S0JWM3hmaTlFUXkvbWxhdkFNRlJCVm04Nk5TbzdBc09HMUlPTXEwM1Uzb29DV0FYCmg5UGR2dkhOZkhoSDE5ZnV0QW5DL0hlT2p3UkYxUWM1MjdhQk1waFlGUUxkaVRoZm1mbWlFL0FoUXFDd1oyb0U3dUNKaEJ0UitLYjEKWkdoakkzNXBIZnNTcUdpRmE3S3IrNWF2ZTgyMlBEY2tlODlNdmc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8S2V5RGVzY3JpcHRvciB1c2U9InNpZ25pbmciPgogICAgICAgICAgICA8ZHM6S2V5SW5mbz4KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgPGRzOlg1MDlEYXRhPgogICAgICAgICAgICAgICAgICAgIDxkczpYNTA5Q2VydGlmaWNhdGU-Ck1JSUMvVENDQWVXZ0F3SUJBZ0lRTi9HUGVnblQ4YmxQMkVjU2RNTWJCekFOQmdrcWhraUc5dzBCQVFzRkFEQXBNU2N3SlFZRFZRUUQKRXg1TWFYWmxJRWxFSUZOVVV5QlRhV2R1YVc1bklGQjFZbXhwWXlCTFpYa3dIaGNOTWpFd01qRTRNREF3TURBd1doY05Nall3TWpFNApNREF3TURBd1dqQXBNU2N3SlFZRFZRUURFeDVNYVhabElFbEVJRk5VVXlCVGFXZHVhVzVuSUZCMVlteHBZeUJMWlhrd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEWGRMR1UyTGw1UlBkRFVuS1ErZi9IUzVxaVRheTJjQ2g5VTJBUzZvRE0KNlNPeFZoWUd0b2VKMVZQZWJjTG5wZ0xmaFB4enJ3V29WelhTRUYrVlJRYm5ZSUQySmI0a2hqZ3lFZW9UaGszVnFyVGh3aGFocFNiQgpnMnZvMDZ2SU9wMVRTMlIxQml3SEtUTG9CMWkxSUpuYUlGU0MzQk42cFk0ZmxYV3lMUXQvNUFCWEVsdjJYWkxxWE05RWVmajZKaTQwCm5MSXNpVzRkV3czQkRhL3l3V1cwTXNpVzVvakdxNHZvdmNBZ0VOZS80TlVianU3MGdIUC9XUzVEOWJXNXArT0lRaTcvdW5ybFdlL2gKM0E2anRCYmJSbFhZWGxOK1oyMnVUVHl5Q0QvVzh6ZVhhQUNMdkhhZ3dFTXJRZVBEWEJacWMvaVgya0krb29acjFzQy9IMzlSQWdNQgpBQUdqSVRBZk1CMEdBMVVkRGdRV0JCU3JYMmRtM0x3VDlqYi9wK2JBQWRZUXBFKy9OakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCmVxSmZZSG5zQTlxaEd0dFhGZkZwUFc0RFFMaDV3NkpDY2U3dkd2V0lOcjVmcjFEblFkY09yK3d3alEvdHFiY2tBTDJ2NnoxQXFqaFMKNzhrYmZlZ25BUUR3aW9KWjFvbFlZdkxPeEtvYTZIRitiMS9wME1sdWI4WnVrazJuMWIybEtQQkJPaWJPYXNTWTdnUUR3bElaaTd0bAo5bk1UeFVmZFlLK0U1QXh2N0RWbm1VQ3djbm5wVjUvMVNGZE55VzJrV080QzY4cnJqTU92RUNmd3JLa2JmVkpNOGY5a3JFVUJ1b0JGCjhkVER2N0QyWk00UTJidUM3ME5iZmFOV1VYMHlGdktJMEl1VHFrOFJCZkdUUlE0ZlpBYmhNUGF5a0VwQnU2ZE5qVGk1WU9hMGxOcUYKR1M3QXg3bGVDaDV4OWxWOGVsY0xrWHM4eVNvOEFPUUprMGhnSXc9PQogICAgICAgICAgICAgICAgICAgIDwvZHM6WDUwOUNlcnRpZmljYXRlPgogICAgICAgICAgICAgICAgPC9kczpYNTA5RGF0YT4KICAgICAgICAgICAgPC9kczpLZXlJbmZvPgogICAgICAgIDwvS2V5RGVzY3JpcHRvcj4KICAgICAgICA8U2luZ2xlTG9nb3V0U2VydmljZSBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBMb2NhdGlvbj0iaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2xvZ2luLnNyZiIvPgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6ZW1haWxBZGRyZXNzPC9OYW1lSURGb3JtYXQ-CiAgICAgICAgPE5hbWVJREZvcm1hdD51cm46bWFjZTpzaGliYm9sZXRoOjEuMDpuYW1lSWRlbnRpZmllcjwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6MS4xOm5hbWVpZC1mb3JtYXQ6dW5zcGVjaWZpZWQ8L05hbWVJREZvcm1hdD4KICAgICAgICA8TmFtZUlERm9ybWF0PnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxOYW1lSURGb3JtYXQ-dXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOm5hbWVpZC1mb3JtYXQ6cGVyc2lzdGVudDwvTmFtZUlERm9ybWF0PgogICAgICAgIDxBc3NlcnRpb25Db25zdW1lclNlcnZpY2UgaW5kZXg9IjAiIGlzRGVmYXVsdD0idHJ1ZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOkhUVFAtUE9TVCIgTG9jYXRpb249Imh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS9sb2dpbi5zcmYiLz4KICAgICAgICA8QXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlIGluZGV4PSIxIiBpc0RlZmF1bHQ9ImZhbHNlIiBCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NULVNpbXBsZVNpZ24iIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICAgICAgPEFzc2VydGlvbkNvbnN1bWVyU2VydmljZSBpbmRleD0iMiIgaXNEZWZhdWx0PSJmYWxzZSIgQmluZGluZz0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmJpbmRpbmdzOlBBT1MiIExvY2F0aW9uPSJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vbG9naW4uc3JmIi8-CiAgICA8L1NQU1NPRGVzY3JpcHRvcj4KPC9FbnRpdHlEZXNjcmlwdG9yPgoK",
-      "entityId": "urn:federation:MicrosoftOnline",
-      "entityLocation": "remote",
-      "serviceProvider": {
-        "advanced": {
-          "idpProxy": {},
-          "saeConfiguration": {},
-        },
-        "assertionContent": {
-          "basicAuthentication": {},
-          "nameIdFormat": {
-            "nameIdFormatList": [
-              "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
-              "urn:mace:shibboleth:1.0:nameIdentifier",
-              "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-              "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
-              "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
-            ],
-          },
-          "signingAndEncryption": {
-            "encryption": {},
-            "requestResponseSigning": {
-              "assertion": true,
-            },
-            "secretIdAndAlgorithms": {},
-          },
-        },
-        "assertionProcessing": {
-          "attributeMapper": {},
-          "responseArtifactMessageEncoding": {},
-        },
-        "services": {
-          "serviceAttributes": {
-            "assertionConsumerService": [
-              {
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                "index": 0,
-                "isDefault": true,
-                "location": "https://login.microsoftonline.com/login.srf",
-              },
-              {
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign",
-                "index": 1,
-                "isDefault": false,
-                "location": "https://login.microsoftonline.com/login.srf",
-              },
-              {
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
-                "index": 2,
-                "isDefault": false,
-                "location": "https://login.microsoftonline.com/login.srf",
-              },
-            ],
-            "singleLogoutService": [
-              {
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                "location": "https://login.microsoftonline.com/login.srf",
               },
             ],
           },
@@ -6642,87 +6601,8 @@ a{
       "name": "Microsoft Profile Normalization",
       "script": ""/*\\n * Copyright 2020 ForgeRock AS. All Rights Reserved\\n *\\n * Use of this code requires a commercial software license with ForgeRock AS.\\n * or with one of its affiliates. All use shall be exclusively subject\\n * to such license between the licensee and ForgeRock AS.\\n */\\n\\n/*\\n{\\n    \\"@odata.context\\": \\"https://graph.microsoft.com/v1.0/$metadata#users/$entity\\",\\n    \\"@odata.id\\": \\"https://graph.microsoft.com/v2/711ffa9c-5972-4713-ace3-688c9732614a/directoryObjects/7d7759e2-36d8-4e64-b173-3f890d7d46d6/Microsoft.DirectoryServices.User\\",\\n    \\"businessPhones\\": [\\n        \\"18014735451\\"\\n    ],\\n    \\"displayName\\": \\"Volker Scheuber\\",\\n    \\"givenName\\": \\"Volker\\",\\n    \\"jobTitle\\": null,\\n    \\"mail\\": \\"vscheuber@vscheuber.onmicrosoft.com\\",\\n    \\"mobilePhone\\": null,\\n    \\"officeLocation\\": null,\\n    \\"preferredLanguage\\": null,\\n    \\"surname\\": \\"Scheuber\\",\\n    \\"userPrincipalName\\": \\"vscheuber@vscheuber.onmicrosoft.com\\",\\n    \\"id\\": \\"7d7759e2-36d8-4e64-b173-3f890d7d46d6\\"\\n}\\n */\\n\\nimport static org.forgerock.json.JsonValue.field\\nimport static org.forgerock.json.JsonValue.json\\nimport static org.forgerock.json.JsonValue.object\\n\\nlogger.message(\\"Kauai Microsoft Profile Normalization: rawProfile={}\\", rawProfile)\\n\\nreturn json(object(\\n        field(\\"id\\", rawProfile.id),\\n        field(\\"displayName\\", rawProfile.displayName),\\n        field(\\"givenName\\", rawProfile.givenName),\\n        field(\\"familyName\\", rawProfile.surname),\\n        field(\\"email\\", rawProfile.userPrincipalName),\\n        field(\\"username\\", rawProfile.userPrincipalName),\\n        field(\\"groups\\", rawProfile.groups)))"",
     },
-    "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
-      "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
-      "default": true,
-      "description": "Normalizes raw profile data from Facebook",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
-      "name": "Facebook Profile Normalization",
-      "script": ""/*\\n * Copyright 2020 ForgeRock AS. All Rights Reserved\\n *\\n * Use of this code requires a commercial software license with ForgeRock AS.\\n * or with one of its affiliates. All use shall be exclusively subject\\n * to such license between the licensee and ForgeRock AS.\\n */\\n\\nimport static org.forgerock.json.JsonValue.field\\nimport static org.forgerock.json.JsonValue.json\\nimport static org.forgerock.json.JsonValue.object\\n\\nreturn json(object(\\n        field(\\"id\\", rawProfile.id),\\n        field(\\"displayName\\", rawProfile.name),\\n        field(\\"givenName\\", rawProfile.first_name),\\n        field(\\"familyName\\", rawProfile.last_name),\\n        field(\\"photoUrl\\", rawProfile.picture.data.url),\\n        field(\\"email\\", rawProfile.email),\\n        field(\\"username\\", rawProfile.email)))"",
-    },
-    "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
-      "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
-      "default": false,
-      "description": "Normalizes raw profile data from ADFS",
-      "evaluatorVersion": "1.0",
-      "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
-      "name": "ADFS Profile Normalization (JS)",
-      "script": ""/*\\n * Copyright 2022 ForgeRock AS. All Rights Reserved\\n *\\n * Use of this code requires a commercial software license with ForgeRock AS\\n * or with one of its affiliates. All use shall be exclusively subject\\n * to such license between the licensee and ForgeRock AS.\\n */\\n\\n/*\\n * This script returns the social identity profile information for the authenticating user\\n * in a standard form expected by the Social Provider Handler Node.\\n *\\n * Defined variables:\\n * rawProfile - The social identity provider profile information for the authenticating user.\\n *              JsonValue (1).\\n * logger - The debug logger instance:\\n *          https://backstage.forgerock.com/docs/am/7/scripting-guide/scripting-api-global-logger.html#scripting-api-global-logger.\\n * realm - String (primitive).\\n *         The name of the realm the user is authenticating to.\\n * requestHeaders - TreeMap (2).\\n *                  The object that provides methods for accessing headers in the login request:\\n *                  https://backstage.forgerock.com/docs/am/7/authentication-guide/scripting-api-node.html#scripting-api-node-requestHeaders.\\n * requestParameters - TreeMap (2).\\n *                     The object that contains the authentication request parameters.\\n * selectedIdp - String (primitive).\\n *               The social identity provider name. For example: google.\\n * sharedState - LinkedHashMap (3).\\n *               The object that holds the state of the authentication tree and allows data exchange between the stateless nodes:\\n *               https://backstage.forgerock.com/docs/am/7/auth-nodes/core-action.html#accessing-tree-state.\\n * transientState - LinkedHashMap (3).\\n *                  The object for storing sensitive information that must not leave the server unencrypted,\\n *                  and that may not need to persist between authentication requests during the authentication session:\\n *                  https://backstage.forgerock.com/docs/am/7/auth-nodes/core-action.html#accessing-tree-state.\\n *\\n * Return - a JsonValue (1).\\n *          The result of the last statement in the script is returned to the server.\\n *          Currently, the Immediately Invoked Function Expression (also known as Self-Executing Anonymous Function)\\n *          is the last (and only) statement in this script, and its return value will become the script result.\\n *          Do not use \\"return variable\\" statement outside of a function definition.\\n *\\n *          This script's last statement should result in a JsonValue (1) with the following keys:\\n *          {\\n *              {\\"displayName\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"email\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"familyName\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"givenName\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"id\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"locale\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"photoUrl\\": \\"corresponding-social-identity-provider-value\\"},\\n *              {\\"username\\": \\"corresponding-social-identity-provider-value\\"}\\n *          }\\n *\\n *          The consumer of this data defines which keys are required and which are optional.\\n *          For example, the script associated with the Social Provider Handler Node and,\\n *          ultimately, the managed object created/updated with this data\\n *          will expect certain keys to be populated.\\n *          In some common default configurations, the following keys are required to be not empty:\\n *          username, givenName, familyName, email.\\n *\\n *          From RFC4517: A value of the Directory String syntax is a string of one or more\\n *          arbitrary characters from the Universal Character Set (UCS).\\n *          A zero-length character string is not permitted.\\n *\\n * (1) JsonValue - https://backstage.forgerock.com/docs/am/7/apidocs/org/forgerock/json/JsonValue.html.\\n * (2) TreeMap - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/TreeMap.html.\\n * (3) LinkedHashMap - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/LinkedHashMap.html.\\n */\\n\\n(function () {\\n    var frJava = JavaImporter(\\n        org.forgerock.json.JsonValue\\n    );\\n\\n    var normalizedProfileData = frJava.JsonValue.json(frJava.JsonValue.object());\\n  \\n  \\t//logger.message('Seguin rawProfile: '+rawProfile);\\n\\n    normalizedProfileData.put('id', rawProfile.get('sub').asString());\\n    normalizedProfileData.put('displayName', rawProfile.get('givenName').asString() + ' ' + rawProfile.get('sn').asString());\\n    normalizedProfileData.put('email', rawProfile.get('mail').asString());\\n    normalizedProfileData.put('givenName', rawProfile.get('givenName').asString());\\n    normalizedProfileData.put('familyName', rawProfile.get('sn').asString());\\n    normalizedProfileData.put('username', rawProfile.get('upn').asString());\\n    normalizedProfileData.put('roles', rawProfile.get('roles').asString());\\n  \\n  \\t//logger.message('Seguin normalizedProfileData: '+normalizedProfileData);\\n\\n    return normalizedProfileData;\\n}());"",
-    },
   },
   "socialIdentityProviders": {
-    "adfs": {
-      "_id": "adfs",
-      "_type": {
-        "_id": "oidcConfig",
-        "collection": true,
-        "name": "Client configuration for providers that implement the OpenID Connect specification.",
-      },
-      "acrValues": [],
-      "authenticationIdKey": "sub",
-      "authorizationEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/authorize",
-      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-      "clientId": "aa9a179e-cdba-4db8-8477-3d1069d5ec04",
-      "clientSecret": null,
-      "enableNativeNonce": true,
-      "enabled": true,
-      "encryptJwtRequestParameter": false,
-      "encryptedIdTokens": false,
-      "issuer": "https://adfs.mytestrun.com/adfs",
-      "issuerComparisonCheckType": "EXACT",
-      "jwksUriEndpoint": "https://adfs.mytestrun.com/adfs/discovery/keys",
-      "jwtEncryptionAlgorithm": "NONE",
-      "jwtEncryptionMethod": "NONE",
-      "jwtRequestParameterOption": "NONE",
-      "jwtSigningAlgorithm": "RS256",
-      "pkceMethod": "S256",
-      "privateKeyJwtExpTime": 600,
-      "redirectURI": "https://idc.scheuber.io/login",
-      "responseMode": "DEFAULT",
-      "revocationCheckOptions": [],
-      "scopeDelimiter": " ",
-      "scopes": [
-        "openid",
-        "profile",
-        "email",
-      ],
-      "tokenEndpoint": "https://adfs.mytestrun.com/adfs/oauth2/token",
-      "transform": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
-      "uiConfig": {
-        "buttonClass": "",
-        "buttonCustomStyle": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-        "buttonCustomStyleHover": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
-        "buttonDisplayName": "Microsoft ADFS",
-        "buttonImage": "/login/images/microsoft-logo.png",
-        "iconBackground": "#0078d7",
-        "iconClass": "fa-windows",
-        "iconFontColor": "white",
-      },
-      "useCustomTrustStore": false,
-      "userInfoResponseType": "JSON",
-      "wellKnownEndpoint": "https://adfs.mytestrun.com/adfs/.well-known/openid-configuration",
-    },
     "apple-stoyan": {
       "_id": "apple-stoyan",
       "_type": {
@@ -6735,7 +6615,6 @@ a{
       "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "CHANGE ME",
-      "clientSecret": null,
       "enableNativeNonce": true,
       "enabled": false,
       "encryptJwtRequestParameter": false,
@@ -6787,7 +6666,6 @@ a{
       "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "io.scheuber.idc.signinWithApple.service",
-      "clientSecret": null,
       "enableNativeNonce": true,
       "enabled": true,
       "encryptJwtRequestParameter": false,
@@ -6838,7 +6716,6 @@ a{
       "authorizationEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/authorize",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "c42a3dc8-f276-496b-a722-269f131cc21c",
-      "clientSecret": null,
       "enabled": true,
       "issuerComparisonCheckType": "EXACT",
       "jwtEncryptionAlgorithm": "NONE",
@@ -6869,47 +6746,6 @@ a{
       "useCustomTrustStore": false,
       "userInfoEndpoint": "https://graph.microsoft.com/v1.0/me",
     },
-    "facebook": {
-      "_id": "facebook",
-      "_type": {
-        "_id": "oauth2Config",
-        "collection": true,
-        "name": "Client configuration for providers that implement the OAuth2 specification.",
-      },
-      "authenticationIdKey": "id",
-      "authorizationEndpoint": "https://www.facebook.com/dialog/oauth",
-      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
-      "clientId": "123741918345526",
-      "clientSecret": null,
-      "enabled": true,
-      "issuerComparisonCheckType": "EXACT",
-      "jwtEncryptionAlgorithm": "NONE",
-      "jwtEncryptionMethod": "NONE",
-      "jwtSigningAlgorithm": "NONE",
-      "pkceMethod": "S256",
-      "privateKeyJwtExpTime": 3600,
-      "redirectURI": "https://idc.scheuber.io/am/XUI/?realm=%2Falpha",
-      "responseMode": "DEFAULT",
-      "revocationCheckOptions": [],
-      "scopeDelimiter": " ",
-      "scopes": [
-        "email",
-      ],
-      "tokenEndpoint": "https://graph.facebook.com/v2.7/oauth/access_token",
-      "transform": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
-      "uiConfig": {
-        "buttonClass": "fa-facebook-official",
-        "buttonCustomStyle": "background-color: #3b5998; border-color: #3b5998; color: white;",
-        "buttonCustomStyleHover": "background-color: #334b7d; border-color: #334b7d; color: white;",
-        "buttonDisplayName": "Facebook",
-        "buttonImage": "",
-        "iconBackground": "#3b5998",
-        "iconClass": "fa-facebook",
-        "iconFontColor": "white",
-      },
-      "useCustomTrustStore": false,
-      "userInfoEndpoint": "https://graph.facebook.com/me?fields=id,name,picture,email,first_name,last_name,locale",
-    },
     "github": {
       "_id": "github",
       "_type": {
@@ -6921,7 +6757,6 @@ a{
       "authorizationEndpoint": "https://github.com/login/oauth/authorize",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "bdae6d141d4dcf95a630",
-      "clientSecret": null,
       "enabled": true,
       "issuerComparisonCheckType": "EXACT",
       "jwtEncryptionAlgorithm": "NONE",
@@ -6961,7 +6796,6 @@ a{
       "authorizationEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "297338177925-mho17cgnm540s2gre8h27feb6sbs1msd.apps.googleusercontent.com",
-      "clientSecret": null,
       "enableNativeNonce": true,
       "enabled": true,
       "encryptJwtRequestParameter": false,
@@ -7012,7 +6846,6 @@ a{
       "authorizationEndpoint": "https://trial-5735851.okta.com/oauth2/v1/authorize",
       "clientAuthenticationMethod": "CLIENT_SECRET_POST",
       "clientId": "0oa13r2cp29Rynmyw697",
-      "clientSecret": null,
       "enableNativeNonce": true,
       "enabled": true,
       "encryptJwtRequestParameter": false,
@@ -7173,31 +7006,71 @@ a{
     "_id": "FrodoTest",
     "description": "Frodo test journey utilizing a variety of nodes and dependencies to test support for complex journeys.",
     "enabled": true,
-    "entryNodeId": "4951364c-59be-42cd-9cd7-79c9392214db",
+    "entryNodeId": "e2c39477-847a-4df2-9c5d-b449a752638b",
     "identityResource": "managed/alpha_user",
     "innerTreeOnly": false,
     "nodes": {
-      "234526e1-48cf-477e-8ecb-abf15fcd5c67": {
+      "278bf084-9eea-46fe-8ce9-2600dde3b046": {
+        "connections": {
+          "localAuthentication": "fc7e47cd-c679-4211-8e05-a36654f23c67",
+          "socialAuthentication": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67",
+        },
+        "displayName": "Login Page",
+        "nodeType": "PageNode",
+        "x": 444,
+        "y": 273.015625,
+      },
+      "64157fca-bd5b-4405-a4c8-64ffd98a5461": {
         "connections": {
           "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
-          "NO_ACCOUNT": "c859d258-79c1-4448-bd52-12e4e414af92",
+          "NO_ACCOUNT": "e301438c-0bd0-429c-ab0c-66126501069a",
+        },
+        "displayName": "SAML2 Authentication",
+        "nodeType": "product-Saml2Node",
+        "x": 1196,
+        "y": 188.015625,
+      },
+      "731c5810-020b-45c8-a7fc-3c21903ae2b3": {
+        "connections": {
+          "localAuthentication": "fc7e47cd-c679-4211-8e05-a36654f23c67",
+          "socialAuthentication": "d5cc2d52-6ce4-452d-85ea-3a5b50218b67",
+        },
+        "displayName": "Login Page",
+        "nodeType": "PageNode",
+        "x": 443,
+        "y": 26.015625,
+      },
+      "bf153f37-83dd-4f39-aa0c-74135430242e": {
+        "connections": {
+          "EMAIL_NOT_SENT": "e301438c-0bd0-429c-ab0c-66126501069a",
+          "EMAIL_SENT": "64157fca-bd5b-4405-a4c8-64ffd98a5461",
+        },
+        "displayName": "Email Template Node",
+        "nodeType": "EmailTemplateNode",
+        "x": 967,
+        "y": 222.015625,
+      },
+      "d5cc2d52-6ce4-452d-85ea-3a5b50218b67": {
+        "connections": {
+          "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "NO_ACCOUNT": "bf153f37-83dd-4f39-aa0c-74135430242e",
         },
         "displayName": "Social Login",
         "nodeType": "SocialProviderHandlerNode",
         "x": 702,
         "y": 116.015625,
       },
-      "4951364c-59be-42cd-9cd7-79c9392214db": {
+      "e2c39477-847a-4df2-9c5d-b449a752638b": {
         "connections": {
-          "known": "c0bbd39a-ff6b-45d7-af8a-0685e810bc11",
-          "unknown": "795108e9-0b4d-4849-80fa-fb8518c6e3b0",
+          "known": "731c5810-020b-45c8-a7fc-3c21903ae2b3",
+          "unknown": "278bf084-9eea-46fe-8ce9-2600dde3b046",
         },
         "displayName": "Check Username",
         "nodeType": "ScriptedDecisionNode",
         "x": 200,
         "y": 235.015625,
       },
-      "58ab3ae6-cb79-445f-9a52-170e9b7f1339": {
+      "fc7e47cd-c679-4211-8e05-a36654f23c67": {
         "connections": {
           "CANCELLED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
           "EXPIRED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
@@ -7209,46 +7082,6 @@ a{
         "nodeType": "IdentityStoreDecisionNode",
         "x": 702,
         "y": 292.015625,
-      },
-      "650203c3-47f7-439d-a554-669cb7b08c57": {
-        "connections": {
-          "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
-          "NO_ACCOUNT": "e301438c-0bd0-429c-ab0c-66126501069a",
-        },
-        "displayName": "SAML2 Authentication",
-        "nodeType": "product-Saml2Node",
-        "x": 1196,
-        "y": 188.015625,
-      },
-      "795108e9-0b4d-4849-80fa-fb8518c6e3b0": {
-        "connections": {
-          "localAuthentication": "58ab3ae6-cb79-445f-9a52-170e9b7f1339",
-          "socialAuthentication": "234526e1-48cf-477e-8ecb-abf15fcd5c67",
-        },
-        "displayName": "Login Page",
-        "nodeType": "PageNode",
-        "x": 444,
-        "y": 273.015625,
-      },
-      "c0bbd39a-ff6b-45d7-af8a-0685e810bc11": {
-        "connections": {
-          "localAuthentication": "58ab3ae6-cb79-445f-9a52-170e9b7f1339",
-          "socialAuthentication": "234526e1-48cf-477e-8ecb-abf15fcd5c67",
-        },
-        "displayName": "Login Page",
-        "nodeType": "PageNode",
-        "x": 443,
-        "y": 26.015625,
-      },
-      "c859d258-79c1-4448-bd52-12e4e414af92": {
-        "connections": {
-          "EMAIL_NOT_SENT": "e301438c-0bd0-429c-ab0c-66126501069a",
-          "EMAIL_SENT": "650203c3-47f7-439d-a554-669cb7b08c57",
-        },
-        "displayName": "Email Template Node",
-        "nodeType": "EmailTemplateNode",
-        "x": 967,
-        "y": 222.015625,
       },
     },
     "staticNodes": {
