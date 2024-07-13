@@ -97,7 +97,7 @@ HEAD is now at e687fdf6 Updated changelog and version for release v2.0.0-44
 ```
 
 #### Alternate method - download precompiled binary
-Alternatively, for MacOS (x86 only), linux and Windows, you can also download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory. For MacOS (x86 only) and Windows, you may have to allow running unsigned binaries on those platforms. How to do that is out of scope for this README.
+Alternatively, for MacOS (x86 only), linux and Windows, you can also download the platform specific binary archive from the [release page](https://github.com/rockcarver/frodo-cli/releases) and unzip it to a directory.
 
 ### Using / running
 
