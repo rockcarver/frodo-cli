@@ -84,6 +84,10 @@ Downloads the build artifacts produced in the `Build` and `binary release` steps
 -   `<new version tag>.zip` -  Generated for each release containing the full repository as a `.zip` archive
 -   `<new version tag>.tar.gz` - Generated for each release containing the full repository as a `.tar.gz` archive
 
+### Bump Homebrew formula
+
+Updates the [Frodo CLI Homebrew formula](rockcarver/homebrew-frodo-cli).
+
 ## Pipeline Maintenance
 
 Pipeline maintenance is a tricky business. Pipeline testing in forks is difficult because GitHub by default imposes a different behaviour for pipeline events than in the main repository. Some pipeline steps require branch names, which means the pipeline needs to be adopted to run in the fork and branch it is being tested in.
