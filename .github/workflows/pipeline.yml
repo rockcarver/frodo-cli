@@ -6,8 +6,6 @@ on:
       - 'main'
     paths-ignore:
       - '**/CODE_OF_CONDUCT.md'
-      - '**/CONTRIBUTE.md'
-      - '**/PIPELINE.md'
       - '**/README.md'
       - 'docs/**'
   push:
@@ -15,8 +13,6 @@ on:
       - 'main'
     paths-ignore:
       - '**/CODE_OF_CONDUCT.md'
-      - '**/CONTRIBUTE.md'
-      - '**/PIPELINE.md'
       - '**/README.md'
       - '**/pipeline.yml'
       - 'docs/**'
