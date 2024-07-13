@@ -1,16 +1,16 @@
-# Frodo Release Pipeline
+# Frodo CLI Release Pipeline
 
-The Frodo project uses a fully automated release [pipeline](../.github/workflows/pipeline.yml) based on GitHub workflows:
+The Frodo CLI project uses a fully automated release [pipeline](../.github/workflows/pipeline.yml) based on GitHub workflows:
 
 ![Frodo Release Pipeline Workflow](images/release_pipeline.png)
 
-## Releasing Frodo
+## Releasing Frodo CLI
 
 This information is only actionable if you are an active contributor or maintainer with appropriate access to the repository and need to understand how frodo releases work.
 
 ### Every Push Triggers A Release
 
-Frodo adopted the principle of continuous integration. Therefore every push to the main branch in the [rockcarver/frodo] repository trigger the automated release pipeline.
+Frodo CLI adopted the principle of continuous integration. Therefore every push to the main branch in the [rockcarver/frodo-cli] repository triggers the automated release pipeline.
 
 The pipeline determines the type of release - `prerelease`, `patch`, `minor`, `major` - for the push:
 
@@ -33,7 +33,7 @@ Contributors are instructed to submit pull requests. Maintainers must make sure 
 
 The default release type (if no specific and exact trigger phrases are used) results in a pre-release. Pre-releases are flagged with the label `Pre-release` on the [release page](../releases) indicating to users that these releases are not considered final or complete.
 
-Pre-releases are a great way to get the latest and greatest functionality but they are not fully polished, readme and changelog might not be updated and test coverage might not be complete.
+Pre-releases are a great way to publish the latest and greatest functionality but they are not fully polished, readme and changelog might not be updated and test coverage might not be complete.
 
 ### Triggering Patch, Minor, and Major Releases
 
@@ -54,85 +54,35 @@ Frodo is currently in a pre-1.0.0 phase. We are striving to release 1.0.0 very s
 
 The trigger event is any `push` to the `main` branch in the repository.
 
-### Smoke Tests
+### Build
 
-This step performs a quick smoke test of the vital functions like login with and without network proxy. All smoke tests must pass or pipeline execution terminates.
+Builds the CLI, bumps the version, and makes the build artifacts available for processing in subsequent pipeline steps.
 
-### Update Changelog
+### Test
 
-This step calculates the new version but doesn't modify `package.json` and `package-lock.json`. Based on that new version, it creates a new heading in the [CHANGELOG.md](../CHANGELOG.md) file and moves everything from the `Unreleased` section into the new version section. It also creates links to the release tags at the bottom of the [CHANGELOG.md](../CHANGELOG.md) file. Last but not least, it commits the updated [CHANGELOG.md](../CHANGELOG.md) file to the repository.
-
-#### 3rd-Party Actions
-
--   [gh-action-bump-version](https://github.com/phips28/gh-action-bump-version): phips28/gh-action-bump-version@master
--   [keep-a-changelog-new-release](https://github.com/thomaseizinger/keep-a-changelog-new-release): thomaseizinger/keep-a-changelog-new-release@1.3.0
-
-### Bump Version
-
-This step calculates the new version and corresponding tag, updates both [package.json](../package.json) and [package-lock.json](../package-lock.json) and commits the changes to the `main` branch.
-
-#### 3rd-Party Actions
-
--   [gh-action-bump-version](https://github.com/phips28/gh-action-bump-version): phips28/gh-action-bump-version@master
-
-### Release Notes
-
-This step extracts the changes under the heading that matches the release version and uses it as the release notes. For pre-releases it also generates a section of changes based on commits that were part of the release.
-
-Good release notes require the contributor and/or maintainer take the time and update the [CHANGELOG.md](../CHANGELOG.md) file. Auto-generated release notes based on commit comments are less than optimal but acceptable for pre-releases.
-
-Patch, minor, and major releases require a carefully curated [CHANGELOG.md](../CHANGELOG.md) file.
-
-#### 3rd-Party Actions
-
--   [submark](https://github.com/dahlia/submark): dahlia/submark@main
-
-
-### Release
-
-This step creates a GitHub release based on the tag created in a previous step and posts a number of artifacts:
-
--   [CHANGELOG.md](../CHANGELOG.md)
--   [LICENSE](../LICENSE)
--   `Release.txt` - Generated for each release containing the git sha of the release
--   `<tag>.zip` -  Generated for each release containing the full repository as a `.zip` archive
--   `<tag>.tar.gz` - Generated for each release containing the full repository as a `.tar.gz` archive
-
-_Note:_ this step does not include the frodo binaries!
-
-#### 3rd-Party Actions
-
--   [action-gh-release](https://github.com/softprops/action-gh-release): softprops/action-gh-release@v1
+Downloads the build artifacts produced in the `Build` step and runs all the automated tests.
 
 ### Binary Releases
 
-The binaries are built by GitHub runners of the same OS as the binary they are building. That allows the binaries to be executed (tested) as one of the steps in the build process.
+Builds the binaries for all the supported platforms (linux, linux-arm64, macos, windows), smoke-tests them, and makes the artifacts available for processing in subsequent pipeline steps:
 
-The binary builds run in parallel while all the previous steps run in sequence and must complete before the binay builds even kick off.
+### npm-release
 
-#### Linux Binary Release
+Publishes the npm package using the new version tag to [npmjs.com](https://github.com/rockcarver/frodo-cli).
 
-This step builds the Linux binary and adds it to the release created in an earlier step.
+### Release
 
-#### 3rd-Party Actions
+Downloads the build artifacts produced in the `Build` and `binary release` steps, updates the changelog, and creates a GitHub release based on the new version tag and posts the following artifacts:
 
--   [action-gh-release](https://github.com/softprops/action-gh-release): softprops/action-gh-release@v1
-
-#### Mac OS Binary Release
-
-This step builds the Mac OS binary and adds it to the release created in an earlier step.
-
-#### 3rd-Party Actions
-
--   [action-gh-release](https://github.com/softprops/action-gh-release): softprops/action-gh-release@v1
-
-#### Windows Binary Release
-
-This step builds the Windows binary and adds it to the release created in an earlier step.
-
-#### 3rd-Party Actions
-
--   [action-gh-release](https://github.com/softprops/action-gh-release): softprops/action-gh-release@v1
+-   [CHANGELOG.md](../CHANGELOG.md)
+-   `frodo-linux-<new version tag>.zip`
+-   `frodo-linux-arm64-<new version tag>.zip`
+-   `frodo-macos-<new version tag>.zip`
+-   `frodo-win-<new version tag>.zip`
+-   [LICENSE](../LICENSE)
+-   `Release.txt` - Generated for each release containing the git sha of the release
+-   `<new version tag>.zip` -  Generated for each release containing the full repository as a `.zip` archive
+-   `<new version tag>.tar.gz` - Generated for each release containing the full repository as a `.tar.gz` archive
 
 ## Pipeline Maintenance
 
@@ -147,7 +97,7 @@ When testing the pipeline and especially when experimenting with the automated v
 So to recover from that, the following needs to happen:
 
 1.  Manually delete the `faulty release` from the [release page](../releases)
-1.  Manually modify the following files in your fork:
+2.  Manually modify the following files in your fork:
     -   [CHANGELOG.md](../CHANGELOG.md)
         1.  Find the faulty release heading towards the top of the file
             1.  Move your changelog entries in the faulty release section back into the Unreleased section
@@ -157,13 +107,20 @@ So to recover from that, the following needs to happen:
         -   Fine the 1 occurance of the frodo version in package.json and reset it to the `previous version` from before the faulty version bump
     -   [package-lock.json](../package-lock.json)
         -   Find the 2 occurances of the faulty version in package-lock.json and reset them to the `previous version` from before the faulty version bump
-1.  Commit your changes and create a new pull request
-1.  In the frodo repository, merge the PR and provide the appropriate comment to trigger the intended version bump
-1.  Remove the faulty tag from the repository:<br>
+3.  Commit your changes and create a new pull request
+4.  In the frodo repository, merge the PR and provide the appropriate comment to trigger the intended version bump
+5.  Remove the faulty release from npmjs.com
+    This is important as without this step the faulty release will remain published on [npmjs.com](https://www.npmjs.com/package/@rockcarver/frodo-cli) (npm registry).
+    - You must be a maintainer of the package on npmjs.com.
+    - Issue the following command:<br>
+      ```console
+      npm unpublish @rockcarver/frodo-cli@1.0.0
+      ```
+6.  Remove the faulty tag from the repository:<br>
     This is important because you cannot update an existing tag and in order to eventually release the version in the future, you must delete it first. Beware the difference between version (e.g. `1.0.0`) and tag (e.g. `v1.0.0`). This step requires you to use the tag:
-    -   From the command line, navigate to the directory where you cloned the frodo repository (_not your fork, the real one!_)
-    -   Issue the following command:<br>
-        ```
-        git push --delete origin v1.0.0
-        ```
-1. Validate the pipeline created the desired new version and release
+    - From the command line, navigate to the directory where you cloned the frodo repository (_not your fork, the real one!_)
+    - Issue the following command:<br>
+      ```console
+      git push --delete origin v1.0.0
+      ```
+7. Validate the pipeline created the desired new version and release
