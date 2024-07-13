@@ -86,7 +86,7 @@ Downloads the build artifacts produced in the `Build` and `binary release` steps
 
 ### Bump Homebrew formula
 
-Updates the [Frodo CLI Homebrew formula](/rockcarver/homebrew-frodo-cli).
+Updates the [Frodo CLI Homebrew formula](https://github.com/rockcarver/homebrew-frodo-cli).
 
 ## Pipeline Maintenance
 
