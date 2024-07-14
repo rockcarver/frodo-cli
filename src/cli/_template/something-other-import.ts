@@ -1,5 +1,6 @@
 import { Option } from 'commander';
 
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -26,6 +27,22 @@ export default function setup() {
         '-A, --all-separate',
         'Import all [others] from separate files (*.[other].json) in the current directory. Ignored with -i or -a.'
       )
+    )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Example command one with params and explanation what it does:\n` +
+        `  $ frodo something ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
+        `  Example command two with params and explanation what it does:\n` +
+        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
+          'brightCyan'
+        ] +
+        `  Example command three with params and explanation what it does:\n` +
+        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
+          'brightCyan'
+        ]
     )
     .action(
       // implement command logic inside action handler
