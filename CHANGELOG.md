@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- \#418: Developer: Frodo provides a framework for commands to indicate which deployment types they support.
+- \#419: Developer: Updated command template with usage samples
+
+### Changed
+
+- Update to frodo-lib 2.0.0-95
+
 ## [2.0.0-68] - 2024-07-12
 
 ## [2.0.0-67] - 2024-07-11
