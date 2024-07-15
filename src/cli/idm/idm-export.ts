@@ -11,8 +11,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo idm export');
+  const program = new FrodoCommand('frodo idm export', [], deploymentTypes);
 
   program
     .description('Export IDM configuration objects.')
@@ -70,7 +72,7 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.name && (await getTokens())) {
+        if (options.name && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(`Exporting object "${options.name}"...`);
           const outcome = await exportConfigEntity(
             options.name,
@@ -93,7 +95,7 @@ export default function setup() {
           options.allSeparate &&
           options.entitiesFile &&
           options.envFile &&
-          (await getTokens())
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Exporting IDM configuration objects specified in ${
@@ -111,7 +113,10 @@ export default function setup() {
           await warnAboutOfflineConnectorServers();
         }
         // --all-separate -A without variable replacement
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting all IDM configuration objects into separate files in ${state.getDirectory()}...`
           );

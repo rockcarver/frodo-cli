@@ -11,9 +11,13 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printError, printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin create-oauth2-client-with-admin-privileges'
+    'frodo admin create-oauth2-client-with-admin-privileges',
+    [],
+    deploymentTypes
   );
 
   program
@@ -61,7 +65,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(
             `Creating oauth2 client with admin privileges in realm "${state.getRealm()}"...`
           );

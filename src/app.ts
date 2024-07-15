@@ -68,7 +68,7 @@ const { initTokenCache } = frodo.cache;
     program.addCommand(idp());
     program.addCommand(info());
     program.addCommand(journey());
-    program.addCommand(log());
+    await program.addCommand(log());
     program.addCommand(mapping());
     program.addCommand(oauth());
     program.addCommand(realm());
@@ -82,10 +82,11 @@ const { initTokenCache } = frodo.cache;
 
     program.showHelpAfterError();
     program.enablePositionalOptions();
-    program.parse();
+
+    // most or all frodo commands use async action handlers
+    await program.parseAsync();
   } catch (e) {
     process.exitCode = 1;
-    printMessage(`ERROR: exception running frodo - ${e}`, 'error');
-    printMessage(e.stack, 'error');
+    printError(e);
   }
 })();

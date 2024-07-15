@@ -4,8 +4,10 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo app describe');
+  const program = new FrodoCommand('frodo app describe', [], deploymentTypes);
 
   program
     .description('Describe application.')
@@ -32,7 +34,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;

@@ -5,8 +5,14 @@ import { listEmailTemplates } from '../../ops/EmailTemplateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo email template list');
+  const program = new FrodoCommand(
+    'frodo email template list',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('List email templates.')
@@ -24,7 +30,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing email templates ...`);
           const outcome = await listEmailTemplates(options.long);
           if (!outcome) process.exitCode = 1;

@@ -5,8 +5,14 @@ import { listSecrets } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret list');
+  const program = new FrodoCommand(
+    'frodo esv secret list',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('List secrets.')
@@ -30,16 +36,15 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Listing secrets...');
           const outcome = await listSecrets(
             options.long,

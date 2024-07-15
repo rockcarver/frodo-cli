@@ -16,8 +16,14 @@ const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
 const LOG_TIME_WINDOW_INCREMENT = 1;
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log fetch', ['realm', 'type']);
+  const program = new FrodoCommand(
+    'frodo log fetch',
+    ['realm'],
+    deploymentTypes
+  );
   program
     .description(
       'Fetch Identity Cloud logs between a specified begin and end time period.\
@@ -97,7 +103,7 @@ export default function setup() {
         );
         state.setUsername(conn.username);
         state.setPassword(conn.password);
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);

@@ -9,8 +9,14 @@ import { FrodoCommand } from '../FrodoCommand';
 const { checkForUpdates, applyUpdates } = frodo.cloud.startup;
 const { resolveUserName } = frodo.idm.managed;
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv apply');
+  const program = new FrodoCommand(
+    'frodo esv apply',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description(
@@ -40,16 +46,15 @@ export default function setup() {
     .addOption(new Option('-y, --yes', 'Answer y/yes to all prompts.'))
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           const updates = await checkForUpdates();
           const updatesTable = createTable([
             'Type',

@@ -12,8 +12,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo theme import');
+  const program = new FrodoCommand('frodo theme import', [], deploymentTypes);
 
   program
     .description('Import themes.')
@@ -59,7 +61,11 @@ export default function setup() {
           command
         );
         // import by name
-        if (options.file && options.themeName && (await getTokens())) {
+        if (
+          options.file &&
+          options.themeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing theme with name "${
               options.themeName
@@ -72,7 +78,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import by id
-        else if (options.file && options.themeId && (await getTokens())) {
+        else if (
+          options.file &&
+          options.themeId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing theme with id "${
               options.themeId
@@ -82,7 +92,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all themes from a single file (${options.file})...`
           );
@@ -90,7 +104,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all themes from separate files in current directory...'
           );
@@ -98,7 +116,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import single theme from file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first theme from file "${
               options.file

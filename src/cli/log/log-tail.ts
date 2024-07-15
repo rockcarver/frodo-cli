@@ -11,8 +11,14 @@ import { sourcesOptionM } from './log';
 const { resolveLevel } = frodo.cloud.log;
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log tail', ['realm', 'type']);
+  const program = new FrodoCommand(
+    'frodo log tail',
+    ['realm'],
+    deploymentTypes
+  );
   program
     .description('Tail Identity Cloud logs.')
     .addOption(sourcesOptionM)
@@ -69,7 +75,7 @@ export default function setup() {
         );
         state.setUsername(conn.username);
         state.setPassword(conn.password);
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);

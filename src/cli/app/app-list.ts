@@ -6,8 +6,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo app list');
+  const program = new FrodoCommand('frodo app list', [], deploymentTypes);
 
   program
     .description('List applications.')
@@ -40,7 +42,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing applications...`);
           const outcome = await listApplications(options.long);
           if (!outcome) process.exitCode = 1;

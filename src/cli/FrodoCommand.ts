@@ -1,18 +1,20 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { Argument, Command, Help, Option } from 'commander';
 import fs from 'fs';
 
-import * as globalConfig from '../storage/StaticStorage';
 import {
   cleanupProgressIndicators,
   createProgressIndicator,
   curlirizeMessage,
   debugMessage,
+  printError,
   printMessage,
   stopProgressIndicator,
   updateProgressIndicator,
   verboseMessage,
 } from '../utils/Console.js';
+
+const { DEFAULT_REALM_KEY, DEPLOYMENT_TYPES } = frodo.utils.constants;
 
 const hostArgument = new Argument(
   '[host]',
@@ -24,7 +26,7 @@ const realmArgument = new Argument(
   "Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise."
 ).default(
   // must check for FRODO_REALM env variable here because otherwise cli will overwrite realm with default value
-  process.env.FRODO_REALM || globalConfig.DEFAULT_REALM_KEY,
+  process.env.FRODO_REALM || DEFAULT_REALM_KEY,
   '"alpha" for Identity Cloud tenants, "/" otherwise.'
 );
 
@@ -54,7 +56,7 @@ forgeops: A ForgeOps CDK or CDM deployment. \n\
 The detected or provided deployment type controls certain behavior like obtaining an Identity \
 Management admin token or not and whether to export/import referenced email templates or how \
 to walk through the tenant admin login flow of Identity Cloud and handle MFA'
-).choices(globalConfig.DEPLOYMENT_TYPES);
+).choices(DEPLOYMENT_TYPES);
 
 const directoryOption = new Option(
   '-D, --directory <directory>',
@@ -152,7 +154,6 @@ export class FrodoStubCommand extends Command {
   /**
    * Creates a new FrodoCommand instance
    * @param name Name of the command
-   * @param omits Array of default argument names and default option names that should not be added to this command
    */
   constructor(name: string) {
     super(name);
@@ -160,17 +161,11 @@ export class FrodoStubCommand extends Command {
     if (!process.listenerCount('unhandledRejection')) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       process.on('unhandledRejection', (error: any) => {
-        printMessage(
-          `${error.config?.method ? error.config.method + ' ' : ''}${
-            error.config?.url ? error.config.url : ''
-          }`,
-          'error'
-        );
-        printMessage(error.response?.data, 'error');
-        printMessage(error.stack, 'error');
-        printMessage(
-          `Please report this unhandled error here: https://github.com/rockcarver/frodo-cli/issues`,
-          'error'
+        printError(
+          new FrodoError(
+            `Please report this unhandled error here: https://github.com/rockcarver/frodo-cli/issues`,
+            error
+          )
         );
         process.exitCode = 1;
       });
@@ -218,13 +213,22 @@ class FrodoStubHelp extends Help {
  * Command with default options
  */
 export class FrodoCommand extends FrodoStubCommand {
+  types: string[];
+
   /**
    * Creates a new FrodoCommand instance
    * @param name Name of the command
    * @param omits Array of default argument names and default option names that should not be added to this command
+   * @param types Array of deployment types this command supports
    */
-  constructor(name: string, omits: string[] = []) {
+  constructor(
+    name: string,
+    omits: string[] = [],
+    types: string[] = DEPLOYMENT_TYPES
+  ) {
     super(name);
+
+    this.types = types;
 
     // register default arguments
     for (const arg of defaultArgs) {
@@ -313,6 +317,16 @@ export class FrodoCommand extends FrodoStubCommand {
           `FrodoCommand.handleDefaultArgsAndOpts: Ignoring non-default option '${k}'.`
         );
       }
+    }
+
+    // fail fast if an incompatible deployment type option (-m or --type) was provided
+    if (
+      state.getDeploymentType() &&
+      !(state.getDeploymentType() in this.types)
+    ) {
+      throw new FrodoError(
+        `Command does not support deployment type '${state.getDeploymentType()}'`
+      );
     }
   }
 }

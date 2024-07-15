@@ -10,8 +10,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin federation import', ['realm']);
+  const program = new FrodoCommand(
+    'frodo admin federation import',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Import admin federation providers.')
@@ -50,7 +56,11 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.idpId && (await getTokens(true))) {
+        if (
+          options.file &&
+          options.idpId &&
+          (await getTokens(true, true, deploymentTypes))
+        ) {
           verboseMessage(`Importing provider "${options.idpId}"...`);
           const outcome = await importAdminFederationProviderFromFile(
             options.idpId,
@@ -59,7 +69,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens(true))) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(true, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all providers from a single file (${options.file})...`
           );
@@ -72,7 +86,7 @@ export default function setup() {
         else if (
           options.allSeparate &&
           !options.file &&
-          (await getTokens(true))
+          (await getTokens(true, true, deploymentTypes))
         ) {
           verboseMessage(
             'Importing all providers from separate files in current directory...'
@@ -81,7 +95,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first provider from file
-        else if (options.file && (await getTokens(true))) {
+        else if (
+          options.file &&
+          (await getTokens(true, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first provider from file "${options.file}"...`
           );

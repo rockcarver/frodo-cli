@@ -5,8 +5,14 @@ import { describeSecret } from '../../ops/cloud/SecretsOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret describe');
+  const program = new FrodoCommand(
+    'frodo esv secret describe',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Describe secrets.')
@@ -18,16 +24,15 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Describing secret ${options.secretId}...`);
           const outcome = await describeSecret(options.secretId);
           if (!outcome) process.exitCode = 1;

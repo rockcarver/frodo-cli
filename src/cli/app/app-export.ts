@@ -10,8 +10,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo app export');
+  const program = new FrodoCommand('frodo app export', [], deploymentTypes);
 
   program
     .description('Export applications.')
@@ -74,7 +76,7 @@ export default function setup() {
           command
         );
         // export
-        if (options.appId && (await getTokens())) {
+        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting application...');
           const outcome = await exportApplicationToFile(
             options.appId,
@@ -88,7 +90,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all applications to file...');
           const outcome = await exportApplicationsToFile(
             options.file,
@@ -101,7 +106,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all applications to separate files...');
           const outcome = await exportApplicationsToFiles(options.metadata, {
             useStringArrays: true,

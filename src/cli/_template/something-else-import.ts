@@ -1,11 +1,20 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const { DEPLOYMENT_TYPES } = frodo.utils.constants;
+
+const deploymentTypes = DEPLOYMENT_TYPES;
+
 export default function setup() {
-  const program = new FrodoCommand('frodo something else import');
+  const program = new FrodoCommand(
+    'frodo something else import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import something else.')
@@ -55,7 +64,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;

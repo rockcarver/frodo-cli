@@ -5,8 +5,14 @@ import { listLogApiKeys } from '../../ops/LogOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log key list');
+  const program = new FrodoCommand(
+    'frodo log key list',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('List log API keys.')
@@ -24,7 +30,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           verboseMessage(`Listing log API keys...`);
           const outcome = await listLogApiKeys(options.long);
           if (!outcome) process.exitCode = 1;

@@ -3,8 +3,14 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log key describe');
+  const program = new FrodoCommand(
+    'frodo log key describe',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Describe log API keys.')
@@ -25,7 +31,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;

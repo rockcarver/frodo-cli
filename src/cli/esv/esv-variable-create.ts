@@ -4,8 +4,14 @@ import { createVariable } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv variable create');
+  const program = new FrodoCommand(
+    'frodo esv variable create',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Create variables.')
@@ -43,16 +49,15 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Creating variable...');
           const outcome = await createVariable(
             options.variableId,

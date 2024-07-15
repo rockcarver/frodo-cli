@@ -10,8 +10,14 @@ import {
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret import');
+  const program = new FrodoCommand(
+    'frodo esv secret import',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Import secrets.')
@@ -70,17 +76,19 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
         // import
-        if (options.secretId && (await getTokens())) {
+        if (
+          options.secretId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(`Importing secret ${options.secretId}...`);
           const outcome = await importSecretFromFile(
             options.secretId,
@@ -91,7 +99,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             `Importing all secrets from a single file (${options.file})...`
           );
@@ -103,7 +115,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             'Importing all secrets from separate files in working directory...'
           );
@@ -114,7 +130,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage('Importing first secret in file...');
           const outcome = await importSecretFromFile(
             null,

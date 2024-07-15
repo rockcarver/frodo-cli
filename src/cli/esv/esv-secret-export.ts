@@ -11,8 +11,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret export');
+  const program = new FrodoCommand(
+    'frodo esv secret export',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Export secrets.')
@@ -78,16 +84,18 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (options.secretId && (await getTokens())) {
+        if (
+          options.secretId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting secret "${
               options.secretId
@@ -101,7 +109,10 @@ export default function setup() {
             options.target
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens())) {
+        } else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all secrets to a single file...');
           const outcome = await exportSecretsToFile(
             options.file,
@@ -110,7 +121,10 @@ export default function setup() {
             options.target
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.allSeparate && (await getTokens())) {
+        } else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all secrets to separate files...');
           const outcome = await exportSecretsToFiles(
             options.metadata,

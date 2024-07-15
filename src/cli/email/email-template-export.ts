@@ -10,8 +10,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo email template export');
+  const program = new FrodoCommand(
+    'frodo email template export',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Export email templates.')
@@ -57,7 +63,10 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.templateId && (await getTokens())) {
+        if (
+          options.templateId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting email template "${
               options.templateId
@@ -71,7 +80,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all email templates to a single file...');
           const outcome = await exportEmailTemplatesToFile(
             options.file,
@@ -80,7 +92,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all email templates to separate files...');
           const outcome = await exportEmailTemplatesToFiles(options.metadata);
           if (!outcome) process.exitCode = 1;

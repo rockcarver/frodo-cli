@@ -9,8 +9,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin federation export', ['realm']);
+  const program = new FrodoCommand(
+    'frodo admin federation export',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Export admin federation providers.')
@@ -54,7 +60,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           // export by id/name
           if (options.idpId) {
             verboseMessage(`Exporting provider "${options.idpId}...`);

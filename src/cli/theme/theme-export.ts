@@ -11,8 +11,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo theme export');
+  const program = new FrodoCommand('frodo theme export', [], deploymentTypes);
 
   program
     .description('Export themes.')
@@ -64,7 +66,10 @@ export default function setup() {
           command
         );
         // export by name
-        if (options.themeName && (await getTokens())) {
+        if (
+          options.themeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting theme "${
               options.themeName
@@ -78,7 +83,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // export by id
-        else if (options.themeId && (await getTokens())) {
+        else if (
+          options.themeId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting theme "${
               options.themeId
@@ -92,7 +100,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all themes to a single file...');
           const outcome = await exportThemesToFile(
             options.file,
@@ -101,7 +112,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all themes to separate files...');
           const outcome = await exportThemesToFiles(options.metadata);
           if (!outcome) process.exitCode = 1;

@@ -5,8 +5,14 @@ import { deleteLogApiKey, deleteLogApiKeys } from '../../ops/LogOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log key delete');
+  const program = new FrodoCommand(
+    'frodo log key delete',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Delete log API keys.')
@@ -31,12 +37,15 @@ export default function setup() {
           command
         );
         // delete by id
-        if (options.keyId && (await getTokens(true))) {
+        if (options.keyId && (await getTokens(true, true, deploymentTypes))) {
           verboseMessage(`Deleting key ${options.keyId}`);
           deleteLogApiKey(options.keyId);
         }
         // --all -a
-        else if (options.all && (await getTokens(true))) {
+        else if (
+          options.all &&
+          (await getTokens(true, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting keys...');
           deleteLogApiKeys();
         }

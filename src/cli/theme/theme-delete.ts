@@ -10,8 +10,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo theme delete');
+  const program = new FrodoCommand('frodo theme delete', [], deploymentTypes);
 
   program
     .description('Delete themes.')
@@ -45,7 +47,10 @@ export default function setup() {
           command
         );
         // delete by name
-        if (options.themeName && (await getTokens())) {
+        if (
+          options.themeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Deleting theme with name "${
               options.themeName
@@ -55,7 +60,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // delete by id
-        else if (options.themeId && (await getTokens())) {
+        else if (
+          options.themeId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Deleting theme with id "${
               options.themeId
@@ -65,7 +73,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Deleting all themes from realm "${state.getRealm()}"...`
           );

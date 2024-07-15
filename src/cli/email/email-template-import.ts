@@ -10,8 +10,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo email template import');
+  const program = new FrodoCommand(
+    'frodo email template import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import email templates.')
@@ -52,7 +58,11 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.templateId && (await getTokens())) {
+        if (
+          options.file &&
+          options.templateId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Importing email template "${options.templateId}"...`);
           const outcome = await importEmailTemplateFromFile(
             options.templateId,
@@ -62,7 +72,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all email templates from a single file (${options.file})...`
           );
@@ -70,7 +84,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all email templates from separate files (*.template.email.json) in current directory...'
           );
@@ -78,7 +96,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first template from file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first email template from file "${options.file}"...`
           );

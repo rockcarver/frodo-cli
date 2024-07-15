@@ -5,8 +5,14 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin remove-static-user-mapping');
+  const program = new FrodoCommand(
+    'frodo admin remove-static-user-mapping',
+    [],
+    deploymentTypes
+  );
 
   program
     .description("Remove a subject's static user mapping.")
@@ -22,7 +28,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage("Removing a subject's static user mapping...");
           const outcome = await removeStaticUserMapping(options.subId);
           if (!outcome) process.exitCode = 1;

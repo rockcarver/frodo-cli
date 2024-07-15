@@ -5,8 +5,14 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin list-static-user-mappings');
+  const program = new FrodoCommand(
+    'frodo admin list-static-user-mappings',
+    [],
+    deploymentTypes
+  );
 
   program
     .description(
@@ -29,7 +35,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(
             'Listing all non-oauth2 client subjects of static user mappings...'
           );

@@ -6,8 +6,10 @@ import {
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo idm list');
+  const program = new FrodoCommand('frodo idm list', [], deploymentTypes);
 
   program
     .description('List IDM configuration objects.')
@@ -25,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Listing all IDM configuration objects...');
           const outcome = await listAllConfigEntities();
           if (!outcome) process.exitCode = 1;

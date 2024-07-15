@@ -11,8 +11,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo idm import');
+  const program = new FrodoCommand('frodo idm import', [], deploymentTypes);
 
   interface IdmImportOptions {
     type?: string;
@@ -75,7 +77,7 @@ export default function setup() {
           command
         );
         // import by id/name
-        if (options.name && (await getTokens())) {
+        if (options.name && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(`Importing object "${options.name}"...`);
           const outcome = await importConfigEntityByIdFromFile(
             options.name,
@@ -84,7 +86,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import from file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Importing object from file...`);
           const outcome = await importConfigEntityFromFile(options.file);
           if (!outcome) process.exitCode = 1;
@@ -103,7 +108,7 @@ export default function setup() {
           options.allSeparate &&
           options.entitiesFile &&
           options.envFile &&
-          (await getTokens())
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage(
             `Importing IDM configuration objects specified in ${
@@ -119,7 +124,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A without variable replacement
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all IDM configuration objects from separate files in ${state.getDirectory()}...`
           );
