@@ -8,8 +8,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo cmd sub2 delete');
+  const program = new FrodoCommand(
+    'frodo cmd sub2 delete',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Delete variables.')
@@ -33,23 +39,28 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
         // delete by id
-        if (options.variableId && (await getTokens())) {
+        if (
+          options.variableId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting variable...');
           const outcome = await deleteVariableById(options.variableId);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting all variables...');
           const outcome = await deleteVariables();
           if (!outcome) process.exitCode = 1;

@@ -6,9 +6,13 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin show-generic-extension-attributes'
+    'frodo admin show-generic-extension-attributes',
+    [],
+    deploymentTypes
   );
 
   program
@@ -36,7 +40,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(
             `Showing generic extension attributes in realm "${state.getRealm()}"...`
           );

@@ -5,8 +5,14 @@ import { activateVersionOfSecret } from '../../ops/cloud/SecretsOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret version activate');
+  const program = new FrodoCommand(
+    'frodo esv secret version activate',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Activate versions of secrets.')
@@ -14,17 +20,20 @@ export default function setup() {
     .addOption(new Option('-v, --version <version>', 'Version of secret.'))
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
         // activate by id
-        if (options.secretId && options.version && (await getTokens())) {
+        if (
+          options.secretId &&
+          options.version &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Activating version of secret...`);
           const outcome = await activateVersionOfSecret(
             options.secretId,

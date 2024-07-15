@@ -9,8 +9,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo app delete');
+  const program = new FrodoCommand('frodo app delete', [], deploymentTypes);
 
   program
     .description('Delete applications.')
@@ -52,13 +54,16 @@ export default function setup() {
           command
         );
         // delete app by name
-        if (options.appId && (await getTokens())) {
+        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Deleting application...');
           const outcome = await deleteApplication(options.appId, options.deep);
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting all applications...');
           const outcome = await deleteApplications(options.deep);
           if (!outcome) process.exitCode = 1;

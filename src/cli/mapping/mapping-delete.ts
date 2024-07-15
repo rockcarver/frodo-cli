@@ -5,8 +5,10 @@ import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo mapping delete');
+  const program = new FrodoCommand('frodo mapping delete', [], deploymentTypes);
 
   program
     .description('Delete IDM mappings.')
@@ -41,13 +43,19 @@ export default function setup() {
           command
         );
         // delete by id/name
-        if (options.mappingId && (await getTokens())) {
+        if (
+          options.mappingId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Deleting mapping ${options.mappingId}...`);
           const outcome = await deleteMapping(options.mappingId);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Deleting all mappings...`);
           const outcome = await deleteMappings(
             options.connectorId,

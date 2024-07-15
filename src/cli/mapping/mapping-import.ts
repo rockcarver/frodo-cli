@@ -10,8 +10,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo mapping import');
+  const program = new FrodoCommand('frodo mapping import', [], deploymentTypes);
 
   program
     .description('Import IDM mappings.')
@@ -47,7 +49,10 @@ export default function setup() {
           command
         );
         // import by id/name
-        if (options.mappingId && (await getTokens())) {
+        if (
+          options.mappingId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Importing mapping ${options.mappingId}...`);
           const outcome = await importMappingFromFile(
             options.mappingId,
@@ -59,7 +64,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all mappings from a single file (${options.file})...`
           );
@@ -69,7 +78,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing all mappings from separate files...');
           const outcome = await importMappingsFromFiles({
             deps: options.deps,
@@ -77,7 +89,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first mapping in file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing first mapping in file...');
           const outcome = await importFirstMappingFromFile(options.file, {
             deps: options.deps,

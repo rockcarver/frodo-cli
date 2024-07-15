@@ -7,8 +7,14 @@ import { FrodoCommand } from '../FrodoCommand.js';
 
 const { trainAA } = frodo.admin;
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin train-auto-access-model');
+  const program = new FrodoCommand(
+    'frodo admin train-auto-access-model',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Train Auto Access model.')
@@ -53,7 +59,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(
             `Training Auto Access model in realm "${state.getRealm()}"...`
           );

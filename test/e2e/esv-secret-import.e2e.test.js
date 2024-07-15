@@ -130,7 +130,7 @@ describe('frodo esv secret import', () => {
     });
   
     test(`"frodo esv secret import -a -f ${allSecretsExport} --include-active-values" Import all secrets and secret values from "${allSecretsExport}".`, async () => {
-      const CMD = `frodo esv secret import -a --file ${allSecretsExport} --include-active-values`;
+      const CMD = `frodo esv secret import -a -f ${allSecretsExport} --include-active-values`;
       const { stdout } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

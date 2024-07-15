@@ -6,8 +6,14 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin repair-org-model');
+  const program = new FrodoCommand(
+    'frodo admin repair-org-model',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Repair org model.')
@@ -35,7 +41,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(`Repairing org model in realm "${state.getRealm()}"...`);
           const outcome = await repairOrgModel(
             options.excludeCustomized,

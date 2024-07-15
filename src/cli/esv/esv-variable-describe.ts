@@ -5,8 +5,14 @@ import { describeVariable } from '../../ops/cloud/VariablesOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv variable describe');
+  const program = new FrodoCommand(
+    'frodo esv variable describe',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Describe variables.')
@@ -19,16 +25,15 @@ export default function setup() {
     .addOption(new Option('--json', 'Output in JSON format.'))
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Describing variable ${options.variableId}...`);
           const outcome = await describeVariable(
             options.variableId,

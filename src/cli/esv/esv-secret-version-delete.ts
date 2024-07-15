@@ -5,8 +5,14 @@ import { deleteVersionOfSecret } from '../../ops/cloud/SecretsOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv secret version delete');
+  const program = new FrodoCommand(
+    'frodo esv secret version delete',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Delete versions of secrets.')
@@ -22,17 +28,20 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
         // delete by id
-        if (options.secretId && options.version && (await getTokens())) {
+        if (
+          options.secretId &&
+          options.version &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Deleting version of secret...`);
           const outcome = await deleteVersionOfSecret(
             options.secretId,
@@ -41,7 +50,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        // else if (options.all && (await getTokens())) {
+        // else if (options.all && (await getTokens(false, true, deploymentTypes))) {
         //   printMessage('Deleting all versions...');
         //   const outcome = deleteJourneys(options);
         //   if (!outcome) process.exitCode = 1;

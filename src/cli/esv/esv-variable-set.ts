@@ -6,8 +6,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv variable set');
+  const program = new FrodoCommand(
+    'frodo esv variable set',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Set variable description.')
@@ -16,10 +22,9 @@ export default function setup() {
     .option('--description [description]', 'Variable description.')
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
@@ -29,7 +34,7 @@ export default function setup() {
           options.variableId &&
           options.value &&
           options.description &&
-          (await getTokens())
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Updating variable...');
           const outcome = await updateVariable(
@@ -41,7 +46,7 @@ export default function setup() {
         } else if (
           options.variableId &&
           options.description &&
-          (await getTokens())
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Updating variable...');
           const outcome = await setVariableDescription(

@@ -9,8 +9,14 @@ import { FrodoCommand } from '../FrodoCommand';
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 const { getLogSources } = frodo.cloud.log;
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo log list', ['realm', 'type']);
+  const program = new FrodoCommand(
+    'frodo log list',
+    ['realm'],
+    deploymentTypes
+  );
   program
     .description('List available ID Cloud log sources.')
     .action(async (host, user, password, options, command) => {
@@ -54,7 +60,7 @@ export default function setup() {
         );
         state.setUsername(conn.username);
         state.setPassword(conn.password);
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           const creds = await provisionCreds();
           state.setLogApiKey(creds.api_key_id as string);
           state.setLogApiSecret(creds.api_key_secret as string);

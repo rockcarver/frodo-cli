@@ -3,8 +3,14 @@ import { listAdminFederationProviders } from '../../ops/cloud/AdminFederationOps
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo admin federation list', ['realm']);
+  const program = new FrodoCommand(
+    'frodo admin federation list',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('List admin federation providers.')
@@ -21,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(true)) {
+        if (await getTokens(true, true, deploymentTypes)) {
           verboseMessage(`Listing admin federation providers...`);
           const outcome = await listAdminFederationProviders();
           if (!outcome) process.exitCode = 1;

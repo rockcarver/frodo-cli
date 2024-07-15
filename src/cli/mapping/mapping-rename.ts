@@ -5,8 +5,10 @@ import { renameMapping, renameMappings } from '../../ops/MappingOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo mapping rename');
+  const program = new FrodoCommand('frodo mapping rename', [], deploymentTypes);
 
   program
     .description(
@@ -42,7 +44,10 @@ export default function setup() {
           command
         );
         // rename by id/name
-        if (options.mappingId && (await getTokens())) {
+        if (
+          options.mappingId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Renaming mapping...');
           const outcome = await renameMapping(
             options.mappingId,
@@ -51,7 +56,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Renaming all mappings...');
           const outcome = await renameMappings(options.legacy);
           if (!outcome) process.exitCode = 1;

@@ -5,9 +5,13 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin list-oauth2-clients-with-custom-privileges'
+    'frodo admin list-oauth2-clients-with-custom-privileges',
+    [],
+    deploymentTypes
   );
 
   program.description('List oauth2 clients with custom privileges.').action(
@@ -21,7 +25,7 @@ export default function setup() {
         options,
         command
       );
-      if (await getTokens()) {
+      if (await getTokens(false, true, deploymentTypes)) {
         printMessage(
           `Listing oauth2 clients with custom privileges in realm "${state.getRealm()}"...`
         );

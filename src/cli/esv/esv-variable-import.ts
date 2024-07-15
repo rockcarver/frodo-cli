@@ -9,8 +9,14 @@ import {
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv variable import');
+  const program = new FrodoCommand(
+    'frodo esv variable import',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Import variables.')
@@ -35,17 +41,19 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
         // import
-        if (options.variableId && (await getTokens())) {
+        if (
+          options.variableId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(`Importing variable ${options.variableId}...`);
           const outcome = await importVariableFromFile(
             options.variableId,
@@ -54,7 +62,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             `Importing all variables from a single file (${options.file})...`
           );
@@ -62,7 +74,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             'Importing all variables from separate files in working directory...'
           );
@@ -70,7 +86,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage('Importing first variable in file...');
           const outcome = await importVariableFromFile(null, options.file);
           if (!outcome) process.exitCode = 1;

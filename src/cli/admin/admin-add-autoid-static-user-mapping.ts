@@ -3,9 +3,13 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin add-autoid-static-user-mapping'
+    'frodo admin add-autoid-static-user-mapping',
+    ['realm'],
+    deploymentTypes
   );
 
   program
@@ -23,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(`Adding AutoId static user mapping...`);
           const outcome = await addAutoIdStaticUserMapping();
           if (!outcome) process.exitCode = 1;

@@ -6,8 +6,10 @@ import { listThemes } from '../../ops/ThemeOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo theme list');
+  const program = new FrodoCommand('frodo theme list', [], deploymentTypes);
 
   program
     .description('List themes.')
@@ -25,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing themes in realm "${state.getRealm()}"...`);
           const outcome = await listThemes(options.long);
           if (!outcome) process.exitCode = 1;

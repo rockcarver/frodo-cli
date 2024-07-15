@@ -5,8 +5,10 @@ import { countManagedObjects } from '../../ops/IdmOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo idm count');
+  const program = new FrodoCommand('frodo idm count', [], deploymentTypes);
 
   program
     .description('Count managed objects.')
@@ -27,7 +29,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Counting managed ${options.managedObject} objects...`
           );

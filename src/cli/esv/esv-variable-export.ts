@@ -10,8 +10,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo esv variable export');
+  const program = new FrodoCommand(
+    'frodo esv variable export',
+    ['realm'],
+    deploymentTypes
+  );
 
   program
     .description('Export variables.')
@@ -48,16 +54,18 @@ export default function setup() {
     )
     .action(
       // implement command logic inside action handler
-      async (host, realm, user, password, options, command) => {
+      async (host, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
-          realm,
           user,
           password,
           options,
           command
         );
-        if (options.variableId && (await getTokens())) {
+        if (
+          options.variableId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting variable "${
               options.variableId
@@ -70,7 +78,10 @@ export default function setup() {
             options.metadata
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens())) {
+        } else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all variables to a single file...');
           const outcome = await exportVariablesToFile(
             options.file,
@@ -78,7 +89,10 @@ export default function setup() {
             options.metadata
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.allSeparate && (await getTokens())) {
+        } else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all variables to separate files...');
           const outcome = await exportVariablesToFiles(
             options.decode,

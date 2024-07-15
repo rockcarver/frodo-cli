@@ -9,8 +9,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo mapping export');
+  const program = new FrodoCommand('frodo mapping export', [], deploymentTypes);
 
   program
     .description('Export IDM mappings.')
@@ -67,7 +69,10 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.mappingId && (await getTokens())) {
+        if (
+          options.mappingId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Exporting mapping ${options.mappingId}...`);
           const outcome = await exportMappingToFile(
             options.mappingId,
@@ -81,7 +86,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Exporting all mappings to a single file...`);
           const outcome = await exportMappingsToFile(
             options.file,
@@ -96,7 +104,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all mappings to separate files...');
           const outcome = await exportMappingsToFiles(options.metadata, {
             connectorId: options.connectorId,

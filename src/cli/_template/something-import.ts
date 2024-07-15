@@ -1,10 +1,20 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const { DEPLOYMENT_TYPES } = frodo.utils.constants;
+
+const deploymentTypes = DEPLOYMENT_TYPES;
+
 export default function setup() {
-  const program = new FrodoCommand('frodo something import');
+  const program = new FrodoCommand(
+    'frodo something import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import something.')
@@ -27,6 +37,22 @@ export default function setup() {
         'Import all [something] from separate files (*.[something].json) in the current directory. Ignored with -i or -a.'
       )
     )
+    .addHelpText(
+      'after',
+      `Usage Examples:\n` +
+        `  Example command one with params and explanation what it does:\n` +
+        `  $ frodo something ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
+        `  Example command two with params and explanation what it does:\n` +
+        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
+          'brightCyan'
+        ] +
+        `  Example command three with params and explanation what it does:\n` +
+        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
+          'brightCyan'
+        ]
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -38,7 +64,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;
