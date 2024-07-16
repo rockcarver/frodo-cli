@@ -66,18 +66,13 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
-const env = {
-  env: process.env,
-};
-env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = c.saId;
-env.env.FRODO_SA_JWK = c.saJwk;
+const env = getEnv(c);
 
 const allDirectory = 'test/e2e/exports/all';
 const allAlphaServicesFileName = 'allAlphaServices.service.json';
@@ -124,8 +119,12 @@ describe('frodo service import', () => {
 
   test(`"frodo service import -Crf ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
     const CMD = `frodo service import -Crf ${allAlphaServicesExport}`;
-    const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed");
+    } catch (e) {
+      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    }
   });
 
   test(`"frodo service import --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {

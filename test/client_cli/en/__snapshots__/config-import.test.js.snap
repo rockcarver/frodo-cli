@@ -35,7 +35,6 @@ Options:
                                output helpful for troubleshooting.
   -f, --file <file>            Name of the file to import.
   --flush-cache                Flush token cache.
-  -g, --global                 Import service(s) as global service(s).
   -h, --help                   Help
   --include-active-values      Import any secret values contained in the import
                                file. By default, secret values are encrypted
@@ -65,7 +64,6 @@ Options:
                                admin login flow of Identity Cloud and handle
                                MFA (choices: "classic", "cloud", "forgeops")
   --no-cache                   Disable token cache for this operation.
-  -r, --current-realm          Import service(s) into the current realm.
   --re-uuid-journeys           Generate new UUIDs for all journey nodes during
                                import. (default: off)
   --re-uuid-scripts            Create new UUIDs for the scripts upon import.
@@ -84,7 +82,7 @@ Options:
                                specified, may or may not produce additional
                                output.
 
-Evironment Variables:
+Environment Variables:
   FRODO_HOST: Access Management base URL. Overrides 'host' argument.
   FRODO_REALM: Realm. Overrides 'realm' argument.
   FRODO_USERNAME: Username. Overrides 'username' argument.

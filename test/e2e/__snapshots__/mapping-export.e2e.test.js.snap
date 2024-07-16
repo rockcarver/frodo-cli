@@ -136,7 +136,7 @@ exports[`frodo mapping export "frodo mapping export --all": should export all ma
   },
   "meta": Any<Object>,
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [
       {
         "_id": "sync/managedBravo_user_managedBravo_user",
@@ -676,7 +676,7 @@ exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlp
   "mapping": {},
   "meta": Any<Object>,
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [
       {
         "_id": "sync/managedAlpha_user_managedBravo_user",
@@ -1004,7 +1004,7 @@ isGoogleEligible;
 
 exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/sync.json 1`] = `
 {
-  "id": "sync",
+  "_id": "sync",
   "mappings": [
     "file://AlphaUser2GoogleApps.sync.json",
   ],
@@ -1018,7 +1018,7 @@ exports[`frodo mapping export "frodo mapping export --no-deps --use-string-array
 {
   "mapping": {},
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [
       {
         "_id": "sync/AlphaUser2GoogleApps",
@@ -1942,7 +1942,7 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/sync.json 1`] = `
 {
-  "id": "sync",
+  "_id": "sync",
   "mappings": [
     "file://managedBravo_user_managedBravo_user.sync.json",
     "file://managedAlpha_application_managedBravo_application.sync.json",
@@ -2025,7 +2025,7 @@ exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_gro
     },
   },
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [],
   },
 }
@@ -2167,7 +2167,7 @@ exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.map
   },
   "meta": Any<Object>,
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [
       {
         "_id": "sync/managedBravo_user_managedBravo_user",
@@ -2772,7 +2772,7 @@ exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_grou
   },
   "meta": Any<Object>,
   "sync": {
-    "id": "sync",
+    "_id": "sync",
     "mappings": [],
   },
 }

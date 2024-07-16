@@ -1,0 +1,24 @@
+{
+  "mapping": {
+    "mapping/mapping12": {
+      "_id": "mapping/mapping12",
+      "consentRequired": false,
+      "displayName": "mapping12",
+      "linkQualifiers": [],
+      "name": "mapping12",
+      "policies": [],
+      "properties": [],
+      "source": "managed/bravo_user",
+      "syncAfter": [],
+      "target": "managed/bravo_user"
+    }
+  },
+  "meta": {
+    "exportDate": "2024-07-15T23:18:31.942Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.0-95 [v20.11.1]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  }
+}

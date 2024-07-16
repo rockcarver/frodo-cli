@@ -16,10 +16,14 @@ dashboard
 exports[`frodo service list "frodo service list -l": should list the ids and names of the services 1`] = `
 "Service Id             │Service Name                    
 baseurl                │Base URL Source                 
+dashboard              │Dashboard                       
 DataStoreService       │External Data Stores            
+id-repositories        │sunIdentityRepositoryService    
 oauth-oidc             │OAuth2 Provider                 
+pingOneWorkerService   │PingOne Worker Service          
 policyconfiguration    │Policy Configuration            
 selfServiceTrees       │Self Service Trees              
+session                │Session                         
 SocialIdentityProviders│Social Identity Provider Service
 validation             │Validation Service              
 "
@@ -27,10 +31,14 @@ validation             │Validation Service
 
 exports[`frodo service list "frodo service list": should list the ids of the services 1`] = `
 "baseurl
+dashboard
 DataStoreService
+id-repositories
 oauth-oidc
+pingOneWorkerService
 policyconfiguration
 selfServiceTrees
+session
 SocialIdentityProviders
 validation
 "

@@ -11,7 +11,7 @@ Commands:
   admin                                                 Platform admin tasks.
   agent                                                 Manage agents.
   authn                                                 Manage authentication settings.
-  authz                                                 Manage authotiztion policies, policy sets, and resource types.
+  authz                                                 Manage authorization policies, policy sets, and resource types.
   app                                                   Manage applications.
   config                                                Manage full cloud configuration.
   conn|connection                                       Manage connection profiles.

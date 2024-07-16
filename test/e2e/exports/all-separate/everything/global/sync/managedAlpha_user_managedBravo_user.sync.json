@@ -1,0 +1,86 @@
+{
+  "_id": "sync/managedAlpha_user_managedBravo_user",
+  "consentRequired": true,
+  "displayName": "Test Mapping for Frodo",
+  "icon": null,
+  "name": "managedAlpha_user_managedBravo_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    }
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "console.log(\"Hello World!\");",
+        "type": "text/javascript"
+      },
+      "default": [
+        "Default value string"
+      ],
+      "source": "accountStatus",
+      "target": "applications",
+      "transform": {
+        "globals": {},
+        "source": "console.log(\"hello\");",
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedAlpha_application_managedBravo_application"
+  ],
+  "target": "managed/bravo_user"
+}

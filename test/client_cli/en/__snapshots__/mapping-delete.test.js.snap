@@ -32,7 +32,7 @@ Options:
   -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.
   --verbose                                        Verbose output during command execution. If specified, may or may not produce additional output.
 
-Evironment Variables:
+Environment Variables:
   FRODO_HOST: Access Management base URL. Overrides 'host' argument.
   FRODO_REALM: Realm. Overrides 'realm' argument.
   FRODO_USERNAME: Username. Overrides 'username' argument.

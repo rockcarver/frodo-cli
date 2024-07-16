@@ -1367,7 +1367,8 @@ Scripts (3):
 exports[`frodo journey describe "frodo journey describe -F test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 1`] = `""`;
 
 exports[`frodo journey describe "frodo journey describe -F test3.json --markdown": should describe all journeys and write output to test3.json file in markdown 2`] = `
-"# j10 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
+"
+# j10 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j10.png)]()
 
