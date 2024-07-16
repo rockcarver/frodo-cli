@@ -243,7 +243,7 @@ export class FrodoCommand extends FrodoStubCommand {
     // additional help
     this.addHelpText(
       'after',
-      `\nEvironment Variables:\n` +
+      `\nEnvironment Variables:\n` +
         `  FRODO_HOST: Access Management base URL. Overrides 'host' argument.\n` +
         `  FRODO_REALM: Realm. Overrides 'realm' argument.\n` +
         `  FRODO_USERNAME: Username. Overrides 'username' argument.\n` +
@@ -322,7 +322,7 @@ export class FrodoCommand extends FrodoStubCommand {
     // fail fast if an incompatible deployment type option (-m or --type) was provided
     if (
       state.getDeploymentType() &&
-      !(state.getDeploymentType() in this.types)
+      !this.types.includes(state.getDeploymentType())
     ) {
       throw new FrodoError(
         `Command does not support deployment type '${state.getDeploymentType()}'`

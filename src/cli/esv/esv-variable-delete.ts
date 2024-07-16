@@ -12,7 +12,7 @@ const deploymentTypes = ['cloud'];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo cmd sub2 delete',
+    'frodo esv variable delete',
     ['realm'],
     deploymentTypes
   );

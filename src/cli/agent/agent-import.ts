@@ -25,13 +25,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all cmds from single file. Ignored with -i.'
+        'Import all agents from single file. Ignored with -i.'
       )
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all cmds from separate files (*.cmd.json) in the current directory. Ignored with -i or -a.'
+        'Import all agents from separate files (*.agent.json) in the current directory. Ignored with -i or -a.'
       )
     )
     .action(
@@ -69,7 +69,7 @@ export default function setup() {
             const outcome = await importAgentsFromFiles();
             if (!outcome) process.exitCode = 1;
           }
-          // import first journey in file
+          // import first agent in file
           else if (options.file) {
             verboseMessage('Importing first agent in file...');
             const outcome = await importFirstAgentFromFile(options.file);
