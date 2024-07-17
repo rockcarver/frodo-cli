@@ -1,11 +1,11 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { AuthenticationSettingsSkeleton } from '@rockcarver/frodo-lib/src/api/AuthenticationSettingsApi';
-import { ExportMetaData } from '@rockcarver/frodo-lib/src/ops/OpsTypes';
+import { AuthenticationSettingsSkeleton } from '@rockcarver/frodo-lib/types/api/AuthenticationSettingsApi';
 import {
   FullExportInterface,
   FullGlobalExportInterface,
   FullRealmExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
+import { ExportMetaData } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import fs from 'fs';
 import os from 'os';
 import slugify from 'slugify';
