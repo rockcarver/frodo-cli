@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'authz' should be expected english 1`] = `
 "Usage: frodo authz [options] [command]
 
-Manage authotiztion policies, policy sets, and resource types.
+Manage authorization policies, policy sets, and resource types.
 
 Options:
   -h, --help     Help

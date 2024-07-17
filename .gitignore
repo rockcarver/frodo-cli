@@ -125,6 +125,9 @@ out
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
+# Stores JetBrain IDE's configuration
+.idea
+
 # yarn v2
 .yarn/cache
 .yarn/unplugged

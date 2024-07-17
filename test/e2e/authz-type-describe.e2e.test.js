@@ -56,18 +56,13 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
-const env = {
-    env: process.env,
-};
-env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = c.saId;
-env.env.FRODO_SA_JWK = c.saJwk;
+const env = getEnv(c);
 
 describe('frodo authz type describe', () => {
     test('"frodo authz type describe -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should describe the 76656a38-5f8e-401b-83aa-4ccb74ce88d2 resource type', async () => {

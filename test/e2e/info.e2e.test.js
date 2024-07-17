@@ -67,16 +67,14 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes } from './utils/TestUtils';
+import {getEnv, removeAnsiEscapeCodes} from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import { rmSync, writeFileSync } from 'fs';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
-const env = {
-  env: process.env,
-};
+const env = getEnv();
 
 const jwkFile = 'test/fs_tmp/info-jwk.json';
 

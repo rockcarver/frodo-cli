@@ -52,7 +52,7 @@ export async function listServices(
       for (const service of services) {
         table.push([
           service._id,
-          globalConfig ? service['_type'].name : service.name,
+          service.name ? service.name : service['_type'].name,
         ]);
       }
       printMessage(table.toString(), 'data');

@@ -40,7 +40,7 @@ export async function listRealms(long = false) {
     }
   } catch (error) {
     printMessage(error, 'error');
-    printMessage(`Error listing realms: ${error.rmessage}`, 'error');
+    printMessage(`Error listing realms: ${error.message}`, 'error');
     printMessage(error.response?.data, 'error');
   }
 }

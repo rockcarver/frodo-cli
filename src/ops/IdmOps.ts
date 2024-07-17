@@ -126,7 +126,7 @@ export async function exportAllRawConfigEntities(
 ) {
   try {
     const exportedConfigurations = await exportConfigEntities();
-    for (const [id, value] of Object.entries(exportedConfigurations.config)) {
+    for (const [id, value] of Object.entries(exportedConfigurations.idm)) {
       if (value != null) {
         if (separateMappings && id === 'sync') {
           writeSyncJsonToDirectory(value as SyncSkeleton);
@@ -310,7 +310,7 @@ export async function importAllRawConfigEntities(
   const baseDirectory = getWorkingDirectory();
   try {
     const importData = {
-      config: await getIdmImportDataFromIdmDirectory(baseDirectory),
+      idm: await getIdmImportDataFromIdmDirectory(baseDirectory),
     };
     indicatorId = createProgressIndicator(
       'indeterminate',
@@ -352,7 +352,7 @@ export async function importAllConfigEntities(
   const baseDirectory = getWorkingDirectory();
   try {
     const importData = {
-      config: await getIdmImportDataFromIdmDirectory(
+      idm: await getIdmImportDataFromIdmDirectory(
         baseDirectory,
         entitiesFile,
         envFile

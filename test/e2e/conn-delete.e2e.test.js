@@ -47,7 +47,7 @@
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes, testif } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, testif } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import { readFileSync, rmSync, writeFileSync } from 'fs';
 
@@ -58,9 +58,7 @@ const connectionsDeleteFile = './test/e2e/env/ConnectionsDelete.json';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = connectionsDeleteFile;
-const env = {
-  env: process.env,
-};
+const env = getEnv();
 
 beforeAll(() => {
   writeFileSync(connectionsDeleteFile, readFileSync(connectionsFile));

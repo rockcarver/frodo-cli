@@ -1,36 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config import "frodo config import --current-realm --default -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything", including default scripts. Import services as realm services, and clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
+exports[`frodo config import "frodo config import --default -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything", including default scripts. Clean old services 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
-  Error importing services
-  Error putting realm full service configs
-  Error putting global full service config CorsService
-  Error deleting service 'CorsService' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-"
-`;
-
-exports[`frodo config import "frodo config import --global -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything". Import services as global services, and clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error importing email templates
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -45,20 +27,6 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-  Error putting global full service config SocialIdentityProviders
-  Error deleting service 'SocialIdentityProviders' before import
-  Error deleting global full service config SocialIdentityProviders
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config baseurl
-  Error deleting service 'baseurl' before import
-  Error deleting global full service config baseurl
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
   Error putting global full service config dashboard
   Error deleting service 'dashboard' before import
   HTTP client error
@@ -66,104 +34,15 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-  Error putting global full service config oauth-oidc
-  Error deleting service 'oauth-oidc' before import
-  Error deleting global full service config oauth-oidc
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config pingOneWorkerService
-  Error deleting service 'pingOneWorkerService' before import
-  Error deleting global full service config pingOneWorkerService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config policyconfiguration
-  Error deleting service 'policyconfiguration' before import
-  Error deleting global full service config policyconfiguration
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config selfServiceTrees
-  Error deleting service 'selfServiceTrees' before import
-  Error deleting global full service config selfServiceTrees
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config session
-  Error deleting service 'session' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-  Error putting global full service config validation
-  Error deleting service 'validation' before import
-  Error deleting global full service config validation
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
 "
 `;
 
 exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything --include-active-values" Import everything with secret values from directory "test/e2e/exports/all-separate/everything" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-"
-`;
-
-exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `""`;
-
-exports[`frodo config import "frodo config import -adf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json", including default scripts. 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-"
-`;
-
-exports[`frodo config import "frodo config import -agCf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json". Import services as global services, and clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
   Error updating config entity emailTemplate/baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
@@ -178,6 +57,610 @@ Errors occurred during full config import
     Message: Unauthorized
   Error importing services
   Error putting global full service configs
+  Error putting realm full service config CorsService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource 'CorsService' not found
+  Error putting global full service config dashboard
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid attribute specified.
+    Detail: [object Object]
+"
+`;
+
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Resolving dependencies
+✔ Resolved all dependencies.
+Errors occurred during full config import
+  Error importing config entities
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error updating config entity emailTemplate/baselineDemoMagicLink
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing services
+  Error putting global full service configs
+  Error putting realm full service config CorsService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource 'CorsService' not found
+  Error putting global full service config dashboard
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid attribute specified.
+    Detail: [object Object]
+"
+`;
+
+exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/everything -m classic" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+Errors occurred during full config import
+  Error importing services
+  Error putting global full service configs
+  Error putting realm full service config CorsService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource 'CorsService' not found
+  Error putting global full service config dashboard
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid attribute specified.
+    Detail: [object Object]
+  Error importing scripts
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error reading authentication settings
+  Error updating authentication settings
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agents
+  Error importing agent cdsso-ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-ig-agent2 of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-java-agent of type J2EEAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-java-agent2 of type J2EEAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-web-agent of type WebAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-web-agent2 of type WebAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing resource types
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing circles of trust
+  Error reading saml2 entity ids
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config SocialIdentityProviders
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config baseurl
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config oauth-oidc
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config pingOneWorkerService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config policyconfiguration
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config selfServiceTrees
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config session
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config validation
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing saml2 providers
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing providers
+  Error importing oauth2 clients
+  Error updating oauth2 client 0b48992b-a2dd-4ed5-8b07-1fc5d7306da8
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client 49a2981c-e192-4739-a0e6-c7582168bdf5
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client 60b7b032-68fc-45ed-98ca-262c1985fb7e
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client EncoreRCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client EncoreWindowsRCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client RCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-ciba
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-device
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-ios-sdk
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-web
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client da190d6b-0fcc-42aa-b890-0cef7486e6d4
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client hrlite-client
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client rfc7523-client1
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client test2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client testapp
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client testclient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing policy sets
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing policies
+  Error updating policy FeatureStorePolicy
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy HR-webapp
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy Test Policy
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy actions
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy activity
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy apply
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error reading journeys
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+"
+`;
+
+exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything". Clean old services 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Resolving dependencies
+✔ Resolved all dependencies.
+Errors occurred during full config import
+  Error importing config entities
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+  Error updating config entity emailTemplate/baselineDemoMagicLink
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error updating config entity emailTemplate/forgottenUsername
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+  Error importing services
+  Error putting global full service configs
   Error putting global full service config CorsService
   Error deleting service 'CorsService' before import
   HTTP client error
@@ -185,20 +668,6 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-  Error putting global full service config SocialIdentityProviders
-  Error deleting service 'SocialIdentityProviders' before import
-  Error deleting global full service config SocialIdentityProviders
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config baseurl
-  Error deleting service 'baseurl' before import
-  Error deleting global full service config baseurl
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
   Error putting global full service config dashboard
   Error deleting service 'dashboard' before import
   HTTP client error
@@ -206,66 +675,40 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-  Error putting global full service config oauth-oidc
-  Error deleting service 'oauth-oidc' before import
-  Error deleting global full service config oauth-oidc
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
-  Error putting global full service config pingOneWorkerService
-  Error deleting service 'pingOneWorkerService' before import
-  Error deleting global full service config pingOneWorkerService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config policyconfiguration
-  Error deleting service 'policyconfiguration' before import
-  Error deleting global full service config policyconfiguration
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
-  Error putting global full service config selfServiceTrees
-  Error deleting service 'selfServiceTrees' before import
-  Error deleting global full service config selfServiceTrees
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
-  Error putting global full service config session
-  Error deleting service 'session' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-  Error putting global full service config validation
-  Error deleting service 'validation' before import
-  Error deleting global full service config validation
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in ForgeRock Identity Cloud.
 "
 `;
 
-exports[`frodo config import "frodo config import -arCf test/e2e/exports/all/Alpha.everything.json" Import everything from "Alpha.everything.json". Import services as realm services, and clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
+exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.config.json" Import everything from "all.config.json". Clean old services 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Resolving dependencies
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error updating config entity emailTemplate/baselineDemoMagicLink
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
   Error importing services
-  Error putting realm full service configs
+  Error putting global full service configs
   Error putting global full service config CorsService
   Error deleting service 'CorsService' before import
   HTTP client error
@@ -273,5 +716,568 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
+  Error putting global full service config dashboard
+  Error deleting service 'dashboard' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config SocialIdentityProviders
+  Error putting descendent 'apple-stoyan' of service 'SocialIdentityProviders'
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid config: Unable to add subConfig appleConfig
+  Error importing providers
+"
+`;
+
+exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.config.json -m classic" Import everything from "all.config.json", including default scripts. 1`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+Errors occurred during full config import
+  Error importing services
+  Error putting global full service configs
+  Error putting realm full service config CorsService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource 'CorsService' not found
+  Error putting global full service config dashboard
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid attribute specified.
+    Detail: [object Object]
+  Error importing scripts
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error reading authentication settings
+  Error updating authentication settings
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agents
+  Error importing agent cdsso-ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-ig-agent2 of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-java-agent of type J2EEAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-java-agent2 of type J2EEAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-web-agent of type WebAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent frodo-test-web-agent2 of type WebAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing agent ig-agent of type IdentityGatewayAgent
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing resource types
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing circles of trust
+  Error reading saml2 entity ids
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config SocialIdentityProviders
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config baseurl
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config oauth-oidc
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config pingOneWorkerService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config policyconfiguration
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config selfServiceTrees
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config session
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error putting realm full service config validation
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing saml2 providers
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing providers
+  Error importing oauth2 clients
+  Error updating oauth2 client 0b48992b-a2dd-4ed5-8b07-1fc5d7306da8
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client 49a2981c-e192-4739-a0e6-c7582168bdf5
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client 60b7b032-68fc-45ed-98ca-262c1985fb7e
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client EncoreRCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client EncoreWindowsRCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client RCSClient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-ciba
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-device
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-ios-sdk
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client baseline-web
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client da190d6b-0fcc-42aa-b890-0cef7486e6d4
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client hrlite-client
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client rfc7523-client1
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client test2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client testapp
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating oauth2 client testclient
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing policy sets
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error importing policies
+  Error updating policy FeatureStorePolicy
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy HR-webapp
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy Test Policy
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy actions
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy activity
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error updating policy apply
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+  Error reading journeys
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Realm not found
+"
+`;
+
+exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.config.json" Import everything from "all.config.json", including default scripts. 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Resolving dependencies
+✔ Resolved all dependencies.
+Errors occurred during full config import
+  Error importing config entities
+  Error updating config entity emailTemplate/baselineDemoEmailVerification
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error updating config entity emailTemplate/baselineDemoMagicLink
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing email templates
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error importing services
+  Error putting global full service configs
+  Error putting realm full service config CorsService
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource 'CorsService' not found
+  Error putting global full service config dashboard
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid attribute specified.
+    Detail: [object Object]
 "
 `;

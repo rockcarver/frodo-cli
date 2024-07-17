@@ -51,25 +51,20 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -l
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -u
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -lu
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -uf test/e2e/exports/all/Alpha.everything.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list --usage --long --file test/e2e/exports/all/Alpha.everything.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -uf test/e2e/exports/all/all.config.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list --usage --long --file test/e2e/exports/all/all.config.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list -uD test/e2e/exports/all-separate/everything
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret list --usage --long --directory test/e2e/exports/all-separate/everything
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
-const env = {
-    env: process.env,
-};
-env.env.FRODO_HOST = c.host;
-env.env.FRODO_SA_ID = c.saId;
-env.env.FRODO_SA_JWK = c.saJwk;
+const env = getEnv(c);
 
 describe('frodo esv secret list', () => {
     test('"frodo esv secret list": should list the ids of the esv secrets', async () => {
@@ -96,14 +91,14 @@ describe('frodo esv secret list', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo esv secret list -uf test/e2e/exports/all/Alpha.everything.json": should list the usage of the esv secrets in the Alpha.everything.json file', async () => {
-        const CMD = `frodo esv secret list -uf test/e2e/exports/all/Alpha.everything.json`;
+    test('"frodo esv secret list -uf test/e2e/exports/all/all.config.json": should list the usage of the esv secrets in the all.config.json file', async () => {
+        const CMD = `frodo esv secret list -uf test/e2e/exports/all/all.config.json`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo esv secret list --usage --long --file test/e2e/exports/all/Alpha.everything.json": should list the ids, active/loaded versions, statuses, descriptions, modifiers, modified times, and usage of the esv secrets in the Alpha.everything.json file', async () => {
-        const CMD = `frodo esv secret list --usage --long --file test/e2e/exports/all/Alpha.everything.json`;
+    test('"frodo esv secret list --usage --long --file test/e2e/exports/all/all.config.json": should list the ids, active/loaded versions, statuses, descriptions, modifiers, modified times, and usage of the esv secrets in the all.config.json file', async () => {
+        const CMD = `frodo esv secret list --usage --long --file test/e2e/exports/all/all.config.json`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

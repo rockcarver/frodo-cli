@@ -1,10 +1,17 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
+import { AuthenticationSettingsSkeleton } from '@rockcarver/frodo-lib/types/api/AuthenticationSettingsApi';
+import {
+  FullExportInterface,
+  FullGlobalExportInterface,
+  FullRealmExportInterface,
+} from '@rockcarver/frodo-lib/types/ops/ConfigOps';
+import { ExportMetaData } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import fs from 'fs';
 import os from 'os';
 import slugify from 'slugify';
 
 import { getIdmImportDataFromIdmDirectory } from '../ops/IdmOps';
+import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
 import { printMessage } from './Console';
 
 const { getFilePath, readFiles } = frodo.utils;
@@ -62,7 +69,7 @@ export function getNoiseFilters(defaults: boolean): Array<string> {
  * Gets the full export config from one of three locations:
  * 1. The file passed into the function if one is provided.
  * 2. The working directory if it exists (provided by the user)
- * 3. The cloud tenant if the exports are not locally provided
+ * 3. From deployment (e.g. cloud) if the exports are not locally provided
  * @param file The optional file path
  * @returns The full export config
  */
@@ -97,75 +104,140 @@ export async function getFullExportConfig(
 export async function getFullExportConfigFromDirectory(
   directory: string
 ): Promise<FullExportInterface> {
-  const fullExportConfig = {
-    meta: {},
-    agents: {},
-    application: {},
-    authentication: {},
-    config: {},
-    emailTemplate: {},
-    idp: {},
-    managedApplication: {},
-    policy: {},
-    policyset: {},
-    resourcetype: {},
-    saml: {
-      hosted: {},
-      remote: {},
-      metadata: {},
-      cot: {},
+  const realms = fs.readdirSync(directory + '/realm');
+  const fullExportConfig: FullExportInterface = {
+    meta: {} as ExportMetaData,
+    global: {
+      emailTemplate: {},
+      idm: {},
+      mapping: {},
+      secrets: {},
+      service: {},
+      sync: {
+        id: 'sync',
+        mappings: [],
+      },
+      variables: {},
     },
-    script: {},
-    secrets: {},
-    service: {},
-    theme: {},
-    trees: {},
-    variables: {},
+    realm: Object.fromEntries(
+      realms.map((r) => [
+        r,
+        {
+          agents: {},
+          application: {},
+          authentication: {} as AuthenticationSettingsSkeleton,
+          idp: {},
+          managedApplication: {},
+          policy: {},
+          policyset: {},
+          resourcetype: {},
+          saml: {
+            hosted: {},
+            remote: {},
+            metadata: {},
+            cot: {},
+          },
+          script: {},
+          service: {},
+          theme: {},
+          trees: {},
+        },
+      ])
+    ),
   } as FullExportInterface;
+  // Get global
+  await getConfigFromDirectory(directory + '/global', fullExportConfig.global);
+  // Get realms
+  for (const realm of realms) {
+    await getConfigFromDirectory(
+      directory + '/realm/' + realm,
+      fullExportConfig.realm[realm]
+    );
+  }
+  return fullExportConfig;
+}
+
+async function getConfigFromDirectory(
+  directory: string,
+  exportConfig: FullGlobalExportInterface | FullRealmExportInterface
+) {
+  const samlPath = `${directory}/saml/`;
+  const cotPath = `${directory}/cot/`;
+  const idmPath = `${directory}/idm/`;
+  const syncPath = `${directory}/sync/`;
+
   const files = await readFiles(directory);
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
   const samlFiles = jsonFiles.filter(
-    (f) => f.path.startsWith('saml/') || f.path.startsWith('cot/')
+    (f) => f.path.startsWith(samlPath) || f.path.startsWith(cotPath)
   );
-  const otherFiles = jsonFiles.filter(
+  const syncFiles = jsonFiles.filter((f) => f.path.startsWith(syncPath));
+  const allOtherFiles = jsonFiles.filter(
     (f) =>
-      !f.path.startsWith('config/') &&
-      !f.path.startsWith('saml/') &&
-      !f.path.startsWith('cot/')
+      !f.path.startsWith(samlPath) &&
+      !f.path.startsWith(cotPath) &&
+      !f.path.startsWith(idmPath) &&
+      !f.path.startsWith(syncPath)
   );
   const scriptFiles = files.filter(
     (f) => f.path.endsWith('.js') || f.path.endsWith('.groovy')
   );
-  // Handle json files
-  for (const f of otherFiles) {
-    for (const [id, value] of Object.entries(JSON.parse(f.content))) {
-      if (value == null || fullExportConfig[id] == null) {
+  // Handle all other json files
+  for (const f of allOtherFiles) {
+    for (const [id, value] of Object.entries(
+      JSON.parse(f.content) as Record<string, Record<string, object>>
+    )) {
+      if (id === 'meta') {
         continue;
       }
-      Object.assign(fullExportConfig[id], value);
+      if (exportConfig[id] == null) {
+        exportConfig[id] = value;
+      } else {
+        Object.entries(value).forEach(([key, val]) => {
+          exportConfig[id][key] = val;
+        });
+      }
     }
+  }
+  // Handle idm files
+  if (fs.existsSync(idmPath)) {
+    (exportConfig as FullGlobalExportInterface).idm =
+      await getIdmImportDataFromIdmDirectory(idmPath);
+  }
+  // Handle sync files
+  if (syncFiles.length) {
+    (exportConfig as FullGlobalExportInterface).sync =
+      await getLegacyMappingsFromFiles(syncFiles);
   }
   // Handle saml files
   for (const f of samlFiles) {
     let content = JSON.parse(f.content);
     content = content.saml;
-    for (const [id, value] of Object.entries(content)) {
-      Object.assign(fullExportConfig.saml[id], value);
+    for (const [id, value] of Object.entries(
+      content as Record<string, object>
+    )) {
+      if ((exportConfig as FullRealmExportInterface).saml[id] == null) {
+        (exportConfig as FullRealmExportInterface).saml[id] = value;
+      } else {
+        Object.entries(value).forEach(
+          ([key, val]) =>
+            ((exportConfig as FullRealmExportInterface).saml[id][key] = val)
+        );
+      }
     }
   }
-  // Handle idm config files
-  if (fs.existsSync(directory + '/config')) {
-    fullExportConfig.config = await getIdmImportDataFromIdmDirectory(
-      directory + '/config'
-    );
-  }
   // Handle extracted scripts, adding them to their corresponding script objects in the export
-  if (scriptFiles.length > 0 && fullExportConfig.script != null) {
-    const scriptExports = Object.values(fullExportConfig.script);
+  if (
+    scriptFiles.length > 0 &&
+    (exportConfig as FullRealmExportInterface).script != null
+  ) {
+    const scriptExports = Object.values(
+      (exportConfig as FullRealmExportInterface).script
+    );
     for (const f of scriptFiles) {
       const name = f.path.substring(
         f.path.lastIndexOf('/') + 1,
-        f.path.indexOf('.', f.path.lastIndexOf('/'))
+        f.path.indexOf('.script.', f.path.lastIndexOf('/'))
       );
       const scriptLines = f.content.split('\n');
       const script = scriptExports.find(
@@ -182,7 +254,6 @@ export async function getFullExportConfigFromDirectory(
       script.script = scriptLines;
     }
   }
-  return fullExportConfig;
 }
 
 /**

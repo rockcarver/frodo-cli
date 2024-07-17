@@ -51,6 +51,7 @@ const agentTypeToFileIdMap = {
 
 /**
  * List agents
+ * @param {boolean} [long=false] detailed list
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function listAgents(long: boolean = false): Promise<boolean> {
@@ -1306,7 +1307,6 @@ export async function deleteWebAgent(agentId: string): Promise<boolean> {
 
 /**
  * Delete agents
- * @param {string} agentId agent id/name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteAgents(): Promise<boolean> {
@@ -1321,7 +1321,6 @@ export async function deleteAgents(): Promise<boolean> {
 
 /**
  * Delete identity gateway agents
- * @param {string} agentId agent id/name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteIdentityGatewayAgents(): Promise<boolean> {
@@ -1336,7 +1335,6 @@ export async function deleteIdentityGatewayAgents(): Promise<boolean> {
 
 /**
  * Delete java agents
- * @param {string} agentId agent id/name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteJavaAgents(): Promise<boolean> {
@@ -1351,7 +1349,6 @@ export async function deleteJavaAgents(): Promise<boolean> {
 
 /**
  * Delete web agents
- * @param {string} agentId agent id/name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteWebAgents(): Promise<boolean> {

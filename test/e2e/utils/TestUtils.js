@@ -153,3 +153,19 @@ function getFilePaths(directoryPath, recursive = false) {
     });
   return paths;
 }
+
+/**
+ * Returns env for testing given connection info
+ * @param connection The connection info
+ * @returns {{env: {[p: string]: string | undefined, FRODO_SA_JWK: (string|(JwkInterface & {d: string, dp: string, dq: string, e: string, n: string, p: string, q: string, qi: string})|JwkRsa|*), TZ?: string, FRODO_HOST, FRODO_SA_ID: (string|string|*)}}} The env object
+ */
+export function getEnv(connection = undefined) {
+  return {
+    env: {
+      ...process.env,
+      FRODO_HOST: connection?.host,
+      FRODO_SA_ID: connection?.saId,
+      FRODO_SA_JWK: connection?.saJwk,
+    },
+  };
+}

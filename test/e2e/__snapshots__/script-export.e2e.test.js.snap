@@ -2220,7 +2220,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       //logger.message('Seguin normalizedProfileData: '+normalizedProfileData);
 
     return normalizedProfileData;
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/ADFS-Profile-Normalization-(JS).script.json 1`] = `
@@ -3748,7 +3749,8 @@ return json(object(
         field("id", rawProfile.user_id),
         field("displayName", rawProfile.name),
         field("email", rawProfile.email),
-        field("username", rawProfile.email)))"
+        field("username", rawProfile.email)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Amazon-Profile-Normalization.script.json 1`] = `
@@ -3821,7 +3823,8 @@ return json(object(
         field("email", email),
         field("givenName", firstName),
         field("familyName", lastName),
-        field("username", username)))"
+        field("username", username)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Apple-Profile-Normalization.script.json 1`] = `
@@ -3897,7 +3900,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
     else {
         outcome = "unknown";
     }
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Check-Username.script.json 1`] = `
@@ -3987,7 +3991,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
 config = {
     "key0": {"subKey": "value0"},
     "key1": "value1"
-};"
+};
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Config-Provider-Node-Script.script.json 1`] = `
@@ -4016,7 +4021,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
  * Custom Device Match Script
  */
 
-outcome = "true";"
+outcome = "true";
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Custom-Device-Match-Script.script.json 1`] = `
@@ -5255,7 +5261,8 @@ if (storedProfiles) {
             outcome = 'false';
         }
     }
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Device-Profile-Match-Template-Decision-Node-Script.script.json 1`] = `
@@ -5299,7 +5306,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.picture.data.url),
         field("email", rawProfile.email),
-        field("username", rawProfile.email)))"
+        field("username", rawProfile.email)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Facebook-Profile-Normalization.script.json 1`] = `
@@ -6017,7 +6025,8 @@ import static org.forgerock.json.JsonValue.object
 return json(object(
         field("id", rawProfile.id),
         field("displayName", rawProfile.name),
-        field("username", rawProfile.login)))"
+        field("username", rawProfile.login)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/GitHub-Profile-Normalization.script.json 1`] = `
@@ -6063,7 +6072,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.picture.data.url),
         field("email", rawProfile.email),
-        field("username", rawProfile.email)))"
+        field("username", rawProfile.email)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/GitHub-Profile-Normalization-(VS).script.json 1`] = `
@@ -6108,7 +6118,8 @@ return json(object(
         field("photoUrl", rawProfile.picture),
         field("email", rawProfile.email),
         field("username", rawProfile.email),
-        field("locale", rawProfile.locale)))"
+        field("locale", rawProfile.locale)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Google-Profile-Normalization.script.json 1`] = `
@@ -6137,7 +6148,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
  * Inactive Device Match Script
  */
 
-outcome = "true";"
+outcome = "true";
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Inactive-Device-Match-Script.script.json 1`] = `
@@ -6176,7 +6188,8 @@ import static org.forgerock.json.JsonValue.object
 
 return json(object(
         field("id", rawProfile.id),
-        field("username", rawProfile.username)))"
+        field("username", rawProfile.username)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Instagram-Profile-Normalization.script.json 1`] = `
@@ -6222,7 +6235,8 @@ JsonValue managedUser = json(object(
         field("familyName", rawProfile.family_name),
         field("username", rawProfile.email),
         field("email", rawProfile.email)))
-return managedUser"
+return managedUser
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Itsme-Profile-Normalization.script.json 1`] = `
@@ -6265,7 +6279,8 @@ return json(object(
         field("familyName", rawProfile.lastName.localized.get(0)),
         field("photoUrl", rawProfile.profilePicture.displayImage),
         field("email", rawProfile.elements.get(0).get("handle~").emailAddress),
-        field("username", rawProfile.elements.get(0).get("handle~").emailAddress)))"
+        field("username", rawProfile.elements.get(0).get("handle~").emailAddress)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/LinkedIn-Profile-Normalization.script.json 1`] = `
@@ -6308,7 +6323,8 @@ return json(object(
         field("givenName", rawProfile.givenName),
         field("familyName", rawProfile.surname),
         field("email", rawProfile.userPrincipalName),
-        field("username", rawProfile.userPrincipalName)))"
+        field("username", rawProfile.userPrincipalName)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Microsoft-Profile-Normalization.script.json 1`] = `
@@ -6355,7 +6371,8 @@ JsonValue identity = json(object(
         field("userName", normalizedProfile.username),
         field("iplanet-am-user-alias-list", selectedIdp + '-' + normalizedProfile.id.asString())))
 
-return identity"
+return identity
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Normalized-Profile-to-Identity.script.json 1`] = `
@@ -6691,7 +6708,8 @@ function logResponse(response) {
 };
 
 addAdditionalData();
-*/"
+*/
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/OAuth2-Authorize-Endpoint-Data-Provider-Script.script.json 1`] = `
@@ -6767,7 +6785,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
         logger.error('identity is null');
     }
     return map;
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/OAuth2-Evaluate-Scope-Script.script.json 1`] = `
@@ -6866,7 +6885,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
     );
     return config;
 }());
-*/"
+*/
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/OAuth2-JWT-Issuer-Script.script.json 1`] = `
@@ -6932,7 +6952,8 @@ token.setMayAct(
     JsonValue.json(JsonValue.object(
         JsonValue.field("client_id", "myClient"), 
         JsonValue.field("sub", "(usr!myActor)"))))
-*/"
+*/
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/OAuth2-May-Act-Script.script.json 1`] = `
@@ -7041,7 +7062,8 @@ function validateRefreshTokenScope () {
 
 function validateBackChannelAuthorizationScope () {
     return validateScopes();
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/OAuth2-Validate-Scope-Script.script.json 1`] = `
@@ -7732,7 +7754,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.picture.data.url),
         field("email", rawProfile.email),
-        field("username", rawProfile.preferred_username)))"
+        field("username", rawProfile.preferred_username)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Okta-Profile-Normalization.script.json 1`] = `
@@ -7906,7 +7929,8 @@ function preSignResponse () {
  *     logger
  */
 function preSendFailureResponse () {
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/SAML2-IDP-Adapter-Script.script.json 1`] = `
@@ -8090,7 +8114,8 @@ function getAttributes() {
     }
 }
 
-getAttributes();"
+getAttributes();
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/SAML2-IDP-Attribute-Mapper-Script.script.json 1`] = `
@@ -8341,7 +8366,8 @@ function preSingleLogoutProcess() {
  *     logger
  */
 function postSingleLogoutSuccess() {
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/SAML2-SP-Adapter-Script.script.json 1`] = `
@@ -8386,7 +8412,8 @@ return json(object(
         field("photoUrl", rawProfile.picture),
         field("email", rawProfile.email),
         field("username", rawProfile.email),
-        field("locale", rawProfile.zoneInfo)))"
+        field("locale", rawProfile.zoneInfo)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Salesforce-Profile-Normalization.script.json 1`] = `
@@ -8567,7 +8594,8 @@ function preSignResponse () {
  */
 function preSendFailureResponse () {
       logger.error("Chicago: preSendFailureResponse");
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Saml2-IDP-Adapter-Always-Auth.script.json 1`] = `
@@ -8910,7 +8938,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
  * to such license between the licensee and ForgeRock AS.
  */
 
-/* Default Social Identity Provider Profile Transformation script to use as a template for new scripts */"
+/* Default Social Identity Provider Profile Transformation script to use as a template for new scripts */
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Social-Identity-Provider-Profile-Transformation-Script.script.json 1`] = `
@@ -8940,7 +8969,8 @@ const c2 = systemEnv.getProperty("esv.test.variable.light");
 console.log(\`E = \${42 * c2 * c2}\`);
 // Calculate the area of a circle with radius r = 42
 const pi = parseFloat(systemEnv.getProperty("esv.test.secret.pi"));
-console.log(\`A = \${pi * 42 * 42}\`);"
+console.log(\`A = \${pi * 42 * 42}\`);
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Test-Script-1.script.json 1`] = `
@@ -8982,7 +9012,8 @@ return json(object(
         field("displayName", rawProfile.name),
         field("photoUrl", rawProfile.profile_image_url),
         field("email", rawProfile.email),
-        field("username", rawProfile.screen_name)))"
+        field("username", rawProfile.screen_name)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Twitter-Profile-Normalization.script.json 1`] = `
@@ -9039,7 +9070,8 @@ if (sharedState.get("uopCurrentClassID")) {
 } else {
     logger.error("UOP Enrich Session: no classes!");
     logger.warning("UOP Enrich Session: End (outcome=".concat(outcome).concat(")"));
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/UOP-Enrich-Session.script.json 1`] = `
@@ -9083,7 +9115,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.photo_50),
         field("email", rawProfile.email),
-        field("username", rawProfile.email)))"
+        field("username", rawProfile.email)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/VKontakte-Profile-Normalization.script.json 1`] = `
@@ -9124,7 +9157,8 @@ return json(object(
         field("id", rawProfile.openid),
         field("displayName", rawProfile.nickname),
         field("photoUrl", rawProfile.headimgurl),
-        field("username", rawProfile.nickname)))"
+        field("username", rawProfile.nickname)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/WeChat-Profile-Normalization.script.json 1`] = `
@@ -9166,7 +9200,8 @@ return json(object(
         field("displayName", rawProfile.display_name),
         field("photoUrl", rawProfile.avatar_URL),
         field("email", rawProfile.email),
-        field("username", rawProfile.username)))"
+        field("username", rawProfile.username)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/WordPress-Profile-Normalization.script.json 1`] = `
@@ -9211,7 +9246,8 @@ return json(object(
         field("photoUrl", rawProfile.picture),
         field("email", rawProfile.email),
         field("username", rawProfile.email),
-        field("locale", rawProfile.locale)))"
+        field("locale", rawProfile.locale)))
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/Yahoo-Profile-Normalization.script.json 1`] = `
@@ -9296,7 +9332,8 @@ function generateNumericToken(format) {
         var v = r;
         return v.toString(10);
     });
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/debug.script.json 1`] = `
@@ -9325,7 +9362,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
   outcome = 'true';
   var level = nodeState.get('level').asInteger();
   sharedState.put('level' + level + 'Value', 'Level ' + level + ': This is a longer string value set at each level of the nested journeys. It contains an indicator in which level it was set.');
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/level.script.json 1`] = `
@@ -9391,7 +9429,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
       action = fr.Action.goTo(choices[choice]).build();
     }
   }
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/mode.script.json 1`] = `
@@ -9420,7 +9459,8 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
   outcome = 'true';
   var level = nodeState.get('level').asInteger();
   sharedState.put('sharedValue', 'Level ' + level + ': This is a longer string value shared across all nested journeys. It contains an indicator in which level it was last set.');
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4: scriptExportTestDir4/shared.script.json 1`] = `
@@ -11833,7 +11873,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       //logger.message('Seguin normalizedProfileData: '+normalizedProfileData);
 
     return normalizedProfileData;
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/ADFS-Profile-Normalization-(JS).script.json 1`] = `
@@ -13365,7 +13406,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     else {
         outcome = "unknown";
     }
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Check-Username.script.json 1`] = `
@@ -13394,7 +13436,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
  * Custom Device Match Script
  */
 
-outcome = "true";"
+outcome = "true";
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Custom-Device-Match-Script.script.json 1`] = `
@@ -13440,7 +13483,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.picture.data.url),
         field("email", rawProfile.email),
-        field("username", rawProfile.email)))"
+        field("username", rawProfile.email)))
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/GitHub-Profile-Normalization-(VS).script.json 1`] = `
@@ -13469,7 +13513,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
  * Inactive Device Match Script
  */
 
-outcome = "true";"
+outcome = "true";
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Inactive-Device-Match-Script.script.json 1`] = `
@@ -13515,7 +13560,8 @@ return json(object(
         field("familyName", rawProfile.last_name),
         field("photoUrl", rawProfile.picture.data.url),
         field("email", rawProfile.email),
-        field("username", rawProfile.preferred_username)))"
+        field("username", rawProfile.preferred_username)))
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Okta-Profile-Normalization.script.json 1`] = `
@@ -13696,7 +13742,8 @@ function preSignResponse () {
  */
 function preSendFailureResponse () {
       logger.error("Chicago: preSendFailureResponse");
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Saml2-IDP-Adapter-Always-Auth.script.json 1`] = `
@@ -13726,7 +13773,8 @@ const c2 = systemEnv.getProperty("esv.test.variable.light");
 console.log(\`E = \${42 * c2 * c2}\`);
 // Calculate the area of a circle with radius r = 42
 const pi = parseFloat(systemEnv.getProperty("esv.test.secret.pi"));
-console.log(\`A = \${pi * 42 * 42}\`);"
+console.log(\`A = \${pi * 42 * 42}\`);
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/Test-Script-1.script.json 1`] = `
@@ -13783,7 +13831,8 @@ if (sharedState.get("uopCurrentClassID")) {
 } else {
     logger.error("UOP Enrich Session: no classes!");
     logger.warning("UOP Enrich Session: End (outcome=".concat(outcome).concat(")"));
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/UOP-Enrich-Session.script.json 1`] = `
@@ -13868,7 +13917,8 @@ function generateNumericToken(format) {
         var v = r;
         return v.toString(10);
     });
-}"
+}
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/debug.script.json 1`] = `
@@ -13897,7 +13947,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
   outcome = 'true';
   var level = nodeState.get('level').asInteger();
   sharedState.put('level' + level + 'Value', 'Level ' + level + ': This is a longer string value set at each level of the nested journeys. It contains an indicator in which level it was set.');
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/level.script.json 1`] = `
@@ -13963,7 +14014,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
       action = fr.Action.goTo(choices[choice]).build();
     }
   }
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/mode.script.json 1`] = `
@@ -13992,7 +14044,8 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
   outcome = 'true';
   var level = nodeState.get('level').asInteger();
   sharedState.put('sharedValue', 'Level ' + level + ': This is a longer string value shared across all nested journeys. It contains an indicator in which level it was last set.');
-}());"
+}());
+"
 `;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3: scriptExportTestDir3/shared.script.json 1`] = `
@@ -16162,7 +16215,8 @@ import static org.forgerock.json.JsonValue.object
 return json(object(
         field("id", rawProfile.id),
         field("displayName", rawProfile.name),
-        field("username", rawProfile.login)))"
+        field("username", rawProfile.login)))
+"
 `;
 
 exports[`frodo script export "frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1: scriptExportTestDir1/GitHub-Profile-Normalization.script.json 1`] = `

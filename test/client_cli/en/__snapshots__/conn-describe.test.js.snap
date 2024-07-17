@@ -27,7 +27,7 @@ Options:
                                specified, may or may not produce additional
                                output.
 
-Evironment Variables:
+Environment Variables:
   FRODO_HOST: Access Management base URL. Overrides 'host' argument.
   FRODO_REALM: Realm. Overrides 'realm' argument.
   FRODO_USERNAME: Username. Overrides 'username' argument.

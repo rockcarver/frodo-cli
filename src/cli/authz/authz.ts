@@ -5,7 +5,7 @@ import TypeCmd from './authz-type.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('authz').description(
-    'Manage authotiztion policies, policy sets, and resource types.'
+    'Manage authorization policies, policy sets, and resource types.'
   );
 
   program.addCommand(SetCmd().name('set'));
