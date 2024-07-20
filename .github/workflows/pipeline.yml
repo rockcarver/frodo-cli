@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 18
+  NODE_VERSION: 22.4.x
 
 jobs:
   build:
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22, 20, 18]
+        node-version: [22.4.x, 20, 18]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Service containers to run with `test`
@@ -296,7 +296,7 @@ jobs:
       - name: Add next tag
         if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
         run: |
-          export INPUT_TOKEN=${{ secrets.NPM_ACCESS_TOKEN }}
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> ~/.npmrc
           npm whoami
           npm dist-tag add @rockcarver/frodo-cli@${{ needs.build.outputs.newVersion }} next
 
