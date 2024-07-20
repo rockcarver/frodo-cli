@@ -7,6 +7,236 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### Based on Frodo Library 2.x
+
+[Frodo Library 2.x](https://github.com/rockcarver/frodo-lib?tab=readme-ov-file#frodo-library-2x---rockcarverfrodo-lib) greatly improves on its 1.x branch with more stabilty, more modules, token caching, automatic token refresh, better error handling, and more.
+
+#### New and updated commands
+
+| Command                                          |  Since  | Description                                                            |
+| ------------------------------------------------ | :-----: | ---------------------------------------------------------------------- |
+| frodo admin                                      |  1.0.0  | Platform admin tasks.                                                  |
+| &emsp;add-autoid-static-user-mapping             |  1.0.0  | Add AutoId static user mapping to enable dashboards.                   |
+| &emsp;create-oauth2-client-with-admin-privileges |  1.0.0  | Create an oauth2 client with admin privileges.                         |
+| &emsp;execute-rfc7523-authz-grant-flow           | `2.0.0` | Execute RFC7523 authorization grant flow.                              |
+| &emsp;federation                                 |  1.0.0  | Manages admin federation configuration.                                |
+| &emsp;generate-rfc7523-authz-grant-artefacts     | `2.0.0` | Generate RFC7523 authorization grant artefacts.                        |
+| &emsp;get-access-token                           |  1.0.0  | Get an access token using client credentials grant type.               |
+| &emsp;grant-oauth2-client-admin-privileges       |  1.0.0  | Grant an oauth2 client admin privileges.                               |
+| &emsp;hide-generic-extension-attributes          |  1.0.0  | Hide generic extension attributes.                                     |
+| &emsp;list-oauth2-clients-with-admin-privileges  |  1.0.0  | List oauth2 clients with admin privileges.                             |
+| &emsp;list-oauth2-clients-with-custom-privileges |  1.0.0  | List oauth2 clients with custom privileges.                            |
+| &emsp;list-static-user-mappings                  |  1.0.0  | List all subjects of static user mappings that are not oauth2 clients. |
+| &emsp;remove-static-user-mapping                 |  1.0.0  | Remove a subject's static user mapping.                                |
+| &emsp;repair-org-model                           |  1.0.0  | Repair org model.                                                      |
+| &emsp;revoke-oauth2-client-admin-privileges      |  1.0.0  | Revoke admin privileges from an oauth2 client.                         |
+| &emsp;show-generic-extension-attributes          |  1.0.0  | Show generic extension attributes.                                     |
+|                                                  |         |                                                                        |
+| frodo agent                                      |  1.0.0  | Manage agents.                                                         |
+| &emsp;delete                                     |  1.0.0  | Delete agents.                                                         |
+| &emsp;describe                                   |  1.0.0  | Describe agents.                                                       |
+| &emsp;export                                     |  1.0.0  | Export agents.                                                         |
+| &emsp;gateway / ig                               |  1.0.0  | Manage gateway agents.                                                 |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete identity gateway agents.                                        |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe gateway agents.                                               |
+| &emsp;&emsp;export                               |  1.0.0  | Export gateway agents.                                                 |
+| &emsp;import                                     |  1.0.0  | Import gateway agents.                                                 |
+| &emsp;list                                       |  1.0.0  | List gateway agents.                                                   |
+| &emsp;import                                     |  1.0.0  | Import agents.                                                         |
+| &emsp;java                                       |  1.0.0  | Manage java agents.                                                    |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete java agents.                                                    |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe java agents.                                                  |
+| &emsp;&emsp;export                               |  1.0.0  | Export java agents.                                                    |
+| &emsp;&emsp;import                               |  1.0.0  | Import java agents.                                                    |
+| &emsp;&emsp;list                                 |  1.0.0  | List java agents.                                                      |
+| &emsp;list                                       |  1.0.0  | List agents.                                                           |
+| &emsp;web                                        |  1.0.0  | Manage web agents.                                                     |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete web agents.                                                     |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe web agents.                                                   |
+| &emsp;&emsp;export                               |  1.0.0  | Export web agents.                                                     |
+| &emsp;&emsp;import                               |  1.0.0  | Import web agents.                                                     |
+| &emsp;&emsp;list                                 |  1.0.0  | List web agents.                                                       |
+|                                                  |         |                                                                        |
+| frodo authn                                      | `2.0.0` | Manage authentication settings.                                        |
+| &emsp;describe                                   | `2.0.0` | Describe authentication settings.                                      |
+| &emsp;export                                     | `2.0.0` | Export authentication settings.                                        |
+| &emsp;import                                     | `2.0.0` | Import authentication settings.                                        |
+|                                                  |         |                                                                        |
+| frodo authz                                      |  1.0.0  | Manage authorization policies, policy sets, and resource types.        |
+| &emsp;policy                                     |  1.0.0  | Manages authorization policies.                                        |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policies.                                         |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policies.                                       |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization policies.                                         |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization policies.                                         |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization policies.                                           |
+| &emsp;set / policyset                            |  1.0.0  | Manage authorization policy sets.                                      |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization policy sets.                                      |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization policy sets.                                    |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization policy sets.                                      |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization policy sets.                                      |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization policy sets.                                        |
+| &emsp;type                                       |  1.0.0  | Manage authorization resource types.                                   |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete authorization resource types.                                   |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe authorization resource types.                                 |
+| &emsp;&emsp;export                               |  1.0.0  | Export authorization resource types.                                   |
+| &emsp;&emsp;import                               |  1.0.0  | Import authorization resource types.                                   |
+| &emsp;&emsp;list                                 |  1.0.0  | List authorization resource types.                                     |
+|                                                  |         |                                                                        |
+| frodo app / application                          | `2.0.0` | Old `app` renamed to `oauth`! Manage applications.                     |
+| &emsp;delete                                     | `2.0.0` | Delete applications.                                                   |
+| &emsp;export                                     | `2.0.0` | Export applications.                                                   |
+| &emsp;import                                     | `2.0.0` | Import applications.                                                   |
+| &emsp;list                                       | `2.0.0` | List applications.                                                     |
+| frodo config                                     | `2.0.0` | Manage full cloud configuration.                                       |
+| &emsp;export                                     | `2.0.0` | Export full cloud configuration.                                       |
+| &emsp;import                                     | `2.0.0` | Import full cloud configuration.                                       |
+|                                                  |         |                                                                        |
+| frodo conn / connection                          |  1.0.0  | Manage connection profiles.                                            |
+| &emsp;delete                                     |  1.0.0  | Delete connection profiles.                                            |
+| &emsp;describe                                   |  1.0.0  | Describe connection profile.                                           |
+| &emsp;list                                       |  1.0.0  | List connection profiles.                                              |
+| &emsp;save / add                                 |  1.0.0  | Save connection profiles.                                              |
+|                                                  |         |                                                                        |
+| frodo email                                      |  1.0.0  | Manage email templates and configuration.                              |
+| &emsp;template                                   |  1.0.0  | Manage email templates.                                                |
+| &emsp;&emsp;export                               |  1.0.0  | Export email templates.                                                |
+| &emsp;&emsp;import                               |  1.0.0  | Import email templates.                                                |
+| &emsp;&emsp;list                                 |  1.0.0  | List email templates.                                                  |
+|                                                  |         |                                                                        |
+| frodo esv                                        |  1.0.0  | Manage environment secrets and variables (ESVs).                       |
+| &emsp;apply                                      |  1.0.0  | Apply pending changes to secrets and variables.                        |
+| &emsp;secret                                     |  1.0.0  | Manages secrets.                                                       |
+| &emsp;&emsp;create                               |  1.0.0  | Create secrets.                                                        |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete secrets.                                                        |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe secrets.                                                      |
+| &emsp;&emsp;export                               | `2.0.0` | Export secrets.                                                        |
+| &emsp;&emsp;import                               | `2.0.0` | Import secrets.                                                        |
+| &emsp;&emsp;list                                 |  1.0.0  | List secrets.                                                          |
+| &emsp;&emsp;set                                  |  1.0.0  | Set secret description.                                                |
+| &emsp;&emsp;version                              |  1.0.0  | Manage secret versions.                                                |
+| &emsp;variable                                   |  1.0.0  | Manage variables.                                                      |
+| &emsp;&emsp;create                               |  1.0.0  | Create variables.                                                      |
+| &emsp;&emsp;delete                               |  1.0.0  | Delete variables.                                                      |
+| &emsp;&emsp;describe                             |  1.0.0  | Describe variables.                                                    |
+| &emsp;&emsp;export                               | `2.0.0` | Export variables.                                                      |
+| &emsp;&emsp;import                               | `2.0.0` | Import variables.                                                      |
+| &emsp;&emsp;list                                 |  1.0.0  | List variables.                                                        |
+| &emsp;&emsp;set                                  |  1.0.0  | Set variable description.                                              |
+|                                                  |         |                                                                        |
+| frodo idm                                        |  1.0.0  | Manage IDM configuration.                                              |
+| &emsp;count                                      |  1.0.0  | Count managed objects.                                                 |
+| &emsp;export                                     |  1.0.0  | Export IDM configuration objects.                                      |
+| &emsp;import                                     |  1.0.0  | Import IDM configuration objects.                                      |
+| &emsp;list                                       |  1.0.0  | List IDM configuration objects.                                        |
+|                                                  |         |                                                                        |
+| frodo idp                                        |  1.0.0  | Manage (social) identity providers.                                    |
+| &emsp;export                                     |  1.0.0  | Export (social) identity providers.                                    |
+| &emsp;import                                     |  1.0.0  | Import (social) identity providers.                                    |
+| &emsp;list                                       |  1.0.0  | List (social) identity providers.                                      |
+|                                                  |         |                                                                        |
+| frodo info                                       |  1.0.0  | Print versions and tokens.                                             |
+|                                                  |         |                                                                        |
+| frodo journey                                    |  1.0.0  | Manage journeys/trees.                                                 |
+| &emsp;delete                                     |  1.0.0  | Delete journeys/trees.                                                 |
+| &emsp;describe                                   |  1.0.0  | Describe journeys/trees.                                               |
+| &emsp;disable                                    |  1.0.0  | Disable journeys/trees.                                                |
+| &emsp;enable                                     |  1.0.0  | Enable journeys/trees.                                                 |
+| &emsp;export                                     |  1.0.0  | Export journeys/trees.                                                 |
+| &emsp;import                                     |  1.0.0  | Import journey/tree.                                                   |
+| &emsp;list                                       |  1.0.0  | List journeys/trees.                                                   |
+| &emsp;prune                                      |  1.0.0  | Prune orphaned configuration artifacts.                                |
+|                                                  |         |                                                                        |
+| frodo log / logs                                 |  1.0.0  | List/View Identity Cloud logs                                          |
+| &emsp;fetch                                      |  1.0.0  | Fetch Identity Cloud logs.                                             |
+| &emsp;key                                        |  1.0.0  | Manage Identity Cloud log API keys.                                    |
+| &emsp;list                                       |  1.0.0  | List available ID Cloud log sources.                                   |
+| &emsp;tail                                       |  1.0.0  | Tail Identity Cloud logs.                                              |
+|                                                  |         |                                                                        |
+| frodo mapping                                    | `2.0.0` | Manage IDM mappings.                                                   |
+| &emsp;delete                                     | `2.0.0` | Delete IDM mappings.                                                   |
+| &emsp;export                                     | `2.0.0` | Export IDM mappings.                                                   |
+| &emsp;import                                     | `2.0.0` | Import IDM mappings.                                                   |
+| &emsp;list                                       | `2.0.0` | List IDM mappings.                                                     |
+| &emsp;rename                                     | `2.0.0` | Renames mappings from legacy to new naming scheme.                     |
+|                                                  |         |                                                                        |
+| frodo oauth                                      | `2.0.0` | Renamed from `app`! Manage OAuth2 clients and providers.               |
+| &emsp;client                                     | `2.0.0` | Manage OAuth2 clients.                                                 |
+| &emsp;&emsp;export                               | `2.0.0` | Export OAuth2 clients.                                                 |
+| &emsp;&emsp;import                               | `2.0.0` | Import OAuth2 clients.                                                 |
+| &emsp;&emsp;list                                 | `2.0.0` | List OAuth2 clients.                                                   |
+|                                                  |         |                                                                        |
+| frodo realm                                      |  1.0.0  | Manage realms.                                                         |
+| &emsp;add-custom-domain                          |  1.0.0  | Add custom domain (realm DNS alias).                                   |
+| &emsp;describe / details                         |  1.0.0  | Describe realms.                                                       |
+| &emsp;list                                       |  1.0.0  | List realms.                                                           |
+| &emsp;remove-custom-domain                       |  1.0.0  | Remove custom domain (realm DNS alias).                                |
+|                                                  |         |                                                                        |
+| frodo saml                                       |  1.0.0  | Manage SAML entity providers and circles of trust.                     |
+| &emsp;cot                                        |  1.0.0  | Manage circles of trust.                                               |
+| &emsp;&emsp;export                               |  1.0.0  | Export SAML circles of trust.                                          |
+| &emsp;&emsp;import                               |  1.0.0  | Import SAML circles of trust.                                          |
+| &emsp;&emsp;list                                 |  1.0.0  | List SAML circles of trust.                                            |
+| &emsp;delete                                     |  1.0.0  | Delete SAML entity providers.                                          |
+| &emsp;describe                                   |  1.0.0  | Describe the configuration of an entity provider.                      |
+| &emsp;export                                     |  1.0.0  | Export SAML entity providers.                                          |
+| &emsp;import                                     |  1.0.0  | Import SAML entity providers.                                          |
+| &emsp;list                                       |  1.0.0  | List SAML entity providers.                                            |
+| &emsp;metadata                                   |  1.0.0  | SAML metadata operations.                                              |
+| &emsp;&emsp;export                               |  1.0.0  | Export metadata.                                                       |
+|                                                  |         |                                                                        |
+| frodo script                                     |  1.0.0  | Manage scripts.                                                        |
+| &emsp;delete                                     |  1.0.0  | Delete scripts.                                                        |
+| &emsp;export                                     |  1.0.0  | Export scripts.                                                        |
+| &emsp;import                                     |  1.0.0  | Import scripts.                                                        |
+| &emsp;list                                       |  1.0.0  | List scripts.                                                          |
+|                                                  |         |                                                                        |
+| frodo service                                    |  1.0.0  | Manage AM services.                                                    |
+| &emsp;delete                                     |  1.0.0  | Delete AM services.                                                    |
+| &emsp;export                                     |  1.0.0  | Export AM services.                                                    |
+| &emsp;import                                     |  1.0.0  | Import AM services.                                                    |
+| &emsp;list                                       |  1.0.0  | List AM services.                                                      |
+|                                                  |         |                                                                        |
+| frodo shell                                      | `2.0.0` | Launch the frodo interactive shell.                                    |
+|                                                  |         |                                                                        |
+| frodo theme                                      |  1.0.0  | Manage themes.                                                         |
+| &emsp;delete                                     |  1.0.0  | Delete themes.                                                         |
+| &emsp;export                                     |  1.0.0  | Export themes.                                                         |
+| &emsp;import                                     |  1.0.0  | Import themes.                                                         |
+| &emsp;list                                       |  1.0.0  | List themes.                                                           |
+|                                                  |         |                                                                        |
+| frodo help                                       |  1.0.0  | display help for command                                               |
+
+#### Global support for `-D`, `--directory` to set the working directory
+
+2.x globally supports `-D`, `--directory` to specify the working directory for any command that interacts with the file system, typically `export` and `import` sub-commands. 1.x did only allow to specify a working directory for the `idm` command. Frodo combines `-D` and `-f` into a single path, assuming `-f` to be a relative path to `-D` and `-D` defaulting to `.`, the current directory:
+
+To import the file `/absolute/path/to/working/directory/relative/path/to/file.variable.json`, one could construct any of the following commands:
+
+```console
+frodo esv variable export -f /absolute/path/to/working/directory/sub-path/to/file.variable.json <my-env>
+frodo esv variable export -D /absolute/path/to/working/directory/sub-path/to  -f file.variable.json <my-env>
+frodo esv variable export -D /absolute/path/to/working/directory -f sub-path/to/file.variable.json <my-env>
+```
+
+Alternatively, to import the file `/relative/path/to/working/directory/relative/path/to/file.variable.json`, one could construct any of the following commands:
+
+```console
+frodo esv variable export -f relative/path/to/working/directory/sub-path/to/file.variable.json <my-env>
+frodo esv variable export -D relative/path/to/working/directory/sub-path/to  -f file.variable.json <my-env>
+frodo esv variable export -D relative/path/to/working/directory -f sub-path/to/file.variable.json <my-env>
+```
+
+#### Secure Token Caching
+
+Frodo CLI 2.x uses a secure token cache, which is active by default. The cache is tokenized and encrypted on disk, so it persists across CLI executions, dramatically decreasing authentication and token requests. You can disable the cache by either using the `--no-cache` option or by setting the `FRODO_NO_CACHE` environment variable.
+You can change the default location of the cache file (`~/.frodo/TokenCache.json`) by setting the `FRODO_TOKEN_CACHE_PATH` environment variable.
+
+#### Automatic Token Refresh
+
+Frodo CLI 2.x automatically refreshes session and access tokens before they expire. Combined with the new token cache, the CLI maintains a set of valid tokens at all times.
+
 ## [2.0.0-70] - 2024-07-17
 
 ## [2.0.0-69] - 2024-07-15
