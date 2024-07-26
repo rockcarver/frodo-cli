@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -a --file my-allAlphaAgents.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -NaD agentExportTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -A
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export -AD agentExportTestDir4
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent export --all-separate --no-metadata --directory agentExportTestDir3
 */
 import { getEnv, testExport } from './utils/TestUtils';
@@ -101,9 +101,10 @@ describe('frodo agent export', () => {
         await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
-    test('"frodo agent export -A": should export all agents to separate files', async () => {
-        const CMD = `frodo agent export -A`;
-        await testExport(CMD, env, type);
+    test('"frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4', async () => {
+        const exportDirectory = "agentExportTestDir4";
+        const CMD = `frodo agent export -AD ${exportDirectory}`;
+        await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
     test('"frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3', async () => {

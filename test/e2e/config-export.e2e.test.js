@@ -65,6 +65,8 @@ import { connection as c } from './utils/TestConfig';
 import { classic_connection as cc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_CONNECTION_PROFILES_PATH'] =
+    './test/e2e/env/Connections.json';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
@@ -108,20 +110,20 @@ describe('frodo config export', () => {
     await testExport(CMD, env, undefined, undefined, exportDirectory, false);
   });
 
-  test.skip('"frodo config export -adND exportAllTestDir6 -m classic": should export everything, including default scripts, to a single file', async () => {
+  test('"frodo config export -adND exportAllTestDir6 -m classic": should export everything, including default scripts, to a single file', async () => {
     const exportFile = 'all.config.json';
     const exportDirectory = 'exportAllTestDir6';
     const CMD = `frodo config export -adND ${exportDirectory} -m classic`;
     await testExport(CMD, classicEnv, type, exportFile, exportDirectory, false);
   });
 
-  test.skip('"frodo config export --all --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything to a single file named testExportAll2.json with no decoding variables, no journey coordinates, and using string arrays', async () => {
+  test('"frodo config export --all --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything to a single file named testExportAll2.json with no decoding variables, no journey coordinates, and using string arrays', async () => {
     const exportFile = 'testExportAll2.json';
     const CMD = `frodo config export --all --file ${exportFile} --include-active-values --use-string-arrays --no-decode --no-coords --type classic`;
     await testExport(CMD, classicEnv, type, exportFile);
   });
 
-  test.skip('"frodo config export -AsxD exportAllTestDir7 -m classic": should export everything into separate files in the directory exportAllTestDir7 with scripts extracted and mappings separate', async () => {
+  test('"frodo config export -AsxD exportAllTestDir7 -m classic": should export everything into separate files in the directory exportAllTestDir7 with scripts extracted and mappings separate', async () => {
     const exportDirectory = 'exportAllTestDir7';
     const CMD = `frodo config export -AsxD ${exportDirectory} -m classic`;
     await testExport(
@@ -134,7 +136,7 @@ describe('frodo config export', () => {
     );
   });
 
-  test.skip('"frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything, including default scripts, into separate files in the directory exportAllTestDir8 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays', async () => {
+  test('"frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything, including default scripts, into separate files in the directory exportAllTestDir8 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays', async () => {
     const exportDirectory = 'exportAllTestDir8';
     const CMD = `frodo config export --all-separate --no-metadata --default --directory ${exportDirectory} --include-active-values --use-string-arrays --no-decode --no-coords --type classic`;
     await testExport(

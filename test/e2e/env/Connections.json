@@ -8,5 +8,10 @@
     "svcacctId": "b672336b-41ef-428d-ae4a-e0c082875377",
     "svcacctName": "Frodo-SA-1687293271764",
     "username": "volker.scheuber@forgerock.com"
+  },
+  "http://openam-frodo-dev.classic.com:8080/am": {
+    "deploymentType": "classic",
+    "encodedPassword": "3FUzDQKhXKtKK76X4EKlfojXMq128gsLJhcS9Vuz8akl3GfKGDJEtdLIJoHX5fv2vh+58uS5YeWroIf/eeSrT2EGsJ+04j6mdXMR6PUx3j8bmhtggDp7Zkz8vqS+BM6dQhM4KuWFXqfjl/jY4s0=",
+    "username": "amAdmin"
   }
 }

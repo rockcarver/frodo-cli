@@ -76,6 +76,8 @@ import { connection as c, classic_connection as cc } from './utils/TestConfig';
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_CONNECTION_PROFILES_PATH'] =
+    './test/e2e/env/Connections.json';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
@@ -171,7 +173,7 @@ describe('frodo config import', () => {
     }
   });
 
-  test.skip(`"frodo config import -adf ${allExport} -m classic" Import everything from "${allFileName}", including default scripts.`, async () => {
+  test(`"frodo config import -adf ${allExport} -m classic" Import everything from "${allFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allExport} -m classic`;
     try {
       await exec(CMD, classicEnv);
@@ -190,7 +192,7 @@ describe('frodo config import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test.skip(`"frodo config import -AdD ${allSeparateDirectory} -m classic" Import everything from directory "${allSeparateDirectory}"`, async () => {
+  test(`"frodo config import -AdD ${allSeparateDirectory} -m classic" Import everything from directory "${allSeparateDirectory}"`, async () => {
     const CMD = `frodo config import -AdD ${allSeparateDirectory} -m classic`;
     try {
       await exec(CMD, classicEnv);
