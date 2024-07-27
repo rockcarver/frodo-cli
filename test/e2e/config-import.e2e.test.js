@@ -171,7 +171,7 @@ describe('frodo config import', () => {
     }
   });
 
-  test.skip(`"frodo config import -adf ${allExport} -m classic" Import everything from "${allFileName}", including default scripts.`, async () => {
+  test(`"frodo config import -adf ${allExport} -m classic" Import everything from "${allFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allExport} -m classic`;
     try {
       await exec(CMD, classicEnv);
@@ -190,7 +190,7 @@ describe('frodo config import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test.skip(`"frodo config import -AdD ${allSeparateDirectory} -m classic" Import everything from directory "${allSeparateDirectory}"`, async () => {
+  test(`"frodo config import -AdD ${allSeparateDirectory} -m classic" Import everything from directory "${allSeparateDirectory}"`, async () => {
     const CMD = `frodo config import -AdD ${allSeparateDirectory} -m classic`;
     try {
       await exec(CMD, classicEnv);

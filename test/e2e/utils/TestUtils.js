@@ -163,9 +163,12 @@ export function getEnv(connection = undefined) {
   return {
     env: {
       ...process.env,
-      FRODO_HOST: connection?.host,
-      FRODO_SA_ID: connection?.saId,
-      FRODO_SA_JWK: connection?.saJwk,
+      // only add property if we have it
+      ...(connection?.host && { FRODO_HOST: connection.host }),
+      ...(connection?.saId && { FRODO_SA_ID: connection.saId }),
+      ...(connection?.saJwk && { FRODO_SA_JWK: connection.saJwk }),
+      ...(connection?.user && { FRODO_USERNAME: connection.user }),
+      ...(connection?.pass && { FRODO_PASSWORD: connection.pass }),
     },
   };
 }
