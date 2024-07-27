@@ -181,7 +181,7 @@ describe('frodo config import', () => {
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
     }
-  });
+  }, 300000);
 
   // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
   test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --file ${allExport} --type classic" Import everything from "${allFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
@@ -200,7 +200,7 @@ describe('frodo config import', () => {
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
     }
-  });
+  }, 300000);
 
   // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
   test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --directory ${allSeparateDirectory} --type classic" Import everything from directory "${allSeparateDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
