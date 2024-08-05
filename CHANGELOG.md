@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- \#430: Frodo now properly supports exporting and importing of the email service with secondary configurations.
+
 ## [2.0.1-0] - 2024-07-27
 
 ## [2.0.0] - 2024-07-20

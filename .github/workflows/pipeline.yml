@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 22.4.x
+  NODE_VERSION: 22
 
 jobs:
   build:
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.4.x, 20, 18]
+        node-version: [22, 20, 18]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Service containers to run with `test`
