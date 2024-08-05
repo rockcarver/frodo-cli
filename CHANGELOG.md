@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2024-08-05
+
 ### Fixed
 
 - \#430: Frodo now properly supports exporting and importing of the email service with secondary configurations.
@@ -1897,7 +1899,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.1-0...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/rockcarver/frodo-cli/compare/v2.0.1-0...v2.0.1
 [2.0.1-0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0...v2.0.1-0
 [2.0.0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-70...v2.0.0
 [2.0.0-70]: https://github.com/rockcarver/frodo-cli/compare/v2.0.0-69...v2.0.0-70
