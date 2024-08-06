@@ -29,7 +29,6 @@ export default defineConfig({
     'eslint-plugin-prettier',
     'eslint-plugin-simple-import-sort',
     'jest',
-    'loglevel',
     'map-stream',
     'prettier',
     'rimraf',

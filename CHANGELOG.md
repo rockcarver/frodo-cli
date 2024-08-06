@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 2.0.2
+
+### Fixed
+
+- \#428: Frodo CLI now includes the `loglevel` dependency.
+
 ## [2.0.1] - 2024-08-05
 
 ### Fixed
