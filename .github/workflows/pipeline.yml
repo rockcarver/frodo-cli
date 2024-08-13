@@ -318,7 +318,7 @@ jobs:
         env:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
       - uses: mislav/bump-homebrew-formula-action@v3
-        if: ${{ fromJSON(needs.build.outputs.preRelease) }}
+        # if: ${{ fromJSON(needs.build.outputs.preRelease) }}
         with:
           formula-name: frodo-cli-next
           formula-path: Formula/frodo-cli-next.rb
