@@ -426,7 +426,7 @@ async function addAdminStaticUserMapping(name: string) {
       printMessage(
         `Adding admin roles to static user mapping for client "${name}"...`
       );
-      await updateConfigEntity('authentication', authentication);
+      await updateConfigEntity('authentication', authentication, true);
     } else {
       printMessage(
         `Static user mapping for client "${name}" already has admin roles.`
@@ -502,7 +502,7 @@ export async function addAutoIdStaticUserMapping(): Promise<boolean> {
       printMessage(
         `Adding required roles to static user mapping for AutoId client "${name}"...`
       );
-      await updateConfigEntity('authentication', authentication);
+      await updateConfigEntity('authentication', authentication, true);
       printMessage('Done.');
     } else {
       printMessage(
@@ -684,7 +684,7 @@ async function removeAdminStaticUserMapping(name: string) {
           `Removing admin roles from static user mapping for client "${name}"...`
         );
       }
-      await updateConfigEntity('authentication', authentication);
+      await updateConfigEntity('authentication', authentication, true);
     } else {
       printMessage(
         `Static user mapping for client "${name}" has no admin roles.`
@@ -866,7 +866,7 @@ export async function removeStaticUserMapping(
     authentication.rsFilter['staticUserMapping'] = mappings;
     if (removeMapping) {
       printMessage(`Removing static user mapping for subject "${subject}"...`);
-      await updateConfigEntity('authentication', authentication);
+      await updateConfigEntity('authentication', authentication, true);
     } else {
       printMessage(`No static user mapping for subject "${subject}" found.`);
     }
@@ -921,7 +921,7 @@ export async function hideGenericExtensionAttributes(
     if (dryRun) {
       printMessage('Dry-run only. Changes are not saved.');
     } else {
-      await updateConfigEntity('managed', managed);
+      await updateConfigEntity('managed', managed, true);
       printMessage('Done.');
     }
     return true;
@@ -971,7 +971,7 @@ export async function showGenericExtensionAttributes(
     if (dryRun) {
       printMessage('Dry-run only. Changes are not saved.');
     } else {
-      await updateConfigEntity('managed', managed);
+      await updateConfigEntity('managed', managed, true);
       printMessage('Done.');
     }
     return true;
@@ -1007,7 +1007,7 @@ async function repairOrgModelUser(dryRun: boolean): Promise<boolean> {
     });
     managed.objects = updatedObjects;
     if (!dryRun) {
-      await updateConfigEntity('managed', managed);
+      await updateConfigEntity('managed', managed, true);
     }
   } catch (error) {
     printError(error, `Error repairing org model user`);
@@ -1047,7 +1047,7 @@ async function repairOrgModelOrg(dryRun: boolean): Promise<boolean> {
     });
     managed.objects = updatedObjects;
     if (!dryRun) {
-      await updateConfigEntity('managed', managed);
+      await updateConfigEntity('managed', managed, true);
     }
   } catch (error) {
     printError(error, `Error repairing org model org`);

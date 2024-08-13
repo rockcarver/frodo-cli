@@ -244,7 +244,7 @@ export async function importConfigEntityByIdFromFile(
       return;
     }
 
-    await updateConfigEntity(entityId, entityData);
+    await updateConfigEntity(entityId, entityData, true);
     return true;
   } catch (error) {
     printError(error);
@@ -282,7 +282,7 @@ export async function importConfigEntityFromFile(
       return;
     }
 
-    await updateConfigEntity(entityId, entityData);
+    await updateConfigEntity(entityId, entityData, true);
     stopProgressIndicator(
       indicatorId,
       `Imported ${entityId} from ${filePath}.`,
