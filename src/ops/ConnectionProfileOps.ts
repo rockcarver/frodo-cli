@@ -97,6 +97,8 @@ export async function describeConnectionProfile(
     }
     if (!profile.svcacctScope) {
       delete profile.svcacctScope;
+    } else {
+      profile.svcacctScope = profile.svcacctScope.split(' ').join('\n');
     }
     if (showSecrets && jwk) {
       (profile as unknown)['svcacctJwk'] = 'see below';
