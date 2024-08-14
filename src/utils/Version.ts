@@ -115,6 +115,10 @@ function getBinaryName() {
   return path.basename(process.execPath);
 }
 
+function isHomebrew() {
+  return process.execPath.indexOf('brew') != -1;
+}
+
 export async function getVersions(checkOnly: boolean) {
   let updateAvailable = false;
   let usingBinary = false;
@@ -134,10 +138,13 @@ export async function getVersions(checkOnly: boolean) {
   }
 
   let versionString = `You are running the ${
-    usingBinary ? 'binary release' : 'NPM package'
+    usingBinary
+      ? isHomebrew()
+        ? 'homebrew release'
+        : 'binary release'
+      : 'NPM package'
   }.`;
 
-  versionString += `\nInstalled versions:`;
   versionString += `\ncli: v${getCliVersion()}\nlib: v${getLibVersion()}\nnode: ${
     process.version
   }`;
