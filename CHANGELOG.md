@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Better detection of homebrew vs binary vs NPM version
+
 ## [2.0.3] - 2024-08-14
 
 ### Chagned
