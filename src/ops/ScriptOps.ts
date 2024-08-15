@@ -2,6 +2,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 import {
   type ScriptExportInterface,
+  ScriptExportOptions,
   type ScriptImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import chokidar from 'chokidar';
@@ -32,6 +33,7 @@ const {
   isBase64Encoded,
   getFilePath,
   getWorkingDirectory,
+  saveToFile,
 } = frodo.utils;
 const {
   readScripts,
@@ -71,7 +73,7 @@ export function getTableHeaderMd(): string {
  * @returns {string} markdown table row
  */
 export function getTableRowMd(scriptObj: ScriptSkeleton): string {
-  const langMap = { JAVASCRIPT: 'JavaSscript', GROOVY: 'Groovy' };
+  const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
   const description = `| ${scriptObj.name} | ${
     langMap[scriptObj.language]
   } | ${titleCase(scriptObj.context.split('_').join(' '))} | \`${
@@ -167,12 +169,16 @@ export async function listScripts(
  * @param {string} scriptId script uuid
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract Extracts the scripts from the exports into separate files if true
+ * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptToFile(
   scriptId: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  extract: boolean = false,
+  options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptToFile: start`);
   try {
@@ -183,13 +189,16 @@ export async function exportScriptToFile(
     }
     const filePath = getFilePath(fileName, true);
     spinSpinner(`Exporting script '${scriptId}' to '${filePath}'...`);
-    const scriptExport = await exportScript(scriptId);
+    const scriptExport = await exportScript(scriptId, options);
+    if (extract) {
+      extractScriptsToFiles(scriptExport, undefined, undefined, false);
+    }
     saveJsonToFile(scriptExport, filePath, includeMeta);
     succeedSpinner(`Exported script '${scriptId}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end`);
     return true;
   } catch (error) {
-    failSpinner(`Error exporting script '${scriptId}'`);
+    failSpinner(`Error exporting script '${scriptId}': ${error.message}`);
     printError(error);
   }
   return false;
@@ -201,13 +210,15 @@ export async function exportScriptToFile(
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
+ * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptByNameToFile(
   name: string,
   file: string,
   includeMeta: boolean = true,
-  extract: boolean = false
+  extract: boolean = false,
+  options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: start`);
   try {
@@ -218,8 +229,8 @@ export async function exportScriptByNameToFile(
     }
     const filePath = getFilePath(fileName, true);
     spinSpinner(`Exporting script '${name}' to '${filePath}'...`);
-    const scriptExport = await exportScriptByName(name);
-    if (extract) extractScriptToFile(scriptExport);
+    const scriptExport = await exportScriptByName(name, options);
+    if (extract) extractScriptsToFiles(scriptExport);
     saveJsonToFile(scriptExport, filePath, includeMeta);
     succeedSpinner(`Exported script '${name}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end`);
@@ -235,13 +246,13 @@ export async function exportScriptByNameToFile(
  * Export all scripts to single file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
+ * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFile(
   file: string,
   includeMeta: boolean = true,
-  includeDefault: boolean = false
+  options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
   try {
@@ -252,11 +263,7 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts({
-      includeLibraries: true,
-      includeDefault,
-      useStringArrays: true,
-    });
+    const scriptExport = await exportScripts(options);
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
@@ -270,21 +277,20 @@ export async function exportScriptsToFile(
  * Export all scripts to individual files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @param {boolean} includeDefault true to include default scripts in export, false otherwise. Default: false
+ * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFiles(
   extract: boolean = false,
   includeMeta: boolean = true,
-  includeDefault: boolean = false
+  options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
   let barId: string;
   try {
-    let scriptList = await readScripts();
-    if (!includeDefault)
-      scriptList = scriptList.filter((script) => !script.default);
+    const scriptExport = await exportScripts(options);
+    const scriptList = Object.values(scriptExport.script);
     barId = createProgressIndicator(
       'determinate',
       scriptList.length,
@@ -298,9 +304,14 @@ export async function exportScriptsToFiles(
       );
       const file = getFilePath(getTypedFilename(script.name, 'script'), true);
       try {
-        const scriptExport = await exportScriptByName(script.name);
-        if (extract) extractScriptToFile(scriptExport);
-        saveJsonToFile(scriptExport, file, includeMeta);
+        if (extract) {
+          extractScriptsToFiles({
+            script: {
+              [script._id]: script,
+            },
+          });
+        }
+        saveToFile('script', script, '_id', file, includeMeta);
         updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
         stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
       } catch (error) {
@@ -329,37 +340,40 @@ export async function exportScriptsToFiles(
 }
 
 /**
- * Extracts a script from a script export into a separate file.
+ * Extracts scripts from a script export into separate files.
  * @param {ScriptExportInterface} scriptExport The script export
- * @param {string} scriptId The script id (optional if there is only one script in the export)
- * @param {string} directory The directory within the base directory to save the script file
+ * @param {string} scriptId The script id to extract a specific script. If undefined, will extract all scripts.
+ * @param {string} directory The directory within the base directory to save the script files
+ * @param {boolean} useScriptNamesForFiles True to name files using script names, false to use id's instead. Default: true
  * @returns {boolean} true if successful, false otherwise
  */
-export function extractScriptToFile(
+export function extractScriptsToFiles(
   scriptExport: ScriptExportInterface,
   scriptId?: string,
-  directory?: string
+  directory?: string,
+  useScriptNamesForFiles: boolean = true
 ): boolean {
   try {
-    const scriptSkeleton = scriptId
-      ? scriptExport.script[scriptId]
-      : getScriptSkeleton(scriptExport);
-    const fileExtension =
-      scriptSkeleton.language === 'JAVASCRIPT' ? 'js' : 'groovy';
-    const scriptFileName = getTypedFilename(
-      scriptSkeleton.name,
-      'script',
-      fileExtension
-    );
-    const scriptFilePath = getFilePath(
-      (directory ? `${directory}/` : '') + scriptFileName,
-      true
-    );
-    const scriptText = Array.isArray(scriptSkeleton.script)
-      ? scriptSkeleton.script.join('\n')
-      : scriptSkeleton.script;
-    scriptSkeleton.script = `file://${scriptFileName}`;
-    saveTextToFile(scriptText, scriptFilePath);
+    const scripts = scriptId
+      ? [scriptExport.script[scriptId]]
+      : Object.values(scriptExport.script);
+    for (const script of scripts) {
+      const fileExtension = script.language === 'JAVASCRIPT' ? 'js' : 'groovy';
+      const scriptFileName = getTypedFilename(
+        useScriptNamesForFiles ? script.name : script._id,
+        'script',
+        fileExtension
+      );
+      const scriptFilePath = getFilePath(
+        (directory ? `${directory}/` : '') + scriptFileName,
+        true
+      );
+      const scriptText = Array.isArray(script.script)
+        ? script.script.join('\n')
+        : script.script;
+      script.script = `file://${scriptFileName}`;
+      saveTextToFile(scriptText, scriptFilePath);
+    }
     return true;
   } catch (error) {
     printError(error);
@@ -367,27 +381,18 @@ export function extractScriptToFile(
   return false;
 }
 
-function isScriptExtracted(importData: ScriptExportInterface): boolean {
+function isScriptExtracted(script: string | string[]): boolean {
   debugMessage(`Cli.ScriptOps.isScriptExtracted: start`);
-  let extracted = true;
-  for (const scriptId of Object.keys(importData.script)) {
-    const script = importData.script[scriptId].script;
-    if (Array.isArray(script)) {
-      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is string array`);
-      extracted = false;
-      break;
-    }
-    if (isValidUrl(script as string)) {
-      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is extracted`);
-      extracted = true;
-      break;
-    }
-    if (isBase64Encoded) {
-      debugMessage(`Cli.ScriptOps.isScriptExtracted: script is base64-encoded`);
-      extracted = false;
-      break;
-    }
-    break;
+  let extracted = false;
+  if (Array.isArray(script)) {
+    debugMessage(`Cli.ScriptOps.isScriptExtracted: script is string array`);
+    extracted = false;
+  } else if (isValidUrl(script as string)) {
+    debugMessage(`Cli.ScriptOps.isScriptExtracted: script is extracted`);
+    extracted = true;
+  } else if (isBase64Encoded(script)) {
+    debugMessage(`Cli.ScriptOps.isScriptExtracted: script is base64-encoded`);
+    extracted = false;
   }
   debugMessage(`Cli.ScriptOps.isScriptExtracted: end [extracted=${extracted}]`);
   return extracted;
@@ -395,15 +400,18 @@ function isScriptExtracted(importData: ScriptExportInterface): boolean {
 
 /**
  * Import script(s) from file
+ * @param {string} id Optional id of script. If supplied, only the script of that id is imported. Takes priority over the name if both are provided.
  * @param {string} name Optional name of script. If supplied, only the script of that name is imported
  * @param {string} file file name
  * @param {ScriptImportOptions} options Script import options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importScriptsFromFile(
-  name: string,
+  id: string = '',
+  name: string = '',
   file: string,
   options: ScriptImportOptions = {
+    deps: true,
     reUuid: false,
     includeDefault: false,
   }
@@ -411,13 +419,7 @@ export async function importScriptsFromFile(
   const filePath = getFilePath(file);
   debugMessage(`Cli.ScriptOps.importScriptsFromFile: start`);
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    const importData: ScriptExportInterface = JSON.parse(data);
-    if (isScriptExtracted(importData)) {
-      await handleScriptFileImport(filePath, options, false);
-    } else {
-      await importScripts(name, importData, options);
-    }
+    await handleScriptFileImport(id, name, filePath, options, false);
     debugMessage(`Cli.ScriptOps.importScriptsFromFile: end`);
     return true;
   } catch (error) {
@@ -441,13 +443,37 @@ export async function importScriptsFromFiles(
   // If watch is true, it doesn't make sense to reUuid.
   options.reUuid = watch ? false : options.reUuid;
 
+  // When doing initial import, only focus on .json files.
+  let initialImport = true;
+  // Generate mappings while importing to identify script files with their script ids and json files for use in watching.
+  const scriptPathToJsonMapping = {};
+  const scriptPathToIdMapping = {};
+
   /**
    * Run on file change detection, as well as on initial run.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onChange(path: string, _stats?: fs.Stats): Promise<void> {
     try {
-      await handleScriptFileImport(path, options, validateScripts);
+      if (initialImport && path.endsWith('.script.json')) {
+        if (watch) {
+          scriptPathToJsonMapping[path] = path;
+          for (const extracted of getExtractedPathsAndNames(path)) {
+            scriptPathToJsonMapping[extracted.path] = path;
+            scriptPathToIdMapping[extracted.path] = extracted.id;
+          }
+        } else {
+          await handleScriptFileImport('', '', path, options, validateScripts);
+        }
+      } else if (!initialImport) {
+        await handleScriptFileImport(
+          scriptPathToIdMapping[path],
+          '',
+          scriptPathToJsonMapping[path],
+          options,
+          validateScripts
+        );
+      }
     } catch (error) {
       printError(error, `${path}`);
     }
@@ -462,7 +488,7 @@ export async function importScriptsFromFiles(
     ],
     {
       persistent: watch,
-      ignoreInitial: watch,
+      ignoreInitial: false,
     }
   );
 
@@ -475,6 +501,7 @@ export async function importScriptsFromFiles(
     })
     .on('ready', () => {
       if (watch) {
+        initialImport = false;
         printMessage('Watching for changes...');
       } else {
         watcher.close();
@@ -485,38 +512,32 @@ export async function importScriptsFromFiles(
 
 /**
  * Handle a script file import.
- *
- * @param {string} file Either a script file or an extract file
+ * @param {string} id Optional id of script. If supplied, only the script of that id is imported. Takes priority over the name if both are provided.
+ * @param {string} name Optional name of script. If supplied, only the script of that name is imported
+ * @param {string} file The script json file
  * @param {ScriptImportOptions} options Script import options
  * @param {boolean} validateScripts If true, validates Javascript scripts to ensure no errors exist in them. Default: false
  */
 async function handleScriptFileImport(
+  id: string = '',
+  name: string = '',
   file: string,
   options: ScriptImportOptions,
   validateScripts: boolean
 ) {
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
-  const scriptFile = getScriptFile(file);
-  const script = getScriptExportByScriptFile(scriptFile);
-
-  const imported = await importScripts('', script, options, validateScripts);
+  const script = getScriptExportByScriptFile(file);
+  const imported = await importScripts(
+    id,
+    name,
+    script,
+    options,
+    validateScripts
+  );
   if (imported) {
-    printMessage(`Imported '${scriptFile}'`);
+    printMessage(`Imported '${file}'`);
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
-}
-
-/**
- * Get a script file from a file.
- *
- * @param file Either a script file or an extract file
- * @returns The script file
- */
-function getScriptFile(file: string): string {
-  if (file.endsWith('.script.json')) {
-    return file;
-  }
-  return file.replace(/\.script\.(js|groovy)/, '.script.json');
 }
 
 /**
@@ -525,23 +546,20 @@ function getScriptFile(file: string): string {
  * @param scriptFile The path to the script file
  * @returns The script export
  */
-function getScriptExportByScriptFile(
+export function getScriptExportByScriptFile(
   scriptFile: string
 ): ScriptExportInterface {
   const scriptExport = getScriptExport(scriptFile);
-  const scriptSkeleton = getScriptSkeleton(scriptExport);
-
-  const extractFile = getExtractFile(scriptSkeleton);
-  if (!extractFile) {
-    return scriptExport;
+  for (const script of Object.values(scriptExport.script)) {
+    const extractFile = getExtractFile(script);
+    if (!extractFile) {
+      continue;
+    }
+    const directory =
+      scriptFile.substring(0, scriptFile.lastIndexOf('/')) || '.';
+    const scriptRaw = fs.readFileSync(`${directory}/${extractFile}`, 'utf8');
+    script.script = scriptRaw.split('\n');
   }
-
-  const scriptRaw = fs.readFileSync(
-    `${scriptFile.substring(0, scriptFile.lastIndexOf('/'))}/${extractFile}`,
-    'utf8'
-  );
-  scriptSkeleton.script = scriptRaw.split('\n');
-
   return scriptExport;
 }
 
@@ -552,8 +570,8 @@ function getScriptExportByScriptFile(
  * @returns The extract file or null if there is no extract file
  */
 function getExtractFile(scriptSkeleton: ScriptSkeleton): string | null {
-  const extractFile = scriptSkeleton.script;
-  if (Array.isArray(extractFile)) {
+  const extractFile = scriptSkeleton.script as string;
+  if (!isScriptExtracted(extractFile)) {
     return null;
   }
   if (
@@ -573,36 +591,32 @@ function getExtractFile(scriptSkeleton: ScriptSkeleton): string | null {
  */
 function getScriptExport(file: string): ScriptExportInterface {
   const scriptExportRaw = fs.readFileSync(file, 'utf8');
-  const scriptExport = JSON.parse(scriptExportRaw) as ScriptExportInterface;
-
-  return scriptExport;
+  return JSON.parse(scriptExportRaw) as ScriptExportInterface;
 }
 
 /**
- * Get the main script skeleton from a script export. If there is more than one
- * script, an error is thrown.
+ * Gets extracted file paths and script ids from json file
  *
- * @param script Get the main script skeleton from a script export
- * @returns The main script skeleton
+ * @param file the json file
+ * @returns The extracted file paths and script ids
  */
-function getScriptSkeleton(script: ScriptExportInterface): ScriptSkeleton {
-  const scriptId = getScriptId(script);
-  return script.script[scriptId];
-}
-
-/**
- * Get the main script ID from a script export. If there is more than one
- * script, an error is thrown.
- *
- * @param script The script export
- * @returns The main script ID
- */
-function getScriptId(script: ScriptExportInterface): string {
-  const scriptIds = Object.keys(script.script);
-  if (scriptIds.length !== 1) {
-    throw new FrodoError(`Expected 1 script, found ${scriptIds.length}`);
+function getExtractedPathsAndNames(
+  file: string
+): { path: string; id: string }[] {
+  const extractedFileNames = [];
+  const scriptExport = getScriptExport(file);
+  const directory = file.substring(0, file.lastIndexOf('/')) || '.';
+  for (const script of Object.values(scriptExport.script)) {
+    const extractFile = getExtractFile(script);
+    if (!extractFile) {
+      continue;
+    }
+    extractedFileNames.push({
+      path: `${directory}/${extractFile}`,
+      id: script._id,
+    });
   }
-  return scriptIds[0];
+  return extractedFileNames;
 }
 
 /**

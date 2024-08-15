@@ -47,6 +47,8 @@
  */
 
 /*
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --no-deps -i 'bb393d07-a121-47e2-9d24-1a1066f39ec0'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --script-name 'GitHub Profile Normalization'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -Nxn 'GitHub Profile Normalization' -D scriptExportTestDir1
@@ -66,6 +68,19 @@ const env = getEnv(c);
 const type = 'script';
 
 describe('frodo script export', () => {
+  // The first two tests use the 'My Example Script Using Libraries' (with id 'bb393d07-a121-47e2-9d24-1a1066f39ec0') script to test that libraries are exported correctly, including recursively.
+  test('"frodo script export --extract --script-id \'bb393d07-a121-47e2-9d24-1a1066f39ec0\' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries', async () => {
+    const exportDirectory = 'scriptExportTestDir5';
+    const CMD = `frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5`;
+    await testExport(CMD, env, type, undefined, exportDirectory, false);
+  });
+
+  test('"frodo script export --no-deps -i \'bb393d07-a121-47e2-9d24-1a1066f39ec0\'": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0"', async () => {
+    const exportFile = 'bb393d07-a121-47e2-9d24-1a1066f39ec0.script.json';
+    const CMD = `frodo script export --no-deps -i 'bb393d07-a121-47e2-9d24-1a1066f39ec0'`;
+    await testExport(CMD, env, type, exportFile);
+  });
+
   test('"frodo script export --script-name \'GitHub Profile Normalization\'": should export the script named "GitHub Profile Normalization"', async () => {
     const exportFile = 'GitHub-Profile-Normalization.script.json';
     const CMD = `frodo script export --script-name 'GitHub Profile Normalization'`;

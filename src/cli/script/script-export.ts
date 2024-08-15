@@ -5,6 +5,7 @@ import {
   exportScriptByNameToFile,
   exportScriptsToFile,
   exportScriptsToFiles,
+  exportScriptToFile,
 } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
@@ -16,16 +17,16 @@ export default function setup() {
     .description('Export scripts.')
     .addOption(
       new Option(
+        '-i, --script-id <uuid>',
+        'Uuid of the script. If specified, -a and -A are ignored.'
+      )
+    )
+    .addOption(
+      new Option(
         '-n, --script-name <name>',
         'Name of the script. If specified, -a and -A are ignored.'
       )
     )
-    // .addOption(
-    //   new Option(
-    //     '-i, --script-id <uuid>',
-    //     'Uuid of the script. If specified, -a and -A are ignored.'
-    //   )
-    // )
     .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
     .addOption(
       new Option(
@@ -64,6 +65,12 @@ export default function setup() {
         'Export all scripts including the default scripts. Ignored with -n.'
       )
     )
+    .addOption(
+      new Option(
+        '--no-deps',
+        'Do not include script dependencies (i.e. library scripts). Ignored with -a and -A.'
+      )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -75,14 +82,38 @@ export default function setup() {
           options,
           command
         );
+        // export by id
+        if (options.scriptId && (await getTokens())) {
+          verboseMessage('Exporting script...');
+          const outcome = await exportScriptToFile(
+            options.scriptId,
+            options.file,
+            options.metadata,
+            options.extract,
+            {
+              deps: options.deps,
+              includeDefault: options.default,
+              useStringArrays: true,
+            }
+          );
+          if (!outcome) process.exitCode = 1;
+        }
         // export by name
-        if ((options.scriptName || options.script) && (await getTokens())) {
+        else if (
+          (options.scriptName || options.script) &&
+          (await getTokens())
+        ) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptByNameToFile(
             options.scriptName || options.script,
             options.file,
             options.metadata,
-            options.extract
+            options.extract,
+            {
+              deps: options.deps,
+              includeDefault: options.default,
+              useStringArrays: true,
+            }
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -92,18 +123,25 @@ export default function setup() {
           const outcome = await exportScriptsToFile(
             options.file,
             options.metadata,
-            options.default
+            {
+              deps: options.deps,
+              includeDefault: options.default,
+              useStringArrays: true,
+            }
           );
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
         else if (options.allSeparate && (await getTokens())) {
           verboseMessage('Exporting all scripts to separate files...');
-          // -x / --extract
           const outcome = await exportScriptsToFiles(
             options.extract,
             options.metadata,
-            options.default
+            {
+              deps: options.deps,
+              includeDefault: options.default,
+              useStringArrays: true,
+            }
           );
           if (!outcome) process.exitCode = 1;
         }

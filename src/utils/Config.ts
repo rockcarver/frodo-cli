@@ -1,4 +1,4 @@
-import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { AuthenticationSettingsSkeleton } from '@rockcarver/frodo-lib/types/api/AuthenticationSettingsApi';
 import {
   FullExportInterface,
@@ -8,10 +8,10 @@ import {
 import { ExportMetaData } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import fs from 'fs';
 import os from 'os';
-import slugify from 'slugify';
 
 import { getIdmImportDataFromIdmDirectory } from '../ops/IdmOps';
 import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
+import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { printMessage } from './Console';
 
 const { getFilePath, readFiles } = frodo.utils;
@@ -161,10 +161,14 @@ async function getConfigFromDirectory(
   directory: string,
   exportConfig: FullGlobalExportInterface | FullRealmExportInterface
 ) {
+  if (directory.startsWith('./')) {
+    directory = directory.substring(2);
+  }
   const samlPath = `${directory}/saml/`;
   const cotPath = `${directory}/cot/`;
   const idmPath = `${directory}/idm/`;
   const syncPath = `${directory}/sync/`;
+  const scriptPath = `${directory}/script/`;
 
   const files = await readFiles(directory);
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
@@ -172,15 +176,14 @@ async function getConfigFromDirectory(
     (f) => f.path.startsWith(samlPath) || f.path.startsWith(cotPath)
   );
   const syncFiles = jsonFiles.filter((f) => f.path.startsWith(syncPath));
+  const scriptFiles = jsonFiles.filter((f) => f.path.endsWith('.script.json'));
   const allOtherFiles = jsonFiles.filter(
     (f) =>
       !f.path.startsWith(samlPath) &&
       !f.path.startsWith(cotPath) &&
       !f.path.startsWith(idmPath) &&
-      !f.path.startsWith(syncPath)
-  );
-  const scriptFiles = files.filter(
-    (f) => f.path.endsWith('.js') || f.path.endsWith('.groovy')
+      !f.path.startsWith(syncPath) &&
+      !f.path.startsWith(scriptPath)
   );
   // Handle all other json files
   for (const f of allOtherFiles) {
@@ -226,33 +229,12 @@ async function getConfigFromDirectory(
       }
     }
   }
-  // Handle extracted scripts, adding them to their corresponding script objects in the export
-  if (
-    scriptFiles.length > 0 &&
-    (exportConfig as FullRealmExportInterface).script != null
-  ) {
-    const scriptExports = Object.values(
-      (exportConfig as FullRealmExportInterface).script
-    );
-    for (const f of scriptFiles) {
-      const name = f.path.substring(
-        f.path.lastIndexOf('/') + 1,
-        f.path.indexOf('.script.', f.path.lastIndexOf('/'))
-      );
-      const scriptLines = f.content.split('\n');
-      const script = scriptExports.find(
-        (s) =>
-          slugify(s.name.replace(/^http(s?):\/\//, ''), {
-            remove: /[^\w\s$*_+~.()'"!\-@]+/g,
-          }) === name
-      );
-      if (!script) {
-        throw new FrodoError(
-          `Can't find the script corresponding to the file '${f.path}' in the export files`
-        );
-      }
-      script.script = scriptLines;
-    }
+  // Handle extracted scripts
+  for (const f of scriptFiles) {
+    const scriptExport = getScriptExportByScriptFile(f.path);
+    Object.entries(scriptExport.script).forEach(([id, script]) => {
+      (exportConfig as FullRealmExportInterface).script[id] = script;
+    });
   }
 }
 

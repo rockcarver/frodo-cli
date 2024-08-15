@@ -14,7 +14,7 @@ import {
 } from '../utils/Config';
 import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { writeSyncJsonToDirectory } from './MappingOps';
-import { extractScriptToFile } from './ScriptOps';
+import { extractScriptsToFiles } from './ScriptOps';
 
 const { getTypedFilename, saveJsonToFile, getFilePath, getWorkingDirectory } =
   frodo.utils;
@@ -295,7 +295,7 @@ function exportItem(
         }
         const filename = getTypedFilename(name ? name : id, fileType);
         if (extract && type === 'script') {
-          extractScriptToFile(
+          extractScriptsToFiles(
             exportData as ScriptExportInterface,
             id,
             `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`

@@ -8,7 +8,12 @@ export default function setup() {
 
   program
     .description('Describe script.')
-    .addOption(new Option('-i, --script-id <script-id>', 'Script id.'))
+    .addOption(
+      new Option(
+        '-i, --script-id <uuid>',
+        'Uuid of the script. If specified, -a and -A are ignored.'
+      )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

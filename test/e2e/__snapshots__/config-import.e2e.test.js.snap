@@ -13,6 +13,7 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -50,6 +51,7 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -92,11 +94,13 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
+  Error updating email template baselineDemoMagicLink
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -644,21 +648,24 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: Access denied
+  Error updating email template baselineDemoMagicLink
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
+  Error updating email template forgottenUsername
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
+    Status: 401
+    Reason: Unauthorized
+    Message: Unauthorized
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
@@ -697,11 +704,13 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
+  Error updating email template baselineDemoMagicLink
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -1254,11 +1263,13 @@ Errors occurred during full config import
     Reason: Unauthorized
     Message: Unauthorized
   Error importing email templates
+  Error updating email template baselineDemoEmailVerification
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
     Message: Unauthorized
+  Error updating email template baselineDemoMagicLink
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
