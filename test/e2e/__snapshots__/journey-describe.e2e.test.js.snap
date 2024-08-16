@@ -68,10 +68,10 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (4)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| debug | JavaSscript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| debug | JavaScript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
 # j01 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j01.png)]()
@@ -97,9 +97,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
 # j02 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j02.png)]()
@@ -126,9 +126,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
 # j03 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j03.png)]()
@@ -156,9 +156,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
 # j04 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j04.png)]()
@@ -187,9 +187,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
 # j05 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j05.png)]()
@@ -219,9 +219,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
 # j06 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j06.png)]()
@@ -252,9 +252,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
 # j07 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j07.png)]()
@@ -286,9 +286,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
 # j08 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j08.png)]()
@@ -321,9 +321,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
 # j09 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j09.png)]()
@@ -357,9 +357,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
 # j10 - :white_check_mark: \`enabled\`, :green_circle: \`standard\`
 
 [![](./j10.png)]()
@@ -394,9 +394,9 @@ exports[`frodo journey describe "frodo journey describe --markdown": should desc
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
 "
 `;
 
@@ -1402,9 +1402,9 @@ exports[`frodo journey describe "frodo journey describe -F test3.json --markdown
 ## Scripts (3)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
 "
 `;
 
@@ -1751,10 +1751,10 @@ exports[`frodo journey describe "frodo journey describe -f test/e2e/exports/all/
 ## Scripts (4)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| debug | JavaSscript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| debug | JavaScript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
 "
 `;
 
@@ -1826,10 +1826,10 @@ exports[`frodo journey describe "frodo journey describe -i j00 --markdown": shou
 ## Scripts (4)
 | Name | Language | Type | Id |
 | ---- | -------- | ---- | ---|
-| shared | JavaSscript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| mode | JavaSscript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
-| level | JavaSscript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| debug | JavaSscript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
+| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
+| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
+| debug | JavaScript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
 "
 `;
 

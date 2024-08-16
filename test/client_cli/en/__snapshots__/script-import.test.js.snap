@@ -25,7 +25,7 @@ Options:
                                Ignored with -n.
   --curlirize                  Output all network calls in curl format.
   -d, --default                Import all scripts including the default
-                               scripts. Ignored with -n.
+                               scripts.
   -D, --directory <directory>  Set the working directory.
   --debug                      Debug output during command execution. If
                                specified, may or may not produce additional
@@ -33,6 +33,8 @@ Options:
   -f, --file <file>            Name of the file to import.
   --flush-cache                Flush token cache.
   -h, --help                   Help
+  -i, --script-id <uuid>       Uuid of the script. If specified, -a and -A are
+                               ignored.
   -k, --insecure               Allow insecure connections when using SSL/TLS.
                                Has no effect when using a network proxy for
                                https (HTTPS_PROXY=http://<host>:<port>), in
@@ -57,6 +59,8 @@ Options:
   -n, --script-name <name>     Name of the script. If specified, -a and -A are
                                ignored.
   --no-cache                   Disable token cache for this operation.
+  --no-deps                    Do not include script dependencies (i.e. library
+                               scripts). Can only be used with -n or -i.
   --re-uuid                    Re-UUID. Create a new UUID for the script upon
                                import. Use this to duplicate a script or create
                                a new version of the same script. Note that you

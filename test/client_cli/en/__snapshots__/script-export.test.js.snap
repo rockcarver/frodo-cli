@@ -35,6 +35,8 @@ Options:
   -f, --file <file>            Name of the export file.
   --flush-cache                Flush token cache.
   -h, --help                   Help
+  -i, --script-id <uuid>       Uuid of the script. If specified, -a and -A are
+                               ignored.
   -k, --insecure               Allow insecure connections when using SSL/TLS.
                                Has no effect when using a network proxy for
                                https (HTTPS_PROXY=http://<host>:<port>), in
@@ -60,6 +62,8 @@ Options:
                                ignored.
   -N, --no-metadata            Does not include metadata in the export file.
   --no-cache                   Disable token cache for this operation.
+  --no-deps                    Do not include script dependencies (i.e. library
+                               scripts). Ignored with -a and -A.
   -s, --script <script>        DEPRECATED! Use -n/--script-name instead. Name
                                of the script.
   --sa-id <sa-id>              Service account id.

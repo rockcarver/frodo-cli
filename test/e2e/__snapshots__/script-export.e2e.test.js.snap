@@ -9484,6 +9484,188 @@ exports[`frodo script export "frodo script export --all-separate --no-metadata -
 }
 `;
 
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries 1`] = `""`;
+
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries: scriptExportTestDir5/2c38c998-aec0-4e56-8d46-bff6e24a704e.script.js 1`] = `
+"var myOtherlib = require('My Other Example Library Script');
+
+var i = 0;
+
+function add(j) {i += j};
+function logTotal(log) { log.info("Total: " + i) };
+
+// export constant
+exports.MSG = 'Final sum';
+
+// export function
+exports.add = add;
+exports.logTotal = logTotal;
+
+//direct export using a inline declaration
+exports.logTotalWithMessage = (log, message) => log.info(message + ": " + i);
+"
+`;
+
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries: scriptExportTestDir5/4e053815-adde-46ac-9fe2-d3ae93517c14.script.js 1`] = `
+"console.log("hi");
+"
+`;
+
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries: scriptExportTestDir5/6c49bebe-3a62-11ed-a261-0242ac120002.script.js 1`] = `
+"/*
+ * Copyright 2022-2023 ForgeRock AS. All Rights Reserved
+ *
+ * Use of this code requires a commercial software license with ForgeRock AS.
+ * or with one of its affiliates. All use shall be exclusively subject
+ * to such license between the licensee and ForgeRock AS.
+ */
+
+/*
+ * This is an example library script with methods that can be used in other scripts.
+ * To reference it, use the following:
+ *
+ * var library = require("Library Script");
+ *
+ * library.logError(logger, "Error message");
+ * library.logDebug(logger, "Debug message");
+ */
+
+function logError(log, errorMessage) {
+  log.error(errorMessage);
+}
+
+function logWarning(log, warningMessage) {
+  log.warn(warningMessage);
+}
+
+exports.logError = logError;
+exports.logWarning = logWarning;
+
+// Alternatively, exports can be declared using an inline arrow function
+
+exports.logInfo = (log, infoMessage) => log.info(infoMessage);
+exports.logDebug = (log, debugMessage) => log.debug(debugMessage);
+"
+`;
+
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries: scriptExportTestDir5/bb393d07-a121-47e2-9d24-1a1066f39ec0.script.js 1`] = `
+"/**
+ * Testing library scripts
+ */
+var mylib = require('My Example Library');
+var loggers = require('Library Script');
+
+mylib.add(1);
+mylib.logTotal(logger);
+mylib.add(3);
+mylib.logTotalWithMessage(logger, mylib.MSG);
+
+outcome = 'true';
+"
+`;
+
+exports[`frodo script export "frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries: scriptExportTestDir5/bb393d07-a121-47e2-9d24-1a1066f39ec0.script.json 1`] = `
+{
+  "meta": Any<Object>,
+  "script": {
+    "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
+      "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Library",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Example Library",
+      "script": "file://2c38c998-aec0-4e56-8d46-bff6e24a704e.script.js",
+    },
+    "4e053815-adde-46ac-9fe2-d3ae93517c14": {
+      "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": null,
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Other Example Library Script",
+      "script": "file://4e053815-adde-46ac-9fe2-d3ae93517c14.script.js",
+    },
+    "6c49bebe-3a62-11ed-a261-0242ac120002": {
+      "_id": "6c49bebe-3a62-11ed-a261-0242ac120002",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global library script to be referenced from other scripts",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Library Script",
+      "script": "file://6c49bebe-3a62-11ed-a261-0242ac120002.script.js",
+    },
+    "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
+      "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Script Using Libraries",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Example Script Using Libraries",
+      "script": "file://bb393d07-a121-47e2-9d24-1a1066f39ec0.script.js",
+    },
+  },
+}
+`;
+
+exports[`frodo script export "frodo script export --no-deps -i 'bb393d07-a121-47e2-9d24-1a1066f39ec0'": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" 1`] = `""`;
+
+exports[`frodo script export "frodo script export --no-deps -i 'bb393d07-a121-47e2-9d24-1a1066f39ec0'": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0": bb393d07-a121-47e2-9d24-1a1066f39ec0.script.json 1`] = `
+{
+  "meta": Any<Object>,
+  "script": {
+    "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
+      "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Script Using Libraries",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Example Script Using Libraries",
+      "script": [
+        "/**",
+        " * Testing library scripts",
+        " */",
+        "var mylib = require('My Example Library');",
+        "var loggers = require('Library Script');",
+        "",
+        "mylib.add(1);",
+        "mylib.logTotal(logger);",
+        "mylib.add(3);",
+        "mylib.logTotalWithMessage(logger, mylib.MSG);",
+        "",
+        "outcome = 'true';",
+        "",
+      ],
+    },
+  },
+}
+`;
+
 exports[`frodo script export "frodo script export --script-name 'GitHub Profile Normalization'": should export the script named "GitHub Profile Normalization" 1`] = `""`;
 
 exports[`frodo script export "frodo script export --script-name 'GitHub Profile Normalization'": should export the script named "GitHub Profile Normalization": GitHub-Profile-Normalization.script.json 1`] = `

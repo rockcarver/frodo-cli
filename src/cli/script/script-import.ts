@@ -17,6 +17,12 @@ export default function setup() {
     .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
     .addOption(
       new Option(
+        '-i, --script-id <uuid>',
+        'Uuid of the script. If specified, -a and -A are ignored.'
+      )
+    )
+    .addOption(
+      new Option(
         '-n, --script-name <name>',
         'Name of the script. If specified, -a and -A are ignored.'
       )
@@ -49,7 +55,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-d, --default',
-        'Import all scripts including the default scripts. Ignored with -n.'
+        'Import all scripts including the default scripts.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--no-deps',
+        'Do not include script dependencies (i.e. library scripts). Can only be used with -n or -i.'
       )
     )
     .action(
@@ -69,9 +81,11 @@ export default function setup() {
             `Importing script(s) into realm "${state.getRealm()}"...`
           );
           const outcome = await importScriptsFromFile(
+            options.scriptId,
             options.scriptName || options.script,
             options.file,
             {
+              deps: options.deps,
               reUuid: options.reUuid,
               includeDefault: options.default,
             }
@@ -85,6 +99,7 @@ export default function setup() {
             await importScriptsFromFiles(
               options.watch,
               {
+                deps: options.deps,
                 reUuid: options.reUuid,
                 includeDefault: options.default,
               },

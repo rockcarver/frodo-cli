@@ -17,14 +17,14 @@ export default function setup() {
     .description('Delete scripts.')
     .addOption(
       new Option(
-        '-i, --script-id <script>',
-        'id of a script. If specified, -a and -A are ignored.'
+        '-i, --script-id <uuid>',
+        'Uuid of the script. If specified, -a and -A are ignored.'
       )
     )
     .addOption(
       new Option(
-        '-n, --script-name <script>',
-        'name of a script. If specified, -a and -A are ignored.'
+        '-n, --script-name <name>',
+        'Name of the script. If specified, -a and -A are ignored.'
       )
     )
     .addOption(
