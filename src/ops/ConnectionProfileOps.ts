@@ -81,6 +81,12 @@ export async function describeConnectionProfile(
       if (profile.logApiSecret) profile.logApiSecret = present;
       if (profile.svcacctJwk) (profile as unknown)['svcacctJwk'] = present;
     }
+    if (profile.allowInsecureConnection === undefined) {
+      delete profile.allowInsecureConnection;
+    }
+    if (!profile.deploymentType) {
+      delete profile.deploymentType;
+    }
     if (!profile.username) {
       delete profile.username;
       delete profile.password;
@@ -97,6 +103,15 @@ export async function describeConnectionProfile(
     }
     if (!profile.svcacctScope) {
       delete profile.svcacctScope;
+    } else {
+      try {
+        profile.svcacctScope = profile.svcacctScope
+          .split(' ')
+          .sort((a, b) => a.localeCompare(b))
+          .join('\n');
+      } catch (error) {
+        // do nothing
+      }
     }
     if (showSecrets && jwk) {
       (profile as unknown)['svcacctJwk'] = 'see below';
