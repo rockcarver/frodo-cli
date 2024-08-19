@@ -8,6 +8,9 @@ testResults.json
 frodo
 frodo.exe
 
+# MacOS Desktop Services Store
+.DS_Store
+
 # connections.json
 masterkey.key
 

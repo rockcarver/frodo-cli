@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Improvements to the `frodo script` commands:
+
+  - Added the `-i`/`--script-id` option to import and export scripts by id.
+  - Added the `--no-deps` option to not include library scripts in exports of single scripts. Similarly adds the option on single script imports using the same flag to not import library dependencies if so desired.
+
+### Changed
+
+- Update to frodo-lib 2.1.0
+
+### Fixed
+
+- Fixes to the handling of scripts in the `frodo script` commands and the `frodo config import` command:
+
+  - Fixing many bugs related to script extraction. For example, there were certain cases where importing wouldn't function correctly due to being unable to find the extracted script(s). For exports, library scripts weren't being extracted correctly either. Therefore, an overhaul was done to try and help simplify the extraction process to that it can work for multiple scripts if dealing with library scripts both on export and import.
+  - Fixing many errors in the watch option for script imports. One big one was if there were several scripts for a single json file (e.g. when exporting scripts with library scripts) that only one of the scripts would correctly be watched. This was fixed by creating mappings before watching begins to map extracted script files with their corresponding json files so it functions correctly.
+  - Fixing a small bug with config imports where, if the working directory started with `.` or `./` it would usually fail due to being unable to locate the expected files it was looking for.
+
 ## [2.0.5-0] - 2024-08-16
 
 ## [2.0.4] - 2024-08-14
