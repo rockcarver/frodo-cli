@@ -20,7 +20,7 @@
  *    In mock record mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=record FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY=<master key> frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
+ *    $ FRODO_MOCK=record FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  *    Wait until you see all the Polly instances (mock recording adapters) have
  *    shutdown before you try to run step #1 again.
@@ -37,13 +37,23 @@
  *
  * 3. Validate your freshly recorded mock responses are complete and working.
  *    Re-run the exact command you want to test in mock mode (see step #1).
+ * 
+ *    $ FRODO_MOCK=1 FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  * 4. Write your test.
  *    Make sure to use the exact command including number of arguments and params.
  *
- * 5. Commit both your test and your new recordings to the repository.
- *    Your tests are likely going to reside outside the frodo-lib project but
- *    the recordings must be committed to the frodo-lib project.
+ * 5. Create snapshots.
+ *    To create snapshots for your tests, run the tests in update snapshot mode:
+ * 
+ *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' npm run test:update conn-describe
+ * 
+ * 6. Test you tests and recordings and snapshots.
+ *    To test the whole package of tests, recordings, and snapshots, run the tests:
+ * 
+ *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' npm run test conn-describe
+ * 
+ * 7. Commit your test, your recordings, and snapshots to the repository.
  */
 import cp from 'child_process';
 import { promisify } from 'util';
