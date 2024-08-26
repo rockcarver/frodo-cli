@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Improve support for custom platform deployments (non-forgeops or customized forgeops)
+
+  - \#429: Added options to support custom oauth2 clients used to obtain the access token for IDM API calls:
+
+    - `--login-client-id <client-id>` Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").
+    - `--login-redirect-uri <redirect-uri>` Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").
+
+    The above options can also be supplied through environment variables:
+
+    - `FRODO_LOGIN_CLIENT_ID` OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.
+    - `FRODO_LOGIN_REDIRECT_URI` Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
+
+  - \#359: Added an option to support custom IDM host URLs for all IDM API calls (e.g. platform deployments hosting AM and IDM on/in different DNS hosts/domains):
+
+    - `--idm-host <idm-host>` IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
+
+    The above option can also be supplied through an environment variable:
+
+    - `FRODO_IDM_HOST` IDM base URL. Overridden by '--idm-host' option.
+  
+  ***Note:*** All the above options are also persisted in connection profiles so they only have to specified once and after that they come out of the connection profile.
+
+### Changed
+
+- Update to frodo-lib 2.1.2-0
+
 ## [2.0.5] - 2024-08-20
 
 ### Added

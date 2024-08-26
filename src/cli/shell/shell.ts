@@ -37,9 +37,9 @@ export default function setup() {
           'brightCyan'
         ] +
         `  Launch a frodo shell using a connection profile (identified by the full AM base URL):\n` +
-        `  $ frodo shell ${s.amBaseUrl}'\n`['brightCyan'] +
+        `  $ frodo shell ${s.amBaseUrl}\n`['brightCyan'] +
         `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL):\n` +
-        `  $ frodo shell ${s.connId}'\n`['brightCyan']
+        `  $ frodo shell ${s.connId}\n`['brightCyan']
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
