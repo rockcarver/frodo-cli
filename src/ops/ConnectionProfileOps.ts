@@ -81,11 +81,20 @@ export async function describeConnectionProfile(
       if (profile.logApiSecret) profile.logApiSecret = present;
       if (profile.svcacctJwk) (profile as unknown)['svcacctJwk'] = present;
     }
+    if (!profile.idmHost) {
+      delete profile.idmHost;
+    }
     if (profile.allowInsecureConnection === undefined) {
       delete profile.allowInsecureConnection;
     }
     if (!profile.deploymentType) {
       delete profile.deploymentType;
+    }
+    if (!profile.adminClientId) {
+      delete profile.adminClientId;
+    }
+    if (!profile.adminClientRedirectUri) {
+      delete profile.adminClientRedirectUri;
     }
     if (!profile.username) {
       delete profile.username;

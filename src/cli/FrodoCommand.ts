@@ -18,7 +18,7 @@ const { DEFAULT_REALM_KEY, DEPLOYMENT_TYPES } = frodo.utils.constants;
 
 const hostArgument = new Argument(
   '[host]',
-  'Access Management base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.'
+  'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.'
 );
 
 const realmArgument = new Argument(
@@ -36,6 +36,21 @@ const usernameArgument = new Argument(
 );
 
 const passwordArgument = new Argument('[password]', 'Password.');
+
+const idmHostOption = new Option(
+  '--idm-host <idm-host>',
+  'IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".'
+);
+
+const loginClientId = new Option(
+  '--login-client-id <client-id>',
+  'Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").'
+);
+
+const loginRedirectUri = new Option(
+  '--login-redirect-uri <redirect-uri>',
+  'Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").'
+);
 
 const serviceAccountIdOption = new Option(
   '--sa-id <sa-id>',
@@ -98,6 +113,9 @@ const defaultArgs = [
 ];
 
 const defaultOpts = [
+  idmHostOption,
+  loginClientId,
+  loginRedirectUri,
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
   deploymentOption,
@@ -115,6 +133,12 @@ const stateMap = {
   [realmArgument.name()]: (realm: string) => state.setRealm(realm),
   [usernameArgument.name()]: (username: string) => state.setUsername(username),
   [passwordArgument.name()]: (password: string) => state.setPassword(password),
+  [idmHostOption.attributeName()]: (idmHost: string) =>
+    state.setIdmHost(idmHost),
+  [loginClientId.attributeName()]: (clientId: string) =>
+    state.setAdminClientId(clientId),
+  [loginRedirectUri.attributeName()]: (redirectUri: string) =>
+    state.setAdminClientRedirectUri(redirectUri),
   [serviceAccountIdOption.attributeName()]: (saId: string) =>
     state.setServiceAccountId(saId),
   [serviceAccountJwkFileOption.attributeName()]: (file: string) => {
@@ -244,21 +268,24 @@ export class FrodoCommand extends FrodoStubCommand {
     this.addHelpText(
       'after',
       `\nEnvironment Variables:\n` +
-        `  FRODO_HOST: Access Management base URL. Overrides 'host' argument.\n` +
-        `  FRODO_REALM: Realm. Overrides 'realm' argument.\n` +
-        `  FRODO_USERNAME: Username. Overrides 'username' argument.\n` +
-        `  FRODO_PASSWORD: Password. Overrides 'password' argument.\n` +
-        `  FRODO_SA_ID: Service account uuid. Overrides '--sa-id' option.\n` +
-        `  FRODO_SA_JWK: Service account JWK. Overrides '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
+        `  FRODO_HOST: AM base URL. Overridden by 'host' argument.\n` +
+        `  FRODO_IDM_HOST: IDM base URL. Overridden by '--idm-host' option.\n` +
+        `  FRODO_REALM: Realm. Overridden by 'realm' argument.\n` +
+        `  FRODO_USERNAME: Username. Overridden by 'username' argument.\n` +
+        `  FRODO_PASSWORD: Password. Overridden by 'password' argument.\n` +
+        `  FRODO_LOGIN_CLIENT_ID: OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.\n` +
+        `  FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.\n` +
+        `  FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.\n` +
+        `  FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
         `  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.\n` +
         `  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.\n` +
         ('frodo conn save' === this.name()
-          ? `  FRODO_LOG_KEY: Log API key. Overrides '--log-api-key' option.\n` +
-            `  FRODO_LOG_SECRET: Log API secret. Overrides '--log-api-secret' option.\n`
+          ? `  FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.\n` +
+            `  FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.\n`
           : ``) +
         (this.name().startsWith('frodo log')
-          ? `  FRODO_LOG_KEY: Log API key. Overrides 'username' argument.\n` +
-            `  FRODO_LOG_SECRET: Log API secret. Overrides 'password' argument.\n`
+          ? `  FRODO_LOG_KEY: Log API key. Overridden by 'username' argument.\n` +
+            `  FRODO_LOG_SECRET: Log API secret. Overridden by 'password' argument.\n`
           : ``) +
         `  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.\n` +
         `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.\n` +
