@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.6-0] - 2024-08-26
+
 ### Added
 
 - Improve support for custom platform deployments (non-forgeops or customized forgeops)
 
   - \#429: Added options to support custom oauth2 clients used to obtain the access token for IDM API calls:
 
-    - `--login-client-id <client-id>` Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").
+    - `--login-client-id <client-id>` Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:\*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").
     - `--login-redirect-uri <redirect-uri>` Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").
 
     The above options can also be supplied through environment variables:
@@ -23,13 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   - \#359: Added an option to support custom IDM host URLs for all IDM API calls (e.g. platform deployments hosting AM and IDM on/in different DNS hosts/domains):
 
-    - `--idm-host <idm-host>` IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
+    - `--idm-host <idm-host>` IDM base URL, e.g.: <https://cdk.idm.example.com/myidm>. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
 
     The above option can also be supplied through an environment variable:
 
     - `FRODO_IDM_HOST` IDM base URL. Overridden by '--idm-host' option.
-  
-  ***Note:*** All the above options are also persisted in connection profiles so they only have to specified once and after that they come out of the connection profile.
+
+  **_Note:_** All the above options are also persisted in connection profiles so they only have to specified once and after that they come out of the connection profile.
 
 ### Changed
 
@@ -1972,7 +1974,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.5...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-0...HEAD
+[2.0.6-0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.5...v2.0.6-0
 [2.0.5]: https://github.com/rockcarver/frodo-cli/compare/v2.0.5-0...v2.0.5
 [2.0.5-0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.4...v2.0.5-0
 [2.0.4]: https://github.com/rockcarver/frodo-cli/compare/v2.0.3...v2.0.4
