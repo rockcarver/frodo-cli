@@ -239,21 +239,19 @@ async function getConfigFromDirectory(
 }
 
 /**
- * Determines if a string id is being used anywhere within the given configuration object
- * @param configuration The configuration object
- * @param id The id being search for
- * @param isEsv Whether the id corresponds to an ESV or not
+ * Determines all locations where a string id is being used anywhere within the given configuration object
+ * @param {object} configuration The configuration object
+ * @param {string} id The id being searched for
+ * @param {boolean} isEsv Whether the id corresponds to an ESV or not
+ * @returns {string[]} an array of locations where the id is being used
  */
-export function isIdUsed(
+export function getIdLocations(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  configuration: any,
+  configuration: object,
   id: string,
   isEsv: boolean
-): {
-  used: boolean;
-  location: string;
-} {
-  return isIdUsedRecurse(
+): string[] {
+  return getIdLocationsRecurse(
     configuration,
     isEsv
       ? // For ESV ids, they contain either letters, numbers, dashes, or underscores. The dashes get replaced with periods (escaped with a \ for the regex)
@@ -269,37 +267,38 @@ export function isIdUsed(
 }
 
 /**
- * Recursive helper for isIdUsed that finds any strings contained in the configuration that pass the regex
- * @param configuration The configuration (could be anything)
- * @param regex The regex test
+ * Recursive helper for getIdLocations that finds locations of any strings contained in the configuration that pass the regex
+ * @param {any} configuration The configuration (could be anything)
+ * @param {RegExp} regex The regex test
+ * @returns {string[]} an array of locations where the id is found
  */
-function isIdUsedRecurse(
+function getIdLocationsRecurse(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   configuration: any,
   regex: RegExp
-): {
-  used: boolean;
-  location: string;
-} {
+): string[] {
+  let locations = [];
   const type = typeof configuration;
   if (type === 'object' && configuration !== null) {
     for (const [id, value] of Object.entries(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       configuration as Record<string, any>
     )) {
-      const isIdUsed = isIdUsedRecurse(value, regex);
-      if (isIdUsed.used) {
-        isIdUsed.location =
+      const usedLocations = getIdLocationsRecurse(value, regex);
+      // Updates the relative locations of each place the id is used
+      const updatedLocations = usedLocations.map(
+        (loc) =>
           id +
           (value.name ? `(name: '${value.name}')` : '') +
-          (isIdUsed.location === '' ? '' : '.') +
-          isIdUsed.location;
-        return isIdUsed;
-      }
+          (loc === '' ? '' : '.') +
+          loc
+      );
+      locations = locations.concat(updatedLocations);
     }
   }
-  return {
-    used: type === 'string' && regex.test(configuration),
-    location: '',
-  };
+  // This if statement determines whether or not the id is used in this configuration. If it is, return an empty string for its relative location.
+  else if (type === 'string' && regex.test(configuration)) {
+    locations.push('');
+  }
+  return locations;
 }

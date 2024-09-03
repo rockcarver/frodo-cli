@@ -25302,6 +25302,28 @@
         "remote": {}
       },
       "script": {
+        "da7a96a8-7969-4dab-9c6e-a812938cc76d": {
+          "_id": "da7a96a8-7969-4dab-9c6e-a812938cc76d",
+          "context": "LIBRARY",
+          "createdBy": "null",
+          "creationDate": 0,
+          "default": false,
+          "description": "Script that uses secrets and variables",
+          "evaluatorVersion": "2.0",
+          "language": "JAVASCRIPT",
+          "lastModifiedBy": "null",
+          "lastModifiedDate": 0,
+          "name": "test-script-with-secrets-and-variables",
+          "script": [
+            "console.log(`pi: ${systemEnv.getProperty(\"esv.test.var.pi\")}`);",
+            "console.log(`pi secret: ${systemEnv.getProperty(\"esv.test.secret.pi\")}`);",
+            "console.log(`speed of light: ${systemEnv.getProperty(\"esv.test.variable.light\")}`);",
+            "console.log(`euler's number: ${systemEnv.getProperty(\"esv.test.secret.euler\")}`);",
+            "console.log(`Area of circle with radius 7: ${7 * 7 * systemEnv.getProperty(\"esv.test.var.pi\")}`);",
+            "console.log(`Volume of sphere with radius 7: ${4 * 7 * 7 * 7 * systemEnv.getProperty(\"esv.test.secret.pi\") / 3}`);",
+            ""
+          ]
+        },
         "07ee6240-d106-4e25-a781-5fcabc477d22": {
           "_id": "07ee6240-d106-4e25-a781-5fcabc477d22",
           "context": "SAML2_SP_ADAPTER",

@@ -7,7 +7,7 @@ import {
 import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
 import fs from 'fs';
 
-import { getFullExportConfig, isIdUsed } from '../../utils/Config';
+import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -77,8 +77,8 @@ export async function listSecrets(
     return false;
   }
   if (!long && !usage) {
-    secrets.forEach((variable) => {
-      printMessage(variable._id, 'data');
+    secrets.forEach((secret) => {
+      printMessage(secret._id, 'data');
     });
     return true;
   }
@@ -102,7 +102,7 @@ export async function listSecrets(
       return false;
     }
     //Delete secrets from full export so they aren't mistakenly used for determining usage
-    delete fullExport.secrets;
+    delete fullExport.global.secrets;
     headers.push('Used'['brightCyan']);
   }
   const table = createTable(headers);
@@ -129,10 +129,10 @@ export async function listSecrets(
         ]
       : [secret._id];
     if (usage) {
-      const isEsvUsed = isIdUsed(fullExport, secret._id, true);
+      const locations = getIdLocations(fullExport, secret._id, true);
       values.push(
-        isEsvUsed.used
-          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+        locations.length > 0
+          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
           : 'no'['brightRed']
       );
     }
@@ -318,9 +318,13 @@ export async function deleteSecrets(): Promise<boolean> {
 /**
  * List all the versions of the secret
  * @param {String} secretId secret id
+ * @param {boolean} json output versions as json. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listSecretVersions(secretId): Promise<boolean> {
+export async function listSecretVersions(
+  secretId: string,
+  json = false
+): Promise<boolean> {
   let spinnerId: string;
   let versions: VersionOfSecretSkeleton[] = [];
   try {
@@ -335,6 +339,10 @@ export async function listSecretVersions(secretId): Promise<boolean> {
       `Successfully read ${versions.length} secret versions.`,
       'success'
     );
+    if (json) {
+      printMessage(versions, 'data');
+      return true;
+    }
     const table = createTable([
       { hAlign: 'right', content: 'Version'['brightCyan'] },
       'Status'['brightCyan'],
@@ -365,52 +373,96 @@ export async function listSecretVersions(secretId): Promise<boolean> {
 
 /**
  * Describe a secret
- * @param {string} secretId Secret id
+ * @param {string} secretId secret id
+ * @param {string} file optional export file
+ * @param {boolean} usage true to describe usage, false otherwise. Default: false
+ * @param {boolean} json output description as json. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function describeSecret(secretId: string): Promise<boolean> {
+export async function describeSecret(
+  secretId: string,
+  file?: string,
+  usage = false,
+  json = false
+): Promise<boolean> {
   let spinnerId: string;
-  let secret: SecretSkeleton = null;
   try {
     spinnerId = createProgressIndicator(
       'indeterminate',
       0,
       `Reading secret ${secretId}...`
     );
-    secret = await readSecret(secretId);
+    const secret = (await readSecret(secretId)) as SecretSkeleton & {
+      locations: string[];
+    };
+    if (usage) {
+      try {
+        const fullExport = await getFullExportConfig(file);
+        //Delete secrets from full export so they aren't mistakenly used for determining usage
+        delete fullExport.global.secrets;
+        secret.locations = getIdLocations(fullExport, secretId, true);
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          `Error determining usage for secret with id ${secretId}`,
+          'fail'
+        );
+        printError(error);
+        return false;
+      }
+    }
     stopProgressIndicator(
       spinnerId,
       `Successfully read secret ${secretId}.`,
       'success'
     );
-    const table = createKeyValueTable();
-    table.push(['Name'['brightCyan'], secret._id]);
-    table.push(['Active Version'['brightCyan'], secret.activeVersion]);
-    table.push(['Loaded Version'['brightCyan'], secret.loadedVersion]);
-    table.push([
-      'Status'['brightCyan'],
-      secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
-    ]);
-    table.push(['Description'['brightCyan'], wordwrap(secret.description, 60)]);
-    table.push([
-      'Modified'['brightCyan'],
-      new Date(secret.lastChangeDate).toLocaleString(),
-    ]);
-    let lastChangedBy = secret.lastChangedBy;
-    try {
-      lastChangedBy = state.getUseBearerTokenForAmApis()
-        ? secret.lastChangedBy
-        : await resolveUserName('teammember', secret.lastChangedBy);
-    } catch (error) {
-      // ignore
+    if (json) {
+      printMessage(secret, 'data');
+    } else {
+      const table = createKeyValueTable();
+      table.push(['Name'['brightCyan'], secret._id]);
+      table.push(['Active Version'['brightCyan'], secret.activeVersion]);
+      table.push(['Loaded Version'['brightCyan'], secret.loadedVersion]);
+      table.push([
+        'Status'['brightCyan'],
+        secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+      ]);
+      table.push([
+        'Description'['brightCyan'],
+        wordwrap(secret.description, 60),
+      ]);
+      table.push([
+        'Modified'['brightCyan'],
+        new Date(secret.lastChangeDate).toLocaleString(),
+      ]);
+      let lastChangedBy = secret.lastChangedBy;
+      try {
+        lastChangedBy = state.getUseBearerTokenForAmApis()
+          ? secret.lastChangedBy
+          : await resolveUserName('teammember', secret.lastChangedBy);
+      } catch (error) {
+        // ignore
+      }
+      table.push(['Modifier'['brightCyan'], lastChangedBy]);
+      table.push(['Modifier UUID'['brightCyan'], secret.lastChangedBy]);
+      table.push(['Encoding'['brightCyan'], secret.encoding]);
+      table.push([
+        'Use In Placeholders'['brightCyan'],
+        secret.useInPlaceholders,
+      ]);
+      if (usage) {
+        table.push([
+          `Usage Locations (${secret.locations.length} total)`['brightCyan'],
+          secret.locations.length > 0 ? secret.locations[0] : '',
+        ]);
+        for (let i = 1; i < secret.locations.length; i++) {
+          table.push(['', secret.locations[i]]);
+        }
+      }
+      printMessage(table.toString(), 'data');
     }
-    table.push(['Modifier'['brightCyan'], lastChangedBy]);
-    table.push(['Modifier UUID'['brightCyan'], secret.lastChangedBy]);
-    table.push(['Encoding'['brightCyan'], secret.encoding]);
-    table.push(['Use In Placeholders'['brightCyan'], secret.useInPlaceholders]);
-    printMessage(table.toString(), 'data');
     printMessage('\nSecret Versions:', 'data');
-    await listSecretVersions(secretId);
+    await listSecretVersions(secretId, json);
     return true;
   } catch (error) {
     stopProgressIndicator(

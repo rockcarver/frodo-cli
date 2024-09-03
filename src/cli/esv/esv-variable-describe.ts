@@ -2,7 +2,7 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { describeVariable } from '../../ops/cloud/VariablesOps';
-import { verboseMessage } from '../../utils/Console.js';
+import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const deploymentTypes = ['cloud'];
@@ -22,6 +22,18 @@ export default function setup() {
         'Variable id.'
       ).makeOptionMandatory()
     )
+    .addOption(
+      new Option(
+        '-f, --file [file]',
+        'Optional export file to use to determine usage. Overrides -D, --directory. Only used if -u or --usage is provided as well.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-u, --usage',
+        'List all uses of the variable. If a file is provided with -f or --file, it will search for usage in the file. If a directory is provided with -D or --directory, it will search for usage in all .json files in the directory and sub-directories. If no file or directory is provided, it will perform a full export automatically to determine usage.'
+      ).default(false, 'false')
+    )
     .addOption(new Option('--json', 'Output in JSON format.'))
     .action(
       // implement command logic inside action handler
@@ -33,14 +45,26 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(false, true, deploymentTypes)) {
+        if (
+          options.variableId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Describing variable ${options.variableId}...`);
           const outcome = await describeVariable(
             options.variableId,
+            options.file,
+            options.usage,
             options.json
           );
           if (!outcome) process.exitCode = 1;
-        } else {
+        }
+        // unrecognized combination of options or no options
+        else {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          program.help();
           process.exitCode = 1;
         }
       }
