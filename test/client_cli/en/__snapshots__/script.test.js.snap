@@ -10,6 +10,7 @@ Options:
 
 Commands:
   delete      Delete scripts.
+  describe    Describe script.
   export      Export scripts.
   help        display help for command
   import      Import scripts.

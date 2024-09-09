@@ -6,7 +6,7 @@ import {
 import { VariablesExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/VariablesOps';
 import fs from 'fs';
 
-import { getFullExportConfig, isIdUsed } from '../../utils/Config';
+import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -100,7 +100,7 @@ export async function listVariables(
       return false;
     }
     //Delete variables from full export so they aren't mistakenly used for determining usage
-    delete fullExport.variables;
+    delete fullExport.global.variables;
     headers.push('Used'['brightCyan']);
   }
   const table = createTable(headers);
@@ -123,10 +123,10 @@ export async function listVariables(
         ]
       : [variable._id];
     if (usage) {
-      const isEsvUsed = isIdUsed(fullExport, variable._id, true);
+      const locations = getIdLocations(fullExport, variable._id, true);
       values.push(
-        isEsvUsed.used
-          ? `${'yes'['brightGreen']} (at ${isEsvUsed.location})`
+        locations.length > 0
+          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
           : 'no'['brightRed']
       );
     }
@@ -313,10 +313,15 @@ export async function deleteVariables(): Promise<boolean> {
 /**
  * Describe a variable
  * @param {string} variableId variable id
+ * @param {string} file optional export file
+ * @param {boolean} usage true to describe usage, false otherwise. Default: false
+ * @param {boolean} json output description as json. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeVariable(
   variableId: string,
+  file?: string,
+  usage = false,
   json = false
 ): Promise<boolean> {
   const spinnerId = createProgressIndicator(
@@ -325,7 +330,25 @@ export async function describeVariable(
     `Describing variable ${variableId}...`
   );
   try {
-    const variable = await readVariable(variableId);
+    const variable = (await readVariable(variableId)) as VariableSkeleton & {
+      locations: string[];
+    };
+    if (usage) {
+      try {
+        const fullExport = await getFullExportConfig(file);
+        //Delete variables from full export so they aren't mistakenly used for determining usage
+        delete fullExport.global.variables;
+        variable.locations = getIdLocations(fullExport, variableId, true);
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          `Error determining usage for variable with id ${variableId}`,
+          'fail'
+        );
+        printError(error);
+        return false;
+      }
+    }
     stopProgressIndicator(
       spinnerId,
       `Successfully retrieved variable ${variableId}`,
@@ -368,6 +391,15 @@ export async function describeVariable(
         table.push(['Modifier'['brightCyan'], modifierName]);
       }
       table.push(['Modifier UUID'['brightCyan'], variable.lastChangedBy]);
+      if (usage) {
+        table.push([
+          `Usage Locations (${variable.locations.length} total)`['brightCyan'],
+          variable.locations.length > 0 ? variable.locations[0] : '',
+        ]);
+        for (let i = 1; i < variable.locations.length; i++) {
+          table.push(['', variable.locations[i]]);
+        }
+      }
       printMessage(table.toString(), 'data');
     }
     return true;

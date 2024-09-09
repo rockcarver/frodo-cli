@@ -1,5 +1,6 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
+import { FullExportInterface } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import {
   type ScriptExportInterface,
   ScriptExportOptions,
@@ -8,8 +9,9 @@ import {
 import chokidar from 'chokidar';
 import fs from 'fs';
 
-import { getFullExportConfig, isIdUsed } from '../utils/Config';
+import { getFullExportConfig, getIdLocations } from '../utils/Config';
 import {
+  createKeyValueTable,
   createProgressIndicator,
   createTable,
   debugMessage,
@@ -36,6 +38,8 @@ const {
   saveToFile,
 } = frodo.utils;
 const {
+  readScript,
+  readScriptByName,
   readScripts,
   exportScript,
   exportScriptByName,
@@ -45,6 +49,8 @@ const {
   deleteScriptByName,
   deleteScripts,
 } = frodo.script;
+
+const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
 
 /**
  * Get a one-line description of the script object
@@ -73,7 +79,6 @@ export function getTableHeaderMd(): string {
  * @returns {string} markdown table row
  */
 export function getTableRowMd(scriptObj: ScriptSkeleton): string {
-  const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
   const description = `| ${scriptObj.name} | ${
     langMap[scriptObj.language]
   } | ${titleCase(scriptObj.context.split('_').join(' '))} | \`${
@@ -122,7 +127,7 @@ export async function listScripts(
     debugMessage(`Cli.ScriptOps.listScripts: end`);
     return true;
   }
-  let fullExport = null;
+  let fullExport: FullExportInterface = null;
   const headers = long
     ? ['Name', 'UUID', 'Language', 'Context', 'Description']
     : ['Name'];
@@ -134,11 +139,12 @@ export async function listScripts(
       return false;
     }
     //Delete scripts from full export so they aren't mistakenly used for determining usage
-    delete fullExport.script;
+    for (const realmExport of Object.values(fullExport.realm)) {
+      delete realmExport.script;
+    }
     headers.push('Used');
   }
   const table = createTable(headers);
-  const langMap = { JAVASCRIPT: 'JS', GROOVY: 'Groovy' };
   scripts.forEach((script) => {
     const values = long
       ? [
@@ -150,10 +156,10 @@ export async function listScripts(
         ]
       : [wordwrap(script.name, 25, '  ')];
     if (usage) {
-      const isScriptUsed = isIdUsed(fullExport, script._id, false);
+      const locations = getIdLocations(fullExport, script._id, false);
       values.push(
-        isScriptUsed.used
-          ? `${'yes'['brightGreen']} (at ${isScriptUsed.location})`
+        locations.length > 0
+          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
           : 'no'['brightRed']
       );
     }
@@ -162,6 +168,108 @@ export async function listScripts(
   printMessage(table.toString(), 'data');
   debugMessage(`Cli.ScriptOps.listScripts: end`);
   return true;
+}
+
+/**
+ * Describe a script
+ * @param {string} scriptId script id
+ * @param {string} scriptName script name
+ * @param {string} file optional export file
+ * @param {boolean} usage true to describe usage, false otherwise. Default: false
+ * @param {boolean} json output description as json. Default: false
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function describeScript(
+  scriptId: string,
+  scriptName: string,
+  file?: string,
+  usage = false,
+  json = false
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Describing script '${scriptId ? scriptId : scriptName}'...`
+  );
+  try {
+    let script;
+    if (scriptId) {
+      script = (await readScript(scriptId)) as ScriptSkeleton & {
+        locations: string[];
+      };
+    } else {
+      script = (await readScriptByName(scriptName)) as ScriptSkeleton & {
+        locations: string[];
+      };
+    }
+    if (usage) {
+      try {
+        const fullExport = await getFullExportConfig(file);
+        //Delete scripts from full export so they aren't mistakenly used for determining usage
+        for (const realmExport of Object.values(fullExport.realm)) {
+          delete realmExport.script;
+        }
+        script.locations = getIdLocations(fullExport, script._id, false);
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          `Error determining usage for script '${scriptId ? scriptId : scriptName}'`,
+          'fail'
+        );
+        printError(error);
+        return false;
+      }
+    }
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully retrieved script '${scriptId ? scriptId : scriptName}'`,
+      'success'
+    );
+    if (json) {
+      printMessage(script, 'data');
+    } else {
+      const table = createKeyValueTable();
+      table.push(['Id'['brightCyan'], script._id]);
+      table.push(['Name'['brightCyan'], script.name]);
+      table.push(['Language'['brightCyan'], langMap[script.language]]);
+      table.push([
+        'Context'['brightCyan'],
+        titleCase(script.context.split('_').join(' ')),
+      ]);
+      table.push(['Description'['brightCyan'], script.description]);
+      table.push([
+        'Default'['brightCyan'],
+        script.default ? 'true'['brightGreen'] : 'false'['brightRed'],
+      ]);
+      table.push(['Evaluator Version'['brightCyan'], script.evaluatorVersion]);
+      const scriptWrapLength = 80;
+      const wrapRegex = new RegExp(`.{1,${scriptWrapLength + 1}}`, 'g');
+      const scriptParts = script.script.match(wrapRegex);
+      table.push(['Script (Base 64)'['brightCyan'], scriptParts[0]]);
+      for (let i = 1; i < scriptParts.length; i++) {
+        table.push(['', scriptParts[i]]);
+      }
+      if (usage) {
+        table.push([
+          `Usage Locations (${script.locations.length} total)`['brightCyan'],
+          script.locations.length > 0 ? script.locations[0] : '',
+        ]);
+        for (let i = 1; i < script.locations.length; i++) {
+          table.push(['', script.locations[i]]);
+        }
+      }
+      printMessage(table.toString(), 'data');
+    }
+    return true;
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error describing script '${scriptId ? scriptId : scriptName}'`,
+      'fail'
+    );
+    printError(error);
+  }
+  return false;
 }
 
 /**

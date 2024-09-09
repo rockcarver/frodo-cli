@@ -1,0 +1,215 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo script describe "frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.config.json": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901" with usage from file test/e2e/exports/all/all.config.json and json output 1`] = `
+"{
+  _id: '1b52a7e0-4019-40fa-958a-15a49870e901',
+  name: 'shared',
+  description: 'set the same shared state variable',
+  script: 'KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZXQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZXZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3NzIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZlbCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7',
+  default: false,
+  language: 'JAVASCRIPT',
+  context: 'AUTHENTICATION_TREE_DECISION_NODE',
+  createdBy: 'null',
+  creationDate: 0,
+  lastModifiedBy: 'null',
+  lastModifiedDate: 0,
+  evaluatorVersion: '1.0',
+  locations: [
+    'realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script',
+    'realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script',
+    'realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script',
+    'realm.root-alpha.trees.j01.nodes.89ce5d57-82fa-4d58-8d15-0329f7dbd7e7.script',
+    'realm.root-alpha.trees.j02.nodes.cbb3d506-b267-4b99-9edd-363e90aac997.script',
+    'realm.root-alpha.trees.j02.nodes.e0983ead-4918-48f6-858d-9aff0f03759c.script',
+    'realm.root-alpha.trees.j03.nodes.6f9de973-9ed4-41f5-b43d-4036041e2b96.script',
+    'realm.root-alpha.trees.j03.nodes.fae7424e-13c9-45bd-b3a2-045773671a3f.script',
+    'realm.root-alpha.trees.j04.nodes.9603ef52-30f0-4ddc-b3c0-28dac83c7bdb.script',
+    'realm.root-alpha.trees.j04.nodes.f5c317ce-fabd-4a10-9907-c71cea037844.script',
+    'realm.root-alpha.trees.j05.nodes.11f1c31c-50a9-4717-8213-420f6932481f.script',
+    'realm.root-alpha.trees.j05.nodes.a0782616-84b7-4bf5-87ed-a01fb3018563.script',
+    'realm.root-alpha.trees.j06.nodes.1d59caff-243c-45bd-b7d0-6dcc563989c5.script',
+    'realm.root-alpha.trees.j06.nodes.da878771-421c-463f-aad7-4d5f2ad5e59a.script',
+    'realm.root-alpha.trees.j07.nodes.ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0.script',
+    'realm.root-alpha.trees.j07.nodes.d9a06d3a-7e3f-4244-9a32-63ffa0d26e00.script',
+    'realm.root-alpha.trees.j08.nodes.042b600b-71cb-45a8-93ae-a6f57b16a6e5.script',
+    'realm.root-alpha.trees.j08.nodes.948e21f4-c512-450a-9d42-e0d629217834.script',
+    'realm.root-alpha.trees.j09.nodes.8c5e9cb5-471b-4dd6-b150-ecaaeda98195.script',
+    'realm.root-alpha.trees.j09.nodes.f57cf53c-b4c6-48f7-84e8-91f535a2e8f8.script',
+    'realm.root-alpha.trees.j10.nodes.40afb384-e9b6-4dcb-acde-04de109474c8.script',
+    'realm.root-alpha.trees.j10.nodes.97ef9d96-99e7-4d2d-b6c6-4177b5397ead.script'
+  ]
+}
+"
+`;
+
+exports[`frodo script describe "frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/everything": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/everything and json output 1`] = `
+"{
+  _id: '1b52a7e0-4019-40fa-958a-15a49870e901',
+  name: 'shared',
+  description: 'set the same shared state variable',
+  script: 'KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZXQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZXZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3NzIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZlbCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7',
+  default: false,
+  language: 'JAVASCRIPT',
+  context: 'AUTHENTICATION_TREE_DECISION_NODE',
+  createdBy: 'null',
+  creationDate: 0,
+  lastModifiedBy: 'null',
+  lastModifiedDate: 0,
+  evaluatorVersion: '1.0',
+  locations: [
+    'realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script',
+    'realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script',
+    'realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script',
+    'realm.root-alpha.trees.j01.nodes.89ce5d57-82fa-4d58-8d15-0329f7dbd7e7.script',
+    'realm.root-alpha.trees.j02.nodes.cbb3d506-b267-4b99-9edd-363e90aac997.script',
+    'realm.root-alpha.trees.j02.nodes.e0983ead-4918-48f6-858d-9aff0f03759c.script',
+    'realm.root-alpha.trees.j03.nodes.6f9de973-9ed4-41f5-b43d-4036041e2b96.script',
+    'realm.root-alpha.trees.j03.nodes.fae7424e-13c9-45bd-b3a2-045773671a3f.script',
+    'realm.root-alpha.trees.j04.nodes.9603ef52-30f0-4ddc-b3c0-28dac83c7bdb.script',
+    'realm.root-alpha.trees.j04.nodes.f5c317ce-fabd-4a10-9907-c71cea037844.script',
+    'realm.root-alpha.trees.j05.nodes.11f1c31c-50a9-4717-8213-420f6932481f.script',
+    'realm.root-alpha.trees.j05.nodes.a0782616-84b7-4bf5-87ed-a01fb3018563.script',
+    'realm.root-alpha.trees.j06.nodes.1d59caff-243c-45bd-b7d0-6dcc563989c5.script',
+    'realm.root-alpha.trees.j06.nodes.da878771-421c-463f-aad7-4d5f2ad5e59a.script',
+    'realm.root-alpha.trees.j07.nodes.ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0.script',
+    'realm.root-alpha.trees.j07.nodes.d9a06d3a-7e3f-4244-9a32-63ffa0d26e00.script',
+    'realm.root-alpha.trees.j08.nodes.042b600b-71cb-45a8-93ae-a6f57b16a6e5.script',
+    'realm.root-alpha.trees.j08.nodes.948e21f4-c512-450a-9d42-e0d629217834.script',
+    'realm.root-alpha.trees.j09.nodes.8c5e9cb5-471b-4dd6-b150-ecaaeda98195.script',
+    'realm.root-alpha.trees.j09.nodes.f57cf53c-b4c6-48f7-84e8-91f535a2e8f8.script',
+    'realm.root-alpha.trees.j10.nodes.40afb384-e9b6-4dcb-acde-04de109474c8.script',
+    'realm.root-alpha.trees.j10.nodes.97ef9d96-99e7-4d2d-b6c6-4177b5397ead.script'
+  ]
+}
+"
+`;
+
+exports[`frodo script describe "frodo script describe -i 1b52a7e0-4019-40fa-958a-15a49870e901": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901" 1`] = `
+"Id               │1b52a7e0-4019-40fa-958a-15a49870e901                                             
+Name             │shared                                                                           
+Language         │JavaScript                                                                       
+Context          │Authentication Tree Decision Node                                                
+Description      │set the same shared state variable                                               
+Default          │false                                                                            
+Evaluator Version│1.0                                                                              
+Script (Base 64) │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZ
+                 │XQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZX
+                 │ZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3N
+                 │zIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZl
+                 │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7                                             
+"
+`;
+
+exports[`frodo script describe "frodo script describe -un shared -D test/e2e/exports/all-separate/everything": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/everything 1`] = `
+"Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
+Name                      │shared                                                                           
+Language                  │JavaScript                                                                       
+Context                   │Authentication Tree Decision Node                                                
+Description               │set the same shared state variable                                               
+Default                   │false                                                                            
+Evaluator Version         │1.0                                                                              
+Script (Base 64)          │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZ
+                          │XQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZX
+                          │ZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3N
+                          │zIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZl
+                          │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7                                             
+Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script     
+                          │realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script     
+                          │realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script     
+                          │realm.root-alpha.trees.j01.nodes.89ce5d57-82fa-4d58-8d15-0329f7dbd7e7.script     
+                          │realm.root-alpha.trees.j02.nodes.cbb3d506-b267-4b99-9edd-363e90aac997.script     
+                          │realm.root-alpha.trees.j02.nodes.e0983ead-4918-48f6-858d-9aff0f03759c.script     
+                          │realm.root-alpha.trees.j03.nodes.6f9de973-9ed4-41f5-b43d-4036041e2b96.script     
+                          │realm.root-alpha.trees.j03.nodes.fae7424e-13c9-45bd-b3a2-045773671a3f.script     
+                          │realm.root-alpha.trees.j04.nodes.9603ef52-30f0-4ddc-b3c0-28dac83c7bdb.script     
+                          │realm.root-alpha.trees.j04.nodes.f5c317ce-fabd-4a10-9907-c71cea037844.script     
+                          │realm.root-alpha.trees.j05.nodes.11f1c31c-50a9-4717-8213-420f6932481f.script     
+                          │realm.root-alpha.trees.j05.nodes.a0782616-84b7-4bf5-87ed-a01fb3018563.script     
+                          │realm.root-alpha.trees.j06.nodes.1d59caff-243c-45bd-b7d0-6dcc563989c5.script     
+                          │realm.root-alpha.trees.j06.nodes.da878771-421c-463f-aad7-4d5f2ad5e59a.script     
+                          │realm.root-alpha.trees.j07.nodes.ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0.script     
+                          │realm.root-alpha.trees.j07.nodes.d9a06d3a-7e3f-4244-9a32-63ffa0d26e00.script     
+                          │realm.root-alpha.trees.j08.nodes.042b600b-71cb-45a8-93ae-a6f57b16a6e5.script     
+                          │realm.root-alpha.trees.j08.nodes.948e21f4-c512-450a-9d42-e0d629217834.script     
+                          │realm.root-alpha.trees.j09.nodes.8c5e9cb5-471b-4dd6-b150-ecaaeda98195.script     
+                          │realm.root-alpha.trees.j09.nodes.f57cf53c-b4c6-48f7-84e8-91f535a2e8f8.script     
+                          │realm.root-alpha.trees.j10.nodes.40afb384-e9b6-4dcb-acde-04de109474c8.script     
+                          │realm.root-alpha.trees.j10.nodes.97ef9d96-99e7-4d2d-b6c6-4177b5397ead.script     
+"
+`;
+
+exports[`frodo script describe "frodo script describe -un shared -f test/e2e/exports/all/all.config.json": should describe the script with name "shared" with usage from file test/e2e/exports/all/all.config.json 1`] = `
+"Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
+Name                      │shared                                                                           
+Language                  │JavaScript                                                                       
+Context                   │Authentication Tree Decision Node                                                
+Description               │set the same shared state variable                                               
+Default                   │false                                                                            
+Evaluator Version         │1.0                                                                              
+Script (Base 64)          │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZ
+                          │XQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZX
+                          │ZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3N
+                          │zIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZl
+                          │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7                                             
+Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script     
+                          │realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script     
+                          │realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script     
+                          │realm.root-alpha.trees.j01.nodes.89ce5d57-82fa-4d58-8d15-0329f7dbd7e7.script     
+                          │realm.root-alpha.trees.j02.nodes.cbb3d506-b267-4b99-9edd-363e90aac997.script     
+                          │realm.root-alpha.trees.j02.nodes.e0983ead-4918-48f6-858d-9aff0f03759c.script     
+                          │realm.root-alpha.trees.j03.nodes.6f9de973-9ed4-41f5-b43d-4036041e2b96.script     
+                          │realm.root-alpha.trees.j03.nodes.fae7424e-13c9-45bd-b3a2-045773671a3f.script     
+                          │realm.root-alpha.trees.j04.nodes.9603ef52-30f0-4ddc-b3c0-28dac83c7bdb.script     
+                          │realm.root-alpha.trees.j04.nodes.f5c317ce-fabd-4a10-9907-c71cea037844.script     
+                          │realm.root-alpha.trees.j05.nodes.11f1c31c-50a9-4717-8213-420f6932481f.script     
+                          │realm.root-alpha.trees.j05.nodes.a0782616-84b7-4bf5-87ed-a01fb3018563.script     
+                          │realm.root-alpha.trees.j06.nodes.1d59caff-243c-45bd-b7d0-6dcc563989c5.script     
+                          │realm.root-alpha.trees.j06.nodes.da878771-421c-463f-aad7-4d5f2ad5e59a.script     
+                          │realm.root-alpha.trees.j07.nodes.ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0.script     
+                          │realm.root-alpha.trees.j07.nodes.d9a06d3a-7e3f-4244-9a32-63ffa0d26e00.script     
+                          │realm.root-alpha.trees.j08.nodes.042b600b-71cb-45a8-93ae-a6f57b16a6e5.script     
+                          │realm.root-alpha.trees.j08.nodes.948e21f4-c512-450a-9d42-e0d629217834.script     
+                          │realm.root-alpha.trees.j09.nodes.8c5e9cb5-471b-4dd6-b150-ecaaeda98195.script     
+                          │realm.root-alpha.trees.j09.nodes.f57cf53c-b4c6-48f7-84e8-91f535a2e8f8.script     
+                          │realm.root-alpha.trees.j10.nodes.40afb384-e9b6-4dcb-acde-04de109474c8.script     
+                          │realm.root-alpha.trees.j10.nodes.97ef9d96-99e7-4d2d-b6c6-4177b5397ead.script     
+"
+`;
+
+exports[`frodo script describe "frodo script describe -un shared": should describe the script with name "shared" with usage 1`] = `
+"Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
+Name                      │shared                                                                           
+Language                  │JavaScript                                                                       
+Context                   │Authentication Tree Decision Node                                                
+Description               │set the same shared state variable                                               
+Default                   │false                                                                            
+Evaluator Version         │1.0                                                                              
+Script (Base 64)          │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZlbCA9IG5vZGVTdGF0ZS5nZ
+                          │XQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZX
+                          │ZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3N
+                          │zIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZl
+                          │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7                                             
+Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script     
+                          │realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script     
+                          │realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script     
+                          │realm.root-alpha.trees.j01.nodes.89ce5d57-82fa-4d58-8d15-0329f7dbd7e7.script     
+                          │realm.root-alpha.trees.j02.nodes.cbb3d506-b267-4b99-9edd-363e90aac997.script     
+                          │realm.root-alpha.trees.j02.nodes.e0983ead-4918-48f6-858d-9aff0f03759c.script     
+                          │realm.root-alpha.trees.j03.nodes.6f9de973-9ed4-41f5-b43d-4036041e2b96.script     
+                          │realm.root-alpha.trees.j03.nodes.fae7424e-13c9-45bd-b3a2-045773671a3f.script     
+                          │realm.root-alpha.trees.j04.nodes.9603ef52-30f0-4ddc-b3c0-28dac83c7bdb.script     
+                          │realm.root-alpha.trees.j04.nodes.f5c317ce-fabd-4a10-9907-c71cea037844.script     
+                          │realm.root-alpha.trees.j05.nodes.11f1c31c-50a9-4717-8213-420f6932481f.script     
+                          │realm.root-alpha.trees.j05.nodes.a0782616-84b7-4bf5-87ed-a01fb3018563.script     
+                          │realm.root-alpha.trees.j06.nodes.1d59caff-243c-45bd-b7d0-6dcc563989c5.script     
+                          │realm.root-alpha.trees.j06.nodes.da878771-421c-463f-aad7-4d5f2ad5e59a.script     
+                          │realm.root-alpha.trees.j07.nodes.ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0.script     
+                          │realm.root-alpha.trees.j07.nodes.d9a06d3a-7e3f-4244-9a32-63ffa0d26e00.script     
+                          │realm.root-alpha.trees.j08.nodes.042b600b-71cb-45a8-93ae-a6f57b16a6e5.script     
+                          │realm.root-alpha.trees.j08.nodes.948e21f4-c512-450a-9d42-e0d629217834.script     
+                          │realm.root-alpha.trees.j09.nodes.8c5e9cb5-471b-4dd6-b150-ecaaeda98195.script     
+                          │realm.root-alpha.trees.j09.nodes.f57cf53c-b4c6-48f7-84e8-91f535a2e8f8.script     
+                          │realm.root-alpha.trees.j10.nodes.40afb384-e9b6-4dcb-acde-04de109474c8.script     
+                          │realm.root-alpha.trees.j10.nodes.97ef9d96-99e7-4d2d-b6c6-4177b5397ead.script     
+"
+`;
