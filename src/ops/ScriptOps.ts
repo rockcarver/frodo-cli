@@ -36,6 +36,7 @@ const {
   getFilePath,
   getWorkingDirectory,
   saveToFile,
+  decodeBase64,
 } = frodo.utils;
 const {
   readScript,
@@ -51,6 +52,10 @@ const {
 } = frodo.script;
 
 const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
+
+type SeparatedScripts = {
+  realm: Record<string, { script: Record<string, ScriptSkeleton> }>;
+};
 
 /**
  * Get a one-line description of the script object
@@ -128,6 +133,7 @@ export async function listScripts(
     return true;
   }
   let fullExport: FullExportInterface = null;
+  let scriptExport: SeparatedScripts = null;
   const headers = long
     ? ['Name', 'UUID', 'Language', 'Context', 'Description']
     : ['Name'];
@@ -138,10 +144,7 @@ export async function listScripts(
       printError(error);
       return false;
     }
-    //Delete scripts from full export so they aren't mistakenly used for determining usage
-    for (const realmExport of Object.values(fullExport.realm)) {
-      delete realmExport.script;
-    }
+    scriptExport = separateScriptsFromFullExport(fullExport);
     headers.push('Used');
   }
   const table = createTable(headers);
@@ -156,7 +159,9 @@ export async function listScripts(
         ]
       : [wordwrap(script.name, 25, '  ')];
     if (usage) {
-      const locations = getIdLocations(fullExport, script._id, false);
+      const locations = getIdLocations(fullExport, script._id, false).concat(
+        getScriptLocations(scriptExport, script.name)
+      );
       values.push(
         locations.length > 0
           ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
@@ -205,11 +210,10 @@ export async function describeScript(
     if (usage) {
       try {
         const fullExport = await getFullExportConfig(file);
-        //Delete scripts from full export so they aren't mistakenly used for determining usage
-        for (const realmExport of Object.values(fullExport.realm)) {
-          delete realmExport.script;
-        }
-        script.locations = getIdLocations(fullExport, script._id, false);
+        const scriptExport = separateScriptsFromFullExport(fullExport);
+        script.locations = getIdLocations(fullExport, script._id, false).concat(
+          getScriptLocations(scriptExport, script.name)
+        );
       } catch (error) {
         stopProgressIndicator(
           spinnerId,
@@ -794,4 +798,52 @@ export async function deleteAllScripts(): Promise<boolean> {
     printError(error);
   }
   return false;
+}
+
+/**
+ * Helper that takes a full export and separates the scripts from it into their own export
+ * @param {FullExportInterface} fullExport The full export
+ * @returns {SeparatedScripts} The scripts separated from the fullExport
+ */
+function separateScriptsFromFullExport(
+  fullExport: FullExportInterface
+): SeparatedScripts {
+  const scripts = { realm: {} };
+  for (const [realm, realmExport] of Object.entries(fullExport.realm)) {
+    if (!scripts.realm[realm]) {
+      scripts.realm[realm] = {};
+    }
+    scripts.realm[realm].script = realmExport.script;
+    delete realmExport.script;
+  }
+  return scripts;
+}
+
+/**
+ * Helper that finds all locations where a script is being used as a library in another script
+ * @param {SeparatedScripts} configuration The scripts to search
+ * @param {string} scriptName The name of the script being searched for
+ */
+function getScriptLocations(
+  configuration: SeparatedScripts,
+  scriptName: string
+): string[] {
+  const locations = [];
+  const regex = new RegExp(`require\\(['|"]${scriptName}['|"]\\)`);
+  for (const [realm, realmExport] of Object.entries(configuration.realm)) {
+    for (const scriptData of Object.values(realmExport.script)) {
+      let scriptString = scriptData.script as string;
+      if (Array.isArray(scriptData.script)) {
+        scriptString = scriptData.script.join('\n');
+      } else if (isBase64Encoded(scriptData.script)) {
+        scriptString = decodeBase64(scriptData.script);
+      }
+      if (regex.test(scriptString)) {
+        locations.push(
+          `realm.${realm}.script.${scriptData._id}(name: '${scriptData.name}').script`
+        );
+      }
+    }
+  }
+  return locations;
 }
