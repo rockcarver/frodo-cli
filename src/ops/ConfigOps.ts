@@ -142,7 +142,7 @@ export async function exportEverythingToFiles(
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  */
-function exportItem(
+export function exportItem(
   exportData,
   type,
   obj,
