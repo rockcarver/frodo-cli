@@ -1,24 +1,35 @@
-import { FrodoCommand } from '../FrodoCommand';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
-import { verboseMessage } from '../../utils/Console.js';
 import { compareExportToDirectory } from '../../ops/PromoteOps';
+import { verboseMessage } from '../../utils/Console.js';
+import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud'];
+const deploymentTypes = ['cloud', 'forgeops'];
 
 export default function setup() {
-  const program = new FrodoCommand('promote')
+  const program = new FrodoCommand('promote');
 
   program
     .description(
-      'Run a frodo config export -NdxD [host] [realm] command, compare that to a '
-      + 'master directory and output the changes'
+      'Run a frodo config export -NdxD [host] [realm] command, compare that to a ' +
+        'master directory and output the changes'
     )
     .addHelpText(
       'after',
-      `Usage Examples:\n` +
-        `  No good help at the moment.\n`
+      `Usage Examples:\n` + `  No good help at the moment.\n`
+    )
+    .addOption(
+      new Option(
+        '-E, --frodo-export-dir <directory>',
+        'The directory where the frodo export is located.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-M, --master-dir <directory>',
+        'The directory where the master configurations is located.'
+      )
     )
     .addOption(
       new Option(
@@ -45,7 +56,7 @@ export default function setup() {
       )
     )
     .action(
-      async(host, realm, user, password, options, command) => {
+      async (host, realm, user, password, options, command) => {
         command.handleDefaultArgsAndOpts(
           host,
           realm,
@@ -54,26 +65,26 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens(false, true, deploymentTypes)) {
+        if (
+          (await getTokens(false, true, deploymentTypes)) &&
+          options.masterDir &&
+          options.frodoExportDir
+        ) {
           verboseMessage('Comparing export...');
-          console.log("comparing")
-          console.log()
+          console.log('comparing');
+          console.log();
           const outcome = await compareExportToDirectory(
-            {
-              useStringArrays: false,
-              noDecode: false,
-              coords: options.coords,
-              includeDefault: options.default,
-              includeActiveValues: true,
-              target: options.target,
-            },
-            "/home/trivir/Frodo/golden1-git/identity-cloud-config",
+            options.masterDir,
+            options.frodoExportDir,
           );
-          console.log("done")
+          console.log('done');
           if (!outcome) process.exitCode = 1;
+        } else {
+          console.error('need to designate a master dir and export dir');
         }
       }
       //end command logic inside action handler
+      //"/home/trivir/Frodo/golden1-git/identity-cloud-config"
     );
 
   return program;
