@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 2.2.0
+
+### Fixed
+
+- \#445: Frodo now properly saves connection profiles and detects Advanced Identity Cloud deployment type.
+
 ## [2.0.6-2] - 2024-09-21
 
 ## [2.0.6-1] - 2024-09-09
