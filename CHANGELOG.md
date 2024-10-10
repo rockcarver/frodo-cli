@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2024-10-10
+
 ### Changed
 
 - Update to frodo-lib 2.2.0
@@ -1986,7 +1988,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-2...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-2...v2.1.0
 [2.0.6-2]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-1...v2.0.6-2
 [2.0.6-1]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-0...v2.0.6-1
 [2.0.6-0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.5...v2.0.6-0
