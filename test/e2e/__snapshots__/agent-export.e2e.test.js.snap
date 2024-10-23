@@ -4,7 +4,7 @@ exports[`frodo agent export "frodo agent export --agent-id frodo-test-java-agent
 
 exports[`frodo agent export "frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent": frodo-test-java-agent.java.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
       "_type": {
@@ -680,7 +680,28 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
 
 exports[`frodo agent export "frodo agent export --all": should export all agents to a single file: allAlphaAgents.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
+    "cdsso-ig-agent": {
+      "_id": "cdsso-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+      ],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {
@@ -688,14 +709,14 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "collection": true,
         "name": "Identity Gateway Agents",
       },
-      "agentgroup": null,
+      "agentgroup": "test_ig_group",
       "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
       "igCdssoRedirectUrls": [
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
-      "userpassword": null,
     },
     "frodo-test-ig-agent2": {
       "_id": "frodo-test-ig-agent2",
@@ -710,6 +731,7 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
     "frodo-test-java-agent": {
@@ -746,8 +768,11 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -775,6 +800,7 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -858,12 +884,12 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
         "userPrincipalFlag": false,
         "userTokenName": "UserToken",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscJ2EEAgentConfig": {
@@ -968,8 +994,11 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -997,6 +1026,7 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -1080,6 +1110,7 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -1271,9 +1302,9 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscWebAgentConfig": {
@@ -1433,6 +1464,7 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -1478,6 +1510,20 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
         "secureCookies": false,
       },
     },
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
   },
   "meta": Any<Object>,
 }
@@ -1485,9 +1531,37 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3 1`] = `""`;
 
+exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/cdsso-ig-agent.gateway.agent.json 1`] = `
+{
+  "agent": {
+    "cdsso-ig-agent": {
+      "_id": "cdsso-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+      ],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
+  },
+}
+`;
+
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {
@@ -1495,12 +1569,13 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "collection": true,
         "name": "Identity Gateway Agents",
       },
-      "agentgroup": null,
+      "agentgroup": "test_ig_group",
       "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
       "igCdssoRedirectUrls": [
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
   },
@@ -1509,7 +1584,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-ig-agent2.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-ig-agent2": {
       "_id": "frodo-test-ig-agent2",
       "_type": {
@@ -1523,6 +1598,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
   },
@@ -1531,7 +1607,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-java-agent.java.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
       "_type": {
@@ -1566,8 +1642,11 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -1595,6 +1674,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -1678,6 +1758,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -1759,7 +1840,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-java-agent2.java.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent2": {
       "_id": "frodo-test-java-agent2",
       "_type": {
@@ -1794,8 +1875,11 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -1823,6 +1907,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -1906,6 +1991,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -1987,7 +2073,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -2104,6 +2190,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -2155,7 +2242,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 
 exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/frodo-test-web-agent2.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent2": {
       "_id": "frodo-test-web-agent2",
       "_type": {
@@ -2272,6 +2359,7 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -2321,11 +2409,32 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
 }
 `;
 
+exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/ig-agent.gateway.agent.json 1`] = `
+{
+  "agent": {
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
+  },
+}
+`;
+
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4 1`] = `""`;
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/cdsso-ig-agent.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "cdsso-ig-agent": {
       "_id": "cdsso-ig-agent",
       "_type": {
@@ -2354,7 +2463,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {
@@ -2362,7 +2471,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
         "collection": true,
         "name": "Identity Gateway Agents",
       },
-      "agentgroup": null,
+      "agentgroup": "test_ig_group",
       "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
       "igCdssoRedirectUrls": [
         "http://testurl.com:8080/frodo",
@@ -2378,7 +2487,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-ig-agent2.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-ig-agent2": {
       "_id": "frodo-test-ig-agent2",
       "_type": {
@@ -2402,7 +2511,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-java-agent.java.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent": {
       "_id": "frodo-test-java-agent",
       "_type": {
@@ -2636,7 +2745,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-java-agent2.java.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent2": {
       "_id": "frodo-test-java-agent2",
       "_type": {
@@ -2870,7 +2979,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -3040,7 +3149,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/frodo-test-web-agent2.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent2": {
       "_id": "frodo-test-web-agent2",
       "_type": {
@@ -3210,7 +3319,7 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 
 exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/ig-agent.gateway.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "ig-agent": {
       "_id": "ig-agent",
       "_type": {
@@ -3234,7 +3343,28 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
 
 exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": should export all agents to a single file in the directory agentExportTestDir2: agentExportTestDir2/allAlphaAgents.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
+    "cdsso-ig-agent": {
+      "_id": "cdsso-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+      ],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {
@@ -3242,12 +3372,13 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "collection": true,
         "name": "Identity Gateway Agents",
       },
-      "agentgroup": null,
+      "agentgroup": "test_ig_group",
       "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
       "igCdssoRedirectUrls": [
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
     "frodo-test-ig-agent2": {
@@ -3263,6 +3394,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
     "frodo-test-java-agent": {
@@ -3299,8 +3431,11 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -3328,6 +3463,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -3411,6 +3547,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -3520,8 +3657,11 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -3549,6 +3689,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -3632,6 +3773,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -3823,6 +3965,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -3984,6 +4127,7 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -4029,6 +4173,20 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
         "secureCookies": false,
       },
     },
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
   },
 }
 `;
@@ -4037,7 +4195,7 @@ exports[`frodo agent export "frodo agent export -Ni frodo-test-web-agent -D agen
 
 exports[`frodo agent export "frodo agent export -Ni frodo-test-web-agent -D agentExportTestDir1": should export the agent with agent id "frodo-test-web-agent" into the directory named agentExportTestDir1: agentExportTestDir1/frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -4526,7 +4684,28 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
 
 exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agent.json": should export all agents to a single file named my-allAlphaAgents.agent.json: my-allAlphaAgents.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
+    "cdsso-ig-agent": {
+      "_id": "cdsso-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+      ],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {
@@ -4534,14 +4713,14 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "collection": true,
         "name": "Identity Gateway Agents",
       },
-      "agentgroup": null,
+      "agentgroup": "test_ig_group",
       "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
       "igCdssoRedirectUrls": [
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
-      "userpassword": null,
     },
     "frodo-test-ig-agent2": {
       "_id": "frodo-test-ig-agent2",
@@ -4556,6 +4735,7 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "http://testurl.com:8080/frodo",
       ],
       "igTokenIntrospection": "Realm",
+      "secretLabelIdentifier": null,
       "status": "Inactive",
     },
     "frodo-test-java-agent": {
@@ -4592,8 +4772,11 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -4621,6 +4804,7 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -4704,12 +4888,12 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
         "userPrincipalFlag": false,
         "userTokenName": "UserToken",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscJ2EEAgentConfig": {
@@ -4814,8 +4998,11 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "postDataPreservation": false,
         "postDataPreserveCacheEntryMaxEntries": 1000,
         "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
         "postDataStickySessionKeyValue": null,
         "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
         "sessionCacheTTL": 15,
         "ssoExchangeCacheSize": 100,
         "ssoExchangeCacheTTL": 5,
@@ -4843,6 +5030,7 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "policyEvaluationRealm": "/",
         "policyNotifications": true,
         "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
         "urlPolicyEnvGetParameters": [
           "",
         ],
@@ -4926,6 +5114,7 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "redirectAttemptLimit": 0,
         "redirectAttemptLimitCookieName": "amFilterRDParam",
         "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
         "status": "Inactive",
         "userAttributeName": "employeenumber",
         "userMappingMode": "USER_ID",
@@ -5117,9 +5306,9 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscWebAgentConfig": {
@@ -5279,6 +5468,7 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -5324,6 +5514,20 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
         "secureCookies": false,
       },
     },
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents",
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+    },
   },
   "meta": Any<Object>,
 }
@@ -5333,7 +5537,7 @@ exports[`frodo agent export "frodo agent export -i frodo-test-web-agent -f my-fr
 
 exports[`frodo agent export "frodo agent export -i frodo-test-web-agent -f my-frodo-test-web-agent.agent.json": should export the agent with agent id "frodo-test-web-agent" into file named my-frodo-test-web-agent.agent.json: my-frodo-test-web-agent.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {

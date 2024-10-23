@@ -1,0 +1,18 @@
+{
+  "script": {
+    "58c824ae-84ed-4724-82cd-db128fc3f6c": {
+      "_id": "58c824ae-84ed-4724-82cd-db128fc3f6c",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Converts a normalized social profile into a managed user",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Normalized Profile to Managed User",
+      "script": "file://Normalized-Profile-to-Managed-User.script.groovy"
+    }
+  }
+}

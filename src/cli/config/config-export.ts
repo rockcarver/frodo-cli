@@ -64,7 +64,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-s, --separate-mappings',
-        'Export sync.json mappings separately in their own directory. Ignored with -a.'
+        'Export sync.idm.json mappings separately in their own directory. Ignored with -a.'
       )
     )
     .addOption(

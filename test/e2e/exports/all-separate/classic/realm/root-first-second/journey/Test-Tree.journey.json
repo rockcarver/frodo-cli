@@ -1,0 +1,61 @@
+{
+  "trees": {
+    "Test Tree": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "0254ab35-daea-40db-9a53-44fc06715e48": {
+          "_id": "0254ab35-daea-40db-9a53-44fc06715e48",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PasswordCollectorNode",
+            "collection": true,
+            "name": "Password Collector"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Test Tree",
+        "enabled": true,
+        "entryNodeId": "0254ab35-daea-40db-9a53-44fc06715e48",
+        "innerTreeOnly": false,
+        "nodes": {
+          "0254ab35-daea-40db-9a53-44fc06715e48": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Password Collector",
+            "nodeType": "PasswordCollectorNode",
+            "x": 150,
+            "y": 20
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 447,
+            "y": 49
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 577,
+            "y": 71
+          },
+          "startNode": {
+            "x": 50,
+            "y": 25
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

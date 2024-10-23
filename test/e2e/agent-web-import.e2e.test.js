@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import -af test/e2e/exports/all/allAlphaAgents.web.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import --all --file test/e2e/exports/all/allAlphaAgents.web.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import -af allAlphaAgents.web.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import -AD test/e2e/exports/all-separate/agent/web
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import --all-separate --directory test/e2e/exports/all-separate/agent/web
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent web import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaWebAgentsFileName = "allAlphaAgents.web.agent.json";
 const allAlphaWebAgentsExport = `${allDirectory}/${allAlphaWebAgentsFileName}`;
-const allSeparateWebAgentsDirectory = `test/e2e/exports/all-separate/agent/web`;
+const allSeparateWebAgentsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/agent`;
 
 describe('frodo agent web import', () => {
     test(`"frodo agent web import -i frodo-test-web-agent -f ${allAlphaWebAgentsExport}": should import the agent with the id "frodo-test-web-agent" from the file "${allAlphaWebAgentsExport}"`, async () => {

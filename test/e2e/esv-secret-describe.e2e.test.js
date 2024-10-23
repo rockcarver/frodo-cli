@@ -49,10 +49,10 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -i esv-test-secret
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -f test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -D test/e2e/exports/all-separate/everything
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --file test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --directory test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -f test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -D test/e2e/exports/all-separate/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --file test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --directory test/e2e/exports/all-separate/cloud
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -64,8 +64,8 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
-const allConfigFile = 'test/e2e/exports/all/all.config.json';
-const allConfigDirectory = 'test/e2e/exports/all-separate/everything';
+const allConfigFile = 'test/e2e/exports/all/all.cloud.json';
+const allConfigDirectory = 'test/e2e/exports/all-separate/cloud';
 
 describe('frodo esv secret describe', () => {
     test(`"frodo esv secret describe -i esv-test-secret": should describe the esv secret "esv-test-secret"`, async () => {

@@ -1,0 +1,35 @@
+{
+  "service": {
+    "policyconfiguration": {
+      "_id": "",
+      "_type": {
+        "_id": "policyconfiguration",
+        "collection": false,
+        "name": "Policy Configuration"
+      },
+      "bindDn": "cn=Directory Manager",
+      "bindPassword": null,
+      "checkIfResourceTypeExists": true,
+      "connectionPoolMaximumSize": 10,
+      "connectionPoolMinimumSize": 1,
+      "ldapServer": [
+        "localhost:50636"
+      ],
+      "location": "/first/second",
+      "maximumSearchResults": 100,
+      "mtlsEnabled": false,
+      "nextDescendents": [],
+      "policyHeartbeatInterval": 10,
+      "policyHeartbeatTimeUnit": "SECONDS",
+      "realmSearchFilter": "(objectclass=sunismanagedorganization)",
+      "searchTimeout": 5,
+      "sslEnabled": true,
+      "subjectsResultTTL": 10,
+      "userAliasEnabled": false,
+      "usersBaseDn": "dc=openam,dc=forgerock,dc=org",
+      "usersSearchAttribute": "uid",
+      "usersSearchFilter": "(objectclass=inetorgperson)",
+      "usersSearchScope": "SCOPE_SUB"
+    }
+  }
+}

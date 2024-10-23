@@ -8,6 +8,7 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
 
+import { extractDataToFile, getExtractedJsonData } from '../utils/Config';
 import {
   createProgressIndicator,
   createTable,
@@ -24,7 +25,6 @@ const {
   saveToFile,
   getFilePath,
   getWorkingDirectory,
-  unSubstituteEnvParams,
   readFiles,
 } = frodo.utils;
 
@@ -175,7 +175,7 @@ export async function exportMappingsToFiles(
         includeMeta
       );
     }
-    writeSyncJsonToDirectory(exportData.sync);
+    writeSyncJsonToDirectory(exportData.sync, 'sync', includeMeta);
     return true;
   } catch (error) {
     printError(error, `Error exporting mappings to files`);
@@ -256,7 +256,9 @@ export async function importMappingsFromFiles(
     const allMappingFiles = (await readFiles(workingDirectory)).filter(
       (f) =>
         f.path.toLowerCase().endsWith('mapping.json') ||
-        f.path.toLowerCase().endsWith('sync.json')
+        f.path.toLowerCase().endsWith('sync.json') ||
+        f.path.toLowerCase().endsWith('sync.idm.json') ||
+        f.path.toLowerCase().endsWith('mapping.idm.json')
     );
     const mapping = Object.fromEntries(
       allMappingFiles
@@ -297,6 +299,10 @@ export async function importFirstMappingFromFile(
       'Importing mapping...'
     );
     const importData = getMappingImportDataFromFile(file);
+    updateProgressIndicator(
+      indicatorId,
+      `Importing first mapping from ${file}...`
+    );
     await importFirstMapping(importData, options);
     stopProgressIndicator(
       indicatorId,
@@ -449,67 +455,58 @@ export async function renameMappings(
 }
 
 /**
- * Helper that writes mappings in a sync.json config entity to a directory
- * @param sync The sync.json config entity
+ * Helper that writes mappings in a sync.idm.json config entity to a directory
+ * @param sync The sync.idm.json config entity
  * @param directory The directory to save the mappings
  */
 export function writeSyncJsonToDirectory(
   sync: SyncSkeleton,
-  directory?: string
+  directory: string = 'sync',
+  includeMeta: boolean = true
 ) {
-  let directoryName = 'sync';
-  if (directory) {
-    directoryName = directory;
-  }
   const mappingPaths = [];
   for (const mapping of sync.mappings) {
     const fileName = getTypedFilename(mapping.name, 'sync');
-    const filePath = getFilePath(`${directoryName}/${fileName}`, true);
-    mappingPaths.push(`file://${fileName}`);
-    saveJsonToFile(mapping, filePath, false);
+    mappingPaths.push(extractDataToFile(mapping, fileName, directory));
   }
   sync.mappings = mappingPaths;
-  saveJsonToFile(sync, getFilePath(`${directoryName}/sync.json`, true));
+  saveToFile(
+    'idm',
+    sync,
+    '_id',
+    getFilePath(`${directory}/sync.idm.json`, true),
+    includeMeta
+  );
 }
 
 /**
- * Helper that returns the sync.json object containing all the mappings in it by looking through the files
+ * Helper that returns the sync.idm.json object containing all the mappings in it by looking through the files
  *
- * @param file the file path
- * @returns the import data
+ * @param files the files to get sync.idm.json object from
+ * @returns the sync.idm.json object
  */
 export function getLegacyMappingsFromFiles(
-  files: { path: string; content: string }[],
-  envReader?
+  files: { path: string; content: string }[]
 ): SyncSkeleton {
-  const syncFiles = files.filter((f) => f.path.endsWith('/sync.json'));
+  const syncFiles = files.filter((f) => f.path.endsWith('/sync.idm.json'));
   if (syncFiles.length > 1) {
-    throw new FrodoError('Multiple sync.json files found in idm directory');
+    throw new FrodoError('Multiple sync.idm.json files found in idm directory');
   }
   const sync = {
     _id: 'sync',
     mappings: [],
   };
   if (syncFiles.length === 1) {
-    const syncData = JSON.parse(
-      envReader
-        ? unSubstituteEnvParams(syncFiles[0].content, envReader)
-        : syncFiles[0].content
-    );
+    const jsonData = JSON.parse(syncFiles[0].content);
+    const syncData = jsonData.sync ? jsonData.sync : jsonData.idm.sync;
     const syncJsonDir = syncFiles[0].path.substring(
       0,
-      syncFiles[0].path.indexOf('/sync.json')
+      syncFiles[0].path.indexOf('/sync.idm.json')
     );
     if (syncData.mappings) {
       for (const mapping of syncData.mappings) {
         if (typeof mapping === 'string') {
-          const path = `${syncJsonDir}/${mapping.replace('file://', '')}`;
-          const content = fs.readFileSync(path, 'utf8');
-          sync.mappings.push(
-            JSON.parse(
-              envReader ? unSubstituteEnvParams(content, envReader) : content
-            )
-          );
+          sync.mappings.push(getExtractedJsonData(mapping, syncJsonDir));
         } else {
           sync.mappings.push(mapping);
         }
@@ -559,8 +556,8 @@ function getMappingImportDataFromFile(file: string): MappingExportInterface {
     if (mapping._id === 'sync') {
       importData.sync = getLegacyMappingsFromFiles([
         {
-          // Ensure path ends in /sync.json so it gets processed
-          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.json`,
+          // Ensure path ends in /sync.idm.json so it gets processed
+          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.idm.json`,
           content: data,
         },
       ]);

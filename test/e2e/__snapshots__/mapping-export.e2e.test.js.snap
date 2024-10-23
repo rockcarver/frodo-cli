@@ -1002,13 +1002,16 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/sync.idm.json 1`] = `
 {
-  "_id": "sync",
-  "mappings": [
-    "file://AlphaUser2GoogleApps.sync.json",
-  ],
-  "meta": Any<Object>,
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://AlphaUser2GoogleApps.sync.json",
+      ],
+    },
+  },
 }
 `;
 
@@ -1940,16 +1943,20 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/sync.idm.json 1`] = `
 {
-  "_id": "sync",
-  "mappings": [
-    "file://managedBravo_user_managedBravo_user.sync.json",
-    "file://managedAlpha_application_managedBravo_application.sync.json",
-    "file://managedAlpha_user_managedBravo_user.sync.json",
-    "file://managedBravo_user_managedAlpha_user.sync.json",
-    "file://AlphaUser2GoogleApps.sync.json",
-  ],
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://managedBravo_user_managedBravo_user.sync.json",
+        "file://managedAlpha_application_managedBravo_application.sync.json",
+        "file://managedAlpha_user_managedBravo_user.sync.json",
+        "file://managedBravo_user_managedAlpha_user.sync.json",
+        "file://AlphaUser2GoogleApps.sync.json",
+      ],
+    },
+  },
   "meta": Any<Object>,
 }
 `;

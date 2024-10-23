@@ -47,8 +47,8 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -f test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --verbose -f test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -i j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --journey-id j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
@@ -61,9 +61,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/journey
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/journey --re-uuid
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/journey
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey --re-uuid
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/journey
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -78,7 +78,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaJourneysFileName = "allAlphaJourneys.journey.json";
 const allAlphaJourneysExport = `${allDirectory}/${allAlphaJourneysFileName}`;
-const allSeparateJourneysDirectory = `test/e2e/exports/all-separate/journey`;
+const allSeparateJourneysDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/journey`;
 
 describe('frodo journey import', () => {
     test(`"frodo journey import -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json": should import the journey in file "${allSeparateJourneysDirectory}/FrodoTest.journey.json"`, async () => {

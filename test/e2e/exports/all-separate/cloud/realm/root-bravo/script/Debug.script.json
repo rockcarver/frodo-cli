@@ -1,0 +1,18 @@
+{
+  "script": {
+    "fa53dc0e-b558-49ab-bc5a-609c0b4d1286": {
+      "_id": "fa53dc0e-b558-49ab-bc5a-609c0b4d1286",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Debug",
+      "script": "file://Debug.script.js"
+    }
+  }
+}

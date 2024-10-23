@@ -2,13 +2,13 @@
 
 exports[`frodo authz policy import "frodo authz policy import --all --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import all policies from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz policy import "frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory test/e2e/exports/all-separate/authz/policy": should import all policies from the test/e2e/exports/all-separate/authz/policy directory with no dependencies 1`] = `""`;
+exports[`frodo authz policy import "frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should import all policies from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policy directory with no dependencies 1`] = `""`;
 
 exports[`frodo authz policy import "frodo authz policy import --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the first policy from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
 
 exports[`frodo authz policy import "frodo authz policy import --policy-id 'Test Policy' --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs": should import the policy with the id "Test Policy" from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz policy import "frodo authz policy import -AD test/e2e/exports/all-separate/authz/policy": should import all policies from the test/e2e/exports/all-separate/authz/policy directory" 1`] = `""`;
+exports[`frodo authz policy import "frodo authz policy import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/policy": should import all policies from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policy directory" 1`] = `""`;
 
 exports[`frodo authz policy import "frodo authz policy import -af allAlphaPolicies.policy.authz.json -D test/e2e/exports/all": should import all policies from the file "test/e2e/exports/all/allAlphaPolicies.policy.authz.json" 1`] = `""`;
 

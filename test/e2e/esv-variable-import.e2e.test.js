@@ -54,8 +54,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -f allVariables.variable.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -a --file test/e2e/exports/all/allVariables.variable.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -a -f allVariables.variable.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -AD test/e2e/exports/all-separate/esv/variable
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -f esv-test-var.variable.json --directory test/e2e/exports/all-separate/esv/variable
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -AD test/e2e/exports/all-separate/cloud/global/variable
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable import -f esv-test-var.variable.json --directory test/e2e/exports/all-separate/cloud/global/variable
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -70,7 +70,7 @@ const env = getEnv(c);
 const allDirectory = 'test/e2e/exports/all';
 const allVariablesFileName = 'allVariables.variable.json';
 const allVariablesExport = `${allDirectory}/${allVariablesFileName}`;
-const allSeparateVariablesDirectory = `test/e2e/exports/all-separate/esv/variable`;
+const allSeparateVariablesDirectory = `test/e2e/exports/all-separate/cloud/global/variable`;
 
 describe('frodo esv variable import', () => {
   test(`"frodo esv variable import -i esv-test-var -f ${allVariablesExport}" Import variable "esv-test-var" from "${allVariablesExport}".`, async () => {

@@ -93,8 +93,8 @@ Options:
                                        positions of the journey/tree nodes.
   --no-decode                          Do not include decoded variable value in
                                        variable export
-  -s, --separate-mappings              Export sync.json mappings separately in
-                                       their own directory. Ignored with -a.
+  -s, --separate-mappings              Export sync.idm.json mappings separately
+                                       in their own directory. Ignored with -a.
   --sa-id <sa-id>                      Service account id.
   --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
                                        associated with the the service account.

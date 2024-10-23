@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo authn describe "frodo authn describe --json": should describe authentication settings in json format 1`] = `
+"{
+  postauthprocess: {
+    usernameGeneratorClass: 'com.sun.identity.authentication.spi.DefaultUserIDGenerator',
+    usernameGeneratorEnabled: true,
+    loginPostProcessClass: [],
+    loginSuccessUrl: [ '/enduser/?realm=/alpha' ],
+    userAttributeSessionMapping: [],
+    loginFailureUrl: []
+  },
+  security: {
+    zeroPageLoginEnabled: false,
+    zeroPageLoginReferrerWhiteList: [],
+    zeroPageLoginAllowedWithoutReferrer: true,
+    moduleBasedAuthEnabled: false,
+    sharedSecret: { '$string': '&{am.authentication.shared.secret}' },
+    addClearSiteDataHeader: true,
+    keyAlias: 'test'
+  },
+  trees: {
+    suspendedAuthenticationTimeout: 1440,
+    authenticationSessionsStateManagement: 'JWT',
+    authenticationSessionsMaxDuration: 5,
+    authenticationTreeCookieHttpOnly: true,
+    authenticationSessionsWhitelist: false
+  },
+  accountlockout: {
+    loginFailureLockoutMode: false,
+    storeInvalidAttemptsInDataStore: true,
+    lockoutDuration: 0,
+    lockoutDurationMultiplier: 1,
+    lockoutWarnUserCount: 0,
+    loginFailureCount: 5,
+    loginFailureDuration: 300
+  },
+  core: { adminAuthModule: 'Login', orgConfig: 'Login' },
+  general: {
+    userStatusCallbackPlugins: [],
+    statelessSessionsEnabled: false,
+    locale: 'en_US',
+    externalLoginPageUrl: 'https://volker-demo.encore.forgerock.com/demo/webapp/en/home/redirect',
+    twoFactorRequired: false,
+    identityType: [ 'agent', 'user' ],
+    defaultAuthLevel: 0
+  },
+  userprofile: {
+    dynamicProfileCreation: 'false',
+    defaultRole: [],
+    aliasAttributeName: [ 'uid' ]
+  }
+}
+"
+`;
+
+exports[`frodo authn describe "frodo authn describe": should describe authentication settings 1`] = `
+"                                     │                                                                     
+  postauthprocess                    │                                                                     
+               usernameGeneratorClass│com.sun.identity.authentication.spi.DefaultUserIDGenerator           
+             usernameGeneratorEnabled│true                                                                 
+                                     │                                                                     
+    loginSuccessUrl                  │                                                                     
+                                    0│/enduser/?realm=/alpha                                               
+                                     │                                                                     
+  security                           │                                                                     
+                 zeroPageLoginEnabled│false                                                                
+  zeroPageLoginAllowedWithoutReferrer│true                                                                 
+               moduleBasedAuthEnabled│false                                                                
+               addClearSiteDataHeader│true                                                                 
+                             keyAlias│test                                                                 
+                                     │                                                                     
+    sharedSecret                     │                                                                     
+                              $string│&{am.authentication.shared.secret}                                   
+                                     │                                                                     
+  trees                              │                                                                     
+       suspendedAuthenticationTimeout│1440                                                                 
+authenticationSessionsStateManagement│JWT                                                                  
+    authenticationSessionsMaxDuration│5                                                                    
+     authenticationTreeCookieHttpOnly│true                                                                 
+      authenticationSessionsWhitelist│false                                                                
+                                     │                                                                     
+  accountlockout                     │                                                                     
+              loginFailureLockoutMode│false                                                                
+      storeInvalidAttemptsInDataStore│true                                                                 
+                      lockoutDuration│0                                                                    
+            lockoutDurationMultiplier│1                                                                    
+                 lockoutWarnUserCount│0                                                                    
+                    loginFailureCount│5                                                                    
+                 loginFailureDuration│300                                                                  
+                                     │                                                                     
+  core                               │                                                                     
+                      adminAuthModule│Login                                                                
+                            orgConfig│Login                                                                
+                                     │                                                                     
+  general                            │                                                                     
+             statelessSessionsEnabled│false                                                                
+                               locale│en_US                                                                
+                 externalLoginPageUrl│https://volker-demo.encore.forgerock.com/demo/webapp/en/home/redirect
+                    twoFactorRequired│false                                                                
+                     defaultAuthLevel│0                                                                    
+                                     │                                                                     
+    identityType                     │                                                                     
+                                    0│agent                                                                
+                                    1│user                                                                 
+                                     │                                                                     
+  userprofile                        │                                                                     
+               dynamicProfileCreation│false                                                                
+                                     │                                                                     
+    aliasAttributeName               │                                                                     
+                                    0│uid                                                                  
+"
+`;

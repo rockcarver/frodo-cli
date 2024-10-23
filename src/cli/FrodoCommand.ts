@@ -156,7 +156,7 @@ const stateMap = {
   [deploymentOption.attributeName()]: (type: string) =>
     state.setDeploymentType(type),
   [directoryOption.attributeName()]: (directory: string) =>
-    state.setDirectory(directory),
+    state.setDirectory(directory.replaceAll('\\', '/').replaceAll('C:', '')),
   [insecureOption.attributeName()]: (insecure: boolean) =>
     state.setAllowInsecureConnection(insecure),
   [verboseOption.attributeName()]: (verbose: boolean) =>

@@ -1,0 +1,17 @@
+{
+  "service": {
+    "SocialIdentityProviders": {
+      "_id": "",
+      "_type": {
+        "_id": "SocialIdentityProviders",
+        "collection": false,
+        "name": "Social Identity Provider Service"
+      },
+      "defaults": {
+        "enabled": true
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

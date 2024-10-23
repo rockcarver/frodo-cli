@@ -1,0 +1,20 @@
+{
+  "service": {
+    "ConfigurationVersionService": {
+      "_id": "",
+      "_type": {
+        "_id": "ConfigurationVersionService",
+        "collection": false,
+        "name": "Configuration Version Service"
+      },
+      "appliedRuleIds": [
+        "AME-23273",
+        "AME-21032",
+        "AME-21768"
+      ],
+      "configurationVersion": "8.0.0.0",
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

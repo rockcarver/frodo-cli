@@ -1,0 +1,23 @@
+{
+  "service": {
+    "iot": {
+      "_id": "",
+      "_type": {
+        "_id": "iot",
+        "collection": false,
+        "name": "IoT Service"
+      },
+      "defaults": {
+        "attributeAllowlist": [
+          "thingConfig"
+        ],
+        "createOAuthClient": false,
+        "createOAuthJwtIssuer": false,
+        "oauthClientName": "forgerock-iot-oauth2-client",
+        "oauthJwtIssuerName": "forgerock-iot-jwt-issuer"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

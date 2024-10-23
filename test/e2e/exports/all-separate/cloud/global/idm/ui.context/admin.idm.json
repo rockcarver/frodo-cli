@@ -1,0 +1,14 @@
+{
+  "idm": {
+    "ui.context/admin": {
+      "_id": "ui.context/admin",
+      "defaultDir": "&{idm.install.dir}/ui/admin/default",
+      "enabled": true,
+      "extensionDir": "&{idm.install.dir}/ui/admin/extension",
+      "responseHeaders": {
+        "X-Frame-Options": "SAMEORIGIN"
+      },
+      "urlContextRoot": "/admin"
+    }
+  }
+}

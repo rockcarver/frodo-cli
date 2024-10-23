@@ -1,0 +1,46 @@
+{
+  "service": {
+    "monitoring": {
+      "_id": "",
+      "_type": {
+        "_id": "monitoring",
+        "collection": false,
+        "name": "Monitoring"
+      },
+      "authfilePath": "%BASE_DIR%/security/openam_mon_auth",
+      "enabled": false,
+      "httpEnabled": false,
+      "httpPort": 8082,
+      "location": "global",
+      "nextDescendents": [
+        {
+          "_id": "crest",
+          "_type": {
+            "_id": "crest",
+            "collection": true,
+            "name": "CREST Reporter"
+          },
+          "enabled": false
+        },
+        {
+          "_id": "prometheus",
+          "_type": {
+            "_id": "prometheus",
+            "collection": true,
+            "name": "Prometheus Reporter"
+          },
+          "authenticationType": "BASIC",
+          "enabled": false,
+          "password": null,
+          "username": "prometheus"
+        }
+      ],
+      "policyHistoryWindowSize": 10000,
+      "rmiEnabled": false,
+      "rmiPort": 9999,
+      "sessionHistoryWindowSize": 10000,
+      "snmpEnabled": false,
+      "snmpPort": 8085
+    }
+  }
+}

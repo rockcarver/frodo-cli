@@ -49,10 +49,10 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -i 1b52a7e0-4019-40fa-958a-15a49870e901
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -f test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -D test/e2e/exports/all-separate/everything
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -f test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -D test/e2e/exports/all-separate/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/cloud
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -64,8 +64,8 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
-const allConfigFile = 'test/e2e/exports/all/all.config.json';
-const allConfigDirectory = 'test/e2e/exports/all-separate/everything';
+const allConfigFile = 'test/e2e/exports/all/all.cloud.json';
+const allConfigDirectory = 'test/e2e/exports/all-separate/cloud';
 
 describe('frodo script describe', () => {
     test(`"frodo script describe -i 1b52a7e0-4019-40fa-958a-15a49870e901": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901"`, async () => {

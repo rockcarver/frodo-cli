@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -af test/e2e/exports/all/allAlphaPolicies.policy.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --all --file test/e2e/exports/all/allAlphaPolicies.policy.authz.json --set-id test-policy-set --no-deps --prereqs
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -af allAlphaPolicies.policy.authz.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -AD test/e2e/exports/all-separate/authz/policy
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory test/e2e/exports/all-separate/authz/policy
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/policy
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policy
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaPoliciesFileName = "allAlphaPolicies.policy.authz.json";
 const allAlphaPoliciesExport = `${allDirectory}/${allAlphaPoliciesFileName}`;
-const allSeparatePoliciesSetsDirectory = `test/e2e/exports/all-separate/authz/policy`;
+const allSeparatePoliciesSetsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/policy`;
 
 describe('frodo authz policy import', () => {
     test(`"frodo authz policy import -i 'Test Policy' -f ${allAlphaPoliciesExport}": should import the policy with the id "Test Policy" from the file "${allAlphaPoliciesExport}"`, async () => {

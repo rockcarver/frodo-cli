@@ -1,0 +1,17 @@
+{
+  "service": {
+    "user": {
+      "_id": "",
+      "_type": {
+        "_id": "user",
+        "collection": false,
+        "name": "User"
+      },
+      "dynamic": {
+        "defaultUserStatus": "Active"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

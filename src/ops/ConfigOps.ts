@@ -2,13 +2,17 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   FullExportInterface,
   FullExportOptions,
+  FullGlobalExportInterface,
   FullImportOptions,
+  FullRealmExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
 
 import {
+  extractDataToFile,
+  getConfig,
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
@@ -16,8 +20,15 @@ import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { writeSyncJsonToDirectory } from './MappingOps';
 import { extractScriptsToFiles } from './ScriptOps';
 
-const { getTypedFilename, saveJsonToFile, getFilePath, getWorkingDirectory } =
-  frodo.utils;
+const {
+  getTypedFilename,
+  saveJsonToFile,
+  saveToFile,
+  getFilePath,
+  getWorkingDirectory,
+  getRealmsForExport,
+  getRealmUsingExportFormat,
+} = frodo.utils;
 const { exportFullConfiguration, importFullConfiguration } = frodo.config;
 
 /**
@@ -60,7 +71,7 @@ export async function exportEverythingToFile(
 /**
  * Export everything to separate files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
- * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
+ * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
@@ -129,7 +140,7 @@ export async function exportEverythingToFiles(
  * @param {string} baseDirectory the baseDirectory to export to
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
- * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
+ * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  */
 function exportItem(
   exportData,
@@ -144,12 +155,10 @@ function exportItem(
     return;
   }
   let fileType = type;
-  if (
-    fileType === 'secrets' ||
-    fileType === 'variables' ||
-    fileType === 'agents'
-  ) {
-    fileType = fileType.substring(0, fileType.lastIndexOf('s'));
+  if (fileType === 'managedApplication') {
+    fileType = 'application';
+  } else if (fileType === 'application') {
+    fileType = 'oauth2.app';
   } else if (fileType === 'trees') {
     fileType = 'journey';
   }
@@ -222,7 +231,49 @@ function exportItem(
   } else if (type === 'sync') {
     writeSyncJsonToDirectory(
       obj as SyncSkeleton,
-      `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
+      `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
+      includeMeta
+    );
+  } else if (type === 'server') {
+    Object.entries(obj.server).forEach(([serverId, server]: [string, any]) => {
+      if (extract) {
+        // Save server properties separately in their own directories
+        for (const [name, props] of Object.entries(server.properties)) {
+          const relativeDirectory = baseDirectory.substring(
+            state.getDirectory().length +
+              (state.getDirectory().endsWith('/') ? 0 : 1)
+          );
+          server.properties[name] = extractDataToFile(
+            props,
+            `${serverId}/${getTypedFilename(name, 'properties.server')}`,
+            `${relativeDirectory}/${fileType}`
+          );
+        }
+      }
+      // Save server export data
+      const fileName = getTypedFilename(serverId, fileType);
+      saveJsonToFile(
+        {
+          [type]: {
+            [serverId]: server,
+          },
+        },
+        `${baseDirectory}/${fileType}/${fileName}`,
+        includeMeta
+      );
+    });
+    // Save default server properties
+    if (!fs.existsSync(`${baseDirectory}/${fileType}/default`)) {
+      fs.mkdirSync(`${baseDirectory}/${fileType}/default`);
+    }
+    Object.entries(obj.defaultProperties).forEach(
+      ([name, props]: [string, any]) => {
+        saveJsonToFile(
+          props,
+          `${baseDirectory}/${fileType}/default/${getTypedFilename(name, 'default.properties.server')}`,
+          false
+        );
+      }
     );
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -232,10 +283,11 @@ function exportItem(
           if (separateMappings && id === 'sync') {
             writeSyncJsonToDirectory(
               value as SyncSkeleton,
-              `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/sync`
+              `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/sync`,
+              includeMeta
             );
           } else {
-            const filename = `${id}.json`;
+            const filename = `${id}.idm.json`;
             if (filename.includes('/')) {
               fs.mkdirSync(
                 `${baseDirectory}/${fileType}/${filename.slice(
@@ -247,39 +299,14 @@ function exportItem(
                 }
               );
             }
-            saveJsonToFile(
+            saveToFile(
+              'idm',
               value,
+              '_id',
               `${baseDirectory}/${fileType}/${filename}`,
-              false
+              includeMeta
             );
           }
-        }
-      } else if (type === 'server') {
-        if (value != null) {
-          const properties = value.properties;
-          delete value.properties;
-          //Save server export data
-          const fileName = getTypedFilename(id, fileType);
-          saveJsonToFile(
-            {
-              [type]: {
-                [id]: value,
-              },
-            },
-            `${baseDirectory}/${fileType}/${fileName}`,
-            includeMeta
-          );
-          //Save server properties separately in their own directories
-          if (!fs.existsSync(`${baseDirectory}/${fileType}/${id}`)) {
-            fs.mkdirSync(`${baseDirectory}/${fileType}/${id}`);
-          }
-          Object.entries(properties).forEach(([name, value]: [string, any]) => {
-            saveJsonToFile(
-              value,
-              `${baseDirectory}/${fileType}/${id}/${name}.json`,
-              false
-            );
-          });
         }
       } else {
         let name =
@@ -300,6 +327,9 @@ function exportItem(
             id,
             `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
           );
+        }
+        if (!fs.existsSync(`${baseDirectory}/${fileType}`)) {
+          fs.mkdirSync(`${baseDirectory}/${fileType}`);
         }
         saveJsonToFile(
           {
@@ -373,6 +403,61 @@ export async function importEverythingFromFiles(
         `Errors occurred during full config import`,
         collectErrors
       );
+    }
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+export async function importEntityfromFile(
+  file: string,
+  global = false,
+  options: FullImportOptions = {
+    reUuidJourneys: false,
+    reUuidScripts: false,
+    cleanServices: false,
+    includeDefault: false,
+    includeActiveValues: false,
+    source: '',
+  }
+): Promise<boolean> {
+  try {
+    const data = {
+      global: {},
+      realm: {},
+    } as FullExportInterface;
+    if (global) {
+      await getConfig(
+        data.global as FullGlobalExportInterface,
+        file,
+        undefined
+      );
+    } else {
+      const currentRealm =
+        (state.getRealm().startsWith('/') ? '' : '/') + state.getRealm();
+      const realm = (await getRealmsForExport()).find(
+        (r) => getRealmUsingExportFormat(r) === currentRealm
+      );
+      if (!realm) {
+        throw new FrodoError(
+          `Unable to find the realm '${currentRealm}' in deployment. Unable to proceed with import`
+        );
+      }
+      data.realm[realm] = {} as FullRealmExportInterface;
+      await getConfig(data.realm[realm], file, undefined);
+    }
+    const collectErrors: Error[] = [];
+    const imports = await importFullConfiguration(data, options, collectErrors);
+    if (collectErrors.length > 0) {
+      throw new FrodoError(
+        `Error occurred during config import`,
+        collectErrors
+      );
+    }
+    if (imports.length === 0) {
+      throw new FrodoError(`No imports were made`);
     }
     return true;
   } catch (error) {

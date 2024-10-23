@@ -2,15 +2,15 @@
 
 exports[`frodo esv variable import "frodo esv variable import --variable-id esv-test-var --file test/e2e/exports/all/allVariables.variable.json" Import variable "esv-test-var" from "allVariables.variable.json". 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -AD test/e2e/exports/all-separate/esv/variable" Import all variables in directory "test/e2e/exports/all-separate/esv/variable". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import -AD test/e2e/exports/all-separate/cloud/global/variable" Import all variables in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 
 exports[`frodo esv variable import "frodo esv variable import -a --file test/e2e/exports/all/allVariables.variable.json" Import all variables from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -a -f allVariables.variable.json -D test/e2e/exports/all" Import all variables from "allVariables.variable.json" in directory "test/e2e/exports/all-separate/esv/variable". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import -a -f allVariables.variable.json -D test/e2e/exports/all" Import all variables from "allVariables.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 
 exports[`frodo esv variable import "frodo esv variable import -f allVariables.variable.json -D test/e2e/exports/all" Import first variable from "allVariables.variable.json" in directory "test/e2e/exports/all" 1`] = `""`;
 
-exports[`frodo esv variable import "frodo esv variable import -f esv-test-var.variable.json --directory test/e2e/exports/all-separate/esv/variable" Import first variable from "esv-test-var.variable.json" in directory "test/e2e/exports/all-separate/esv/variable". 1`] = `""`;
+exports[`frodo esv variable import "frodo esv variable import -f esv-test-var.variable.json --directory test/e2e/exports/all-separate/cloud/global/variable" Import first variable from "esv-test-var.variable.json" in directory "test/e2e/exports/all-separate/cloud/global/variable". 1`] = `""`;
 
 exports[`frodo esv variable import "frodo esv variable import -f test/e2e/exports/all/allVariables.variable.json" Import first variable from "test/e2e/exports/all/allVariables.variable.json". 1`] = `""`;
 

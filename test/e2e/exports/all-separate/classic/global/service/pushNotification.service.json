@@ -1,0 +1,21 @@
+{
+  "service": {
+    "pushNotification": {
+      "_id": "",
+      "_type": {
+        "_id": "pushNotification",
+        "collection": false,
+        "name": "Push Notification Service"
+      },
+      "defaults": {
+        "delegateFactory": "org.forgerock.openam.services.push.sns.SnsHttpDelegateFactory",
+        "mdCacheSize": 10000,
+        "mdConcurrency": 16,
+        "mdDuration": 120,
+        "region": "us-east-1"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

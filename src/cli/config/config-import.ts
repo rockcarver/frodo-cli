@@ -4,6 +4,7 @@ import { Option } from 'commander';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
+  importEntityfromFile,
   importEverythingFromFile,
   importEverythingFromFiles,
 } from '../../ops/ConfigOps';
@@ -15,7 +16,12 @@ export default function setup() {
 
   program
     .description('Import full cloud configuration.')
-    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the file to import. Ignored with -A. If included without -a, it will import the single entity within the file.'
+      )
+    )
     .addOption(
       new Option(
         '-a, --all',
@@ -59,6 +65,12 @@ export default function setup() {
       new Option(
         '--source <host url>',
         'Host URL of the environment which performed secret value encryption. The URL must resolve to an existing connection profile. Use this option to import a file that was exported from a different source environment than the one you are importing to.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-g, --global',
+        'Import global entity. Ignored with -a and -A.'
       )
     )
     .addHelpText(
@@ -133,6 +145,23 @@ export default function setup() {
             includeActiveValues: options.includeActiveValues,
             source: options.source,
           });
+          if (!outcome) process.exitCode = 1;
+        }
+        // Import entity from file
+        else if (options.file && (await getTokens())) {
+          verboseMessage('Importing config entity from file...');
+          const outcome = await importEntityfromFile(
+            options.file,
+            options.global,
+            {
+              reUuidJourneys: options.reUuidJourneys,
+              reUuidScripts: options.reUuidScripts,
+              cleanServices: options.clean,
+              includeDefault: options.default,
+              includeActiveValues: options.includeActiveValues,
+              source: options.source,
+            }
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

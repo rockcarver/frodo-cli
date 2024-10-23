@@ -1,61 +1,71 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo email template list "frodo email template list --long": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates 1`] = `
-"Id                                  │Name                             │Status │Locale(s)│From                                                │Subject                               
-activation                          │Activation                       │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been     
-                                    │                                 │       │         │                                                    │activated                             
-forgottenUsername                   │                                 │enabled│en (fr)  │                                                    │Account Information - username        
-FraudNotification                   │Fraud Notification               │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!
-MobileEmailOTP                      │Mobile Email OTP                 │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login           
-multiFactorEmailLink                │                                 │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud 
-                                    │                                 │       │         │                                                    │login                                 
-oneTimePassword                     │                                 │enabled│en       │                                                    │One-Time Password for login           
-profileUpdateNotification           │Profile Update Notification      │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated    
-profileUpdateNotificationEmailChange│Email Address Change Notification│enabled│en       │saas@forgerock.com                                  │You email address and profile has been
-                                    │                                 │       │         │                                                    │updated                               
-registration                        │                                 │enabled│en (fr)  │                                                    │Register new account                  
-resetPassword                       │                                 │enabled│en (fr)  │                                                    │Reset your password                   
-UnknownDeviceNotification           │Unknown Device Notification      │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from
-                                    │                                 │       │         │                                                    │an unknown device!                    
-updatePassword                      │                                 │enabled│en       │                                                    │Update your password                  
-welcome                             │Welcome                          │enabled│en       │saas@forgerock.com                                  │Your account has been created         
+"Id                           │Name                            │Status │Locale(s)│From                                               │Subject                               
+baselineDemoEmailVerification│Baseline Demo Email Verification│enabled│en       │security@example.com                               │Please verify your email address      
+baselineDemoMagicLink        │Baseline Demo Magic Link        │enabled│en       │security@example.com                               │Your sign-in link                     
+forgottenUsername            │                                │enabled│en (fr)  │                                                   │Account Information - username        
+frEmailUpdated               │                                │enabled│en       │                                                   │Your email has been updated           
+frForgotUsername             │                                │enabled│en       │                                                   │Forgot Username                       
+frOnboarding                 │                                │enabled│en       │                                                   │Complete your ForgeRock Identity Cloud
+                             │                                │       │         │                                                   │registration                          
+frPasswordUpdated            │                                │enabled│en       │                                                   │Your password has been updated        
+frProfileUpdated             │                                │enabled│en       │                                                   │Your profile has been updated         
+frResetPassword              │                                │enabled│en       │                                                   │Reset your password                   
+frUsernameUpdated            │                                │enabled│en       │                                                   │Your username has been updated        
+idv                          │idv                             │enabled│en (fr)  │                                                   │You have been invited to verify your  
+                             │                                │       │         │                                                   │identity                              
+joiner                       │Joiner                          │enabled│en       │"Encore HR" <no-reply@encore.com>                  │Welcome to Encore!                    
+registerPasswordlessDevice   │Register Passwordless Device    │enabled│en       │"ForgeRock Identity Cloud" <no-reply@forgerock.com>│Your magic link is here - register new
+                             │                                │       │         │                                                   │WebAuthN device                       
+registration                 │                                │enabled│en (fr)  │                                                   │Register new account                  
+resetPassword                │                                │enabled│en (fr)  │                                                   │Reset your password                   
+updatePassword               │                                │enabled│en       │                                                   │Update your password                  
+welcome                      │                                │enabled│en       │                                                   │Your account has been created         
 "
 `;
 
 exports[`frodo email template list "frodo email template list -l": should list the ids, names, statuses, locales, senders (from), and subjects of the email templates 1`] = `
-"Id                                  │Name                             │Status │Locale(s)│From                                                │Subject                               
-activation                          │Activation                       │enabled│en       │"ForgeRock Identity Cloud Team" <saas@forgerock.com>│Your J.P. Morgan account has been     
-                                    │                                 │       │         │                                                    │activated                             
-forgottenUsername                   │                                 │enabled│en (fr)  │                                                    │Account Information - username        
-FraudNotification                   │Fraud Notification               │enabled│en       │saas@forgerock.com                                  │Fraud alert from your Expanse Account!
-MobileEmailOTP                      │Mobile Email OTP                 │enabled│en       │saas@forgerock.com                                  │One-Time Password for Login           
-multiFactorEmailLink                │                                 │enabled│en       │                                                    │Multi-Factor Email for Identity Cloud 
-                                    │                                 │       │         │                                                    │login                                 
-oneTimePassword                     │                                 │enabled│en       │                                                    │One-Time Password for login           
-profileUpdateNotification           │Profile Update Notification      │enabled│en       │saas@forgerock.com                                  │Your user profile has been updated    
-profileUpdateNotificationEmailChange│Email Address Change Notification│enabled│en       │saas@forgerock.com                                  │You email address and profile has been
-                                    │                                 │       │         │                                                    │updated                               
-registration                        │                                 │enabled│en (fr)  │                                                    │Register new account                  
-resetPassword                       │                                 │enabled│en (fr)  │                                                    │Reset your password                   
-UnknownDeviceNotification           │Unknown Device Notification      │enabled│en       │saas@forgerock.com                                  │Your Expanse account was accessed from
-                                    │                                 │       │         │                                                    │an unknown device!                    
-updatePassword                      │                                 │enabled│en       │                                                    │Update your password                  
-welcome                             │Welcome                          │enabled│en       │saas@forgerock.com                                  │Your account has been created         
+"Id                           │Name                            │Status │Locale(s)│From                                               │Subject                               
+baselineDemoEmailVerification│Baseline Demo Email Verification│enabled│en       │security@example.com                               │Please verify your email address      
+baselineDemoMagicLink        │Baseline Demo Magic Link        │enabled│en       │security@example.com                               │Your sign-in link                     
+forgottenUsername            │                                │enabled│en (fr)  │                                                   │Account Information - username        
+frEmailUpdated               │                                │enabled│en       │                                                   │Your email has been updated           
+frForgotUsername             │                                │enabled│en       │                                                   │Forgot Username                       
+frOnboarding                 │                                │enabled│en       │                                                   │Complete your ForgeRock Identity Cloud
+                             │                                │       │         │                                                   │registration                          
+frPasswordUpdated            │                                │enabled│en       │                                                   │Your password has been updated        
+frProfileUpdated             │                                │enabled│en       │                                                   │Your profile has been updated         
+frResetPassword              │                                │enabled│en       │                                                   │Reset your password                   
+frUsernameUpdated            │                                │enabled│en       │                                                   │Your username has been updated        
+idv                          │idv                             │enabled│en (fr)  │                                                   │You have been invited to verify your  
+                             │                                │       │         │                                                   │identity                              
+joiner                       │Joiner                          │enabled│en       │"Encore HR" <no-reply@encore.com>                  │Welcome to Encore!                    
+registerPasswordlessDevice   │Register Passwordless Device    │enabled│en       │"ForgeRock Identity Cloud" <no-reply@forgerock.com>│Your magic link is here - register new
+                             │                                │       │         │                                                   │WebAuthN device                       
+registration                 │                                │enabled│en (fr)  │                                                   │Register new account                  
+resetPassword                │                                │enabled│en (fr)  │                                                   │Reset your password                   
+updatePassword               │                                │enabled│en       │                                                   │Update your password                  
+welcome                      │                                │enabled│en       │                                                   │Your account has been created         
 "
 `;
 
 exports[`frodo email template list "frodo email template list": should list the ids of the email templates 1`] = `
-"activation
+"baselineDemoEmailVerification
+baselineDemoMagicLink
 forgottenUsername
-FraudNotification
-MobileEmailOTP
-multiFactorEmailLink
-oneTimePassword
-profileUpdateNotification
-profileUpdateNotificationEmailChange
+frEmailUpdated
+frForgotUsername
+frOnboarding
+frPasswordUpdated
+frProfileUpdated
+frResetPassword
+frUsernameUpdated
+idv
+joiner
+registerPasswordlessDevice
 registration
 resetPassword
-UnknownDeviceNotification
 updatePassword
 welcome
 "

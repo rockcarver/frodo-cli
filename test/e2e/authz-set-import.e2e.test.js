@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -af test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -af allAlphaPolicySets.policyset.authz.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -AD test/e2e/exports/all-separate/authz/set
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/authz/set
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaPolicySetsFileName = "allAlphaPolicySets.policyset.authz.json";
 const allAlphaPolicySetsExport = `${allDirectory}/${allAlphaPolicySetsFileName}`;
-const allSeparatePolicySetsDirectory = `test/e2e/exports/all-separate/authz/set`;
+const allSeparatePolicySetsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset`;
 
 describe('frodo authz set import', () => {
     test(`"frodo authz set import -i 'test-policy-set' -f ${allAlphaPolicySetsExport}": should import the policy set with the id "test-policy-set" from the file "${allAlphaPolicySetsExport}"`, async () => {

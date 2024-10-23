@@ -1,779 +1,1626 @@
 {
-  "application": {
-    "testapp": {
-      "_id": "testapp",
-      "_provider": {
-        "_id": "",
-        "_type": {
-          "_id": "oauth-oidc",
-          "collection": false,
-          "name": "OAuth2 Provider"
+  "application": {},
+  "connector": {
+    "Azure": {
+      "_id": "provisioner.openicf/Azure",
+      "configurationProperties": {
+        "clientId": "4b07adcc-329c-434c-aa83-49a14bef3c49",
+        "clientSecret": {
+          "$crypto": {
+            "type": "x-simple-encryption",
+            "value": {
+              "cipher": "AES/CBC/PKCS5Padding",
+              "data": "W63amdvzlmynT40WOTl1wPWDc8FUlGWQZK158lmlFTrnhy9PbWZV5YE4v3VeMUDC",
+              "iv": "KG/YFc8v26QHJzRI3uFhzw==",
+              "keySize": 16,
+              "mac": "mA4BzCNS7tuLhosQ+es1Tg==",
+              "purpose": "idm.config.encryption",
+              "salt": "vvPwKk0KqOqMjElQgICqEA==",
+              "stableId": "openidm-sym-default"
+            }
+          }
         },
-        "advancedOAuth2Config": {
-          "allowClientCredentialsInTokenRequestQueryParameters": true,
-          "allowedAudienceValues": [],
-          "authenticationAttributes": [
-            "uid"
-          ],
-          "codeVerifierEnforced": "false",
-          "defaultScopes": [
-            "address",
-            "phone",
-            "openid",
-            "profile",
-            "email"
-          ],
-          "displayNameAttribute": "cn",
-          "expClaimRequiredInRequestObject": false,
-          "grantTypes": [
-            "implicit",
-            "urn:ietf:params:oauth:grant-type:saml2-bearer",
-            "refresh_token",
-            "password",
-            "client_credentials",
-            "urn:ietf:params:oauth:grant-type:device_code",
-            "authorization_code",
-            "urn:openid:params:grant-type:ciba",
-            "urn:ietf:params:oauth:grant-type:uma-ticket",
-            "urn:ietf:params:oauth:grant-type:jwt-bearer"
-          ],
-          "hashSalt": "&{am.oidc.client.subject.identifier.hash.salt}",
-          "includeSubnameInTokenClaims": true,
-          "macaroonTokenFormat": "V2",
-          "maxAgeOfRequestObjectNbfClaim": 0,
-          "maxDifferenceBetweenRequestObjectNbfAndExp": 0,
-          "moduleMessageEnabledInPasswordGrant": false,
-          "nbfClaimRequiredInRequestObject": false,
-          "parRequestUriLifetime": 90,
-          "passwordGrantAuthService": "Login",
-          "persistentClaims": [],
-          "refreshTokenGracePeriod": 0,
-          "requestObjectProcessing": "OIDC",
-          "requirePushedAuthorizationRequests": false,
-          "responseTypeClasses": [
-            "code|org.forgerock.oauth2.core.AuthorizationCodeResponseTypeHandler",
-            "device_code|org.forgerock.oauth2.core.TokenResponseTypeHandler",
-            "token|org.forgerock.oauth2.core.TokenResponseTypeHandler",
-            "id_token|org.forgerock.openidconnect.IdTokenResponseTypeHandler"
-          ],
-          "supportedScopes": [
-            "email|Your email address",
-            "openid|",
-            "address|Your postal address",
-            "phone|Your telephone number(s)",
-            "profile|Your personal information",
-            "fr:idm:*",
-            "am-introspect-all-tokens"
-          ],
-          "supportedSubjectTypes": [
-            "public",
-            "pairwise"
-          ],
-          "tlsCertificateBoundAccessTokensEnabled": true,
-          "tlsCertificateRevocationCheckingEnabled": false,
-          "tlsClientCertificateHeaderFormat": "URLENCODED_PEM",
-          "tokenCompressionEnabled": false,
-          "tokenEncryptionEnabled": false,
-          "tokenExchangeClasses": [
-            "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToAccessTokenExchanger",
-            "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToIdTokenExchanger",
-            "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToIdTokenExchanger",
-            "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToAccessTokenExchanger"
-          ],
-          "tokenSigningAlgorithm": "HS256",
-          "tokenValidatorClasses": [
-            "urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.OidcIdTokenValidator",
-            "urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.OAuth2AccessTokenValidator"
-          ]
+        "httpProxyHost": null,
+        "httpProxyPassword": null,
+        "httpProxyPort": null,
+        "httpProxyUsername": null,
+        "licenseCacheExpiryTime": 60,
+        "performHardDelete": true,
+        "readRateLimit": null,
+        "tenant": "711ffa9c-5972-4713-ace3-688c9732614a",
+        "writeRateLimit": null
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.msgraphapi-connector",
+        "bundleVersion": "1.5.20.21",
+        "connectorName": "org.forgerock.openicf.connectors.msgraphapi.MSGraphAPIConnector",
+        "displayName": "MSGraphAPI Connector",
+        "systemType": "provisioner.openicf"
+      },
+      "enabled": true,
+      "objectTypes": {
+        "User": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__PASSWORD__": {
+              "autocomplete": "new-password",
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_READABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "nativeName": "__PASSWORD__",
+              "nativeType": "JAVA_TYPE_GUARDEDSTRING",
+              "required": true,
+              "type": "string"
+            },
+            "__roles__": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "__roles__",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "__servicePlanIds__": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "__servicePlanIds__",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "accountEnabled": {
+              "nativeName": "accountEnabled",
+              "nativeType": "boolean",
+              "required": true,
+              "type": "boolean"
+            },
+            "city": {
+              "nativeName": "city",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "companyName": {
+              "nativeName": "companyName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "country": {
+              "nativeName": "country",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "department": {
+              "nativeName": "department",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "displayName": {
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "givenName": {
+              "nativeName": "givenName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "jobTitle": {
+              "nativeName": "jobTitle",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "mail": {
+              "nativeName": "mail",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "mailNickname": {
+              "nativeName": "mailNickname",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "manager": {
+              "nativeName": "manager",
+              "nativeType": "object",
+              "type": "object"
+            },
+            "memberOf": {
+              "flags": [
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "memberOf",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "mobilePhone": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "mobilePhone",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "onPremisesImmutableId": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "onPremisesImmutableId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "onPremisesSecurityIdentifier": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "onPremisesSecurityIdentifier",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "otherMails": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "otherMails",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "postalCode": {
+              "nativeName": "postalCode",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "preferredLanguage": {
+              "nativeName": "preferredLanguage",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "proxyAddresses": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "proxyAddresses",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "state": {
+              "nativeName": "state",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "streetAddress": {
+              "nativeName": "streetAddress",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "surname": {
+              "nativeName": "surname",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "usageLocation": {
+              "nativeName": "usageLocation",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "userPrincipalName": {
+              "nativeName": "userPrincipalName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "userType": {
+              "nativeName": "userType",
+              "nativeType": "string",
+              "type": "string"
+            }
+          },
+          "type": "object"
         },
-        "advancedOIDCConfig": {
-          "alwaysAddClaimsToToken": true,
-          "amrMappings": {},
-          "authorisedIdmDelegationClients": [],
-          "authorisedOpenIdConnectSSOClients": [],
-          "claimsParameterSupported": false,
-          "defaultACR": [],
-          "idTokenInfoClientAuthenticationEnabled": true,
-          "includeAllKtyAlgCombinationsInJwksUri": false,
-          "loaMapping": {},
-          "storeOpsTokens": true,
-          "supportedAuthorizationResponseEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "RSA-OAEP",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedAuthorizationResponseEncryptionEnc": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedAuthorizationResponseSigningAlgorithms": [
-            "PS384",
-            "RS384",
-            "EdDSA",
-            "ES384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ],
-          "supportedRequestParameterEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedRequestParameterEncryptionEnc": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedRequestParameterSigningAlgorithms": [
-            "PS384",
-            "ES384",
-            "RS384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ],
-          "supportedTokenEndpointAuthenticationSigningAlgorithms": [
-            "PS384",
-            "ES384",
-            "RS384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ],
-          "supportedTokenIntrospectionResponseEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "RSA-OAEP",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedTokenIntrospectionResponseEncryptionEnc": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedTokenIntrospectionResponseSigningAlgorithms": [
-            "PS384",
-            "RS384",
-            "EdDSA",
-            "ES384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ],
-          "supportedUserInfoEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "RSA-OAEP",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedUserInfoEncryptionEnc": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedUserInfoSigningAlgorithms": [
-            "ES384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512"
-          ],
-          "useForceAuthnForMaxAge": false,
-          "useForceAuthnForPromptLogin": false
+        "__GROUP__": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__GROUP__",
+          "nativeType": "__GROUP__",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "displayName": {
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "required": true,
+              "type": "string"
+            },
+            "groupTypes": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "groupTypes",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "id": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "id",
+              "type": "string"
+            },
+            "mail": {
+              "nativeName": "mail",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "mailEnabled": {
+              "nativeName": "mailEnabled",
+              "nativeType": "boolean",
+              "required": true,
+              "type": "boolean"
+            },
+            "onPremisesSecurityIdentifier": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "onPremisesSecurityIdentifier",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "proxyAddresses": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "proxyAddresses",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "securityEnabled": {
+              "nativeName": "securityEnabled",
+              "nativeType": "boolean",
+              "required": true,
+              "type": "boolean"
+            },
+            "type": {
+              "nativeName": "type",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "type": "object"
         },
-        "cibaConfig": {
-          "cibaAuthReqIdLifetime": 600,
-          "cibaMinimumPollingInterval": 2,
-          "supportedCibaSigningAlgorithms": [
-            "ES256",
-            "PS256"
-          ]
+        "directoryRole": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "directoryRole",
+          "nativeType": "directoryRole",
+          "properties": {
+            "description": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "displayName": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "type": "string"
+            }
+          },
+          "type": "object"
         },
-        "clientDynamicRegistrationConfig": {
-          "allowDynamicRegistration": false,
-          "dynamicClientRegistrationScope": "dynamic_client_registration",
-          "dynamicClientRegistrationSoftwareStatementRequired": false,
-          "generateRegistrationAccessTokens": true,
-          "requiredSoftwareStatementAttestedAttributes": [
-            "redirect_uris"
-          ]
+        "servicePlan": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "servicePlan",
+          "nativeType": "servicePlan",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "appliesTo": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "appliesTo",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "provisioningStatus": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "provisioningStatus",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "servicePlanId": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "servicePlanId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "servicePlanName": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "servicePlanName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "subscriberSkuId": {
+              "flags": [
+                "NOT_UPDATEABLE",
+                "NOT_CREATABLE"
+              ],
+              "nativeName": "subscriberSkuId",
+              "type": "string"
+            }
+          },
+          "type": "object"
         },
-        "consent": {
-          "clientsCanSkipConsent": true,
-          "enableRemoteConsent": false,
-          "supportedRcsRequestEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "RSA-OAEP",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedRcsRequestEncryptionMethods": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedRcsRequestSigningAlgorithms": [
-            "PS384",
-            "ES384",
-            "RS384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ],
-          "supportedRcsResponseEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedRcsResponseEncryptionMethods": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedRcsResponseSigningAlgorithms": [
-            "PS384",
-            "ES384",
-            "RS384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ]
-        },
-        "coreOAuth2Config": {
-          "accessTokenLifetime": 3600,
-          "accessTokenMayActScript": "[Empty]",
-          "codeLifetime": 120,
-          "issueRefreshToken": true,
-          "issueRefreshTokenOnRefreshedToken": true,
-          "macaroonTokensEnabled": false,
-          "oidcMayActScript": "[Empty]",
-          "refreshTokenLifetime": 604800,
-          "scopesPolicySet": "oauth2Scopes",
-          "statelessTokensEnabled": true,
-          "usePolicyEngineForScope": false
-        },
-        "coreOIDCConfig": {
-          "jwtTokenLifetime": 3600,
-          "oidcDiscoveryEndpointEnabled": true,
-          "overrideableOIDCClaims": [],
-          "supportedClaims": [],
-          "supportedIDTokenEncryptionAlgorithms": [
-            "ECDH-ES+A256KW",
-            "ECDH-ES+A192KW",
-            "RSA-OAEP",
-            "ECDH-ES+A128KW",
-            "RSA-OAEP-256",
-            "A128KW",
-            "A256KW",
-            "ECDH-ES",
-            "dir",
-            "A192KW"
-          ],
-          "supportedIDTokenEncryptionMethods": [
-            "A256GCM",
-            "A192GCM",
-            "A128GCM",
-            "A128CBC-HS256",
-            "A192CBC-HS384",
-            "A256CBC-HS512"
-          ],
-          "supportedIDTokenSigningAlgorithms": [
-            "PS384",
-            "ES384",
-            "RS384",
-            "HS256",
-            "HS512",
-            "ES256",
-            "RS256",
-            "HS384",
-            "ES512",
-            "PS256",
-            "PS512",
-            "RS512"
-          ]
-        },
-        "deviceCodeConfig": {
-          "deviceCodeLifetime": 300,
-          "devicePollInterval": 5,
-          "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
-          "deviceUserCodeLength": 8
-        },
-        "pluginsConfig": {
-          "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "accessTokenModificationPluginType": "SCRIPTED",
-          "accessTokenModificationScript": "39c08084-1238-43e8-857f-2e11005eac49",
-          "accessTokenModifierClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "authorizeEndpointDataProviderClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "authorizeEndpointDataProviderPluginType": "JAVA",
-          "authorizeEndpointDataProviderScript": "[Empty]",
-          "evaluateScopeClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "evaluateScopePluginType": "JAVA",
-          "evaluateScopeScript": "[Empty]",
-          "oidcClaimsClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "oidcClaimsPluginType": "SCRIPTED",
-          "oidcClaimsScript": "cf3515f0-8278-4ee3-a530-1bad7424c416",
-          "userCodeGeneratorClass": "org.forgerock.oauth2.core.plugins.registry.DefaultUserCodeGenerator",
-          "validateScopeClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
-          "validateScopePluginType": "JAVA",
-          "validateScopeScript": "[Empty]"
+        "servicePrincipal": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "servicePrincipal",
+          "nativeType": "servicePrincipal",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "__addAppRoleAssignedTo__": {
+              "flags": [
+                "NOT_READABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "__addAppRoleAssignedTo__",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "__addAppRoleAssignments__": {
+              "flags": [
+                "NOT_READABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "__addAppRoleAssignments__",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "__removeAppRoleAssignedTo__": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "__removeAppRoleAssignedTo__",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "__removeAppRoleAssignments__": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE",
+                "NOT_RETURNED_BY_DEFAULT"
+              ],
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "__removeAppRoleAssignments__",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "accountEnabled": {
+              "nativeName": "accountEnabled",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "addIns": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "addIns",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "alternativeNames": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "alternativeNames",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "appDescription": {
+              "nativeName": "appDescription",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "appDisplayName": {
+              "nativeName": "appDisplayName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "appId": {
+              "nativeName": "appId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "appOwnerOrganizationId": {
+              "nativeName": "appOwnerOrganizationId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "appRoleAssignmentRequired": {
+              "nativeName": "appRoleAssignmentRequired",
+              "nativeType": "boolean",
+              "type": "boolean"
+            },
+            "appRoles": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "appRoles",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "applicationTemplateId": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "applicationTemplateId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "deletedDateTime": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "deletedDateTime",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "disabledByMicrosoftStatus": {
+              "nativeName": "disabledByMicrosoftStatus",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "displayName": {
+              "nativeName": "displayName",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "homepage": {
+              "nativeName": "homepage",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "info": {
+              "nativeName": "info",
+              "nativeType": "object",
+              "type": "object"
+            },
+            "keyCredentials": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "keyCredentials",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "loginUrl": {
+              "nativeName": "loginUrl",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "logoutUrl": {
+              "nativeName": "logoutUrl",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "notes": {
+              "nativeName": "notes",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "notificationEmailAddresses": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "notificationEmailAddresses",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "oauth2PermissionScopes": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "oauth2PermissionScopes",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "passwordCredentials": {
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "passwordCredentials",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "preferredSingleSignOnMode": {
+              "nativeName": "preferredSingleSignOnMode",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "replyUrls": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "replyUrls",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "resourceSpecificApplicationPermissions": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "items": {
+                "nativeType": "object",
+                "type": "object"
+              },
+              "nativeName": "resourceSpecificApplicationPermissions",
+              "nativeType": "object",
+              "type": "array"
+            },
+            "samlSingleSignOnSettings": {
+              "nativeName": "samlSingleSignOnSettings",
+              "nativeType": "object",
+              "type": "object"
+            },
+            "servicePrincipalNames": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "servicePrincipalNames",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "servicePrincipalType": {
+              "nativeName": "servicePrincipalType",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "signInAudience": {
+              "flags": [
+                "NOT_CREATABLE",
+                "NOT_UPDATEABLE"
+              ],
+              "nativeName": "signInAudience",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "tags": {
+              "items": {
+                "nativeType": "string",
+                "type": "string"
+              },
+              "nativeName": "tags",
+              "nativeType": "string",
+              "type": "array"
+            },
+            "tokenEncryptionKeyId": {
+              "nativeName": "tokenEncryptionKeyId",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "verifiedPublisher": {
+              "nativeName": "verifiedPublisher",
+              "nativeType": "object",
+              "type": "object"
+            }
+          },
+          "type": "object"
         }
       },
-      "_type": {
-        "_id": "OAuth2Client",
-        "collection": true,
-        "name": "OAuth2 Clients"
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1
       },
-      "advancedOAuth2ClientConfig": {
-        "clientUri": {
-          "inherited": false,
-          "value": []
-        },
-        "contacts": {
-          "inherited": false,
-          "value": []
-        },
-        "customProperties": {
-          "inherited": false,
-          "value": []
-        },
-        "descriptions": {
-          "inherited": false,
-          "value": [
-            "Test App"
-          ]
-        },
-        "grantTypes": {
-          "inherited": false,
-          "value": [
-            "authorization_code"
-          ]
-        },
-        "isConsentImplied": {
-          "inherited": false,
-          "value": false
-        },
-        "javascriptOrigins": {
-          "inherited": false,
-          "value": []
-        },
-        "logoUri": {
-          "inherited": false,
-          "value": []
-        },
-        "mixUpMitigation": {
-          "inherited": false,
-          "value": false
-        },
-        "name": {
-          "inherited": false,
-          "value": []
-        },
-        "policyUri": {
-          "inherited": false,
-          "value": []
-        },
-        "refreshTokenGracePeriod": {
-          "inherited": false,
-          "value": 0
-        },
-        "requestUris": {
-          "inherited": false,
-          "value": []
-        },
-        "require_pushed_authorization_requests": {
-          "inherited": false,
-          "value": false
-        },
-        "responseTypes": {
-          "inherited": false,
-          "value": [
-            "code",
-            "token",
-            "id_token",
-            "code token",
-            "token id_token",
-            "code id_token",
-            "code token id_token",
-            "device_code",
-            "device_code id_token"
-          ]
-        },
-        "sectorIdentifierUri": {
-          "inherited": false
-        },
-        "softwareIdentity": {
-          "inherited": false
-        },
-        "softwareVersion": {
-          "inherited": false
-        },
-        "subjectType": {
-          "inherited": false,
-          "value": "public"
-        },
-        "tokenEndpointAuthMethod": {
-          "inherited": false,
-          "value": "client_secret_basic"
-        },
-        "tokenExchangeAuthLevel": {
-          "inherited": false,
-          "value": 0
-        },
-        "tosURI": {
-          "inherited": false,
-          "value": []
-        },
-        "updateAccessToken": {
-          "inherited": false
-        }
+      "poolConfigOption": {
+        "maxIdle": 10,
+        "maxObjects": 10,
+        "maxWait": 150000,
+        "minEvictableIdleTimeMillis": 120000,
+        "minIdle": 1
       },
-      "coreOAuth2ClientConfig": {
-        "accessTokenLifetime": {
-          "inherited": false,
-          "value": 0
-        },
-        "authorizationCodeLifetime": {
-          "inherited": false,
-          "value": 0
-        },
-        "clientName": {
-          "inherited": false,
-          "value": [
-            "testapp"
-          ]
-        },
-        "clientType": {
-          "inherited": false,
-          "value": "Confidential"
-        },
-        "defaultScopes": {
-          "inherited": false,
-          "value": []
-        },
-        "loopbackInterfaceRedirection": {
-          "inherited": false,
-          "value": false
-        },
-        "redirectionUris": {
-          "inherited": false,
-          "value": []
-        },
-        "refreshTokenLifetime": {
-          "inherited": false,
-          "value": 0
-        },
-        "scopes": {
-          "inherited": false,
-          "value": []
-        },
-        "status": {
-          "inherited": false,
-          "value": "Active"
-        }
-      },
-      "coreOpenIDClientConfig": {
-        "backchannel_logout_session_required": {
-          "inherited": false,
-          "value": false
-        },
-        "backchannel_logout_uri": {
-          "inherited": false
-        },
-        "claims": {
-          "inherited": false,
-          "value": []
-        },
-        "clientSessionUri": {
-          "inherited": false
-        },
-        "defaultAcrValues": {
-          "inherited": false,
-          "value": []
-        },
-        "defaultMaxAge": {
-          "inherited": false,
-          "value": 600
-        },
-        "defaultMaxAgeEnabled": {
-          "inherited": false,
-          "value": false
-        },
-        "jwtTokenLifetime": {
-          "inherited": false,
-          "value": 0
-        },
-        "postLogoutRedirectUri": {
-          "inherited": false,
-          "value": []
-        }
-      },
-      "coreUmaClientConfig": {
-        "claimsRedirectionUris": {
-          "inherited": false,
-          "value": []
-        }
-      },
-      "overrideOAuth2ClientConfig": {
-        "accessTokenMayActScript": "[Empty]",
-        "accessTokenModificationPluginType": "PROVIDER",
-        "accessTokenModificationScript": "[Empty]",
-        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
-        "authorizeEndpointDataProviderPluginType": "PROVIDER",
-        "authorizeEndpointDataProviderScript": "[Empty]",
-        "clientsCanSkipConsent": false,
-        "enableRemoteConsent": false,
-        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
-        "evaluateScopePluginType": "PROVIDER",
-        "evaluateScopeScript": "[Empty]",
-        "issueRefreshToken": true,
-        "issueRefreshTokenOnRefreshedToken": true,
-        "oidcClaimsPluginType": "PROVIDER",
-        "oidcClaimsScript": "[Empty]",
-        "oidcMayActScript": "[Empty]",
-        "overrideableOIDCClaims": [],
-        "providerOverridesEnabled": false,
-        "remoteConsentServiceId": null,
-        "scopesPolicySet": "oauth2Scopes",
-        "statelessTokensEnabled": false,
-        "tokenEncryptionEnabled": false,
-        "useForceAuthnForMaxAge": false,
-        "usePolicyEngineForScope": false,
-        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
-        "validateScopePluginType": "PROVIDER",
-        "validateScopeScript": "[Empty]"
-      },
-      "signEncOAuth2ClientConfig": {
-        "authorizationResponseEncryptionAlgorithm": {
-          "inherited": false
-        },
-        "authorizationResponseEncryptionMethod": {
-          "inherited": false
-        },
-        "authorizationResponseSigningAlgorithm": {
-          "inherited": false,
-          "value": "RS256"
-        },
-        "clientJwtPublicKey": {
-          "inherited": false
-        },
-        "idTokenEncryptionAlgorithm": {
-          "inherited": false,
-          "value": "RSA-OAEP-256"
-        },
-        "idTokenEncryptionEnabled": {
-          "inherited": false,
-          "value": false
-        },
-        "idTokenEncryptionMethod": {
-          "inherited": false,
-          "value": "A128CBC-HS256"
-        },
-        "idTokenPublicEncryptionKey": {
-          "inherited": false
-        },
-        "idTokenSignedResponseAlg": {
-          "inherited": false,
-          "value": "RS256"
-        },
-        "jwkSet": {
-          "inherited": false
-        },
-        "jwkStoreCacheMissCacheTime": {
-          "inherited": false,
-          "value": 60000
-        },
-        "jwksCacheTimeout": {
-          "inherited": false,
-          "value": 3600000
-        },
-        "jwksUri": {
-          "inherited": false
-        },
-        "mTLSCertificateBoundAccessTokens": {
-          "inherited": false,
-          "value": false
-        },
-        "mTLSSubjectDN": {
-          "inherited": false
-        },
-        "mTLSTrustedCert": {
-          "inherited": false
-        },
-        "publicKeyLocation": {
-          "inherited": false,
-          "value": "jwks_uri"
-        },
-        "requestParameterEncryptedAlg": {
-          "inherited": false
-        },
-        "requestParameterEncryptedEncryptionAlgorithm": {
-          "inherited": false,
-          "value": "A128CBC-HS256"
-        },
-        "requestParameterSignedAlg": {
-          "inherited": false
-        },
-        "tokenEndpointAuthSigningAlgorithm": {
-          "inherited": false,
-          "value": "RS256"
-        },
-        "tokenIntrospectionEncryptedResponseAlg": {
-          "inherited": false,
-          "value": "RSA-OAEP-256"
-        },
-        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": {
-          "inherited": false,
-          "value": "A128CBC-HS256"
-        },
-        "tokenIntrospectionResponseFormat": {
-          "inherited": false,
-          "value": "JSON"
-        },
-        "tokenIntrospectionSignedResponseAlg": {
-          "inherited": false,
-          "value": "RS256"
-        },
-        "userinfoEncryptedResponseAlg": {
-          "inherited": false
-        },
-        "userinfoEncryptedResponseEncryptionAlgorithm": {
-          "inherited": false,
-          "value": "A128CBC-HS256"
-        },
-        "userinfoResponseFormat": {
-          "inherited": false,
-          "value": "JSON"
-        },
-        "userinfoSignedResponseAlg": {
-          "inherited": false
-        }
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false
       }
     }
   },
   "managedApplication": {
-    "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322": {
-      "_id": "ab00f0cd-e7a0-44fe-9ae9-f80f0e193322",
-      "description": "Test App",
-      "name": "testapp",
-      "ssoEntities": {
-        "oidcId": "testapp"
-      },
-      "templateName": "web",
-      "templateVersion": "1.0"
+    "0f357b7e-6c54-4351-a094-43916877d7e5": {
+      "_id": "0f357b7e-6c54-4351-a094-43916877d7e5",
+      "authoritative": false,
+      "connectorId": "Azure",
+      "description": "Azure",
+      "icon": "",
+      "mappingNames": [
+        "systemAzureUser_managedAlpha_user",
+        "managedAlpha_user_systemAzureUser",
+        "systemAzure__group___managedAlpha_assignment",
+        "systemAzureDirectoryrole_managedAlpha_assignment",
+        "systemAzureServiceplan_managedAlpha_assignment"
+      ],
+      "name": "Azure",
+      "templateName": "azure.ad",
+      "templateVersion": "3.3",
+      "uiConfig": {
+        "objectTypes": {
+          "User": {
+            "properties": {
+              "__PASSWORD__": {
+                "displayName": "Password",
+                "order": 17,
+                "userSpecific": true
+              },
+              "__roles__": {
+                "displayName": "Roles",
+                "nonAccountObject": "directoryRole",
+                "order": 3,
+                "userSpecific": true
+              },
+              "__servicePlanIds__": {
+                "displayName": "Service Plan Ids",
+                "nonAccountObject": "servicePlan",
+                "order": 27,
+                "userSpecific": true
+              },
+              "accountEnabled": {
+                "displayName": "Account Enabled",
+                "order": 0,
+                "userSpecific": true
+              },
+              "city": {
+                "displayName": "City",
+                "order": 5,
+                "userSpecific": true
+              },
+              "companyName": {
+                "displayName": "Company Name",
+                "order": 4,
+                "userSpecific": true
+              },
+              "country": {
+                "displayName": "Country",
+                "order": 6,
+                "userSpecific": true
+              },
+              "department": {
+                "displayName": "Department",
+                "order": 7,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "Display Name",
+                "order": 8,
+                "userSpecific": true
+              },
+              "givenName": {
+                "displayName": "Given Name",
+                "order": 9,
+                "userSpecific": true
+              },
+              "jobTitle": {
+                "displayName": "Job Title",
+                "order": 11,
+                "userSpecific": true
+              },
+              "mail": {
+                "displayName": "Mail",
+                "isDisplay": true,
+                "isMail": true,
+                "order": 1,
+                "userSpecific": true
+              },
+              "mailNickname": {
+                "displayName": "Mail Nickname",
+                "order": 12,
+                "userSpecific": true
+              },
+              "manager": {
+                "displayName": "Manager",
+                "order": 13,
+                "userSpecific": true
+              },
+              "memberOf": {
+                "displayName": "Member Of",
+                "nonAccountObject": "__GROUP__",
+                "order": 2,
+                "userSpecific": true
+              },
+              "mobilePhone": {
+                "displayName": "Mobile Phone",
+                "order": 14,
+                "userSpecific": true
+              },
+              "onPremisesImmutableId": {
+                "displayName": "On Premises Immutable Id",
+                "order": 10,
+                "userSpecific": true
+              },
+              "onPremisesSecurityIdentifier": {
+                "displayName": "On Premises Security Identifier",
+                "order": 15,
+                "userSpecific": true
+              },
+              "otherMails": {
+                "displayName": "Other Mails",
+                "order": 16,
+                "userSpecific": true
+              },
+              "postalCode": {
+                "displayName": "Postal Code",
+                "order": 18,
+                "userSpecific": true
+              },
+              "preferredLanguage": {
+                "displayName": "Preferred Language",
+                "order": 19,
+                "userSpecific": true
+              },
+              "proxyAddresses": {
+                "displayName": "Proxy Addresses",
+                "order": 20,
+                "userSpecific": true
+              },
+              "state": {
+                "displayName": "State",
+                "order": 21,
+                "userSpecific": true
+              },
+              "streetAddress": {
+                "displayName": "Street Address",
+                "order": 22,
+                "userSpecific": true
+              },
+              "surname": {
+                "displayName": "Surname",
+                "order": 23,
+                "userSpecific": true
+              },
+              "usageLocation": {
+                "displayName": "Usage Location",
+                "order": 24,
+                "userSpecific": true
+              },
+              "userPrincipalName": {
+                "displayName": "User Principal Name",
+                "isUsername": true,
+                "order": 25,
+                "userSpecific": true
+              },
+              "userType": {
+                "displayName": "User Type",
+                "order": 26,
+                "userSpecific": true
+              }
+            }
+          },
+          "__GROUP__": {
+            "properties": {
+              "__NAME__": {
+                "displayName": "Name",
+                "order": 2,
+                "userSpecific": true
+              },
+              "description": {
+                "displayName": "Description",
+                "order": 4,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "Display Name",
+                "order": 3,
+                "userSpecific": true
+              },
+              "groupTypes": {
+                "displayName": "Group Types",
+                "order": 10,
+                "userSpecific": true
+              },
+              "id": {
+                "displayName": "Id",
+                "order": 0,
+                "userSpecific": true
+              },
+              "mail": {
+                "displayName": "Mail",
+                "order": 5,
+                "userSpecific": true
+              },
+              "mailEnabled": {
+                "displayName": "Mail Enabled",
+                "order": 6,
+                "userSpecific": true
+              },
+              "onPremisesSecurityIdentifier": {
+                "displayName": "On Premises Security Identifier",
+                "order": 7,
+                "userSpecific": true
+              },
+              "proxyAddresses": {
+                "displayName": "Proxy Addresses",
+                "order": 8,
+                "userSpecific": true
+              },
+              "securityEnabled": {
+                "displayName": "Security Enabled",
+                "order": 9,
+                "userSpecific": true
+              },
+              "type": {
+                "displayName": "Type",
+                "order": 1,
+                "userSpecific": true
+              }
+            }
+          },
+          "directoryRole": {
+            "properties": {
+              "description": {
+                "displayName": "description",
+                "order": 0,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "displayName",
+                "order": 1,
+                "userSpecific": true
+              }
+            }
+          },
+          "servicePlan": {
+            "properties": {
+              "__NAME__": {
+                "displayName": "__NAME__",
+                "order": 5,
+                "userSpecific": true
+              },
+              "appliesTo": {
+                "displayName": "appliesTo",
+                "order": 0,
+                "userSpecific": true
+              },
+              "provisioningStatus": {
+                "displayName": "provisioningStatus",
+                "order": 2,
+                "userSpecific": true
+              },
+              "servicePlanId": {
+                "displayName": "servicePlanId",
+                "order": 1,
+                "userSpecific": true
+              },
+              "servicePlanName": {
+                "displayName": "servicePlanName",
+                "order": 4,
+                "userSpecific": true
+              },
+              "subscriberSkuId": {
+                "displayName": "subscriberSkuId",
+                "order": 3,
+                "userSpecific": true
+              }
+            }
+          }
+        }
+      }
     },
     "e124e6f6-e25a-4180-a6c3-ff8b782a422c": {
       "_id": "e124e6f6-e25a-4180-a6c3-ff8b782a422c",
       "authoritative": true,
+      "description": "desc",
       "icon": "",
       "name": "testLDAP",
       "templateName": "ldap",
       "templateVersion": "2.1"
     }
   },
+  "mapping": {
+    "managedAlpha_user_systemAzureUser": {
+      "_id": "mapping/managedAlpha_user_systemAzureUser",
+      "consentRequired": false,
+      "defaultSourceFields": [
+        "*",
+        "assignments"
+      ],
+      "defaultTargetFields": [
+        "*",
+        "memberOf",
+        "__roles__",
+        "__servicePlanIds__"
+      ],
+      "displayName": "managedAlpha_user_systemAzureUser",
+      "icon": null,
+      "name": "managedAlpha_user_systemAzureUser",
+      "optimizeAssignmentSync": true,
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_TARGET_CONFLICT"
+        },
+        {
+          "action": "INCORPORATE_CHANGES",
+          "situation": "TARGET_CHANGED"
+        }
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail"
+        },
+        {
+          "source": "givenName",
+          "target": "givenName"
+        },
+        {
+          "source": "sn",
+          "target": "surname"
+        },
+        {
+          "source": "",
+          "target": "displayName",
+          "transform": {
+            "source": "source.givenName+\" \"+source.sn",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "",
+          "target": "mailNickname",
+          "transform": {
+            "source": "source.givenName[0].toLowerCase()+source.sn.toLowerCase()",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "",
+          "target": "accountEnabled",
+          "transform": {
+            "source": "true",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "(typeof oldTarget === 'undefined' || oldTarget === null)",
+            "type": "text/javascript"
+          },
+          "source": "",
+          "target": "__PASSWORD__",
+          "transform": {
+            "source": "\"!@#$%\"[Math.floor(Math.random()*5)] + Math.random().toString(36).slice(2, 13).toUpperCase()+Math.random().toString(36).slice(2,13)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "queuedSync": {
+        "enabled": true,
+        "maxRetries": 0,
+        "pollingInterval": 10000
+      },
+      "runTargetPhase": false,
+      "source": "managed/alpha_user",
+      "sourceCondition": "/source/effectiveApplications[_id eq \"0f357b7e-6c54-4351-a094-43916877d7e5\"] or /source/effectiveAssignments[(mapping eq \"managedAlpha_user_systemAzureUser\" and type eq \"__ENTITLEMENT__\")]",
+      "sourceQuery": {
+        "_queryFilter": "effectiveApplications[_id eq \"0f357b7e-6c54-4351-a094-43916877d7e5\"] or lastSync/managedAlpha_user_systemAzureUser pr or /source/effectiveAssignments[(mapping eq \"managedAlpha_user_systemAzureUser\" and type eq \"__ENTITLEMENT__\")]"
+      },
+      "target": "system/Azure/User"
+    },
+    "systemAzureDirectoryrole_managedAlpha_assignment": {
+      "_id": "mapping/systemAzureDirectoryrole_managedAlpha_assignment",
+      "consentRequired": false,
+      "displayName": "systemAzureDirectoryrole_managedAlpha_assignment",
+      "icon": null,
+      "name": "systemAzureDirectoryrole_managedAlpha_assignment",
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "DELETE",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "LINK",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "default": "__RESOURCE__",
+          "target": "type"
+        },
+        {
+          "source": "",
+          "target": "description",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.description !== \"undefined\" && source.description !== null) ? source.description : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "default": "managedAlpha_user_systemAzureUser",
+          "target": "mapping"
+        },
+        {
+          "source": "",
+          "target": "name",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.displayName !== \"undefined\" && source.displayName !== null) ? source.displayName : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "attributes",
+          "transform": {
+            "globals": {},
+            "source": "[\n  {\n    'name': '__roles__',\n    'value': [source]\n  }\n]",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "_id",
+          "transform": {
+            "globals": {
+              "sourceObjectSet": "system_Azure_directoryRole_"
+            },
+            "source": "sourceObjectSet.concat(source)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "source": "system/Azure/directoryRole",
+      "target": "managed/alpha_assignment",
+      "targetQuery": {
+        "_queryFilter": "mapping eq \"managedAlpha_user_systemAzureUser\" and attributes[name eq \"__roles__\"]"
+      }
+    },
+    "systemAzureServiceplan_managedAlpha_assignment": {
+      "_id": "mapping/systemAzureServiceplan_managedAlpha_assignment",
+      "consentRequired": false,
+      "displayName": "systemAzureServiceplan_managedAlpha_assignment",
+      "icon": null,
+      "name": "systemAzureServiceplan_managedAlpha_assignment",
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "DELETE",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "LINK",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "default": "__RESOURCE__",
+          "target": "type"
+        },
+        {
+          "source": "",
+          "target": "description",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.servicePlanName !== \"undefined\" && source.servicePlanName !== null) ? source.servicePlanName : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "default": "managedAlpha_user_systemAzureUser",
+          "target": "mapping"
+        },
+        {
+          "source": "",
+          "target": "name",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.servicePlanName !== \"undefined\" && source.servicePlanName !== null) ? source.servicePlanName : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "attributes",
+          "transform": {
+            "globals": {},
+            "source": "[\n  {\n    'name': '__servicePlanIds__',\n    'value': [source]\n  }\n]",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "_id",
+          "transform": {
+            "globals": {
+              "sourceObjectSet": "system_Azure_servicePlan_"
+            },
+            "source": "sourceObjectSet.concat(source)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "source": "system/Azure/servicePlan",
+      "target": "managed/alpha_assignment",
+      "targetQuery": {
+        "_queryFilter": "mapping eq \"managedAlpha_user_systemAzureUser\" and attributes[name eq \"__servicePlanIds__\"]"
+      }
+    },
+    "systemAzureUser_managedAlpha_user": {
+      "_id": "mapping/systemAzureUser_managedAlpha_user",
+      "consentRequired": false,
+      "correlationQuery": [
+        {
+          "linkQualifier": "default",
+          "source": "var qry = {'_queryFilter': 'mail eq \"' + source.mail + '\"'}; qry",
+          "type": "text/javascript"
+        }
+      ],
+      "defaultSourceFields": [
+        "*",
+        "memberOf",
+        "__roles__",
+        "__servicePlanIds__"
+      ],
+      "defaultTargetFields": [
+        "*",
+        "assignments"
+      ],
+      "displayName": "systemAzureUser_managedAlpha_user",
+      "icon": null,
+      "links": "managedAlpha_user_systemAzureUser",
+      "name": "systemAzureUser_managedAlpha_user",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "ONBOARD",
+          "situation": "FOUND"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_TARGET_CONFLICT"
+        }
+      ],
+      "properties": [
+        {
+          "referencedObjectType": "__GROUP__",
+          "source": "memberOf",
+          "target": "assignments"
+        },
+        {
+          "referencedObjectType": "directoryRole",
+          "source": "__roles__",
+          "target": "assignments"
+        },
+        {
+          "referencedObjectType": "servicePlan",
+          "source": "__servicePlanIds__",
+          "target": "assignments"
+        }
+      ],
+      "reconSourceQueryPageSize": 999,
+      "reconSourceQueryPaging": true,
+      "runTargetPhase": false,
+      "source": "system/Azure/User",
+      "sourceQueryFullEntry": true,
+      "target": "managed/alpha_user"
+    },
+    "systemAzure__group___managedAlpha_assignment": {
+      "_id": "mapping/systemAzure__group___managedAlpha_assignment",
+      "consentRequired": false,
+      "displayName": "systemAzure__group___managedAlpha_assignment",
+      "icon": null,
+      "name": "systemAzure__group___managedAlpha_assignment",
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "DELETE",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "LINK",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "default": "__RESOURCE__",
+          "target": "type"
+        },
+        {
+          "source": "",
+          "target": "description",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.description !== \"undefined\" && source.description !== null) ? source.description : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "default": "managedAlpha_user_systemAzureUser",
+          "target": "mapping"
+        },
+        {
+          "source": "",
+          "target": "name",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.displayName !== \"undefined\" && source.displayName !== null) ? source.displayName : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "attributes",
+          "transform": {
+            "globals": {},
+            "source": "[\n  {\n    'name': 'memberOf',\n    'value': [source]\n  }\n]",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "_id",
+          "transform": {
+            "globals": {
+              "sourceObjectSet": "system_Azure___GROUP___"
+            },
+            "source": "sourceObjectSet.concat(source)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "source": "system/Azure/__GROUP__",
+      "target": "managed/alpha_assignment",
+      "targetQuery": {
+        "_queryFilter": "mapping eq \"managedAlpha_user_systemAzureUser\" and attributes[name eq \"memberOf\"]"
+      }
+    }
+  },
   "meta": {
-    "exportDate": "2023-12-21T17:03:27.205Z",
+    "exportDate": "2024-10-09T23:12:49.808Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-55 [v18.5.0]",
+    "exportToolVersion": "v2.1.2-0 [v20.11.1]",
     "exportedBy": "phales@trivir.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
-  },
-  "script": {}
+    "originAmVersion": "7.6.0"
+  }
 }

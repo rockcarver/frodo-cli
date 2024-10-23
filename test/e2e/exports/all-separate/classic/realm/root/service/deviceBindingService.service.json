@@ -1,0 +1,19 @@
+{
+  "service": {
+    "deviceBindingService": {
+      "_id": "",
+      "_type": {
+        "_id": "deviceBindingService",
+        "collection": false,
+        "name": "Device Binding Service"
+      },
+      "deviceBindingAttrName": "boundDevices",
+      "deviceBindingSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "deviceBindingSettingsEncryptionKeystorePassword": null,
+      "deviceBindingSettingsEncryptionKeystoreType": "JKS",
+      "deviceBindingSettingsEncryptionScheme": "NONE",
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

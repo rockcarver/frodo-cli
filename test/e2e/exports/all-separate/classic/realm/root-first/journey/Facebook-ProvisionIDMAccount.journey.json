@@ -1,0 +1,105 @@
+{
+  "trees": {
+    "Facebook-ProvisionIDMAccount": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "37693cfc-7480-39e4-9d87-b8c7d8b9aacd": {
+          "_id": "37693cfc-7480-39e4-9d87-b8c7d8b9aacd",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            }
+          ],
+          "_type": {
+            "_id": "SocialFacebookNode",
+            "collection": true,
+            "name": "Social Facebook"
+          },
+          "authenticationIdKey": "id",
+          "authorizeEndpoint": "https://www.facebook.com/dialog/oauth",
+          "basicAuth": true,
+          "cfgAccountMapperClass": "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|*|facebook-",
+          "cfgAccountMapperConfiguration": {
+            "id": "iplanet-am-user-alias-list"
+          },
+          "cfgAccountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "cfgAttributeMappingClasses": [
+            "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|iplanet-am-user-alias-list|facebook-"
+          ],
+          "cfgAttributeMappingConfiguration": {
+            "email": "mail",
+            "first_name": "givenName",
+            "id": "iplanet-am-user-alias-list",
+            "last_name": "sn",
+            "name": "cn"
+          },
+          "cfgMixUpMitigation": false,
+          "clientId": "aClientId",
+          "clientSecret": null,
+          "provider": "facebook",
+          "redirectURI": "http://localhost:8080/am",
+          "saveUserAttributesToSession": true,
+          "scopeString": "public_profile,email",
+          "tokenEndpoint": "https://graph.facebook.com/v2.12/oauth/access_token",
+          "userInfoEndpoint": "https://graph.facebook.com/v2.6/me?fields=name%2Cemail%2Cfirst_name%2Clast_name"
+        },
+        "b6d767d2-f8ed-3d21-a44b-0e5886680cb9": {
+          "_id": "b6d767d2-f8ed-3d21-a44b-0e5886680cb9",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ProvisionIdmAccountNode",
+            "collection": true,
+            "name": "Provision IDM Account"
+          },
+          "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Facebook-ProvisionIDMAccount",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "37693cfc-7480-39e4-9d87-b8c7d8b9aacd",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "37693cfc-7480-39e4-9d87-b8c7d8b9aacd": {
+            "connections": {
+              "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "NO_ACCOUNT": "b6d767d2-f8ed-3d21-a44b-0e5886680cb9"
+            },
+            "displayName": "Facebook Social Authentication",
+            "nodeType": "SocialFacebookNode",
+            "x": 0,
+            "y": 0
+          },
+          "b6d767d2-f8ed-3d21-a44b-0e5886680cb9": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Provision IDM Account",
+            "nodeType": "ProvisionIdmAccountNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

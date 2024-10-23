@@ -1,0 +1,18 @@
+{
+  "service": {
+    "validation": {
+      "_id": "",
+      "_type": {
+        "_id": "validation",
+        "collection": false,
+        "name": "Validation Service"
+      },
+      "defaults": {
+        "validGotoDestinations": []
+      },
+      "location": "global",
+      "nextDescendents": [],
+      "validGotoDestinations": []
+    }
+  }
+}

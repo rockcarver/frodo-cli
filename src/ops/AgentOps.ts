@@ -69,7 +69,9 @@ export async function listAgents(long: boolean = false): Promise<boolean> {
             status = agent['globalWebAgentConfig']['status'];
             break;
           default:
-            status = agent.status as string;
+            if (agent.status) {
+              status = agent.status as string;
+            }
             break;
         }
         table.push([
@@ -305,10 +307,8 @@ export async function exportAgentToFile(
 ): Promise<boolean> {
   try {
     const exportData = await exportAgent(agentId);
-    let fileName = getTypedFilename(
-      agentId,
-      agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
-    );
+    const type = agentTypeToFileIdMap[exportData.agent[agentId]._type._id];
+    let fileName = getTypedFilename(agentId, type ? type : 'agent');
     if (file) {
       fileName = file;
     }
@@ -336,7 +336,7 @@ export async function exportIdentityGatewayAgentToFile(
     const exportData = await exportIdentityGatewayAgent(agentId);
     let fileName = getTypedFilename(
       agentId,
-      agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
+      agentTypeToFileIdMap[exportData.agent[agentId]._type._id]
     );
     if (file) {
       fileName = file;
@@ -368,7 +368,7 @@ export async function exportJavaAgentToFile(
     const exportData = await exportJavaAgent(agentId);
     let fileName = getTypedFilename(
       agentId,
-      agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
+      agentTypeToFileIdMap[exportData.agent[agentId]._type._id]
     );
     if (file) {
       fileName = file;
@@ -397,7 +397,7 @@ export async function exportWebAgentToFile(
     const exportData = await exportWebAgent(agentId);
     let fileName = getTypedFilename(
       agentId,
-      agentTypeToFileIdMap[exportData.agents[agentId]._type._id]
+      agentTypeToFileIdMap[exportData.agent[agentId]._type._id]
     );
     if (file) {
       fileName = file;
@@ -422,13 +422,11 @@ export async function exportAgentsToFiles(
     const agents = await readAgents();
     debugMessage(`exportAgentsToFiles: ${agents.length} agents`);
     for (const agent of agents) {
-      const fileName = getTypedFilename(
-        agent._id,
-        agentTypeToFileIdMap[agent._type._id]
-      );
+      const type = agentTypeToFileIdMap[agent._type._id];
+      const fileName = getTypedFilename(agent._id, type ? type : 'agent');
       const filePath = getFilePath(fileName, true);
       const exportData = createAgentExportTemplate();
-      exportData.agents[agent._id] = agent;
+      exportData.agent[agent._id] = agent;
       debugMessage(
         `exportAgentsToFiles: exporting ${agent._id} to ${filePath}`
       );
@@ -458,7 +456,7 @@ export async function exportIdentityGatewayAgentsToFiles(
         agentTypeToFileIdMap[agent._type._id]
       );
       const exportData = createAgentExportTemplate();
-      exportData.agents[agent._id] = agent;
+      exportData.agent[agent._id] = agent;
       saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
     }
     return true;
@@ -484,7 +482,7 @@ export async function exportJavaAgentsToFiles(
         agentTypeToFileIdMap[agent._type._id]
       );
       const exportData = createAgentExportTemplate();
-      exportData.agents[agent._id] = agent;
+      exportData.agent[agent._id] = agent;
       saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
     }
     return true;
@@ -510,7 +508,7 @@ export async function exportWebAgentsToFiles(
         agentTypeToFileIdMap[agent._type._id]
       );
       const exportData = createAgentExportTemplate();
-      exportData.agents[agent._id] = agent;
+      exportData.agent[agent._id] = agent;
       saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
     }
     return true;
@@ -535,16 +533,16 @@ export async function importAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
-    if (importData.agents && importData.agents[agentId]) {
-      const agent = importData.agents[agentId];
-      importData.agents = {};
-      importData.agents[agentId] = agent;
-    } else if (importData.agents) {
-      importData.agents = null;
+    if (importData.agent && importData.agent[agentId]) {
+      const agent = importData.agent[agentId];
+      importData.agent = {};
+      importData.agent[agentId] = agent;
+    } else if (importData.agent) {
+      importData.agent = null;
     }
     // if an agentId was specified, only import the matching agent
     let spinnerId: string;
-    if (importData.agents) {
+    if (importData.agent) {
       if (!verbose)
         spinnerId = createProgressIndicator(
           'indeterminate',
@@ -605,16 +603,16 @@ export async function importIdentityGatewayAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
-    if (importData.agents && importData.agents[agentId]) {
-      const agent = importData.agents[agentId];
-      importData.agents = {};
-      importData.agents[agentId] = agent;
-    } else if (importData.agents) {
-      importData.agents = null;
+    if (importData.agent && importData.agent[agentId]) {
+      const agent = importData.agent[agentId];
+      importData.agent = {};
+      importData.agent[agentId] = agent;
+    } else if (importData.agent) {
+      importData.agent = null;
     }
     // if an agentId was specified, only import the matching agent
     let spinnerId: string;
-    if (importData.agents) {
+    if (importData.agent) {
       if (!verbose)
         spinnerId = createProgressIndicator(
           'indeterminate',
@@ -673,16 +671,16 @@ export async function importJavaAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
-    if (importData.agents && importData.agents[agentId]) {
-      const agent = importData.agents[agentId];
-      importData.agents = {};
-      importData.agents[agentId] = agent;
-    } else if (importData.agents) {
-      importData.agents = null;
+    if (importData.agent && importData.agent[agentId]) {
+      const agent = importData.agent[agentId];
+      importData.agent = {};
+      importData.agent[agentId] = agent;
+    } else if (importData.agent) {
+      importData.agent = null;
     }
     // if an agentId was specified, only import the matching agent
     let spinnerId: string;
-    if (importData.agents) {
+    if (importData.agent) {
       if (!verbose)
         spinnerId = createProgressIndicator(
           'indeterminate',
@@ -738,16 +736,16 @@ export async function importWebAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     // check if this is a file with multiple agents and get agent by id
-    if (importData.agents && importData.agents[agentId]) {
-      const agent = importData.agents[agentId];
-      importData.agents = {};
-      importData.agents[agentId] = agent;
-    } else if (importData.agents) {
-      importData.agents = null;
+    if (importData.agent && importData.agent[agentId]) {
+      const agent = importData.agent[agentId];
+      importData.agent = {};
+      importData.agent[agentId] = agent;
+    } else if (importData.agent) {
+      importData.agent = null;
     }
     // if an agentId was specified, only import the matching agent
     let spinnerId: string;
-    if (importData.agents) {
+    if (importData.agent) {
       if (!verbose)
         spinnerId = createProgressIndicator(
           'indeterminate',
@@ -798,8 +796,8 @@ export async function importFirstAgentFromFile(file: string): Promise<boolean> {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     let spinnerId: string;
-    if (Object.keys(importData.agents).length > 0) {
-      for (const agent of Object.values(importData.agents)) {
+    if (Object.keys(importData.agent).length > 0) {
+      for (const agent of Object.values(importData.agent)) {
         if (!verbose)
           spinnerId = createProgressIndicator(
             'indeterminate',
@@ -856,8 +854,8 @@ export async function importFirstIdentityGatewayAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     let spinnerId: string;
-    if (Object.keys(importData.agents).length > 0) {
-      for (const agent of Object.values(importData.agents)) {
+    if (Object.keys(importData.agent).length > 0) {
+      for (const agent of Object.values(importData.agent)) {
         if (!verbose)
           spinnerId = createProgressIndicator(
             'indeterminate',
@@ -911,8 +909,8 @@ export async function importFirstJavaAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     let spinnerId: string;
-    if (Object.keys(importData.agents).length > 0) {
-      for (const agent of Object.values(importData.agents)) {
+    if (Object.keys(importData.agent).length > 0) {
+      for (const agent of Object.values(importData.agent)) {
         if (!verbose)
           spinnerId = createProgressIndicator(
             'indeterminate',
@@ -963,8 +961,8 @@ export async function importFirstWebAgentFromFile(
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const importData = JSON.parse(data);
     let spinnerId: string;
-    if (Object.keys(importData.agents).length > 0) {
-      for (const agent of Object.values(importData.agents)) {
+    if (Object.keys(importData.agent).length > 0) {
+      for (const agent of Object.values(importData.agent)) {
         if (!verbose)
           spinnerId = createProgressIndicator(
             'indeterminate',

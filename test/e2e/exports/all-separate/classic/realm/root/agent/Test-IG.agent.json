@@ -1,0 +1,19 @@
+{
+  "agent": {
+    "Test IG": {
+      "_id": "Test IG",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "None",
+      "secretLabelIdentifier": null,
+      "status": "Active",
+      "userpassword": null
+    }
+  }
+}

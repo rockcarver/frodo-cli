@@ -3,10 +3,10 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
-  importAllConfigEntities,
-  importAllRawConfigEntities,
+  importAllConfigEntitiesFromFile,
+  importAllConfigEntitiesFromFiles,
   importConfigEntityByIdFromFile,
-  importConfigEntityFromFile,
+  importFirstConfigEntityFromFile,
 } from '../../ops/IdmOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
@@ -22,7 +22,7 @@ export default function setup() {
     verbose?: boolean;
     debug?: boolean;
     curlirize?: boolean;
-    name?: string;
+    entityId?: string;
     file?: string;
     entitiesFile?: string;
     envFile?: string;
@@ -35,27 +35,28 @@ export default function setup() {
     .description('Import IDM configuration objects.')
     .addOption(
       new Option(
-        '-N, --name <name>',
-        'Config entity name. E.g. "managed", "sync", "provisioner-<connector-name>", etc.'
+        '-i, --entity-id <id>',
+        'Config entity id/name. E.g. "managed", "sync", "provisioner-<connector-name>", etc. If specified, -a and -A are ignored.'
       )
     )
     .addOption(new Option('-f, --file [file]', 'Import file. Ignored with -A.'))
     .addOption(
       new Option(
         '-E, --entities-file [entities-file]',
-        'Name of the entity file. Ignored with -A.'
+        'Name of the entity file. Ignored with -i.'
       )
     )
+    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
-        '-e, --env-file [envfile]',
-        'Name of the env file. Ignored with -A.'
+        '-a, --all',
+        'Import all IDM configuration objects from a single file in directory -D. Ignored with -i.'
       )
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all IDM configuration objects from separate files in directory -D. Ignored with -N, and -a.'
+        'Import all IDM configuration objects from separate files in directory -D. Ignored with -i, and -a.'
       )
     )
     .action(
@@ -76,12 +77,44 @@ export default function setup() {
           options,
           command
         );
+        const entitiesMessage = options.entitiesFile
+          ? ` specified in ${options.entitiesFile}`
+          : '';
+        const envMessage = options.envFile
+          ? ` using ${options.envFile} for variable replacement`
+          : '';
+        const fileMessage = options.file ? ` from ${options.file}` : '';
+        const directoryMessage = state.getDirectory()
+          ? ` from separate files in ${state.getDirectory()}`
+          : '';
         // import by id/name
-        if (options.name && (await getTokens(false, true, deploymentTypes))) {
-          verboseMessage(`Importing object "${options.name}"...`);
+        if (
+          options.entityId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
+          verboseMessage(
+            `Importing object "${options.entityId}"${envMessage}${fileMessage}...`
+          );
           const outcome = await importConfigEntityByIdFromFile(
-            options.name,
-            options.file
+            options.entityId,
+            options.file,
+            options.envFile
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // --all -a
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
+          verboseMessage(
+            `Importing IDM configuration objects${entitiesMessage}${envMessage}${fileMessage}`
+          );
+          const outcome = await importAllConfigEntitiesFromFile(
+            options.file,
+            options.entitiesFile,
+            options.envFile
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -90,8 +123,13 @@ export default function setup() {
           options.file &&
           (await getTokens(false, true, deploymentTypes))
         ) {
-          verboseMessage(`Importing object from file...`);
-          const outcome = await importConfigEntityFromFile(options.file);
+          verboseMessage(
+            `Importing first object${envMessage}${fileMessage}...`
+          );
+          const outcome = await importFirstConfigEntityFromFile(
+            options.file,
+            options.envFile
+          );
           if (!outcome) process.exitCode = 1;
         }
         // require --directory -D for all-separate functions
@@ -106,32 +144,15 @@ export default function setup() {
         // --all-separate -A
         else if (
           options.allSeparate &&
-          options.entitiesFile &&
-          options.envFile &&
           (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage(
-            `Importing IDM configuration objects specified in ${
-              options.entitiesFile
-            } into separate files in ${state.getDirectory()} using ${
-              options.envFile
-            } for variable replacement...`
+            `Importing IDM configuration objects${entitiesMessage}${envMessage}${directoryMessage}`
           );
-          const outcome = await importAllConfigEntities(
+          const outcome = await importAllConfigEntitiesFromFiles(
             options.entitiesFile,
             options.envFile
           );
-          if (!outcome) process.exitCode = 1;
-        }
-        // --all-separate -A without variable replacement
-        else if (
-          options.allSeparate &&
-          (await getTokens(false, true, deploymentTypes))
-        ) {
-          verboseMessage(
-            `Importing all IDM configuration objects from separate files in ${state.getDirectory()}...`
-          );
-          const outcome = await importAllRawConfigEntities();
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

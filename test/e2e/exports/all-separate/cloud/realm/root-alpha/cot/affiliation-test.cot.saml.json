@@ -1,0 +1,19 @@
+{
+  "saml": {
+    "cot": {
+      "affiliation-test": {
+        "_id": "affiliation-test",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": []
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "service": {
+    "pingOneWorkerService": {
+      "_id": "",
+      "_type": {
+        "_id": "pingOneWorkerService",
+        "collection": false,
+        "name": "PingOne Worker Service"
+      },
+      "enabled": true,
+      "location": "/bravo",
+      "nextDescendents": []
+    }
+  }
+}

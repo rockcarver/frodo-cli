@@ -1,0 +1,25 @@
+{
+  "agent": {
+    "cdsso-ig-agent": {
+      "_id": "cdsso-ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+        "https://volker-demo.encore.forgerock.com/apps/contractor/redirect"
+      ],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active"
+    }
+  }
+}
