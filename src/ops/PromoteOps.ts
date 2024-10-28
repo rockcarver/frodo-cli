@@ -4,9 +4,7 @@ import {
   FullExportOptions,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import * as crypto from 'crypto';
-import deepDiff from 'deep-diff';
 import * as fs from 'fs';
-import { promises } from 'fs';
 import * as path from 'path';
 
 import { getFullExportConfigFromDirectory } from '../utils/Config';
@@ -24,28 +22,22 @@ import {
 } from './cloud/VariablesOps';
 import { exportItem } from './ConfigOps';
 import { importEmailTemplateFromFile } from './EmailTemplateOps';
-import { importConfigEntityFromFile } from './IdmOps';
-import { importSocialIdentityProviderFromFile } from './IdpOps';
+import { deleteConfigEntityById, importConfigEntityFromFile } from './IdmOps';
 import { deleteJourney, importJourneyFromFile } from './JourneyOps';
 import { deleteMapping, importMappingFromFile } from './MappingOps';
-import { importOAuth2ClientFromFile } from './OAuth2ClientOps';
+import { deleteOauth2ClientById, importOAuth2ClientFromFile } from './OAuth2ClientOps';
 import { deletePolicyById, importPolicyFromFile } from './PolicyOps';
 import { deletePolicySetById, importPolicySetsFromFile } from './PolicySetOps';
 import {
   deleteResourceTypeUsingName,
   importResourceTypesFromFile,
 } from './ResourceTypeOps';
-import { deleteSaml2ProviderById, importSaml2ProviderFromFile } from './Saml2Ops';
 import { deleteScriptId, importScriptsFromFile } from './ScriptOps';
 import { deleteService, importFirstServiceFromFile } from './ServiceOps.js';
 import { deleteTheme, importThemesFromFile } from './ThemeOps';
-import { Agent } from 'https';
-import { importIdentityGatewayAgent, importJavaAgent, importWebAgent } from '@rockcarver/frodo-lib/types/ops/AgentOps';
-import { importCirclesOfTrustFromFile } from './CirclesOfTrustOps';
 
 const {
   saveJsonToFile,
-  saveTextToFile,
   getFilePath,
   getWorkingDirectory,
   getRealmUsingExportFormat,
@@ -54,10 +46,17 @@ const { exportFullConfiguration } = frodo.config;
 
 const exportDir = getWorkingDirectory(true) + '/frodo-export';
 
-const changed = [];
-const deleted = [];
-const added = [];
-const logmessages = [];
+const changed = new Array<string>();
+const deleted = new Array<string>();
+const added = new Array<string>();
+const realms = new Set<string>();
+const logmessages = new Array<string>();
+
+interface CompareObj {
+  added: Array<string>;
+  changed: Array<string>;
+  deleted: Array<string>;
+}
 
 export async function compareExportToDirectory(
   masterDir: string,
@@ -75,59 +74,47 @@ export async function compareExportToDirectory(
     var options = options;
     verboseMessage(`Master dir: ${masterDir}`);
     verboseMessage(`Export dir: ${exportDir}`);
-    // var direct = dir
-    //export the full configuration
-
-    // verboseMessage("exporting")
-    // emptyDirectory(exportDir)
-    // if(!await exportEverythingToFiles(options)){
-    //   throw new FrodoError("Errors occured while exporting files")
-    // }
-
-    // let fileName = 'all.config.json';
-    // verboseMessage("importing export")
-    // const exportData = await getFullExportConfigFromDirectory(exportDir);
-    // saveJsonToFile(exportData, getFilePath(fileName, true));
-
-    // //import everything from separate files in a directory
-    // // Todo: state.getDirectory changed over to a parameter passed in
-    // verboseMessage("importing local dir")
-    // const data = await getFullExportConfigFromDirectory(dir);
-    // let filename2 = 'all2.config.json';
-    // saveJsonToFile(data, getFilePath(filename2, true))
-    // verboseMessage("Json diffing")
-    // const diff = deepDiff.diff(data, exportData)
-    // let jsonDiffname = 'jsonDiff.config.json';
-    // if (diff) {
-    //   verboseMessage("savingDiff")
-    //   saveTextToFile(JSON.stringify(diff), getFilePath(jsonDiffname, true))
-    // }
 
     verboseMessage('fileDiffing');
     const fileDiffname = 'fileDiff.config.json';
-    await compareDirectoriesAndChange(exportDir, masterDir);
-    const compareObj: CompareObj = { added, changed, deleted };
+    compareDirectories(exportDir, masterDir);
+
+    const compareObj: CompareObj = { 
+      added: added, 
+      changed: changed,
+      deleted: deleted
+    };
     saveJsonToFile(compareObj, getFilePath('a1' + fileDiffname, true));
+
+    verboseMessage(realms)
+
+    for (const realm of realms) {
+      let realmAdded = added.filter( (val) => 
+        val.substring(
+          val.indexOf('/') + 1,
+          val.indexOf('/', val.indexOf('/') + 1)
+        ) === realm )
+      let realmChanged = changed.filter( (val) => 
+        val.substring(
+          val.indexOf('/') + 1,
+          val.indexOf('/', val.indexOf('/') + 1)
+        ) == realm )
+      let realmDeleted = deleted.filter( (val) => 
+        val.substring(
+          val.indexOf('/') + 1,
+          val.indexOf('/', val.indexOf('/') + 1)
+        ) === realm )
+      verboseMessage(realm)
+      const compObj: CompareObj = {
+        added: realmAdded, 
+        changed: realmChanged, 
+        deleted: realmDeleted
+      }
+      verboseMessage(compObj)
+      await effectDifferences(compObj, masterDir, exportDir)
+    }
+    
     saveJsonToFile(logmessages, getFilePath('a2' + fileDiffname, true));
-
-    // while (added.length > 0) {
-    //   added.pop()
-    // }
-    // while (changed.length > 0) {
-    //   changed.pop()
-    // }
-    // while (deleted.length > 0) {
-    //   deleted.pop()
-    // }
-    // emptyDirectory(exportDir)
-    // if(!await exportEverythingToFiles(options)){
-    //   throw new FrodoError("Errors occured while exporting files")
-    // }
-
-    // verboseMessage("fileDiffing")
-    // await compareDirectories(exportDir, dir1)
-    // let compareObj2: CompareObj = {added, changed, deleted}
-    // saveJsonToFile(compareObj, getFilePath("b1" + fileDiffname, true))
 
     return true;
   } catch (error) {
@@ -135,6 +122,19 @@ export async function compareExportToDirectory(
     verboseMessage('Hello there we have an error!!!!!!!!!!!');
   }
   return false;
+}
+
+export async function effectDifferences(compObj: CompareObj, masterDir: string, exportDir: string) {
+  for (const add of compObj.added) {
+    await addFile(add, masterDir);
+  }
+  for (const change of compObj.changed) {
+    await changeFile(change, masterDir);
+  }
+  for (const del of compObj.deleted) {
+    await deleteFile(del, exportDir);
+  }
+  verboseMessage(`finished effect differences`)
 }
 
 /**
@@ -210,7 +210,7 @@ function hashFile(filePath) {
 }
 
 // Function to compare two directories
-async function compareDirectoriesAndChange(dir1, dir2): Promise<void> {
+function compareDirectories(dir1, dir2) {
   // Walk through dir1
   const walkDir = (dir, callback) => {
     fs.readdirSync(dir).forEach((file) => {
@@ -241,12 +241,15 @@ async function compareDirectoriesAndChange(dir1, dir2): Promise<void> {
       const hash2 = hashFile(counterpart);
       if (hash1 !== hash2) {
         if (!relativePath.includes("theme")) {
-          changeFile(relativePath, dir2, `${dir1}/${relativePath}`);
+          checkForRealmFromPath(relativePath)
+          checkChange(relativePath, dir2, `${dir1}/${relativePath}`)
         }
       }
     } else {
-      deleted.push(`'${relativePath}'`);
-      deleteFile(relativePath, dir1);
+      checkForRealmFromPath(relativePath)
+      if(checkTypeIsPromotable(relativePath)) {
+        deleted.push(`${relativePath}`);
+      }
     }
   });
 
@@ -263,13 +266,15 @@ async function compareDirectoriesAndChange(dir1, dir2): Promise<void> {
     }
 
     if (!fs.existsSync(counterpart)) {
-      added.push(`'${relativePath}'`);
-      addFile(relativePath, dir2);
+      checkForRealmFromPath(relativePath)
+      if(checkTypeIsPromotable(relativePath)){
+        added.push(`${relativePath}`);
+      }
     }
   });
 }
 
-async function changeFile(path: string, dir: string, counterpartPath: string) {
+function checkChange(path: string, dir: string, counterpartPath: string) {
   let type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
   switch (type){
@@ -292,9 +297,27 @@ async function changeFile(path: string, dir: string, counterpartPath: string) {
         return;
       }
     }
-    default: break
+    case 'sync': {
+      if(importFilePath.includes("/sync.json")) {
+        let data = fs.readFileSync(importFilePath, 'utf8');
+        let sync = JSON.parse(data);
+        let dataCopy = fs.readFileSync(counterpartPath, 'utf8');
+        let syncCopy = JSON.parse(dataCopy);
+        syncCopy.meta = sync.meta
+        if(JSON.stringify(syncCopy) === JSON.stringify(sync)) {
+          return;
+        }
+      }
+      break;
+    }
+    default: break;
   }
-  changed.push(`'${path}'`);
+  if(checkTypeIsPromotable(path)){
+    changed.push(`${path}`);
+  }
+}
+
+async function changeFile(path: string, dir: string) {
   logmessages.push('file changed:');
   verboseMessage('File Changed: ');
   await addFile(path, dir);
@@ -307,10 +330,10 @@ async function addFile(path: string, dir: string) {
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm)
 
-  await addSwitch(importFilePath, type)
+  await addSwitch(importFilePath, type, global, inRealm)
 }
 
-async function addSwitch(importFilePath: string, type: string) {
+async function addSwitch(importFilePath: string, type: string, global: boolean, inRealm: boolean) {
   switch (type) {
     case 'application': {
       const application = getJsonObjectTwoDown(importFilePath);
@@ -360,17 +383,6 @@ async function addSwitch(importFilePath: string, type: string) {
       logmessages.push(' ');
       break;
     }
-    case 'policyset': {
-      // const outcome = await importPolicySetsFromFile(importFilePath, {
-      //   deps: true,
-      //   prereqs: true,
-      // });
-      logmessages.push(`add policyset ${importFilePath}`);
-      verboseMessage(`add policyset ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      break;
-    }
     case 'resourcetype': {
       const outcome = await importResourceTypesFromFile(importFilePath);
       logmessages.push(`add resourcetype ${importFilePath}`);
@@ -417,14 +429,22 @@ async function addSwitch(importFilePath: string, type: string) {
       break;
     }
     case 'service': {
-      // const outcome = await importFirstServiceFromFile(importFilePath, {
-      //   clean: true,
-      //   global: global,
-      //   realm: inRealm,
-      // });
+      if (global) {
+        const outcome = await importFirstServiceFromFile(importFilePath, {
+          clean: false,
+          global: global,
+          realm: inRealm,
+        });
+      } else {
+        const outcome = await importFirstServiceFromFile(importFilePath, {
+          clean: true,
+          global: global,
+          realm: inRealm,
+        });
+      }
+      
       logmessages.push(`add service ${importFilePath}`);
       verboseMessage(`add service ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       break;
     }
@@ -483,16 +503,16 @@ async function addSwitch(importFilePath: string, type: string) {
       const data = fs.readFileSync(importFilePath, 'utf8');
       const importData = JSON.parse(data);
       verboseMessage(`sync Id: ${importData._id}`);
-      // const outcome = await importMappingFromFile(
-      //   importData._id,
-      //   importFilePath,
-      //   {
-      //     true,
-      //   }
-      // );
+      const outcome = await importMappingFromFile(
+        importData._id,
+        importFilePath,
+        {
+          deps: true,
+        }
+      );
       logmessages.push(`add sync ${importFilePath}`);
       verboseMessage(`add sync ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       break;
     }
@@ -510,36 +530,20 @@ async function addSwitch(importFilePath: string, type: string) {
       logmessages.push(' ');
       break;
     }
-    case 'saml': {
-      const hosted = getJsonObjectOneDown(importFilePath).hosted
-      const saml = hosted[Object.keys(hosted)[0]];
-      verboseMessage(`add saml with entityID = ${saml.entityId}`)
-      logmessages.push(`add saml with entityID = ${saml.entityId}`);
-      const outcome = await importSaml2ProviderFromFile(
-        saml.entityId,
-        importFilePath,
-        { deps: true }
-      )
-      logmessages.push(`add saml ${importFilePath}`);
-      verboseMessage(`add saml ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      break;
-    }
     case 'mapping': {
       const data = fs.readFileSync(importFilePath, 'utf8');
       const importData = JSON.parse(data);
       verboseMessage(`mapping Id: ${importData._id}`);
-      // const outcome = await importMappingFromFile(
-      //   importData._id,
-      //   importFilePath,
-      //   {
-      //     true,
-      //   }
-      // );
+      const outcome = await importMappingFromFile(
+        importData._id,
+        importFilePath,
+        {
+          deps: true,
+        }
+      );
       logmessages.push(`add mapping ${importFilePath}`);
       verboseMessage(`add mapping ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       break;
     }
@@ -593,23 +597,9 @@ async function addSwitch(importFilePath: string, type: string) {
       break;
     }
     case 'idp': {
-      //need to get idp id somehow
-      // verboseMessage(
-      //   `Importing provider "${
-      //     options.idpId
-      //   }" into realm "${state.getRealm()}"...`
-      // );
-      // const outcome = await importSocialIdentityProviderFromFile(
-      //   options.idpId,
-      //   importFilePath,
-      //   {
-      //     deps: true,
-      //   }
-      // );
-      //TODO: think about adding circle of trust ops
+      verboseMessage("taken care of by Idp")
       logmessages.push(`add idp ${importFilePath}`);
       verboseMessage(`add idp ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       break;
     }
@@ -630,10 +620,27 @@ async function addSwitch(importFilePath: string, type: string) {
       logmessages.push(' ');
       break;
     }
+    case 'policyset': {
+    }
+    case 'saml': {
+      // const hosted = getJsonObjectOneDown(importFilePath).hosted
+      // const saml = hosted[Object.keys(hosted)[0]];
+      // verboseMessage(`add saml with entityID = ${saml.entityId}`)
+      // logmessages.push(`add saml with entityID = ${saml.entityId}`);
+      // const outcome = await importSaml2ProviderFromFile(
+      //   saml.entityId,
+      //   importFilePath,
+      //   { deps: true }
+      // )
+      // logmessages.push(`add saml ${importFilePath}`);
+      // verboseMessage(`add saml ${importFilePath}\n`);
+      // logmessages.push(`outcome: ${outcome}`)
+      // logmessages.push(' ');
+    }
     case 'cot': {
-      verboseMessage(`Add Circle of Trusts from file: ${importFilePath}`)
-      const outcome = await importCirclesOfTrustFromFile(importFilePath);
-      logmessages.push(`Add Circle of Trusts from file: ${importFilePath}`)
+      // verboseMessage(`Add Circle of Trusts from file: ${importFilePath}`)
+      // const outcome = await importCirclesOfTrustFromFile(importFilePath);
+      // logmessages.push(`Add Circle of Trusts from file: ${importFilePath}`)
       break;
     }
     default: {
@@ -643,6 +650,7 @@ async function addSwitch(importFilePath: string, type: string) {
       break;
     }
   }
+  return;
 }
 
 async function deleteFile(path: string, dir: string) {
@@ -652,17 +660,17 @@ async function deleteFile(path: string, dir: string) {
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm)
 
-  await deleteSwitch(deleteFilePath, type)
+  await deleteSwitch(deleteFilePath, type, global)
 }
 
-async function deleteSwitch(deleteFilePath: string, type: string) {
+async function deleteSwitch(deleteFilePath: string, type: string, global: boolean) {
   switch (type) {
     case 'application': {
-      logmessages.push(`no delete exitsts for application`);
-      logmessages.push(`delete application ${deleteFilePath}`);
+      const application = getJsonObjectTwoDown(deleteFilePath)
+      logmessages.push(`delete application with id ${application._id}`)
+      verboseMessage(`delete application with id ${application._id}`)
+      const outcome = await deleteOauth2ClientById(application._id)
       logmessages.push(' ');
-      verboseMessage(`no delete exitsts for application`);
-      verboseMessage(`delete application ${deleteFilePath}\n`);
       break;
     }
     case 'authentication': {
@@ -696,16 +704,6 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete managedApplication ${deleteFilePath}\n`);
-      break;
-    }
-    case 'policyset': {
-      const policyset = getJsonObjectOneDown(deleteFilePath);
-      verboseMessage(`policy set Id: ${Object.keys(policyset)[0]}`);
-      const outcome = await deletePolicySetById(Object.keys(policyset)[0]);
-      logmessages.push(`delete policyset ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      verboseMessage(`delete policyset ${deleteFilePath}\n`);
       break;
     }
     case 'resourcetype': {
@@ -750,13 +748,12 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       break;
     }
     case 'service': {
-      // Need to test this to make sure it really deletes how it should
       const service = getJsonObjectOneDown(deleteFilePath);
       const serviceId = Object.keys(service)[0];
       verboseMessage(`service Id: ${serviceId}`);
-      // const outcome = await deleteService(serviceId, global);
+      const outcome = await deleteService(serviceId, global);
       logmessages.push(`delete service ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete service ${deleteFilePath}\n`);
       break;
@@ -776,20 +773,19 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       break;
     }
     case 'emailTemplate': {
-      // No delete written for email template yet
-      logmessages.push(`No delete written for emailTemplate yet`);
-      logmessages.push(`delete emailTemplate ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      verboseMessage(`No delete written for emailTemplate yet`);
-      verboseMessage(`delete emailTemplate ${deleteFilePath}\n`);
+      // Taken care of by the Idm config
       break;
     }
     case 'idm': {
-      // No delete fo IDM right now
+      const data = fs.readFileSync(deleteFilePath, 'utf8');
+      const fileData = JSON.parse(data);
+      const entityId = fileData._id
+      verboseMessage(`delete Idm config with entity Id: ${entityId}`)
+      logmessages.push(`delete Idm config with entity Id: ${entityId}`)
+      const outcome = await deleteConfigEntityById(entityId)
       logmessages.push(`No delete written for idm`);
       logmessages.push(`delete idm ${deleteFilePath}`);
-      //logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete idm ${deleteFilePath}\n`);
       break;
@@ -808,9 +804,9 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       const data = fs.readFileSync(deleteFilePath, 'utf8');
       const sync = JSON.parse(data);
       verboseMessage(`sync Id: ${sync._id}`);
-      // const outcome = await deleteMapping(sync._id);
+      const outcome = await deleteMapping(sync._id);
       logmessages.push(`delete sync ${deleteFilePath}`);
-      //logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete sync ${deleteFilePath}\n`);
       break;
@@ -825,24 +821,13 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       verboseMessage(`delete variable ${deleteFilePath}\n`);
       break;
     }
-    case 'saml': {
-      const hosted = getJsonObjectOneDown(deleteFilePath).hosted
-      const saml = hosted[Object.keys(hosted)[0]];
-      verboseMessage(`delete saml with entityID = ${saml.entityId}`)
-      logmessages.push(`delete saml with entityID = ${saml.entityId}`);
-      await deleteSaml2ProviderById(saml.entityId)
-      logmessages.push(`delete saml ${deleteFilePath}`);
-      logmessages.push(' ');
-      verboseMessage(`delete saml ${deleteFilePath}\n`);
-      break;
-    }
     case 'mapping': {
       const data = fs.readFileSync(deleteFilePath, 'utf8');
       const mapping = JSON.parse(data);
       verboseMessage(`mapping Id: ${mapping._id}`);
-      // const outcome = await deleteMapping(mapping._id);
+      const outcome = await deleteMapping(mapping._id);
       logmessages.push(`delete mapping ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete mapping ${deleteFilePath}\n`);
       break;
@@ -887,10 +872,8 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       break;
     }
     case 'idp': {
-      // No current delete for IDP
-      logmessages.push(`No delete for idp written`);
+      verboseMessage("taken care of by Idm")
       logmessages.push(`delete idp ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
       logmessages.push(' ');
       verboseMessage(`delete idp ${deleteFilePath}\n`);
       break;
@@ -906,11 +889,30 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       break;
     }
     case 'cot': {
-      logmessages.push(`no delete exitsts for Circle of Trust`);
-      logmessages.push(`delete Circle of Trust ${deleteFilePath}`);
-      logmessages.push(' ');
-      verboseMessage(`no delete exitsts for Circle of Trust`);
-      verboseMessage(`delete Circle of Trust ${deleteFilePath}\n`);
+      // logmessages.push(`no delete exitsts for Circle of Trust`);
+      // logmessages.push(`delete Circle of Trust ${deleteFilePath}`);
+      // logmessages.push(' ');
+      // verboseMessage(`no delete exitsts for Circle of Trust`);
+      // verboseMessage(`delete Circle of Trust ${deleteFilePath}\n`);
+    }
+    case 'policyset': {
+      // const policyset = getJsonObjectOneDown(deleteFilePath);
+      // verboseMessage(`policy set Id: ${Object.keys(policyset)[0]}`);
+      // const outcome = await deletePolicySetById(Object.keys(policyset)[0]);
+      // logmessages.push(`delete policyset ${deleteFilePath}`);
+      // logmessages.push(`outcome: ${outcome}`)
+      // logmessages.push(' ');
+      // verboseMessage(`delete policyset ${deleteFilePath}\n`);
+    }
+    case 'saml': {
+      // const hosted = getJsonObjectOneDown(deleteFilePath).hosted
+      // const saml = hosted[Object.keys(hosted)[0]];
+      // verboseMessage(`delete saml with entityID = ${saml.entityId}`)
+      // logmessages.push(`delete saml with entityID = ${saml.entityId}`);
+      // await deleteSaml2ProviderById(saml.entityId)
+      // logmessages.push(`delete saml ${deleteFilePath}`);
+      // logmessages.push(' ');
+      // verboseMessage(`delete saml ${deleteFilePath}\n`);
       break;
     }
     default: {
@@ -922,12 +924,7 @@ async function deleteSwitch(deleteFilePath: string, type: string) {
       break;
     }
   }
-}
-
-interface CompareObj {
-  added: string[];
-  changed: string[];
-  deleted: string[];
+  return;
 }
 
 function getJsonObjectTwoDown(filePath: string): any {
@@ -961,6 +958,36 @@ function setRealmFromPath(path: string, inRealm: boolean) {
     verboseMessage(`realm = ${realm}`);
     state.setRealm(realm);
   }
+}
+
+function checkForRealmFromPath(path: string) {
+  const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
+  if (inRealm) {
+    let realm = path.substring(
+      path.indexOf('/') + 1,
+      path.indexOf('/', path.indexOf('/') + 1)
+    );
+    realms.add(realm);
+  } else {
+    realms.add('global');
+  }
+}
+
+function checkTypeIsPromotable(path: string): boolean {
+  let type = getTypeFromPath(path);
+  let promotable = true;
+  switch (type){
+    case 'cot': {
+    }
+    case 'policyset': {
+    }
+    case 'saml': {
+      promotable = false;
+      break;
+    }
+    default: promotable = true;
+  }
+  return promotable;
 }
 
 function getTypeFromPath(path: string): string {

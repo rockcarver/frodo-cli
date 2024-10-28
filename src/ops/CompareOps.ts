@@ -70,6 +70,26 @@ export async function compareExportToDirectory(
     let compareObj2: CompareObj = {added, changed, deleted}
     saveJsonToFile(compareObj2, getFilePath("b1" + "fileDiff.config.json", true))
 
+
+     // while (added.length > 0) {
+    //   added.pop()
+    // }
+    // while (changed.length > 0) {
+    //   changed.pop()
+    // }
+    // while (deleted.length > 0) {
+    //   deleted.pop()
+    // }
+    // emptyDirectory(exportDir)
+    // if(!await exportEverythingToFiles(options)){
+    //   throw new FrodoError("Errors occured while exporting files")
+    // }
+
+    // verboseMessage("fileDiffing")
+    // await compareDirectories(exportDir, dir1)
+    // let compareObj2: CompareObj = {added, changed, deleted}
+    // saveJsonToFile(compareObj, getFilePath("b1" + fileDiffname, true))
+
     return true;
   } catch (error) {
     printError(error);
