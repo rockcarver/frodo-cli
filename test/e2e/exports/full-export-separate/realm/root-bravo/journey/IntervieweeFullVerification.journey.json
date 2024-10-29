@@ -1,0 +1,1084 @@
+{
+  "trees": {
+    "IntervieweeFullVerification": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "04547a28-07b1-4b22-9bcd-234fc327038a": {
+          "_id": "04547a28-07b1-4b22-9bcd-234fc327038a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "mail"
+          ],
+          "identityAttribute": "userName",
+          "required": true,
+          "validateInputs": true
+        },
+        "1895ec19-f7ca-45b4-ae9b-20946e7183ef": {
+          "_id": "1895ec19-f7ca-45b4-ae9b-20946e7183ef",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "SUCCESS"
+            },
+            {
+              "displayName": "Success (Patch ID)",
+              "id": "SUCCESPATCH"
+            },
+            {
+              "displayName": "Fail",
+              "id": "FAIL"
+            },
+            {
+              "displayName": "Fail (Patch ID)",
+              "id": "FAILPATCH"
+            },
+            {
+              "displayName": "Cancel",
+              "id": "CANCEL"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "PingOneVerifyProofing",
+            "collection": true,
+            "name": "PingOne Verify Proofing"
+          },
+          "attributeMappingConfiguration": {
+            "custom_verifiedFirstName": "firstName",
+            "custom_verifiedLastName": "lastName"
+          },
+          "demoMode": false,
+          "dobVerification": 16,
+          "failExpired": false,
+          "fuzzyMatchingConfiguration": {
+            "givenName": "MEDIUM",
+            "sn": "MEDIUM"
+          },
+          "govId": "ANY",
+          "pollWaitMessage": "Waiting for completion.  Here is the code you will see on your device: %s",
+          "saveMetadata": true,
+          "saveVerifiedClaims": true,
+          "timeOut": 270,
+          "tntpPingOneConfigName": "p1-volker-dev [/bravo]",
+          "tsAccessToken": true,
+          "tsTransactionId": true,
+          "userIdAttribute": "fr-attr-istr1",
+          "userNotification": "QR",
+          "userNotificationChoice": true,
+          "userNotificationChoiceMessage": "Invite interviewee via (must complete within 15mins):",
+          "verifyPolicyId": "c005fa90-a658-44f8-b9dc-854c11f1f235"
+        },
+        "19eb6cc1-d604-4bc1-a368-9505776477ba": {
+          "_id": "19eb6cc1-d604-4bc1-a368-9505776477ba",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node"
+          },
+          "message": {
+            "en": "Before viewing the selfie authentication results, make sure you stop sharing your screen with the interviewee."
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Proceed to results"
+          }
+        },
+        "24ea2978-9aa2-4be2-ae68-69ba1c60bdbf": {
+          "_id": "24ea2978-9aa2-4be2-ae68-69ba1c60bdbf",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "41df2127-ff5d-4ff2-9971-04ff669145b5": {
+          "_id": "41df2127-ff5d-4ff2-9971-04ff669145b5",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "936c098d-bd54-4f05-827c-ed36559518ac": {
+          "_id": "936c098d-bd54-4f05-827c-ed36559518ac",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "ca0c39c5-9c50-417f-a36e-815cfd1ecffe"
+        },
+        "a5fb1aa6-15fb-4251-93af-e9f86d99ac78": {
+          "_id": "a5fb1aa6-15fb-4251-93af-e9f86d99ac78",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3cb43516-ae69-433a-8787-501d45db14e9"
+        },
+        "d81c68ab-f20d-4372-8f48-70766093e237": {
+          "_id": "d81c68ab-f20d-4372-8f48-70766093e237",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "e6bf6cf7-62d2-4498-9db9-727762eb9e81": {
+          "_id": "e6bf6cf7-62d2-4498-9db9-727762eb9e81",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node"
+          },
+          "message": {
+            "en": "Before viewing the selfie authentication results, make sure you stop sharing your screen with the interviewee."
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Proceed to results"
+          }
+        },
+        "eed23b6a-4f3f-46e1-99fe-9b62de1ac27d": {
+          "_id": "eed23b6a-4f3f-46e1-99fe-9b62de1ac27d",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "f764adf0-e71b-4780-990b-fe2906d6994a": {
+          "_id": "f764adf0-e71b-4780-990b-fe2906d6994a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "ca0c39c5-9c50-417f-a36e-815cfd1ecffe"
+        }
+      },
+      "nodes": {
+        "12f631e5-4a0f-41bd-9eea-ddbdfc4ceefc": {
+          "_id": "12f631e5-4a0f-41bd-9eea-ddbdfc4ceefc",
+          "_outcomes": [
+            {
+              "displayName": "200",
+              "id": "200"
+            },
+            {
+              "displayName": "Default Response",
+              "id": "NOMATCHRESPONSE"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "RESTNode",
+            "collection": true,
+            "name": "HTTP Client"
+          },
+          "basicAuthn": false,
+          "bodyType": "JSON",
+          "disableCertChecks": false,
+          "headersMap": {
+            "Authorization": "Bearer ${VerifyAT}"
+          },
+          "jpToOutcomeMapper": {},
+          "jpToSSMapper": {
+            "croppedPortraitBase64": "$._embedded.verifiedData[1].data.IMAGE",
+            "selfieBase64": "$._embedded.verifiedData[0].data.IMAGE"
+          },
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+          "publicCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "queryParamsMap": {
+            "type": "SELFIE,CROPPED_PORTRAIT"
+          },
+          "requestMode": "GET",
+          "responseCodes": [
+            "200"
+          ],
+          "restURL": "${VerifyMetadataResult.$._links.verifyTransaction.href}/verifiedData",
+          "statusCodeReturn": "getSelfieStatus",
+          "timeout": 30,
+          "usemTLS": false
+        },
+        "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a": {
+          "_id": "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "f764adf0-e71b-4780-990b-fe2906d6994a",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "41df2127-ff5d-4ff2-9971-04ff669145b5",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Identity Verification Successful"
+          }
+        },
+        "1c8fb336-8d51-466c-933b-635c5b00365a": {
+          "_id": "1c8fb336-8d51-466c-933b-635c5b00365a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "d81c68ab-f20d-4372-8f48-70766093e237",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Identity Verification Canceled"
+          }
+        },
+        "25c5fa53-3369-441a-bbc8-4fe8c0f2c2a1": {
+          "_id": "25c5fa53-3369-441a-bbc8-4fe8c0f2c2a1",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3cb43516-ae69-433a-8787-501d45db14e9"
+        },
+        "2e801ab7-5412-4388-990b-84070f130994": {
+          "_id": "2e801ab7-5412-4388-990b-84070f130994",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "SUCCESS"
+            },
+            {
+              "displayName": "Success (Patch ID)",
+              "id": "SUCCESPATCH"
+            },
+            {
+              "displayName": "Fail",
+              "id": "FAIL"
+            },
+            {
+              "displayName": "Fail (Patch ID)",
+              "id": "FAILPATCH"
+            },
+            {
+              "displayName": "Cancel",
+              "id": "CANCEL"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "1895ec19-f7ca-45b4-ae9b-20946e7183ef",
+              "displayName": "PingOne Verify Proofing",
+              "nodeType": "PingOneVerifyProofing"
+            }
+          ],
+          "pageDescription": {
+            "en": "Please choose how to delegate the document and selfie capturing step to the interviewee. If you choose QR, share your screen via zoom and have the interviewee scan it, then stop sharing."
+          },
+          "pageHeader": {}
+        },
+        "4885ef18-2a01-48bf-9b35-cda88b348e71": {
+          "_id": "4885ef18-2a01-48bf-9b35-cda88b348e71",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "04547a28-07b1-4b22-9bcd-234fc327038a",
+              "displayName": "Email",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "4b19c2c8-26be-4cc7-91f8-722d87142521": {
+          "_id": "4b19c2c8-26be-4cc7-91f8-722d87142521",
+          "_outcomes": [
+            {
+              "displayName": "known",
+              "id": "known"
+            },
+            {
+              "displayName": "unknown",
+              "id": "unknown"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "known",
+            "unknown"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "739bdc48-fd24-4c52-b353-88706d75558a"
+        },
+        "4b4cc53a-4d3a-4fb4-9815-1b65d970efc3": {
+          "_id": "4b4cc53a-4d3a-4fb4-9815-1b65d970efc3",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3cb43516-ae69-433a-8787-501d45db14e9"
+        },
+        "69e2fa6d-e18b-4661-86be-dbfefc311fc7": {
+          "_id": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "a5fb1aa6-15fb-4251-93af-e9f86d99ac78",
+              "displayName": "Debug",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "24ea2978-9aa2-4be2-ae68-69ba1c60bdbf",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Identity Verification Error"
+          }
+        },
+        "737a2e1a-008a-45da-bb1a-176b7ccc5230": {
+          "_id": "737a2e1a-008a-45da-bb1a-176b7ccc5230",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "19eb6cc1-d604-4bc1-a368-9505776477ba",
+              "displayName": "Proceed?",
+              "nodeType": "MessageNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Stop Screen Sharing"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"19eb6cc1-d604-4bc1-a368-9505776477ba\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "798d799c-2a12-4af1-a611-9ffa5f694303": {
+          "_id": "798d799c-2a12-4af1-a611-9ffa5f694303",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User"
+          },
+          "identifier": "userName",
+          "identityAttribute": "mail"
+        },
+        "7b3211a0-debc-465f-bc81-f530458127c8": {
+          "_id": "7b3211a0-debc-465f-bc81-f530458127c8",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "e6bf6cf7-62d2-4498-9db9-727762eb9e81",
+              "displayName": "Proceed?",
+              "nodeType": "MessageNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Stop Screen Sharing"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"e6bf6cf7-62d2-4498-9db9-727762eb9e81\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "859c73ff-f04e-42e5-91f5-9ca908c289bb": {
+          "_id": "859c73ff-f04e-42e5-91f5-9ca908c289bb",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "936c098d-bd54-4f05-827c-ed36559518ac",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "eed23b6a-4f3f-46e1-99fe-9b62de1ac27d",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Identity Verification Failed"
+          }
+        },
+        "8b6a4da7-d6eb-47cb-bb65-84757cdb1888": {
+          "_id": "8b6a4da7-d6eb-47cb-bb65-84757cdb1888",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/bravo_user",
+          "ignoredFields": [
+            "fr-attr-istr1"
+          ],
+          "patchAsObject": false
+        },
+        "986e0137-fe9f-4e2a-b37f-21bd13fbe6ce": {
+          "_id": "986e0137-fe9f-4e2a-b37f-21bd13fbe6ce",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "4233c093-76a6-474b-ac38-5c0ea1de2484"
+        },
+        "bbd56ddb-17de-4e73-b61c-856301637712": {
+          "_id": "bbd56ddb-17de-4e73-b61c-856301637712",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/bravo_user",
+          "ignoredFields": [
+            "fr-attr-istr1"
+          ],
+          "patchAsObject": false
+        },
+        "bf42cd1b-23e2-4f0d-9370-3299b2f39086": {
+          "_id": "bf42cd1b-23e2-4f0d-9370-3299b2f39086",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "4233c093-76a6-474b-ac38-5c0ea1de2484"
+        },
+        "c37589da-c897-417f-8afa-74a3b130042a": {
+          "_id": "c37589da-c897-417f-8afa-74a3b130042a",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            },
+            {
+              "displayName": "false",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true",
+            "false"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "ffcfbd20-38d5-4f74-8766-7df90af4dbe4"
+        },
+        "e8efdd39-8cb8-4bff-a2bf-c9decd805252": {
+          "_id": "e8efdd39-8cb8-4bff-a2bf-c9decd805252",
+          "_outcomes": [
+            {
+              "displayName": "200",
+              "id": "200"
+            },
+            {
+              "displayName": "Default Response",
+              "id": "NOMATCHRESPONSE"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "RESTNode",
+            "collection": true,
+            "name": "HTTP Client"
+          },
+          "basicAuthn": false,
+          "bodyType": "JSON",
+          "disableCertChecks": false,
+          "headersMap": {
+            "Authorization": "Bearer ${VerifyAT}"
+          },
+          "jpToOutcomeMapper": {},
+          "jpToSSMapper": {
+            "croppedPortraitBase64": "$._embedded.verifiedData[1].data.IMAGE",
+            "selfieBase64": "$._embedded.verifiedData[0].data.IMAGE"
+          },
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+          "publicCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "queryParamsMap": {
+            "type": "SELFIE,CROPPED_PORTRAIT"
+          },
+          "requestMode": "GET",
+          "responseCodes": [
+            "200"
+          ],
+          "restURL": "${VerifyMetadataResult.$._links.verifyTransaction.href}/verifiedData",
+          "statusCodeReturn": "getSelfieStatus",
+          "timeout": 30,
+          "usemTLS": false
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "IntervieweeFullVerification",
+        "description": "Interviewee full identity verification",
+        "enabled": true,
+        "entryNodeId": "4b19c2c8-26be-4cc7-91f8-722d87142521",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "12f631e5-4a0f-41bd-9eea-ddbdfc4ceefc": {
+            "connections": {
+              "200": "986e0137-fe9f-4e2a-b37f-21bd13fbe6ce",
+              "ERROR": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+              "NOMATCHRESPONSE": "69e2fa6d-e18b-4661-86be-dbfefc311fc7"
+            },
+            "displayName": "Get Verify Data",
+            "nodeType": "RESTNode",
+            "x": 812,
+            "y": 396.015625
+          },
+          "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a": {
+            "connections": {
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Success Dialog",
+            "nodeType": "PageNode",
+            "x": 1479,
+            "y": 53.015625
+          },
+          "1c8fb336-8d51-466c-933b-635c5b00365a": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Cancel Dialog",
+            "nodeType": "PageNode",
+            "x": 1480,
+            "y": 244.015625
+          },
+          "25c5fa53-3369-441a-bbc8-4fe8c0f2c2a1": {
+            "connections": {
+              "true": "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a"
+            },
+            "displayName": "Debug",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1258,
+            "y": 244.015625
+          },
+          "2e801ab7-5412-4388-990b-84070f130994": {
+            "connections": {
+              "CANCEL": "1c8fb336-8d51-466c-933b-635c5b00365a",
+              "ERROR": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+              "FAIL": "12f631e5-4a0f-41bd-9eea-ddbdfc4ceefc",
+              "FAILPATCH": "12f631e5-4a0f-41bd-9eea-ddbdfc4ceefc",
+              "SUCCESPATCH": "e8efdd39-8cb8-4bff-a2bf-c9decd805252",
+              "SUCCESS": "e8efdd39-8cb8-4bff-a2bf-c9decd805252"
+            },
+            "displayName": "ID Proof Interviewee",
+            "nodeType": "PageNode",
+            "x": 554,
+            "y": 151.015625
+          },
+          "4885ef18-2a01-48bf-9b35-cda88b348e71": {
+            "connections": {
+              "outcome": "798d799c-2a12-4af1-a611-9ffa5f694303"
+            },
+            "displayName": "DEMO ONLY!!!",
+            "nodeType": "PageNode",
+            "x": 165,
+            "y": 527.015625
+          },
+          "4b19c2c8-26be-4cc7-91f8-722d87142521": {
+            "connections": {
+              "known": "c37589da-c897-417f-8afa-74a3b130042a",
+              "unknown": "4885ef18-2a01-48bf-9b35-cda88b348e71"
+            },
+            "displayName": "Check Username",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 165,
+            "y": 229.015625
+          },
+          "4b4cc53a-4d3a-4fb4-9815-1b65d970efc3": {
+            "connections": {
+              "true": "859c73ff-f04e-42e5-91f5-9ca908c289bb"
+            },
+            "displayName": "Debug",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1273,
+            "y": 601.015625
+          },
+          "69e2fa6d-e18b-4661-86be-dbfefc311fc7": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Error Dialog",
+            "nodeType": "PageNode",
+            "x": 1480,
+            "y": 573.015625
+          },
+          "737a2e1a-008a-45da-bb1a-176b7ccc5230": {
+            "connections": {
+              "false": "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a",
+              "true": "1c08a0f6-d9bb-4bb9-970f-c5941d6c8d9a"
+            },
+            "displayName": "Stop Screen Share",
+            "nodeType": "PageNode",
+            "x": 1248,
+            "y": 54.015625
+          },
+          "798d799c-2a12-4af1-a611-9ffa5f694303": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "4b19c2c8-26be-4cc7-91f8-722d87142521"
+            },
+            "displayName": "Identify Existing User",
+            "nodeType": "IdentifyExistingUserNode",
+            "x": 492,
+            "y": 531.015625
+          },
+          "7b3211a0-debc-465f-bc81-f530458127c8": {
+            "connections": {
+              "false": "859c73ff-f04e-42e5-91f5-9ca908c289bb",
+              "true": "859c73ff-f04e-42e5-91f5-9ca908c289bb"
+            },
+            "displayName": "Stop Screen Share",
+            "nodeType": "PageNode",
+            "x": 1250,
+            "y": 381.015625
+          },
+          "859c73ff-f04e-42e5-91f5-9ca908c289bb": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Failure Dialog",
+            "nodeType": "PageNode",
+            "x": 1477,
+            "y": 379.015625
+          },
+          "8b6a4da7-d6eb-47cb-bb65-84757cdb1888": {
+            "connections": {
+              "FAILURE": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+              "PATCHED": "737a2e1a-008a-45da-bb1a-176b7ccc5230"
+            },
+            "displayName": "Update Account",
+            "nodeType": "PatchObjectNode",
+            "x": 1040,
+            "y": 124.015625
+          },
+          "986e0137-fe9f-4e2a-b37f-21bd13fbe6ce": {
+            "connections": {
+              "true": "bbd56ddb-17de-4e73-b61c-856301637712"
+            },
+            "displayName": "Prepare Update",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1037,
+            "y": 370.015625
+          },
+          "bbd56ddb-17de-4e73-b61c-856301637712": {
+            "connections": {
+              "FAILURE": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+              "PATCHED": "7b3211a0-debc-465f-bc81-f530458127c8"
+            },
+            "displayName": "Update Account",
+            "nodeType": "PatchObjectNode",
+            "x": 1038,
+            "y": 451.015625
+          },
+          "bf42cd1b-23e2-4f0d-9370-3299b2f39086": {
+            "connections": {
+              "true": "8b6a4da7-d6eb-47cb-bb65-84757cdb1888"
+            },
+            "displayName": "Prepare Update",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1039,
+            "y": 42.015625
+          },
+          "c37589da-c897-417f-8afa-74a3b130042a": {
+            "connections": {
+              "false": "798d799c-2a12-4af1-a611-9ffa5f694303",
+              "true": "2e801ab7-5412-4388-990b-84070f130994"
+            },
+            "displayName": "Username resolved?",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 355,
+            "y": 231.015625
+          },
+          "e8efdd39-8cb8-4bff-a2bf-c9decd805252": {
+            "connections": {
+              "200": "bf42cd1b-23e2-4f0d-9370-3299b2f39086",
+              "ERROR": "69e2fa6d-e18b-4661-86be-dbfefc311fc7",
+              "NOMATCHRESPONSE": "69e2fa6d-e18b-4661-86be-dbfefc311fc7"
+            },
+            "displayName": "Get Verify Data",
+            "nodeType": "RESTNode",
+            "x": 807,
+            "y": 69.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1735,
+            "y": 36
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1741,
+            "y": 642
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"IDV\",\"P1 Verify\"]"
+        }
+      }
+    }
+  }
+}

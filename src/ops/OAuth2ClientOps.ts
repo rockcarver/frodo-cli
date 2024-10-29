@@ -369,15 +369,16 @@ export async function importOAuth2ClientsFromFiles(
  * @param {String} id script id
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteOauth2ClientById(clientId: string): Promise<boolean> {
+export async function deleteOauth2ClientById(
+  clientId: string
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting ${clientId}...`
   );
   try {
-    deleteOAuth2Client(clientId)
-    await (clientId);
+    await deleteOAuth2Client(clientId);
     stopProgressIndicator(spinnerId, `Deleted ${clientId}.`, 'success');
     return true;
   } catch (error) {

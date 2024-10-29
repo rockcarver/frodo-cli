@@ -468,7 +468,9 @@ export async function importSaml2ProvidersFromFiles(
  * @param {String} id saml entityId
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteSaml2ProviderById(entityId: string): Promise<boolean> {
+export async function deleteSaml2ProviderById(
+  entityId: string
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,

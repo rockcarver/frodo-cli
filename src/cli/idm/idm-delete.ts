@@ -39,7 +39,7 @@ export default function setup() {
           command
         );
 
-        const globalConfig = options.global ?? false;
+        // const globalConfig = options.global ?? false;
 
         if (options.id && (await getTokens())) {
           const outcome = await deleteConfigEntityById(options.id);

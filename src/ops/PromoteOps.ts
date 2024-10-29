@@ -7,15 +7,22 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { getFullExportConfigFromDirectory } from '../utils/Config';
 import { printError, verboseMessage } from '../utils/Console';
-import { deleteAgent, deleteIdentityGatewayAgent, deleteJavaAgent, deleteWebAgent, importAgentFromFile, importIdentityGatewayAgentFromFile, importJavaAgentFromFile, importWebAgentFromFile } from './AgentOps';
+import {
+  deleteAgent,
+  deleteIdentityGatewayAgent,
+  deleteJavaAgent,
+  deleteWebAgent,
+  importAgentFromFile,
+  importIdentityGatewayAgentFromFile,
+  importJavaAgentFromFile,
+  importWebAgentFromFile,
+} from './AgentOps';
 import {
   deleteApplication,
   importApplicationsFromFile,
 } from './ApplicationOps';
 import { importAuthenticationSettingsFromFile } from './AuthenticationSettingsOps';
-import { deleteSecret, importSecretFromFile } from './cloud/SecretsOps';
 import {
   deleteVariableById,
   importVariableFromFile,
@@ -25,16 +32,17 @@ import { importEmailTemplateFromFile } from './EmailTemplateOps';
 import { deleteConfigEntityById, importConfigEntityFromFile } from './IdmOps';
 import { deleteJourney, importJourneyFromFile } from './JourneyOps';
 import { deleteMapping, importMappingFromFile } from './MappingOps';
-import { deleteOauth2ClientById, importOAuth2ClientFromFile } from './OAuth2ClientOps';
+import {
+  deleteOauth2ClientById,
+  importOAuth2ClientFromFile,
+} from './OAuth2ClientOps';
 import { deletePolicyById, importPolicyFromFile } from './PolicyOps';
-import { deletePolicySetById, importPolicySetsFromFile } from './PolicySetOps';
 import {
   deleteResourceTypeUsingName,
   importResourceTypesFromFile,
 } from './ResourceTypeOps';
 import { deleteScriptId, importScriptsFromFile } from './ScriptOps';
 import { deleteService, importFirstServiceFromFile } from './ServiceOps.js';
-import { deleteTheme, importThemesFromFile } from './ThemeOps';
 
 const {
   saveJsonToFile,
@@ -61,6 +69,7 @@ interface CompareObj {
 export async function compareExportToDirectory(
   masterDir: string,
   exportDir: string,
+  whatIf: boolean,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -68,10 +77,12 @@ export async function compareExportToDirectory(
     includeDefault: true,
     includeActiveValues: false,
     target: '',
-  },
+  }
 ): Promise<boolean> {
   try {
-    var options = options;
+    verboseMessage(
+      `We are not currently using these options: ${options} but plan to at a future date`
+    );
     verboseMessage(`Master dir: ${masterDir}`);
     verboseMessage(`Export dir: ${exportDir}`);
 
@@ -79,41 +90,73 @@ export async function compareExportToDirectory(
     const fileDiffname = 'fileDiff.config.json';
     compareDirectories(exportDir, masterDir);
 
-    const compareObj: CompareObj = { 
-      added: added, 
+    const compareObj: CompareObj = {
+      added: added,
       changed: changed,
-      deleted: deleted
+      deleted: deleted,
     };
     saveJsonToFile(compareObj, getFilePath('a1' + fileDiffname, true));
 
-    verboseMessage(realms)
+    verboseMessage(realms);
 
     for (const realm of realms) {
-      let realmAdded = added.filter( (val) => 
-        val.substring(
-          val.indexOf('/') + 1,
-          val.indexOf('/', val.indexOf('/') + 1)
-        ) === realm )
-      let realmChanged = changed.filter( (val) => 
-        val.substring(
-          val.indexOf('/') + 1,
-          val.indexOf('/', val.indexOf('/') + 1)
-        ) == realm )
-      let realmDeleted = deleted.filter( (val) => 
-        val.substring(
-          val.indexOf('/') + 1,
-          val.indexOf('/', val.indexOf('/') + 1)
-        ) === realm )
-      verboseMessage(realm)
-      const compObj: CompareObj = {
-        added: realmAdded, 
-        changed: realmChanged, 
-        deleted: realmDeleted
+      let realmAdded = new Array<string>();
+      let realmChanged = new Array<string>();
+      let realmDeleted = new Array<string>();
+
+      if (realm === 'global') {
+        realmAdded = added.filter((val) =>
+          val.substring(0, val.indexOf('/')).includes('global')
+        );
+        realmChanged = changed.filter((val) =>
+          val.substring(0, val.indexOf('/')).includes('global')
+        );
+        realmDeleted = deleted.filter((val) =>
+          val.substring(0, val.indexOf('/')).includes('global')
+        );
+      } else {
+        realmAdded = added.filter(
+          (val) =>
+            val.substring(
+              val.indexOf('/') + 1,
+              val.indexOf('/', val.indexOf('/') + 1)
+            ) === realm
+        );
+        realmChanged = changed.filter(
+          (val) =>
+            val.substring(
+              val.indexOf('/') + 1,
+              val.indexOf('/', val.indexOf('/') + 1)
+            ) == realm
+        );
+        realmDeleted = deleted.filter(
+          (val) =>
+            val.substring(
+              val.indexOf('/') + 1,
+              val.indexOf('/', val.indexOf('/') + 1)
+            ) === realm
+        );
       }
-      verboseMessage(compObj)
-      await effectDifferences(compObj, masterDir, exportDir)
+
+      verboseMessage(realm);
+      const compObj: CompareObj = {
+        added: realmAdded,
+        changed: realmChanged,
+        deleted: realmDeleted,
+      };
+      verboseMessage(compObj);
+      if (!whatIf) {
+        await effectDifferences(compObj, masterDir, exportDir);
+      }
     }
-    
+
+    if (!whatIf) {
+      const globalSync = changed.find((val) => val === 'global/idm/sync.json');
+      if (globalSync) {
+        await changeFile('global/idm/sync.json', masterDir);
+      }
+    }
+
     saveJsonToFile(logmessages, getFilePath('a2' + fileDiffname, true));
 
     return true;
@@ -124,7 +167,11 @@ export async function compareExportToDirectory(
   return false;
 }
 
-export async function effectDifferences(compObj: CompareObj, masterDir: string, exportDir: string) {
+export async function effectDifferences(
+  compObj: CompareObj,
+  masterDir: string,
+  exportDir: string
+) {
   for (const add of compObj.added) {
     await addFile(add, masterDir);
   }
@@ -134,7 +181,7 @@ export async function effectDifferences(compObj: CompareObj, masterDir: string, 
   for (const del of compObj.deleted) {
     await deleteFile(del, exportDir);
   }
-  verboseMessage(`finished effect differences`)
+  verboseMessage(`finished effect differences`);
 }
 
 /**
@@ -240,14 +287,11 @@ function compareDirectories(dir1, dir2) {
       const hash1 = hashFile(file);
       const hash2 = hashFile(counterpart);
       if (hash1 !== hash2) {
-        if (!relativePath.includes("theme")) {
-          checkForRealmFromPath(relativePath)
-          checkChange(relativePath, dir2, `${dir1}/${relativePath}`)
-        }
+        checkChange(relativePath, dir2, `${dir1}/${relativePath}`);
       }
     } else {
-      checkForRealmFromPath(relativePath)
-      if(checkTypeIsPromotable(relativePath)) {
+      checkForRealmFromPath(relativePath);
+      if (checkTypeIsPromotable(relativePath)) {
         deleted.push(`${relativePath}`);
       }
     }
@@ -266,53 +310,124 @@ function compareDirectories(dir1, dir2) {
     }
 
     if (!fs.existsSync(counterpart)) {
-      checkForRealmFromPath(relativePath)
-      if(checkTypeIsPromotable(relativePath)){
+      checkForRealmFromPath(relativePath);
+      if (checkTypeIsPromotable(relativePath)) {
         added.push(`${relativePath}`);
       }
     }
   });
 }
 
+function removeKeysAndCompare(
+  importFilePath: string,
+  counterpartPath: string,
+  keysToRemove: Array<string>
+): boolean {
+  const data = fs.readFileSync(importFilePath, 'utf8');
+  const obj = removeKeys(JSON.parse(data), keysToRemove);
+  const dataCopy = fs.readFileSync(counterpartPath, 'utf8');
+  const objCopy = removeKeys(JSON.parse(dataCopy), keysToRemove);
+  if (JSON.stringify(objCopy) === JSON.stringify(obj)) {
+    return true;
+  }
+  return false;
+}
+
+function removeKeys(obj, keysToRemove) {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([key]) => !keysToRemove.includes(key)) // Exclude specified keys
+      .map(([key, value]) =>
+        value && typeof value === 'object'
+          ? [key, removeKeys(value, keysToRemove)]
+          : [key, value]
+      )
+  );
+}
+
+function removeNullsAndCompare(
+  importFilePath: string,
+  counterpartPath: string
+): boolean {
+  const data = fs.readFileSync(importFilePath, 'utf8');
+  const object = removeNulls(JSON.parse(data));
+  const dataCopy = fs.readFileSync(counterpartPath, 'utf8');
+  const objectCopy = removeNulls(JSON.parse(dataCopy));
+  if (JSON.stringify(object) === JSON.stringify(objectCopy)) {
+    return true;
+  }
+  return false;
+}
+
+function removeNulls(obj) {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([, value]) => value !== null)
+      .map(([key, value]) =>
+        value && typeof value === 'object'
+          ? [key, removeNulls(value)]
+          : [key, value]
+      )
+  );
+}
+
 function checkChange(path: string, dir: string, counterpartPath: string) {
-  let type = getTypeFromPath(path);
+  const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
-  switch (type){
+  switch (type) {
     case 'policy': {
-      let policy = getJsonObjectTwoDown(importFilePath)
-      let policyCopy = getJsonObjectTwoDown(counterpartPath)
-      policyCopy.creationDate = policy.creationDate
-      policyCopy.lastModifiedDate = policy.lastModifiedDate
-      if(JSON.stringify(policyCopy) === JSON.stringify(policy)) {
+      const keysToRemove = [
+        'createdBy',
+        'creationDate',
+        'lastModifiedDate',
+        'lastModifiedBy',
+      ];
+      if (removeKeysAndCompare(importFilePath, counterpartPath, keysToRemove)) {
         return;
       }
       break;
     }
     case 'resourcetype': {
-      let resourceType = getJsonObjectTwoDown(importFilePath)
-      let resourceTypeCopy = getJsonObjectTwoDown(counterpartPath)
-      resourceTypeCopy.creationDate = resourceType.creationDate
-      resourceTypeCopy.lastModifiedDate = resourceType.lastModifiedDate
-      if(JSON.stringify(resourceTypeCopy) === JSON.stringify(resourceType)) {
+      const keysToRemove = [
+        'createdBy',
+        'creationDate',
+        'lastModifiedDate',
+        'lastModifiedBy',
+      ];
+      if (removeKeysAndCompare(importFilePath, counterpartPath, keysToRemove)) {
         return;
       }
+      break;
     }
     case 'sync': {
-      if(importFilePath.includes("/sync.json")) {
-        let data = fs.readFileSync(importFilePath, 'utf8');
-        let sync = JSON.parse(data);
-        let dataCopy = fs.readFileSync(counterpartPath, 'utf8');
-        let syncCopy = JSON.parse(dataCopy);
-        syncCopy.meta = sync.meta
-        if(JSON.stringify(syncCopy) === JSON.stringify(sync)) {
+      if (importFilePath.includes('/sync.json')) {
+        const keysToRemove = ['meta'];
+        if (
+          removeKeysAndCompare(importFilePath, counterpartPath, keysToRemove)
+        ) {
           return;
         }
       }
       break;
     }
-    default: break;
+    case 'application': {
+      if (removeNullsAndCompare(importFilePath, counterpartPath)) {
+        return;
+      }
+      break;
+    }
+    case 'variable': {
+      const keysToRemove = ['lastChangeDate', 'lastChangedBy'];
+      if (removeKeysAndCompare(importFilePath, counterpartPath, keysToRemove)) {
+        return;
+      }
+      break;
+    }
+    default:
+      break;
   }
-  if(checkTypeIsPromotable(path)){
+  if (checkTypeIsPromotable(path)) {
+    checkForRealmFromPath(path);
     changed.push(`${path}`);
   }
 }
@@ -324,16 +439,21 @@ async function changeFile(path: string, dir: string) {
 }
 
 async function addFile(path: string, dir: string) {
-  let type = getTypeFromPath(path);
+  const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
-  setRealmFromPath(path, inRealm)
+  setRealmFromPath(path, inRealm);
 
-  await addSwitch(importFilePath, type, global, inRealm)
+  await addSwitch(importFilePath, type, global, inRealm);
 }
 
-async function addSwitch(importFilePath: string, type: string, global: boolean, inRealm: boolean) {
+async function addSwitch(
+  importFilePath: string,
+  type: string,
+  global: boolean,
+  inRealm: boolean
+) {
   switch (type) {
     case 'application': {
       const application = getJsonObjectTwoDown(importFilePath);
@@ -347,15 +467,16 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       );
       logmessages.push(`add application ${importFilePath}`);
       verboseMessage(`add application ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
     case 'authentication': {
-      const outcome = await importAuthenticationSettingsFromFile(importFilePath);
+      const outcome =
+        await importAuthenticationSettingsFromFile(importFilePath);
       logmessages.push(`add authentication ${importFilePath}`);
       verboseMessage(`add authentication ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -379,7 +500,7 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       });
       logmessages.push(`add managedApplication ${importFilePath}`);
       verboseMessage(`add managedApplication ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -387,7 +508,7 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       const outcome = await importResourceTypesFromFile(importFilePath);
       logmessages.push(`add resourcetype ${importFilePath}`);
       verboseMessage(`add resourcetype ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -424,38 +545,42 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       );
       logmessages.push(`add script ${importFilePath}`);
       verboseMessage(`add script ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
     case 'service': {
+      logmessages.push(`add service ${importFilePath}`);
+      verboseMessage(`add service ${importFilePath}\n`);
       if (global) {
         const outcome = await importFirstServiceFromFile(importFilePath, {
           clean: false,
           global: global,
           realm: inRealm,
         });
+        logmessages.push(`outcome: ${outcome}`);
       } else {
         const outcome = await importFirstServiceFromFile(importFilePath, {
           clean: true,
           global: global,
           realm: inRealm,
         });
+        logmessages.push(`outcome: ${outcome}`);
       }
-      
-      logmessages.push(`add service ${importFilePath}`);
-      verboseMessage(`add service ${importFilePath}\n`);
+
       logmessages.push(' ');
       break;
     }
     case 'theme': {
-      const theme = getJsonObjectTwoDown(importFilePath)
-      logmessages.push(`Theme Id: ${theme._id}`)
-      const outcome = await importThemesFromFile(importFilePath)
-      logmessages.push(`add theme ${importFilePath}`);
-      verboseMessage(`add theme ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
+      // Taken care of by Idm
+
+      // const theme = getJsonObjectTwoDown(importFilePath)
+      // logmessages.push(`Theme Id: ${theme._id}`)
+      // const outcome = await importThemesFromFile(importFilePath)
+      // logmessages.push(`add theme ${importFilePath}`);
+      // verboseMessage(`add theme ${importFilePath}\n`);
+      // logmessages.push(`outcome: ${outcome}`)
+      // logmessages.push(' ');
       break;
     }
     case 'emailTemplate': {
@@ -473,13 +598,13 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       break;
     }
     case 'idm': {
-      if (importFilePath.includes("emailTemplate")) { // if email template the email template add takes care of it so we will not need to do that
+      if (importFilePath.includes('emailTemplate')) {
         break;
-      } 
+      }
       const outcome = await importConfigEntityFromFile(importFilePath);
       logmessages.push(`add idm ${importFilePath}`);
       verboseMessage(`add idm ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -512,21 +637,20 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       );
       logmessages.push(`add sync ${importFilePath}`);
       verboseMessage(`add sync ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
     case 'variable': {
       const variable = getJsonObjectOneDown(importFilePath);
-
       verboseMessage(`Importing variable ${variable._id}...`);
-      // const outcome = await importVariableFromFile(
-      //   variable._id,
-      //   importFilePath
-      // );
+      const outcome = await importVariableFromFile(
+        variable._id,
+        importFilePath
+      );
       logmessages.push(`add variable ${importFilePath}`);
       verboseMessage(`add variable ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -543,15 +667,15 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       );
       logmessages.push(`add mapping ${importFilePath}`);
       verboseMessage(`add mapping ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
     case 'agent': {
       const agent = getJsonObjectTwoDown(importFilePath);
-      const agentType = agent._type._id
-      verboseMessage(`Agent id: ${agent._id} and type: ${agentType}`)
-      switch (agentType){
+      const agentType = agent._type._id;
+      verboseMessage(`Agent id: ${agent._id} and type: ${agentType}`);
+      switch (agentType) {
         case 'WebAgent': {
           const outcome = await importWebAgentFromFile(
             agent._id,
@@ -559,7 +683,7 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
           );
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           break;
         }
         case 'IdentityGatewayAgent': {
@@ -569,7 +693,7 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
           );
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           break;
         }
         case 'J2EEAgent': {
@@ -579,17 +703,14 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
           );
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           break;
         }
         default: {
-          const outcome = importAgentFromFile(
-            agent._id,
-            importFilePath
-          )
+          const outcome = importAgentFromFile(agent._id, importFilePath);
           logmessages.push(`add agents ${importFilePath}`);
           verboseMessage(`add agents ${importFilePath}\n`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           break;
         }
       }
@@ -597,30 +718,37 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       break;
     }
     case 'idp': {
-      verboseMessage("taken care of by Idp")
-      logmessages.push(`add idp ${importFilePath}`);
-      verboseMessage(`add idp ${importFilePath}\n`);
-      logmessages.push(' ');
+      //taken care of by service
+
+      // const idp = getJsonObjectTwoDown(importFilePath)
+      // logmessages.push(`add idp ${importFilePath}`);
+      // verboseMessage(`add idp with id: ${idp._id} from file: ${importFilePath}`);
+      // const outcome = await importSocialIdentityProviderFromFile(
+      //   idp._id,
+      //   importFilePath,
+      //   {
+      //     deps: false
+      //   }
+      // )
+      // logmessages.push(`outcome = ${outcome}`);
+      // logmessages.push(' ');
       break;
     }
     case 'policy': {
-      const policy = getJsonObjectTwoDown(importFilePath)
-      verboseMessage(`Add Policy with id: ${policy._id}`)
-      const outcome = await importPolicyFromFile(
-        policy._id,
-        importFilePath,
-        {
-          deps: true,
-          prereqs: false
-        }
-      )
+      const policy = getJsonObjectTwoDown(importFilePath);
+      verboseMessage(`Add Policy with id: ${policy._id}`);
+      const outcome = await importPolicyFromFile(policy._id, importFilePath, {
+        deps: true,
+        prereqs: false,
+      });
       logmessages.push(`add policy ${importFilePath}`);
       verboseMessage(`add policy ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
     case 'policyset': {
+      break;
     }
     case 'saml': {
       // const hosted = getJsonObjectOneDown(importFilePath).hosted
@@ -636,6 +764,7 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
       // verboseMessage(`add saml ${importFilePath}\n`);
       // logmessages.push(`outcome: ${outcome}`)
       // logmessages.push(' ');
+      break;
     }
     case 'cot': {
       // verboseMessage(`Add Circle of Trusts from file: ${importFilePath}`)
@@ -654,22 +783,27 @@ async function addSwitch(importFilePath: string, type: string, global: boolean, 
 }
 
 async function deleteFile(path: string, dir: string) {
-  let type = getTypeFromPath(path)
+  const type = getTypeFromPath(path);
   const deleteFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
-  setRealmFromPath(path, inRealm)
+  setRealmFromPath(path, inRealm);
 
-  await deleteSwitch(deleteFilePath, type, global)
+  await deleteSwitch(deleteFilePath, type, global);
 }
 
-async function deleteSwitch(deleteFilePath: string, type: string, global: boolean) {
+async function deleteSwitch(
+  deleteFilePath: string,
+  type: string,
+  global: boolean
+) {
   switch (type) {
     case 'application': {
-      const application = getJsonObjectTwoDown(deleteFilePath)
-      logmessages.push(`delete application with id ${application._id}`)
-      verboseMessage(`delete application with id ${application._id}`)
-      const outcome = await deleteOauth2ClientById(application._id)
+      const application = getJsonObjectTwoDown(deleteFilePath);
+      logmessages.push(`delete application with id ${application._id}`);
+      verboseMessage(`delete application with id ${application._id}`);
+      const outcome = await deleteOauth2ClientById(application._id);
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       break;
     }
@@ -687,9 +821,13 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       verboseMessage(
         `Deleting journey ${journeyId} in realm "${state.getRealm()}"...`
       );
-      const outcome = await deleteJourney(journeyId, {deep: true, verbose: false, progress: false});
+      const outcome = await deleteJourney(journeyId, {
+        deep: true,
+        verbose: false,
+        progress: false,
+      });
       logmessages.push(`delete journey ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete journey ${deleteFilePath}\n`);
       break;
@@ -701,7 +839,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       );
       const outcome = await deleteApplication(managedApplication.name, true);
       logmessages.push(`delete managedApplication ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete managedApplication ${deleteFilePath}\n`);
       break;
@@ -713,7 +851,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       );
       const outcome = await deleteResourceTypeUsingName(resourcetype.name);
       logmessages.push(`delete resourcetype ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete resourcetype ${deleteFilePath}\n`);
       break;
@@ -742,7 +880,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       );
       const outcome = await deleteScriptId(script._id);
       logmessages.push(`delete script ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete script ${deleteFilePath}\n`);
       break;
@@ -753,23 +891,25 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       verboseMessage(`service Id: ${serviceId}`);
       const outcome = await deleteService(serviceId, global);
       logmessages.push(`delete service ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete service ${deleteFilePath}\n`);
       break;
     }
     case 'theme': {
-      const theme = getJsonObjectTwoDown(deleteFilePath);
-      verboseMessage(
-        `Deleting theme with id "${
-          theme._id
-        }" from realm "${state.getRealm()}"...`
-      );
-      const outcome = await deleteTheme(theme._id);
-      logmessages.push(`delete theme ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      verboseMessage(`delete theme ${deleteFilePath}\n`);
+      //taken care of by Idm
+
+      // const theme = getJsonObjectTwoDown(deleteFilePath);
+      // verboseMessage(
+      //   `Deleting theme with id "${
+      //     theme._id
+      //   }" from realm "${state.getRealm()}"...`
+      // );
+      // const outcome = await deleteTheme(theme._id);
+      // logmessages.push(`delete theme ${deleteFilePath}`);
+      // logmessages.push(`outcome: ${outcome}`);
+      // logmessages.push(' ');
+      // verboseMessage(`delete theme ${deleteFilePath}\n`);
       break;
     }
     case 'emailTemplate': {
@@ -779,13 +919,13 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
     case 'idm': {
       const data = fs.readFileSync(deleteFilePath, 'utf8');
       const fileData = JSON.parse(data);
-      const entityId = fileData._id
-      verboseMessage(`delete Idm config with entity Id: ${entityId}`)
-      logmessages.push(`delete Idm config with entity Id: ${entityId}`)
-      const outcome = await deleteConfigEntityById(entityId)
+      const entityId = fileData._id;
+      verboseMessage(`delete Idm config with entity Id: ${entityId}`);
+      logmessages.push(`delete Idm config with entity Id: ${entityId}`);
+      const outcome = await deleteConfigEntityById(entityId);
       logmessages.push(`No delete written for idm`);
       logmessages.push(`delete idm ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete idm ${deleteFilePath}\n`);
       break;
@@ -806,7 +946,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       verboseMessage(`sync Id: ${sync._id}`);
       const outcome = await deleteMapping(sync._id);
       logmessages.push(`delete sync ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete sync ${deleteFilePath}\n`);
       break;
@@ -814,9 +954,9 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
     case 'variable': {
       const variable = getJsonObjectTwoDown(deleteFilePath);
       verboseMessage(`Deleting variable with id: ${variable._id}`);
-      // const outcome = await deleteVariableById(variable._id);
+      const outcome = await deleteVariableById(variable._id);
       logmessages.push(`delete variable ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete variable ${deleteFilePath}\n`);
       break;
@@ -827,43 +967,43 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       verboseMessage(`mapping Id: ${mapping._id}`);
       const outcome = await deleteMapping(mapping._id);
       logmessages.push(`delete mapping ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete mapping ${deleteFilePath}\n`);
       break;
     }
     case 'agent': {
-      const agent = getJsonObjectTwoDown(deleteFilePath)
-      const agentType = agent._type._id
+      const agent = getJsonObjectTwoDown(deleteFilePath);
+      const agentType = agent._type._id;
       verboseMessage(
         `Deleting agent '${agent._id}' of type ${agentType} in realm "${state.getRealm()}"...`
       );
-      switch (agentType){
+      switch (agentType) {
         case 'WebAgent': {
           const outcome = await deleteWebAgent(agent._id);
           logmessages.push(`delete WebAgent ${deleteFilePath}`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         case 'IdentityGatewayAgent': {
           const outcome = await deleteIdentityGatewayAgent(agent._id);
           logmessages.push(`delete IdentityGatewayAgent ${deleteFilePath}`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         case 'J2EEAgent': {
           const outcome = await deleteJavaAgent(agent._id);
           logmessages.push(`delete IdentityGatewayAgent ${deleteFilePath}`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
         default: {
           const outcome = await deleteAgent(agent._id);
           logmessages.push(`delete agents ${deleteFilePath}`);
-          logmessages.push(`outcome: ${outcome}`)
+          logmessages.push(`outcome: ${outcome}`);
           verboseMessage(`delete agents ${deleteFilePath}\n`);
           break;
         }
@@ -872,10 +1012,15 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       break;
     }
     case 'idp': {
-      verboseMessage("taken care of by Idm")
-      logmessages.push(`delete idp ${deleteFilePath}`);
-      logmessages.push(' ');
-      verboseMessage(`delete idp ${deleteFilePath}\n`);
+      // taken care of by service
+
+      // const idp = getJsonObjectTwoDown(deleteFilePath)
+      // verboseMessage(`delete idp with id: ${idp._id} from file: ${deleteFilePath}`)
+      // logmessages.push(`delete idp with id: ${idp._id} from file: ${deleteFilePath}`);
+      // const outcome = await deleteSocialIdentityProviderById(idp._id)
+      // logmessages.push(`outcome: ${outcome}`)
+      // logmessages.push(' ');
+      // verboseMessage(`delete idp ${deleteFilePath}\n`);
       break;
     }
     case 'policy': {
@@ -883,7 +1028,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       verboseMessage(`policy id: ${policy._id}`);
       const outcome = await deletePolicyById(policy._id);
       logmessages.push(`delete policy ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`)
+      logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete policy ${deleteFilePath}\n`);
       break;
@@ -894,6 +1039,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       // logmessages.push(' ');
       // verboseMessage(`no delete exitsts for Circle of Trust`);
       // verboseMessage(`delete Circle of Trust ${deleteFilePath}\n`);
+      break;
     }
     case 'policyset': {
       // const policyset = getJsonObjectOneDown(deleteFilePath);
@@ -903,6 +1049,7 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
       // logmessages.push(`outcome: ${outcome}`)
       // logmessages.push(' ');
       // verboseMessage(`delete policyset ${deleteFilePath}\n`);
+      break;
     }
     case 'saml': {
       // const hosted = getJsonObjectOneDown(deleteFilePath).hosted
@@ -920,7 +1067,9 @@ async function deleteSwitch(deleteFilePath: string, type: string, global: boolea
         `No delete ${deleteFilePath} not setup for type ${type}`
       );
       logmessages.push(' ');
-      verboseMessage(`No delete ${deleteFilePath} not setup for type ${type}\n`);
+      verboseMessage(
+        `No delete ${deleteFilePath} not setup for type ${type}\n`
+      );
       break;
     }
   }
@@ -934,7 +1083,7 @@ function getJsonObjectTwoDown(filePath: string): any {
     const jsonObject = fileData[Object.keys(fileData)[0]];
     return jsonObject[Object.keys(jsonObject)[0]];
   } catch {
-    console.error('error in json parsing');
+    new FrodoError('error in json parsing');
   }
 }
 
@@ -944,7 +1093,7 @@ function getJsonObjectOneDown(filePath: string): any {
     const fileData = JSON.parse(data);
     return fileData[Object.keys(fileData)[0]];
   } catch {
-    console.error('error in json parsing');
+    new FrodoError('error in json parsing');
   }
 }
 
@@ -963,7 +1112,7 @@ function setRealmFromPath(path: string, inRealm: boolean) {
 function checkForRealmFromPath(path: string) {
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   if (inRealm) {
-    let realm = path.substring(
+    const realm = path.substring(
       path.indexOf('/') + 1,
       path.indexOf('/', path.indexOf('/') + 1)
     );
@@ -974,18 +1123,24 @@ function checkForRealmFromPath(path: string) {
 }
 
 function checkTypeIsPromotable(path: string): boolean {
-  let type = getTypeFromPath(path);
+  const type = getTypeFromPath(path);
   let promotable = true;
-  switch (type){
+
+  switch (type) {
     case 'cot': {
+      promotable = false;
+      break;
     }
     case 'policyset': {
+      promotable = false;
+      break;
     }
     case 'saml': {
       promotable = false;
       break;
     }
-    default: promotable = true;
+    default:
+      promotable = true;
   }
   return promotable;
 }

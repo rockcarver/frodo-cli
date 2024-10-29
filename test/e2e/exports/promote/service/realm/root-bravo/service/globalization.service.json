@@ -1,0 +1,17 @@
+{
+  "service": {
+    "globalization": {
+      "_id": "",
+      "_type": {
+        "_id": "globalization",
+        "collection": false,
+        "name": "Globalization Settings"
+      },
+      "commonNameFormats": [
+        "zh={sn}{givenname}"
+      ],
+      "location": "/bravo",
+      "nextDescendents": []
+    }
+  }
+}

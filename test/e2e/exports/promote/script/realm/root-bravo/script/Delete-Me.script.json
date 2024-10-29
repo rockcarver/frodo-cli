@@ -1,0 +1,18 @@
+{
+  "script": {
+    "66a07b14-6df6-4a99-9d68-5d90149fba54": {
+      "_id": "66a07b14-6df6-4a99-9d68-5d90149fba54",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "delete me",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Delete Me",
+      "script": "file://Delete-Me.script.js"
+    }
+  }
+}

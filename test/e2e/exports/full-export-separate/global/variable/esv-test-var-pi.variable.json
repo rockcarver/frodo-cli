@@ -1,0 +1,13 @@
+{
+  "variables": {
+    "esv-test-var-pi": {
+      "_id": "esv-test-var-pi",
+      "description": "This is another test variable.",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-12T17:40:41.283412Z",
+      "lastChangedBy": "Frodo-SA-1720799681233",
+      "loaded": true,
+      "value": "3.1415926"
+    }
+  }
+}

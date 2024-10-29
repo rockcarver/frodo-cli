@@ -1,0 +1,24 @@
+{
+  "_id": "emailTemplate/idv",
+  "defaultLocale": "en",
+  "description": "Identity Verification Invitation",
+  "displayName": "idv",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": "<div class=\"content\"><h3 id=\"clickthelinkbelowtoverifyyouridentity\">Click the link below to verify your identity:</h3><p><a href=\"{{object.resumeURI}}\">Verify my identity now</a></p></div>",
+    "fr": "<html><body><h3>Ceci est votre mail d'inscription.</h3><p><a href=\"{{object.resumeURI}}\">Lien de vérification email</a></p></body></html>"
+  },
+  "message": {
+    "en": "<html><head></head><body style=\"background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;\"><div class=\"content\" style=\"background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;\"><h3 id=\"clickthelinkbelowtoverifyyouridentity\">Click the link below to verify your identity:</h3><p><a href=\"{{object.resumeURI}}\" style=\"text-decoration: none; color: #109cf1;\">Verify my identity now</a></p></div></body></html>",
+    "fr": "<html><head></head><body style=\"background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;\"><h3>Ceci est votre mail d'inscription.</h3><p><a href=\"{{object.resumeURI}}\" style=\"text-decoration: none; color: #109cf1;\">Lien de vérification email</a></p></body></html>"
+  },
+  "mimeType": "text/html",
+  "name": "registration",
+  "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
+  "subject": {
+    "en": "You have been invited to verify your identity",
+    "fr": "Créer un nouveau compte"
+  },
+  "templateId": "idv"
+}

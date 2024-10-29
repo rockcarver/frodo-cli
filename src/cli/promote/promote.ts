@@ -1,3 +1,4 @@
+import { FrodoError } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -11,19 +12,34 @@ export default function setup() {
   const program = new FrodoCommand('promote');
 
   program
-    .description(
-      'Run a frodo config export -NdxD [host] [realm] command, compare that to a ' +
-        'master directory and output the changes'
-    )
+    .description('Prepares a tenant to be promoted')
     .addHelpText(
       'after',
-      `Usage Examples:\n` + `  No good help at the moment.\n`
+      'This is used to compare two directories and automatically import and delete' +
+        'configurations so the tenant can be promoted. It will compare a master export to a current export' +
+        'and make the changes based off that diff. A file will be generated to show what has changed. \n' +
+        `Usage Examples:\n` +
+        '\n' +
+        'frodo promote -M ./master -E ./export [testTenant]\n' +
+        '\n' +
+        'This will run the promote command making the changes from master to the export, with the master being the one we are going to.' +
+        '\n' +
+        '\n' +
+        'frodo promote --what-if -M ./master -E ./export [testTenant]\n' +
+        '\n' +
+        'This will output the changes that would be made if the promote was run but will not do those changes'
     )
     .addOption(
       new Option(
         '-E, --frodo-export-dir <directory>',
         'The directory where the frodo export is located.'
       )
+    )
+    .addOption(
+      new Option(
+        '--what-if',
+        'Runs a what if of the comparison, so it wont do any changes'
+      ).default(false, 'false')
     )
     .addOption(
       new Option(
@@ -71,16 +87,16 @@ export default function setup() {
           options.frodoExportDir
         ) {
           verboseMessage('Comparing export...');
-          console.log('comparing');
-          console.log();
+          verboseMessage('comparing');
           const outcome = await compareExportToDirectory(
             options.masterDir,
             options.frodoExportDir,
+            options.whatIf
           );
-          console.log('done');
+          verboseMessage('done');
           if (!outcome) process.exitCode = 1;
         } else {
-          console.error('need to designate a master dir and export dir');
+          new FrodoError('need to designate a master dir and export directory');
         }
       }
       //end command logic inside action handler

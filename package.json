@@ -160,6 +160,7 @@
     "yesno": "^0.4.0"
   },
   "dependencies": {
-    "deep-diff": "^1.0.2"
+    "deep-diff": "^1.0.2",
+    "tmp": "^0.2.3"
   }
 }

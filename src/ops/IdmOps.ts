@@ -257,7 +257,9 @@ export async function importConfigEntityByIdFromFile(
  * @param {String} id saml entityId
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteConfigEntityById(entityId: string): Promise<boolean> {
+export async function deleteConfigEntityById(
+  entityId: string
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
