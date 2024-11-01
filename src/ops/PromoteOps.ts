@@ -44,6 +44,8 @@ import {
 import { deleteScriptId, importScriptsFromFile } from './ScriptOps';
 import { deleteService, importFirstServiceFromFile } from './ServiceOps.js';
 
+const { applyUpdates } = frodo.cloud.startup;
+
 const {
   saveJsonToFile,
   getFilePath,
@@ -70,6 +72,8 @@ export async function compareExportToDirectory(
   masterDir: string,
   exportDir: string,
   whatIf: boolean,
+  effectSecrets: boolean = false,
+  wait: boolean = false,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -146,7 +150,7 @@ export async function compareExportToDirectory(
       };
       verboseMessage(compObj);
       if (!whatIf) {
-        await effectDifferences(compObj, masterDir, exportDir);
+        await effectDifferences(compObj, masterDir, exportDir, effectSecrets);
       }
     }
 
@@ -154,6 +158,12 @@ export async function compareExportToDirectory(
       const globalSync = changed.find((val) => val === 'global/idm/sync.json');
       if (globalSync) {
         await changeFile('global/idm/sync.json', masterDir);
+      }
+      if (enviornmentChanged(compareObj) && effectSecrets) {
+        await applyUpdates(wait);
+        verboseMessage(
+          'Must wait around 10 minutes because the enviornment is updating'
+        );
       }
     }
 
@@ -167,19 +177,49 @@ export async function compareExportToDirectory(
   return false;
 }
 
+function enviornmentChanged(files: CompareObj): boolean {
+  // variables
+  let variable = files.changed.find((val) => val.includes('global/variable'));
+  if (variable) {
+    return true;
+  }
+  variable = files.added.find((val) => val.includes('global/variable'));
+  if (variable) {
+    return true;
+  }
+  variable = files.deleted.find((val) => val.includes('global/variable'));
+  if (variable) {
+    return true;
+  }
+  // secrets
+  // variable = files.changed.find((val) => val.includes('global/secret'));
+  // if (variable) {
+  //   return true;
+  // }
+  // variable = files.added.find((val) => val.includes('global/secret'));
+  // if (variable) {
+  //   return true;
+  // }
+  // variable = files.deleted.find((val) => val.includes('global/secret'));
+  // if (variable) {
+  //   return true;
+  // }
+}
+
 export async function effectDifferences(
   compObj: CompareObj,
   masterDir: string,
-  exportDir: string
+  exportDir: string,
+  effectSecrets: boolean = false
 ) {
   for (const add of compObj.added) {
-    await addFile(add, masterDir);
+    await addFile(add, masterDir, effectSecrets);
   }
   for (const change of compObj.changed) {
-    await changeFile(change, masterDir);
+    await changeFile(change, masterDir, effectSecrets);
   }
   for (const del of compObj.deleted) {
-    await deleteFile(del, exportDir);
+    await deleteFile(del, exportDir, effectSecrets);
   }
   verboseMessage(`finished effect differences`);
 }
@@ -432,27 +472,36 @@ function checkChange(path: string, dir: string, counterpartPath: string) {
   }
 }
 
-async function changeFile(path: string, dir: string) {
+async function changeFile(
+  path: string,
+  dir: string,
+  effectSecrets: boolean = false
+) {
   logmessages.push('file changed:');
   verboseMessage('File Changed: ');
-  await addFile(path, dir);
+  await addFile(path, dir, effectSecrets);
 }
 
-async function addFile(path: string, dir: string) {
+async function addFile(
+  path: string,
+  dir: string,
+  effectSecrets: boolean = false
+) {
   const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm);
 
-  await addSwitch(importFilePath, type, global, inRealm);
+  await addSwitch(importFilePath, type, global, inRealm, effectSecrets);
 }
 
 async function addSwitch(
   importFilePath: string,
   type: string,
   global: boolean,
-  inRealm: boolean
+  inRealm: boolean,
+  effectSecrets: boolean = false
 ) {
   switch (type) {
     case 'application': {
@@ -609,19 +658,21 @@ async function addSwitch(
       break;
     }
     case 'secret': {
-      const secret = getJsonObjectTwoDown(importFilePath);
+      if (effectSecrets) {
+        const secret = getJsonObjectTwoDown(importFilePath);
 
-      verboseMessage(`Importing secret ${secret._id}...`);
-      // const outcome = await importSecretFromFile(
-      //   nestedSecret._id,
-      //   importFilePath,
-      //   false,
-      //   null
-      // );
-      logmessages.push(`add secret ${importFilePath}`);
-      verboseMessage(`add secret ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
+        verboseMessage(`Importing secret ${secret._id}...`);
+        // const outcome = await importSecretFromFile(
+        //   nestedSecret._id,
+        //   importFilePath,
+        //   false,
+        //   null
+        // );
+        logmessages.push(`add secret ${importFilePath}`);
+        verboseMessage(`add secret ${importFilePath}\n`);
+        // logmessages.push(`outcome: ${outcome}`)
+        logmessages.push(' ');
+      }
       break;
     }
     case 'sync': {
@@ -642,16 +693,18 @@ async function addSwitch(
       break;
     }
     case 'variable': {
-      const variable = getJsonObjectOneDown(importFilePath);
-      verboseMessage(`Importing variable ${variable._id}...`);
-      const outcome = await importVariableFromFile(
-        variable._id,
-        importFilePath
-      );
-      logmessages.push(`add variable ${importFilePath}`);
-      verboseMessage(`add variable ${importFilePath}\n`);
-      logmessages.push(`outcome: ${outcome}`);
-      logmessages.push(' ');
+      if (effectSecrets) {
+        const variable = getJsonObjectOneDown(importFilePath);
+        verboseMessage(`Importing variable ${variable._id}...`);
+        const outcome = await importVariableFromFile(
+          variable._id,
+          importFilePath
+        );
+        logmessages.push(`add variable ${importFilePath}`);
+        verboseMessage(`add variable ${importFilePath}\n`);
+        logmessages.push(`outcome: ${outcome}`);
+        logmessages.push(' ');
+      }
       break;
     }
     case 'mapping': {
@@ -782,20 +835,25 @@ async function addSwitch(
   return;
 }
 
-async function deleteFile(path: string, dir: string) {
+async function deleteFile(
+  path: string,
+  dir: string,
+  effectSecrets: boolean = false
+) {
   const type = getTypeFromPath(path);
   const deleteFilePath = dir + '/' + path;
   const global = path.substring(0, path.indexOf('/')) === 'global';
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   setRealmFromPath(path, inRealm);
 
-  await deleteSwitch(deleteFilePath, type, global);
+  await deleteSwitch(deleteFilePath, type, global, effectSecrets);
 }
 
 async function deleteSwitch(
   deleteFilePath: string,
   type: string,
-  global: boolean
+  global: boolean,
+  effectSecrets: boolean = false
 ) {
   switch (type) {
     case 'application': {
@@ -931,13 +989,15 @@ async function deleteSwitch(
       break;
     }
     case 'secret': {
-      const secret = getJsonObjectTwoDown(deleteFilePath);
-      verboseMessage(`Deleting secret with id ${secret._id}`);
-      // const outcome = await deleteSecret(secret._id);
-      logmessages.push(`delete secret ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
-      logmessages.push(' ');
-      verboseMessage(`delete secret ${deleteFilePath}\n`);
+      if (effectSecrets) {
+        const secret = getJsonObjectTwoDown(deleteFilePath);
+        verboseMessage(`Deleting secret with id ${secret._id}`);
+        // const outcome = await deleteSecret(secret._id);
+        logmessages.push(`delete secret ${deleteFilePath}`);
+        // logmessages.push(`outcome: ${outcome}`)
+        logmessages.push(' ');
+        verboseMessage(`delete secret ${deleteFilePath}\n`);
+      }
       break;
     }
     case 'sync': {
@@ -952,13 +1012,15 @@ async function deleteSwitch(
       break;
     }
     case 'variable': {
-      const variable = getJsonObjectTwoDown(deleteFilePath);
-      verboseMessage(`Deleting variable with id: ${variable._id}`);
-      const outcome = await deleteVariableById(variable._id);
-      logmessages.push(`delete variable ${deleteFilePath}`);
-      logmessages.push(`outcome: ${outcome}`);
-      logmessages.push(' ');
-      verboseMessage(`delete variable ${deleteFilePath}\n`);
+      if (effectSecrets) {
+        const variable = getJsonObjectTwoDown(deleteFilePath);
+        verboseMessage(`Deleting variable with id: ${variable._id}`);
+        const outcome = await deleteVariableById(variable._id);
+        logmessages.push(`delete variable ${deleteFilePath}`);
+        logmessages.push(`outcome: ${outcome}`);
+        logmessages.push(' ');
+        verboseMessage(`delete variable ${deleteFilePath}\n`);
+      }
       break;
     }
     case 'mapping': {

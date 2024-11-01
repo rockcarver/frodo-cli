@@ -168,7 +168,7 @@ export async function testPromote(
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir} openam`;
   const { stdout, stderr } = await exec(CMD, env);
   env.env.FRODO_TEST_NAME = 'after'
-  const exportDirectory = 'exportAllTestDir1';
+  const exportDirectory = 'exportAllTestDir17';
   const CMD2 = `frodo config export -AxND ${exportDirectory} openam`;
   await testExport(CMD2, env, undefined, undefined, exportDirectory, false);
 

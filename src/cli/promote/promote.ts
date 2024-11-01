@@ -49,20 +49,14 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-N, --no-metadata',
-        'Does not include metadata in the export file.'
-      )
+        '-S --get-secrets',
+        'Will effect the secrets, otherwise we will not change the secrets but will compare them'
+      ).default(false, 'false')
     )
     .addOption(
       new Option(
-        '-x, --extract',
-        'Extract scripts from the exported file, and save it to a separate file. Ignored with -a.'
-      )
-    )
-    .addOption(
-      new Option(
-        '-d, --default',
-        'Export all scripts including the default scripts.'
+        '-W --wait-secrets',
+        'When secrets are effected we need to run a refresh on the enviornment. This will cause the command to wait until the refresh is finished.'
       )
     )
     .addOption(
