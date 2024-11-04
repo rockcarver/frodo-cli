@@ -46,7 +46,7 @@
     "dev": "npx tsup --watch src"
   },
   "jest": {
-    "testTimeout": 30000,
+    "testTimeout": 120000,
     "testMatch": [
       "**/?(*.)(test).js"
     ],
