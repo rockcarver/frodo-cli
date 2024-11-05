@@ -1,0 +1,176 @@
+{
+  "trees": {
+    "PlatformProgressiveProfile": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "f7177163-c833-3ff4-b38f-c8d2872f1ec6": {
+          "_id": "f7177163-c833-3ff4-b38f-c8d2872f1ec6",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "preferences/updates",
+            "preferences/marketing"
+          ],
+          "identityAttribute": "userName",
+          "required": false,
+          "validateInputs": false
+        }
+      },
+      "nodes": {
+        "17e62166-fc85-36df-a4d1-bc0e1742c08b": {
+          "_id": "17e62166-fc85-36df-a4d1-bc0e1742c08b",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "QueryFilterDecisionNode",
+            "collection": true,
+            "name": "Query Filter Decision"
+          },
+          "identityAttribute": "userName",
+          "queryFilter": "!(/preferences pr) or /preferences/marketing eq false or /preferences/updates eq false"
+        },
+        "6c8349cc-7260-3e62-a3b1-396831a8398f": {
+          "_id": "6c8349cc-7260-3e62-a3b1-396831a8398f",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "f7177163-c833-3ff4-b38f-c8d2872f1ec6",
+              "displayName": "Attribute Collector",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Please select your preferences"
+          },
+          "stage": "null"
+        },
+        "a1d0c6e8-3f02-3327-9846-1063f4ac58a6": {
+          "_id": "a1d0c6e8-3f02-3327-9846-1063f4ac58a6",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "LoginCountDecisionNode",
+            "collection": true,
+            "name": "Login Count Decision"
+          },
+          "amount": 3,
+          "identityAttribute": "userName",
+          "interval": "AT"
+        },
+        "d9d4f495-e875-32e0-b5a1-a4a6e1b9770f": {
+          "_id": "d9d4f495-e875-32e0-b5a1-a4a6e1b9770f",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/user",
+          "ignoredFields": [],
+          "patchAsObject": false
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "PlatformProgressiveProfile",
+        "description": "Prompt for missing preferences on 3rd login",
+        "enabled": true,
+        "entryNodeId": "a1d0c6e8-3f02-3327-9846-1063f4ac58a6",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "17e62166-fc85-36df-a4d1-bc0e1742c08b": {
+            "connections": {
+              "false": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "true": "6c8349cc-7260-3e62-a3b1-396831a8398f"
+            },
+            "displayName": "Query Filter Decision",
+            "nodeType": "QueryFilterDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "6c8349cc-7260-3e62-a3b1-396831a8398f": {
+            "connections": {
+              "outcome": "d9d4f495-e875-32e0-b5a1-a4a6e1b9770f"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 0,
+            "y": 0
+          },
+          "a1d0c6e8-3f02-3327-9846-1063f4ac58a6": {
+            "connections": {
+              "false": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "true": "17e62166-fc85-36df-a4d1-bc0e1742c08b"
+            },
+            "displayName": "Login Count Decision",
+            "nodeType": "LoginCountDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "d9d4f495-e875-32e0-b5a1-a4a6e1b9770f": {
+            "connections": {
+              "FAILURE": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "PATCHED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Patch Object",
+            "nodeType": "PatchObjectNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

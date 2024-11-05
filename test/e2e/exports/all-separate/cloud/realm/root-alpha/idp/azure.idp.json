@@ -1,0 +1,45 @@
+{
+  "idp": {
+    "azure": {
+      "_id": "azure",
+      "_type": {
+        "_id": "microsoftConfig",
+        "collection": true,
+        "name": "Client configuration for Microsoft."
+      },
+      "authenticationIdKey": "id",
+      "authorizationEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/authorize",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "c42a3dc8-f276-496b-a722-269f131cc21c",
+      "enabled": true,
+      "issuerComparisonCheckType": "EXACT",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectURI": "https://idc.scheuber.io/login",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "User.Read",
+        "openid"
+      ],
+      "tokenEndpoint": "https://login.microsoftonline.com/711ffa9c-5972-4713-ace3-688c9732614a/oauth2/v2.0/token",
+      "transform": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
+      "uiConfig": {
+        "buttonClass": "",
+        "buttonCustomStyle": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
+        "buttonCustomStyleHover": "background-color: #fff; border-color: #8b8b8b; color: #8b8b8b;",
+        "buttonDisplayName": "Microsoft Azure",
+        "buttonImage": "/login/images/microsoft-logo.png",
+        "iconBackground": "#0078d7",
+        "iconClass": "fa-windows",
+        "iconFontColor": "white"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "https://graph.microsoft.com/v1.0/me"
+    }
+  }
+}

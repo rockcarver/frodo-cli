@@ -1,0 +1,18 @@
+{
+  "service": {
+    "socialauthentication": {
+      "_id": "",
+      "_type": {
+        "_id": "socialauthentication",
+        "collection": false,
+        "name": "Social Authentication Implementations"
+      },
+      "authenticationChains": {},
+      "displayNames": {},
+      "enabledKeys": [],
+      "icons": {},
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

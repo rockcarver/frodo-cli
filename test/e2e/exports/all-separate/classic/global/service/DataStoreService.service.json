@@ -1,0 +1,18 @@
+{
+  "service": {
+    "DataStoreService": {
+      "_id": "",
+      "_type": {
+        "_id": "DataStoreService",
+        "collection": false,
+        "name": "External Data Stores"
+      },
+      "defaults": {
+        "applicationDataStoreId": "fd270e31-1788-4193-8734-eb2d500c47f3",
+        "policyDataStoreId": "fd270e31-1788-4193-8734-eb2d500c47f3"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

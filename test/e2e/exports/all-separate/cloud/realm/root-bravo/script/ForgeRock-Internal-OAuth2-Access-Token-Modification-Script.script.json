@@ -1,0 +1,18 @@
+{
+  "script": {
+    "c234ba0b-58a1-4cfd-9567-09edde980745": {
+      "_id": "c234ba0b-58a1-4cfd-9567-09edde980745",
+      "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
+      "createdBy": "null",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Internal token modification script",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "ForgeRock Internal: OAuth2 Access Token Modification Script",
+      "script": "file://ForgeRock-Internal-OAuth2-Access-Token-Modification-Script.script.js"
+    }
+  }
+}

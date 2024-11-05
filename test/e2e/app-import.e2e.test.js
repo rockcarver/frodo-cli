@@ -53,8 +53,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --file test/e2e/exports/all/allAlphaApplications.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -af test/e2e/exports/all/allAlphaApplications.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --all --file test/e2e/exports/all/allAlphaApplications.application.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -AD test/e2e/exports/all-separate/application
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --all-separate --directory test/e2e/exports/all-separate/application
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/application
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/application
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -69,7 +69,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaApplicationsFileName = "allAlphaApplications.application.json";
 const allAlphaApplicationsExport = `${allDirectory}/${allAlphaApplicationsFileName}`;
-const allSeparateApplicationsDirectory = `test/e2e/exports/all-separate/application`;
+const allSeparateApplicationsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/application`;
 
 describe('frodo app import', () => {
 

@@ -1,0 +1,20 @@
+{
+  "resourcetype": {
+    "1f445c60-0828-41ac-9a4e-a16c026e9536": {
+      "actions": {
+        "allow": true
+      },
+      "createdBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "creationDate": 1725916543746,
+      "description": "",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1728420028859,
+      "name": "test_resource",
+      "patterns": [
+        "type1/node1",
+        "type2/node2"
+      ],
+      "uuid": "1f445c60-0828-41ac-9a4e-a16c026e9536"
+    }
+  }
+}

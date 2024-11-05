@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-test-var": {
+      "_id": "esv-test-var",
+      "description": "this is a test description",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "this is a test variable"
+    }
+  }
+}

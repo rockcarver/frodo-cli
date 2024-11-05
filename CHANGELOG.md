@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 3.0.0
+- Fixes and improvements to imports and exports:
+
+  -   Fixed an issue with file paths on the Windows version of Frodo that was causing errors on imports due to the differences between Windows and Linux file paths.
+  -   **_BREAKING_**: Updated IDM exports to be formatted the same as normal exports instead of as raw data by putting the raw data into a type object. This included changing the names of the exports to have a type ‘idm’, such as ‘sync.idm.json’ instead of ‘sync.json’, in order to reflect this change.
+  -   Added option to import an entity from a single file from the full export using the -f flag in the config import command.
+  -   Added option to do env substitution on single entity IDM exports/imports, and put logic for handling it all in Frodo-Lib
+  -   Added option to export/import all IDM entities to/from a single file using the -a flag
+  -   Added option to include or not include metadata in IDM exports
+  -   **_BREAKING_**: Updated exports for agents, secrets, and variables to have a singular rather than plural type to be more consistent with other exports (see frodo-lib PR for more information on this change)
+  -   Fixed a bug where the agent list command wouldn’t work if the agent had no status
+  -   Fixed a bug where oauth2 and managed applications were exported with the wrong type in a full export
+  -   Fixed a bug where journey imports weren’t working when importing using -D flag
+  -   Standardized file extraction since it is used in multiple places (namely scripts, sync mappings, and, in a future PR, servers).
+  -   Removed progress indicators for script, esv variable and esv secret describe commands since they caused Frodo to never terminate.
+  -   Improved config imports to be able to import individual files based on the file type in the name instead of on directory structure (although directory structure is still used to determine whether to import globally or to know which realm to import to).
+
 ## [2.1.0] - 2024-10-10
 
 ### Changed

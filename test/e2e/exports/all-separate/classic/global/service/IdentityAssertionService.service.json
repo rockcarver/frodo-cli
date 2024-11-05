@@ -1,0 +1,20 @@
+{
+  "service": {
+    "IdentityAssertionService": {
+      "_id": "",
+      "_type": {
+        "_id": "IdentityAssertionService",
+        "collection": false,
+        "name": "Identity Assertion Service"
+      },
+      "cacheDuration": 120,
+      "defaults": {
+        "cacheDuration": 120,
+        "enable": true
+      },
+      "enable": true,
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

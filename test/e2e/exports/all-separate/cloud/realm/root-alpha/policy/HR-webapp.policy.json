@@ -1,0 +1,34 @@
+{
+  "policy": {
+    "HR-webapp": {
+      "_id": "HR-webapp",
+      "actionValues": {
+        "GET": true,
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "EdgePolicySet",
+      "createdBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
+      "creationDate": "2024-07-12T15:25:50.1Z",
+      "description": "",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-10-08T20:40:33.479Z",
+      "name": "HR-webapp",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/apps/hrlite/*",
+        "*://*:*/apps/hrlite?*",
+        "*://*:*/apps/contractor",
+        "*://*:*/apps/contractor/*",
+        "*://*:*/apps/contractor?*",
+        "*://*:*/apps/hrlite"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=hradmins,ou=group,o=alpha,ou=services,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

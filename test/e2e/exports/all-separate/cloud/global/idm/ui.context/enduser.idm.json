@@ -1,0 +1,13 @@
+{
+  "idm": {
+    "ui.context/enduser": {
+      "_id": "ui.context/enduser",
+      "defaultDir": "&{idm.install.dir}/ui/enduser",
+      "enabled": true,
+      "responseHeaders": {
+        "X-Frame-Options": "DENY"
+      },
+      "urlContextRoot": "/"
+    }
+  }
+}

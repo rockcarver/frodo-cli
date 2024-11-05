@@ -1,0 +1,46 @@
+{
+  "service": {
+    "federation/common": {
+      "_id": "",
+      "_type": {
+        "_id": "federation/common",
+        "collection": false,
+        "name": "Common Federation Configuration"
+      },
+      "algorithms": {
+        "DigestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
+        "QuerySignatureAlgorithmDSA": "http://www.w3.org/2009/xmldsig11#dsa-sha256",
+        "QuerySignatureAlgorithmEC": "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512",
+        "QuerySignatureAlgorithmRSA": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+        "aesKeyWrapAlgorithm": "http://www.w3.org/2001/04/xmlenc#kw-aes256",
+        "canonicalizationAlgorithm": "http://www.w3.org/2001/10/xml-exc-c14n#",
+        "maskGenerationFunction": "http://www.w3.org/2009/xmlenc11#mgf1sha256",
+        "rsaKeyTransportAlgorithm": "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p",
+        "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+        "transformationAlgorithm": "http://www.w3.org/2001/10/xml-exc-c14n#"
+      },
+      "generalConfig": {
+        "certificateChecking": "on",
+        "maxContentLength": 20480,
+        "samlErrorPageHttpBinding": "HTTP-POST",
+        "samlErrorPageUrl": "/saml2/jsp/saml2error.jsp"
+      },
+      "implementationClasses": {
+        "configurationClass": "com.sun.identity.plugin.configuration.impl.ConfigurationInstanceImpl",
+        "datastoreClass": "com.sun.identity.plugin.datastore.impl.IdRepoDataStoreProvider",
+        "keyProviderClass": "com.sun.identity.saml.xmlsig.JKSKeyProvider",
+        "loggerClass": "com.sun.identity.plugin.log.impl.LogProvider",
+        "passwordDecoderClass": "com.sun.identity.saml.xmlsig.FMPasswordDecoder",
+        "rootUrlProviderClass": "org.forgerock.openam.federation.plugin.rooturl.impl.FmRootUrlProvider",
+        "sessionProviderClass": "com.sun.identity.plugin.session.impl.FMSessionProvider",
+        "signatureProviderClass": "com.sun.identity.saml.xmlsig.AMSignatureProvider"
+      },
+      "location": "global",
+      "montoring": {
+        "monitoringAgentClass": "com.sun.identity.plugin.monitoring.impl.AgentProvider",
+        "monitoringSaml2Class": "com.sun.identity.plugin.monitoring.impl.FedMonSAML2SvcProvider"
+      },
+      "nextDescendents": []
+    }
+  }
+}

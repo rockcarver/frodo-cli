@@ -1,0 +1,154 @@
+{
+  "trees": {
+    "RetryLimit": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "1679091c-5a88-3faf-afb5-e6087eb1b2dc": {
+          "_id": "1679091c-5a88-3faf-afb5-e6087eb1b2dc",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "UsernameCollectorNode",
+            "collection": true,
+            "name": "Username Collector"
+          }
+        },
+        "45c48cce-2e2d-3fbd-aa1a-fc51c7c6ad26": {
+          "_id": "45c48cce-2e2d-3fbd-aa1a-fc51c7c6ad26",
+          "_outcomes": [
+            {
+              "displayName": "Retry",
+              "id": "Retry"
+            },
+            {
+              "displayName": "Reject",
+              "id": "Reject"
+            }
+          ],
+          "_type": {
+            "_id": "RetryLimitDecisionNode",
+            "collection": true,
+            "name": "Retry Limit Decision"
+          },
+          "incrementUserAttributeOnFailure": true,
+          "retryLimit": 3
+        },
+        "8f14e45f-ceea-367a-9a36-dedd4bea2543": {
+          "_id": "8f14e45f-ceea-367a-9a36-dedd4bea2543",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PasswordCollectorNode",
+            "collection": true,
+            "name": "Password Collector"
+          }
+        },
+        "c9f0f895-fb98-3b91-99f5-1fd0297e236d": {
+          "_id": "c9f0f895-fb98-3b91-99f5-1fd0297e236d",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision"
+          }
+        },
+        "d3d94468-02a4-3259-b55d-38e6d163e820": {
+          "_id": "d3d94468-02a4-3259-b55d-38e6d163e820",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AccountLockoutNode",
+            "collection": true,
+            "name": "Account Lockout"
+          },
+          "lockAction": "LOCK"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "RetryLimit",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "1679091c-5a88-3faf-afb5-e6087eb1b2dc",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "1679091c-5a88-3faf-afb5-e6087eb1b2dc": {
+            "connections": {
+              "outcome": "8f14e45f-ceea-367a-9a36-dedd4bea2543"
+            },
+            "displayName": "User Name Collector",
+            "nodeType": "UsernameCollectorNode",
+            "x": 0,
+            "y": 0
+          },
+          "45c48cce-2e2d-3fbd-aa1a-fc51c7c6ad26": {
+            "connections": {
+              "Reject": "d3d94468-02a4-3259-b55d-38e6d163e820",
+              "Retry": "1679091c-5a88-3faf-afb5-e6087eb1b2dc"
+            },
+            "displayName": "Retry Limit Decision",
+            "nodeType": "RetryLimitDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "8f14e45f-ceea-367a-9a36-dedd4bea2543": {
+            "connections": {
+              "outcome": "c9f0f895-fb98-3b91-99f5-1fd0297e236d"
+            },
+            "displayName": "Password Collector",
+            "nodeType": "PasswordCollectorNode",
+            "x": 0,
+            "y": 0
+          },
+          "c9f0f895-fb98-3b91-99f5-1fd0297e236d": {
+            "connections": {
+              "false": "45c48cce-2e2d-3fbd-aa1a-fc51c7c6ad26",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Data Store Decision",
+            "nodeType": "DataStoreDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "d3d94468-02a4-3259-b55d-38e6d163e820": {
+            "connections": {
+              "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Account Lockout",
+            "nodeType": "AccountLockoutNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

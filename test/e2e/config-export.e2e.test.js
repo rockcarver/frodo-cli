@@ -61,8 +61,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
-import { classic_connection as cc } from './utils/TestConfig';
+import { connection as c, classic_connection as cc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =

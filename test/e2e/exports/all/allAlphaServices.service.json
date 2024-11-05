@@ -1,11 +1,11 @@
 {
   "meta": {
-    "exportDate": "2023-12-21T15:25:59.478Z",
+    "exportDate": "2024-10-10T14:20:59.457Z",
     "exportTool": "frodo",
-    "exportToolVersion": "v2.0.0-55 [v18.5.0]",
+    "exportToolVersion": "v2.1.2-0 [v20.11.1]",
     "exportedBy": "phales@trivir.com",
     "origin": "https://openam-frodo-dev.forgeblocks.com/am",
-    "originAmVersion": "7.5.0"
+    "originAmVersion": "7.6.0"
   },
   "service": {
     "SocialIdentityProviders": {
@@ -368,6 +368,38 @@
       "location": "alpha",
       "nextDescendents": []
     },
+    "email": {
+      "_id": "",
+      "_type": {
+        "_id": "email",
+        "collection": false,
+        "name": "Email Service"
+      },
+      "emailAddressAttribute": "mail",
+      "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+      "emailRateLimitSeconds": 1,
+      "from": "vscheuber@gmail.com",
+      "location": "alpha",
+      "message": "Test Message",
+      "nextDescendents": [
+        {
+          "_id": "gmail",
+          "_type": {
+            "_id": "smtpTransports",
+            "collection": true,
+            "name": "SMTP"
+          },
+          "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+          "hostname": "smtp.gmail.com",
+          "port": 465,
+          "sslState": "SSL",
+          "username": "vscheuber@gmail.com"
+        }
+      ],
+      "port": 465,
+      "sslState": "SSL",
+      "subject": "Test Subject"
+    },
     "oauth-oidc": {
       "_id": "",
       "_type": {
@@ -404,6 +436,7 @@
           "urn:ietf:params:oauth:grant-type:jwt-bearer"
         ],
         "hashSalt": "&{am.oidc.client.subject.identifier.hash.salt}",
+        "includeClientIdClaimInStatelessTokens": true,
         "includeSubnameInTokenClaims": true,
         "macaroonTokenFormat": "V2",
         "maxAgeOfRequestObjectNbfClaim": 0,
@@ -783,6 +816,17 @@
         "validateScopeScript": "[Empty]"
       }
     },
+    "pingOneWorkerService": {
+      "_id": "",
+      "_type": {
+        "_id": "pingOneWorkerService",
+        "collection": false,
+        "name": "PingOne Worker Service"
+      },
+      "enabled": true,
+      "location": "alpha",
+      "nextDescendents": []
+    },
     "policyconfiguration": {
       "_id": "",
       "_type": {
@@ -836,6 +880,22 @@
         "resetPassword": "ResetPassword",
         "updatePassword": "UpdatePassword"
       }
+    },
+    "session": {
+      "_id": "",
+      "_type": {
+        "_id": "session",
+        "collection": false,
+        "name": "Session"
+      },
+      "dynamic": {
+        "maxCachingTime": 3,
+        "maxIdleTime": 30,
+        "maxSessionTime": 120,
+        "quotaLimit": 2
+      },
+      "location": "alpha",
+      "nextDescendents": []
     },
     "validation": {
       "_id": "",

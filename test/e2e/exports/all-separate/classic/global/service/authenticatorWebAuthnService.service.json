@@ -1,0 +1,21 @@
+{
+  "service": {
+    "authenticatorWebAuthnService": {
+      "_id": "",
+      "_type": {
+        "_id": "authenticatorWebAuthnService",
+        "collection": false,
+        "name": "WebAuthn Profile Encryption Service"
+      },
+      "defaults": {
+        "authenticatorWebAuthnDeviceSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jceks",
+        "authenticatorWebAuthnDeviceSettingsEncryptionKeystorePassword": null,
+        "authenticatorWebAuthnDeviceSettingsEncryptionKeystoreType": "JCEKS",
+        "authenticatorWebAuthnDeviceSettingsEncryptionScheme": "NONE",
+        "webauthnAttrName": "webauthnDeviceProfiles"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

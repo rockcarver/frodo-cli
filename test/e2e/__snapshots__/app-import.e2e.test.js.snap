@@ -2,13 +2,13 @@
 
 exports[`frodo app import "frodo app import --all --file test/e2e/exports/all/allAlphaApplications.application.json": should import all applications from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
 
-exports[`frodo app import "frodo app import --all-separate --directory test/e2e/exports/all-separate/application": should import all applications from the directory "test/e2e/exports/all-separate/application" 1`] = `""`;
+exports[`frodo app import "frodo app import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/application": should import all applications from the directory "test/e2e/exports/all-separate/cloud/realm/root-alpha/application" 1`] = `""`;
 
 exports[`frodo app import "frodo app import --app-id testLDAP --file test/e2e/exports/all/allAlphaApplications.application.json": should import the application with the id "testLDAP" from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
 
 exports[`frodo app import "frodo app import --file test/e2e/exports/all/allAlphaApplications.application.json": should import the first application from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
 
-exports[`frodo app import "frodo app import --no-deps -AD test/e2e/exports/all-separate/application": should import all applications from the directory "test/e2e/exports/all-separate/application" with no dependencies 1`] = `""`;
+exports[`frodo app import "frodo app import --no-deps -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/application": should import all applications from the directory "test/e2e/exports/all-separate/cloud/realm/root-alpha/application" with no dependencies 1`] = `""`;
 
 exports[`frodo app import "frodo app import --no-deps -af test/e2e/exports/all/allAlphaApplications.application.json": should import all applications from the file "test/e2e/exports/all/allAlphaApplications.application.json" with no dependencies 1`] = `""`;
 

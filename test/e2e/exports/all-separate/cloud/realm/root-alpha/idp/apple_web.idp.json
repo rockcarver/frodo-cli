@@ -1,0 +1,55 @@
+{
+  "idp": {
+    "apple_web": {
+      "_id": "apple_web",
+      "_type": {
+        "_id": "appleConfig",
+        "collection": true,
+        "name": "Client configuration for Apple."
+      },
+      "acrValues": [],
+      "authenticationIdKey": "sub",
+      "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "io.scheuber.idc.signinWithApple.service",
+      "enableNativeNonce": true,
+      "enabled": true,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": false,
+      "issuer": "https://appleid.apple.com",
+      "issuerComparisonCheckType": "EXACT",
+      "jwksUriEndpoint": "https://appleid.apple.com/auth/keys",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectAfterFormPostURI": "https://idc.scheuber.io/login",
+      "redirectURI": "https://idc.scheuber.io/am/oauth2/client/form_post/apple_web",
+      "requestNativeAppForUserInfo": false,
+      "responseMode": "FORM_POST",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "name",
+        "email"
+      ],
+      "tokenEndpoint": "https://appleid.apple.com/auth/token",
+      "transform": "484e6246-dbc6-4288-97e6-54e55431402e",
+      "uiConfig": {
+        "buttonClass": "",
+        "buttonCustomStyle": "background-color: #000000; color: #ffffff; border-color: #000000;",
+        "buttonCustomStyleHover": "background-color: #000000; color: #ffffff; border-color: #000000;",
+        "buttonDisplayName": "Apple",
+        "buttonImage": "/login/images/apple-logo.png",
+        "iconBackground": "#000000",
+        "iconClass": "fa-apple",
+        "iconFontColor": "white"
+      },
+      "useCustomTrustStore": false,
+      "userInfoResponseType": "JSON",
+      "wellKnownEndpoint": "https://appleid.apple.com/.well-known/openid-configuration"
+    }
+  }
+}

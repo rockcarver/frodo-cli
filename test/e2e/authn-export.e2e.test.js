@@ -49,7 +49,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authn export -ND authnExportDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authn export -f authnExportTest.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -73,9 +73,9 @@ describe('frodo authn export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory', async () => {
+    test('"frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory', async () => {
         const exportFile = "authnExportTest.json";
-        const exportDirectory = "authnExportDir1";
+        const exportDirectory = "authnExportDir2";
         const CMD = `frodo authn export --no-metadata --file ${exportFile} --directory ${exportDirectory}`;
         await testExport(CMD, env, type, exportFile, exportDirectory, false);
     });

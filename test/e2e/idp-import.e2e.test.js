@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -af test/e2e/exports/all/allAlphaProviders.idp.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -af allAlphaProviders.idp.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -AD test/e2e/exports/all-separate/idp
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all-separate --no-deps --directory test/e2e/exports/all-separate/idp
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/idp
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idp import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/idp
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaProvidersFileName = "allAlphaProviders.idp.json";
 const allAlphaProvidersExport = `${allDirectory}/${allAlphaProvidersFileName}`;
-const allSeparateProvidersDirectory = `test/e2e/exports/all-separate/idp`;
+const allSeparateProvidersDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/idp`;
 
 describe('frodo idp import', () => {
     test(`"frodo idp import -i google -f ${allAlphaProvidersExport}": should import the idp with the id "google" from the file "${allAlphaProvidersExport}"`, async () => {

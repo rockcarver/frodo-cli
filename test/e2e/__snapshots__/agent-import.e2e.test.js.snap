@@ -4,11 +4,11 @@ exports[`frodo agent import "frodo agent import --agent-id frodo-test-ig-agent -
 
 exports[`frodo agent import "frodo agent import --all --file test/e2e/exports/all/allAlphaAgents.agent.json": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 
-exports[`frodo agent import "frodo agent import --all-separate --directory test/e2e/exports/all-separate/agent": should import all agents from the test/e2e/exports/all-separate/agent directory" 1`] = `""`;
+exports[`frodo agent import "frodo agent import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/agent": should import all agents from the test/e2e/exports/all-separate/cloud/realm/root-alpha/agent directory" 1`] = `""`;
 
 exports[`frodo agent import "frodo agent import --file test/e2e/exports/all/allAlphaAgents.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 
-exports[`frodo agent import "frodo agent import -AD test/e2e/exports/all-separate/agent": should import all agents from the test/e2e/exports/all-separate/agent directory" 1`] = `""`;
+exports[`frodo agent import "frodo agent import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent": should import all agents from the test/e2e/exports/all-separate/cloud/realm/root-alpha/agent directory" 1`] = `""`;
 
 exports[`frodo agent import "frodo agent import -af allAlphaAgents.agent.json -D test/e2e/exports/all": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 

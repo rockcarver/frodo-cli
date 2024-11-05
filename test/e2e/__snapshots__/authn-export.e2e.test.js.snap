@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `""`;
 
-exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir1/authnExportTest.json 1`] = `
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir2/authnExportTest.json 1`] = `
 {
   "authentication": {
     "_id": "",

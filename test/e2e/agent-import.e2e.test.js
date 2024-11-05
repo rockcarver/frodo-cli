@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all --file test/e2e/exports/all/allAlphaAgents.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -af allAlphaAgents.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -AD test/e2e/exports/all-separate/agent
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all-separate --directory test/e2e/exports/all-separate/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaAgentsFileName = "allAlphaAgents.agent.json";
 const allAlphaAgentsExport = `${allDirectory}/${allAlphaAgentsFileName}`;
-const allSeparateAgentsDirectory = `test/e2e/exports/all-separate/agent`;
+const allSeparateAgentsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/agent`;
 
 describe('frodo agent import', () => {
     test(`"frodo agent import -i frodo-test-ig-agent -f ${allAlphaAgentsExport}": should import the agent with the id "frodo-test-ig-agent" from the file "${allAlphaAgentsExport}"`, async () => {

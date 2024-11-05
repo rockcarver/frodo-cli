@@ -1,0 +1,176 @@
+{
+  "trees": {
+    "six": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "295a70ba-2b67-4a48-bf13-237ce0a55450": {
+          "_id": "295a70ba-2b67-4a48-bf13-237ce0a55450",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "4a77788d-d443-4646-ac52-5cb9f2207a8a": {
+          "_id": "4a77788d-d443-4646-ac52-5cb9f2207a8a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "5883ff1e-80dd-49f5-a609-120303e1b0cd": {
+          "_id": "5883ff1e-80dd-49f5-a609-120303e1b0cd",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "59129227-f192-4ff4-a7b4-bc7690b82d4f": {
+          "_id": "59129227-f192-4ff4-a7b4-bc7690b82d4f",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "6a1aa88f-25f8-4d40-8008-bfc6684b2a58": {
+          "_id": "6a1aa88f-25f8-4d40-8008-bfc6684b2a58",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "8b1a8dc8-338f-46af-a4c5-6fe7cf6a2cf5": {
+          "_id": "8b1a8dc8-338f-46af-a4c5-6fe7cf6a2cf5",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "six",
+        "enabled": true,
+        "entryNodeId": "e301438c-0bd0-429c-ab0c-66126501069a",
+        "innerTreeOnly": false,
+        "nodes": {
+          "295a70ba-2b67-4a48-bf13-237ce0a55450": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 488,
+            "y": 57.890625
+          },
+          "4a77788d-d443-4646-ac52-5cb9f2207a8a": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 494,
+            "y": 458.890625
+          },
+          "5883ff1e-80dd-49f5-a609-120303e1b0cd": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 446,
+            "y": 298.890625
+          },
+          "59129227-f192-4ff4-a7b4-bc7690b82d4f": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 482,
+            "y": 220.890625
+          },
+          "6a1aa88f-25f8-4d40-8008-bfc6684b2a58": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 461,
+            "y": 369.890625
+          },
+          "8b1a8dc8-338f-46af-a4c5-6fe7cf6a2cf5": {
+            "connections": {},
+            "displayName": "Platform Username",
+            "nodeType": "ValidatedUsernameNode",
+            "x": 499,
+            "y": 139.890625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 50,
+            "y": 117
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 152,
+            "y": 25
+          },
+          "startNode": {
+            "x": 50,
+            "y": 25
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "mapping": {
+    "mapping/managedAlpha_user_systemAzureUser": {
+      "_id": "mapping/managedAlpha_user_systemAzureUser",
+      "consentRequired": false,
+      "defaultSourceFields": [
+        "*",
+        "assignments"
+      ],
+      "defaultTargetFields": [
+        "*",
+        "memberOf",
+        "__roles__",
+        "__servicePlanIds__"
+      ],
+      "displayName": "managedAlpha_user_systemAzureUser",
+      "icon": null,
+      "name": "managedAlpha_user_systemAzureUser",
+      "optimizeAssignmentSync": true,
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_TARGET_CONFLICT"
+        },
+        {
+          "action": "INCORPORATE_CHANGES",
+          "situation": "TARGET_CHANGED"
+        }
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail"
+        },
+        {
+          "source": "givenName",
+          "target": "givenName"
+        },
+        {
+          "source": "sn",
+          "target": "surname"
+        },
+        {
+          "source": "",
+          "target": "displayName",
+          "transform": {
+            "source": "source.givenName+\" \"+source.sn",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "",
+          "target": "mailNickname",
+          "transform": {
+            "source": "source.givenName[0].toLowerCase()+source.sn.toLowerCase()",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "",
+          "target": "accountEnabled",
+          "transform": {
+            "source": "true",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "(typeof oldTarget === 'undefined' || oldTarget === null)",
+            "type": "text/javascript"
+          },
+          "source": "",
+          "target": "__PASSWORD__",
+          "transform": {
+            "source": "\"!@#$%\"[Math.floor(Math.random()*5)] + Math.random().toString(36).slice(2, 13).toUpperCase()+Math.random().toString(36).slice(2,13)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "queuedSync": {
+        "enabled": true,
+        "maxRetries": 0,
+        "pollingInterval": 10000
+      },
+      "runTargetPhase": false,
+      "source": "managed/alpha_user",
+      "sourceCondition": "/source/effectiveApplications[_id eq \"0f357b7e-6c54-4351-a094-43916877d7e5\"] or /source/effectiveAssignments[(mapping eq \"managedAlpha_user_systemAzureUser\" and type eq \"__ENTITLEMENT__\")]",
+      "sourceQuery": {
+        "_queryFilter": "effectiveApplications[_id eq \"0f357b7e-6c54-4351-a094-43916877d7e5\"] or lastSync/managedAlpha_user_systemAzureUser pr or /source/effectiveAssignments[(mapping eq \"managedAlpha_user_systemAzureUser\" and type eq \"__ENTITLEMENT__\")]"
+      },
+      "target": "system/Azure/User"
+    }
+  }
+}

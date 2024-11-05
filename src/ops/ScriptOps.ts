@@ -9,7 +9,12 @@ import {
 import chokidar from 'chokidar';
 import fs from 'fs';
 
-import { getFullExportConfig, getIdLocations } from '../utils/Config';
+import {
+  extractDataToFile,
+  getExtractedData,
+  getFullExportConfig,
+  getIdLocations,
+} from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -30,7 +35,6 @@ const {
   getTypedFilename,
   isValidUrl,
   saveJsonToFile,
-  saveTextToFile,
   titleCase,
   isBase64Encoded,
   getFilePath,
@@ -191,11 +195,6 @@ export async function describeScript(
   usage = false,
   json = false
 ): Promise<boolean> {
-  const spinnerId = createProgressIndicator(
-    'indeterminate',
-    0,
-    `Describing script '${scriptId ? scriptId : scriptName}'...`
-  );
   try {
     let script;
     if (scriptId) {
@@ -215,20 +214,10 @@ export async function describeScript(
           getScriptLocations(scriptExport, script.name)
         );
       } catch (error) {
-        stopProgressIndicator(
-          spinnerId,
-          `Error determining usage for script '${scriptId ? scriptId : scriptName}'`,
-          'fail'
-        );
         printError(error);
         return false;
       }
     }
-    stopProgressIndicator(
-      spinnerId,
-      `Successfully retrieved script '${scriptId ? scriptId : scriptName}'`,
-      'success'
-    );
     if (json) {
       printMessage(script, 'data');
     } else {
@@ -266,11 +255,6 @@ export async function describeScript(
     }
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error describing script '${scriptId ? scriptId : scriptName}'`,
-      'fail'
-    );
     printError(error);
   }
   return false;
@@ -476,15 +460,10 @@ export function extractScriptsToFiles(
         'script',
         fileExtension
       );
-      const scriptFilePath = getFilePath(
-        (directory ? `${directory}/` : '') + scriptFileName,
-        true
-      );
       const scriptText = Array.isArray(script.script)
         ? script.script.join('\n')
         : script.script;
-      script.script = `file://${scriptFileName}`;
-      saveTextToFile(scriptText, scriptFilePath);
+      script.script = extractDataToFile(scriptText, scriptFileName, directory);
     }
     return true;
   } catch (error) {
@@ -501,7 +480,7 @@ function isScriptExtracted(script: string | string[]): boolean {
     extracted = false;
   } else if (isValidUrl(script as string)) {
     debugMessage(`Cli.ScriptOps.isScriptExtracted: script is extracted`);
-    extracted = true;
+    extracted = script.startsWith('file://');
   } else if (isBase64Encoded(script)) {
     debugMessage(`Cli.ScriptOps.isScriptExtracted: script is base64-encoded`);
     extracted = false;
@@ -663,36 +642,16 @@ export function getScriptExportByScriptFile(
 ): ScriptExportInterface {
   const scriptExport = getScriptExport(scriptFile);
   for (const script of Object.values(scriptExport.script)) {
-    const extractFile = getExtractFile(script);
-    if (!extractFile) {
+    if (!isScriptExtracted(script.script)) {
       continue;
     }
-    const directory =
-      scriptFile.substring(0, scriptFile.lastIndexOf('/')) || '.';
-    const scriptRaw = fs.readFileSync(`${directory}/${extractFile}`, 'utf8');
+    const scriptRaw = getExtractedData(
+      script.script as string,
+      scriptFile.substring(0, scriptFile.lastIndexOf('/'))
+    );
     script.script = scriptRaw.split('\n');
   }
   return scriptExport;
-}
-
-/**
- * Get an extract file from a script skeleton.
- *
- * @param scriptSkeleton The script skeleton
- * @returns The extract file or null if there is no extract file
- */
-function getExtractFile(scriptSkeleton: ScriptSkeleton): string | null {
-  const extractFile = scriptSkeleton.script as string;
-  if (!isScriptExtracted(extractFile)) {
-    return null;
-  }
-  if (
-    extractFile.startsWith('file://') &&
-    (extractFile.endsWith('.js') || extractFile.endsWith('.groovy'))
-  ) {
-    return extractFile.replace('file://', '');
-  }
-  return null;
 }
 
 /**
@@ -719,12 +678,11 @@ function getExtractedPathsAndNames(
   const scriptExport = getScriptExport(file);
   const directory = file.substring(0, file.lastIndexOf('/')) || '.';
   for (const script of Object.values(scriptExport.script)) {
-    const extractFile = getExtractFile(script);
-    if (!extractFile) {
+    if (!isScriptExtracted(script.script)) {
       continue;
     }
     extractedFileNames.push({
-      path: `${directory}/${extractFile}`,
+      path: `${directory}/${(script.script as string).replace('file://', '')}`,
       id: script._id,
     });
   }

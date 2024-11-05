@@ -2,13 +2,13 @@
 
 exports[`frodo idp import "frodo idp import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
-exports[`frodo idp import "frodo idp import --all-separate --no-deps --directory test/e2e/exports/all-separate/idp": should import all idps from the test/e2e/exports/all-separate/idp directory" 1`] = `""`;
+exports[`frodo idp import "frodo idp import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/idp": should import all idps from the test/e2e/exports/all-separate/cloud/realm/root-alpha/idp directory" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import --no-deps --file test/e2e/exports/all/allAlphaProviders.idp.json": should import the first idp from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import --no-deps --idp-id google --file test/e2e/exports/all/allAlphaProviders.idp.json": should import the idp with the id "google" from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 
-exports[`frodo idp import "frodo idp import -AD test/e2e/exports/all-separate/idp": should import all idps from the test/e2e/exports/all-separate/idp directory" 1`] = `""`;
+exports[`frodo idp import "frodo idp import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/idp": should import all idps from the test/e2e/exports/all-separate/cloud/realm/root-alpha/idp directory" 1`] = `""`;
 
 exports[`frodo idp import "frodo idp import -af allAlphaProviders.idp.json -D test/e2e/exports/all": should import all idps from the file "test/e2e/exports/all/allAlphaProviders.idp.json" 1`] = `""`;
 

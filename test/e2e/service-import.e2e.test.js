@@ -49,20 +49,20 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -i baseurl -f test/e2e/exports/all/allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --service-id dashboard --global --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -f test/e2e/exports/all/allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --global --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -af test/e2e/exports/all/allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --current-realm -Caf test/e2e/exports/all/allAlphaServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --all --file test/e2e/exports/all/allGlobalServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --all --global --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all --file test/e2e/exports/all/allGlobalServices.service.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -AD test/e2e/exports/all-separate/service/alpha
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -ACrD test/e2e/exports/all-separate/service/alpha
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --all-separate --directory test/e2e/exports/all-separate/service/global
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/service/global
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -ACrD test/e2e/exports/all-separate/cloud/realm/root-alpha/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean --global --all-separate --directory test/e2e/exports/all-separate/cloud/global/service
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -79,8 +79,8 @@ const allAlphaServicesFileName = 'allAlphaServices.service.json';
 const allGlobalServicesFileName = 'allGlobalServices.service.json';
 const allAlphaServicesExport = `${allDirectory}/${allAlphaServicesFileName}`;
 const allGlobalServicesExport = `${allDirectory}/${allGlobalServicesFileName}`;
-const allSeparateAlphaServicesDirectory = `test/e2e/exports/all-separate/service/alpha`;
-const allSeparateGlobalServicesDirectory = `test/e2e/exports/all-separate/service/global`;
+const allSeparateAlphaServicesDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/service`;
+const allSeparateGlobalServicesDirectory = `test/e2e/exports/all-separate/cloud/global/service`;
 
 describe('frodo service import', () => {
   test(`"frodo service import -i baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}"`, async () => {
@@ -95,8 +95,8 @@ describe('frodo service import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo service import --service-id dashboard --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}"`, async () => {
-    const CMD = `frodo service import --service-id dashboard --file ${allGlobalServicesExport}`;
+  test(`"frodo service import --service-id dashboard --global --file ${allGlobalServicesExport}": should import the global service with the id "CorsService" from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --service-id dashboard --global --file ${allGlobalServicesExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
@@ -127,8 +127,8 @@ describe('frodo service import', () => {
     }
   });
 
-  test(`"frodo service import --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {
-    const CMD = `frodo service import --file ${allGlobalServicesExport}`;
+  test(`"frodo service import --global --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --global --file ${allGlobalServicesExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
@@ -155,8 +155,8 @@ describe('frodo service import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo service import --all --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}"`, async () => {
-    const CMD = `frodo service import --all --file ${allGlobalServicesExport}`;
+  test(`"frodo service import --all --global --file ${allGlobalServicesExport}": should import all global services from the file "${allGlobalServicesExport}"`, async () => {
+    const CMD = `frodo service import --all --global --file ${allGlobalServicesExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
@@ -183,8 +183,8 @@ describe('frodo service import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}"`, async () => {
-    const CMD = `frodo service import --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
+  test(`"frodo service import --global --all-separate --directory ${allSeparateGlobalServicesDirectory}": should import all global services from the directory "${allSeparateGlobalServicesDirectory}"`, async () => {
+    const CMD = `frodo service import --global --all-separate --directory ${allSeparateGlobalServicesDirectory}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });

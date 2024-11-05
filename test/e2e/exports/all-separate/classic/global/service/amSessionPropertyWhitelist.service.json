@@ -1,0 +1,20 @@
+{
+  "service": {
+    "amSessionPropertyWhitelist": {
+      "_id": "",
+      "_type": {
+        "_id": "amSessionPropertyWhitelist",
+        "collection": false,
+        "name": "Session Property Whitelist Service"
+      },
+      "defaults": {
+        "sessionPropertyWhitelist": [
+          "AMCtxId"
+        ],
+        "whitelistedQueryProperties": []
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

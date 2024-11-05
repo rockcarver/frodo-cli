@@ -1,0 +1,163 @@
+{
+  "trees": {
+    "PersistentCookie": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "6512bd43-d9ca-36e0-ac99-0b0a82652dca": {
+          "_id": "6512bd43-d9ca-36e0-ac99-0b0a82652dca",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "UsernameCollectorNode",
+            "collection": true,
+            "name": "Username Collector"
+          }
+        },
+        "9bf31c7f-f062-336a-96d3-c8bd1f8f2ff3": {
+          "_id": "9bf31c7f-f062-336a-96d3-c8bd1f8f2ff3",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "SetPersistentCookieNode",
+            "collection": true,
+            "name": "Set Persistent Cookie"
+          },
+          "hmacSigningKey": null,
+          "idleTimeout": 5,
+          "maxLife": 5,
+          "persistentCookieName": "session-jwt",
+          "useHttpOnlyCookie": true,
+          "useSecureCookie": false
+        },
+        "aab32389-22bc-325a-af60-6eb525ffdc56": {
+          "_id": "aab32389-22bc-325a-af60-6eb525ffdc56",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PersistentCookieDecisionNode",
+            "collection": true,
+            "name": "Persistent Cookie Decision"
+          },
+          "enforceClientIp": false,
+          "hmacSigningKey": null,
+          "idleTimeout": 5,
+          "persistentCookieName": "session-jwt",
+          "useHttpOnlyCookie": true,
+          "useSecureCookie": false
+        },
+        "c20ad4d7-6fe9-3759-aa27-a0c99bff6710": {
+          "_id": "c20ad4d7-6fe9-3759-aa27-a0c99bff6710",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PasswordCollectorNode",
+            "collection": true,
+            "name": "Password Collector"
+          }
+        },
+        "c51ce410-c124-310e-8db5-e4b97fc2af39": {
+          "_id": "c51ce410-c124-310e-8db5-e4b97fc2af39",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "PersistentCookie",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "aab32389-22bc-325a-af60-6eb525ffdc56",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "6512bd43-d9ca-36e0-ac99-0b0a82652dca": {
+            "connections": {
+              "outcome": "c20ad4d7-6fe9-3759-aa27-a0c99bff6710"
+            },
+            "displayName": "User Name Collector",
+            "nodeType": "UsernameCollectorNode",
+            "x": 0,
+            "y": 0
+          },
+          "9bf31c7f-f062-336a-96d3-c8bd1f8f2ff3": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Set Persistent Cookie",
+            "nodeType": "SetPersistentCookieNode",
+            "x": 0,
+            "y": 0
+          },
+          "aab32389-22bc-325a-af60-6eb525ffdc56": {
+            "connections": {
+              "false": "6512bd43-d9ca-36e0-ac99-0b0a82652dca",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Persistent Cookie Decision",
+            "nodeType": "PersistentCookieDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "c20ad4d7-6fe9-3759-aa27-a0c99bff6710": {
+            "connections": {
+              "outcome": "c51ce410-c124-310e-8db5-e4b97fc2af39"
+            },
+            "displayName": "Password Collector",
+            "nodeType": "PasswordCollectorNode",
+            "x": 0,
+            "y": 0
+          },
+          "c51ce410-c124-310e-8db5-e4b97fc2af39": {
+            "connections": {
+              "false": "6512bd43-d9ca-36e0-ac99-0b0a82652dca",
+              "true": "9bf31c7f-f062-336a-96d3-c8bd1f8f2ff3"
+            },
+            "displayName": "Data Store Decision",
+            "nodeType": "DataStoreDecisionNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

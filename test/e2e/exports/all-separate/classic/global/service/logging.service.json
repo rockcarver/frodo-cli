@@ -1,0 +1,62 @@
+{
+  "service": {
+    "logging": {
+      "_id": "",
+      "_type": {
+        "_id": "logging",
+        "collection": false,
+        "name": "Logging"
+      },
+      "database": {
+        "databaseFailureMemoryBufferSize": 2,
+        "driver": "oracle.jdbc.driver.OracleDriver",
+        "maxRecords": 500,
+        "user": "dbuser"
+      },
+      "file": {
+        "location": "%BASE_DIR%/var/audit/",
+        "maxFileSize": 100000000,
+        "numberHistoryFiles": 1,
+        "rotationEnabled": true,
+        "rotationInterval": -1,
+        "suffix": "-MM.dd.yy-kk.mm"
+      },
+      "general": {
+        "bufferSize": 25,
+        "bufferTime": 60,
+        "buffering": "ON",
+        "certificateStore": "%BASE_DIR%/var/audit/Logger.jks",
+        "fields": [
+          "IPAddr",
+          "LoggedBy",
+          "LoginID",
+          "NameID",
+          "ModuleName",
+          "ContextID",
+          "Domain",
+          "LogLevel",
+          "HostName",
+          "MessageID"
+        ],
+        "filesPerKeystore": 5,
+        "jdkLoggingLevel": "INFO",
+        "security": "OFF",
+        "signaturePeriod": 900,
+        "signingAlgorithm": "SHA1withRSA",
+        "status": "INACTIVE",
+        "type": "File",
+        "verifyPeriod": 3600
+      },
+      "location": "global",
+      "nextDescendents": [],
+      "resolveHostName": false,
+      "syslog": {
+        "facility": "local5",
+        "host": "localhost",
+        "port": 514,
+        "protocol": "UDP",
+        "timeout": 30
+      }
+    }
+  }
+}

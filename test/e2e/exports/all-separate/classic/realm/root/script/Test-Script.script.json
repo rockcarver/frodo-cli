@@ -1,0 +1,40 @@
+{
+  "script": {
+    "59335cbd-de7d-4ebd-99b0-f0fb1fe7fede": {
+      "_id": "59335cbd-de7d-4ebd-99b0-f0fb1fe7fede",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Test script description",
+      "evaluatorVersion": "2.0",
+      "exports": [
+        {
+          "arity": 2,
+          "id": "logError",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logWarning",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logInfo",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logDebug",
+          "type": "Function"
+        }
+      ],
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Test Script",
+      "script": "file://Test-Script.script.js"
+    }
+  }
+}

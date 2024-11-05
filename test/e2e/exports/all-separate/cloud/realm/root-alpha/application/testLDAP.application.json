@@ -1,0 +1,13 @@
+{
+  "managedApplication": {
+    "e124e6f6-e25a-4180-a6c3-ff8b782a422c": {
+      "_id": "e124e6f6-e25a-4180-a6c3-ff8b782a422c",
+      "authoritative": true,
+      "description": "desc",
+      "icon": "",
+      "name": "testLDAP",
+      "templateName": "ldap",
+      "templateVersion": "2.1"
+    }
+  }
+}

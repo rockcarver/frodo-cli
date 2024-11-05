@@ -1,0 +1,249 @@
+{
+  "trees": {
+    "Google-DynamicAccountCreation": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "02e74f10-e032-3ad8-a8d1-38f2b4fdd6f0": {
+          "_id": "02e74f10-e032-3ad8-a8d1-38f2b4fdd6f0",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ProvisionDynamicAccountNode",
+            "collection": true,
+            "name": "Provision Dynamic Account"
+          },
+          "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider"
+        },
+        "182be0c5-cdcd-3072-bb18-64cdee4d3d6e": {
+          "_id": "182be0c5-cdcd-3072-bb18-64cdee4d3d6e",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "CreatePasswordNode",
+            "collection": true,
+            "name": "Create Password"
+          },
+          "minPasswordLength": 0
+        },
+        "33e75ff0-9dd6-31bb-a69f-351039152189": {
+          "_id": "33e75ff0-9dd6-31bb-a69f-351039152189",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            }
+          ],
+          "_type": {
+            "_id": "SocialGoogleNode",
+            "collection": true,
+            "name": "Social Google"
+          },
+          "authenticationIdKey": "sub",
+          "authorizeEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+          "basicAuth": true,
+          "cfgAccountMapperClass": "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|*|google-",
+          "cfgAccountMapperConfiguration": {
+            "sub": "iplanet-am-user-alias-list"
+          },
+          "cfgAccountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "cfgAttributeMappingClasses": [
+            "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|iplanet-am-user-alias-list|google-"
+          ],
+          "cfgAttributeMappingConfiguration": {
+            "email": "mail",
+            "family_name": "sn",
+            "given_name": "givenName",
+            "name": "cn",
+            "sub": "iplanet-am-user-alias-list"
+          },
+          "cfgMixUpMitigation": false,
+          "clientId": "aClientId",
+          "clientSecret": null,
+          "provider": "google",
+          "redirectURI": "http://localhost:8080/am",
+          "saveUserAttributesToSession": true,
+          "scopeString": "profile email",
+          "tokenEndpoint": "https://www.googleapis.com/oauth2/v4/token",
+          "userInfoEndpoint": "https://www.googleapis.com/oauth2/v3/userinfo"
+        },
+        "34173cb3-8f07-389d-9beb-c2ac9128303f": {
+          "_id": "34173cb3-8f07-389d-9beb-c2ac9128303f",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "OneTimePasswordSmtpSenderNode",
+            "collection": true,
+            "name": "OTP Email Sender"
+          },
+          "emailAttribute": "mail",
+          "emailContent": {
+            "en": "Here is your One Time Password: '{{OTP}}'.</p><p>If you did not request this, please contact support."
+          },
+          "emailSubject": {
+            "en": "Your One Time Password"
+          },
+          "fromEmailAddress": "admin@example.com",
+          "hostName": "mail.example.com",
+          "hostPort": 25,
+          "password": null,
+          "smsGatewayImplementationClass": "com.sun.identity.authentication.modules.hotp.DefaultSMSGatewayImpl",
+          "sslOption": "SSL",
+          "username": "admin@example.com"
+        },
+        "6364d3f0-f495-36ab-9dcf-8d3b5c6e0b01": {
+          "_id": "6364d3f0-f495-36ab-9dcf-8d3b5c6e0b01",
+          "_outcomes": [
+            {
+              "displayName": "Retry",
+              "id": "Retry"
+            },
+            {
+              "displayName": "Reject",
+              "id": "Reject"
+            }
+          ],
+          "_type": {
+            "_id": "RetryLimitDecisionNode",
+            "collection": true,
+            "name": "Retry Limit Decision"
+          },
+          "incrementUserAttributeOnFailure": true,
+          "retryLimit": 3
+        },
+        "6ea9ab1b-aa0e-3b9e-9909-4440c317e21b": {
+          "_id": "6ea9ab1b-aa0e-3b9e-9909-4440c317e21b",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "OneTimePasswordGeneratorNode",
+            "collection": true,
+            "name": "HOTP Generator"
+          },
+          "length": 8
+        },
+        "c16a5320-fa47-3530-9958-3c34fd356ef5": {
+          "_id": "c16a5320-fa47-3530-9958-3c34fd356ef5",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "OneTimePasswordCollectorDecisionNode",
+            "collection": true,
+            "name": "OTP Collector Decision"
+          },
+          "passwordExpiryTime": 5
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Google-DynamicAccountCreation",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "33e75ff0-9dd6-31bb-a69f-351039152189",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "02e74f10-e032-3ad8-a8d1-38f2b4fdd6f0": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Provision Dynamic Account",
+            "nodeType": "ProvisionDynamicAccountNode",
+            "x": 0,
+            "y": 0
+          },
+          "182be0c5-cdcd-3072-bb18-64cdee4d3d6e": {
+            "connections": {
+              "outcome": "02e74f10-e032-3ad8-a8d1-38f2b4fdd6f0"
+            },
+            "displayName": "Create Password",
+            "nodeType": "CreatePasswordNode",
+            "x": 0,
+            "y": 0
+          },
+          "33e75ff0-9dd6-31bb-a69f-351039152189": {
+            "connections": {
+              "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "NO_ACCOUNT": "6ea9ab1b-aa0e-3b9e-9909-4440c317e21b"
+            },
+            "displayName": "Google Social Authentication",
+            "nodeType": "SocialGoogleNode",
+            "x": 0,
+            "y": 0
+          },
+          "34173cb3-8f07-389d-9beb-c2ac9128303f": {
+            "connections": {
+              "outcome": "c16a5320-fa47-3530-9958-3c34fd356ef5"
+            },
+            "displayName": "OTP Email Sender",
+            "nodeType": "OneTimePasswordSmtpSenderNode",
+            "x": 0,
+            "y": 0
+          },
+          "6364d3f0-f495-36ab-9dcf-8d3b5c6e0b01": {
+            "connections": {
+              "Reject": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Retry": "c16a5320-fa47-3530-9958-3c34fd356ef5"
+            },
+            "displayName": "Retry Limit Decision",
+            "nodeType": "RetryLimitDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "6ea9ab1b-aa0e-3b9e-9909-4440c317e21b": {
+            "connections": {
+              "outcome": "34173cb3-8f07-389d-9beb-c2ac9128303f"
+            },
+            "displayName": "HOTP Generator",
+            "nodeType": "OneTimePasswordGeneratorNode",
+            "x": 0,
+            "y": 0
+          },
+          "c16a5320-fa47-3530-9958-3c34fd356ef5": {
+            "connections": {
+              "false": "6364d3f0-f495-36ab-9dcf-8d3b5c6e0b01",
+              "true": "182be0c5-cdcd-3072-bb18-64cdee4d3d6e"
+            },
+            "displayName": "OTP Collector Decision",
+            "nodeType": "OneTimePasswordCollectorDecisionNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

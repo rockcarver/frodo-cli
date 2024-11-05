@@ -1,0 +1,15 @@
+{
+  "service": {
+    "CorsService": {
+      "_id": "",
+      "_type": {
+        "_id": "CorsService",
+        "collection": false,
+        "name": "CORS Service"
+      },
+      "enabled": true,
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}
