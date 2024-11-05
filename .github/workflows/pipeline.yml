@@ -48,7 +48,7 @@ jobs:
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
         with:
-          major-wording: 'NO MAJOR RELEASES IN THIS BRANCH! Capped at 1.x to avoid version collisions.'
+          major-wording: 'MAJOR RELEASE'
           minor-wording: 'MINOR RELEASE'
           patch-wording: 'PATCH RELEASE'
           rc-wording: ''
