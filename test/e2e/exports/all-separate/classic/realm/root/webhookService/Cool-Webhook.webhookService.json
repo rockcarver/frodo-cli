@@ -1,0 +1,18 @@
+{
+  "webhookService": {
+    "Cool Webhook": {
+      "_id": "Cool Webhook",
+      "_type": {
+        "_id": "webhooks",
+        "collection": true,
+        "name": "Webhook Service"
+      },
+      "body": "body",
+      "headers": {
+        "accept": "*/*",
+        "cool": "test"
+      },
+      "url": "test"
+    }
+  }
+}

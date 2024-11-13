@@ -1,0 +1,37 @@
+{
+  "authenticationModules": {
+    "ldap": {
+      "_id": "ldap",
+      "_type": {
+        "_id": "ldap",
+        "collection": true,
+        "name": "LDAP"
+      },
+      "authenticationLevel": 0,
+      "beheraPasswordPolicySupportEnabled": true,
+      "connectionHeartbeatInterval": 10,
+      "connectionHeartbeatTimeUnit": "SECONDS",
+      "minimumPasswordLength": "8",
+      "openam-auth-ldap-connection-mode": "LDAPS",
+      "operationTimeout": 0,
+      "primaryLdapServer": [
+        "localhost:50636"
+      ],
+      "profileAttributeMappings": [],
+      "returnUserDN": true,
+      "searchScope": "SUBTREE",
+      "secondaryLdapServer": [],
+      "stopLdapbindAfterInmemoryLockedEnabled": false,
+      "trustAllServerCertificates": false,
+      "userBindDN": "cn=Directory Manager",
+      "userBindPassword": null,
+      "userProfileRetrievalAttribute": "uid",
+      "userSearchAttributes": [
+        "uid"
+      ],
+      "userSearchStartDN": [
+        "dc=openam,dc=forgerock,dc=org"
+      ]
+    }
+  }
+}

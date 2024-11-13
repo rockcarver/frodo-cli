@@ -1,0 +1,33 @@
+{
+  "authenticationModules": {
+    "msisdn": {
+      "_id": "msisdn",
+      "_type": {
+        "_id": "msisdn",
+        "collection": false,
+        "name": "MSISDN"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "baseSearchDN": [
+          "dc=openam,dc=forgerock,dc=org"
+        ],
+        "ldapProviderUrl": [
+          "localhost:50636"
+        ],
+        "ldapSslEnabled": false,
+        "ldapUserBindDN": "cn=Directory Manager",
+        "msisdnParameterNames": [],
+        "msisdnRequestSearchLocations": [
+          "searchRequest",
+          "searchParam",
+          "searchCookie"
+        ],
+        "msisdnUserNamingAttribute": "uid",
+        "returnUserDN": true,
+        "trustedGatewayIPAddresses": [],
+        "userProfileMsisdnAttribute": "sunIdentityMSISDNNumber"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "authenticationModules": {
+    "httpbasic": {
+      "_id": "httpbasic",
+      "_type": {
+        "_id": "httpbasic",
+        "collection": false,
+        "name": "HTTP Basic"
+      },
+      "defaults": {
+        "authenticationLevel": 0
+      }
+    }
+  }
+}

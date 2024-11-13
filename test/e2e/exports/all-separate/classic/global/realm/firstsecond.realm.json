@@ -1,0 +1,14 @@
+{
+  "realm": {
+    "L2ZpcnN0L3NlY29uZA": {
+      "_id": "L2ZpcnN0L3NlY29uZA",
+      "active": false,
+      "aliases": [
+        "secondDNS",
+        "second"
+      ],
+      "name": "second",
+      "parentPath": "/first"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "exportDate": "2024-08-19T19:17:29.868Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.0.4-0 [v20.11.1]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  },
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/"
+    },
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "realm": {
+    "Lw": {
+      "_id": "Lw",
+      "active": true,
+      "aliases": [
+        "localhost",
+        "openam-frodo-dev.classic.com",
+        "openam",
+        "testurl.com"
+      ],
+      "name": "/",
+      "parentPath": ""
+    }
+  }
+}

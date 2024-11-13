@@ -1,0 +1,18 @@
+{
+  "authenticationModules": {
+    "membership": {
+      "_id": "membership",
+      "_type": {
+        "_id": "membership",
+        "collection": false,
+        "name": "Membership"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "defaultUserRoles": [],
+        "defaultUserStatus": "Active",
+        "minimumPasswordLength": 8
+      }
+    }
+  }
+}

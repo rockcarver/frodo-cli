@@ -4,7 +4,6 @@
       "_id": "sync",
       "mappings": [
         "file://managedBravo_user_managedBravo_user.sync.json",
-        "file://managedAlpha_application_managedBravo_application.sync.json",
         "file://managedAlpha_user_managedBravo_user.sync.json",
         "file://managedBravo_user_managedAlpha_user.sync.json",
         "file://AlphaUser2GoogleApps.sync.json"

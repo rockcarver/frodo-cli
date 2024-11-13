@@ -1,0 +1,16 @@
+{
+  "webhookService": {
+    "Test Webhook": {
+      "_id": "Test Webhook",
+      "_type": {
+        "_id": "webhooks",
+        "collection": true,
+        "name": "Webhook Service"
+      },
+      "body": "hello",
+      "headers": {
+        "accept": "*/*"
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@
       "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
-      "lastModifiedDate": 1728420028563,
+      "lastModifiedDate": 1728915479805,
       "name": "OAuth2 Scope",
       "patterns": [
         "*://*:*/*",

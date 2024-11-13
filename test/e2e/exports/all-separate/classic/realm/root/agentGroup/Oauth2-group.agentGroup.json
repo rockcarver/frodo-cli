@@ -1,0 +1,106 @@
+{
+  "agentGroup": {
+    "Oauth2 group": {
+      "_id": "Oauth2 group",
+      "_type": {
+        "_id": "OAuth2Client",
+        "collection": true,
+        "name": "OAuth2 Clients"
+      },
+      "advancedOAuth2ClientConfig": {
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "updateAccessToken": null
+      },
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "authorizationCodeLifetime": 0,
+        "clientName": [],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "status": "Active"
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    }
+  }
+}

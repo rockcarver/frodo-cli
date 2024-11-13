@@ -79,8 +79,7 @@
   ],
   "source": "managed/alpha_user",
   "syncAfter": [
-    "managedBravo_user_managedBravo_user",
-    "managedAlpha_application_managedBravo_application"
+    "managedBravo_user_managedBravo_user"
   ],
   "target": "managed/bravo_user"
 }

@@ -1,0 +1,19 @@
+{
+  "agentGroup": {
+    "Software publisher group": {
+      "_id": "Software publisher group",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher"
+      },
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256"
+    }
+  }
+}

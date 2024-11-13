@@ -31,7 +31,7 @@
       "editable": true,
       "entitlementCombiner": "DenyOverride",
       "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728420085511,
+      "lastModifiedDate": 1728509786744,
       "name": "iPlanetAMWebAgentService",
       "resourceComparator": null,
       "resourceTypeUuids": [

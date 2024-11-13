@@ -31,7 +31,7 @@
       "editable": true,
       "entitlementCombiner": "DenyOverride",
       "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728420085528,
+      "lastModifiedDate": 1728509786761,
       "name": "oauth2Scopes",
       "resourceComparator": null,
       "resourceTypeUuids": [

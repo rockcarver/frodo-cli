@@ -1,0 +1,179 @@
+{
+  "_id": "04/properties/uma",
+  "amconfig.org.forgerock.services.resourcesets.store.common.section": {
+    "org.forgerock.services.resourcesets.store.location": {
+      "inherited": true,
+      "value": "default"
+    },
+    "org.forgerock.services.resourcesets.store.max.connections": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.resourcesets.store.root.suffix": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.resourcesets.store.external.section": {
+    "org.forgerock.services.resourcesets.store.directory.name": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.resourcesets.store.heartbeat": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.resourcesets.store.loginid": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.resourcesets.store.mtls.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.resourcesets.store.password": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.resourcesets.store.ssl.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.resourcesets.store.starttls.enabled": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.uma.labels.store.common.section": {
+    "org.forgerock.services.uma.labels.store.location": {
+      "inherited": true,
+      "value": "default"
+    },
+    "org.forgerock.services.uma.labels.store.max.connections": {
+      "inherited": true,
+      "value": "2"
+    },
+    "org.forgerock.services.uma.labels.store.root.suffix": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.uma.labels.store.external.section": {
+    "org.forgerock.services.uma.labels.store.directory.name": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.labels.store.heartbeat": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.uma.labels.store.loginid": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.labels.store.mtls.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.labels.store.password": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.uma.labels.store.ssl.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.labels.store.starttls.enabled": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.uma.pendingrequests.store.common.section": {
+    "org.forgerock.services.uma.pendingrequests.store.location": {
+      "inherited": true,
+      "value": "default"
+    },
+    "org.forgerock.services.uma.pendingrequests.store.max.connections": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.uma.pendingrequests.store.root.suffix": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.uma.pendingrequests.store.external.section": {
+    "org.forgerock.services.uma.pendingrequests.store.directory.name": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.pendingrequests.store.heartbeat": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.uma.pendingrequests.store.loginid": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.pendingrequests.store.mtls.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.pendingrequests.store.password": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.uma.pendingrequests.store.ssl.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.uma.pendingrequests.store.starttls.enabled": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.umaaudit.store.common.section": {
+    "org.forgerock.services.umaaudit.store.location": {
+      "inherited": true,
+      "value": "default"
+    },
+    "org.forgerock.services.umaaudit.store.max.connections": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.umaaudit.store.root.suffix": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.org.forgerock.services.umaaudit.store.external.section": {
+    "org.forgerock.services.umaaudit.store.directory.name": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.umaaudit.store.heartbeat": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.umaaudit.store.loginid": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.umaaudit.store.mtls.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.umaaudit.store.password": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.umaaudit.store.ssl.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.umaaudit.store.starttls.enabled": {
+      "inherited": true,
+      "value": ""
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "authenticationModules": {
+    "jdbc": {
+      "_id": "jdbc",
+      "_type": {
+        "_id": "jdbc",
+        "collection": false,
+        "name": "JDBC"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "connectionPoolJndiName": "java:comp/env/jdbc/samplePool",
+        "connectionType": "JNDI",
+        "jdbcDriver": "com.mysql.jdbc.Driver",
+        "jdbcUrl": "jdbc:mysql://127.0.0.1:3306/test",
+        "password": null,
+        "passwordColumn": "PASSWORD_COLUMN",
+        "passwordStatement": "select PASSWORD_COLUMN from TABLE where USERNAME_COLUMN = ?",
+        "passwordTransformClass": "com.sun.identity.authentication.modules.jdbc.ClearTextTransform",
+        "username": "root"
+      }
+    }
+  }
+}

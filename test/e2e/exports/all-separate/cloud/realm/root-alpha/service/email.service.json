@@ -30,7 +30,8 @@
       ],
       "port": 465,
       "sslState": "SSL",
-      "subject": "Test Subject"
+      "subject": "Test Subject",
+      "transportType": "default-smtp"
     }
   }
 }

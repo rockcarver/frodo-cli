@@ -462,6 +462,7 @@
       },
       "coreOAuth2ClientConfig": {
         "accessTokenLifetime": 0,
+        "agentgroup": null,
         "authorizationCodeLifetime": 0,
         "clientName": [
           "testapp"
@@ -493,16 +494,19 @@
         "accessTokenMayActScript": "[Empty]",
         "accessTokenModificationPluginType": "PROVIDER",
         "accessTokenModificationScript": "[Empty]",
+        "accessTokenModifierClass": null,
         "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
         "authorizeEndpointDataProviderPluginType": "PROVIDER",
         "authorizeEndpointDataProviderScript": "[Empty]",
         "clientsCanSkipConsent": false,
+        "customLoginUrlTemplate": null,
         "enableRemoteConsent": false,
         "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
         "evaluateScopePluginType": "PROVIDER",
         "evaluateScopeScript": "[Empty]",
         "issueRefreshToken": true,
         "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsClass": null,
         "oidcClaimsPluginType": "PROVIDER",
         "oidcClaimsScript": "[Empty]",
         "oidcMayActScript": "[Empty]",

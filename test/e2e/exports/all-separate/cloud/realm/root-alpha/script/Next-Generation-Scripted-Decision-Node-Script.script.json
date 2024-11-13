@@ -1,0 +1,18 @@
+{
+  "script": {
+    "11e1a3c0-038b-4c16-956a-6c9d89328cff": {
+      "_id": "11e1a3c0-038b-4c16-956a-6c9d89328cff",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for a scripted decision node",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Next Generation Scripted Decision Node Script",
+      "script": "file://Next-Generation-Scripted-Decision-Node-Script.script.js"
+    }
+  }
+}

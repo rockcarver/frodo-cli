@@ -1,0 +1,59 @@
+{
+  "_id": "null/properties/uma",
+  "amconfig.org.forgerock.services.resourcesets.store.common.section": {
+    "org.forgerock.services.resourcesets.store.location": "default",
+    "org.forgerock.services.resourcesets.store.max.connections": "10",
+    "org.forgerock.services.resourcesets.store.root.suffix": ""
+  },
+  "amconfig.org.forgerock.services.resourcesets.store.external.section": {
+    "org.forgerock.services.resourcesets.store.directory.name": "",
+    "org.forgerock.services.resourcesets.store.heartbeat": "10",
+    "org.forgerock.services.resourcesets.store.loginid": "",
+    "org.forgerock.services.resourcesets.store.mtls.enabled": "",
+    "org.forgerock.services.resourcesets.store.password": null,
+    "org.forgerock.services.resourcesets.store.ssl.enabled": "",
+    "org.forgerock.services.resourcesets.store.starttls.enabled": ""
+  },
+  "amconfig.org.forgerock.services.uma.labels.store.common.section": {
+    "org.forgerock.services.uma.labels.store.location": "default",
+    "org.forgerock.services.uma.labels.store.max.connections": "2",
+    "org.forgerock.services.uma.labels.store.root.suffix": ""
+  },
+  "amconfig.org.forgerock.services.uma.labels.store.external.section": {
+    "org.forgerock.services.uma.labels.store.directory.name": "",
+    "org.forgerock.services.uma.labels.store.heartbeat": "10",
+    "org.forgerock.services.uma.labels.store.loginid": "",
+    "org.forgerock.services.uma.labels.store.mtls.enabled": "",
+    "org.forgerock.services.uma.labels.store.password": null,
+    "org.forgerock.services.uma.labels.store.ssl.enabled": "",
+    "org.forgerock.services.uma.labels.store.starttls.enabled": ""
+  },
+  "amconfig.org.forgerock.services.uma.pendingrequests.store.common.section": {
+    "org.forgerock.services.uma.pendingrequests.store.location": "default",
+    "org.forgerock.services.uma.pendingrequests.store.max.connections": "10",
+    "org.forgerock.services.uma.pendingrequests.store.root.suffix": ""
+  },
+  "amconfig.org.forgerock.services.uma.pendingrequests.store.external.section": {
+    "org.forgerock.services.uma.pendingrequests.store.directory.name": "",
+    "org.forgerock.services.uma.pendingrequests.store.heartbeat": "10",
+    "org.forgerock.services.uma.pendingrequests.store.loginid": "",
+    "org.forgerock.services.uma.pendingrequests.store.mtls.enabled": "",
+    "org.forgerock.services.uma.pendingrequests.store.password": null,
+    "org.forgerock.services.uma.pendingrequests.store.ssl.enabled": "",
+    "org.forgerock.services.uma.pendingrequests.store.starttls.enabled": ""
+  },
+  "amconfig.org.forgerock.services.umaaudit.store.common.section": {
+    "org.forgerock.services.umaaudit.store.location": "default",
+    "org.forgerock.services.umaaudit.store.max.connections": "10",
+    "org.forgerock.services.umaaudit.store.root.suffix": ""
+  },
+  "amconfig.org.forgerock.services.umaaudit.store.external.section": {
+    "org.forgerock.services.umaaudit.store.directory.name": "",
+    "org.forgerock.services.umaaudit.store.heartbeat": "10",
+    "org.forgerock.services.umaaudit.store.loginid": "",
+    "org.forgerock.services.umaaudit.store.mtls.enabled": "",
+    "org.forgerock.services.umaaudit.store.password": null,
+    "org.forgerock.services.umaaudit.store.ssl.enabled": "",
+    "org.forgerock.services.umaaudit.store.starttls.enabled": ""
+  }
+}

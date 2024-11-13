@@ -32,7 +32,7 @@
       "editable": true,
       "entitlementCombiner": "DenyOverride",
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
-      "lastModifiedDate": 1728420033305,
+      "lastModifiedDate": 1728915486893,
       "name": "test-policy-set",
       "resourceComparator": null,
       "resourceTypeUuids": [

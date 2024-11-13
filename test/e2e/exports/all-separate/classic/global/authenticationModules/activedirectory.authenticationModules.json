@@ -1,0 +1,36 @@
+{
+  "authenticationModules": {
+    "activedirectory": {
+      "_id": "activedirectory",
+      "_type": {
+        "_id": "activedirectory",
+        "collection": false,
+        "name": "Active Directory"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "connectionHeartbeatInterval": 1,
+        "connectionHeartbeatTimeUnit": "MINUTES",
+        "openam-auth-ldap-connection-mode": "LDAP",
+        "operationTimeout": 0,
+        "primaryLdapServer": [
+          "localhost:50636"
+        ],
+        "profileAttributeMappings": [],
+        "returnUserDN": true,
+        "searchScope": "SUBTREE",
+        "secondaryLdapServer": [],
+        "stopLdapbindAfterInmemoryLockedEnabled": false,
+        "trustAllServerCertificates": false,
+        "userBindDN": "cn=Directory Manager",
+        "userProfileRetrievalAttribute": "uid",
+        "userSearchAttributes": [
+          "uid"
+        ],
+        "userSearchStartDN": [
+          "dc=openam,dc=forgerock,dc=org"
+        ]
+      }
+    }
+  }
+}

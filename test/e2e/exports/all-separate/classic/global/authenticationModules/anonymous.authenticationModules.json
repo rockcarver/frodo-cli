@@ -1,0 +1,18 @@
+{
+  "authenticationModules": {
+    "anonymous": {
+      "_id": "anonymous",
+      "_type": {
+        "_id": "anonymous",
+        "collection": false,
+        "name": "Anonymous"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "caseSensitiveUsernameMatchingEnabled": false,
+        "defaultAnonymousUsername": "anonymous",
+        "validAnonymousUsers": []
+      }
+    }
+  }
+}

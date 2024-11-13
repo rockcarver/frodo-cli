@@ -111,9 +111,9 @@ Options:
   --verbose                            Verbose output during command execution.
                                        If specified, may or may not produce
                                        additional output.
-  -x, --extract                        Extract scripts from the exported file,
-                                       and save it to a separate file. Ignored
-                                       with -a.
+  -x, --extract                        Extract scripts and server properties
+                                       from the exported file, and save it to a
+                                       separate file. Ignored with -a.
 
 Environment Variables:
   FRODO_HOST: AM base URL. Overridden by 'host' argument.

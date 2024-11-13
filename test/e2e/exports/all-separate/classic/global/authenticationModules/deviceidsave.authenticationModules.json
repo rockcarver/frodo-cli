@@ -1,0 +1,17 @@
+{
+  "authenticationModules": {
+    "deviceidsave": {
+      "_id": "deviceidsave",
+      "_type": {
+        "_id": "deviceidsave",
+        "collection": false,
+        "name": "Device Id (Save)"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "autoStoreProfiles": false,
+        "maxProfilesAllowed": 5
+      }
+    }
+  }
+}

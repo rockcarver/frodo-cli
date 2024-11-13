@@ -14,7 +14,7 @@
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAM Policies.",
       "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728420087388,
+      "lastModifiedDate": 1728509788692,
       "name": "URL",
       "patterns": [
         "*://*:*/*",

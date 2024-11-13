@@ -77,9 +77,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --file test/e2e/exports/all/all.classic.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -AdD test/e2e/exports/all-separate/classic -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --directory test/e2e/exports/all-separate/classic --type classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -gf test/e2e/exports/all-separate/cloud/global/server/01.server.json -m classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/cloud/global/server/default/general.default.properties.server.json --type classic
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/cloud/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -187,6 +187,18 @@ describe('frodo config import', () => {
     }
   });
 
+  test(`"frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json" Import sync.idm.json along with extracted mappings and no errors`, async () => {
+    const CMD = `frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test(`"frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors`, async () => {
+    const CMD = `frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
   test(`"frodo config import -adf ${allClassicExport} -m classic" Import everything from "${allClassicFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allClassicExport} -m classic`;
     try {
@@ -221,6 +233,30 @@ describe('frodo config import', () => {
   // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
   test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --directory ${allSeparateClassicDirectory} --type classic" Import everything from directory "${allSeparateClassicDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
     const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --directory ${allSeparateClassicDirectory} --type classic`;
+    const { stdout } = await exec(CMD, classicEnv);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test(`"frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic" Import server 01 along with extracted properties and no errors`, async () => {
+    const CMD = `frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic`;
+    const { stdout } = await exec(CMD, classicEnv);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test(`"frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic" Fail to import authentication module due to it being read only.`, async () => {
+    const CMD = `frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic`;
+    try {
+      await exec(CMD, classicEnv);
+      fail("Command should've failed")
+    } catch (e) {
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch.
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    }
+  });
+
+  test(`"frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors`, async () => {
+    const CMD = `frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic`;
     const { stdout } = await exec(CMD, classicEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });

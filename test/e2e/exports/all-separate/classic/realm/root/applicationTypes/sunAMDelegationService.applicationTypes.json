@@ -1,0 +1,17 @@
+{
+  "applicationTypes": {
+    "sunAMDelegationService": {
+      "_id": "sunAMDelegationService",
+      "actions": {
+        "DELEGATE": true,
+        "MODIFY": true,
+        "READ": true
+      },
+      "applicationClassName": "com.sun.identity.entitlement.Application",
+      "name": "sunAMDelegationService",
+      "resourceComparator": "com.sun.identity.entitlement.RegExResourceName",
+      "saveIndex": "com.sun.identity.entitlement.opensso.DelegationResourceNameIndexGenerator",
+      "searchIndex": "com.sun.identity.entitlement.opensso.DelegationResourceNameSplitter"
+    }
+  }
+}

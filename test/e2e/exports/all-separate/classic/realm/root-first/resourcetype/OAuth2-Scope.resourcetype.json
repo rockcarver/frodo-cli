@@ -8,7 +8,7 @@
       "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
       "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728420087405,
+      "lastModifiedDate": 1728509788670,
       "name": "OAuth2 Scope",
       "patterns": [
         "*://*:*/*",
