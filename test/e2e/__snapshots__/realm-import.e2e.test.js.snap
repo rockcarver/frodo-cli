@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo realm import "frodo realm import --all --file test/e2e/exports/all/allRealms.realm.json --type classic": should import all realms from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import --all-separate --directory test/e2e/exports/all-separate/classic/global/realm --type classic": should import all realms from the test/e2e/exports/all-separate/classic/global/realm directory" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import --realm-id L2JyYXZv --file test/e2e/exports/all/allRealms.realm.json --type classic": should import the realm with the id "L2JyYXZv" from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import --realm-name bravo --file test/e2e/exports/all/allRealms.realm.json --type classic": should import the realm with the name "bravo" from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import -AD test/e2e/exports/all-separate/classic/global/realm -m classic": should import all realms from the test/e2e/exports/all-separate/classic/global/realm directory" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import -af test/e2e/exports/all/allRealms.realm.json -m classic": should import all realms from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import -f test/e2e/exports/all/allRealms.realm.json -m classic": should import the first realm from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import -i L2JyYXZv -f test/e2e/exports/all/allRealms.realm.json -m classic": should import the realm with the id "L2JyYXZv" from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
+
+exports[`frodo realm import "frodo realm import -n bravo -f test/e2e/exports/all/allRealms.realm.json -m classic": should import the realm with the name "bravo" from the file "test/e2e/exports/all/allRealms.realm.json" 1`] = `""`;
