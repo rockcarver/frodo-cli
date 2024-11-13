@@ -33,6 +33,7 @@ Options:
                                        troubleshooting.
   -f, --file <file>                    Name of the file to import.
   --flush-cache                        Flush token cache.
+  -g, --global                         Import global agents.
   -h, --help                           Help
   -i, --agent-id <agent-id>            Agent id. If specified, only one agent
                                        is imported and the options -a and -A

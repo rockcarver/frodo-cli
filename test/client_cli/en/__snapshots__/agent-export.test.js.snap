@@ -33,6 +33,7 @@ Options:
                                        troubleshooting.
   -f, --file <file>                    Name of the export file.
   --flush-cache                        Flush token cache.
+  -g, --global                         Export global agents.
   -h, --help                           Help
   -i, --agent-id <agent-id>            Agent id. If specified, -a and -A are
                                        ignored.

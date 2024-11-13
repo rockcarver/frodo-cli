@@ -1524,6 +1524,56 @@ exports[`frodo agent export "frodo agent export --all": should export all agents
       "secretLabelIdentifier": null,
       "status": "Active",
     },
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents",
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active",
+    },
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service",
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+    },
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher",
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256",
+    },
   },
   "meta": Any<Object>,
 }
@@ -2425,6 +2475,77 @@ exports[`frodo agent export "frodo agent export --all-separate --no-metadata --d
       "igTokenIntrospection": "Realm_Subs",
       "secretLabelIdentifier": null,
       "status": "Active",
+    },
+  },
+}
+`;
+
+exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/my-policy-agent.policy.agent.json 1`] = `
+{
+  "agent": {
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents",
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active",
+    },
+  },
+}
+`;
+
+exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/test.remote.agent.json 1`] = `
+{
+  "agent": {
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service",
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+    },
+  },
+}
+`;
+
+exports[`frodo agent export "frodo agent export --all-separate --no-metadata --directory agentExportTestDir3": should export all agents to separate files in the directory agentExportTestDir3: agentExportTestDir3/test-software-publisher.publisher.agent.json 1`] = `
+{
+  "agent": {
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher",
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256",
     },
   },
 }
@@ -3339,6 +3460,98 @@ exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should
 }
 `;
 
+exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/my-policy-agent.policy.agent.json 1`] = `
+{
+  "agent": {
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents",
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/test.remote.agent.json 1`] = `
+{
+  "agent": {
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service",
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent export "frodo agent export -AD agentExportTestDir4": should export all agents to separate files in the directory agentExportTestDir4: agentExportTestDir4/test-software-publisher.publisher.agent.json 1`] = `
+{
+  "agent": {
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher",
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent export "frodo agent export -AD agentExportTestDir6 --global --type classic": should export all global agents to separate files in the directory agentExportTestDir6 1`] = `""`;
+
+exports[`frodo agent export "frodo agent export -AD agentExportTestDir6 --global --type classic": should export all global agents to separate files in the directory agentExportTestDir6: agentExportTestDir6/AgentService.agent.json 1`] = `
+{
+  "agent": {
+    "AgentService": {
+      "_id": "AgentService",
+      "_type": {
+        "_id": "AgentService",
+        "collection": false,
+        "name": "AgentService",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": should export all agents to a single file in the directory agentExportTestDir2 1`] = `""`;
 
 exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": should export all agents to a single file in the directory agentExportTestDir2: agentExportTestDir2/allAlphaAgents.agent.json 1`] = `
@@ -4186,6 +4399,56 @@ exports[`frodo agent export "frodo agent export -NaD agentExportTestDir2": shoul
       "igTokenIntrospection": "Realm_Subs",
       "secretLabelIdentifier": null,
       "status": "Active",
+    },
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents",
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active",
+    },
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service",
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+    },
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher",
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256",
     },
   },
 }
@@ -5527,6 +5790,92 @@ exports[`frodo agent export "frodo agent export -a --file my-allAlphaAgents.agen
       "igTokenIntrospection": "Realm_Subs",
       "secretLabelIdentifier": null,
       "status": "Active",
+    },
+    "my-policy-agent": {
+      "_id": "my-policy-agent",
+      "_type": {
+        "_id": "2.2_Agent",
+        "collection": true,
+        "name": "Policy Agents",
+      },
+      "cdssoRootUrl": [],
+      "description": null,
+      "status": "Active",
+    },
+    "test": {
+      "_id": "test",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service",
+      },
+      "agentgroup": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180,
+    },
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher",
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent export "frodo agent export -aD agentExportTestDir5 -gm classic": should export all global agents to a single file in the directory agentExportTestDir5 1`] = `""`;
+
+exports[`frodo agent export "frodo agent export -aD agentExportTestDir5 -gm classic": should export all global agents to a single file in the directory agentExportTestDir5: agentExportTestDir5/allGlobalAgents.agent.json 1`] = `
+{
+  "agent": {
+    "AgentService": {
+      "_id": "AgentService",
+      "_type": {
+        "_id": "AgentService",
+        "collection": false,
+        "name": "AgentService",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo agent export "frodo agent export -i AgentService -gm classic": should export the global agent with agent id "AgentService" 1`] = `""`;
+
+exports[`frodo agent export "frodo agent export -i AgentService -gm classic": should export the global agent with agent id "AgentService": AgentService.agent.json 1`] = `
+{
+  "agent": {
+    "AgentService": {
+      "_id": "",
+      "_type": {
+        "_id": "AgentService",
+        "collection": false,
+        "name": "AgentService",
+      },
     },
   },
   "meta": Any<Object>,
