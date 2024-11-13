@@ -216,16 +216,20 @@ export async function importConfigEntityByIdFromFile(
     if (!file) {
       file = getTypedFilename(entityId, 'idm');
     }
+    const filePath = getFilePath(file);
 
     const fileData = fs.readFileSync(
-      path.resolve(process.cwd(), getFilePath(file)),
+      path.resolve(process.cwd(), filePath),
       'utf8'
     );
 
     let importData;
     if (entityId === 'sync') {
       const syncData = getLegacyMappingsFromFiles([
-        { content: fileData, path: '/sync.idm.json' },
+        {
+          content: fileData,
+          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.idm.json`,
+        },
       ]);
       importData = { idm: { sync: syncData } };
     } else {
@@ -282,7 +286,10 @@ export async function importFirstConfigEntityFromFile(
 
     if (entityId === 'sync') {
       importData.idm.sync = getLegacyMappingsFromFiles([
-        { content: fileData, path: '/sync.idm.json' },
+        {
+          content: fileData,
+          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.idm.json`,
+        },
       ]);
     }
 
