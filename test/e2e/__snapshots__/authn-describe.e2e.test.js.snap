@@ -1,5 +1,104 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo authn describe "frodo authn describe --global --json --type classic": should describe global authentication settings in json format 1`] = `
+"{
+  keepPostProcessInstances: false,
+  ldapConnectionPoolSize: [],
+  ldapConnectionPoolDefaultSize: '1:10',
+  remoteAuthSecurityEnabled: false,
+  authenticators: [
+    'com.sun.identity.authentication.modules.ad.AD',
+    'org.forgerock.openam.authentication.modules.saml2.SAML2',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthInstagram',
+    'org.forgerock.openam.authentication.modules.oath.OATH',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthVK',
+    'com.sun.identity.authentication.modules.membership.Membership',
+    'com.sun.identity.authentication.modules.windowsdesktopsso.WindowsDesktopSSO',
+    'org.forgerock.openam.authentication.modules.deviceprint.DeviceIdSave',
+    'com.sun.identity.authentication.modules.federation.Federation',
+    'org.forgerock.openam.authentication.modules.deviceprint.DeviceIdMatch',
+    'com.sun.identity.authentication.modules.jdbc.JDBC',
+    'com.sun.identity.authentication.modules.radius.RADIUS',
+    'com.sun.identity.authentication.modules.anonymous.Anonymous',
+    'com.sun.identity.authentication.modules.cert.Cert',
+    'org.forgerock.openam.authentication.modules.push.registration.AuthenticatorPushRegistration',
+    'com.sun.identity.authentication.modules.httpbasic.HTTPBasic',
+    'org.forgerock.openam.authentication.modules.oidc.OpenIdConnect',
+    'com.sun.identity.authentication.modules.sae.SAE',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthWeChat',
+    'org.forgerock.openam.authentication.modules.persistentcookie.PersistentCookie',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthTwitter',
+    'com.sun.identity.authentication.modules.ldap.LDAP',
+    'org.forgerock.openam.authentication.modules.push.AuthenticatorPush',
+    'org.forgerock.openam.authentication.modules.oauth2.OAuth',
+    'com.sun.identity.authentication.modules.nt.NT',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthWeChatMobile',
+    'org.forgerock.openam.authentication.modules.jwtpop.JwtProofOfPossession',
+    'com.sun.identity.authentication.modules.application.Application',
+    'org.forgerock.openam.authentication.modules.scripted.Scripted',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthOAuth2',
+    'com.sun.identity.authentication.modules.hotp.HOTP',
+    'org.forgerock.openam.authentication.modules.adaptive.Adaptive',
+    'org.forgerock.openam.authentication.modules.accountactivecheck.AccountActiveCheck',
+    'org.forgerock.openam.authentication.modules.social.SocialAuthOpenID',
+    'com.sun.identity.authentication.modules.msisdn.MSISDN',
+    'org.forgerock.openam.authentication.modules.fr.oath.AuthenticatorOATH',
+    'com.sun.identity.authentication.modules.datastore.DataStore',
+    'com.sun.identity.authentication.modules.securid.SecurID',
+    'org.forgerock.openam.authentication.modules.amster.Amster'
+  ],
+  defaults: {
+    postauthprocess: {
+      usernameGeneratorClass: 'com.sun.identity.authentication.spi.DefaultUserIDGenerator',
+      usernameGeneratorEnabled: true,
+      loginPostProcessClass: [],
+      loginSuccessUrl: [ '/am/console' ],
+      userAttributeSessionMapping: [],
+      loginFailureUrl: []
+    },
+    security: {
+      zeroPageLoginEnabled: false,
+      zeroPageLoginReferrerWhiteList: [],
+      zeroPageLoginAllowedWithoutReferrer: true,
+      moduleBasedAuthEnabled: true,
+      sharedSecret: null,
+      addClearSiteDataHeader: true
+    },
+    trees: {
+      suspendedAuthenticationTimeout: 5,
+      authenticationSessionsStateManagement: 'JWT',
+      authenticationSessionsMaxDuration: 5,
+      authenticationTreeCookieHttpOnly: true,
+      authenticationSessionsWhitelist: false
+    },
+    accountlockout: {
+      loginFailureLockoutMode: false,
+      storeInvalidAttemptsInDataStore: true,
+      lockoutDuration: 0,
+      lockoutDurationMultiplier: 1,
+      lockoutWarnUserCount: 0,
+      loginFailureCount: 5,
+      loginFailureDuration: 300
+    },
+    general: {
+      userStatusCallbackPlugins: [],
+      statelessSessionsEnabled: false,
+      locale: 'en_US',
+      twoFactorRequired: false,
+      identityType: [ 'agent', 'user' ],
+      defaultAuthLevel: 0
+    },
+    core: { adminAuthModule: '[Empty]', orgConfig: '[Empty]' },
+    userprofile: {
+      dynamicProfileCreation: 'false',
+      defaultRole: [],
+      aliasAttributeName: []
+    }
+  }
+}
+"
+`;
+
 exports[`frodo authn describe "frodo authn describe --json": should describe authentication settings in json format 1`] = `
 "{
   postauthprocess: {
@@ -51,6 +150,101 @@ exports[`frodo authn describe "frodo authn describe --json": should describe aut
     aliasAttributeName: [ 'uid' ]
   }
 }
+"
+`;
+
+exports[`frodo authn describe "frodo authn describe -gm classic": should describe global authentication settings 1`] = `
+"keepPostProcessInstances             │false                                                                                      
+ldapConnectionPoolDefaultSize        │1:10                                                                                       
+remoteAuthSecurityEnabled            │false                                                                                      
+                                     │                                                                                           
+  authenticators                     │                                                                                           
+                                    0│com.sun.identity.authentication.modules.ad.AD                                              
+                                    1│org.forgerock.openam.authentication.modules.saml2.SAML2                                    
+                                    2│org.forgerock.openam.authentication.modules.social.SocialAuthInstagram                     
+                                    3│org.forgerock.openam.authentication.modules.oath.OATH                                      
+                                    4│org.forgerock.openam.authentication.modules.social.SocialAuthVK                            
+                                    5│com.sun.identity.authentication.modules.membership.Membership                              
+                                    6│com.sun.identity.authentication.modules.windowsdesktopsso.WindowsDesktopSSO                
+                                    7│org.forgerock.openam.authentication.modules.deviceprint.DeviceIdSave                       
+                                    8│com.sun.identity.authentication.modules.federation.Federation                              
+                                    9│org.forgerock.openam.authentication.modules.deviceprint.DeviceIdMatch                      
+                                   10│com.sun.identity.authentication.modules.jdbc.JDBC                                          
+                                   11│com.sun.identity.authentication.modules.radius.RADIUS                                      
+                                   12│com.sun.identity.authentication.modules.anonymous.Anonymous                                
+                                   13│com.sun.identity.authentication.modules.cert.Cert                                          
+                                   14│org.forgerock.openam.authentication.modules.push.registration.AuthenticatorPushRegistration
+                                   15│com.sun.identity.authentication.modules.httpbasic.HTTPBasic                                
+                                   16│org.forgerock.openam.authentication.modules.oidc.OpenIdConnect                             
+                                   17│com.sun.identity.authentication.modules.sae.SAE                                            
+                                   18│org.forgerock.openam.authentication.modules.social.SocialAuthWeChat                        
+                                   19│org.forgerock.openam.authentication.modules.persistentcookie.PersistentCookie              
+                                   20│org.forgerock.openam.authentication.modules.social.SocialAuthTwitter                       
+                                   21│com.sun.identity.authentication.modules.ldap.LDAP                                          
+                                   22│org.forgerock.openam.authentication.modules.push.AuthenticatorPush                         
+                                   23│org.forgerock.openam.authentication.modules.oauth2.OAuth                                   
+                                   24│com.sun.identity.authentication.modules.nt.NT                                              
+                                   25│org.forgerock.openam.authentication.modules.social.SocialAuthWeChatMobile                  
+                                   26│org.forgerock.openam.authentication.modules.jwtpop.JwtProofOfPossession                    
+                                   27│com.sun.identity.authentication.modules.application.Application                            
+                                   28│org.forgerock.openam.authentication.modules.scripted.Scripted                              
+                                   29│org.forgerock.openam.authentication.modules.social.SocialAuthOAuth2                        
+                                   30│com.sun.identity.authentication.modules.hotp.HOTP                                          
+                                   31│org.forgerock.openam.authentication.modules.adaptive.Adaptive                              
+                                   32│org.forgerock.openam.authentication.modules.accountactivecheck.AccountActiveCheck          
+                                   33│org.forgerock.openam.authentication.modules.social.SocialAuthOpenID                        
+                                   34│com.sun.identity.authentication.modules.msisdn.MSISDN                                      
+                                   35│org.forgerock.openam.authentication.modules.fr.oath.AuthenticatorOATH                      
+                                   36│com.sun.identity.authentication.modules.datastore.DataStore                                
+                                   37│com.sun.identity.authentication.modules.securid.SecurID                                    
+                                   38│org.forgerock.openam.authentication.modules.amster.Amster                                  
+                                     │                                                                                           
+  defaults                           │                                                                                           
+                                     │                                                                                           
+    postauthprocess                  │                                                                                           
+               usernameGeneratorClass│com.sun.identity.authentication.spi.DefaultUserIDGenerator                                 
+             usernameGeneratorEnabled│true                                                                                       
+      loginSuccessUrl                │                                                                                           
+                                    0│/am/console                                                                                
+                                     │                                                                                           
+    security                         │                                                                                           
+                 zeroPageLoginEnabled│false                                                                                      
+  zeroPageLoginAllowedWithoutReferrer│true                                                                                       
+               moduleBasedAuthEnabled│true                                                                                       
+                         sharedSecret│                                                                                           
+               addClearSiteDataHeader│true                                                                                       
+                                     │                                                                                           
+    trees                            │                                                                                           
+       suspendedAuthenticationTimeout│5                                                                                          
+authenticationSessionsStateManagement│JWT                                                                                        
+    authenticationSessionsMaxDuration│5                                                                                          
+     authenticationTreeCookieHttpOnly│true                                                                                       
+      authenticationSessionsWhitelist│false                                                                                      
+                                     │                                                                                           
+    accountlockout                   │                                                                                           
+              loginFailureLockoutMode│false                                                                                      
+      storeInvalidAttemptsInDataStore│true                                                                                       
+                      lockoutDuration│0                                                                                          
+            lockoutDurationMultiplier│1                                                                                          
+                 lockoutWarnUserCount│0                                                                                          
+                    loginFailureCount│5                                                                                          
+                 loginFailureDuration│300                                                                                        
+                                     │                                                                                           
+    general                          │                                                                                           
+             statelessSessionsEnabled│false                                                                                      
+                               locale│en_US                                                                                      
+                    twoFactorRequired│false                                                                                      
+                     defaultAuthLevel│0                                                                                          
+      identityType                   │                                                                                           
+                                    0│agent                                                                                      
+                                    1│user                                                                                       
+                                     │                                                                                           
+    core                             │                                                                                           
+                      adminAuthModule│[Empty]                                                                                    
+                            orgConfig│[Empty]                                                                                    
+                                     │                                                                                           
+    userprofile                      │                                                                                           
+               dynamicProfileCreation│false                                                                                      
 "
 `;
 
