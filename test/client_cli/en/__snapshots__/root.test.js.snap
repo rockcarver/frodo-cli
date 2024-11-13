@@ -25,6 +25,7 @@ Commands:
   mapping                                               Manage IDM mappings.
   oauth                                                 Manage OAuth2 clients and providers.
   realm                                                 Manage realms.
+  role                                                  Manage internal (authorization) roles.
   saml                                                  Manage SAML entity providers and circles of trust.
   script                                                Manage scripts.
   service                                               Manage AM services.
