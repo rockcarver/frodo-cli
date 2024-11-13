@@ -11,12 +11,12 @@ import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps
 import fs from 'fs';
 
 import {
-  extractDataToFile,
   getConfig,
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
 import { cleanupProgressIndicators, printError } from '../utils/Console';
+import { saveServersToFiles } from './classic/ServerOps';
 import { writeSyncJsonToDirectory } from './MappingOps';
 import { extractScriptsToFiles } from './ScriptOps';
 
@@ -235,45 +235,12 @@ function exportItem(
       includeMeta
     );
   } else if (type === 'server') {
-    Object.entries(obj.server).forEach(([serverId, server]: [string, any]) => {
-      if (extract) {
-        // Save server properties separately in their own directories
-        for (const [name, props] of Object.entries(server.properties)) {
-          const relativeDirectory = baseDirectory.substring(
-            state.getDirectory().length +
-              (state.getDirectory().endsWith('/') ? 0 : 1)
-          );
-          server.properties[name] = extractDataToFile(
-            props,
-            `${serverId}/${getTypedFilename(name, 'properties.server')}`,
-            `${relativeDirectory}/${fileType}`
-          );
-        }
-      }
-      // Save server export data
-      const fileName = getTypedFilename(serverId, fileType);
-      saveJsonToFile(
-        {
-          [type]: {
-            [serverId]: server,
-          },
-        },
-        `${baseDirectory}/${fileType}/${fileName}`,
-        includeMeta
-      );
-    });
-    // Save default server properties
-    if (!fs.existsSync(`${baseDirectory}/${fileType}/default`)) {
-      fs.mkdirSync(`${baseDirectory}/${fileType}/default`);
-    }
-    Object.entries(obj.defaultProperties).forEach(
-      ([name, props]: [string, any]) => {
-        saveJsonToFile(
-          props,
-          `${baseDirectory}/${fileType}/default/${getTypedFilename(name, 'default.properties.server')}`,
-          false
-        );
-      }
+    saveServersToFiles(
+      obj,
+      undefined,
+      `${baseDirectory}/${fileType}`,
+      extract,
+      includeMeta
     );
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -320,7 +287,11 @@ function exportItem(
             name = (value.parentPath.substring(1) + name).replaceAll('/', '-');
           }
         }
-        const filename = getTypedFilename(name ? name : id, fileType);
+        const filename = getTypedFilename(
+          // Server information has an id of *, which is not an allowed file name character in windows
+          name ? name : id === '*' ? 'information' : id,
+          fileType
+        );
         if (extract && type === 'script') {
           extractScriptsToFiles(
             exportData as ScriptExportInterface,
@@ -395,7 +366,7 @@ export async function importEverythingFromFiles(
   }
 ): Promise<boolean> {
   try {
-    const data = await getFullExportConfigFromDirectory(state.getDirectory());
+    const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
     const collectErrors: Error[] = [];
     await importFullConfiguration(data, options, collectErrors);
     if (collectErrors.length > 0) {

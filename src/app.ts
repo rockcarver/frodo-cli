@@ -22,6 +22,7 @@ import realm from './cli/realm/realm';
 import role from './cli/role/role';
 import saml from './cli/saml/saml';
 import script from './cli/script/script';
+import server from './cli/server/server';
 import service from './cli/service/service';
 import shell from './cli/shell/shell';
 // enable sample command template.
@@ -76,6 +77,7 @@ const { initTokenCache } = frodo.cache;
     program.addCommand(role());
     program.addCommand(saml());
     program.addCommand(script());
+    program.addCommand(server());
     program.addCommand(service());
     program.addCommand(shell());
     program.addCommand(theme());

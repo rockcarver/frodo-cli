@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'server' should be expected english 1`] = `
+"Usage: frodo server [options] [command]
+
+Manage servers.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  export      Export servers.
+  help        display help for command
+  import      Import servers.
+  list        List servers.
+"
+`;

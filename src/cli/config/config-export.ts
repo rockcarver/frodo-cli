@@ -40,7 +40,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-x, --extract',
-        'Extract scripts from the exported file, and save it to a separate file. Ignored with -a.'
+        'Extract scripts and server properties from the exported file, and save it to a separate file. Ignored with -a.'
       )
     )
     .addOption(
