@@ -70,6 +70,7 @@
           },
           "govId": "ANY",
           "pollWaitMessage": "Waiting for completion.  Here is the code you will see on your device: %s",
+          "redirectMessage": "Redirecting back to PingOne AIC.",
           "saveMetadata": true,
           "saveVerifiedClaims": true,
           "timeOut": 270,

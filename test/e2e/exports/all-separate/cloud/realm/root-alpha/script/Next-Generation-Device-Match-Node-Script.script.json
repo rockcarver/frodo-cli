@@ -1,0 +1,18 @@
+{
+  "script": {
+    "11e1a3c0-038b-4c16-956a-6c9d89328d00": {
+      "_id": "11e1a3c0-038b-4c16-956a-6c9d89328d00",
+      "context": "DEVICE_MATCH_NODE",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for a device match node",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Next Generation Device Match Node Script",
+      "script": "file://Next-Generation-Device-Match-Node-Script.script.js"
+    }
+  }
+}

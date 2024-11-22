@@ -1,0 +1,200 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo realm export "frodo realm export --all": should export all realms to a single file 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export --all": should export all realms to a single file: allRealms.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export --all-separate --no-metadata --directory realmExportTestDir3": should export all realms to separate files in the directory realmExportTestDir3 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export --all-separate --no-metadata --directory realmExportTestDir3": should export all realms to separate files in the directory realmExportTestDir3: realmExportTestDir3/alpha.realm.json 1`] = `
+{
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export --all-separate --no-metadata --directory realmExportTestDir3": should export all realms to separate files in the directory realmExportTestDir3: realmExportTestDir3/bravo.realm.json 1`] = `
+{
+  "realm": {
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export --realm-id L2FscGhh": should export the realm with realm id "L2FscGhh" 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export --realm-id L2FscGhh": should export the realm with realm id "L2FscGhh": L2FscGhh.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export --realm-name alpha --no-metadata": should export the realm with realm name "alpha" 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export --realm-name alpha --no-metadata": should export the realm with realm name "alpha": alpha.realm.json 1`] = `
+{
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -A": should export all realms to separate files 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export -A": should export all realms to separate files: alpha.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -A": should export all realms to separate files: bravo.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -NaD realmExportTestDir2": should export all realms to a single file in the directory realmExportTestDir2 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export -NaD realmExportTestDir2": should export all realms to a single file in the directory realmExportTestDir2: realmExportTestDir2/allRealms.realm.json 1`] = `
+{
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -Nn alpha -D realmExportTestDir1": should export the realm with realm name "alpha" into the directory named realmExportTestDir1 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export -Nn alpha -D realmExportTestDir1": should export the realm with realm name "alpha" into the directory named realmExportTestDir1: realmExportTestDir1/alpha.realm.json 1`] = `
+{
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -a --file my-allRealms.realm.json": should export all realms to a single file named my-allRealms.realm.json 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export -a --file my-allRealms.realm.json": should export all realms to a single file named my-allRealms.realm.json: my-allRealms.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+    "L2JyYXZv": {
+      "_id": "L2JyYXZv",
+      "active": true,
+      "aliases": [],
+      "name": "bravo",
+      "parentPath": "/",
+    },
+  },
+}
+`;
+
+exports[`frodo realm export "frodo realm export -i L2FscGhh -f my-frodo-L2FscGhh.realm.json": should export the realm with realm id "L2FscGhh" into file named my-frodo-L2FscGhh.realm.json 1`] = `""`;
+
+exports[`frodo realm export "frodo realm export -i L2FscGhh -f my-frodo-L2FscGhh.realm.json": should export the realm with realm id "L2FscGhh" into file named my-frodo-L2FscGhh.realm.json: my-frodo-L2FscGhh.realm.json 1`] = `
+{
+  "meta": Any<Object>,
+  "realm": {
+    "L2FscGhh": {
+      "_id": "L2FscGhh",
+      "active": true,
+      "aliases": [],
+      "name": "alpha",
+      "parentPath": "/",
+    },
+  },
+}
+`;

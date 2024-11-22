@@ -1,0 +1,21 @@
+{
+  "conditionTypes": {
+    "SessionProperty": {
+      "_id": "SessionProperty",
+      "config": {
+        "properties": {
+          "ignoreValueCase": {
+            "required": true,
+            "type": "boolean"
+          },
+          "properties": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "SessionProperty"
+    }
+  }
+}

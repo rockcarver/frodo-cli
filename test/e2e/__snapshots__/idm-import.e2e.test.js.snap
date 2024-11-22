@@ -23,18 +23,18 @@ exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/cl
 - Importing config entities from test/e2e/exports/all-separate/cloud/global/idm...
 ✖ Error importing config entities from test/e2e/exports/all-separate/cloud/global/idm.
 Error importing config entities
-  Error updating config entity provisioner.openicf/Azure
+  Error updating config entity endpoint/Test
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: No meta-data provider available yet to create and encrypt configuration for provisioner.openicf/Azure, retry later.
-  Error updating config entity provisioner.openicf/GoogleApps
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+  Error updating config entity endpoint/testEndpoint2
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: No meta-data provider available yet to create and encrypt configuration for provisioner.openicf/GoogleApps, retry later.
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
 "
 `;
 

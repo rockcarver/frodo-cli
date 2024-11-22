@@ -1,0 +1,35 @@
+{
+  "authenticationModules": {
+    "certificate": {
+      "_id": "certificate",
+      "_type": {
+        "_id": "certificate",
+        "collection": false,
+        "name": "Certificate"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "cacheCRLsInMemory": true,
+        "certificateAttributeProfileMappingExtension": "none",
+        "certificateAttributeToProfileMapping": "subject CN",
+        "certificateLdapServers": [
+          "localhost:50636"
+        ],
+        "crlMatchingCertificateAttribute": "CN",
+        "iplanet-am-auth-cert-gw-cert-preferred": false,
+        "ldapCertificateAttribute": "CN",
+        "ldapSearchStartDN": [],
+        "matchCACertificateToCRL": false,
+        "matchCertificateInLdap": false,
+        "matchCertificateToCRL": false,
+        "ocspValidationEnabled": false,
+        "sslEnabled": false,
+        "trustedRemoteHosts": [
+          "none"
+        ],
+        "updateCRLsFromDistributionPoint": true,
+        "userBindDN": "cn=Directory Manager"
+      }
+    }
+  }
+}

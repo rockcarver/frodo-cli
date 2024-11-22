@@ -8,6 +8,8 @@ exports[`frodo agent import "frodo agent import --all-separate --directory test/
 
 exports[`frodo agent import "frodo agent import --file test/e2e/exports/all/allAlphaAgents.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 
+exports[`frodo agent import "frodo agent import --global -AD test/e2e/exports/all-separate/classic/global/agent --type classic": should import all global agents from the test/e2e/exports/all-separate/classic/global/agent directory" 1`] = `""`;
+
 exports[`frodo agent import "frodo agent import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent": should import all agents from the test/e2e/exports/all-separate/cloud/realm/root-alpha/agent directory" 1`] = `""`;
 
 exports[`frodo agent import "frodo agent import -af allAlphaAgents.agent.json -D test/e2e/exports/all": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
@@ -17,6 +19,12 @@ exports[`frodo agent import "frodo agent import -af test/e2e/exports/all/allAlph
 exports[`frodo agent import "frodo agent import -f allAlphaAgents.agent.json -D test/e2e/exports/all": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 
 exports[`frodo agent import "frodo agent import -f test/e2e/exports/all/allAlphaAgents.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
+
+exports[`frodo agent import "frodo agent import -gaf test/e2e/exports/all/allGlobalAgents.agent.json -m classic": should import all global agents from the file "test/e2e/exports/all/allGlobalAgents.agent.json" 1`] = `""`;
+
+exports[`frodo agent import "frodo agent import -gf test/e2e/exports/all/allGlobalAgents.agent.json -m classic": should import the first global agent from the file "test/e2e/exports/all/allGlobalAgents.agent.json" 1`] = `""`;
+
+exports[`frodo agent import "frodo agent import -i AgentService -gf test/e2e/exports/all/allGlobalAgents.agent.json -m classic": should import the global agent with the id "AgentService" from the file "test/e2e/exports/all/allGlobalAgents.agent.json" 1`] = `""`;
 
 exports[`frodo agent import "frodo agent import -i frodo-test-ig-agent -f allAlphaAgents.agent.json -D test/e2e/exports/all": should import the agent with the id "frodo-test-ig-agent" from the file "test/e2e/exports/all/allAlphaAgents.agent.json" 1`] = `""`;
 

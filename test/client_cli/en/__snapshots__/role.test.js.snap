@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'role' should be expected english 1`] = `
+"Usage: frodo role [options] [command]
+
+Manage internal (authorization) roles.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  export      Export internal roles.
+  help        display help for command
+  import      Import internal roles.
+  list        List roles.
+"
+`;

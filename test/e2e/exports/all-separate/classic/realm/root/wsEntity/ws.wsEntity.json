@@ -1,0 +1,12 @@
+{
+  "wsEntity": {
+    "ws": {
+      "_id": "ws",
+      "_type": {
+        "_id": "ws",
+        "collection": true,
+        "name": "Entity Descriptor "
+      }
+    }
+  }
+}

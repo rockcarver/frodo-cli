@@ -1,0 +1,15 @@
+{
+  "authenticationModules": {
+    "windowsnt": {
+      "_id": "windowsnt",
+      "_type": {
+        "_id": "windowsnt",
+        "collection": false,
+        "name": "Windows NT"
+      },
+      "defaults": {
+        "authenticationLevel": 0
+      }
+    }
+  }
+}

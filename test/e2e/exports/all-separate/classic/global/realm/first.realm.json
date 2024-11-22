@@ -1,0 +1,14 @@
+{
+  "realm": {
+    "L2ZpcnN0": {
+      "_id": "L2ZpcnN0",
+      "active": true,
+      "aliases": [
+        "one",
+        "dnsfirst"
+      ],
+      "name": "first",
+      "parentPath": "/"
+    }
+  }
+}

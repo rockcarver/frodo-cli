@@ -10,18 +10,8 @@ export default function setup() {
 
   program
     .description('Describe script.')
-    .addOption(
-      new Option(
-        '-i, --script-id <uuid>',
-        'Uuid of the script. If specified, -a and -A are ignored.'
-      )
-    )
-    .addOption(
-      new Option(
-        '-n, --script-name <name>',
-        'Name of the script. If specified, -a and -A are ignored.'
-      )
-    )
+    .addOption(new Option('-i, --script-id <uuid>', 'Uuid of the script.'))
+    .addOption(new Option('-n, --script-name <name>', 'Name of the script.'))
     .addOption(
       new Option(
         '-f, --file [file]',

@@ -473,6 +473,7 @@
         "redirectionUris": [],
         "refreshTokenLifetime": 0,
         "scopes": [],
+        "secretLabelIdentifier": null,
         "status": "Active"
       },
       "coreOpenIDClientConfig": {

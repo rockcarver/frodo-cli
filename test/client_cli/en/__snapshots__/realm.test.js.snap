@@ -11,7 +11,9 @@ Options:
 Commands:
   add-custom-domain     Add custom domain (realm DNS alias).
   describe|details      Describe realms.
+  export                Export realms.
   help                  display help for command
+  import                Import realms.
   list                  List realms.
   remove-custom-domain  Remove custom domain (realm DNS alias).
 "

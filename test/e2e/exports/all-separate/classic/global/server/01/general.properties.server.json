@@ -1,0 +1,48 @@
+{
+  "_id": "01/properties/general",
+  "amconfig.header.debug": {
+    "com.iplanet.services.debug.directory": {
+      "inherited": true,
+      "value": "%BASE_DIR%/var/debug"
+    },
+    "com.iplanet.services.debug.level": {
+      "inherited": true,
+      "value": "off"
+    },
+    "com.sun.services.debug.mergeall": {
+      "inherited": true,
+      "value": "on"
+    }
+  },
+  "amconfig.header.installdir": {
+    "com.iplanet.am.locale": {
+      "inherited": false,
+      "value": "en_US"
+    },
+    "com.iplanet.am.util.xml.validating": {
+      "inherited": true,
+      "value": "off"
+    },
+    "com.iplanet.services.configpath": {
+      "inherited": false,
+      "value": "/home/prestonhales/am"
+    },
+    "com.sun.identity.client.notification.url": {
+      "inherited": true,
+      "value": "%SERVER_PROTO%://%SERVER_HOST%:%SERVER_PORT%/%SERVER_URI%/notificationservice"
+    }
+  },
+  "amconfig.header.mailserver": {
+    "com.iplanet.am.smtphost": {
+      "inherited": true,
+      "value": "localhost"
+    },
+    "com.iplanet.am.smtpport": {
+      "inherited": true,
+      "value": "25"
+    }
+  },
+  "amconfig.header.site": {
+    "singleChoiceSite": "[Empty]"
+  }
+}

@@ -20,11 +20,13 @@ const {
 /**
  * Export authentication settings to file
  * @param {string} file file name
+ * @param {boolean} global true to export global authentication settings, false otherwise
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportAuthenticationSettingsToFile(
   file: string,
+  global = false,
   includeMeta = true
 ): Promise<boolean> {
   let spinnerId: string;
@@ -38,14 +40,14 @@ export async function exportAuthenticationSettingsToFile(
       `Exporting authentication settings...`
     );
     let fileName = getTypedFilename(
-      `${frodo.utils.getRealmName(state.getRealm())}Realm`,
+      global ? 'global' : `${frodo.utils.getRealmName(state.getRealm())}Realm`,
       'authentication.settings'
     );
     if (file) {
       fileName = file;
     }
     const filePath = getFilePath(fileName, true);
-    const exportData = await _exportAuthenticationSettings();
+    const exportData = await _exportAuthenticationSettings(global);
     saveJsonToFile(exportData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
@@ -72,10 +74,12 @@ export async function exportAuthenticationSettingsToFile(
 /**
  * Import authentication settings from file
  * @param {string} file file name
+ * @param {boolean} global true to import global authentication settings, false otherwise
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importAuthenticationSettingsFromFile(
-  file: string
+  file: string,
+  global = false
 ): Promise<boolean> {
   let spinnerId: string;
   try {
@@ -89,7 +93,7 @@ export async function importAuthenticationSettingsFromFile(
     );
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await _importAuthenticationSettings(fileData);
+    await _importAuthenticationSettings(fileData, global);
     stopProgressIndicator(
       spinnerId,
       `Imported ${frodo.utils.getRealmName(
@@ -115,13 +119,15 @@ export async function importAuthenticationSettingsFromFile(
 /**
  * Describe authentication settings
  * @param {boolean} json JSON output
+ * @param {boolean} global true to describe global authentication settings, false otherwise
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function describeAuthenticationSettings(
-  json = false
+  json = false,
+  global = false
 ): Promise<boolean> {
   try {
-    const settings = await _readAuthenticationSettings();
+    const settings = await _readAuthenticationSettings(global);
     delete settings._id;
     delete settings._rev;
     delete settings._type;

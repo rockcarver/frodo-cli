@@ -1,0 +1,17 @@
+{
+  "authenticationModules": {
+    "authPush": {
+      "_id": "authPush",
+      "_type": {
+        "_id": "authPush",
+        "collection": false,
+        "name": "ForgeRock Authenticator (Push)"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "pushMessage": "Login attempt from {{user}} at {{issuer}}",
+        "timeoutInMilliSecconds": 120000
+      }
+    }
+  }
+}

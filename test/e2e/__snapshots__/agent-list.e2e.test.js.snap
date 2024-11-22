@@ -1,26 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo agent list "frodo agent list --long": should list the ids, statuses, and types of the agents 1`] = `
-"Agent Id              │Status  │Agent Type             
-frodo-test-ig-agent   │Inactive│Identity Gateway Agents
-frodo-test-ig-agent2  │Inactive│Identity Gateway Agents
-frodo-test-java-agent │Inactive│J2EE Agents            
-frodo-test-java-agent2│Inactive│J2EE Agents            
-frodo-test-web-agent  │Inactive│Web Agents             
-frodo-test-web-agent2 │Inactive│Web Agents             
+exports[`frodo agent list "frodo agent list --global --long --type classic": should list the ids, statuses, and types of the global agents 1`] = `
+"Agent Id    │Status │Agent Type  
+AgentService│Unknown│AgentService
+"
+`;
+
+exports[`frodo agent list "frodo agent list -gm classic": should list the ids of the global agents 1`] = `
+"AgentService
 "
 `;
 
 exports[`frodo agent list "frodo agent list -l": should list the ids, statuses, and types of the agents 1`] = `
-"Agent Id              │Status  │Agent Type             
-cdsso-ig-agent        │Active  │Identity Gateway Agents
-frodo-test-ig-agent   │Inactive│Identity Gateway Agents
-frodo-test-ig-agent2  │Inactive│Identity Gateway Agents
-frodo-test-java-agent │Inactive│J2EE Agents            
-frodo-test-java-agent2│Inactive│J2EE Agents            
-frodo-test-web-agent  │Inactive│Web Agents             
-frodo-test-web-agent2 │Inactive│Web Agents             
-ig-agent              │Active  │Identity Gateway Agents
+"Agent Id               │Status  │Agent Type                   
+cdsso-ig-agent         │Active  │Identity Gateway Agents      
+frodo-test-ig-agent    │Inactive│Identity Gateway Agents      
+frodo-test-ig-agent2   │Inactive│Identity Gateway Agents      
+frodo-test-java-agent  │Inactive│J2EE Agents                  
+frodo-test-java-agent2 │Inactive│J2EE Agents                  
+frodo-test-web-agent   │Inactive│Web Agents                   
+frodo-test-web-agent2  │Inactive│Web Agents                   
+ig-agent               │Active  │Identity Gateway Agents      
+my-policy-agent        │Active  │Policy Agents                
+test                   │Unknown │OAuth2 Remote Consent Service
+test software publisher│Unknown │OAuth2 Software Publisher    
 "
 `;
 
@@ -33,5 +36,8 @@ frodo-test-java-agent2
 frodo-test-web-agent
 frodo-test-web-agent2
 ig-agent
+my-policy-agent
+test
+test software publisher
 "
 `;

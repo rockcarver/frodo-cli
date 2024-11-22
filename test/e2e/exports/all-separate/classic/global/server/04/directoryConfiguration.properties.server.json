@@ -1,0 +1,23 @@
+{
+  "_id": "04/properties/directoryConfiguration",
+  "directoryConfiguration": {
+    "bindDn": "cn=Directory Manager",
+    "bindPassword": null,
+    "maxConnectionPool": 10,
+    "minConnectionPool": 1,
+    "mtlsAlias": "",
+    "mtlsEnabled": false,
+    "mtlsKeyPasswordFile": "",
+    "mtlsKeyStoreFile": "",
+    "mtlsKeyStorePasswordFile": "",
+    "mtlsKeyStoreType": null
+  },
+  "directoryServers": [
+    {
+      "connectionType": "SSL",
+      "hostName": "localhost",
+      "portNumber": "50636",
+      "serverName": "Server1"
+    }
+  ]
+}

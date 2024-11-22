@@ -1,0 +1,17 @@
+{
+  "authenticationModules": {
+    "amster": {
+      "_id": "amster",
+      "_type": {
+        "_id": "amster",
+        "collection": false,
+        "name": "ForgeRock Amster"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "authorizedKeys": "/home/prestonhales/am/security/keys/amster/authorized_keys",
+        "enabled": true
+      }
+    }
+  }
+}

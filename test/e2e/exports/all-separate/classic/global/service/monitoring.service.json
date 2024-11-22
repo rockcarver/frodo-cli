@@ -8,7 +8,7 @@
         "name": "Monitoring"
       },
       "authfilePath": "%BASE_DIR%/security/openam_mon_auth",
-      "enabled": false,
+      "enabled": true,
       "httpEnabled": false,
       "httpPort": 8082,
       "location": "global",

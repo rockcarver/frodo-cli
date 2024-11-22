@@ -1,0 +1,21 @@
+{
+  "trustedJwtIssuer": {
+    "test-jwt-issuer": {
+      "_id": "test-jwt-issuer",
+      "_type": {
+        "_id": "TrustedJwtIssuer",
+        "collection": true,
+        "name": "OAuth2 Trusted JWT Issuer"
+      },
+      "agentgroup": null,
+      "allowedSubjects": [],
+      "consentedScopesClaim": "scope",
+      "issuer": "hello",
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "resourceOwnerIdentityClaim": "sub"
+    }
+  }
+}

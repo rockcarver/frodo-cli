@@ -1,0 +1,59 @@
+{
+  "_id": "01/properties/cts",
+  "amconfig.org.forgerock.services.cts.store.common.section": {
+    "org.forgerock.services.cts.store.location": {
+      "inherited": true,
+      "value": "default"
+    },
+    "org.forgerock.services.cts.store.max.connections": {
+      "inherited": true,
+      "value": "100"
+    },
+    "org.forgerock.services.cts.store.page.size": {
+      "inherited": true,
+      "value": "0"
+    },
+    "org.forgerock.services.cts.store.root.suffix": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.cts.store.vlv.page.size": {
+      "inherited": true,
+      "value": "1000"
+    }
+  },
+  "amconfig.org.forgerock.services.cts.store.external.section": {
+    "org.forgerock.services.cts.store.affinity.enabled": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.cts.store.directory.name": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.cts.store.heartbeat": {
+      "inherited": true,
+      "value": "10"
+    },
+    "org.forgerock.services.cts.store.loginid": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.cts.store.mtls.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.cts.store.password": {
+      "inherited": true,
+      "value": null
+    },
+    "org.forgerock.services.cts.store.ssl.enabled": {
+      "inherited": true,
+      "value": ""
+    },
+    "org.forgerock.services.cts.store.starttls.enabled": {
+      "inherited": true,
+      "value": ""
+    }
+  }
+}

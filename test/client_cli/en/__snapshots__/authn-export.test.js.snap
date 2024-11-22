@@ -28,6 +28,7 @@ Options:
                                        troubleshooting.
   -f, --file <file>                    Name of the export file.
   --flush-cache                        Flush token cache.
+  -g, --global                         Export global authentication settings.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
                                        https://cdk.idm.example.com/myidm. Use

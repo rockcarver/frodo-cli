@@ -548,12 +548,12 @@ export function getMappingNameFromId(mappingId: string): string | undefined {
 function getMappingImportDataFromFile(file: string): MappingExportInterface {
   const filePath = getFilePath(file);
   const data = fs.readFileSync(filePath, 'utf8');
-  let importData = JSON.parse(data) as MappingExportInterface;
+  let importData = JSON.parse(data);
   //If importing from file not in export format, put it into export format
   if (!importData.sync && !importData.mapping) {
-    const mapping = importData as unknown as MappingSkeleton;
+    const mapping = importData;
     importData = createMappingExportTemplate();
-    if (mapping._id === 'sync') {
+    if (mapping.idm) {
       importData.sync = getLegacyMappingsFromFiles([
         {
           // Ensure path ends in /sync.idm.json so it gets processed

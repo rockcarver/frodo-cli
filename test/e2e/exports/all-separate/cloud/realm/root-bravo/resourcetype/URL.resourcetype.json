@@ -14,7 +14,7 @@
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
-      "lastModifiedDate": 1728420053342,
+      "lastModifiedDate": 1728915519107,
       "name": "URL",
       "patterns": [
         "*://*:*/*",

@@ -1,0 +1,141 @@
+{
+  "_id": "04/properties/security",
+  "amconfig.header.cookie": {
+    "com.iplanet.am.cookie.encode": {
+      "inherited": true,
+      "value": false
+    },
+    "com.iplanet.am.cookie.name": {
+      "inherited": true,
+      "value": "iPlanetDirectoryPro"
+    },
+    "com.iplanet.am.cookie.secure": {
+      "inherited": true,
+      "value": false
+    }
+  },
+  "amconfig.header.crlcache": {
+    "com.sun.identity.crl.cache.directory.host": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.crl.cache.directory.mtlsenabled": {
+      "inherited": true,
+      "value": false
+    },
+    "com.sun.identity.crl.cache.directory.password": {
+      "inherited": true,
+      "value": null
+    },
+    "com.sun.identity.crl.cache.directory.port": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.crl.cache.directory.searchattr": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.crl.cache.directory.searchlocs": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.crl.cache.directory.ssl": {
+      "inherited": true,
+      "value": false
+    },
+    "com.sun.identity.crl.cache.directory.user": {
+      "inherited": true,
+      "value": ""
+    }
+  },
+  "amconfig.header.deserialisationwhitelist": {
+    "openam.deserialisation.classes.whitelist": {
+      "inherited": true,
+      "value": "com.iplanet.dpro.session.DNOrIPAddressListTokenRestriction,com.sun.identity.common.CaseInsensitiveHashMap,com.sun.identity.common.CaseInsensitiveHashSet,com.sun.identity.common.CaseInsensitiveKey,com.sun.identity.console.base.model.SMSubConfig,com.sun.identity.console.session.model.SMSessionData,com.sun.identity.console.user.model.UMUserPasswordResetOptionsData,com.sun.identity.shared.datastruct.OrderedSet,com.sun.xml.bind.util.ListImpl,com.sun.xml.bind.util.ProxyListImpl,java.lang.Boolean,java.lang.Integer,java.lang.Number,java.lang.StringBuffer,java.net.InetAddress,java.security.cert.Certificate,java.security.cert.Certificate$CertificateRep,java.util.ArrayList,java.util.Collections$EmptyMap,java.util.Collections$EmptySet,java.util.Collections$SingletonList,java.util.HashMap,java.util.HashSet,java.util.LinkedHashSet,java.util.Locale,org.forgerock.openam.authentication.service.protocol.RemoteCookie,org.forgerock.openam.authentication.service.protocol.RemoteHttpServletRequest,org.forgerock.openam.authentication.service.protocol.RemoteHttpServletResponse,org.forgerock.openam.authentication.service.protocol.RemoteServletRequest,org.forgerock.openam.authentication.service.protocol.RemoteServletResponse,org.forgerock.openam.authentication.service.protocol.RemoteSession,org.forgerock.openam.dpro.session.NoOpTokenRestriction,org.forgerock.openam.dpro.session.ProofOfPossessionTokenRestriction"
+    }
+  },
+  "amconfig.header.encryption": {
+    "am.encryption.pwd": {
+      "inherited": true,
+      "value": "@AM_ENC_PWD@"
+    },
+    "am.encryption.secret.alias": {
+      "inherited": true,
+      "value": null
+    },
+    "am.encryption.secret.enabled": {
+      "inherited": true,
+      "value": false
+    },
+    "am.encryption.secret.keyPass": {
+      "inherited": true,
+      "value": null
+    },
+    "am.encryption.secret.keystoreFile": {
+      "inherited": true,
+      "value": null
+    },
+    "am.encryption.secret.keystorePass": {
+      "inherited": true,
+      "value": null
+    },
+    "am.encryption.secret.keystoreType": {
+      "inherited": true,
+      "value": "JCEKS"
+    },
+    "com.iplanet.security.SecureRandomFactoryImpl": {
+      "inherited": true,
+      "value": "com.iplanet.am.util.SecureRandomFactoryImpl"
+    },
+    "com.iplanet.security.encryptor": {
+      "inherited": true,
+      "value": "com.iplanet.services.util.JCEEncryption"
+    }
+  },
+  "amconfig.header.ocsp.check": {
+    "com.sun.identity.authentication.ocsp.responder.nickname": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.authentication.ocsp.responder.url": {
+      "inherited": true,
+      "value": ""
+    },
+    "com.sun.identity.authentication.ocspCheck": {
+      "inherited": true,
+      "value": false
+    }
+  },
+  "amconfig.header.securitykey": {
+    "com.sun.identity.saml.xmlsig.certalias": {
+      "inherited": true,
+      "value": "test"
+    },
+    "com.sun.identity.saml.xmlsig.keypass": {
+      "inherited": true,
+      "value": "%BASE_DIR%/security/secrets/default/.keypass"
+    },
+    "com.sun.identity.saml.xmlsig.keystore": {
+      "inherited": true,
+      "value": "%BASE_DIR%/security/keystores/keystore.jceks"
+    },
+    "com.sun.identity.saml.xmlsig.storepass": {
+      "inherited": true,
+      "value": "%BASE_DIR%/security/secrets/default/.storepass"
+    },
+    "com.sun.identity.saml.xmlsig.storetype": {
+      "inherited": true,
+      "value": "JCEKS"
+    }
+  },
+  "amconfig.header.validation": {
+    "com.iplanet.am.clientIPCheckEnabled": {
+      "inherited": true,
+      "value": false
+    },
+    "com.iplanet.services.comm.server.pllrequest.maxContentLength": {
+      "inherited": true,
+      "value": "16384"
+    }
+  }
+}

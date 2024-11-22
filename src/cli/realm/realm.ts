@@ -1,6 +1,8 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import AddCustomDomainCmd from './realm-add-custom-domain.js';
 import DescribeCmd from './realm-describe.js';
+import ExportCmd from './realm-export.js';
+import ImportCmd from './realm-import.js';
 import ListCmd from './realm-list.js';
 import RemoveCustomDomainCmd from './realm-remove-custom-domain.js';
 // import DeleteCmd from './realm-delete.js';
@@ -20,6 +22,10 @@ export default function setup() {
   program.addCommand(AddCustomDomainCmd().name('add-custom-domain'));
 
   program.addCommand(RemoveCustomDomainCmd().name('remove-custom-domain'));
+
+  program.addCommand(ExportCmd().name('export'));
+
+  program.addCommand(ImportCmd().name('import'));
 
   // program.addCommand(DeleteCmd().name('delete'));
 

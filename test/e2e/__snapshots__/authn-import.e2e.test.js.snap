@@ -2,4 +2,8 @@
 
 exports[`frodo authn import "frodo authn import --file root-alpha.authentication.settings.json --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/authentication": should import authentication settings from the file root-alpha.authentication.settings.json in the directory test/e2e/exports/all-separate/cloud/realm/root-alpha/authentication 1`] = `""`;
 
+exports[`frodo authn import "frodo authn import --global --file test/e2e/exports/all-separate/classic/global/authentication/global.authentication.settings.json --type classic": should import global authentication settings from the file global.authentication.settings.json 1`] = `""`;
+
 exports[`frodo authn import "frodo authn import -f test/e2e/exports/all-separate/cloud/realm/root-alpha/authentication/root-alpha.authentication.settings.json": should import authentication settings from the file root-alpha.authentication.settings.json 1`] = `""`;
+
+exports[`frodo authn import "frodo authn import -gf global.authentication.settings.json -D test/e2e/exports/all-separate/classic/global/authentication -m classic": should import global authentication settings from the file global.authentication.settings.json in the directory test/e2e/exports/all-separate/classic/global/authentication 1`] = `""`;

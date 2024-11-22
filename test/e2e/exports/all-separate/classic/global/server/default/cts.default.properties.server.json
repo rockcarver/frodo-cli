@@ -1,0 +1,19 @@
+{
+  "_id": "null/properties/cts",
+  "amconfig.org.forgerock.services.cts.store.common.section": {
+    "org.forgerock.services.cts.store.location": "default",
+    "org.forgerock.services.cts.store.max.connections": "100",
+    "org.forgerock.services.cts.store.page.size": "0",
+    "org.forgerock.services.cts.store.root.suffix": "",
+    "org.forgerock.services.cts.store.vlv.page.size": "1000"
+  },
+  "amconfig.org.forgerock.services.cts.store.external.section": {
+    "org.forgerock.services.cts.store.directory.name": "",
+    "org.forgerock.services.cts.store.heartbeat": "10",
+    "org.forgerock.services.cts.store.loginid": "",
+    "org.forgerock.services.cts.store.mtls.enabled": "",
+    "org.forgerock.services.cts.store.password": null,
+    "org.forgerock.services.cts.store.ssl.enabled": "",
+    "org.forgerock.services.cts.store.starttls.enabled": ""
+  }
+}
