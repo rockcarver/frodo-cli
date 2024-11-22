@@ -1,5 +1,5 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
-import { RealmExportInterface } from '@rockcarver/frodo-lib/src/ops/RealmOps';
+import { RealmExportInterface } from '@rockcarver/frodo-lib/types/ops/RealmOps';
 import fs from 'fs';
 
 import {
