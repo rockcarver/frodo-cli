@@ -1,5 +1,5 @@
 {
-  "variables": {
+  "variable": {
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",

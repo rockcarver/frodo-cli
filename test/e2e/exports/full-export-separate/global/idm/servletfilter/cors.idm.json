@@ -1,0 +1,18 @@
+{
+  "idm": {
+    "servletfilter/cors": {
+      "_id": "servletfilter/cors",
+      "initParams": {
+        "allowCredentials": false,
+        "allowedHeaders": "authorization,accept,content-type,origin,x-requested-with,cache-control,accept-api-version,if-match,if-none-match",
+        "allowedMethods": "GET,POST,PUT,DELETE,PATCH",
+        "allowedOrigins": "*",
+        "chainPreflight": false,
+        "exposedHeaders": "WWW-Authenticate"
+      },
+      "urlPatterns": [
+        "/*"
+      ]
+    }
+  }
+}

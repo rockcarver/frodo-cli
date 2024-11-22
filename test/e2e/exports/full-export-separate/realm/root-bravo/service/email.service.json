@@ -13,7 +13,8 @@
       "location": "/bravo",
       "nextDescendents": [],
       "port": 465,
-      "sslState": "SSL"
+      "sslState": "SSL",
+      "transportType": "default-smtp"
     }
   }
 }

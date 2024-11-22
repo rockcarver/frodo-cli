@@ -1,5 +1,5 @@
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {

@@ -9,8 +9,8 @@
       "description": "Default bravo realm script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022012174,
       "name": "Bravo OIDC Claims Script - imported (1)",
       "script": "file://Bravo-OIDC-Claims-Script-imported-(1).script.js"
     }

@@ -1,5 +1,5 @@
 {
-  "variables": {
+  "variable": {
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",

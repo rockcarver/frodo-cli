@@ -1,5 +1,5 @@
 {
-  "variables": {
+  "variable": {
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",

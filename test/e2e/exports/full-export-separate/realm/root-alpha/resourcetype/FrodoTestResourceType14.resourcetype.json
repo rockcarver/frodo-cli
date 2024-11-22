@@ -9,7 +9,7 @@
       "creationDate": 1725916400702,
       "description": "Frodo Test Resource Type Fourteen",
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
-      "lastModifiedDate": 1728915479259,
+      "lastModifiedDate": 1731021992965,
       "name": "FrodoTestResourceType14",
       "patterns": [
         "pattern2://*:*/*?*",

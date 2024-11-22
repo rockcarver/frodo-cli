@@ -8,9 +8,10 @@
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
+      "exports": [],
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990257,
       "name": "My Other Example Library Script",
       "script": "file://My-Other-Example-Library-Script.script.js"
     }

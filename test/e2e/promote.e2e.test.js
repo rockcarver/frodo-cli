@@ -58,6 +58,14 @@ FRODO_MOCK=record FRODO_TEST_NAME='script' FRODO_NO_CACHE=1 FRODO_HOST=https://o
 FRODO_MOCK=record FRODO_TEST_NAME='idm' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 FRODO_MOCK=record FRODO_TEST_NAME='agent' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 FRODO_MOCK=record FRODO_TEST_NAME='policy' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='managedapplication' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='theme' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='application' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='variable' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='sync' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='mapping' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='service' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='journeyPromoteNoPrompt' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote --prune-no-prompt -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -78,7 +86,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ['./global/emailTemplate', './global/idm/emailTemplate']
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 1)
     });
 
     test('"journey frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on journey changes', async () => {
@@ -86,7 +94,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/journey", "./realm/root-bravo/journey"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 2)
     });
 
     test('"authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes', async () => {
@@ -94,7 +102,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/authentication", "./realm/root-bravo/authentication"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 3)
     });
 
     test('"resourcetype frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on resourcetype changes', async () => {
@@ -102,15 +110,15 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/resourcetype", "./realm/root-bravo/resourcetype"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 4)
     });
 
     test('"script frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on script changes', async () => {
         let name = "script";
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
-        let referenceSubDirs = ["./realm/root-alpha/script", "./realm/root-bravo/script"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        let referenceSubDirs = ["./realm/root-alpha/script"]
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 5)
     });
 
     test('"idm frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on idm changes', async () => {
@@ -118,7 +126,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./global/idm/endpoint"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 6)
     });
 
     test('"idp frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on idp changes', async () => {
@@ -126,7 +134,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/idp", "./realm/root-alpha/service"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 7)
     });
 
     test('"agent frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on agent changes', async () => {
@@ -134,7 +142,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/agent", "./realm/root-bravo/agent"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 8)
     });
 
     test('"policy frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on policy changes', async () => {
@@ -142,7 +150,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/policy"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 9)
     });
 
     test('"managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes', async () => {
@@ -150,7 +158,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-alpha/managedapplication", "./realm/root-bravo/managedapplication"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 10)
     });
 
     test('"theme frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on theme changes', async () => {
@@ -158,7 +166,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./global/idm/ui", "./realm/root-bravo/theme"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 11)
     });
 
     test('"application frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on application changes', async () => {
@@ -166,7 +174,7 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-bravo/application", "./realm/root-bravo/managedapplication"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 12)
     });
 
     test('"variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes', async () => {
@@ -174,23 +182,23 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./global/variable"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 13)
     });
 
     test('"sync frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on sync changes', async () => {
         let name = "sync";
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
-        let referenceSubDirs = ["./global/sync", "./global/idm"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        let referenceSubDirs = ["./global/sync"]
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 14)
     });
 
     test('"mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes', async () => {
         let name = "mapping";
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
-        let referenceSubDirs = ["./global/idm", "./global/mapping", "./realm/root-bravo/journey"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        let referenceSubDirs = ["./global/mapping", "./realm/root-bravo/journey"]
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 1)
     });
 
     test('"service frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on service changes', async () => {
@@ -198,6 +206,6 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-bravo/service", "./realm/root-alpha/service"]
-        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name, 16)
     });
 });

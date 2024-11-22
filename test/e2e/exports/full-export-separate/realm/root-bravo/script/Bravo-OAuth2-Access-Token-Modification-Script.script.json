@@ -9,8 +9,8 @@
       "description": "Default bravo realm script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022012094,
       "name": "Bravo OAuth2 Access Token Modification Script",
       "script": "file://Bravo-OAuth2-Access-Token-Modification-Script.script.js"
     }

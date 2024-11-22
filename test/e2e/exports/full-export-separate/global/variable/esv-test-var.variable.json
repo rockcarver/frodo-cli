@@ -1,5 +1,5 @@
 {
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",

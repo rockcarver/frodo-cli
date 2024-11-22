@@ -53,6 +53,19 @@
           "icon": "images/logos/zendesk.png",
           "login": "http://www.ZenDesk.com",
           "name": "ZenDesk"
+        },
+        {
+          "_id": "2e4663b7-aed2-4521-8819-d379449d91b0",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "instance"
+          },
+          "className": "BookmarkApplicationClass",
+          "displayName": "Google",
+          "icon": "app-bookmark.svg",
+          "login": "https://www.google.com/",
+          "name": "Google"
         }
       ]
     }

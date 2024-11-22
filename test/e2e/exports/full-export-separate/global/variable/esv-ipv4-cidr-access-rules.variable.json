@@ -1,5 +1,5 @@
 {
-  "variables": {
+  "variable": {
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { \"allow\": [ \"address/mask\" ] }",

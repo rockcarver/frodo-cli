@@ -78,7 +78,13 @@ Options:
   -M, --master-dir <directory>         The directory where the master
                                        configurations is located.
   --no-cache                           Disable token cache for this operation.
-  -S --get-secrets                     Will effect the secrets, otherwise we
+  --no-prune                           Will stop prune from running
+  -P --print-diff                      Outputs the diff to a file in the
+                                       directory where the command was run.
+                                       (default: false)
+  --propmt-prune                       Will prompt for Frodo Journey Prune on
+                                       all realms (default: false)
+  -S --effect-secrets                  Will effect the secrets, otherwise we
                                        will not change the secrets but will
                                        compare them (default: false)
   --sa-id <sa-id>                      Service account id.
@@ -97,7 +103,7 @@ Options:
   -W --wait-secrets                    When secrets are effected we need to run
                                        a refresh on the enviornment. This will
                                        cause the command to wait until the
-                                       refresh is finished.
+                                       refresh is finished. (default: false)
   --what-if                            Runs a what if of the comparison, so it
                                        wont do any changes (default: false)
 

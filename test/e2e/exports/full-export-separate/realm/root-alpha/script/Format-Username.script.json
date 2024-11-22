@@ -9,8 +9,8 @@
       "description": "Change this upp buddy",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021989809,
       "name": "Format Username",
       "script": "file://Format-Username.script.js"
     }

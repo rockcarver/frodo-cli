@@ -49,7 +49,19 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-S --get-secrets',
+        '--propmt-prune',
+        'Will prompt for Frodo Journey Prune on all realms'
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option('--no-prune', 'Will stop prune from running').default(
+        false,
+        'false'
+      )
+    )
+    .addOption(
+      new Option(
+        '-S --effect-secrets',
         'Will effect the secrets, otherwise we will not change the secrets but will compare them'
       ).default(false, 'false')
     )
@@ -57,7 +69,13 @@ export default function setup() {
       new Option(
         '-W --wait-secrets',
         'When secrets are effected we need to run a refresh on the enviornment. This will cause the command to wait until the refresh is finished.'
-      )
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option(
+        '-P --print-diff',
+        'Outputs the diff to a file in the directory where the command was run.'
+      ).default(false, 'false')
     )
     .addOption(
       new Option(
@@ -85,7 +103,12 @@ export default function setup() {
           const outcome = await compareExportToDirectory(
             options.masterDir,
             options.frodoExportDir,
-            options.whatIf
+            options.whatIf,
+            options.effectSecrets,
+            options.waitSecrets,
+            options.promptPrune,
+            options.noPrune,
+            options.printDiff
           );
           verboseMessage('done');
           if (!outcome) process.exitCode = 1;

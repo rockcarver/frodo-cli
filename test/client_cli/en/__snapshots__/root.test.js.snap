@@ -26,10 +26,10 @@ Commands:
   oauth                                                   Manage OAuth2 clients and providers.
   promote [options] [host] [realm] [username] [password]  Prepares a tenant to be promoted
   realm                                                   Manage realms.
-  role                                                  Manage internal (authorization) roles.
+  role                                                    Manage internal (authorization) roles.
   saml                                                    Manage SAML entity providers and circles of trust.
   script                                                  Manage scripts.
-  server                                                Manage servers.
+  server                                                  Manage servers.
   service                                                 Manage AM services.
   shell [options] [host] [realm] [username] [password]    Launch the frodo interactive shell.
   theme                                                   Manage themes.

@@ -9,8 +9,8 @@
       "description": "Set username from email and copy first and last name to applicant attributes.",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022013112,
       "name": "Prepare Account Creation",
       "script": "file://Prepare-Account-Creation.script.js"
     }

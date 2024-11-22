@@ -238,6 +238,7 @@
           },
           "clientType": "BROWSER",
           "script": "58c824ae-84ed-4724-82cd-db128fc3f6c",
+          "storeTokens": false,
           "usernameAttribute": "userName"
         },
         "e2c39477-847a-4df2-9c5d-b449a752638b": {

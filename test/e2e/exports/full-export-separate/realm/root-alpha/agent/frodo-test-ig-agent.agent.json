@@ -1,5 +1,5 @@
 {
-  "agents": {
+  "agent": {
     "frodo-test-ig-agent": {
       "_id": "frodo-test-ig-agent",
       "_type": {

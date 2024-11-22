@@ -9,8 +9,8 @@
       "description": "Load reference selfie into shared state",
       "evaluatorVersion": "2.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022013040,
       "name": "Load Reference Selfie",
       "script": "file://Load-Reference-Selfie.script.js"
     }

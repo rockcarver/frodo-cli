@@ -1,5 +1,5 @@
 {
-  "agents": {
+  "agent": {
     "frodo-test-java-agent2": {
       "_id": "frodo-test-java-agent2",
       "_type": {

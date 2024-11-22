@@ -6,6 +6,7 @@ import {
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import yesno from 'yesno';
 
 import { printError, verboseMessage } from '../utils/Console';
 import {
@@ -29,7 +30,10 @@ import {
 } from './cloud/VariablesOps';
 import { exportItem } from './ConfigOps';
 import { importEmailTemplateFromFile } from './EmailTemplateOps';
-import { deleteConfigEntityById, importConfigEntityFromFile } from './IdmOps';
+import {
+  deleteConfigEntityById,
+  importFirstConfigEntityFromFile,
+} from './IdmOps';
 import { deleteJourney, importJourneyFromFile } from './JourneyOps';
 import { deleteMapping, importMappingFromFile } from './MappingOps';
 import {
@@ -43,6 +47,8 @@ import {
 } from './ResourceTypeOps';
 import { deleteScriptId, importScriptsFromFile } from './ScriptOps';
 import { deleteService, importFirstServiceFromFile } from './ServiceOps.js';
+
+const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 const { applyUpdates } = frodo.cloud.startup;
 
@@ -62,6 +68,9 @@ const added = new Array<string>();
 const realms = new Set<string>();
 const logmessages = new Array<string>();
 
+let PromptPrune = false;
+let NoPrune = false;
+
 interface CompareObj {
   added: Array<string>;
   changed: Array<string>;
@@ -74,6 +83,9 @@ export async function compareExportToDirectory(
   whatIf: boolean,
   effectSecrets: boolean = false,
   wait: boolean = false,
+  promptPrune: boolean = false,
+  noPrune: boolean = false,
+  printDiff: boolean = false,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -84,6 +96,8 @@ export async function compareExportToDirectory(
   }
 ): Promise<boolean> {
   try {
+    PromptPrune = promptPrune;
+    NoPrune = noPrune;
     verboseMessage(
       `We are not currently using these options: ${options} but plan to at a future date`
     );
@@ -99,7 +113,9 @@ export async function compareExportToDirectory(
       changed: changed,
       deleted: deleted,
     };
-    saveJsonToFile(compareObj, getFilePath('a1' + fileDiffname, true));
+    if (printDiff) {
+      saveJsonToFile(compareObj, getFilePath('a1' + fileDiffname, true));
+    }
 
     verboseMessage(realms);
 
@@ -167,12 +183,13 @@ export async function compareExportToDirectory(
       }
     }
 
-    saveJsonToFile(logmessages, getFilePath('a2' + fileDiffname, true));
+    if (printDiff) {
+      saveJsonToFile(logmessages, getFilePath('a2' + fileDiffname, true));
+    }
 
     return true;
   } catch (error) {
     printError(error);
-    verboseMessage('Hello there we have an error!!!!!!!!!!!');
   }
   return false;
 }
@@ -650,7 +667,7 @@ async function addSwitch(
       if (importFilePath.includes('emailTemplate')) {
         break;
       }
-      const outcome = await importConfigEntityFromFile(importFilePath);
+      const outcome = await importFirstConfigEntityFromFile(importFilePath);
       logmessages.push(`add idm ${importFilePath}`);
       verboseMessage(`add idm ${importFilePath}\n`);
       logmessages.push(`outcome: ${outcome}`);
@@ -888,6 +905,31 @@ async function deleteSwitch(
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete journey ${deleteFilePath}\n`);
+      if (!NoPrune) {
+        verboseMessage(
+          `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
+        );
+        try {
+          const orphanedNodes = await findOrphanedNodes();
+          if (orphanedNodes.length > 0) {
+            if (PromptPrune) {
+              const ok = await yesno({
+                question: `Prune (permanently delete) orphaned nodes from journey ${journeyId}? (y|n):`,
+              });
+              if (ok) {
+                await removeOrphanedNodes(orphanedNodes);
+              }
+            } else {
+              await removeOrphanedNodes(orphanedNodes);
+            }
+          } else {
+            verboseMessage('No orphaned nodes found.');
+          }
+        } catch (error) {
+          printError(error);
+          process.exitCode = 1;
+        }
+      }
       break;
     }
     case 'managedApplication': {

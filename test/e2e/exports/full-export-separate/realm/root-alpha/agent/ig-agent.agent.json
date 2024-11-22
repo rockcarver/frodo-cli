@@ -1,5 +1,5 @@
 {
-  "agents": {
+  "agent": {
     "ig-agent": {
       "_id": "ig-agent",
       "_type": {

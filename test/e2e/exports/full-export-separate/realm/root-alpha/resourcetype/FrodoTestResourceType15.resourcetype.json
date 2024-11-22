@@ -8,8 +8,8 @@
       "createdBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
       "creationDate": 1725916400790,
       "description": "Frodo Test Resource Type Fifteen",
-      "lastModifiedBy": "id=bc01b841-b6ec-4691-b9d6-561b306e12db,ou=user,ou=am-config",
-      "lastModifiedDate": 1730325157860,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021993114,
       "name": "FrodoTestResourceType15",
       "patterns": [
         "pattern2://*:*/*?*",

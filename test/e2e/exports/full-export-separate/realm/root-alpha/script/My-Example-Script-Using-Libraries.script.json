@@ -9,8 +9,8 @@
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990182,
       "name": "My Example Script Using Libraries",
       "script": "file://My-Example-Script-Using-Libraries.script.js"
     }

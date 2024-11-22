@@ -34,7 +34,7 @@
       "editable": true,
       "entitlementCombiner": "DenyOverride",
       "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
-      "lastModifiedDate": 1730139285014,
+      "lastModifiedDate": 1731021997369,
       "name": "EdgePolicySet",
       "resourceComparator": null,
       "resourceTypeUuids": [
