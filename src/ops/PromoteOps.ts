@@ -1,8 +1,4 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
-import {
-  FullExportInterface,
-  FullExportOptions,
-} from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -28,7 +24,6 @@ import {
   deleteVariableById,
   importVariableFromFile,
 } from './cloud/VariablesOps';
-import { exportItem } from './ConfigOps';
 import { importEmailTemplateFromFile } from './EmailTemplateOps';
 import {
   deleteConfigEntityById,
@@ -52,15 +47,7 @@ const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
 
 const { applyUpdates } = frodo.cloud.startup;
 
-const {
-  saveJsonToFile,
-  getFilePath,
-  getWorkingDirectory,
-  getRealmUsingExportFormat,
-} = frodo.utils;
-const { exportFullConfiguration } = frodo.config;
-
-const exportDir = getWorkingDirectory(true) + '/frodo-export';
+const { saveJsonToFile, getFilePath, getRealmUsingExportFormat } = frodo.utils;
 
 const changed = new Array<string>();
 const deleted = new Array<string>();
@@ -77,6 +64,19 @@ interface CompareObj {
   deleted: Array<string>;
 }
 
+/**
+ * runs a comparison of two config export directories (AxND flags) to check for differences and
+ * if there are differences it will then run imports and deletes on the tenant based off those differences found
+ * @param masterDir master directory that the changes run will try to emulate
+ * @param exportDir exported directory that the master dir is compared to
+ * @param whatIf flag to run the comparison but not affect the differences if true
+ * @param effectSecrets if true esv's will be effected
+ * @param wait causes function to wait for an environment refresh to finish before letting to of control if a refresh is necessary
+ * @param promptPrune when true if a prune of orphaned nodes will run the user will be prompted to say yes or no
+ * @param noPrune when true pruning of orphaned nodes will not occur
+ * @param printDiff when true outputs two files, one that shows the files that were changed in some way and another that
+ * gives a log for if the changes were successful or not
+ */
 export async function compareExportToDirectory(
   masterDir: string,
   exportDir: string,
@@ -85,22 +85,11 @@ export async function compareExportToDirectory(
   wait: boolean = false,
   promptPrune: boolean = false,
   noPrune: boolean = false,
-  printDiff: boolean = false,
-  options: FullExportOptions = {
-    useStringArrays: true,
-    noDecode: false,
-    coords: true,
-    includeDefault: true,
-    includeActiveValues: false,
-    target: '',
-  }
+  printDiff: boolean = false
 ): Promise<boolean> {
   try {
     PromptPrune = promptPrune;
     NoPrune = noPrune;
-    verboseMessage(
-      `We are not currently using these options: ${options} but plan to at a future date`
-    );
     verboseMessage(`Master dir: ${masterDir}`);
     verboseMessage(`Export dir: ${exportDir}`);
 
@@ -194,6 +183,10 @@ export async function compareExportToDirectory(
   return false;
 }
 
+/**
+ * checks to see if there were any changes to esv's to see if an environment refresh is necessary
+ * @param files the compare object we need to filter through to see if any variables or secrets were changed
+ */
 function enviornmentChanged(files: CompareObj): boolean {
   // variables
   let variable = files.changed.find((val) => val.includes('global/variable'));
@@ -208,6 +201,7 @@ function enviornmentChanged(files: CompareObj): boolean {
   if (variable) {
     return true;
   }
+  // todo: need to work around how secrets encrpt
   // secrets
   // variable = files.changed.find((val) => val.includes('global/secret'));
   // if (variable) {
@@ -223,6 +217,14 @@ function enviornmentChanged(files: CompareObj): boolean {
   // }
 }
 
+/**
+ * Takes in a compare object and runs through all the imports and exports that were determined by and earlier
+ * copmarison
+ * @param compObj object that contains the sub-paths for all the configs that were changed, added, or deleted
+ * @param masterDir path to the master directory
+ * @param exportDir path to the export directory
+ * @param effectSecrets true if we want esv's to be effected
+ */
 export async function effectDifferences(
   compObj: CompareObj,
   masterDir: string,
@@ -242,79 +244,22 @@ export async function effectDifferences(
 }
 
 /**
- * Export everything to separate files
- * @param {boolean} extract Extracts the scripts from the exports into separate files if true
- * @param {boolean} separateMappings separate sync.json mappings if true, otherwise keep them in a single file
- * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @param {FullExportOptions} options export options
- * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ * hashes the file with sha256
+ * @param filePath path to the config object
  */
-export async function exportEverythingToFiles(
-  options: FullExportOptions = {
-    useStringArrays: true,
-    noDecode: false,
-    coords: true,
-    includeDefault: false,
-    includeActiveValues: false,
-    target: '',
-  },
-  extract: boolean = true,
-  separateMappings: boolean = false,
-  includeMeta: boolean = false
-): Promise<boolean> {
-  try {
-    const collectErrors: Error[] = [];
-    const exportData: FullExportInterface = await exportFullConfiguration(
-      options,
-      collectErrors
-    );
-    delete exportData.meta;
-    const baseDirectory = exportDir;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.entries(exportData.global).forEach(([type, obj]: [string, any]) =>
-      exportItem(
-        exportData.global,
-        type,
-        obj,
-        `${baseDirectory}/global`,
-        includeMeta,
-        extract,
-        separateMappings
-      )
-    );
-    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
-      Object.entries(data).forEach(([type, obj]: [string, any]) =>
-        exportItem(
-          data,
-          type,
-          obj,
-          `${baseDirectory}/realm/${realm}`,
-          includeMeta,
-          extract,
-          separateMappings
-        )
-      )
-    );
-    if (collectErrors.length > 0) {
-      throw new FrodoError(`Errors occurred during full export`, collectErrors);
-    }
-    return true;
-  } catch (error) {
-    printError(error);
-  }
-  return false;
-}
-
-// Function to hash a file using SHA-256
-function hashFile(filePath) {
+function hashFile(filePath): string {
   const hash = crypto.createHash('sha256');
   const fileData = fs.readFileSync(filePath);
   hash.update(fileData);
   return hash.digest('hex');
 }
 
-// Function to compare two directories
-function compareDirectories(dir1, dir2) {
+/**
+ * Compares all the files within two separate directories that have identical file structures
+ * @param dir1 path to the master directory
+ * @param dir2 path to the export directory
+ */
+function compareDirectories(dir1: string, dir2: string) {
   // Walk through dir1
   const walkDir = (dir, callback) => {
     fs.readdirSync(dir).forEach((file) => {
@@ -375,21 +320,29 @@ function compareDirectories(dir1, dir2) {
   });
 }
 
+/**
+ * removes specific keys from two json objects and then compares them to determine a difference
+ * @param masterFilePath path to the master config object
+ * @param counterpartPath path to the exported config object
+ * @param keysToRemove keys to remove from the objects before comparing them
+ */
 function removeKeysAndCompare(
-  importFilePath: string,
+  masterFilePath: string,
   counterpartPath: string,
   keysToRemove: Array<string>
 ): boolean {
-  const data = fs.readFileSync(importFilePath, 'utf8');
+  const data = fs.readFileSync(masterFilePath, 'utf8');
   const obj = removeKeys(JSON.parse(data), keysToRemove);
   const dataCopy = fs.readFileSync(counterpartPath, 'utf8');
   const objCopy = removeKeys(JSON.parse(dataCopy), keysToRemove);
-  if (JSON.stringify(objCopy) === JSON.stringify(obj)) {
-    return true;
-  }
-  return false;
+  return JSON.stringify(objCopy) === JSON.stringify(obj);
 }
 
+/**
+ * removes specific keys and values from json objects
+ * @param obj the object that we want to remove the values from
+ * @param keysToRemove the keys to remove from that object
+ */
 function removeKeys(obj, keysToRemove) {
   return Object.fromEntries(
     Object.entries(obj)
@@ -402,20 +355,26 @@ function removeKeys(obj, keysToRemove) {
   );
 }
 
+/**
+ * removes nulls from json objects and then compares the two objects for changes
+ * @param masterFilePath path to the master config object
+ * @param counterpartPath path to the export config object
+ */
 function removeNullsAndCompare(
-  importFilePath: string,
+  masterFilePath: string,
   counterpartPath: string
 ): boolean {
-  const data = fs.readFileSync(importFilePath, 'utf8');
+  const data = fs.readFileSync(masterFilePath, 'utf8');
   const object = removeNulls(JSON.parse(data));
   const dataCopy = fs.readFileSync(counterpartPath, 'utf8');
   const objectCopy = removeNulls(JSON.parse(dataCopy));
-  if (JSON.stringify(object) === JSON.stringify(objectCopy)) {
-    return true;
-  }
-  return false;
+  return JSON.stringify(object) === JSON.stringify(objectCopy);
 }
 
+/**
+ * removes nulls from the config objects
+ * @param obj object to remove the null values from
+ */
 function removeNulls(obj) {
   return Object.fromEntries(
     Object.entries(obj)
@@ -428,6 +387,14 @@ function removeNulls(obj) {
   );
 }
 
+/**
+ * When these objects change certain parts are not as important as others when they are changed
+ * so if that part is determined to have been the part that changed and other parts did not change
+ * the object will not be flagged as changed.
+ * @param path sub-path to the config object
+ * @param dir path to the master directory
+ * @param counterpartPath path to the export directory
+ */
 function checkChange(path: string, dir: string, counterpartPath: string) {
   const type = getTypeFromPath(path);
   const importFilePath = dir + '/' + path;
@@ -489,6 +456,12 @@ function checkChange(path: string, dir: string, counterpartPath: string) {
   }
 }
 
+/**
+ * logs messages to say the file was changed then calls add file
+ * @param path sub-path to the config object
+ * @param dir path to the base directory where the sub-path starts
+ * @param effectSecrets true if we want to change esv's
+ */
 async function changeFile(
   path: string,
   dir: string,
@@ -499,6 +472,12 @@ async function changeFile(
   await addFile(path, dir, effectSecrets);
 }
 
+/**
+ * Sets the variables before running the add switch statement
+ * @param path sub-path to the config object
+ * @param dir path to the base directory where the sub-path starts
+ * @param effectSecrets true if we want to change esv's
+ */
 async function addFile(
   path: string,
   dir: string,
@@ -513,6 +492,15 @@ async function addFile(
   await addSwitch(importFilePath, type, global, inRealm, effectSecrets);
 }
 
+/**
+ * A switch statement for effecting imports to the different config files if it was determined that a file
+ * was changed or needs to be added into the tenant
+ * @param importFilePath path to the config object
+ * @param type object type of the config object
+ * @param global tru if the config is in the global realm
+ * @param inRealm true if the object is in any realm other than the global realm
+ * @param effectSecrets set to true if we want esv's to be changed
+ */
 async function addSwitch(
   importFilePath: string,
   type: string,
@@ -637,16 +625,8 @@ async function addSwitch(
       logmessages.push(' ');
       break;
     }
+    // Taken care of by Idm
     case 'theme': {
-      // Taken care of by Idm
-
-      // const theme = getJsonObjectTwoDown(importFilePath)
-      // logmessages.push(`Theme Id: ${theme._id}`)
-      // const outcome = await importThemesFromFile(importFilePath)
-      // logmessages.push(`add theme ${importFilePath}`);
-      // verboseMessage(`add theme ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
-      // logmessages.push(' ');
       break;
     }
     case 'emailTemplate': {
@@ -674,6 +654,7 @@ async function addSwitch(
       logmessages.push(' ');
       break;
     }
+    // todo: need to determine how to get the compare to work properly
     case 'secret': {
       if (effectSecrets) {
         const secret = getJsonObjectTwoDown(importFilePath);
@@ -787,21 +768,8 @@ async function addSwitch(
       logmessages.push(' ');
       break;
     }
+    // Taken care of by service
     case 'idp': {
-      //taken care of by service
-
-      // const idp = getJsonObjectTwoDown(importFilePath)
-      // logmessages.push(`add idp ${importFilePath}`);
-      // verboseMessage(`add idp with id: ${idp._id} from file: ${importFilePath}`);
-      // const outcome = await importSocialIdentityProviderFromFile(
-      //   idp._id,
-      //   importFilePath,
-      //   {
-      //     deps: false
-      //   }
-      // )
-      // logmessages.push(`outcome = ${outcome}`);
-      // logmessages.push(' ');
       break;
     }
     case 'policy': {
@@ -817,29 +785,14 @@ async function addSwitch(
       logmessages.push(' ');
       break;
     }
+    // These next three object types have deletes written for them, but they are not promotable so we don't worry about effecting them
     case 'policyset': {
       break;
     }
     case 'saml': {
-      // const hosted = getJsonObjectOneDown(importFilePath).hosted
-      // const saml = hosted[Object.keys(hosted)[0]];
-      // verboseMessage(`add saml with entityID = ${saml.entityId}`)
-      // logmessages.push(`add saml with entityID = ${saml.entityId}`);
-      // const outcome = await importSaml2ProviderFromFile(
-      //   saml.entityId,
-      //   importFilePath,
-      //   { deps: true }
-      // )
-      // logmessages.push(`add saml ${importFilePath}`);
-      // verboseMessage(`add saml ${importFilePath}\n`);
-      // logmessages.push(`outcome: ${outcome}`)
-      // logmessages.push(' ');
       break;
     }
     case 'cot': {
-      // verboseMessage(`Add Circle of Trusts from file: ${importFilePath}`)
-      // const outcome = await importCirclesOfTrustFromFile(importFilePath);
-      // logmessages.push(`Add Circle of Trusts from file: ${importFilePath}`)
       break;
     }
     default: {
@@ -852,6 +805,12 @@ async function addSwitch(
   return;
 }
 
+/**
+ * sets the variables necessary from the path and then runs the delete switch
+ * @param path path to the config object
+ * @param dir the base directory that leads to the config object
+ * @param effectSecrets true if we want to effect changes to esv's
+ */
 async function deleteFile(
   path: string,
   dir: string,
@@ -866,6 +825,13 @@ async function deleteFile(
   await deleteSwitch(deleteFilePath, type, global, effectSecrets);
 }
 
+/**
+ * A switch statement for effecting deletes to different config files
+ * @param deleteFilePath the path to the delete config object
+ * @param type the type of object to delete
+ * @param global true if the object is in the global config
+ * @param effectSecrets set to true if we want esv's to be changed
+ */
 async function deleteSwitch(
   deleteFilePath: string,
   type: string,
@@ -996,24 +962,12 @@ async function deleteSwitch(
       verboseMessage(`delete service ${deleteFilePath}\n`);
       break;
     }
+    // Taken care of by Idm
     case 'theme': {
-      //taken care of by Idm
-
-      // const theme = getJsonObjectTwoDown(deleteFilePath);
-      // verboseMessage(
-      //   `Deleting theme with id "${
-      //     theme._id
-      //   }" from realm "${state.getRealm()}"...`
-      // );
-      // const outcome = await deleteTheme(theme._id);
-      // logmessages.push(`delete theme ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`);
-      // logmessages.push(' ');
-      // verboseMessage(`delete theme ${deleteFilePath}\n`);
       break;
     }
+    // Taken care of by the Idm config
     case 'emailTemplate': {
-      // Taken care of by the Idm config
       break;
     }
     case 'idm': {
@@ -1030,6 +984,7 @@ async function deleteSwitch(
       verboseMessage(`delete idm ${deleteFilePath}\n`);
       break;
     }
+    // todo: Currently secrets when exported are hashed so it needs to be thought of more
     case 'secret': {
       if (effectSecrets) {
         const secret = getJsonObjectTwoDown(deleteFilePath);
@@ -1115,16 +1070,9 @@ async function deleteSwitch(
       logmessages.push(' ');
       break;
     }
+    // When an idp object is modified so is a service file, by changing the service config it will also
+    // change the idp config.
     case 'idp': {
-      // taken care of by service
-
-      // const idp = getJsonObjectTwoDown(deleteFilePath)
-      // verboseMessage(`delete idp with id: ${idp._id} from file: ${deleteFilePath}`)
-      // logmessages.push(`delete idp with id: ${idp._id} from file: ${deleteFilePath}`);
-      // const outcome = await deleteSocialIdentityProviderById(idp._id)
-      // logmessages.push(`outcome: ${outcome}`)
-      // logmessages.push(' ');
-      // verboseMessage(`delete idp ${deleteFilePath}\n`);
       break;
     }
     case 'policy': {
@@ -1137,33 +1085,14 @@ async function deleteSwitch(
       verboseMessage(`delete policy ${deleteFilePath}\n`);
       break;
     }
+    // These next three object types have deletes written for them, but they are not promotable so we don't worry about effecting them
     case 'cot': {
-      // logmessages.push(`no delete exitsts for Circle of Trust`);
-      // logmessages.push(`delete Circle of Trust ${deleteFilePath}`);
-      // logmessages.push(' ');
-      // verboseMessage(`no delete exitsts for Circle of Trust`);
-      // verboseMessage(`delete Circle of Trust ${deleteFilePath}\n`);
       break;
     }
     case 'policyset': {
-      // const policyset = getJsonObjectOneDown(deleteFilePath);
-      // verboseMessage(`policy set Id: ${Object.keys(policyset)[0]}`);
-      // const outcome = await deletePolicySetById(Object.keys(policyset)[0]);
-      // logmessages.push(`delete policyset ${deleteFilePath}`);
-      // logmessages.push(`outcome: ${outcome}`)
-      // logmessages.push(' ');
-      // verboseMessage(`delete policyset ${deleteFilePath}\n`);
       break;
     }
     case 'saml': {
-      // const hosted = getJsonObjectOneDown(deleteFilePath).hosted
-      // const saml = hosted[Object.keys(hosted)[0]];
-      // verboseMessage(`delete saml with entityID = ${saml.entityId}`)
-      // logmessages.push(`delete saml with entityID = ${saml.entityId}`);
-      // await deleteSaml2ProviderById(saml.entityId)
-      // logmessages.push(`delete saml ${deleteFilePath}`);
-      // logmessages.push(' ');
-      // verboseMessage(`delete saml ${deleteFilePath}\n`);
       break;
     }
     default: {
@@ -1180,6 +1109,10 @@ async function deleteSwitch(
   return;
 }
 
+/**
+ * Opens the file and returns the json object two keys down into the config object.
+ * @param filePath
+ */
 function getJsonObjectTwoDown(filePath: string): any {
   try {
     const data = fs.readFileSync(filePath, 'utf8');
@@ -1191,6 +1124,10 @@ function getJsonObjectTwoDown(filePath: string): any {
   }
 }
 
+/**
+ * Opens the file and returns a json object one element down from the top object
+ * @param filePath path to the config file
+ */
 function getJsonObjectOneDown(filePath: string): any {
   try {
     const data = fs.readFileSync(filePath, 'utf8');
@@ -1201,6 +1138,11 @@ function getJsonObjectOneDown(filePath: string): any {
   }
 }
 
+/**
+ * Sets the realm for the next command to run on.
+ * @param path sub-path to the config file currently being looked at
+ * @param inRealm if the object is in a realm or not
+ */
 function setRealmFromPath(path: string, inRealm: boolean) {
   if (inRealm) {
     let realm = path.substring(
@@ -1213,6 +1155,10 @@ function setRealmFromPath(path: string, inRealm: boolean) {
   }
 }
 
+/**
+ * Pulls the path out of the path to the config file we are referencing.
+ * @param path the sub-path to the config file
+ */
 function checkForRealmFromPath(path: string) {
   const inRealm = path.substring(0, path.indexOf('/')) === 'realm';
   if (inRealm) {
@@ -1226,10 +1172,13 @@ function checkForRealmFromPath(path: string) {
   }
 }
 
+/**
+ * These three object types are not promotable so we don't care to import or delete them with changes.
+ * @param path path to the config file we are looking at
+ */
 function checkTypeIsPromotable(path: string): boolean {
   const type = getTypeFromPath(path);
-  let promotable = true;
-
+  let promotable: boolean;
   switch (type) {
     case 'cot': {
       promotable = false;
@@ -1249,6 +1198,11 @@ function checkTypeIsPromotable(path: string): boolean {
   return promotable;
 }
 
+/**
+ * Pass in the path for where the export is and using a substring of that path
+ * the type is inferred from the directory where the file was stored.
+ * @param path the sub-path that is used to determine the type
+ */
 function getTypeFromPath(path: string): string {
   let type: string;
   if (path.includes('idm')) {
