@@ -1,0 +1,58 @@
+{
+  "policyset": {
+    "EdgePolicySet": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "Script",
+        "ClientId",
+        "AMIdentityMembership",
+        "IPv6",
+        "SimpleTime",
+        "IPv4",
+        "LEAuthLevel",
+        "LDAPFilter",
+        "AuthScheme",
+        "Session",
+        "AND",
+        "Expiration",
+        "AuthenticateToRealm",
+        "ResourceEnvIP",
+        "Policy",
+        "SessionProperty",
+        "OAuth2Scope",
+        "OR",
+        "Transaction",
+        "NOT",
+        "AuthLevel",
+        "AuthenticateToService"
+      ],
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1669672555404,
+      "description": "Policy Set EdgePolicySet",
+      "displayName": null,
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021997369,
+      "name": "EdgePolicySet",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AuthenticatedUsers",
+        "NOT",
+        "Identity",
+        "Uma",
+        "OR",
+        "AND",
+        "NONE",
+        "Policy",
+        "JwtClaim"
+      ]
+    }
+  }
+}

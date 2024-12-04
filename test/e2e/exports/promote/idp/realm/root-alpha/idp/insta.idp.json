@@ -1,0 +1,45 @@
+{
+  "idp": {
+    "insta": {
+      "_id": "insta",
+      "_type": {
+        "_id": "instagramConfig",
+        "collection": true,
+        "name": "Client configuration for Instagram."
+      },
+      "authenticationIdKey": "id",
+      "authorizationEndpoint": "https://api.instagram.com/oauth/authorize/",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "insta",
+      "enabled": true,
+      "introspectEndpoint": "https://graph.instagram.com/debug_token",
+      "issuerComparisonCheckType": "EXACT",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectURI": "https://insta.dev.com",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "user_profile"
+      ],
+      "tokenEndpoint": "https://api.instagram.com/oauth/access_token",
+      "transform": "1244e639-4a31-401d-ab61-d75133d8dc9e",
+      "uiConfig": {
+        "buttonClass": "fa-instagram",
+        "buttonCustomStyle": "background-color: #3f729b; border-color: #3f729b;color: white;",
+        "buttonCustomStyleHover": "background-color: #305777; border-color: #305777;color: white;",
+        "buttonDisplayName": "Instagram",
+        "buttonImage": "",
+        "iconBackground": "#3f729b",
+        "iconClass": "fa-instagram",
+        "iconFontColor": "white"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "https://graph.instagram.com/me?fields=id,username"
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "trees": {
+    "ProgressiveProfile": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "0a042e10-b22e-4e02-86c4-65e26e775f7a": {
+          "_id": "0a042e10-b22e-4e02-86c4-65e26e775f7a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "preferences/updates",
+            "preferences/marketing"
+          ],
+          "identityAttribute": "userName",
+          "required": false,
+          "validateInputs": false
+        }
+      },
+      "nodes": {
+        "423a959a-a1b9-498a-b0f7-596b6b6e775a": {
+          "_id": "423a959a-a1b9-498a-b0f7-596b6b6e775a",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/bravo_user",
+          "ignoredFields": [],
+          "patchAsObject": false
+        },
+        "8afdaec3-275e-4301-bb53-34f03e6a4b29": {
+          "_id": "8afdaec3-275e-4301-bb53-34f03e6a4b29",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "LoginCountDecisionNode",
+            "collection": true,
+            "name": "Login Count Decision"
+          },
+          "amount": 3,
+          "identityAttribute": "userName",
+          "interval": "AT"
+        },
+        "a1f45b44-5bf7-4c57-aa3f-75c619c7db8e": {
+          "_id": "a1f45b44-5bf7-4c57-aa3f-75c619c7db8e",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "QueryFilterDecisionNode",
+            "collection": true,
+            "name": "Query Filter Decision"
+          },
+          "identityAttribute": "userName",
+          "queryFilter": "!(/preferences pr) or /preferences/marketing eq false or /preferences/updates eq false"
+        },
+        "a5aecad8-854a-4ed5-b719-ff6c90e858c0": {
+          "_id": "a5aecad8-854a-4ed5-b719-ff6c90e858c0",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "0a042e10-b22e-4e02-86c4-65e26e775f7a",
+              "displayName": "Attribute Collector",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Please select your preferences"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "ProgressiveProfile",
+        "description": "Prompt for missing preferences on 3rd login",
+        "enabled": true,
+        "entryNodeId": "8afdaec3-275e-4301-bb53-34f03e6a4b29",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "423a959a-a1b9-498a-b0f7-596b6b6e775a": {
+            "connections": {
+              "FAILURE": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "PATCHED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Patch Object",
+            "nodeType": "PatchObjectNode",
+            "x": 766,
+            "y": 36
+          },
+          "8afdaec3-275e-4301-bb53-34f03e6a4b29": {
+            "connections": {
+              "false": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "true": "a1f45b44-5bf7-4c57-aa3f-75c619c7db8e"
+            },
+            "displayName": "Login Count Decision",
+            "nodeType": "LoginCountDecisionNode",
+            "x": 152,
+            "y": 36
+          },
+          "a1f45b44-5bf7-4c57-aa3f-75c619c7db8e": {
+            "connections": {
+              "false": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "true": "a5aecad8-854a-4ed5-b719-ff6c90e858c0"
+            },
+            "displayName": "Query Filter Decision",
+            "nodeType": "QueryFilterDecisionNode",
+            "x": 357,
+            "y": 36
+          },
+          "a5aecad8-854a-4ed5-b719-ff6c90e858c0": {
+            "connections": {
+              "outcome": "423a959a-a1b9-498a-b0f7-596b6b6e775a"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 555,
+            "y": 20
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 802,
+            "y": 312
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 919,
+            "y": 171
+          },
+          "startNode": {
+            "x": 50,
+            "y": 58.5
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"Progressive Profile\"]"
+        }
+      }
+    }
+  }
+}

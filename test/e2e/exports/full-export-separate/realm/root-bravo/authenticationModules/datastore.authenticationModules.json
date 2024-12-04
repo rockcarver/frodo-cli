@@ -1,0 +1,13 @@
+{
+  "authenticationModules": {
+    "datastore": {
+      "_id": "datastore",
+      "_type": {
+        "_id": "datastore",
+        "collection": true,
+        "name": "Data Store"
+      },
+      "authenticationLevel": 0
+    }
+  }
+}

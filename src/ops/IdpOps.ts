@@ -15,6 +15,7 @@ import {
 const { getRealmString, getTypedFilename, saveJsonToFile } = frodo.utils;
 const {
   readSocialIdentityProviders,
+  deleteSocialIdentityProvider,
   exportSocialIdentityProvider,
   exportSocialIdentityProviders,
   importFirstSocialIdentityProvider,
@@ -348,6 +349,30 @@ export async function importSocialIdentityProvidersFromFiles(
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing providers`, 'fail');
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete idp by id
+ * @param {String} id idp id
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteSocialIdentityProviderById(
+  id: string
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${id}...`
+  );
+  try {
+    await deleteSocialIdentityProvider(id);
+    stopProgressIndicator(spinnerId, `Deleted ${id}.`, 'success');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
   }
   return false;

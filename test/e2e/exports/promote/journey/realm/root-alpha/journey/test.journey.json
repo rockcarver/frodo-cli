@@ -1,0 +1,38 @@
+{
+  "trees": {
+    "test": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {},
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "test",
+        "enabled": true,
+        "entryNodeId": "d26176be-ea6f-4f2a-81cd-3d41dd6cee4d",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {},
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 50,
+            "y": 117
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 152,
+            "y": 25
+          },
+          "startNode": {
+            "x": 50,
+            "y": 25
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

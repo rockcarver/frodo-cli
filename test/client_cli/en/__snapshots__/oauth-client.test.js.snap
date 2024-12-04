@@ -9,6 +9,7 @@ Options:
   -h, --help  Help
 
 Commands:
+  delete      Delete OAuth2 clients.
   export      Export OAuth2 clients.
   help        display help for command
   import      Import OAuth2 clients.

@@ -1,0 +1,13 @@
+{
+  "variables": {
+    "esv-test-variable-light": {
+      "_id": "esv-test-variable-light",
+      "description": "Test variable containing the speed of light in meters per second (as an int).",
+      "expressionType": "int",
+      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": true,
+      "value": "299792458"
+    }
+  }
+}

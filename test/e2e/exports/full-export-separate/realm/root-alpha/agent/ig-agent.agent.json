@@ -1,0 +1,18 @@
+{
+  "agent": {
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "agentgroup": null,
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "Realm_Subs",
+      "secretLabelIdentifier": null,
+      "status": "Active"
+    }
+  }
+}

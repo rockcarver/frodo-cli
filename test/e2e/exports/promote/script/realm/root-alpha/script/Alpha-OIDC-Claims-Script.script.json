@@ -1,0 +1,18 @@
+{
+  "script": {
+    "cf3515f0-8278-4ee3-a530-1bad7424c416": {
+      "_id": "cf3515f0-8278-4ee3-a530-1bad7424c416",
+      "context": "OIDC_CLAIMS",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Default alpha realm script for OIDC claims",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Alpha OIDC Claims Script",
+      "script": "file://Alpha-OIDC-Claims-Script.script.js"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "applicationTypes": {
+    "umaApplicationType": {
+      "_id": "umaApplicationType",
+      "actions": {},
+      "applicationClassName": "com.sun.identity.entitlement.Application",
+      "name": "umaApplicationType",
+      "resourceComparator": "org.forgerock.openam.uma.UmaPolicyResourceMatcher",
+      "saveIndex": "org.forgerock.openam.uma.UmaPolicySaveIndex",
+      "searchIndex": "org.forgerock.openam.uma.UmaPolicySearchIndex"
+    }
+  }
+}

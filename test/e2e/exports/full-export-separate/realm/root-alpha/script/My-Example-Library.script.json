@@ -1,0 +1,39 @@
+{
+  "script": {
+    "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
+      "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Library",
+      "evaluatorVersion": "2.0",
+      "exports": [
+        {
+          "id": "MSG",
+          "type": "String"
+        },
+        {
+          "arity": 1,
+          "id": "add",
+          "type": "Function"
+        },
+        {
+          "arity": 1,
+          "id": "logTotal",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logTotalWithMessage",
+          "type": "Function"
+        }
+      ],
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990103,
+      "name": "My Example Library",
+      "script": "file://My-Example-Library.script.js"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-blue-piller": {
+      "_id": "esv-blue-piller",
+      "description": "Zion membership criteria.",
+      "expressionType": "bool",
+      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "false"
+    }
+  }
+}

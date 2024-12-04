@@ -1,0 +1,20 @@
+{
+  "subjectTypes": {
+    "JwtClaim": {
+      "_id": "JwtClaim",
+      "config": {
+        "properties": {
+          "claimName": {
+            "type": "string"
+          },
+          "claimValue": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "JwtClaim"
+    }
+  }
+}

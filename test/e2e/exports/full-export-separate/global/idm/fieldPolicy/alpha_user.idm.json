@@ -1,0 +1,51 @@
+{
+  "idm": {
+    "fieldPolicy/alpha_user": {
+      "_id": "fieldPolicy/alpha_user",
+      "defaultPasswordStorageScheme": [
+        {
+          "_id": "PBKDF2-HMAC-SHA256"
+        }
+      ],
+      "passwordAttribute": "password",
+      "resourceCollection": "managed/alpha_user",
+      "type": "password-policy",
+      "validator": [
+        {
+          "_id": "alpha_userPasswordPolicy-length-based-password-validator",
+          "enabled": true,
+          "maxPasswordLength": 0,
+          "minPasswordLength": 10,
+          "type": "length-based"
+        },
+        {
+          "_id": "alpha_userPasswordPolicy-attribute-value-password-validator",
+          "checkSubstrings": true,
+          "enabled": true,
+          "matchAttribute": [
+            "mail",
+            "userName",
+            "givenName",
+            "sn"
+          ],
+          "minSubstringLength": 5,
+          "testReversedPassword": true,
+          "type": "attribute-value"
+        },
+        {
+          "_id": "alpha_userPasswordPolicy-character-set-password-validator",
+          "allowUnclassifiedCharacters": true,
+          "characterSet": [
+            "0:abcdefghijklmnopqrstuvwxyz",
+            "0:ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            "0:0123456789",
+            "0:~!@#$%^&*()-_=+[]{}|;:,.<>/?\"'\\`"
+          ],
+          "enabled": true,
+          "minCharacterSets": 4,
+          "type": "character-set"
+        }
+      ]
+    }
+  }
+}

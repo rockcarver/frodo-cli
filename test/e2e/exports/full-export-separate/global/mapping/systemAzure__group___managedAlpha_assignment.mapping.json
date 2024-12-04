@@ -1,0 +1,118 @@
+{
+  "mapping": {
+    "mapping/systemAzure__group___managedAlpha_assignment": {
+      "_id": "mapping/systemAzure__group___managedAlpha_assignment",
+      "consentRequired": false,
+      "displayName": "systemAzure__group___managedAlpha_assignment",
+      "icon": null,
+      "name": "systemAzure__group___managedAlpha_assignment",
+      "policies": [
+        {
+          "action": "EXCEPTION",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "DELETE",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "CREATE",
+          "situation": "MISSING"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "DELETE",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "EXCEPTION",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "IGNORE",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "UPDATE",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "LINK",
+          "situation": "FOUND"
+        },
+        {
+          "action": "CREATE",
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "default": "__RESOURCE__",
+          "target": "type"
+        },
+        {
+          "source": "",
+          "target": "description",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.description !== \"undefined\" && source.description !== null) ? source.description : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "default": "managedAlpha_user_systemAzureUser",
+          "target": "mapping"
+        },
+        {
+          "source": "",
+          "target": "name",
+          "transform": {
+            "globals": {},
+            "source": "(typeof source.displayName !== \"undefined\" && source.displayName !== null) ? source.displayName : source._id",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "attributes",
+          "transform": {
+            "globals": {},
+            "source": "[\n  {\n    'name': 'memberOf',\n    'value': [source]\n  }\n]",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "source": "_id",
+          "target": "_id",
+          "transform": {
+            "globals": {
+              "sourceObjectSet": "system_Azure___GROUP___"
+            },
+            "source": "sourceObjectSet.concat(source)",
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "source": "system/Azure/__GROUP__",
+      "target": "managed/alpha_assignment",
+      "targetQuery": {
+        "_queryFilter": "mapping eq \"managedAlpha_user_systemAzureUser\" and attributes[name eq \"memberOf\"]"
+      }
+    }
+  }
+}

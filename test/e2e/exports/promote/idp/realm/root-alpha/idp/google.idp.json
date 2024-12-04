@@ -1,0 +1,54 @@
+{
+  "idp": {
+    "google": {
+      "_id": "google",
+      "_type": {
+        "_id": "googleConfig",
+        "collection": true,
+        "name": "Client configuration for Google."
+      },
+      "acrValues": [],
+      "authenticationIdKey": "subchange",
+      "authorizationEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "297338177925-mho17cgnm540s2gre8h27feb6sbs1msd.apps.googleusercontent.com",
+      "enableNativeNonce": true,
+      "enabled": true,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": false,
+      "issuer": "https://accounts.google.com",
+      "issuerComparisonCheckType": "EXACT",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectURI": "https://idc.scheuber.io/login",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "tokenEndpoint": "https://www.googleapis.com/oauth2/v4/token",
+      "transform": "58d29080-4563-480b-89bb-1e7719776a21",
+      "uiConfig": {
+        "buttonClass": "",
+        "buttonCustomStyle": "background-color: #fff; color: #757575; border-color: #ddd;",
+        "buttonCustomStyleHover": "color: #6d6d6d; background-color: #eee; border-color: #ccc;",
+        "buttonDisplayName": "Google",
+        "buttonImage": "images/g-logo.png",
+        "iconBackground": "#4184f3",
+        "iconClass": "fa-google",
+        "iconFontColor": "white"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "https://www.googleapis.com/oauth2/v3/userinfo",
+      "userInfoResponseType": "JSON",
+      "wellKnownEndpoint": "https://accounts.google.com/.well-known/openid-configuration"
+    }
+  }
+}

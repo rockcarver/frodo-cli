@@ -1,0 +1,35 @@
+{
+  "serverInformation": {
+    "*": {
+      "_id": "*",
+      "cookieName": "6ac6499e9da2071",
+      "domains": [
+        "openam-frodo-dev.forgeblocks.com"
+      ],
+      "fileBasedConfiguration": true,
+      "forgotPassword": "false",
+      "forgotUsername": "false",
+      "kbaEnabled": "false",
+      "lang": "en-US",
+      "protectedUserAttributes": [
+        "telephoneNumber",
+        "mail"
+      ],
+      "realm": "/",
+      "referralsEnabled": "false",
+      "secureCookie": true,
+      "selfRegistration": "false",
+      "socialImplementations": [],
+      "successfulUserRegistrationDestination": "default",
+      "userIdAttributes": [
+        "fr-idm-uuid"
+      ],
+      "xuiUserSessionValidationEnabled": true,
+      "zeroPageLogin": {
+        "allowedWithoutReferer": true,
+        "enabled": false,
+        "refererWhitelist": []
+      }
+    }
+  }
+}

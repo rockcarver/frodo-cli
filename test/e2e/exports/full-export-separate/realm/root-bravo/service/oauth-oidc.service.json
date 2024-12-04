@@ -1,0 +1,420 @@
+{
+  "service": {
+    "oauth-oidc": {
+      "_id": "",
+      "_type": {
+        "_id": "oauth-oidc",
+        "collection": false,
+        "name": "OAuth2 Provider"
+      },
+      "advancedOAuth2Config": {
+        "allowClientCredentialsInTokenRequestQueryParameters": true,
+        "allowedAudienceValues": [],
+        "authenticationAttributes": [
+          "uid"
+        ],
+        "codeVerifierEnforced": "false",
+        "defaultScopes": [
+          "address",
+          "phone",
+          "openid",
+          "profile",
+          "email"
+        ],
+        "displayNameAttribute": "cn",
+        "expClaimRequiredInRequestObject": false,
+        "grantTypes": [
+          "implicit",
+          "urn:ietf:params:oauth:grant-type:saml2-bearer",
+          "refresh_token",
+          "password",
+          "client_credentials",
+          "urn:ietf:params:oauth:grant-type:device_code",
+          "authorization_code",
+          "urn:openid:params:grant-type:ciba",
+          "urn:ietf:params:oauth:grant-type:uma-ticket",
+          "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        ],
+        "hashSalt": "&{am.oidc.client.subject.identifier.hash.salt}",
+        "includeClientIdClaimInStatelessTokens": true,
+        "includeSubnameInTokenClaims": true,
+        "macaroonTokenFormat": "V2",
+        "maxAgeOfRequestObjectNbfClaim": 0,
+        "maxDifferenceBetweenRequestObjectNbfAndExp": 0,
+        "moduleMessageEnabledInPasswordGrant": false,
+        "nbfClaimRequiredInRequestObject": false,
+        "parRequestUriLifetime": 90,
+        "passwordGrantAuthService": "Login",
+        "persistentClaims": [],
+        "refreshTokenGracePeriod": 0,
+        "requestObjectProcessing": "OIDC",
+        "requirePushedAuthorizationRequests": false,
+        "responseTypeClasses": [
+          "code|org.forgerock.oauth2.core.AuthorizationCodeResponseTypeHandler",
+          "device_code|org.forgerock.oauth2.core.TokenResponseTypeHandler",
+          "token|org.forgerock.oauth2.core.TokenResponseTypeHandler",
+          "id_token|org.forgerock.openidconnect.IdTokenResponseTypeHandler"
+        ],
+        "supportedScopes": [
+          "email|Your email address",
+          "openid|",
+          "address|Your postal address",
+          "phone|Your telephone number(s)",
+          "profile|Your personal information",
+          "fr:idm:*",
+          "am-introspect-all-tokens"
+        ],
+        "supportedSubjectTypes": [
+          "public",
+          "pairwise"
+        ],
+        "tlsCertificateBoundAccessTokensEnabled": true,
+        "tlsCertificateRevocationCheckingEnabled": false,
+        "tlsClientCertificateHeaderFormat": "URLENCODED_PEM",
+        "tokenCompressionEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "tokenExchangeClasses": [
+          "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToAccessTokenExchanger",
+          "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToIdTokenExchanger",
+          "urn:ietf:params:oauth:token-type:access_token=>urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.AccessTokenToIdTokenExchanger",
+          "urn:ietf:params:oauth:token-type:id_token=>urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.idtoken.IdTokenToAccessTokenExchanger"
+        ],
+        "tokenSigningAlgorithm": "HS256",
+        "tokenValidatorClasses": [
+          "urn:ietf:params:oauth:token-type:id_token|org.forgerock.oauth2.core.tokenexchange.idtoken.OidcIdTokenValidator",
+          "urn:ietf:params:oauth:token-type:access_token|org.forgerock.oauth2.core.tokenexchange.accesstoken.OAuth2AccessTokenValidator"
+        ]
+      },
+      "advancedOIDCConfig": {
+        "alwaysAddClaimsToToken": true,
+        "amrMappings": {},
+        "authorisedIdmDelegationClients": [],
+        "authorisedOpenIdConnectSSOClients": [],
+        "claimsParameterSupported": false,
+        "defaultACR": [],
+        "idTokenInfoClientAuthenticationEnabled": true,
+        "includeAllKtyAlgCombinationsInJwksUri": false,
+        "loaMapping": {},
+        "storeOpsTokens": true,
+        "supportedAuthorizationResponseEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "RSA-OAEP",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedAuthorizationResponseEncryptionEnc": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedAuthorizationResponseSigningAlgorithms": [
+          "PS384",
+          "RS384",
+          "EdDSA",
+          "ES384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ],
+        "supportedRequestParameterEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedRequestParameterEncryptionEnc": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedRequestParameterSigningAlgorithms": [
+          "PS384",
+          "ES384",
+          "RS384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ],
+        "supportedTokenEndpointAuthenticationSigningAlgorithms": [
+          "PS384",
+          "ES384",
+          "RS384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ],
+        "supportedTokenIntrospectionResponseEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "RSA-OAEP",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedTokenIntrospectionResponseEncryptionEnc": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedTokenIntrospectionResponseSigningAlgorithms": [
+          "PS384",
+          "RS384",
+          "EdDSA",
+          "ES384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ],
+        "supportedUserInfoEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "RSA-OAEP",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedUserInfoEncryptionEnc": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedUserInfoSigningAlgorithms": [
+          "ES384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512"
+        ],
+        "useForceAuthnForMaxAge": false,
+        "useForceAuthnForPromptLogin": false
+      },
+      "cibaConfig": {
+        "cibaAuthReqIdLifetime": 600,
+        "cibaMinimumPollingInterval": 2,
+        "supportedCibaSigningAlgorithms": [
+          "ES256",
+          "PS256"
+        ]
+      },
+      "clientDynamicRegistrationConfig": {
+        "allowDynamicRegistration": false,
+        "dynamicClientRegistrationScope": "dynamic_client_registration",
+        "dynamicClientRegistrationSoftwareStatementRequired": false,
+        "generateRegistrationAccessTokens": true,
+        "requiredSoftwareStatementAttestedAttributes": [
+          "redirect_uris"
+        ]
+      },
+      "consent": {
+        "clientsCanSkipConsent": true,
+        "enableRemoteConsent": false,
+        "supportedRcsRequestEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "RSA-OAEP",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedRcsRequestEncryptionMethods": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedRcsRequestSigningAlgorithms": [
+          "PS384",
+          "ES384",
+          "RS384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ],
+        "supportedRcsResponseEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedRcsResponseEncryptionMethods": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedRcsResponseSigningAlgorithms": [
+          "PS384",
+          "ES384",
+          "RS384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ]
+      },
+      "coreOAuth2Config": {
+        "accessTokenLifetime": 3600,
+        "accessTokenMayActScript": "[Empty]",
+        "codeLifetime": 120,
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "macaroonTokensEnabled": false,
+        "oidcMayActScript": "[Empty]",
+        "refreshTokenLifetime": 604800,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": true,
+        "usePolicyEngineForScope": false
+      },
+      "coreOIDCConfig": {
+        "jwtTokenLifetime": 3600,
+        "oidcDiscoveryEndpointEnabled": true,
+        "overrideableOIDCClaims": [],
+        "supportedClaims": [],
+        "supportedIDTokenEncryptionAlgorithms": [
+          "ECDH-ES+A256KW",
+          "ECDH-ES+A192KW",
+          "RSA-OAEP",
+          "ECDH-ES+A128KW",
+          "RSA-OAEP-256",
+          "A128KW",
+          "A256KW",
+          "ECDH-ES",
+          "dir",
+          "A192KW"
+        ],
+        "supportedIDTokenEncryptionMethods": [
+          "A256GCM",
+          "A192GCM",
+          "A128GCM",
+          "A128CBC-HS256",
+          "A192CBC-HS384",
+          "A256CBC-HS512"
+        ],
+        "supportedIDTokenSigningAlgorithms": [
+          "PS384",
+          "ES384",
+          "RS384",
+          "HS256",
+          "HS512",
+          "ES256",
+          "RS256",
+          "HS384",
+          "ES512",
+          "PS256",
+          "PS512",
+          "RS512"
+        ]
+      },
+      "deviceCodeConfig": {
+        "deviceCodeLifetime": 300,
+        "devicePollInterval": 5,
+        "deviceUserCodeCharacterSet": "234567ACDEFGHJKLMNPQRSTWXYZabcdefhijkmnopqrstwxyz",
+        "deviceUserCodeLength": 8
+      },
+      "location": "/bravo",
+      "nextDescendents": [],
+      "pluginsConfig": {
+        "accessTokenEnricherClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "accessTokenModificationPluginType": "SCRIPTED",
+        "accessTokenModificationScript": "21138ab1-0621-4466-b18f-670bfcbabca7",
+        "accessTokenModifierClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "authorizeEndpointDataProviderClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "authorizeEndpointDataProviderPluginType": "JAVA",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "evaluateScopeClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "evaluateScopePluginType": "JAVA",
+        "evaluateScopeScript": "[Empty]",
+        "oidcClaimsClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "oidcClaimsPluginType": "SCRIPTED",
+        "oidcClaimsScript": "3e31996b-4522-44a2-b360-0851cece3854",
+        "userCodeGeneratorClass": "org.forgerock.oauth2.core.plugins.registry.DefaultUserCodeGenerator",
+        "validateScopeClass": "org.forgerock.openam.oauth2.OpenAMScopeValidator",
+        "validateScopePluginType": "JAVA",
+        "validateScopeScript": "[Empty]"
+      }
+    }
+  }
+}

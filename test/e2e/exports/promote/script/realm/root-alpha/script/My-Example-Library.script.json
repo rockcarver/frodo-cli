@@ -1,0 +1,18 @@
+{
+  "script": {
+    "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
+      "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Library",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Example Library",
+      "script": "file://My-Example-Library.script.js"
+    }
+  }
+}

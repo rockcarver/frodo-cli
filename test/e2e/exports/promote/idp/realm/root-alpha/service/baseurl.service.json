@@ -1,0 +1,17 @@
+{
+  "service": {
+    "baseurl": {
+      "_id": "",
+      "_type": {
+        "_id": "baseurl",
+        "collection": false,
+        "name": "Base URL Source"
+      },
+      "contextPath": "/am",
+      "fixedValue": "https://&{fqdn}",
+      "location": "/alpha",
+      "nextDescendents": [],
+      "source": "REQUEST_VALUES"
+    }
+  }
+}

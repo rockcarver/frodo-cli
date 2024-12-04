@@ -1,0 +1,23 @@
+{
+  "emailTemplate": {
+    "baselineDemoMagicLink": {
+      "_id": "emailTemplate/baselineDemoMagicLink",
+      "defaultLocale": "en",
+      "displayName": "Baseline Demo Magic Link",
+      "enabled": true,
+      "from": "security@example.com",
+      "html": {
+        "en": "<div class=\"content\"><h1 id=\"welcomeback\">Welcome back</h1><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to sign you into your account.</p><p><br></p><hr><p><row><a href=\"{{object.resumeURI}}\" title=\"\" class=\"button\">Finish Signing In</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href=\"https://www.forgerock.com\">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href=\"mailto:support@forgerock.com\">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href=\"https: www.forgerock.com=\">Privacy Policy</a></p></div>"
+      },
+      "message": {
+        "en": "<html><head></head><body><div class=\"content\"><h1 id=\"welcomeback\">Welcome back</h1><p><br></p><p>Hello,</p><p>You're receiving this email because you requested a link to sign you into your account.</p><p><br></p><hr><p><row><a href=\"{{object.resumeURI}}\" title class=\"button\">Finish Signing In</a></row></p><p>This link will expire in 24 hours.</p><p><br></p><p>-- The ForgeRock Team</p><p><a href=\"https://www.forgerock.com\">www.forgerock.com</a></p><p>201 Mission St Suite 2900</p><p>San Francisco, CA 94105</p><p><a href=\"mailto:support@forgerock.com\">support@forgerock.com</a></p><hr><p>If you did not request for this email, please ignore and we won't email you again.</p><p>ForgeRock | <a href=\"https: www.forgerock.com=\">Privacy Policy</a></p></div></body></html>"
+      },
+      "mimeType": "text/html",
+      "styles": "body {\n background-color: #f6f6f6;\n color: #455469;\n padding: 60px;\n text-align: center \n}\n a {\n text-decoration: none;\n color: #109cf1;\n}\n h1 {\n font-size: 40px;\n text-align: center;\n}\n h2 {\n font-size: 36px;\n}\n h3 {\n font-size: 32px;\n}\n h4 {\n font-size: 28px;\n}\n h5 {\n font-size: 24px;\n}\n h6 {\n font-size: 20px;\n}\n .content {\n background-color: #fff;\n border-radius: 4px;\n margin: 0 auto;\n padding: 48px;\n width: 600px \n}\n .button {\n background-color: #109cf1;\n border: none;\n color: white;\n padding: 15px 32px;\n text-align: center;\n text-decoration: none;\n display: inline-block;\n font-size: 16px;\n}\n ",
+      "subject": {
+        "en": "Your sign-in link"
+      },
+      "templateId": "baselineDemoMagicLink"
+    }
+  }
+}

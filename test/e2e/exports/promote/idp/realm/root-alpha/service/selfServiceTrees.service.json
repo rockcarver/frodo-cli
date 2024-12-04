@@ -1,0 +1,21 @@
+{
+  "service": {
+    "selfServiceTrees": {
+      "_id": "",
+      "_type": {
+        "_id": "selfServiceTrees",
+        "collection": false,
+        "name": "Self Service Trees"
+      },
+      "enabled": true,
+      "location": "/alpha",
+      "nextDescendents": [],
+      "treeMapping": {
+        "forgottenUsername": "ForgottenUsername",
+        "registration": "Registration",
+        "resetPassword": "ResetPassword",
+        "updatePassword": "UpdatePassword"
+      }
+    }
+  }
+}

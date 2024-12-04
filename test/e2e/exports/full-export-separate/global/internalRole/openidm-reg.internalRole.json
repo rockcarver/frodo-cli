@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-reg": {
+      "_id": "openidm-reg",
+      "condition": null,
+      "description": "Anonymous access",
+      "name": "openidm-reg",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

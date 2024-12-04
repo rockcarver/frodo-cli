@@ -1,0 +1,16 @@
+{
+  "agentGroup": {
+    "test_ig_group": {
+      "_id": "test_ig_group",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "igCdssoLoginUrlTemplate": null,
+      "igCdssoRedirectUrls": [],
+      "igTokenIntrospection": "None",
+      "status": "Active"
+    }
+  }
+}

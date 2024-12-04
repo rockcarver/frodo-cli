@@ -1,0 +1,18 @@
+{
+  "script": {
+    "1b52a7e0-4019-40fa-958a-15a49870e901": {
+      "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "set the same shared state variable",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "shared",
+      "script": "file://shared.script.js"
+    }
+  }
+}

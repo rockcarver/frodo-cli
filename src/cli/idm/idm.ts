@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import CountCmd from './idm-count.js';
+import DeleteCmd from './idm-delete.js';
 import ExportCmd from './idm-export.js';
 import ImportCmd from './idm-import.js';
 import ListCmd from './idm-list.js';
@@ -16,6 +17,8 @@ export default function setup() {
   program.addCommand(ImportCmd().name('import'));
 
   program.addCommand(CountCmd().name('count'));
+
+  program.addCommand(DeleteCmd().name(`delete`));
 
   return program;
 }

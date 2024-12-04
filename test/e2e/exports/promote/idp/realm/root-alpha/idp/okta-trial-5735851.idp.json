@@ -1,0 +1,47 @@
+{
+  "idp": {
+    "okta-trial-5735851": {
+      "_id": "okta-trial-5735851",
+      "_type": {
+        "_id": "oidcConfig",
+        "collection": true,
+        "name": "Client configuration for providers that implement the OpenID Connect specification."
+      },
+      "acrValues": [],
+      "authenticationIdKey": "id",
+      "authorizationEndpoint": "https://trial-5735851.okta.com/oauth2/v1/authorize",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "0oa13r2cp29Rynmyw697",
+      "enableNativeNonce": true,
+      "enabled": true,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": false,
+      "issuer": "https://trial-5735851.okta.com",
+      "issuerComparisonCheckType": "EXACT",
+      "jwtEncryptionAlgorithm": "NONE",
+      "jwtEncryptionMethod": "NONE",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectURI": "https://idc.scheuber.io/login",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [],
+      "scopeDelimiter": " ",
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "tokenEndpoint": "https://trial-5735851.okta.com/oauth2/v1/token",
+      "transform": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
+      "uiConfig": {
+        "buttonDisplayName": "Okta"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "https://trial-5735851.okta.com/oauth2/v1/userinfo",
+      "userInfoResponseType": "JSON",
+      "wellKnownEndpoint": "https://trial-5735851.okta.com/.well-known/openid-configuration"
+    }
+  }
+}

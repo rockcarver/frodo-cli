@@ -1,6 +1,7 @@
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
+import { deleteOauth2ClientById } from '../../ops/OAuth2ClientOps';
 import { FrodoCommand } from '../FrodoCommand';
 
 export default function setup() {
@@ -34,8 +35,9 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
-          // code goes here
+        if (options.appId && (await getTokens())) {
+          const outcome = deleteOauth2ClientById(options.appId);
+          if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
         }

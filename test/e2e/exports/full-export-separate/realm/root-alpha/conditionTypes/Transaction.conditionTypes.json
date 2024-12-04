@@ -1,0 +1,27 @@
+{
+  "conditionTypes": {
+    "Transaction": {
+      "_id": "Transaction",
+      "config": {
+        "properties": {
+          "authenticationStrategy": {
+            "enum": [
+              "AuthenticateToServiceConditionAdvice",
+              "AuthenticateToRealmConditionAdvice",
+              "AuthenticateToTreeConditionAdvice",
+              "AuthSchemeConditionAdvice",
+              "AuthLevelConditionAdvice"
+            ],
+            "type": "string"
+          },
+          "strategySpecifier": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Transaction"
+    }
+  }
+}

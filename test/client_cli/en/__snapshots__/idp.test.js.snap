@@ -9,6 +9,7 @@ Options:
   -h, --help  Help
 
 Commands:
+  delete      Delete (social) identity providers.
   export      Export (social) identity providers.
   help        display help for command
   import      Import (social) identity providers.

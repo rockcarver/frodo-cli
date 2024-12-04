@@ -1,0 +1,15 @@
+{
+  "authenticationModules": {
+    "amster": {
+      "_id": "amster",
+      "_type": {
+        "_id": "amster",
+        "collection": true,
+        "name": "ForgeRock Amster"
+      },
+      "authenticationLevel": 0,
+      "authorizedKeys": "/home/forgerock/openam/security/keys/amster/authorized_keys",
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "conditionTypes": {
+    "ResourceEnvIP": {
+      "_id": "ResourceEnvIP",
+      "config": {
+        "properties": {
+          "resourceEnvIPConditionValue": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "ResourceEnvIP"
+    }
+  }
+}

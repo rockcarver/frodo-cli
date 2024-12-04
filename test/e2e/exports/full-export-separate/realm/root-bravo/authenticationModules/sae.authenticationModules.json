@@ -1,0 +1,13 @@
+{
+  "authenticationModules": {
+    "sae": {
+      "_id": "sae",
+      "_type": {
+        "_id": "sae",
+        "collection": true,
+        "name": "SAE"
+      },
+      "authenticationLevel": 0
+    }
+  }
+}

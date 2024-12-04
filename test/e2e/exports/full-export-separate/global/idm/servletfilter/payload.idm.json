@@ -1,0 +1,13 @@
+{
+  "idm": {
+    "servletfilter/payload": {
+      "_id": "servletfilter/payload",
+      "initParams": {
+        "maxRequestSizeInMegabytes": 5
+      },
+      "urlPatterns": [
+        "&{openidm.servlet.alias}/*"
+      ]
+    }
+  }
+}

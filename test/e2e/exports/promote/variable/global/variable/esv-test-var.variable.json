@@ -1,0 +1,13 @@
+{
+  "variables": {
+    "esv-test-var": {
+      "_id": "esv-test-var",
+      "description": "this is a test description",
+      "expressionType": "string",
+      "lastChangeDate": "2024-11-01T15:56:27.640867Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": false,
+      "value": "this is a test variable changed"
+    }
+  }
+}

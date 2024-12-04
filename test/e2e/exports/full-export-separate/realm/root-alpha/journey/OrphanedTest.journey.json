@@ -1,0 +1,89 @@
+{
+  "trees": {
+    "OrphanedTest": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "343e745f-923a-43c4-8675-649a490fd0a3": {
+          "_id": "343e745f-923a-43c4-8675-649a490fd0a3",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "TRUE"
+            },
+            {
+              "displayName": "False",
+              "id": "FALSE"
+            },
+            {
+              "displayName": "Locked",
+              "id": "LOCKED"
+            },
+            {
+              "displayName": "Cancelled",
+              "id": "CANCELLED"
+            },
+            {
+              "displayName": "Expired",
+              "id": "EXPIRED"
+            }
+          ],
+          "_type": {
+            "_id": "IdentityStoreDecisionNode",
+            "collection": true,
+            "name": "Identity Store Decision"
+          },
+          "minimumPasswordLength": 8,
+          "mixedCaseForPasswordChangeMessages": false,
+          "useUniversalIdForUsername": false
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "OrphanedTest",
+        "description": "Test orphaned nodes",
+        "enabled": true,
+        "entryNodeId": "343e745f-923a-43c4-8675-649a490fd0a3",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "343e745f-923a-43c4-8675-649a490fd0a3": {
+            "connections": {
+              "CANCELLED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "EXPIRED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "FALSE": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "TRUE": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Identity Store Decision",
+            "nodeType": "IdentityStoreDecisionNode",
+            "x": 407.046875,
+            "y": 190.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 704,
+            "y": 129
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 707,
+            "y": 381
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[]"
+        }
+      }
+    }
+  }
+}

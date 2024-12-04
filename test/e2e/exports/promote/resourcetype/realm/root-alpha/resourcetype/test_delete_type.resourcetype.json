@@ -1,0 +1,19 @@
+{
+  "resourcetype": {
+    "220646ad-3193-412d-a1bf-6603454dec01": {
+      "actions": {
+        "get": false
+      },
+      "createdBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "creationDate": 1730324783544,
+      "description": "",
+      "lastModifiedBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "lastModifiedDate": 1730324783544,
+      "name": "test_delete_type",
+      "patterns": [
+        "/*//*"
+      ],
+      "uuid": "220646ad-3193-412d-a1bf-6603454dec01"
+    }
+  }
+}

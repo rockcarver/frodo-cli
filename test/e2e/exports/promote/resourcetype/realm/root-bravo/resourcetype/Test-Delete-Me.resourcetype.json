@@ -1,0 +1,19 @@
+{
+  "resourcetype": {
+    "5496cdce-1ef8-470b-a211-239c215f07dc": {
+      "actions": {
+        "delete": true
+      },
+      "createdBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "creationDate": 1730324882801,
+      "description": "",
+      "lastModifiedBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "lastModifiedDate": 1730324882801,
+      "name": "Test Delete Me",
+      "patterns": [
+        "del"
+      ],
+      "uuid": "5496cdce-1ef8-470b-a211-239c215f07dc"
+    }
+  }
+}

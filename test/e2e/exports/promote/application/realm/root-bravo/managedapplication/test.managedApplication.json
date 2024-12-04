@@ -1,0 +1,14 @@
+{
+  "managedApplication": {
+    "1f674848-e8a2-43e8-8a6c-a19ffa37a795": {
+      "_id": "1f674848-e8a2-43e8-8a6c-a19ffa37a795",
+      "description": "test",
+      "name": "test",
+      "ssoEntities": {
+        "oidcId": "test"
+      },
+      "templateName": "service",
+      "templateVersion": "1.0"
+    }
+  }
+}

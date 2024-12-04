@@ -1,0 +1,47 @@
+{
+  "idm": {
+    "uilocale/fr": {
+      "_id": "uilocale/fr",
+      "admin": {
+        "overrides": {
+          "AppLogoURI": "URI du logo de l’application",
+          "EmailAddress": "Adresse e-mail",
+          "Name": "Nom",
+          "Owners": "Les propriétaires"
+        },
+        "sideMenu": {
+          "securityQuestions": "Questions de sécurité"
+        }
+      },
+      "enduser": {
+        "overrides": {
+          "FirstName": "Prénom",
+          "LastName": "Nom de famille"
+        },
+        "pages": {
+          "dashboard": {
+            "widgets": {
+              "welcome": {
+                "greeting": "Bonjour"
+              }
+            }
+          }
+        }
+      },
+      "login": {
+        "login": {
+          "next": "Suivant"
+        },
+        "overrides": {
+          "Password": "Mot de passe",
+          "UserName": "Nom d'utilisateur"
+        }
+      },
+      "shared": {
+        "sideMenu": {
+          "dashboard": "Tableau de bord"
+        }
+      }
+    }
+  }
+}

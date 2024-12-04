@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-ipv4-cidr-access-rules": {
+      "_id": "esv-ipv4-cidr-access-rules",
+      "description": "IPv4 CIDR access rules: { \"allow\": [ \"address/mask\" ] }",
+      "expressionType": "object",
+      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "{ \"allow\": [ \"145.118.0.0/16\", \"132.35.0.0/16\", \"101.226.0.0/16\", \"99.72.28.182/32\" ] }"
+    }
+  }
+}

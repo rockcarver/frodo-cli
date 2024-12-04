@@ -1,0 +1,18 @@
+{
+  "conditionTypes": {
+    "NOT": {
+      "_id": "NOT",
+      "config": {
+        "properties": {
+          "condition": {
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "logical": true,
+      "title": "NOT"
+    }
+  }
+}

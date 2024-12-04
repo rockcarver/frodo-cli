@@ -1,0 +1,44 @@
+{
+  "idm": {
+    "authentication": {
+      "_id": "authentication",
+      "rsFilter": {
+        "augmentSecurityContext": {
+          "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');",
+          "type": "text/javascript"
+        },
+        "cache": {
+          "maxTimeout": "300 seconds"
+        },
+        "scopes": [
+          "fr:idm:*"
+        ],
+        "staticUserMapping": [
+          {
+            "localUser": "internal/user/idm-provisioning",
+            "roles": [
+              "internal/role/openidm-admin"
+            ],
+            "subject": "autoid-resource-server"
+          }
+        ],
+        "subjectMapping": [
+          {
+            "additionalUserFields": [
+              "adminOfOrg",
+              "ownerOfOrg"
+            ],
+            "defaultRoles": [
+              "internal/role/openidm-authorized"
+            ],
+            "propertyMapping": {
+              "sub": "_id"
+            },
+            "queryOnResource": "managed/{{substring realm 1}}_user",
+            "userRoles": "authzRoles/*"
+          }
+        ]
+      }
+    }
+  }
+}

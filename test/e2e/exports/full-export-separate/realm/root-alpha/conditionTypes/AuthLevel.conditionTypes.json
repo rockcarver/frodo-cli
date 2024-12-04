@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "AuthLevel": {
+      "_id": "AuthLevel",
+      "config": {
+        "properties": {
+          "authLevel": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AuthLevel"
+    }
+  }
+}

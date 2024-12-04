@@ -1,0 +1,18 @@
+{
+  "script": {
+    "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
+      "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "set per level shared state variable",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990608,
+      "name": "level",
+      "script": "file://level.script.js"
+    }
+  }
+}

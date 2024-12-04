@@ -1,0 +1,19 @@
+{
+  "script": {
+    "4e053815-adde-46ac-9fe2-d3ae93517c14": {
+      "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "2.0",
+      "exports": [],
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990257,
+      "name": "My Other Example Library Script",
+      "script": "file://My-Other-Example-Library-Script.script.js"
+    }
+  }
+}

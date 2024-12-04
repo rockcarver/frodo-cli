@@ -1,0 +1,18 @@
+{
+  "idm": {
+    "entityId": {
+      "_id": "entityId",
+      "defaultLocale": "en",
+      "displayName": "Frodo Test Email Template Three",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<html><body><h3>You started a login or profile update that requires MFA. </h3><h4><a href=\"{{object.resumeURI}}\">Click to Proceed</a></h4></body></html>"
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Multi-Factor Email for Identity Cloud login"
+      }
+    }
+  }
+}

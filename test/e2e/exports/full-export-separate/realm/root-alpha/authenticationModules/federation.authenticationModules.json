@@ -1,0 +1,13 @@
+{
+  "authenticationModules": {
+    "federation": {
+      "_id": "federation",
+      "_type": {
+        "_id": "federation",
+        "collection": true,
+        "name": "Federation"
+      },
+      "authenticationLevel": 0
+    }
+  }
+}

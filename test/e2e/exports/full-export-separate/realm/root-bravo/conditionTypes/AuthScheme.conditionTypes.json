@@ -1,0 +1,26 @@
+{
+  "conditionTypes": {
+    "AuthScheme": {
+      "_id": "AuthScheme",
+      "config": {
+        "properties": {
+          "applicationIdleTimeout": {
+            "type": "integer"
+          },
+          "applicationName": {
+            "type": "string"
+          },
+          "authScheme": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AuthScheme"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "script": {
+    "eaab5b6d-fc11-4365-93da-00eb9121adb9": {
+      "_id": "eaab5b6d-fc11-4365-93da-00eb9121adb9",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Show selfie authentication results",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022013342,
+      "name": "Selfie Authentication Results",
+      "script": "file://Selfie-Authentication-Results.script.js"
+    }
+  }
+}

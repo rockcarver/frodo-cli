@@ -1,0 +1,282 @@
+{
+  "managedApplication": {
+    "0f357b7e-6c54-4351-a094-43916877d7e5": {
+      "_id": "0f357b7e-6c54-4351-a094-43916877d7e5",
+      "authoritative": false,
+      "connectorId": "Azure",
+      "description": "Azure change",
+      "icon": "",
+      "mappingNames": [
+        "systemAzureUser_managedAlpha_user",
+        "managedAlpha_user_systemAzureUser",
+        "systemAzure__group___managedAlpha_assignment",
+        "systemAzureDirectoryrole_managedAlpha_assignment",
+        "systemAzureServiceplan_managedAlpha_assignment"
+      ],
+      "name": "Azure",
+      "templateName": "azure.ad",
+      "templateVersion": "3.3",
+      "uiConfig": {
+        "objectTypes": {
+          "User": {
+            "properties": {
+              "__PASSWORD__": {
+                "displayName": "Password",
+                "order": 17,
+                "userSpecific": true
+              },
+              "__roles__": {
+                "displayName": "Roles",
+                "nonAccountObject": "directoryRole",
+                "order": 3,
+                "userSpecific": true
+              },
+              "__servicePlanIds__": {
+                "displayName": "Service Plan Ids",
+                "nonAccountObject": "servicePlan",
+                "order": 27,
+                "userSpecific": true
+              },
+              "accountEnabled": {
+                "displayName": "Account Enabled",
+                "order": 0,
+                "userSpecific": true
+              },
+              "city": {
+                "displayName": "City",
+                "order": 5,
+                "userSpecific": true
+              },
+              "companyName": {
+                "displayName": "Company Name",
+                "order": 4,
+                "userSpecific": true
+              },
+              "country": {
+                "displayName": "Country",
+                "order": 6,
+                "userSpecific": true
+              },
+              "department": {
+                "displayName": "Department",
+                "order": 7,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "Display Name",
+                "order": 8,
+                "userSpecific": true
+              },
+              "givenName": {
+                "displayName": "Given Name",
+                "order": 9,
+                "userSpecific": true
+              },
+              "jobTitle": {
+                "displayName": "Job Title",
+                "order": 11,
+                "userSpecific": true
+              },
+              "mail": {
+                "displayName": "Mail",
+                "isDisplay": true,
+                "isMail": true,
+                "order": 1,
+                "userSpecific": true
+              },
+              "mailNickname": {
+                "displayName": "Mail Nickname",
+                "order": 12,
+                "userSpecific": true
+              },
+              "manager": {
+                "displayName": "Manager",
+                "order": 13,
+                "userSpecific": true
+              },
+              "memberOf": {
+                "displayName": "Member Of",
+                "nonAccountObject": "__GROUP__",
+                "order": 2,
+                "userSpecific": true
+              },
+              "mobilePhone": {
+                "displayName": "Mobile Phone",
+                "order": 14,
+                "userSpecific": true
+              },
+              "onPremisesImmutableId": {
+                "displayName": "On Premises Immutable Id",
+                "order": 10,
+                "userSpecific": true
+              },
+              "onPremisesSecurityIdentifier": {
+                "displayName": "On Premises Security Identifier",
+                "order": 15,
+                "userSpecific": true
+              },
+              "otherMails": {
+                "displayName": "Other Mails",
+                "order": 16,
+                "userSpecific": true
+              },
+              "postalCode": {
+                "displayName": "Postal Code",
+                "order": 18,
+                "userSpecific": true
+              },
+              "preferredLanguage": {
+                "displayName": "Preferred Language",
+                "order": 19,
+                "userSpecific": true
+              },
+              "proxyAddresses": {
+                "displayName": "Proxy Addresses",
+                "order": 20,
+                "userSpecific": true
+              },
+              "state": {
+                "displayName": "State",
+                "order": 21,
+                "userSpecific": true
+              },
+              "streetAddress": {
+                "displayName": "Street Address",
+                "order": 22,
+                "userSpecific": true
+              },
+              "surname": {
+                "displayName": "Surname",
+                "order": 23,
+                "userSpecific": true
+              },
+              "usageLocation": {
+                "displayName": "Usage Location",
+                "order": 24,
+                "userSpecific": true
+              },
+              "userPrincipalName": {
+                "displayName": "User Principal Name",
+                "isUsername": true,
+                "order": 25,
+                "userSpecific": true
+              },
+              "userType": {
+                "displayName": "User Type",
+                "order": 26,
+                "userSpecific": true
+              }
+            }
+          },
+          "__GROUP__": {
+            "properties": {
+              "__NAME__": {
+                "displayName": "Name",
+                "order": 2,
+                "userSpecific": true
+              },
+              "description": {
+                "displayName": "Description",
+                "order": 4,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "Display Name",
+                "order": 3,
+                "userSpecific": true
+              },
+              "groupTypes": {
+                "displayName": "Group Types",
+                "order": 10,
+                "userSpecific": true
+              },
+              "id": {
+                "displayName": "Id",
+                "order": 0,
+                "userSpecific": true
+              },
+              "mail": {
+                "displayName": "Mail",
+                "order": 5,
+                "userSpecific": true
+              },
+              "mailEnabled": {
+                "displayName": "Mail Enabled",
+                "order": 6,
+                "userSpecific": true
+              },
+              "onPremisesSecurityIdentifier": {
+                "displayName": "On Premises Security Identifier",
+                "order": 7,
+                "userSpecific": true
+              },
+              "proxyAddresses": {
+                "displayName": "Proxy Addresses",
+                "order": 8,
+                "userSpecific": true
+              },
+              "securityEnabled": {
+                "displayName": "Security Enabled",
+                "order": 9,
+                "userSpecific": true
+              },
+              "type": {
+                "displayName": "Type",
+                "order": 1,
+                "userSpecific": true
+              }
+            }
+          },
+          "directoryRole": {
+            "properties": {
+              "description": {
+                "displayName": "description",
+                "order": 0,
+                "userSpecific": true
+              },
+              "displayName": {
+                "displayName": "displayName",
+                "order": 1,
+                "userSpecific": true
+              }
+            }
+          },
+          "servicePlan": {
+            "properties": {
+              "__NAME__": {
+                "displayName": "__NAME__",
+                "order": 5,
+                "userSpecific": true
+              },
+              "appliesTo": {
+                "displayName": "appliesTo",
+                "order": 0,
+                "userSpecific": true
+              },
+              "provisioningStatus": {
+                "displayName": "provisioningStatus",
+                "order": 2,
+                "userSpecific": true
+              },
+              "servicePlanId": {
+                "displayName": "servicePlanId",
+                "order": 1,
+                "userSpecific": true
+              },
+              "servicePlanName": {
+                "displayName": "servicePlanName",
+                "order": 4,
+                "userSpecific": true
+              },
+              "subscriberSkuId": {
+                "displayName": "subscriberSkuId",
+                "order": 3,
+                "userSpecific": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

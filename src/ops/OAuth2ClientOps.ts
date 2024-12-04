@@ -1,9 +1,9 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { Readable } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import type {
-  OAuth2ClientExportInterface,
-  OAuth2ClientExportOptions,
-  OAuth2ClientImportOptions,
+import {
+  type OAuth2ClientExportInterface,
+  type OAuth2ClientExportOptions,
+  type OAuth2ClientImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/OAuth2ClientOps';
 import fs from 'fs';
 
@@ -31,6 +31,7 @@ const {
   readOAuth2Clients,
   exportOAuth2Client,
   exportOAuth2Clients,
+  deleteOAuth2Client,
   importOAuth2Client,
   importFirstOAuth2Client,
   importOAuth2Clients,
@@ -358,6 +359,30 @@ export async function importOAuth2ClientsFromFiles(
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing oauth2 clients.`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete oauth2 client by id
+ * @param {String} id script id
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteOauth2ClientById(
+  clientId: string
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${clientId}...`
+  );
+  try {
+    await deleteOAuth2Client(clientId);
+    stopProgressIndicator(spinnerId, `Deleted ${clientId}.`, 'success');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
   }
   return false;

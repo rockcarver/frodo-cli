@@ -1,0 +1,13 @@
+{
+  "managedApplication": {
+    "bf9e7fcc-cb00-4a96-8ee5-c8de5daf10b8": {
+      "_id": "bf9e7fcc-cb00-4a96-8ee5-c8de5daf10b8",
+      "name": "testmeout",
+      "ssoEntities": {
+        "oidcId": "testmeout"
+      },
+      "templateName": "native",
+      "templateVersion": "1.0"
+    }
+  }
+}

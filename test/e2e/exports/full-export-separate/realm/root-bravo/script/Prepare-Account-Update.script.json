@@ -1,0 +1,18 @@
+{
+  "script": {
+    "4233c093-76a6-474b-ac38-5c0ea1de2484": {
+      "_id": "4233c093-76a6-474b-ac38-5c0ea1de2484",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Move data from root of node state into objectAttributes for account update.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022013183,
+      "name": "Prepare Account Update",
+      "script": "file://Prepare-Account-Update.script.js"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "_id": "endpoint/deleteMe",
+  "description": "deleteMe",
+  "globalsObject": "\"  {\\n    \\\"request\\\": {\\n      \\\"method\\\": \\\"create\\\"\\n    }\\n  }\"",
+  "source": "  (function () {\n    if (request.method === 'create') {\n      // POST\n      return {};\n    } else if (request.method === 'read') {\n      // GET\n      return {};\n    } else if (request.method === 'update') {\n      // PUT\n      return {};\n    } else if (request.method === 'patch') {\n      return {};\n    } else if (request.method === 'delete') {\n      return {};\n    }\n    throw { code: 500, message: 'Unknown error' };\n  }());",
+  "type": "text/javascript"
+}

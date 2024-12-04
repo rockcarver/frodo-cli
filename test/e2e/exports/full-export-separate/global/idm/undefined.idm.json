@@ -1,0 +1,73 @@
+{
+  "idm": {
+    "undefined": {
+      "_id": "undefined",
+      "mapping": {
+        "mapping/managedBravo_user_managedBravo_user0": {
+          "_id": "mapping/managedBravo_user_managedBravo_user0",
+          "consentRequired": false,
+          "displayName": "managedBravo_user_managedBravo_user0",
+          "icon": null,
+          "name": "managedBravo_user_managedBravo_user0",
+          "policies": [
+            {
+              "action": "ASYNC",
+              "situation": "ABSENT"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ALL_GONE"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "AMBIGUOUS"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "CONFIRMED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND_ALREADY_LINKED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "LINK_ONLY"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "TARGET_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNASSIGNED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNQUALIFIED"
+            }
+          ],
+          "properties": [],
+          "source": "managed/bravo_user",
+          "target": "managed/bravo_user"
+        }
+      }
+    }
+  }
+}

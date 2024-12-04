@@ -1,0 +1,20 @@
+{
+  "service": {
+    "session": {
+      "_id": "",
+      "_type": {
+        "_id": "session",
+        "collection": false,
+        "name": "Session"
+      },
+      "dynamic": {
+        "maxCachingTime": 3,
+        "maxIdleTime": 30,
+        "maxSessionTime": 120,
+        "quotaLimit": 2
+      },
+      "location": "/alpha",
+      "nextDescendents": []
+    }
+  }
+}

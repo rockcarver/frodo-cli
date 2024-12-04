@@ -1,0 +1,13 @@
+{
+  "variables": {
+    "esv-delete-me": {
+      "_id": "esv-delete-me",
+      "description": "just tryin things out",
+      "expressionType": "bool",
+      "lastChangeDate": "2024-11-01T15:57:04.004554Z",
+      "lastChangedBy": "phales@trivir.com",
+      "loaded": false,
+      "value": "true"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "policy": {
+    "activity": {
+      "_id": "activity",
+      "actionValues": {
+        "GET": true,
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "data",
+      "createdBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
+      "creationDate": "2024-07-12T15:25:50.288Z",
+      "description": "",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-10-28T18:14:46.64Z",
+      "name": "activity",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/demo/api/action/activity"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

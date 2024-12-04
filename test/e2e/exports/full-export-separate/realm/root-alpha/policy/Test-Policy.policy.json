@@ -1,0 +1,54 @@
+{
+  "policy": {
+    "Test Policy": {
+      "_id": "Test Policy",
+      "actionValues": {
+        "GET": true,
+        "POST": false
+      },
+      "active": false,
+      "applicationName": "test-policy-set",
+      "condition": {
+        "conditions": [
+          {
+            "endDate": "2023:08:02",
+            "endDay": "fri",
+            "endTime": "11:59",
+            "enforcementTimeZone": "GMT",
+            "startDate": "2023:08:01",
+            "startDay": "mon",
+            "startTime": "12:00",
+            "type": "SimpleTime"
+          },
+          {
+            "scriptId": "59f84396-71e4-4c1d-a6ae-c4fc624d9752",
+            "type": "Script"
+          }
+        ],
+        "type": "AND"
+      },
+      "createdBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
+      "creationDate": "2024-07-12T15:25:19.356Z",
+      "description": "Test Policy Description",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-11-07T23:26:38.152Z",
+      "name": "Test Policy",
+      "resourceAttributes": [
+        {
+          "propertyName": "Test_Name",
+          "propertyValues": [
+            "Test_Value"
+          ],
+          "type": "Static"
+        }
+      ],
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "lorem://ipsum:dolor/sit"
+      ],
+      "subject": {
+        "type": "NONE"
+      }
+    }
+  }
+}
