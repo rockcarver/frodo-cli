@@ -9,7 +9,10 @@ import fs from 'fs';
 import os from 'os';
 
 import { readServersFromFiles } from '../ops/classic/ServerOps';
-import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
+import {
+  getLegacyMappingsFromFiles,
+  getManagedObjectsFromFiles,
+} from '../ops/MappingOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { printMessage } from './Console';
 
@@ -159,7 +162,9 @@ export async function getConfig(
       !f.path.endsWith('.script.json') &&
       !f.path.endsWith('.server.json') &&
       !f.path.endsWith('/sync.idm.json') &&
-      !f.path.endsWith('sync.json')
+      !f.path.endsWith('sync.json') &&
+      !f.path.endsWith('/managed.idm.json') &&
+      !f.path.endsWith('managed.json')
   );
   // Handle all other json files
   for (const f of allOtherFiles) {
@@ -182,6 +187,10 @@ export async function getConfig(
   const sync = await getLegacyMappingsFromFiles(jsonFiles);
   if (sync.mappings.length > 0) {
     (exportConfig as FullGlobalExportInterface).sync = sync;
+  }
+  const managed = await getManagedObjectsFromFiles(jsonFiles);
+  if (managed.objects.length > 0) {
+    (exportConfig as FullGlobalExportInterface).idm.managed = managed;
   }
   // Handle saml files
   if (
