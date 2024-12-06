@@ -676,13 +676,16 @@ function getExtractedPathsAndNames(
 ): { path: string; id: string }[] {
   const extractedFileNames = [];
   const scriptExport = getScriptExport(file);
-  const directory = file.substring(0, file.lastIndexOf('/')) || '.';
+  const directory =
+    file.lastIndexOf('/') === -1
+      ? ''
+      : file.substring(0, file.lastIndexOf('/')) + '/';
   for (const script of Object.values(scriptExport.script)) {
     if (!isScriptExtracted(script.script)) {
       continue;
     }
     extractedFileNames.push({
-      path: `${directory}/${(script.script as string).replace('file://', '')}`,
+      path: `${directory}${(script.script as string).replace('file://', '')}`,
       id: script._id,
     });
   }
