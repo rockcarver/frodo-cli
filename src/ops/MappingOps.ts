@@ -1,5 +1,6 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import {
+  ManagedSkeleton,
   MappingExportInterface,
   MappingExportOptions,
   MappingImportOptions,
@@ -480,6 +481,31 @@ export function writeSyncJsonToDirectory(
 }
 
 /**
+ * Helper that writes mappings in a managed.idm.json config entity to a directory
+ * @param managed The managed.idm.json config entity
+ * @param directory The directory to save the mappings
+ */
+export function writeManagedJsonToDirectory(
+  managed: ManagedSkeleton,
+  directory: string = 'managed',
+  includeMeta: boolean = true
+) {
+  const objectPaths = [];
+  for (const object of managed.objects) {
+    const fileName = getTypedFilename(object.name, 'managed');
+    objectPaths.push(extractDataToFile(object, fileName, directory));
+  }
+  managed.objects = objectPaths;
+  saveToFile(
+    'idm',
+    managed,
+    '_id',
+    getFilePath(`${directory}/managed.idm.json`, true),
+    includeMeta
+  );
+}
+
+/**
  * Helper that returns the sync.idm.json object containing all the mappings in it by looking through the files
  *
  * @param files the files to get sync.idm.json object from
@@ -514,6 +540,49 @@ export function getLegacyMappingsFromFiles(
     }
   }
   return sync;
+}
+
+/**
+ * Helper that returns the managed.idm.json object containing all the mappings in it by looking through the files
+ *
+ * @param files the files to get managed.idm.json object from
+ * @returns the managed.idm.json object
+ */
+export function getManagedObjectsFromFiles(
+  files: { path: string; content: string }[]
+): ManagedSkeleton {
+  const managedFiles = files.filter((f) =>
+    f.path.endsWith('/managed.idm.json')
+  );
+  if (managedFiles.length > 1) {
+    throw new FrodoError(
+      'Multiple managed.idm.json files found in idm directory'
+    );
+  }
+  const managed = {
+    _id: 'managed',
+    objects: [],
+  };
+  if (managedFiles.length === 1) {
+    const jsonData = JSON.parse(managedFiles[0].content);
+    const managedData = jsonData.managed
+      ? jsonData.managed
+      : jsonData.idm.managed;
+    const managedJsonDir = managedFiles[0].path.substring(
+      0,
+      managedFiles[0].path.indexOf('/managed.idm.json')
+    );
+    if (managedData.objects) {
+      for (const object of managedData.objects) {
+        if (typeof object === 'string') {
+          managed.objects.push(getExtractedJsonData(object, managedJsonDir));
+        } else {
+          managed.objects.push(object);
+        }
+      }
+    }
+  }
+  return managed;
 }
 
 /**

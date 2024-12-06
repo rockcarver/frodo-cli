@@ -1,7 +1,10 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
 import { type IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import { type ConfigEntityExportInterface } from '@rockcarver/frodo-lib/types/ops/IdmConfigOps';
-import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
+import {
+  ManagedSkeleton,
+  SyncSkeleton,
+} from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
 import path from 'path';
 import propertiesReader from 'properties-reader';
@@ -14,6 +17,8 @@ import {
 } from '../utils/Console';
 import {
   getLegacyMappingsFromFiles,
+  getManagedObjectsFromFiles,
+  writeManagedJsonToDirectory,
   writeSyncJsonToDirectory,
 } from './MappingOps';
 
@@ -83,6 +88,7 @@ export async function listAllConfigEntities(): Promise<boolean> {
  * @param {string} file optional export file name (or directory name if exporting mappings separately)
  * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} separateMappings separate sync.idm.json mappings if true (and id is "sync"), otherwise keep them in a single file
+ * @param {boolean} separateObjects separate managed.idm.json objects if true (and id is "managed"), otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
@@ -91,6 +97,7 @@ export async function exportConfigEntityToFile(
   file?: string,
   envFile?: string,
   separateMappings: boolean = false,
+  separateObjects: boolean = false,
   includeMeta: boolean = true
 ): Promise<boolean> {
   try {
@@ -102,6 +109,14 @@ export async function exportConfigEntityToFile(
     if (separateMappings && id === 'sync') {
       writeSyncJsonToDirectory(
         exportData.idm[id] as SyncSkeleton,
+        file,
+        includeMeta
+      );
+      return true;
+    }
+    if (separateObjects && id === 'managed') {
+      writeManagedJsonToDirectory(
+        exportData.idm[id] as ManagedSkeleton,
         file,
         includeMeta
       );
@@ -156,12 +171,14 @@ export async function exportAllConfigEntitiesToFile(
  * @param {string} entitiesFile JSON file that specifies the config entities to export/import
  * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
+ * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportAllConfigEntitiesToFiles(
   entitiesFile?: string,
   envFile?: string,
   separateMappings: boolean = false,
+  separateObjects: boolean = false,
   includeMeta: boolean = true
 ): Promise<boolean> {
   const errors: Error[] = [];
@@ -175,6 +192,14 @@ export async function exportAllConfigEntitiesToFiles(
       try {
         if (separateMappings && id === 'sync') {
           writeSyncJsonToDirectory(obj as SyncSkeleton, 'sync', includeMeta);
+          continue;
+        }
+        if (separateObjects && id === 'managed') {
+          writeManagedJsonToDirectory(
+            obj as ManagedSkeleton,
+            'managed',
+            includeMeta
+          );
           continue;
         }
         saveToFile(
@@ -232,6 +257,14 @@ export async function importConfigEntityByIdFromFile(
         },
       ]);
       importData = { idm: { sync: syncData } };
+    } else if (entityId === 'managed') {
+      const managedData = getManagedObjectsFromFiles([
+        {
+          content: fileData,
+          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/managed.idm.json`,
+        },
+      ]);
+      importData = { idm: { managed: managedData } };
     } else {
       importData = JSON.parse(fileData);
     }
@@ -289,6 +322,14 @@ export async function importFirstConfigEntityFromFile(
         {
           content: fileData,
           path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.idm.json`,
+        },
+      ]);
+    }
+    if (entityId === 'managed') {
+      importData.idm.managed = getManagedObjectsFromFiles([
+        {
+          content: fileData,
+          path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/managed.idm.json`,
         },
       ]);
     }
@@ -434,9 +475,13 @@ export async function getIdmImportDataFromIdmDirectory(
   );
   // Process sync mapping file(s)
   importData.idm.sync = getLegacyMappingsFromFiles(idmConfigFiles);
+  importData.idm.managed = getManagedObjectsFromFiles(idmConfigFiles);
   // Process other files
   for (const f of idmConfigFiles.filter(
-    (f) => !f.path.endsWith('sync.idm.json') && f.path.endsWith('.idm.json')
+    (f) =>
+      !f.path.endsWith('sync.idm.json') &&
+      !f.path.endsWith('managed.idm.json') &&
+      f.path.endsWith('.idm.json')
   )) {
     const entities = Object.values(
       JSON.parse(f.content).idm
