@@ -93,6 +93,9 @@ Options:
                                        positions of the journey/tree nodes.
   --no-decode                          Do not include decoded variable value in
                                        variable export
+  -o, --separate-objects               Export managed.idm.json objects
+                                       separately in their own directory.
+                                       Ignored with -a.
   -s, --separate-mappings              Export sync.idm.json mappings separately
                                        in their own directory. Ignored with -a.
   --sa-id <sa-id>                      Service account id.

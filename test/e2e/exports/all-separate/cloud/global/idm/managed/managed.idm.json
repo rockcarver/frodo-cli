@@ -1,0 +1,21 @@
+{
+  "idm": {
+    "managed": {
+      "_id": "managed",
+      "objects": [
+        "file://alpha_user.managed.json",
+        "file://bravo_user.managed.json",
+        "file://alpha_role.managed.json",
+        "file://bravo_role.managed.json",
+        "file://alpha_assignment.managed.json",
+        "file://bravo_assignment.managed.json",
+        "file://alpha_organization.managed.json",
+        "file://bravo_organization.managed.json",
+        "file://alpha_group.managed.json",
+        "file://bravo_group.managed.json",
+        "file://alpha_application.managed.json",
+        "file://bravo_application.managed.json"
+      ]
+    }
+  }
+}

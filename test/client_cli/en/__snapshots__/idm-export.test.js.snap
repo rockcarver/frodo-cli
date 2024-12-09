@@ -92,6 +92,9 @@ Options:
   -N, --no-metadata                    Does not include metadata in the export
                                        file.
   --no-cache                           Disable token cache for this operation.
+  -o, --separate-objects               Export managed.idm.json objects
+                                       separately in their own directory.
+                                       Ignored with -a.
   -s, --separate-mappings              Export sync.idm.json mappings separately
                                        in their own directory. Ignored with -a.
   --sa-id <sa-id>                      Service account id.
