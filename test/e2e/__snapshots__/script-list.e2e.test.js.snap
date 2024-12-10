@@ -888,7 +888,7 @@ Yahoo Profile           │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy    │S
 
 exports[`frodo script list "frodo script list -lu": should list the names, uuids, languages, contexts, usage, and descriptions of the scripts 1`] = `
 "Name                    │UUID                                │Language  │Context                  │Description                   │Used                                                                                                                          
-ADFS Profile            │dbe0bf9a-72aa-49d5-8483-9db147985a47│JavaScript│Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.adfs.transform)                                                                  
+ADFS Profile            │dbe0bf9a-72aa-49d5-8483-9db147985a47│JavaScript│Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.adfs.transform)                                                                                  
   Normalization (JS)    │                                    │          │Transformation           │from ADFS                     │                                                                                                                              
 Alpha endUserUIClient   │e232cff3-2460-47cd-80b2-36c86c0d0f06│JavaScript│Oauth2 Access Token      │Used by endUserUIClient       │no                                                                                                                            
   OAuth2 Access Token   │                                    │          │Modification             │                              │                                                                                                                              
@@ -902,7 +902,7 @@ Alpha OIDC Claims       │cf3515f0-8278-4ee3-a530-1bad7424c416│JavaScript│O
   Script                │                                    │          │                         │OIDC claims                   │                                                                                                                              
 Amazon Profile          │6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30│Groovy    │Social Idp Profile       │Normalizes raw profile data   │no                                                                                                                            
   Normalization         │                                    │          │Transformation           │from Amazon                   │                                                                                                                              
-Apple Profile           │484e6246-dbc6-4288-97e6-54e55431402e│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (4 uses, including: realm.root-alpha.idp.apple-stoyan.transform)                                                          
+Apple Profile           │484e6246-dbc6-4288-97e6-54e55431402e│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.apple-stoyan.transform)                                                          
   Normalization         │                                    │          │Transformation           │from Apple                    │                                                                                                                              
 Authentication Tree     │01e1a3c0-038b-4c16-956a-6c9d89328cff│JavaScript│Authentication Tree      │Default global script for a   │yes (at global.scripttype.AUTHENTICATION_TREE_DECISION_NODE.defaultScript)                                                    
   Decision Node Script  │                                    │          │Decision Node            │scripted decision node        │                                                                                                                              
@@ -938,9 +938,9 @@ Format Username         │223739f3-9c54-43b7-9572-3c5338786145│JavaScript│A
 FrodoSPAdapter          │07ee6240-d106-4e25-a781-5fcabc477d22│JavaScript│Saml2 Sp Adapter         │null                          │no                                                                                                                            
 GitHub Profile          │a7a78773-445b-4eca-bb93-409e86bced81│Groovy    │Social Idp Profile       │Normalizes raw profile data   │no                                                                                                                            
   Normalization         │                                    │          │Transformation           │from GitHub                   │                                                                                                                              
-GitHub Profile          │23143919-6b78-40c3-b25e-beca19b229e0│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.github.transform)                                                                
+GitHub Profile          │23143919-6b78-40c3-b25e-beca19b229e0│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.github.transform)                                                                                
   Normalization (VS)    │                                    │          │Transformation           │from GitHub                   │                                                                                                                              
-Google Profile          │58d29080-4563-480b-89bb-1e7719776a21│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.google.transform)                                                                
+Google Profile          │58d29080-4563-480b-89bb-1e7719776a21│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.google.transform)                                                                                
   Normalization         │                                    │          │Transformation           │from Google                   │                                                                                                                              
 Inactive Device Match   │3bd13a46-61c4-4974-8efb-1700c80c64e3│JavaScript│Authentication Tree      │Inactive Device Match Script  │no                                                                                                                            
   Script                │                                    │          │Decision Node            │                              │                                                                                                                              
@@ -959,7 +959,7 @@ LinkedIn Profile        │b4f3facb-c754-4e7f-b1c0-f4d46f592126│Groovy    │S
   Normalization         │                                    │          │Transformation           │from LinkedIn                 │                                                                                                                              
 LinkedIn Profile        │8862ca8f-7770-4af5-a888-ac0df0947f36│Groovy    │Social Idp Profile       │Normalizes raw profile data   │no                                                                                                                            
   Normalization         │                                    │          │Transformation           │from LinkedIn                 │                                                                                                                              
-Microsoft Profile       │73cecbfc-dad0-4395-be6a-6858ee3a80e5│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.azure.transform)                                                                 
+Microsoft Profile       │73cecbfc-dad0-4395-be6a-6858ee3a80e5│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.azure.transform)                                                                                 
   Normalization         │                                    │          │Transformation           │from Microsoft                │                                                                                                                              
 mode                    │5bbdaeff-ddee-44b9-b608-8d413d7d65a6│JavaScript│Authentication Tree      │Check if mode has already been│yes (11 uses, including: realm.root-alpha.trees.j00.nodes.513a2ab4-f0b8-4f94-b840-6fe14796cc84.script)                        
                         │                                    │          │Decision Node            │set.                          │                                                                                                                              
@@ -993,7 +993,7 @@ OAuth2 Validate Scope   │25e6c06d-cf70-473b-bd28-26931edc476b│JavaScript│O
   Script                │                                    │          │                         │OAuth2 Scope Validation       │                                                                                                                              
 OIDC Claims Script      │36863ffb-40ec-48b9-94b1-9a99f71cc3b5│JavaScript│Oidc Claims              │Default global script for OIDC│yes (2 uses, including: global.scripttype.OIDC_CLAIMS.defaultScript)                                                          
                         │                                    │          │                         │claims                        │                                                                                                                              
-Okta Profile            │6325cf19-a49b-471e-8d26-7e4df76df0e2│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (2 uses, including: realm.root-alpha.idp.okta-trial-5735851.transform)                                                    
+Okta Profile            │6325cf19-a49b-471e-8d26-7e4df76df0e2│Groovy    │Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.okta-trial-5735851.transform)                                                                    
   Normalization         │                                    │          │Transformation           │from GitHub                   │                                                                                                                              
 Remove Button           │9535446c-0ff6-4a76-8576-616599119d64│JavaScript│Authentication Tree      │Remove button from page.      │yes (11 uses, including: realm.root-bravo.trees.FullVerificationResult.innerNodes.c1f34309-1be3-4fd8-8c7d-8f027a91bb46.script)
                         │                                    │          │Decision Node            │                              │                                                                                                                              
@@ -1039,7 +1039,7 @@ Yahoo Profile           │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy    │S
 
 exports[`frodo script list "frodo script list -u": should list the usage of the scripts 1`] = `
 "Name                    │Used                                                                                                                          
-ADFS Profile            │yes (2 uses, including: realm.root-alpha.idp.adfs.transform)                                                                  
+ADFS Profile            │yes (at realm.root-alpha.idp.adfs.transform)                                                                                  
   Normalization (JS)    │                                                                                                                              
 Alpha endUserUIClient   │no                                                                                                                            
   OAuth2 Access Token   │                                                                                                                              
@@ -1053,7 +1053,7 @@ Alpha OIDC Claims       │yes (18 uses, including: realm.root-alpha.application
   Script                │                                                                                                                              
 Amazon Profile          │no                                                                                                                            
   Normalization         │                                                                                                                              
-Apple Profile           │yes (4 uses, including: realm.root-alpha.idp.apple-stoyan.transform)                                                          
+Apple Profile           │yes (2 uses, including: realm.root-alpha.idp.apple-stoyan.transform)                                                          
   Normalization         │                                                                                                                              
 Authentication Tree     │yes (at global.scripttype.AUTHENTICATION_TREE_DECISION_NODE.defaultScript)                                                    
   Decision Node Script  │                                                                                                                              
@@ -1082,9 +1082,9 @@ Format Username         │no
 FrodoSPAdapter          │no                                                                                                                            
 GitHub Profile          │no                                                                                                                            
   Normalization         │                                                                                                                              
-GitHub Profile          │yes (2 uses, including: realm.root-alpha.idp.github.transform)                                                                
+GitHub Profile          │yes (at realm.root-alpha.idp.github.transform)                                                                                
   Normalization (VS)    │                                                                                                                              
-Google Profile          │yes (2 uses, including: realm.root-alpha.idp.google.transform)                                                                
+Google Profile          │yes (at realm.root-alpha.idp.google.transform)                                                                                
   Normalization         │                                                                                                                              
 Inactive Device Match   │no                                                                                                                            
   Script                │                                                                                                                              
@@ -1100,7 +1100,7 @@ LinkedIn Profile        │no
   Normalization         │                                                                                                                              
 LinkedIn Profile        │no                                                                                                                            
   Normalization         │                                                                                                                              
-Microsoft Profile       │yes (2 uses, including: realm.root-alpha.idp.azure.transform)                                                                 
+Microsoft Profile       │yes (at realm.root-alpha.idp.azure.transform)                                                                                 
   Normalization         │                                                                                                                              
 mode                    │yes (11 uses, including: realm.root-alpha.trees.j00.nodes.513a2ab4-f0b8-4f94-b840-6fe14796cc84.script)                        
 My Example Library      │yes (at realm.root-alpha.script.bb393d07-a121-47e2-9d24-1a1066f39ec0(name: 'My Example Script Using Libraries').script)       
@@ -1130,7 +1130,7 @@ OAuth2 May Act Script   │no
 OAuth2 Validate Scope   │no                                                                                                                            
   Script                │                                                                                                                              
 OIDC Claims Script      │yes (2 uses, including: global.scripttype.OIDC_CLAIMS.defaultScript)                                                          
-Okta Profile            │yes (2 uses, including: realm.root-alpha.idp.okta-trial-5735851.transform)                                                    
+Okta Profile            │yes (at realm.root-alpha.idp.okta-trial-5735851.transform)                                                                    
   Normalization         │                                                                                                                              
 Remove Button           │yes (11 uses, including: realm.root-bravo.trees.FullVerificationResult.innerNodes.c1f34309-1be3-4fd8-8c7d-8f027a91bb46.script)
 Salesforce Profile      │no                                                                                                                            
