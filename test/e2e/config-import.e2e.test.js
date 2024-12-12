@@ -50,14 +50,14 @@
 To update cloud exports, run these:
 rm test/e2e/exports/all/all.cloud.json
 rm -rf test/e2e/exports/all-separate/cloud
-FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NdaD test/e2e/exports/all -f all.cloud.json --include-active-values
-FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NdxAD test/e2e/exports/all-separate/cloud --include-active-values
+FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NRdaD test/e2e/exports/all -f all.cloud.json --include-active-values
+FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NRdxAD test/e2e/exports/all-separate/cloud --include-active-values
 
 To update classic exports, ensure you have a local on-prem instance of AM with the host http://openam-frodo-dev.classic.com:8080/am, then run these:
 rm test/e2e/exports/all/all.classic.json
 rm -rf test/e2e/exports/all-separate/classic
-FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NdaD test/e2e/exports/all -f all.classic.json --include-active-values
-FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NdxAD test/e2e/exports/all-separate/classic --include-active-values
+FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdaD test/e2e/exports/all -f all.classic.json --include-active-values
+FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdxAD test/e2e/exports/all-separate/classic --include-active-values
 
 To record, run these:
 

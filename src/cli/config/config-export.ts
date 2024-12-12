@@ -15,7 +15,9 @@ export default function setup() {
 
   program
     .description(
-      'Export full cloud configuration for all ops that currently support export.'
+      `Export full cloud configuration.\n` +
+        `By default, it only exports importable config (i.e. config that is not read-only) for the current deployment (e.g. if exporting from cloud, realm config would NOT be exported since it can't be imported back into cloud even though it can be imported into classic deployments). There is a flag to export all config including read only config.\n` +
+        `Additionally, there is a flag to export config for only the specified realm, a flag to export only global config, and many other flags to customize the export. Use the -h or --help to see them all and to also see usage examples.`
     )
     .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
     .addOption(new Option('-a, --all', 'Export everything to a single file.'))
@@ -63,6 +65,24 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-R, --read-only',
+        'Export read-only config (with the exception of default scripts) in addition to the importable config.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-r, --realm-only',
+        'Export only the config for the active realm. If -g, --global-only is also active, then the global config will also be exported.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-g, --global-only',
+        'Export only the global config. If -r, --realm-only is also active, then the corresponding active realm config will also be exported.'
+      )
+    )
+    .addOption(
+      new Option(
         '-s, --separate-mappings',
         'Export sync.idm.json mappings separately in their own directory. Ignored with -a.'
       )
@@ -86,15 +106,23 @@ export default function setup() {
           'brightGreen'
         ] +
         `Usage Examples:\n` +
-        `  Backup global and active realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
+        `  Export global and realm configuration for version control (e.g. Git) into the current directory.\n` +
+        `  Note that -x and -s separates script and mapping config to better track changes made to them, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):\n` +
+        `  $ frodo config export -sxAND . ${s.connId}\n`['brightCyan'] +
+        `  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.\n` +
+        `  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:\n` +
+        `  $ frodo config export -adR ${s.connId}\n`['brightCyan'] +
+        `  Export only the bravo realm configuration:\n` +
+        `  $ frodo config export -ar ${s.connId} bravo\n`['brightCyan'] +
+        `  Backup global and realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
         `  $ frodo config export -a --include-active-values ${s.connId}\n`[
           'brightCyan'
         ] +
-        `  Backup global and active realm configuration including active secret values to individual files in a directory structure (Note: only values of active and loaded secrets can be exported):\n` +
+        `  Backup global and realm configuration including active secret values to individual files in a directory structure (Note: only values of active and loaded secrets can be exported):\n` +
         `  $ frodo config export -A -D ${s.connId}-backup --include-active-values ${s.connId}\n`[
           'brightCyan'
         ] +
-        `  Export global and active realm configuration including active secret values for import into another environment.\n` +
+        `  Export global and realm configuration including active secret values for import into another environment.\n` +
         `  The --target parameter instructs frodo to encrypt the exported secret values using the target environment so they can be imported into that target environment without requiring the source environment they were exported from.\n` +
         `  Using the --target parameter, the target environment must be available at the time of export and the person performing the export must have a connection profile for the target environment.\n` +
         `  Without the --target parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +
@@ -126,6 +154,9 @@ export default function setup() {
               includeDefault: options.default,
               includeActiveValues: options.includeActiveValues,
               target: options.target,
+              includeReadOnly: options.readOnly,
+              onlyRealm: options.realmOnly,
+              onlyGlobal: options.globalOnly,
             }
           );
           if (!outcome) process.exitCode = 1;
@@ -153,6 +184,9 @@ export default function setup() {
               includeDefault: options.default,
               includeActiveValues: options.includeActiveValues,
               target: options.target,
+              includeReadOnly: options.readOnly,
+              onlyRealm: options.realmOnly,
+              onlyGlobal: options.globalOnly,
             }
           );
           if (!outcome) process.exitCode = 1;
