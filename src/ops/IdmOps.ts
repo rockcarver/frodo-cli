@@ -32,6 +32,8 @@ const {
   exportConfigEntity,
   exportConfigEntities,
   importConfigEntities,
+  readSubConfigEntity,
+  importSubConfigEntity,
 } = frodo.idm.config;
 const { queryManagedObjects } = frodo.idm.managed;
 const { testConnectorServers } = frodo.idm.system;
@@ -134,6 +136,37 @@ export async function exportConfigEntityToFile(
     return true;
   } catch (error) {
     printError(error, `Error exporting config entity ${id}`);
+  }
+  return false;
+}
+
+/**
+ * Export an IDM configuration managed object.
+ * @param {string} name the desired configuration object
+ * @param {string} file optional export file name
+ * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function exportManagedObjectToFile(
+  name: string,
+  file?: string,
+  envFile?: string
+): Promise<boolean> {
+  try {
+    const options = getIdmImportExportOptions(undefined, envFile);
+    const exportData = await readSubConfigEntity('managed', name, {
+      envReplaceParams: options.envReplaceParams,
+      entitiesToExport: undefined,
+    });
+
+    let fileName = file;
+    if (!fileName) {
+      fileName = getTypedFilename(name, 'managed');
+    }
+    saveJsonToFile(exportData, getFilePath(fileName, true), false);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting config managed object ${name}`);
   }
   return false;
 }
@@ -398,6 +431,52 @@ export async function importAllConfigEntitiesFromFile(
     stopProgressIndicator(
       indicatorId,
       `Error importing config entities from ${filePath}.`,
+      'fail'
+    );
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Import an individual managed object from a file
+ * @param {string} file the file containing the managed object
+ * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * @param {boolean} validate True to validate script hooks. Default: false
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function importManagedObjectFromFile(
+  file: string,
+  envFile?: string,
+  validate: boolean = false
+): Promise<boolean> {
+  let indicatorId: string;
+  let filePath: string;
+  try {
+    filePath = getFilePath(file);
+    const importData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    indicatorId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Importing config managed object from ${filePath}...`
+    );
+    const options = getIdmImportExportOptions(undefined, envFile);
+    await importSubConfigEntity('managed', importData, {
+      entitiesToImport: options.entitiesToExportOrImport,
+      envReplaceParams: options.envReplaceParams,
+      validate,
+    });
+
+    stopProgressIndicator(
+      indicatorId,
+      `Imported config managed object`,
+      'success'
+    );
+    return true;
+  } catch (error) {
+    stopProgressIndicator(
+      indicatorId,
+      `Error importing config managed object from ${filePath}.`,
       'fail'
     );
     printError(error);
