@@ -11,10 +11,7 @@
           "meta": {
             "property": "_meta",
             "resourceCollection": "managed/alpha_usermeta",
-            "trackedProperties": [
-              "createDate",
-              "lastChanged"
-            ]
+            "trackedProperties": ["createDate", "lastChanged"]
           },
           "name": "alpha_user",
           "notifications": {},
@@ -109,9 +106,7 @@
                 "policies": [
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/"
-                      ]
+                      "forbiddenChars": ["/"]
                     },
                     "policyId": "cannot-contain-characters"
                   }
@@ -157,9 +152,7 @@
                       "notify": true,
                       "path": "managed/alpha_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -221,13 +214,9 @@
                       "label": "Application",
                       "path": "managed/alpha_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
-                        "sortKeys": [
-                          "name"
-                        ]
+                        "sortKeys": ["name"]
                       }
                     }
                   ],
@@ -253,17 +242,10 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "name"
-                  ],
+                  "referencedObjectFields": ["name"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "applications"
-                    ],
-                    [
-                      "applications"
-                    ]
+                    ["roles", "applications"],
+                    ["applications"]
                   ]
                 },
                 "searchable": false,
@@ -307,9 +289,7 @@
                       "label": "Assignment",
                       "path": "managed/alpha_assignment",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -356,9 +336,7 @@
                       "label": "Internal Role",
                       "path": "internal/role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -402,10 +380,7 @@
                 "isVirtual": false,
                 "items": {
                   "items": {
-                    "order": [
-                      "mapping",
-                      "consentDate"
-                    ],
+                    "order": ["mapping", "consentDate"],
                     "properties": {
                       "consentDate": {
                         "description": "Consent Date",
@@ -424,10 +399,7 @@
                         "viewable": true
                       }
                     },
-                    "required": [
-                      "mapping",
-                      "consentDate"
-                    ],
+                    "required": ["mapping", "consentDate"],
                     "title": "Consented Mappings Item",
                     "type": "object"
                   },
@@ -470,17 +442,10 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedObjectFields": [
-                    "name"
-                  ],
+                  "referencedObjectFields": ["name"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "applications"
-                    ],
-                    [
-                      "applications"
-                    ]
+                    ["roles", "applications"],
+                    ["applications"]
                   ]
                 },
                 "returnByDefault": true,
@@ -497,17 +462,10 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedObjectFields": [
-                    "*"
-                  ],
+                  "referencedObjectFields": ["*"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "assignments"
-                    ],
-                    [
-                      "assignments"
-                    ]
+                    ["roles", "assignments"],
+                    ["assignments"]
                   ]
                 },
                 "returnByDefault": true,
@@ -525,9 +483,7 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedRelationshipFields": [
-                    "groups"
-                  ]
+                  "referencedRelationshipFields": ["groups"]
                 },
                 "returnByDefault": true,
                 "title": "Effective Groups",
@@ -544,9 +500,7 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedRelationshipFields": [
-                    "roles"
-                  ]
+                  "referencedRelationshipFields": ["roles"]
                 },
                 "returnByDefault": true,
                 "title": "Effective Roles",
@@ -989,9 +943,7 @@
                       "label": "Group",
                       "path": "managed/alpha_group",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -1014,11 +966,7 @@
                 "description": "KBA Info",
                 "isPersonal": true,
                 "items": {
-                  "order": [
-                    "answer",
-                    "customQuestion",
-                    "questionId"
-                  ],
+                  "order": ["answer", "customQuestion", "questionId"],
                   "properties": {
                     "answer": {
                       "description": "Answer",
@@ -1045,10 +993,7 @@
               "lastSync": {
                 "description": "Last Sync timestamp",
                 "isPersonal": false,
-                "order": [
-                  "effectiveAssignments",
-                  "timestamp"
-                ],
+                "order": ["effectiveAssignments", "timestamp"],
                 "properties": {
                   "effectiveAssignments": {
                     "description": "Effective Assignments",
@@ -1112,11 +1057,7 @@
                     "label": "User",
                     "path": "managed/alpha_user",
                     "query": {
-                      "fields": [
-                        "userName",
-                        "givenName",
-                        "sn"
-                      ],
+                      "fields": ["userName", "givenName", "sn"],
                       "queryFilter": "true"
                     }
                   }
@@ -1155,9 +1096,7 @@
                       "notify": false,
                       "path": "managed/alpha_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -1184,13 +1123,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id",
-                    "parentIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "memberOfOrg"
-                  ]
+                  "referencedObjectFields": ["_id", "parentIDs"],
+                  "referencedRelationshipFields": ["memberOfOrg"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -1220,13 +1154,9 @@
                       "label": "Application",
                       "path": "managed/alpha_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
-                        "sortKeys": [
-                          "name"
-                        ]
+                        "sortKeys": ["name"]
                       }
                     }
                   ],
@@ -1266,9 +1196,7 @@
                       "notify": true,
                       "path": "managed/alpha_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -1320,10 +1248,7 @@
               "preferences": {
                 "description": "Preferences",
                 "isPersonal": false,
-                "order": [
-                  "updates",
-                  "marketing"
-                ],
+                "order": ["updates", "marketing"],
                 "properties": {
                   "marketing": {
                     "description": "Send me special offers and services",
@@ -1379,11 +1304,7 @@
                       "label": "User",
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -1436,9 +1357,7 @@
                       "label": "Role",
                       "path": "managed/alpha_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -1496,9 +1415,7 @@
                   },
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/"
-                      ]
+                      "forbiddenChars": ["/"]
                     },
                     "policyId": "cannot-contain-characters"
                   },
@@ -1523,12 +1440,7 @@
                 "viewable": true
               }
             },
-            "required": [
-              "userName",
-              "givenName",
-              "sn",
-              "mail"
-            ],
+            "required": ["userName", "givenName", "sn", "mail"],
             "title": "Alpha realm - User",
             "type": "object",
             "viewable": true
@@ -1542,10 +1454,7 @@
           "meta": {
             "property": "_meta",
             "resourceCollection": "managed/bravo_usermeta",
-            "trackedProperties": [
-              "createDate",
-              "lastChanged"
-            ]
+            "trackedProperties": ["createDate", "lastChanged"]
           },
           "name": "bravo_user",
           "notifications": {},
@@ -1640,9 +1549,7 @@
                 "policies": [
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/"
-                      ]
+                      "forbiddenChars": ["/"]
                     },
                     "policyId": "cannot-contain-characters"
                   }
@@ -1688,9 +1595,7 @@
                       "notify": true,
                       "path": "managed/bravo_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -1752,13 +1657,9 @@
                       "label": "Application",
                       "path": "managed/bravo_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
-                        "sortKeys": [
-                          "name"
-                        ]
+                        "sortKeys": ["name"]
                       }
                     }
                   ],
@@ -1784,17 +1685,10 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "name"
-                  ],
+                  "referencedObjectFields": ["name"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "applications"
-                    ],
-                    [
-                      "applications"
-                    ]
+                    ["roles", "applications"],
+                    ["applications"]
                   ]
                 },
                 "searchable": false,
@@ -1838,9 +1732,7 @@
                       "label": "Assignment",
                       "path": "managed/bravo_assignment",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -1887,9 +1779,7 @@
                       "label": "Internal Role",
                       "path": "internal/role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -1933,10 +1823,7 @@
                 "isVirtual": false,
                 "items": {
                   "items": {
-                    "order": [
-                      "mapping",
-                      "consentDate"
-                    ],
+                    "order": ["mapping", "consentDate"],
                     "properties": {
                       "consentDate": {
                         "description": "Consent Date",
@@ -1955,10 +1842,7 @@
                         "viewable": true
                       }
                     },
-                    "required": [
-                      "mapping",
-                      "consentDate"
-                    ],
+                    "required": ["mapping", "consentDate"],
                     "title": "Consented Mappings Item",
                     "type": "object"
                   },
@@ -2001,17 +1885,10 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedObjectFields": [
-                    "name"
-                  ],
+                  "referencedObjectFields": ["name"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "applications"
-                    ],
-                    [
-                      "applications"
-                    ]
+                    ["roles", "applications"],
+                    ["applications"]
                   ]
                 },
                 "returnByDefault": true,
@@ -2028,17 +1905,10 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedObjectFields": [
-                    "*"
-                  ],
+                  "referencedObjectFields": ["*"],
                   "referencedRelationshipFields": [
-                    [
-                      "roles",
-                      "assignments"
-                    ],
-                    [
-                      "assignments"
-                    ]
+                    ["roles", "assignments"],
+                    ["assignments"]
                   ]
                 },
                 "returnByDefault": true,
@@ -2056,9 +1926,7 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedRelationshipFields": [
-                    "groups"
-                  ]
+                  "referencedRelationshipFields": ["groups"]
                 },
                 "returnByDefault": true,
                 "title": "Effective Groups",
@@ -2075,9 +1943,7 @@
                   "type": "object"
                 },
                 "queryConfig": {
-                  "referencedRelationshipFields": [
-                    "roles"
-                  ]
+                  "referencedRelationshipFields": ["roles"]
                 },
                 "returnByDefault": true,
                 "title": "Effective Roles",
@@ -2520,9 +2386,7 @@
                       "label": "Group",
                       "path": "managed/bravo_group",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -2545,11 +2409,7 @@
                 "description": "KBA Info",
                 "isPersonal": true,
                 "items": {
-                  "order": [
-                    "answer",
-                    "customQuestion",
-                    "questionId"
-                  ],
+                  "order": ["answer", "customQuestion", "questionId"],
                   "properties": {
                     "answer": {
                       "description": "Answer",
@@ -2576,10 +2436,7 @@
               "lastSync": {
                 "description": "Last Sync timestamp",
                 "isPersonal": false,
-                "order": [
-                  "effectiveAssignments",
-                  "timestamp"
-                ],
+                "order": ["effectiveAssignments", "timestamp"],
                 "properties": {
                   "effectiveAssignments": {
                     "description": "Effective Assignments",
@@ -2643,11 +2500,7 @@
                     "label": "User",
                     "path": "managed/bravo_user",
                     "query": {
-                      "fields": [
-                        "userName",
-                        "givenName",
-                        "sn"
-                      ],
+                      "fields": ["userName", "givenName", "sn"],
                       "queryFilter": "true"
                     }
                   }
@@ -2686,9 +2539,7 @@
                       "notify": false,
                       "path": "managed/bravo_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -2715,13 +2566,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id",
-                    "parentIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "memberOfOrg"
-                  ]
+                  "referencedObjectFields": ["_id", "parentIDs"],
+                  "referencedRelationshipFields": ["memberOfOrg"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -2751,13 +2597,9 @@
                       "label": "Application",
                       "path": "managed/bravo_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
-                        "sortKeys": [
-                          "name"
-                        ]
+                        "sortKeys": ["name"]
                       }
                     }
                   ],
@@ -2797,9 +2639,7 @@
                       "notify": true,
                       "path": "managed/bravo_organization",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -2851,10 +2691,7 @@
               "preferences": {
                 "description": "Preferences",
                 "isPersonal": false,
-                "order": [
-                  "updates",
-                  "marketing"
-                ],
+                "order": ["updates", "marketing"],
                 "properties": {
                   "marketing": {
                     "description": "Send me special offers and services",
@@ -2910,11 +2747,7 @@
                       "label": "User",
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -2967,9 +2800,7 @@
                       "label": "Role",
                       "path": "managed/bravo_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3027,9 +2858,7 @@
                   },
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/"
-                      ]
+                      "forbiddenChars": ["/"]
                     },
                     "policyId": "cannot-contain-characters"
                   },
@@ -3054,12 +2883,7 @@
                 "viewable": true
               }
             },
-            "required": [
-              "userName",
-              "givenName",
-              "sn",
-              "mail"
-            ],
+            "required": ["userName", "givenName", "sn", "mail"],
             "title": "Bravo realm - User",
             "type": "object",
             "viewable": true
@@ -3118,9 +2942,7 @@
                       "label": "Application",
                       "path": "managed/alpha_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3131,9 +2953,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "relationshipGrantTemporalConstraintsEnforced": true,
                 "returnByDefault": false,
                 "title": "Applications",
@@ -3167,9 +2987,7 @@
                       "label": "Assignment",
                       "path": "managed/alpha_assignment",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3180,9 +2998,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "returnByDefault": false,
                 "title": "Managed Assignments",
                 "type": "array",
@@ -3236,11 +3052,7 @@
                       "notify": true,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -3273,33 +3085,25 @@
                 "description": "An array of temporal constraints for a role",
                 "isTemporalConstraint": true,
                 "items": {
-                  "order": [
-                    "duration"
-                  ],
+                  "order": ["duration"],
                   "properties": {
                     "duration": {
                       "description": "Duration",
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "duration"
-                  ],
+                  "required": ["duration"],
                   "title": "Temporal Constraints Items",
                   "type": "object"
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "returnByDefault": true,
                 "title": "Temporal Constraints",
                 "type": "array",
                 "viewable": false
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Alpha realm - Role",
             "type": "object"
           }
@@ -3357,9 +3161,7 @@
                       "label": "Application",
                       "path": "managed/bravo_application",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3370,9 +3172,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "relationshipGrantTemporalConstraintsEnforced": true,
                 "returnByDefault": false,
                 "title": "Applications",
@@ -3406,9 +3206,7 @@
                       "label": "Assignment",
                       "path": "managed/bravo_assignment",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3419,9 +3217,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "returnByDefault": false,
                 "title": "Managed Assignments",
                 "type": "array",
@@ -3475,11 +3271,7 @@
                       "notify": true,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -3512,33 +3304,25 @@
                 "description": "An array of temporal constraints for a role",
                 "isTemporalConstraint": true,
                 "items": {
-                  "order": [
-                    "duration"
-                  ],
+                  "order": ["duration"],
                   "properties": {
                     "duration": {
                       "description": "Duration",
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "duration"
-                  ],
+                  "required": ["duration"],
                   "title": "Temporal Constraints Items",
                   "type": "object"
                 },
-                "notifyRelationships": [
-                  "members"
-                ],
+                "notifyRelationships": ["members"],
                 "returnByDefault": true,
                 "title": "Temporal Constraints",
                 "type": "array",
                 "viewable": false
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Bravo realm - Role",
             "type": "object"
           }
@@ -3604,10 +3388,7 @@
                   "title": "Assignment Attributes Items",
                   "type": "object"
                 },
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "title": "Assignment Attributes",
                 "type": "array",
                 "viewable": true
@@ -3682,11 +3463,7 @@
                       "notify": true,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -3736,9 +3513,7 @@
                       "notify": true,
                       "path": "managed/alpha_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -3763,24 +3538,14 @@
               },
               "weight": {
                 "description": "The weight of the assignment.",
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "searchable": false,
                 "title": "Weight",
-                "type": [
-                  "number",
-                  "null"
-                ],
+                "type": ["number", "null"],
                 "viewable": true
               }
             },
-            "required": [
-              "name",
-              "description",
-              "mapping"
-            ],
+            "required": ["name", "description", "mapping"],
             "title": "Alpha realm - Assignment",
             "type": "object"
           }
@@ -3846,10 +3611,7 @@
                   "title": "Assignment Attributes Items",
                   "type": "object"
                 },
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "title": "Assignment Attributes",
                 "type": "array",
                 "viewable": true
@@ -3924,11 +3686,7 @@
                       "notify": true,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -3978,9 +3736,7 @@
                       "notify": true,
                       "path": "managed/bravo_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true"
                       }
                     }
@@ -4005,24 +3761,14 @@
               },
               "weight": {
                 "description": "The weight of the assignment.",
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "searchable": false,
                 "title": "Weight",
-                "type": [
-                  "number",
-                  "null"
-                ],
+                "type": ["number", "null"],
                 "viewable": true
               }
             },
-            "required": [
-              "name",
-              "description",
-              "mapping"
-            ],
+            "required": ["name", "description", "mapping"],
             "title": "Bravo realm - Assignment",
             "type": "object"
           }
@@ -4057,12 +3803,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id"
-                  ],
-                  "referencedRelationshipFields": [
-                    "admins"
-                  ]
+                  "referencedObjectFields": ["_id"],
+                  "referencedRelationshipFields": ["admins"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4095,11 +3837,7 @@
                       "notify": false,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4110,9 +3848,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "children"
-                ],
+                "notifyRelationships": ["children"],
                 "returnByDefault": false,
                 "searchable": false,
                 "title": "Administrators",
@@ -4145,10 +3881,7 @@
                       "notify": true,
                       "path": "managed/alpha_organization",
                       "query": {
-                        "fields": [
-                          "name",
-                          "description"
-                        ],
+                        "fields": ["name", "description"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4198,11 +3931,7 @@
                       "notify": true,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4235,12 +3964,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id"
-                  ],
-                  "referencedRelationshipFields": [
-                    "owners"
-                  ]
+                  "referencedObjectFields": ["_id"],
+                  "referencedRelationshipFields": ["owners"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4273,11 +3998,7 @@
                       "notify": false,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4288,9 +4009,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "children"
-                ],
+                "notifyRelationships": ["children"],
                 "returnByDefault": false,
                 "searchable": false,
                 "title": "Owner",
@@ -4300,10 +4019,7 @@
               },
               "parent": {
                 "description": "Parent Organization",
-                "notifyRelationships": [
-                  "children",
-                  "members"
-                ],
+                "notifyRelationships": ["children", "members"],
                 "notifySelf": true,
                 "properties": {
                   "_ref": {
@@ -4326,10 +4042,7 @@
                     "notify": false,
                     "path": "managed/alpha_organization",
                     "query": {
-                      "fields": [
-                        "name",
-                        "description"
-                      ],
+                      "fields": ["name", "description"],
                       "queryFilter": "true",
                       "sortKeys": []
                     }
@@ -4353,13 +4066,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "adminIDs",
-                    "parentAdminIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["adminIDs", "parentAdminIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4376,13 +4084,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id",
-                    "parentIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["_id", "parentIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4399,13 +4102,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "ownerIDs",
-                    "parentOwnerIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["ownerIDs", "parentOwnerIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4415,9 +4113,7 @@
                 "viewable": false
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Alpha realm - Organization",
             "type": "object"
           }
@@ -4452,12 +4148,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id"
-                  ],
-                  "referencedRelationshipFields": [
-                    "admins"
-                  ]
+                  "referencedObjectFields": ["_id"],
+                  "referencedRelationshipFields": ["admins"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4490,11 +4182,7 @@
                       "notify": false,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4505,9 +4193,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "children"
-                ],
+                "notifyRelationships": ["children"],
                 "returnByDefault": false,
                 "searchable": false,
                 "title": "Administrators",
@@ -4540,10 +4226,7 @@
                       "notify": true,
                       "path": "managed/bravo_organization",
                       "query": {
-                        "fields": [
-                          "name",
-                          "description"
-                        ],
+                        "fields": ["name", "description"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4593,11 +4276,7 @@
                       "notify": true,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4630,12 +4309,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id"
-                  ],
-                  "referencedRelationshipFields": [
-                    "owners"
-                  ]
+                  "referencedObjectFields": ["_id"],
+                  "referencedRelationshipFields": ["owners"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4668,11 +4343,7 @@
                       "notify": false,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -4683,9 +4354,7 @@
                   "type": "relationship",
                   "validate": true
                 },
-                "notifyRelationships": [
-                  "children"
-                ],
+                "notifyRelationships": ["children"],
                 "returnByDefault": false,
                 "searchable": false,
                 "title": "Owner",
@@ -4695,10 +4364,7 @@
               },
               "parent": {
                 "description": "Parent Organization",
-                "notifyRelationships": [
-                  "children",
-                  "members"
-                ],
+                "notifyRelationships": ["children", "members"],
                 "notifySelf": true,
                 "properties": {
                   "_ref": {
@@ -4721,10 +4387,7 @@
                     "notify": false,
                     "path": "managed/bravo_organization",
                     "query": {
-                      "fields": [
-                        "name",
-                        "description"
-                      ],
+                      "fields": ["name", "description"],
                       "queryFilter": "true",
                       "sortKeys": []
                     }
@@ -4748,13 +4411,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "adminIDs",
-                    "parentAdminIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["adminIDs", "parentAdminIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4771,13 +4429,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "_id",
-                    "parentIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["_id", "parentIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4794,13 +4447,8 @@
                 },
                 "queryConfig": {
                   "flattenProperties": true,
-                  "referencedObjectFields": [
-                    "ownerIDs",
-                    "parentOwnerIDs"
-                  ],
-                  "referencedRelationshipFields": [
-                    "parent"
-                  ]
+                  "referencedObjectFields": ["ownerIDs", "parentOwnerIDs"],
+                  "referencedRelationshipFields": ["parent"]
                 },
                 "returnByDefault": true,
                 "searchable": false,
@@ -4810,9 +4458,7 @@
                 "viewable": false
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Bravo realm - Organization",
             "type": "object"
           }
@@ -4824,13 +4470,7 @@
             "icon": "fa-group",
             "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group",
             "mat-icon": "group",
-            "order": [
-              "_id",
-              "name",
-              "description",
-              "condition",
-              "members"
-            ],
+            "order": ["_id", "name", "description", "condition", "members"],
             "properties": {
               "_id": {
                 "description": "Group ID",
@@ -4903,11 +4543,7 @@
                       "notify": true,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -4934,9 +4570,7 @@
                   },
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/*"
-                      ]
+                      "forbiddenChars": ["/*"]
                     },
                     "policyId": "cannot-contain-characters"
                   }
@@ -4947,9 +4581,7 @@
                 "viewable": true
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Alpha realm - Group",
             "viewable": true
           }
@@ -4961,13 +4593,7 @@
             "icon": "fa-group",
             "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group",
             "mat-icon": "group",
-            "order": [
-              "_id",
-              "name",
-              "description",
-              "condition",
-              "members"
-            ],
+            "order": ["_id", "name", "description", "condition", "members"],
             "properties": {
               "_id": {
                 "description": "Group ID",
@@ -5040,11 +4666,7 @@
                       "notify": true,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -5071,9 +4693,7 @@
                   },
                   {
                     "params": {
-                      "forbiddenChars": [
-                        "/*"
-                      ]
+                      "forbiddenChars": ["/*"]
                     },
                     "policyId": "cannot-contain-characters"
                   }
@@ -5084,9 +4704,7 @@
                 "viewable": true
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Bravo realm - Group",
             "viewable": true
           }
@@ -5188,11 +4806,7 @@
                       "notify": true,
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -5213,10 +4827,7 @@
               },
               "name": {
                 "description": "Application name",
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "policies": [
                   {
                     "policyId": "unique"
@@ -5252,11 +4863,7 @@
                       "label": "User",
                       "path": "managed/alpha_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -5298,9 +4905,7 @@
                       "notify": true,
                       "path": "managed/alpha_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -5374,9 +4979,7 @@
                 "viewable": true
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Alpha realm - Application",
             "type": "object"
           }
@@ -5478,11 +5081,7 @@
                       "notify": true,
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -5503,10 +5102,7 @@
               },
               "name": {
                 "description": "Application name",
-                "notifyRelationships": [
-                  "roles",
-                  "members"
-                ],
+                "notifyRelationships": ["roles", "members"],
                 "policies": [
                   {
                     "policyId": "unique"
@@ -5542,11 +5138,7 @@
                       "label": "User",
                       "path": "managed/bravo_user",
                       "query": {
-                        "fields": [
-                          "userName",
-                          "givenName",
-                          "sn"
-                        ],
+                        "fields": ["userName", "givenName", "sn"],
                         "queryFilter": "true"
                       }
                     }
@@ -5588,9 +5180,7 @@
                       "notify": true,
                       "path": "managed/bravo_role",
                       "query": {
-                        "fields": [
-                          "name"
-                        ],
+                        "fields": ["name"],
                         "queryFilter": "true",
                         "sortKeys": []
                       }
@@ -5664,14 +5254,20 @@
                 "viewable": true
               }
             },
-            "required": [
-              "name"
-            ],
+            "required": ["name"],
             "title": "Bravo realm - Application",
             "type": "object"
           }
         }
       ]
     }
+  },
+  "meta": {
+    "exportDate": "2024-12-16T23:30:19.612Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.0.1-0 [v20.18.0]",
+    "exportedBy": "cparker@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "8.0.0"
   }
 }

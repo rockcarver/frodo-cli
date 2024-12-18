@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'idm' should be expected english 1`] = `
+"Usage: frodo idm schema object import [options] [host] [realm] [username] [password]
+
+Import IDM configuration managed objects.
+
+Arguments:
+  host                                 AM base URL, e.g.:
+                                       https://cdk.iam.example.com/am. To use a
+                                       connection profile, just specify a
+                                       unique substring.
+  realm                                Realm. Specify realm as '/' for the root
+                                       realm or 'realm' or '/parent/child'
+                                       otherwise. (default: "alpha" for
+                                       Identity Cloud tenants, "/" otherwise.)
+  username                             Username to login with. Must be an admin
+                                       user with appropriate rights to manage
+                                       authentication journeys/trees.
+  password                             Password.
+
+Options:
+  --curlirize                          Output all network calls in curl format.
+  -D, --directory <directory>          Set the working directory.
+  --debug                              Debug output during command execution.
+                                       If specified, may or may not produce
+                                       additional output helpful for
+                                       troubleshooting.
+  -e, --env-file [envfile]             Name of the env file.
+  -f, --file [file]                    Import file.
+  --flush-cache                        Flush token cache.
+  -h, --help                           Help
+  -i, --individual-object              Import an individual object. Requires
+                                       the use of the -f to specify the file.
+  --idm-host <idm-host>                IDM base URL, e.g.:
+                                       https://cdk.idm.example.com/myidm. Use
+                                       only if your IDM installation resides in
+                                       a different domain and/or if the base
+                                       path differs from the default
+                                       "/openidm".
+  -k, --insecure                       Allow insecure connections when using
+                                       SSL/TLS. Has no effect when using a
+                                       network proxy for https
+                                       (HTTPS_PROXY=http://<host>:<port>), in
+                                       that case the proxy must provide this
+                                       capability. (default: Don't allow
+                                       insecure connections)
+  --login-client-id <client-id>        Specify a custom OAuth2 client id to use
+                                       a your own oauth2 client for IDM API
+                                       calls in deployments of type "cloud" or
+                                       "forgeops". Your custom client must be
+                                       configured as a public client and allow
+                                       the authorization code grant using the
+                                       "openid fr:idm:*" scope. Use the
+                                       "--redirect-uri" parameter if you have
+                                       configured a custom redirect uri
+                                       (default:
+                                       "<host>/platform/appAuthHelperRedirect.html").
+  --login-redirect-uri <redirect-uri>  Specify a custom redirect URI to use
+                                       with your custom OAuth2 client (efault:
+                                       "<host>/platform/appAuthHelperRedirect.html").
+  -m, --type <type>                    Override auto-detected deployment type.
+                                       Valid values for type:
+                                       classic:  A classic Access
+                                       Management-only deployment with custom
+                                       layout and configuration.
+                                       cloud:    A ForgeRock Identity Cloud
+                                       environment.
+                                       forgeops: A ForgeOps CDK or CDM
+                                       deployment.
+                                       The detected or provided deployment type
+                                       controls certain behavior like obtaining
+                                       an Identity Management admin token or
+                                       not and whether to export/import
+                                       referenced email templates or how to
+                                       walk through the tenant admin login flow
+                                       of Identity Cloud and handle MFA
+                                       (choices: "classic", "cloud",
+                                       "forgeops")
+  --no-cache                           Disable token cache for this operation.
+  --sa-id <sa-id>                      Service account id.
+  --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
+                                       associated with the the service account.
+  --verbose                            Verbose output during command execution.
+                                       If specified, may or may not produce
+                                       additional output.
+
+Environment Variables:
+  FRODO_HOST: AM base URL. Overridden by 'host' argument.
+  FRODO_IDM_HOST: IDM base URL. Overridden by '--idm-host' option.
+  FRODO_REALM: Realm. Overridden by 'realm' argument.
+  FRODO_USERNAME: Username. Overridden by 'username' argument.
+  FRODO_PASSWORD: Password. Overridden by 'password' argument.
+  FRODO_LOGIN_CLIENT_ID: OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.
+  FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
+  FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
+  FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
+  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
+  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
+  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
+  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
+
+"
+`;

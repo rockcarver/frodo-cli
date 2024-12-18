@@ -14,5 +14,6 @@ Commands:
   help        display help for command
   import      Import IDM configuration objects.
   list        List IDM configuration objects.
+  schema      Manage IDM schema.
 "
 `;

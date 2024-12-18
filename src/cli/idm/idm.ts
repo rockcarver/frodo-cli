@@ -3,6 +3,7 @@ import CountCmd from './idm-count.js';
 import ExportCmd from './idm-export.js';
 import ImportCmd from './idm-import.js';
 import ListCmd from './idm-list.js';
+import Schema from './idm-schema.js';
 
 export default function setup() {
   const program = new FrodoStubCommand('idm').description(
@@ -16,6 +17,8 @@ export default function setup() {
   program.addCommand(ImportCmd().name('import'));
 
   program.addCommand(CountCmd().name('count'));
+
+  program.addCommand(Schema().name('schema'));
 
   return program;
 }
