@@ -8,6 +8,7 @@ import app from './cli/app/app';
 import authn from './cli/authn/authn';
 import authz from './cli/authz/authz';
 import config from './cli/config/config';
+import configManager from './cli/config-manager/config-manager';
 import conn from './cli/conn/conn';
 import email from './cli/email/email';
 import esv from './cli/esv/esv';
@@ -81,6 +82,7 @@ const { initTokenCache } = frodo.cache;
     program.addCommand(service());
     program.addCommand(shell());
     program.addCommand(theme());
+    program.addCommand(configManager());
     // enable sample command template.
     // program.addCommand(something());
 
