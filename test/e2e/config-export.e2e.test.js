@@ -54,6 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -AsxD exportAllTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all-separate --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract --separate-mappings
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -AD exportAllTestDir5 --include-active-values
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all-separate --no-metadata --default --directory exportAllTestDir9 --use-string-arrays --no-decode --no-coords --extract --separate-objects
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -adND exportAllTestDir6 -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --all --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic
@@ -65,7 +66,7 @@ import { connection as c, classic_connection as cc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
-    './test/e2e/env/Connections.json';
+  './test/e2e/env/Connections.json';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
@@ -100,6 +101,12 @@ describe('frodo config export', () => {
   test('"frodo config export --all-separate --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract --separate-mappings": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays', async () => {
     const exportDirectory = 'exportAllTestDir3';
     const CMD = `frodo config export --all-separate --no-metadata --default --directory ${exportDirectory} --use-string-arrays --no-decode --no-coords --extract --separate-mappings`;
+    await testExport(CMD, env, undefined, undefined, exportDirectory, false);
+  });
+
+  test('"frodo config export --all-separate --no-metadata --default --directory exportAllTestDir9 --use-string-arrays --no-decode --no-coords --extract --separate-objects": should export everything, including default scripts, into separate files in the directory exportAllTestDir9 with scripts extracted, no decoding variables, no journey coordinates, separate managed objects, and using string arrays', async () => {
+    const exportDirectory = 'exportAllTestDir9';
+    const CMD = `frodo config export --all-separate --no-metadata --default --directory ${exportDirectory} --use-string-arrays --no-decode --no-coords --extract --separate-objects`;
     await testExport(CMD, env, undefined, undefined, exportDirectory, false);
   });
 

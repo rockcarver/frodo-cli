@@ -17,6 +17,7 @@ import {
 } from '../utils/Config';
 import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
+import { ManagedSkeleton, writeManagedJsonToDirectory } from './IdmOps';
 import { writeSyncJsonToDirectory } from './MappingOps';
 import { extractScriptsToFiles } from './ScriptOps';
 
@@ -72,6 +73,7 @@ export async function exportEverythingToFile(
  * Export everything to separate files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
+ * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {FullExportOptions} options export options
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
@@ -79,6 +81,7 @@ export async function exportEverythingToFile(
 export async function exportEverythingToFiles(
   extract: boolean = false,
   separateMappings: boolean = false,
+  separateObjects: boolean = false,
   includeMeta: boolean = true,
   options: FullExportOptions = {
     useStringArrays: true,
@@ -106,7 +109,8 @@ export async function exportEverythingToFiles(
         `${baseDirectory}/global`,
         includeMeta,
         extract,
-        separateMappings
+        separateMappings,
+        separateObjects
       )
     );
     Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
@@ -118,7 +122,8 @@ export async function exportEverythingToFiles(
           `${baseDirectory}/realm/${realm}`,
           includeMeta,
           extract,
-          separateMappings
+          separateMappings,
+          separateObjects
         )
       )
     );
@@ -141,6 +146,7 @@ export async function exportEverythingToFiles(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
+ * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  */
 export function exportItem(
   exportData,
@@ -149,7 +155,8 @@ export function exportItem(
   baseDirectory,
   includeMeta,
   extract,
-  separateMappings = false
+  separateMappings = false,
+  separateObjects = false
 ) {
   if (!obj || !Object.keys(obj).length) {
     return;
@@ -251,6 +258,12 @@ export function exportItem(
             writeSyncJsonToDirectory(
               value as SyncSkeleton,
               `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/sync`,
+              includeMeta
+            );
+          } else if (separateObjects && id === 'managed') {
+            writeManagedJsonToDirectory(
+              value as ManagedSkeleton,
+              `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/managed`,
               includeMeta
             );
           } else {
