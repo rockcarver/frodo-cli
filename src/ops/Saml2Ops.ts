@@ -27,6 +27,7 @@ const {
   readSaml2ProviderStub,
   getSaml2ProviderMetadataUrl,
   getSaml2ProviderMetadata,
+  deleteSaml2Provider,
   exportSaml2Provider,
   exportSaml2Providers,
   importSaml2Provider,
@@ -457,6 +458,30 @@ export async function importSaml2ProvidersFromFiles(
     return true;
   } catch (error) {
     stopProgressIndicator(indicatorId, `Error importing providers`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete saml by id
+ * @param {String} id saml entityId
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteSaml2ProviderById(
+  entityId: string
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${entityId}...`
+  );
+  try {
+    await deleteSaml2Provider(entityId);
+    stopProgressIndicator(spinnerId, `Deleted ${entityId}.`, 'success');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
   }
   return false;

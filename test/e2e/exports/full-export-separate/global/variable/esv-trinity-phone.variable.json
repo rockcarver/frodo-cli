@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-trinity-phone": {
+      "_id": "esv-trinity-phone",
+      "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
+      "expressionType": "string",
+      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "(312)-555-0690"
+    }
+  }
+}

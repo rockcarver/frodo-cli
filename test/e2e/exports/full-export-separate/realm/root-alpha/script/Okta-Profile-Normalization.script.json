@@ -1,0 +1,18 @@
+{
+  "script": {
+    "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
+      "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990325,
+      "name": "Okta Profile Normalization",
+      "script": "file://Okta-Profile-Normalization.script.groovy"
+    }
+  }
+}

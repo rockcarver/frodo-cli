@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo oauth client delete -i testapp "frodo oauth client delete -i testapp": should delete the oauth client with oauth client id "testapp" 1`] = `""`;

@@ -1,0 +1,258 @@
+{
+  "trees": {
+    "j10": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "300feda0-3248-49a9-b60f-01df802b2229": {
+          "_id": "300feda0-3248-49a9-b60f-01df802b2229",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "41c24257-d7fc-4654-8b46-c2666dc5b56d"
+        },
+        "40afb384-e9b6-4dcb-acde-04de109474c8": {
+          "_id": "40afb384-e9b6-4dcb-acde-04de109474c8",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "1b52a7e0-4019-40fa-958a-15a49870e901"
+        },
+        "8d7d64ee-da20-461f-a2ca-206b7479dd67": {
+          "_id": "8d7d64ee-da20-461f-a2ca-206b7479dd67",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "41c24257-d7fc-4654-8b46-c2666dc5b56d"
+        },
+        "97ef9d96-99e7-4d2d-b6c6-4177b5397ead": {
+          "_id": "97ef9d96-99e7-4d2d-b6c6-4177b5397ead",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "1b52a7e0-4019-40fa-958a-15a49870e901"
+        },
+        "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd": {
+          "_id": "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator"
+          },
+          "tree": "j09"
+        },
+        "c91d626e-1156-41bd-b1fb-d292f640fba6": {
+          "_id": "c91d626e-1156-41bd-b1fb-d292f640fba6",
+          "_outcomes": [
+            {
+              "displayName": "shared and level",
+              "id": "shared and level"
+            },
+            {
+              "displayName": "shared only",
+              "id": "shared only"
+            },
+            {
+              "displayName": "level only",
+              "id": "level only"
+            },
+            {
+              "displayName": "none",
+              "id": "none"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*",
+            "mode",
+            "level"
+          ],
+          "outcomes": [
+            "shared and level",
+            "shared only",
+            "level only",
+            "none"
+          ],
+          "outputs": [
+            "*",
+            "mode",
+            "level"
+          ],
+          "script": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "j10",
+        "enabled": true,
+        "entryNodeId": "c91d626e-1156-41bd-b1fb-d292f640fba6",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "300feda0-3248-49a9-b60f-01df802b2229": {
+            "connections": {
+              "true": "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd"
+            },
+            "displayName": "level",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 395,
+            "y": 345.015625
+          },
+          "40afb384-e9b6-4dcb-acde-04de109474c8": {
+            "connections": {
+              "true": "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd"
+            },
+            "displayName": "shared",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 393,
+            "y": 259.015625
+          },
+          "8d7d64ee-da20-461f-a2ca-206b7479dd67": {
+            "connections": {
+              "true": "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd"
+            },
+            "displayName": "level",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 598,
+            "y": 173.015625
+          },
+          "97ef9d96-99e7-4d2d-b6c6-4177b5397ead": {
+            "connections": {
+              "true": "8d7d64ee-da20-461f-a2ca-206b7479dd67"
+            },
+            "displayName": "shared",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 392,
+            "y": 173.015625
+          },
+          "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "nest",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 816,
+            "y": 233.015625
+          },
+          "c91d626e-1156-41bd-b1fb-d292f640fba6": {
+            "connections": {
+              "level only": "300feda0-3248-49a9-b60f-01df802b2229",
+              "none": "c7fcf7ae-1ab5-474b-b5b0-272e10468fbd",
+              "shared and level": "97ef9d96-99e7-4d2d-b6c6-4177b5397ead",
+              "shared only": "40afb384-e9b6-4dcb-acde-04de109474c8"
+            },
+            "displayName": "mode",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 167,
+            "y": 210.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1236,
+            "y": 145
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1236,
+            "y": 253
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[]"
+        }
+      }
+    }
+  }
+}

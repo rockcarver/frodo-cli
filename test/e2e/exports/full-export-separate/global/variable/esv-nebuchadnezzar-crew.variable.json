@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-nebuchadnezzar-crew": {
+      "_id": "esv-nebuchadnezzar-crew",
+      "description": "The crew of the Nebuchadnezzar hovercraft.",
+      "expressionType": "array",
+      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
+      "lastChangedBy": "Frodo-SA-1701393386423",
+      "loaded": true,
+      "value": "[\"Morpheus\",\"Trinity\",\"Link\",\"Tank\",\"Dozer\",\"Apoc\",\"Cypher\",\"Mouse\",\"Neo\",\"Switch\"]"
+    }
+  }
+}

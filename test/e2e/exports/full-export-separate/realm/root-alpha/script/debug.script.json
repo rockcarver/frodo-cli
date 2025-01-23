@@ -1,0 +1,18 @@
+{
+  "script": {
+    "3cb43516-ae69-433a-8787-501d45db14e9": {
+      "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Display sharedState, transientState, and headers.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990537,
+      "name": "debug",
+      "script": "file://debug.script.js"
+    }
+  }
+}

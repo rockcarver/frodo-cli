@@ -4,34 +4,35 @@ exports[`CLI help interface for 'frodo' root command should be expected english 
 "Usage: frodo [options] [command]
 
 Options:
-  -v, --version                                         output the version number
-  -h, --help                                            display help for command
+  -v, --version                                           output the version number
+  -h, --help                                              display help for command
 
 Commands:
-  admin                                                 Platform admin tasks.
-  agent                                                 Manage agents.
-  authn                                                 Manage authentication settings.
-  authz                                                 Manage authorization policies, policy sets, and resource types.
-  app                                                   Manage applications.
-  config                                                Manage full cloud configuration.
-  conn|connection                                       Manage connection profiles.
-  email                                                 Manage email templates and configuration.
-  esv                                                   Manage environment secrets and variables (ESVs).
-  idm                                                   Manage IDM configuration.
-  idp                                                   Manage (social) identity providers.
-  info [options] [host] [username] [password]           Print versions and tokens.
-  journey                                               Manage journeys/trees.
-  log|logs                                              List/View Identity Cloud logs
-  mapping                                               Manage IDM mappings.
-  oauth                                                 Manage OAuth2 clients and providers.
-  realm                                                 Manage realms.
-  role                                                  Manage internal (authorization) roles.
-  saml                                                  Manage SAML entity providers and circles of trust.
-  script                                                Manage scripts.
-  server                                                Manage servers.
-  service                                               Manage AM services.
-  shell [options] [host] [realm] [username] [password]  Launch the frodo interactive shell.
-  theme                                                 Manage themes.
-  help [command]                                        display help for command
+  admin                                                   Platform admin tasks.
+  agent                                                   Manage agents.
+  authn                                                   Manage authentication settings.
+  authz                                                   Manage authorization policies, policy sets, and resource types.
+  app                                                     Manage applications.
+  config                                                  Manage full cloud configuration.
+  conn|connection                                         Manage connection profiles.
+  email                                                   Manage email templates and configuration.
+  esv                                                     Manage environment secrets and variables (ESVs).
+  idm                                                     Manage IDM configuration.
+  idp                                                     Manage (social) identity providers.
+  info [options] [host] [username] [password]             Print versions and tokens.
+  journey                                                 Manage journeys/trees.
+  log|logs                                                List/View Identity Cloud logs
+  mapping                                                 Manage IDM mappings.
+  oauth                                                   Manage OAuth2 clients and providers.
+  promote [options] [host] [realm] [username] [password]  Prepares a tenant to be promoted
+  realm                                                   Manage realms.
+  role                                                    Manage internal (authorization) roles.
+  saml                                                    Manage SAML entity providers and circles of trust.
+  script                                                  Manage scripts.
+  server                                                  Manage servers.
+  service                                                 Manage AM services.
+  shell [options] [host] [realm] [username] [password]    Launch the frodo interactive shell.
+  theme                                                   Manage themes.
+  help [command]                                          display help for command
 "
 `;

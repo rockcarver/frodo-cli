@@ -1,0 +1,20 @@
+{
+  "subjectTypes": {
+    "Identity": {
+      "_id": "Identity",
+      "config": {
+        "properties": {
+          "subjectValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Identity"
+    }
+  }
+}

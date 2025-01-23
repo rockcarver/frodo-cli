@@ -1,0 +1,18 @@
+{
+  "script": {
+    "bb0b46f8-bdf3-4fb8-8d8f-bd921af7e79e": {
+      "_id": "bb0b46f8-bdf3-4fb8-8d8f-bd921af7e79e",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Dummy",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022012883,
+      "name": "Dummy",
+      "script": "file://Dummy.script.js"
+    }
+  }
+}

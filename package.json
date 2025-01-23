@@ -155,5 +155,9 @@
     "typescript": "^5.2.2",
     "uuid": "^9.0.0",
     "yesno": "^0.4.0"
+  },
+  "dependencies": {
+    "deep-diff": "^1.0.2",
+    "tmp": "^0.2.3"
   }
 }
