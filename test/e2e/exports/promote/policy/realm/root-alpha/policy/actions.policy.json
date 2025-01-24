@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "actions": {
+      "_id": "actions",
+      "actionValues": {
+        "GET": false
+      },
+      "active": true,
+      "applicationName": "data",
+      "createdBy": "id=76618ff6-e851-433e-9704-9d2852a17b7a,ou=user,ou=am-config",
+      "creationDate": "2024-07-12T15:25:50.202Z",
+      "description": "",
+      "lastModifiedBy": "id=1e9280f6-eab6-467e-889c-83d147c8b936,ou=user,ou=am-config",
+      "lastModifiedDate": "2024-10-31T16:21:53.406Z",
+      "name": "actions",
+      "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+      "resources": [
+        "*://*:*/demo/api/action/actions"
+      ],
+      "subject": {
+        "type": "AuthenticatedUsers"
+      }
+    }
+  }
+}

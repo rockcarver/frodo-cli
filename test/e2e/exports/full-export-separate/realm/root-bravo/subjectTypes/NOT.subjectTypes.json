@@ -1,0 +1,18 @@
+{
+  "subjectTypes": {
+    "NOT": {
+      "_id": "NOT",
+      "config": {
+        "properties": {
+          "subject": {
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "logical": true,
+      "title": "NOT"
+    }
+  }
+}

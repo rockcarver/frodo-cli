@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "platform-provisioning": {
+      "_id": "platform-provisioning",
+      "condition": null,
+      "description": "Platform provisioning access",
+      "name": "platform-provisioning",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

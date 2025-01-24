@@ -1,0 +1,258 @@
+{
+  "trees": {
+    "j07": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "13b12fe6-cf53-46a4-a83d-0a3c1fda814f": {
+          "_id": "13b12fe6-cf53-46a4-a83d-0a3c1fda814f",
+          "_outcomes": [
+            {
+              "displayName": "shared and level",
+              "id": "shared and level"
+            },
+            {
+              "displayName": "shared only",
+              "id": "shared only"
+            },
+            {
+              "displayName": "level only",
+              "id": "level only"
+            },
+            {
+              "displayName": "none",
+              "id": "none"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*",
+            "mode",
+            "level"
+          ],
+          "outcomes": [
+            "shared and level",
+            "shared only",
+            "level only",
+            "none"
+          ],
+          "outputs": [
+            "*",
+            "mode",
+            "level"
+          ],
+          "script": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6"
+        },
+        "ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0": {
+          "_id": "ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "1b52a7e0-4019-40fa-958a-15a49870e901"
+        },
+        "d90dd9f8-8b12-4e90-abaf-228ecc0174a7": {
+          "_id": "d90dd9f8-8b12-4e90-abaf-228ecc0174a7",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "41c24257-d7fc-4654-8b46-c2666dc5b56d"
+        },
+        "d9a06d3a-7e3f-4244-9a32-63ffa0d26e00": {
+          "_id": "d9a06d3a-7e3f-4244-9a32-63ffa0d26e00",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "1b52a7e0-4019-40fa-958a-15a49870e901"
+        },
+        "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9": {
+          "_id": "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator"
+          },
+          "tree": "j06"
+        },
+        "f2fe740c-cd75-460a-8baa-fe4b52ecc947": {
+          "_id": "f2fe740c-cd75-460a-8baa-fe4b52ecc947",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "41c24257-d7fc-4654-8b46-c2666dc5b56d"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "j07",
+        "enabled": true,
+        "entryNodeId": "13b12fe6-cf53-46a4-a83d-0a3c1fda814f",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "13b12fe6-cf53-46a4-a83d-0a3c1fda814f": {
+            "connections": {
+              "level only": "d90dd9f8-8b12-4e90-abaf-228ecc0174a7",
+              "none": "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9",
+              "shared and level": "d9a06d3a-7e3f-4244-9a32-63ffa0d26e00",
+              "shared only": "ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0"
+            },
+            "displayName": "mode",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 167,
+            "y": 210.015625
+          },
+          "ac6ee166-73c0-4f73-b8db-4fe8ff6a25c0": {
+            "connections": {
+              "true": "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9"
+            },
+            "displayName": "shared",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 393,
+            "y": 259.015625
+          },
+          "d90dd9f8-8b12-4e90-abaf-228ecc0174a7": {
+            "connections": {
+              "true": "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9"
+            },
+            "displayName": "level",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 395,
+            "y": 345.015625
+          },
+          "d9a06d3a-7e3f-4244-9a32-63ffa0d26e00": {
+            "connections": {
+              "true": "f2fe740c-cd75-460a-8baa-fe4b52ecc947"
+            },
+            "displayName": "shared",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 392,
+            "y": 173.015625
+          },
+          "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "nest",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 816,
+            "y": 232.015625
+          },
+          "f2fe740c-cd75-460a-8baa-fe4b52ecc947": {
+            "connections": {
+              "true": "e62d7a4d-2012-4a2a-a6ef-d6a0e0d552d9"
+            },
+            "displayName": "level",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 598,
+            "y": 173.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1236,
+            "y": 145
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1236,
+            "y": 253
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[]"
+        }
+      }
+    }
+  }
+}

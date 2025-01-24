@@ -1,0 +1,13 @@
+{
+  "subjectTypes": {
+    "AuthenticatedUsers": {
+      "_id": "AuthenticatedUsers",
+      "config": {
+        "properties": {},
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AuthenticatedUsers"
+    }
+  }
+}

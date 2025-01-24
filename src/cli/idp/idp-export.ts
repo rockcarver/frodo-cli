@@ -56,47 +56,45 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
-          // export by id/name
-          if (options.idpId) {
-            verboseMessage(
-              `Exporting provider "${
-                options.idpId
-              }" from realm "${state.getRealm()}"...`
-            );
-            const outcome = await exportSocialIdentityProviderToFile(
-              options.idpId,
-              options.file,
-              options.metadata
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // --all -a
-          else if (options.all) {
-            verboseMessage('Exporting all providers to a single file...');
-            const outcome = await exportSocialIdentityProvidersToFile(
-              options.file,
-              options.metadata
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // --all-separate -A
-          else if (options.allSeparate) {
-            verboseMessage('Exporting all providers to separate files...');
-            const outcome = await exportSocialIdentityProvidersToFiles(
-              options.metadata
-            );
-            if (!outcome) process.exitCode = 1;
-          }
-          // unrecognized combination of options or no options
-          else {
-            printMessage(
-              'Unrecognized combination of options or no options...',
-              'error'
-            );
-            program.help();
-            process.exitCode = 1;
-          }
+        // export by id/name
+        if (options.idpId && (await getTokens())) {
+          verboseMessage(
+            `Exporting provider "${
+              options.idpId
+            }" from realm "${state.getRealm()}"...`
+          );
+          const outcome = await exportSocialIdentityProviderToFile(
+            options.idpId,
+            options.file,
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // --all -a
+        else if (options.all && (await getTokens())) {
+          verboseMessage('Exporting all providers to a single file...');
+          const outcome = await exportSocialIdentityProvidersToFile(
+            options.file,
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // --all-separate -A
+        else if (options.allSeparate && (await getTokens())) {
+          verboseMessage('Exporting all providers to separate files...');
+          const outcome = await exportSocialIdentityProvidersToFiles(
+            options.metadata
+          );
+          if (!outcome) process.exitCode = 1;
+        }
+        // unrecognized combination of options or no options
+        else {
+          printMessage(
+            'Unrecognized combination of options or no options...',
+            'error'
+          );
+          program.help();
+          process.exitCode = 1;
         }
       }
       // end command logic inside action handler

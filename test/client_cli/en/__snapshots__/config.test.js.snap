@@ -9,8 +9,17 @@ Options:
   -h, --help  Help
 
 Commands:
-  export      Export full cloud configuration for all ops that currently
-              support export.
+  export      Export full cloud configuration.
+              By default, it only exports importable config (i.e. config that
+              is not read-only) for the current deployment (e.g. if exporting
+              from cloud, realm config would NOT be exported since it can't be
+              imported back into cloud even though it can be imported into
+              classic deployments). There is a flag to export all config
+              including read only config.
+              Additionally, there is a flag to export config for only the
+              specified realm, a flag to export only global config, and many
+              other flags to customize the export. Use the -h or --help to see
+              them all and to also see usage examples.
   help        display help for command
   import      Import full cloud configuration.
 "

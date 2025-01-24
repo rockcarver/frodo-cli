@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-number": {
+      "_id": "esv-number",
+      "description": "test number",
+      "expressionType": "number",
+      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
+      "lastChangedBy": "volker.scheuber@forgerock.com",
+      "loaded": true,
+      "value": "1.134"
+    }
+  }
+}

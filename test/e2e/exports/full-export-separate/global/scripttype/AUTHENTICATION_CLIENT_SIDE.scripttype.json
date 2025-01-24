@@ -1,0 +1,31 @@
+{
+  "scripttype": {
+    "AUTHENTICATION_CLIENT_SIDE": {
+      "_id": "AUTHENTICATION_CLIENT_SIDE",
+      "_type": {
+        "_id": "contexts",
+        "collection": true,
+        "name": "scriptContext"
+      },
+      "context": {
+        "_id": "AUTHENTICATION_CLIENT_SIDE",
+        "allowLists": [],
+        "bindings": [],
+        "evaluatorVersions": {
+          "GROOVY": [
+            "1.0"
+          ],
+          "JAVASCRIPT": [
+            "1.0"
+          ]
+        }
+      },
+      "defaultScript": "[Empty]",
+      "isHidden": false,
+      "languages": [
+        "JAVASCRIPT",
+        "GROOVY"
+      ]
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "_id": "sync/AlphaUser2GoogleApps",
+  "consentRequired": false,
+  "correlationQuery": [
+    {
+      "expressionTree": {
+        "all": [
+          "__NAME__"
+        ]
+      },
+      "file": "ui/correlateTreeToQueryFilter.js",
+      "linkQualifier": "default",
+      "mapping": "AlphaUser2GoogleApps",
+      "type": "text/javascript"
+    }
+  ],
+  "displayName": "AlphaUser2GoogleApps",
+  "enableSync": {
+    "$bool": "&{esv.gac.enable.mapping}"
+  },
+  "icon": null,
+  "name": "AlphaUser2GoogleApps",
+  "onCreate": {
+    "globals": {},
+    "source": "target.orgUnitPath = \"/NewAccounts\";",
+    "type": "text/javascript"
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "//testing1234\ntarget.givenName = oldTarget.givenName;\ntarget.familyName = oldTarget.familyName;\ntarget.__NAME__ = oldTarget.__NAME__;",
+    "type": "text/javascript"
+  },
+  "policies": [
+    {
+      "action": "EXCEPTION",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "UNLINK",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "// Timing Constants\nvar ATTEMPT = 6; // Number of attempts to find the Google user.\nvar SLEEP_TIME = 500; // Milliseconds between retries.\nvar SYSTEM_ENDPOINT = \"system/GoogleApps/__ACCOUNT__\";\nvar MAPPING_NAME = \"AlphaUser2GoogleApps\";\nvar GOOGLE_DOMAIN = identityServer.getProperty(\"esv.gac.domain\");\nvar googleEmail = source.userName + \"@\" + GOOGLE_DOMAIN;\nvar frUserGUID = source._id;\nvar resultingAction = \"ASYNC\";\n\n// Get the Google GUID\nvar linkQueryParams = {'_queryFilter': 'firstId eq \"' + frUserGUID + '\" and linkType eq \"' + MAPPING_NAME + '\"'};\nvar linkResults = openidm.query(\"repo/link/\", linkQueryParams, null);\nvar googleGUID;\n\nif (linkResults.resultCount === 1) {\n  googleGUID = linkResults.result[0].secondId;\n}\n\nvar queryResults; // Resulting query from looking for the Google user.\nvar params = {'_queryFilter': '__UID__ eq \"' + googleGUID + '\"'};\n\nfor (var i = 1; i <= ATTEMPT; i++) {\n    queryResults = openidm.query(SYSTEM_ENDPOINT, params);\n    if (queryResults.result && queryResults.result.length > 0) {\n        logger.info(\"idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in \" + i + \" attempts. Query result: \" + JSON.stringify(queryResults));\n        resultingAction = \"UPDATE\";\n        break;\n    }\n    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.\n}\n\nif (!queryResults.result || queryResults.resultCount === 0) {\n    logger.warn(\"idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - \" + googleEmail + \" not found after \" + ATTEMPT + \" attempts.\");\n    resultingAction = \"UNLINK\";\n}\nresultingAction;\n",
+        "type": "text/javascript"
+      },
+      "situation": "MISSING"
+    },
+    {
+      "action": "EXCEPTION",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "UNLINK",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "IGNORE",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "LINK",
+      "situation": "FOUND"
+    },
+    {
+      "action": "CREATE",
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [
+    {
+      "condition": {
+        "globals": {},
+        "source": "object.custom_password_encrypted != null",
+        "type": "text/javascript"
+      },
+      "source": "custom_password_encrypted",
+      "target": "__PASSWORD__",
+      "transform": {
+        "globals": {},
+        "source": "openidm.decrypt(source);",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "source": "cn",
+      "target": "__NAME__",
+      "transform": {
+        "globals": {},
+        "source": "source + \"@\" + identityServer.getProperty(\"esv.gac.domain\");",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "source": "givenName",
+      "target": "givenName"
+    },
+    {
+      "source": "",
+      "target": "familyName",
+      "transform": {
+        "globals": {},
+        "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {\n  source.sn + \" (Student)\"\n} else {\n  source.sn\n}",
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "queuedSync": {
+    "enabled": true,
+    "maxQueueSize": 20000,
+    "maxRetries": 5,
+    "pageSize": 100,
+    "pollingInterval": 1000,
+    "postRetryAction": "logged-ignore",
+    "retryDelay": 1000
+  },
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user"
+  ],
+  "target": "system/GoogleApps/__ACCOUNT__",
+  "validSource": {
+    "globals": {},
+    "source": "var isGoogleEligible = true;\n//var logMsg = \"idmlog: ---AplhaUser2GAC (username: \" + source.userName + \" - userType: \" + source.frIndexedInteger1 + \" cn: \" + source.cn + \") -\";\nvar logMsg = \"idmlog: ---AplhaUser2GAC (username: \" + source.userName + \" - userType: \" + source.frIndexedInteger1 + \") -\";\n\n//Get Applicable userTypes (no Parent accounts)\nif (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {\n\tisGoogleEligible = false;\n\tlogMsg = logMsg + \" Account type not eligible.\";\n}\n\n//Make sure the account has a valid encrypted password.\nif (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {\n\tisGoogleEligible = false;\n\tlogMsg = logMsg + \" No encrypted password yet.\";\n}\n\n//Check that CN exists and has no space.\nif (source.cn && source.cn.includes(' ')) {\n\tisGoogleEligible = false;\n\tlogMsg = logMsg + \" CN with a space is not allowed.\";\n}\n\nif (!isGoogleEligible) {\n\tlogMsg = logMsg + \" Not sent to Google.\"\n\tlogger.info(logMsg);\n} \n\nif (isGoogleEligible) {\n\tlogMsg = logMsg + \" Sent to Google.\"\n\tlogger.info(logMsg);\n}\n\nisGoogleEligible;\n",
+    "type": "text/javascript"
+  }
+}

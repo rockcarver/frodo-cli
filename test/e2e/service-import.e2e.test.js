@@ -47,7 +47,7 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -i baseurl -f test/e2e/exports/all/allAlphaServices.service.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -i SocialIdentityProviders -f test/e2e/exports/all/allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --service-id dashboard --global --file test/e2e/exports/all/allGlobalServices.service.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo service import --clean -g --service-id dashboard --file test/e2e/exports/all/allGlobalServices.service.json
@@ -83,8 +83,8 @@ const allSeparateAlphaServicesDirectory = `test/e2e/exports/all-separate/cloud/r
 const allSeparateGlobalServicesDirectory = `test/e2e/exports/all-separate/cloud/global/service`;
 
 describe('frodo service import', () => {
-  test(`"frodo service import -i baseurl -f ${allAlphaServicesExport}": should import the service with the id "baseurl" from the file "${allAlphaServicesExport}"`, async () => {
-    const CMD = `frodo service import -i baseurl -f ${allAlphaServicesExport}`;
+  test(`"frodo service import -i SocialIdentityProviders -f ${allAlphaServicesExport}": should import the service with the id "SocialIdentityProviders" from the file "${allAlphaServicesExport}"`, async () => {
+    const CMD = `frodo service import -i SocialIdentityProviders -f ${allAlphaServicesExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
@@ -119,12 +119,8 @@ describe('frodo service import', () => {
 
   test(`"frodo service import -Crf ${allAlphaServicesExport}": should import the first service from the file "${allAlphaServicesExport}", and clean the old one`, async () => {
     const CMD = `frodo service import -Crf ${allAlphaServicesExport}`;
-    try {
-      await exec(CMD, env);
-      fail("Command should've failed");
-    } catch (e) {
-      expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-    }
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
   test(`"frodo service import --global --file ${allGlobalServicesExport}": should import the first global service from the file "${allGlobalServicesExport}"`, async () => {

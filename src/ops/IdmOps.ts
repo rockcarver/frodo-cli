@@ -31,6 +31,7 @@ const {
   readConfigEntities,
   exportConfigEntity,
   exportConfigEntities,
+  deleteConfigEntity,
   importConfigEntities,
   readSubConfigEntity,
   importSubConfigEntity,
@@ -315,6 +316,30 @@ export async function importConfigEntityByIdFromFile(
     });
     return true;
   } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete IDM config Entity by id
+ * @param {String} id saml entityId
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteConfigEntityById(
+  entityId: string
+): Promise<boolean> {
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    undefined,
+    `Deleting ${entityId}...`
+  );
+  try {
+    await deleteConfigEntity(entityId);
+    stopProgressIndicator(spinnerId, `Deleted ${entityId}.`, 'success');
+    return true;
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error: ${error.message}`, 'fail');
     printError(error);
   }
   return false;

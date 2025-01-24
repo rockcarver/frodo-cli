@@ -1,0 +1,55 @@
+{
+  "policyset": {
+    "data": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "Script",
+        "AMIdentityMembership",
+        "IPv6",
+        "IPv4",
+        "SimpleTime",
+        "LEAuthLevel",
+        "LDAPFilter",
+        "AuthScheme",
+        "Session",
+        "AND",
+        "AuthenticateToRealm",
+        "ResourceEnvIP",
+        "Policy",
+        "OAuth2Scope",
+        "SessionProperty",
+        "OR",
+        "Transaction",
+        "NOT",
+        "AuthLevel",
+        "AuthenticateToService"
+      ],
+      "createdBy": "id=df492700-ba67-4345-83a9-58305850596c,ou=user,ou=am-config",
+      "creationDate": 1610648242757,
+      "description": null,
+      "displayName": "Baseline Demo",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021997611,
+      "name": "data",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AuthenticatedUsers",
+        "NOT",
+        "Identity",
+        "OR",
+        "AND",
+        "NONE",
+        "Policy",
+        "JwtClaim"
+      ]
+    }
+  }
+}

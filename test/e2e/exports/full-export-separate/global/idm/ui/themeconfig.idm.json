@@ -1,0 +1,31 @@
+{
+  "idm": {
+    "ui/themeconfig": {
+      "_id": "ui/themeconfig",
+      "icon": "favicon.ico",
+      "path": "",
+      "settings": {
+        "footer": {
+          "mailto": "info@forgerock.com"
+        },
+        "loginLogo": {
+          "alt": "ForgeRock",
+          "height": "104px",
+          "src": "images/login-logo-dark.png",
+          "title": "ForgeRock",
+          "width": "210px"
+        },
+        "logo": {
+          "alt": "ForgeRock",
+          "src": "images/logo-horizontal-white.png",
+          "title": "ForgeRock"
+        }
+      },
+      "stylesheets": [
+        "css/bootstrap-3.4.1-custom.css",
+        "css/structure.css",
+        "css/theme.css"
+      ]
+    }
+  }
+}

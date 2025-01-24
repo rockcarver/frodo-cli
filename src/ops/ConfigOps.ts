@@ -49,6 +49,9 @@ export async function exportEverythingToFile(
     includeDefault: false,
     includeActiveValues: false,
     target: '',
+    includeReadOnly: false,
+    onlyRealm: false,
+    onlyGlobal: false,
   }
 ): Promise<boolean> {
   try {
@@ -90,6 +93,9 @@ export async function exportEverythingToFiles(
     includeDefault: false,
     includeActiveValues: false,
     target: '',
+    includeReadOnly: false,
+    onlyRealm: false,
+    onlyGlobal: false,
   }
 ): Promise<boolean> {
   try {
@@ -148,7 +154,7 @@ export async function exportEverythingToFiles(
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  */
-function exportItem(
+export function exportItem(
   exportData,
   type,
   obj,

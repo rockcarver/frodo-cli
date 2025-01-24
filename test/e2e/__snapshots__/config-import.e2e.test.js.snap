@@ -8,13 +8,13 @@ exports[`frodo config import "frodo config import --default -CAD test/e2e/export
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
-  Error updating config entity endpoint/Test
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+  Error updating config entity endpoint/testEndpoint2
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -45,10 +45,8 @@ Errors occurred during full config import
     Message: This operation is not available in PingOne Advanced Identity Cloud.
   Error updating script
   HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: This operation is not available in PingOne Advanced Identity Cloud.
+    Code: ERR_BAD_RESPONSE
+    Status: 502
   Error importing services
   Error putting realm full service configs
   Error putting realm full service config email
@@ -70,6 +68,15 @@ Errors occurred during full config import
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config TNTPPingOneService
+  Error putting descendent 'JC' of service 'TNTPPingOneService'
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Invalid config: Unable to add subConfig PingOneService
 "
 `;
 
@@ -89,13 +96,13 @@ exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separ
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
-  Error updating config entity endpoint/Test
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+  Error updating config entity endpoint/testEndpoint2
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -120,12 +127,6 @@ exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separ
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
   Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
@@ -159,22 +160,6 @@ Errors occurred during full config import
     Status: 404
     Reason: Not Found
     Message: Resource '' not found
-  Error importing providers
-  Error updating provider Google Test
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: Unable to update SMS config: Data validation failed for the attribute, Redirect after form post URL
-  Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config SocialIdentityProviders
-  Error putting descendent 'Google Test' of service 'SocialIdentityProviders'
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: Unable to update SMS config: Data validation failed for the attribute, Redirect after form post URL
 "
 `;
 
@@ -186,12 +171,6 @@ exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-sepa
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
   Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
@@ -233,13 +212,13 @@ exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.
 ✔ Resolved all dependencies.
 Errors occurred during full config import
   Error importing config entities
-  Error updating config entity bravoOrgPrivileges
+  Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 403
-    Reason: Forbidden
-    Message: Access denied
-  Error updating config entity endpoint/Test
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+  Error updating config entity endpoint/testEndpoint2
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
@@ -288,22 +267,6 @@ Errors occurred during full config import
     Status: 404
     Reason: Not Found
     Message: Resource '' not found
-  Error importing providers
-  Error updating provider Google Test
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: Unable to update SMS config: Data validation failed for the attribute, Redirect after form post URL
-  Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config SocialIdentityProviders
-  Error putting descendent 'Google Test' of service 'SocialIdentityProviders'
-  HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: Unable to update SMS config: Data validation failed for the attribute, Redirect after form post URL
 "
 `;
 
@@ -336,16 +299,18 @@ Errors occurred during full config import
     Message: This operation is not available in PingOne Advanced Identity Cloud.
   Error updating script
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
   Error importing services
   Error putting realm full service configs
   Error putting realm full service config email
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 500
-    Reason: Internal Server Error
-    Message: Unable to update SMS config: Data validation failed for the attribute, Transport Type
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Data validation failed for the attribute, Transport Type
   Error importing scripts
   Error updating script
   HTTP client error

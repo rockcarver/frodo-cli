@@ -90,6 +90,9 @@ export async function getFullExportConfig(
       includeDefault: true,
       includeActiveValues: false,
       target: '',
+      includeReadOnly: true,
+      onlyRealm: false,
+      onlyGlobal: false,
     });
   }
   // Go through files in the working directory and reconstruct the full export
