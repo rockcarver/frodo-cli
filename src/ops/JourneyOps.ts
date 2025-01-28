@@ -530,10 +530,8 @@ export async function importJourneysFromFiles(
       .map((name) => getFilePath(name));
     const allJourneysData = { trees: {} };
     for (const file of jsonFiles) {
-      const fileObj = JSON.parse(fs.readFileSync(file, 'utf8'));
-      for (const [id, obj] of Object.entries(fileObj.trees)) {
-        allJourneysData.trees[id] = obj;
-      }
+      const journeyData = JSON.parse(fs.readFileSync(file, 'utf8'));
+      allJourneysData.trees[journeyData.tree._id] = journeyData;
     }
     await importJourneys(allJourneysData as MultiTreeExportInterface, options);
     return true;
