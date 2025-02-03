@@ -22,6 +22,7 @@ export default function setup() {
   program
     .description('Import IDM configuration managed objects.')
     .addOption(new Option('-f, --file [file]', 'Import file.'))
+    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-i, --individual-object',

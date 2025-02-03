@@ -40,6 +40,7 @@ export default function setup() {
       )
     )
     .addOption(new Option('-f, --file [file]', 'Export file. Ignored with -A.'))
+    .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-N, --no-metadata',
