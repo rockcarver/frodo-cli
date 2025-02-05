@@ -1,0 +1,18 @@
+{
+  "script": {
+    "449ef739-828e-42b4-92d6-0456d378671e": {
+      "_id": "449ef739-828e-42b4-92d6-0456d378671e",
+      "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Used by endUserUIClient",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731022012450,
+      "name": "Bravo endUserUIClient OAuth2 Access Token Modification Script",
+      "script": "file://Bravo-endUserUIClient-OAuth2-Access-Token-Modification-Script.script.js"
+    }
+  }
+}

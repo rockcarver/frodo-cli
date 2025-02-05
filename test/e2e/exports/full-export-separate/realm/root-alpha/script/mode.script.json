@@ -1,0 +1,18 @@
+{
+  "script": {
+    "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
+      "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "Check if mode has already been set.",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021990678,
+      "name": "mode",
+      "script": "file://mode.script.js"
+    }
+  }
+}

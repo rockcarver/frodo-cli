@@ -1,0 +1,12 @@
+{
+  "managedApplication": {
+    "fc1b91a5-9675-4be7-baae-9089e5274893": {
+      "_id": "fc1b91a5-9675-4be7-baae-9089e5274893",
+      "description": "test",
+      "name": "test",
+      "ssoEntities": {},
+      "templateName": "saml",
+      "templateVersion": "1.2"
+    }
+  }
+}

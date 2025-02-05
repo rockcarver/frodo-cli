@@ -98,17 +98,16 @@ describe('frodo idm export', () => {
   });
 
   test('"frodo idm export -a": should export all idm config entities to a single file', async () => {
-    const exportFile = "all.idm.json";
+    const exportFile = 'all.idm.json';
     const CMD = `frodo idm export -a`;
     await testExport(CMD, env, type, exportFile);
   });
 
   test(`"frodo idm export --all --file allIdmTestFile.json -E ${entitiesFile} -e ${envFile} --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json`, async () => {
-      const exportFile = "allIdmTestFile.json";
-      const CMD = `frodo idm export --all --file ${exportFile} -E ${entitiesFile} -e ${envFile} --no-metadata`;
-      await testExport(CMD, env, type, exportFile, undefined, false);
+    const exportFile = 'allIdmTestFile.json';
+    const CMD = `frodo idm export --all --file ${exportFile} -E ${entitiesFile} -e ${envFile} --no-metadata`;
+    await testExport(CMD, env, type, exportFile, undefined, false);
   });
-
 
   test('"frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory', async () => {
     const dirName = 'testDir1';
@@ -119,6 +118,12 @@ describe('frodo idm export', () => {
   test(`"frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file ${entitiesFile} --env-file ${envFile}": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files`, async () => {
     const dirName = 'testDir3';
     const CMD = `frodo idm export --all-separate --no-metadata --separate-mappings --directory ${dirName} --entities-file ${entitiesFile} --env-file ${envFile}`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+  });
+
+  test(`"frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory`, async () => {
+    const dirName = 'testDir5';
+    const CMD = `frodo idm export --all-separate --no-metadata --separate-objects --directory ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
 });

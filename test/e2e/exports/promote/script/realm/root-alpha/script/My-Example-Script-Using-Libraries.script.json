@@ -1,0 +1,18 @@
+{
+  "script": {
+    "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
+      "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "My Example Script Using Libraries",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "My Example Script Using Libraries",
+      "script": "file://My-Example-Script-Using-Libraries.script.js"
+    }
+  }
+}

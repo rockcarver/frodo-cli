@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo idm import "frodo idm schema object import -D test/e2e/exports/all-separate/cloud/global/idm/managed": should import the managed objects from the directory test/e2e/exports/all-separate/cloud/global/idm/managed 1`] = `""`;
+
+exports[`frodo idm import "frodo idm schema object import -f test/e2e/exports/all/all.managed.json": should import all managed objects from a single file test/e2e/exports/all/all.managed.json 1`] = `""`;
+
+exports[`frodo idm import "frodo idm schema object import -i -f test/e2e/exports/all-separate/cloud/global/idm/managed/alpha_user.managed.json": should import just the alpha user managed object test/e2e/exports/all-separate/cloud/global/idm/managed/alpha_user.managed.json 1`] = `""`;

@@ -1,0 +1,230 @@
+{
+  "agents": {
+    "deleteMe": {
+      "_id": "deleteMe",
+      "_type": {
+        "_id": "J2EEAgent",
+        "collection": true,
+        "name": "J2EE Agents"
+      },
+      "advancedJ2EEAgentConfig": {
+        "alternativeAgentHostname": null,
+        "alternativeAgentPort": null,
+        "alternativeAgentProtocol": null,
+        "clientHostnameHeader": null,
+        "clientIpHeader": null,
+        "customProperties": [],
+        "expiredSessionCacheSize": 500,
+        "expiredSessionCacheTTL": 20,
+        "fragmentRelayUri": null,
+        "idleTimeRefreshWindow": 1,
+        "jwtCacheSize": 5000,
+        "jwtCacheTTL": 30,
+        "missingPostDataPreservationEntryUri": [
+          ""
+        ],
+        "monitoringToCSV": false,
+        "policyCachePerUser": 50,
+        "policyCacheSize": 5000,
+        "policyClientPollingInterval": 3,
+        "possibleXssCodeElements": [
+          ""
+        ],
+        "postDataCacheTtlMin": 5,
+        "postDataPreservation": false,
+        "postDataPreserveCacheEntryMaxEntries": 1000,
+        "postDataPreserveCacheEntryMaxTotalSizeMb": -1,
+        "postDataPreserveMultipartLimitBytes": 104857600,
+        "postDataPreserveMultipartParameterLimitBytes": 104857600,
+        "postDataStickySessionKeyValue": null,
+        "postDataStickySessionMode": "URL",
+        "retainPreviousOverrideBehavior": true,
+        "sessionCacheTTL": 15,
+        "ssoExchangeCacheSize": 100,
+        "ssoExchangeCacheTTL": 5,
+        "xssDetectionRedirectUri": {}
+      },
+      "amServicesJ2EEAgent": {
+        "agentAdviceEncode": false,
+        "amLoginUrl": [],
+        "authServiceHost": "openam-frodo-dev.forgeblocks.com",
+        "authServicePort": 443,
+        "authServiceProtocol": "https",
+        "authSuccessRedirectUrl": false,
+        "conditionalLoginUrl": [
+          "|?realm=/bravo"
+        ],
+        "conditionalLogoutUrl": [
+          ""
+        ],
+        "customLoginEnabled": false,
+        "legacyLoginUrlList": [
+          ""
+        ],
+        "overridePolicyEvaluationRealmEnabled": false,
+        "policyEvaluationApplication": null,
+        "policyEvaluationRealm": "/bravo",
+        "policyNotifications": true,
+        "restrictToRealm": {},
+        "strategyWhenAMUnavailable": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+        "urlPolicyEnvGetParameters": [
+          ""
+        ],
+        "urlPolicyEnvJsessionParameters": [
+          ""
+        ],
+        "urlPolicyEnvPostParameters": [
+          ""
+        ]
+      },
+      "applicationJ2EEAgentConfig": {
+        "applicationLogoutUris": {},
+        "clientIpValidationMode": {
+          "": "OFF"
+        },
+        "clientIpValidationRange": {},
+        "continuousSecurityCookies": {},
+        "continuousSecurityHeaders": {},
+        "cookieAttributeMultiValueSeparator": "|",
+        "cookieAttributeUrlEncoded": true,
+        "headerAttributeDateFormat": "EEE, d MMM yyyy hh:mm:ss z",
+        "invertNotEnforcedIps": false,
+        "invertNotEnforcedUris": false,
+        "logoutEntryUri": {},
+        "logoutIntrospection": false,
+        "logoutRequestParameters": {},
+        "notEnforcedFavicon": true,
+        "notEnforcedIps": [
+          ""
+        ],
+        "notEnforcedIpsCacheEnabled": true,
+        "notEnforcedIpsCacheSize": 1000,
+        "notEnforcedRuleCompoundSeparator": "|",
+        "notEnforcedUris": [
+          ""
+        ],
+        "notEnforcedUrisCacheEnabled": true,
+        "notEnforcedUrisCacheSize": 1000,
+        "profileAttributeFetchMode": "NONE",
+        "profileAttributeMap": {},
+        "resourceAccessDeniedUri": {},
+        "responseAttributeFetchMode": "NONE",
+        "responseAttributeMap": {},
+        "sessionAttributeFetchMode": "NONE",
+        "sessionAttributeMap": {}
+      },
+      "globalJ2EEAgentConfig": {
+        "agentConfigChangeNotificationsEnabled": true,
+        "agentgroup": null,
+        "auditAccessType": "LOG_NONE",
+        "auditLogLocation": "REMOTE",
+        "cdssoRootUrl": [
+          "agentRootURL=https://delete.me.com:443/"
+        ],
+        "configurationReloadInterval": 0,
+        "customResponseHeader": {},
+        "debugLevel": "error",
+        "debugLogfilePrefix": null,
+        "debugLogfileRetentionCount": -1,
+        "debugLogfileRotationMinutes": -1,
+        "debugLogfileRotationSize": 52428800,
+        "debugLogfileSuffix": "-yyyy.MM.dd-HH.mm.ss",
+        "filterMode": {
+          "": "URL_POLICY"
+        },
+        "fqdnCheck": false,
+        "fqdnDefault": "delete.me.com",
+        "fqdnMapping": {},
+        "httpSessionBinding": true,
+        "jwtName": "am-auth-jwt",
+        "lbCookieEnabled": false,
+        "lbCookieName": "amlbcookie",
+        "localAuditLogRotation": false,
+        "localAuditLogfileRetentionCount": -1,
+        "localAuditRotationSize": 52428800,
+        "loginAttemptLimit": 0,
+        "loginAttemptLimitCookieName": "amFilterParam",
+        "preAuthCookieMaxAge": 300,
+        "preAuthCookieName": "amFilterCDSSORequest",
+        "recheckAmUnavailabilityInSeconds": 5,
+        "redirectAttemptLimit": 0,
+        "redirectAttemptLimitCookieName": "amFilterRDParam",
+        "repositoryLocation": "centralized",
+        "secretLabelIdentifier": null,
+        "status": "Active",
+        "userAttributeName": "employeenumber",
+        "userMappingMode": "USER_ID",
+        "userPrincipalFlag": false,
+        "userTokenName": "UserToken",
+        "webSocketConnectionIntervalInMinutes": 30
+      },
+      "miscJ2EEAgentConfig": {
+        "agent302RedirectContentType": "application/json",
+        "agent302RedirectEnabled": true,
+        "agent302RedirectHttpData": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+        "agent302RedirectInvertEnabled": false,
+        "agent302RedirectNerList": [
+          ""
+        ],
+        "agent302RedirectStatusCode": 200,
+        "authFailReasonParameterName": null,
+        "authFailReasonParameterRemapper": {},
+        "authFailReasonUrl": null,
+        "gotoParameterName": "goto",
+        "gotoUrl": null,
+        "ignorePathInfo": false,
+        "legacyRedirectUri": "/app/sunwLegacySupportURI",
+        "legacyUserAgentList": [
+          "Mozilla/4.7*"
+        ],
+        "legacyUserAgentSupport": false,
+        "localeCountry": "US",
+        "localeLanguage": "en",
+        "loginReasonMap": {},
+        "loginReasonParameterName": null,
+        "portCheckEnabled": false,
+        "portCheckFile": "PortCheckContent.txt",
+        "portCheckSetting": {
+          "443": "https"
+        },
+        "unwantedHttpUrlParams": [
+          ""
+        ],
+        "unwantedHttpUrlRegexParams": [
+          ""
+        ],
+        "wantedHttpUrlParams": [
+          ""
+        ],
+        "wantedHttpUrlRegexParams": [
+          ""
+        ]
+      },
+      "ssoJ2EEAgentConfig": {
+        "acceptIPDPCookie": false,
+        "acceptSsoTokenDomainList": [
+          ""
+        ],
+        "acceptSsoTokenEnabled": false,
+        "authExchangeCookieName": null,
+        "authExchangeUri": null,
+        "cdssoDomainList": [
+          ""
+        ],
+        "cdssoRedirectUri": "/app/post-authn-redirect",
+        "cdssoSecureCookies": false,
+        "cookieResetDomains": {},
+        "cookieResetEnabled": false,
+        "cookieResetNames": [
+          ""
+        ],
+        "cookieResetPaths": {},
+        "encodeCookies": false,
+        "excludedUserAgentsList": [],
+        "httpOnly": true,
+        "setCookieAttributeMap": {},
+        "setCookieInternalMap": {}
+      }
+    }
+  }
+}

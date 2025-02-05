@@ -1,0 +1,89 @@
+{
+  "mapping": {
+    "mapping/managedBravo_group_managedBravo_group": {
+      "_id": "mapping/managedBravo_group_managedBravo_group",
+      "consentRequired": false,
+      "displayName": "managedBravo_group_managedBravo_group",
+      "icon": null,
+      "name": "managedBravo_group_managedBravo_group",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED"
+        }
+      ],
+      "properties": [
+        {
+          "source": "_id",
+          "target": "_id"
+        },
+        {
+          "source": "condition",
+          "target": "condition"
+        },
+        {
+          "source": "description",
+          "target": "description"
+        },
+        {
+          "source": "members",
+          "target": "members"
+        },
+        {
+          "source": "name",
+          "target": "name"
+        }
+      ],
+      "source": "managed/bravo_group",
+      "target": "managed/bravo_group"
+    }
+  }
+}

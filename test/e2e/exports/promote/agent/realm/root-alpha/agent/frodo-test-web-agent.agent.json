@@ -1,0 +1,165 @@
+{
+  "agents": {
+    "frodo-test-web-agent": {
+      "_id": "frodo-test-web-agent",
+      "_type": {
+        "_id": "WebAgent",
+        "collection": true,
+        "name": "Web Agents"
+      },
+      "advancedWebAgentConfig": {
+        "apacheAuthDirectives": null,
+        "clientHostnameHeader": null,
+        "clientIpHeader": null,
+        "customProperties": [],
+        "fragmentRedirectEnabled": false,
+        "hostnameToIpAddress": [],
+        "logonAndImpersonation": false,
+        "overrideRequestHost": false,
+        "overrideRequestPort": false,
+        "overrideRequestProtocol": false,
+        "pdpJavascriptRepost": false,
+        "pdpSkipPostUrl": [
+          ""
+        ],
+        "pdpStickySessionCookieName": null,
+        "pdpStickySessionMode": "OFF",
+        "pdpStickySessionValue": null,
+        "postDataCachePeriod": 10,
+        "postDataPreservation": false,
+        "replayPasswordKey": null,
+        "retainSessionCache": false,
+        "showPasswordInHeader": false
+      },
+      "amServicesWebAgent": {
+        "amLoginUrl": [],
+        "amLogoutUrl": [
+          "http://testserverurl.com:8080/UI/Logout"
+        ],
+        "applicationLogoutUrls": [
+          ""
+        ],
+        "conditionalLoginUrl": [
+          ""
+        ],
+        "customLoginMode": 0,
+        "enableLogoutRegex": false,
+        "fetchPoliciesFromRootResource": false,
+        "invalidateLogoutSession": true,
+        "logoutRedirectDisabled": false,
+        "logoutRedirectUrl": null,
+        "logoutResetCookies": [
+          ""
+        ],
+        "logoutUrlRegex": null,
+        "policyCachePollingInterval": 3,
+        "policyClockSkew": 0,
+        "policyEvaluationApplication": "iPlanetAMWebAgentService",
+        "policyEvaluationRealm": "/",
+        "publicAmUrl": null,
+        "regexConditionalLoginPattern": [
+          ""
+        ],
+        "regexConditionalLoginUrl": [
+          ""
+        ],
+        "retrieveClientHostname": false,
+        "ssoCachePollingInterval": 3,
+        "userIdParameter": "UserToken",
+        "userIdParameterType": "session"
+      },
+      "applicationWebAgentConfig": {
+        "attributeMultiValueSeparator": "|",
+        "clientIpValidation": false,
+        "continuousSecurityCookies": {},
+        "continuousSecurityHeaders": {},
+        "fetchAttributesForNotEnforcedUrls": false,
+        "ignorePathInfoForNotEnforcedUrls": true,
+        "invertNotEnforcedUrls": false,
+        "notEnforcedIps": [
+          ""
+        ],
+        "notEnforcedIpsList": [
+          ""
+        ],
+        "notEnforcedIpsRegex": false,
+        "notEnforcedUrls": [
+          ""
+        ],
+        "notEnforcedUrlsRegex": false,
+        "profileAttributeFetchMode": "NONE",
+        "profileAttributeMap": {},
+        "responseAttributeFetchMode": "NONE",
+        "responseAttributeMap": {},
+        "sessionAttributeFetchMode": "NONE",
+        "sessionAttributeMap": {}
+      },
+      "globalWebAgentConfig": {
+        "accessDeniedUrl": null,
+        "agentConfigChangeNotificationsEnabled": true,
+        "agentDebugLevel": "Error",
+        "agentUriPrefix": "http://testagenturl.com:8080/amagent",
+        "amLbCookieEnable": false,
+        "auditAccessType": "LOG_NONE",
+        "auditLogLocation": "REMOTE",
+        "cdssoRootUrl": [
+          "agentRootURL=http://testagenturl.com:8080/"
+        ],
+        "configurationPollingInterval": 60,
+        "disableJwtAudit": false,
+        "fqdnCheck": false,
+        "fqdnDefault": "testagenturl.com",
+        "fqdnMapping": {},
+        "jwtAuditWhitelist": null,
+        "jwtName": "am-auth-jwt",
+        "notificationsEnabled": true,
+        "repositoryLocation": "centralized",
+        "resetIdleTime": false,
+        "secretLabelIdentifier": null,
+        "ssoOnlyMode": false,
+        "status": "Active",
+        "webSocketConnectionIntervalInMinutes": 30
+      },
+      "miscWebAgentConfig": {
+        "addCacheControlHeader": false,
+        "anonymousUserEnabled": false,
+        "anonymousUserId": "anonymous",
+        "caseInsensitiveUrlComparison": true,
+        "compositeAdviceEncode": false,
+        "compositeAdviceRedirect": false,
+        "encodeSpecialCharsInCookies": false,
+        "encodeUrlSpecialCharacters": false,
+        "gotoParameterName": "goto",
+        "headerJsonResponse": {},
+        "ignorePathInfo": false,
+        "invalidUrlRegex": null,
+        "invertUrlJsonResponse": false,
+        "mineEncodeHeader": 0,
+        "profileAttributesCookieMaxAge": 300,
+        "profileAttributesCookiePrefix": "HTTP_",
+        "statusCodeJsonResponse": 202,
+        "urlJsonResponse": [
+          ""
+        ]
+      },
+      "ssoWebAgentConfig": {
+        "acceptSsoToken": false,
+        "cdssoCookieDomain": [
+          ""
+        ],
+        "cdssoRedirectUri": "agent/cdsso-oauth2",
+        "cookieName": "iPlanetDirectoryPro",
+        "cookieResetEnabled": false,
+        "cookieResetList": [
+          ""
+        ],
+        "cookieResetOnRedirect": false,
+        "httpOnly": true,
+        "multivaluePreAuthnCookie": false,
+        "persistentJwtCookie": false,
+        "sameSite": null,
+        "secureCookies": false
+      }
+    }
+  }
+}

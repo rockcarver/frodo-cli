@@ -67,20 +67,7 @@ exports[`frodo service import "frodo service import -ACrD test/e2e/exports/all-s
 
 exports[`frodo service import "frodo service import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/service": should import all services from the directory "test/e2e/exports/all-separate/cloud/realm/root-alpha/service" 1`] = `""`;
 
-exports[`frodo service import "frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json": should import the first service from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old one 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Importing test/e2e/exports/all/allAlphaServices.service.json...
-✖ Error importing first service
-Error importing service SocialIdentityProviders
-  Error putting realm full service config SocialIdentityProviders
-  Error putting descendent 'apple-stoyan' of service 'SocialIdentityProviders'
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid config: Unable to add subConfig appleConfig
-"
-`;
+exports[`frodo service import "frodo service import -Crf test/e2e/exports/all/allAlphaServices.service.json": should import the first service from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old one 1`] = `""`;
 
 exports[`frodo service import "frodo service import -Cri baseurl -f test/e2e/exports/all/allAlphaServices.service.json": should import the service with the id "baseurl" from the file "test/e2e/exports/all/allAlphaServices.service.json", and clean the old one 1`] = `""`;
 
@@ -88,4 +75,4 @@ exports[`frodo service import "frodo service import -af test/e2e/exports/all/all
 
 exports[`frodo service import "frodo service import -f test/e2e/exports/all/allAlphaServices.service.json": should import the first service from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;
 
-exports[`frodo service import "frodo service import -i baseurl -f test/e2e/exports/all/allAlphaServices.service.json": should import the service with the id "baseurl" from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;
+exports[`frodo service import "frodo service import -i SocialIdentityProviders -f test/e2e/exports/all/allAlphaServices.service.json": should import the service with the id "SocialIdentityProviders" from the file "test/e2e/exports/all/allAlphaServices.service.json" 1`] = `""`;

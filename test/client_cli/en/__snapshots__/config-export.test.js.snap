@@ -3,7 +3,15 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config export [options] [host] [realm] [username] [password]
 
-Export full cloud configuration for all ops that currently support export.
+Export full cloud configuration.
+By default, it only exports importable config (i.e. config that is not
+read-only) for the current deployment (e.g. if exporting from cloud, realm
+config would NOT be exported since it can't be imported back into cloud even
+though it can be imported into classic deployments). There is a flag to export
+all config including read only config.
+Additionally, there is a flag to export config for only the specified realm, a
+flag to export only global config, and many other flags to customize the
+export. Use the -h or --help to see them all and to also see usage examples.
 
 Arguments:
   host                                 AM base URL, e.g.:
@@ -33,6 +41,10 @@ Options:
                                        troubleshooting.
   -f, --file <file>                    Name of the export file.
   --flush-cache                        Flush token cache.
+  -g, --global-only                    Export only the global config. If -r,
+                                       --realm-only is also active, then the
+                                       corresponding active realm config will
+                                       also be exported.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
                                        https://cdk.idm.example.com/myidm. Use
@@ -93,6 +105,16 @@ Options:
                                        positions of the journey/tree nodes.
   --no-decode                          Do not include decoded variable value in
                                        variable export
+  -o, --separate-objects               Export managed.idm.json objects
+                                       separately in their own directory.
+                                       Ignored with -a.
+  -r, --realm-only                     Export only the config for the active
+                                       realm. If -g, --global-only is also
+                                       active, then the global config will also
+                                       be exported.
+  -R, --read-only                      Export read-only config (with the
+                                       exception of default scripts) in
+                                       addition to the importable config.
   -s, --separate-mappings              Export sync.idm.json mappings separately
                                        in their own directory. Ignored with -a.
   --sa-id <sa-id>                      Service account id.
@@ -137,11 +159,19 @@ Environment Variables:
 [39m[92m  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.
 
 [39mUsage Examples:
-  Backup global and active realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):
+  Export global and realm configuration for version control (e.g. Git) into the current directory.
+  Note that -x and -s separates script and mapping config to better track changes made to them, and -N removes metadata since it changes every export (you may consider using --no-coords as well if you don't care to track node positions in journeys):
+[96m  $ frodo config export -sxAND . matrix
+[39m  Export global and realm configuration from cloud to be later imported into a classic, on-prem deployment.
+  Note -dR is used for exporting all read-only config from cloud since certain cloud read-only config (like the realm config) can be imported into a classic on-prem deployment:
+[96m  $ frodo config export -adR matrix
+[39m  Export only the bravo realm configuration:
+[96m  $ frodo config export -ar matrix bravo
+[39m  Backup global and realm configuration including active secret values to a single file (Note: only values of active and loaded secrets can be exported):
 [96m  $ frodo config export -a --include-active-values matrix
-[39m  Backup global and active realm configuration including active secret values to individual files in a directory structure (Note: only values of active and loaded secrets can be exported):
+[39m  Backup global and realm configuration including active secret values to individual files in a directory structure (Note: only values of active and loaded secrets can be exported):
 [96m  $ frodo config export -A -D matrix-backup --include-active-values matrix
-[39m  Export global and active realm configuration including active secret values for import into another environment.
+[39m  Export global and realm configuration including active secret values for import into another environment.
   The --target parameter instructs frodo to encrypt the exported secret values using the target environment so they can be imported into that target environment without requiring the source environment they were exported from.
   Using the --target parameter, the target environment must be available at the time of export and the person performing the export must have a connection profile for the target environment.
   Without the --target parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.
