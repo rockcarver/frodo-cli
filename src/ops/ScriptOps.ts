@@ -587,7 +587,7 @@ export async function importScriptsFromFiles(
     .on('add', onChange)
     .on('change', onChange)
     .on('error', (error) => {
-      printError(error, `Watcher error`);
+      printError(error as Error, `Watcher error`);
       watcher.close();
     })
     .on('ready', () => {

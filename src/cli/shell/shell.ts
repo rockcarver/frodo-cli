@@ -35,7 +35,7 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Launch a frodo shell using explicit login parameters:\n` +
-        `  $ frodo shell ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+        `  $ frodo shell ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`[
           'brightCyan'
         ] +
         `  Launch a frodo shell using a connection profile (identified by the full AM base URL):\n` +
