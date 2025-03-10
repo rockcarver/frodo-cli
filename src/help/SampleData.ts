@@ -8,3 +8,4 @@ export const amBaseUrl2 = 'https://openam-zion.id.forgerock.io/am';
 export const connId2 = 'zion';
 export const username2 = 'neo@nebuchadnezzar.zion.com';
 export const password2 = 'R3dP!ll3d';
+export const realm = '/alpha';
