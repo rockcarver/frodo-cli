@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.2] - 2025-03-11
+
 ### Changed
 
 - Update to frodo-lib 3.0.2
 
 ### Fixed
 
-- #479: Fixes issues introduced by a recent PingOne Advanced Identity Cloud release (16747.0 on 27 Feb 2025) which prevented Frodo from correctly determining the deployment type of `cloud` and led to failures in the `frodo conn save` and `frodo conn add` commands when Frodo was attempting to create service accounts with scopes that are not available in an environment.
+- \#479: Fixes issues introduced by a recent PingOne Advanced Identity Cloud release (16747.0 on 27 Feb 2025) which prevented Frodo from correctly determining the deployment type of `cloud` and led to failures in the `frodo conn save` and `frodo conn add` commands when Frodo was attempting to create service accounts with scopes that are not available in an environment.
 - Updated dependencies with vulnerabilities
 
 ## [3.0.1] - 2025-02-06
@@ -2024,7 +2026,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.1...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/rockcarver/frodo-cli/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/rockcarver/frodo-cli/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/rockcarver/frodo-cli/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-2...v2.1.0
