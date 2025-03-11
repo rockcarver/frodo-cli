@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 3.0.3
+
+### Fixed
+
+- \#479: Fixes issues introduced by a recent PingOne Advanced Identity Cloud release (16747.0 on 27 Feb 2025) which prevented Frodo from correctly determining the deployment type of `cloud` and led to failures in the `frodo conn save` and `frodo conn add` commands when Frodo was attempting to create service accounts with scopes that are not available in an environment.
+
 ## [3.0.2] - 2025-03-11
 
 ### Changed
