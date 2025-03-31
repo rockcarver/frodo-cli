@@ -109,6 +109,39 @@ export async function exportConfigEntityToFile(
   return false;
 }
 
+/**
+ * Export an IDM configuration object in the fr-config-manager format.
+ * @param {string} id the desired configuration object
+ * @param {string} file optional export file name (or directory name if exporting mappings separately)
+ * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
+ * @param {boolean} separateMappings separate sync.idm.json mappings if true (and id is "sync"), otherwise keep them in a single file
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function configManagerExportUiConfig(
+  envFile?: string
+): Promise<boolean> {
+  try {
+    const options = getIdmImportExportOptions(undefined, envFile);
+    const exportData = (
+      await exportConfigEntity('ui/configuration', {
+        envReplaceParams: options.envReplaceParams,
+        entitiesToExport: undefined,
+      })
+    ).idm['ui/configuration'];
+
+    saveJsonToFile(
+      exportData,
+      getFilePath('ui/ui-configuration.json', true),
+      false
+    );
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting config entity ui-configuration`);
+  }
+  return false;
+}
+
 function escapePlaceholders(content: string): string {
   return JSON.parse(JSON.stringify(content).replace(/\$\{/g, '\\\\${'));
 }

@@ -1,5 +1,5 @@
 import { getTokens } from '../../ops/AuthenticateOps';
-import { configManagerExportUiConfig } from '../../ops/ConfigManagerOps';
+import { configManagerExportScripts } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -7,13 +7,13 @@ const deploymentTypes = ['cloud', 'forgeops'];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager export ui-config',
+    'frodo config-manager export scripts',
     [],
     deploymentTypes
   );
 
   program
-    .description('Export ui-configuration objects.')
+    .description('Export scripts.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -25,8 +25,8 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity ui-configuration');
-        const outcome = await configManagerExportUiConfig(options.envFile);
+        verboseMessage('Exporting scripts');
+        const outcome = await configManagerExportScripts(options);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

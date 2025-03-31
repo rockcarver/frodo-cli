@@ -48,6 +48,9 @@ export async function exportEverythingToFile(
     includeDefault: false,
     includeActiveValues: false,
     target: '',
+    includeReadOnly: true,
+    onlyRealm: true,
+    onlyGlobal: false,
   }
 ): Promise<boolean> {
   try {
@@ -87,6 +90,9 @@ export async function exportEverythingToFiles(
     includeDefault: false,
     includeActiveValues: false,
     target: '',
+    includeReadOnly: true,
+    onlyRealm: true,
+    onlyGlobal: false,
   }
 ): Promise<boolean> {
   try {

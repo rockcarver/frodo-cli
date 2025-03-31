@@ -15,6 +15,7 @@ import {
 } from '../utils/Console';
 
 const {
+  getCurrentRealmName,
   getRealmName,
   getTypedFilename,
   titleCase,
@@ -146,6 +147,34 @@ export async function exportServicesToFiles(
         `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
       );
       saveJsonToFile(exportData, filePath, includeMeta);
+    }
+    debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+export async function configManagerExportServices(
+  globalConfig: boolean = false,
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.ServiceOps.exportServicesToFiles: start`);
+    const services = await getFullServices(globalConfig);
+    for (const service of services) {
+      const fileDir = `realms/${getCurrentRealmName()}/services`;
+      const filePath = getFilePath(`${fileDir}/${service._type._id}.json`, true);
+      const exportData = createServiceExportTemplate();
+      if (service._id === "SocialIdentityProviders") {
+        getFullServices[service._type._id] = { ...service, _rev:service._rev || ""};
+      } else {
+      exportData.service[service._type._id] = { ...service, _rev:service._rev || "", nextDescendents: undefined };
+      debugMessage(
+        `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
+      );
+      saveJsonToFile(exportData.service[service._type._id], filePath, false);
+      }
     }
     debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
     return true;
