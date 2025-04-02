@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 3.0.4-1
+
+### Fixed
+
+- \#477: Frodo CLI now properly includes the transformation script for both `Social Provider Handler Node` and `Legacy Social Provider Handler Node`.
+- \#482: Frodo CLI now properly honors the NO_PROXY environment variable in addition to HTTP_PROXY and HTTPS_PROXY.
+
 ## [3.0.3] - 2025-03-11
 
 ### Changed
