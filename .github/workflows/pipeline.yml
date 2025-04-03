@@ -172,7 +172,16 @@ jobs:
 
   release:
     if: github.event_name != 'pull_request'
-    needs: [build, linux-binary-release, linux-arm64-binary-release, macos-binary-release, npm-release, windows-binary-release]
+    needs:
+      [
+        build,
+        linux-x64-binary-release,
+        linux-arm64-binary-release,
+        macos-intel-binary-release,
+        macos-arm64-binary-release,
+        npm-release,
+        windows-x64-binary-release,
+      ]
     name: 'Release'
     runs-on: ubuntu-latest
 
@@ -184,25 +193,30 @@ jobs:
         with:
           name: build
 
-      - name: Download MacOS Binary Release
+      - name: Download MacOS Intel Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: macos-binary-release
+          name: macos-intel-binary-release
 
-      - name: Download Linux Binary Release
+      - name: Download MacOS ARM64 Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: linux-binary-release
+          name: macos-arm64-binary-release
 
-      - name: Download Linux Arm64 Binary Release
+      - name: Download Linux X64 Binary Release
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binary-x64-release
+
+      - name: Download Linux ARM64 Binary Release
         uses: actions/download-artifact@v4
         with:
           name: linux-arm64-binary-release
 
-      - name: Download Windows Binary Release
+      - name: Download Windows X64 Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: windows-binary-release
+          name: windows-x64-binary-release
 
       - name: 'Github SHA'
         id: github-sha
@@ -251,16 +265,25 @@ jobs:
             CHANGELOG.md
             LICENSE
             Release.txt
-            frodo-linux-${{ needs.build.outputs.newVersion }}.zip
-            frodo-macos-${{ needs.build.outputs.newVersion }}.zip
-            frodo-win-${{ needs.build.outputs.newVersion }}.zip
+            frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
             frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+            frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
 
   npm-release:
     if: github.event_name != 'pull_request'
     # npm-release only needs the build job but since it is inconvenient to unpublish an npm we want this job to run last
-    needs: [build, linux-binary-release, linux-arm64-binary-release, macos-binary-release, windows-binary-release]
+    needs:
+      [
+        build,
+        linux-x64-binary-release,
+        linux-arm64-binary-release,
+        macos-intel-binary-release,
+        macos-arm64-binary-release,
+        windows-x64-binary-release,
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -329,11 +352,11 @@ jobs:
         env:
           COMMITTER_TOKEN: ${{ secrets.PAT_HOMEBREW_FORMULA_REPO }}
 
-  macos-binary-release:
+  macos-intel-binary-release:
     # don't run on PRs, since secrets are not available
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 15
     steps:
       - name: Install the Apple certificate
@@ -397,20 +420,98 @@ jobs:
           ./frodo journey export -h
 
       - name: Create zip file
-        run: ditto -c -k frodo frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+        run: ditto -c -k frodo frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
       - name: Notorize
-        run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+        run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
-          name: macos-binary-release
-          path: frodo-macos-${{ needs.build.outputs.newVersion }}.zip
+          name: macos-intel-binary-release
+          path: frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
-  linux-binary-release:
+  macos-arm64-binary-release:
+    # don't run on PRs, since secrets are not available
+    if: github.event_name != 'pull_request'
+    needs: [build, test]
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - name: Install the Apple certificate
+        env:
+          DEVELOPMENT_CERTIFICATE_DATA: ${{ secrets.DEVELOPMENT_CERTIFICATE_DATA }}
+          DEVELOPMENT_CERTIFICATE_PASSPHRASE: ${{ secrets.DEVELOPMENT_CERTIFICATE_PASSPHRASE }}
+          INTERMEDIATE_CERTIFICATE_DATA: ${{ secrets.INTERMEDIATE_CERTIFICATE_DATA }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          INTERMEDIATE_CERTIFICATE_PATH=$RUNNER_TEMP/intermediate_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificates from secrets
+          echo -n "$DEVELOPMENT_CERTIFICATE_DATA" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$INTERMEDIATE_CERTIFICATE_DATA" | base64 --decode --output $INTERMEDIATE_CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$DEVELOPMENT_CERTIFICATE_PASSPHRASE" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          #security import $INTERMEDIATE_CERTIFICATE_PATH -P "$DEVELOPMENT_CERTIFICATE_PASSPHRASE" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run dist-pkg
+
+      - name: Sign distribution binary
+        run: |
+          cat > entitlements.plist <<DELIM
+          <dict>
+            <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+            <true/>
+          </dict>
+          DELIM
+          codesign -f -s 'Developer ID Application' --options runtime --entitlements entitlements.plist --timestamp --deep frodo
+
+      #
+      # Fail early on failing tests.
+      #
+      - name: 'Test'
+        run: |
+          ./frodo -v
+          ./frodo journey -h
+          ./frodo journey export -h
+
+      - name: Create zip file
+        run: ditto -c -k frodo frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+
+      - name: Notorize
+        run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-binary-release
+          path: frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+
+  linux-x64-binary-release:
     # run on PRs for e2e testing binary builds as linux builds do not require secrets.
     needs: [build, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -437,18 +538,18 @@ jobs:
           ./frodo journey export -h
 
       - name: Archive distribution binary
-        run: zip -Z bzip2 frodo-linux-${{ needs.build.outputs.newVersion }}.zip frodo
+        run: zip -Z bzip2 frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip frodo
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-binary-release
-          path: frodo-linux-${{ needs.build.outputs.newVersion }}.zip
+          path: frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
     # don't run on PRs to speed up the checks
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: [self-hosted, ARM64]
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -483,11 +584,11 @@ jobs:
           name: linux-arm64-binary-release
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
 
-  windows-binary-release:
+  windows-x64-binary-release:
     # don't run on PRs to speed up the checks
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -514,9 +615,9 @@ jobs:
           ./frodo.exe journey export -h
 
       - name: Archive distribution binary
-        run: 7z a -tzip frodo-win-${{ needs.build.outputs.newVersion }}.zip frodo.exe
+        run: 7z a -tzip frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip frodo.exe
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-binary-release
-          path: frodo-win-${{ needs.build.outputs.newVersion }}.zip
+          path: frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
