@@ -22,6 +22,8 @@ import {
   updateProgressIndicator,
 } from '../../utils/Console';
 import wordwrap from '../utils/Wordwrap';
+import { off } from 'process';
+import { get } from 'http';
 
 const { resolveUserName } = frodo.idm.managed;
 const {
@@ -579,6 +581,72 @@ export async function exportSecretsToFiles(
       updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
     }
     stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(
+      spinnerId,
+      `Error exporting secrets to files`,
+      'fail'
+    );
+    printError(error);
+  }
+  return false;
+}
+
+type FrConfigSecret = SecretSkeleton & {
+  valueBase64: string;
+}
+
+async function getFrConfigSecrets(): Promise<FrConfigSecret[]>;
+
+function esvToEnv(esv) {
+  return esv.toUpperCase().replace(/-/g, "_");
+}
+
+export async function configManagerExportSecrets(
+  includeMeta: false,
+  includeActiveValues?: boolean,
+  target?: string
+): Promise<boolean> {
+  let secrets: FrConfigSecret[] = [];
+  const spinnerId = createProgressIndicator(
+    'indeterminate',
+    0,
+    `Reading secrets...`
+  );
+  try {
+    secrets = await getFrConfigSecrets();
+    secrets.sort((a, b) => a._id.localeCompare(b._id));
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully read ${secrets.length} secrets.`,
+      'success'
+    );
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      secrets.length,
+      'Exporting secrets'
+    );
+    for (const secret of secrets) {
+      delete secret.lastChangedBy
+      delete secret.lastChangeDate
+      delete secret.loaded
+      delete secret.loaded
+      delete secret.loadedVersion
+      delete secret.activeVersion
+      const fileName = getTypedFilename(secret._id, 'secret');
+      const exportData: SecretsExportInterface = await exportSecret(
+        secret._id,
+        includeActiveValues,
+        target
+      );
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
+    }
+    stopProgressIndicator(
+      indicatorId,
+      `${secrets.length} secrets exported.`
+    );
     return true;
   } catch (error) {
     stopProgressIndicator(
