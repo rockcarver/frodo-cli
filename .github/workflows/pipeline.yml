@@ -206,7 +206,7 @@ jobs:
       - name: Download Linux X64 Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: linux-binary-x64-release
+          name: linux-x64-binary-release
 
       - name: Download Linux ARM64 Binary Release
         uses: actions/download-artifact@v4
