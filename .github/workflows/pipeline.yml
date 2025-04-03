@@ -193,25 +193,30 @@ jobs:
         with:
           name: build
 
-      - name: Download MacOS Binary Release
+      - name: Download MacOS Intel Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: macos-binary-release
+          name: macos-intel-binary-release
 
-      - name: Download Linux Binary Release
+      - name: Download MacOS ARM64 Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: linux-binary-release
+          name: macos-arm64-binary-release
 
-      - name: Download Linux Arm64 Binary Release
+      - name: Download Linux X64 Binary Release
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binary-x64-release
+
+      - name: Download Linux ARM64 Binary Release
         uses: actions/download-artifact@v4
         with:
           name: linux-arm64-binary-release
 
-      - name: Download Windows Binary Release
+      - name: Download Windows X64 Binary Release
         uses: actions/download-artifact@v4
         with:
-          name: windows-binary-release
+          name: windows-x64-binary-release
 
       - name: 'Github SHA'
         id: github-sha
@@ -260,10 +265,11 @@ jobs:
             CHANGELOG.md
             LICENSE
             Release.txt
-            frodo-linux-${{ needs.build.outputs.newVersion }}.zip
-            frodo-macos-${{ needs.build.outputs.newVersion }}.zip
-            frodo-win-${{ needs.build.outputs.newVersion }}.zip
+            frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
             frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
+            frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
+            frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
 
   npm-release:
