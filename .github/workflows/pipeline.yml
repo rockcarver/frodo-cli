@@ -542,7 +542,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-binary-release
+          name: linux-x64-binary-release
           path: frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
 
   linux-arm64-binary-release:
