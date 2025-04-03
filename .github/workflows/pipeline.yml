@@ -619,5 +619,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-binary-release
+          name: windows-x64-binary-release
           path: frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
