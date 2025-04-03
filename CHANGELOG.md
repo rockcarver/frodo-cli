@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update to frodo-lib 3.0.4-1
+- Update to frodo-lib 3.0.4-2
 
 ### Fixed
 
