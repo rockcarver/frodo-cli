@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- \#489: MacOS binaries are now provided for both Intel and ARM64 architectures.
+- \#490: Linux ARM64 binary now works on Linux running on ARM64 hardware.
+
 ## [3.0.4-0] - 2025-04-03
 
 ### Changed
