@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update to frodo-lib 3.0.4
+
+### Fixed
+
+- \#477: Frodo CLI now properly includes the transformation script for both `Social Provider Handler Node` and `Legacy Social Provider Handler Node`.
+- \#482: Frodo CLI now properly honors the NO_PROXY environment variable in addition to HTTP_PROXY and HTTPS_PROXY.
+- \#489: MacOS binaries are now provided for both Intel and ARM64 architectures.
+- \#490: Linux ARM64 binary now works on Linux running on ARM64 hardware.
+
 ## [3.0.4-1] - 2025-04-03
 
 ### Fixed

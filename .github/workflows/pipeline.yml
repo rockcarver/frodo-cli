@@ -142,7 +142,7 @@ jobs:
       - name: CLI Tests
         env:
           FRODO_MASTER_KEY: ${{ secrets.FRODO_MASTER_KEY }}
-        run: npm test
+        run: npm run test:serial
 
       - name: Version Test
         run: frodo -v
