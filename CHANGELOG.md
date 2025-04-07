@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- \#494: Frodo CLI now properly imports script from separate files using `frodo script import -A`.
+
 ## [3.0.4] - 2025-04-04
 
 ### Changed

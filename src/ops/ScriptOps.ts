@@ -531,10 +531,11 @@ export async function importScriptsFromFiles(
   options: ScriptImportOptions,
   validateScripts: boolean
 ): Promise<void> {
+  debugMessage(`Cli.ScriptOps.importScriptsFromFiles: start`);
+
   // If watch is true, it doesn't make sense to reUuid.
   options.reUuid = watch ? false : options.reUuid;
 
-  // When doing initial import, only focus on .json files.
   let initialImport = true;
   // Generate mappings while importing to identify script files with their script ids and json files for use in watching.
   const scriptPathToJsonMapping = {};
@@ -545,8 +546,14 @@ export async function importScriptsFromFiles(
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onChange(path: string, _stats?: fs.Stats): Promise<void> {
+    debugMessage(
+      `Cli.ScriptOps.importScriptsFromFiles.onChange: start [initialImport=${initialImport}, path=${path}]`
+    );
     try {
       if (initialImport && path.endsWith('.script.json')) {
+        debugMessage(
+          `Cli.ScriptOps.importScriptsFromFiles.onChange: initial import of ${path}`
+        );
         if (watch) {
           scriptPathToJsonMapping[path] = path;
           for (const extracted of getExtractedPathsAndNames(path)) {
@@ -568,20 +575,27 @@ export async function importScriptsFromFiles(
     } catch (error) {
       printError(error, `${path}`);
     }
+    debugMessage(`Cli.ScriptOps.importScriptsFromFiles.onChange: end`);
   }
 
   // We watch json files and script files.
-  const watcher = chokidar.watch(
-    [
-      `${getWorkingDirectory()}/**/*.script.json`,
-      `${getWorkingDirectory()}/**/*.script.js`,
-      `${getWorkingDirectory()}/**/*.script.groovy`,
-    ],
-    {
-      persistent: watch,
-      ignoreInitial: false,
-    }
-  );
+  const watcher = chokidar.watch(getWorkingDirectory(), {
+    // ignored: (path, stats) =>
+    //   watch
+    //     ? // in watch mode, ignore everything but raw scripts
+    //       stats?.isFile() &&
+    //       !path?.endsWith('.script.js') &&
+    //       !path?.endsWith('.script.groovy')
+    //     : // in regular mode, ignore everything but frodo script exports
+    //       stats?.isFile() && !path?.endsWith('.script.json'),
+    ignored: (path, stats) =>
+      stats?.isFile() &&
+      !path?.endsWith('.script.json') &&
+      !path?.endsWith('.script.js') &&
+      !path?.endsWith('.script.groovy'),
+    persistent: watch,
+    ignoreInitial: false,
+  });
 
   watcher
     .on('add', onChange)
@@ -590,15 +604,19 @@ export async function importScriptsFromFiles(
       printError(error as Error, `Watcher error`);
       watcher.close();
     })
-    .on('ready', () => {
+    .on('ready', async () => {
+      debugMessage(
+        `Cli.ScriptOps.importScriptsFromFiles: Watcher ready: ${JSON.stringify(watcher.getWatched())}`
+      );
       if (watch) {
         initialImport = false;
         printMessage('Watching for changes...');
       } else {
-        watcher.close();
-        printMessage('Done.');
+        await watcher.close();
       }
     });
+
+  debugMessage(`Cli.ScriptOps.importScriptsFromFiles: end`);
 }
 
 /**
@@ -618,15 +636,13 @@ async function handleScriptFileImport(
 ) {
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
   const script = getScriptExportByScriptFile(file);
-  const imported = await importScripts(
-    id,
-    name,
-    script,
-    options,
-    validateScripts
-  );
-  if (imported) {
-    printMessage(`Imported '${file}'`);
+  const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
+  try {
+    await importScripts(id, name, script, options, validateScripts);
+    updateProgressIndicator(indicatorId, `${file}`);
+    stopProgressIndicator(indicatorId, `${file}`);
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `${file}: ${error}`);
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }
