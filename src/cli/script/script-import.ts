@@ -93,7 +93,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         } else if (options.allSeparate && (await getTokens())) {
           verboseMessage(
-            `Importing script(s) into realm "${state.getRealm()}"...`
+            `Importing all script files into realm "${state.getRealm()}"...`
           );
           try {
             await importScriptsFromFiles(
