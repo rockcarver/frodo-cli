@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export --all --no-deps --file my-nodeps-allAlphaApplications.oauth2.app.json": should export all oauth clients to a single file with no dependencies: my-nodeps-allAlphaApplications.oauth2.app.json 1`] = `
 {
@@ -4346,7 +4348,9 @@ exports[`frodo oauth client export "frodo oauth client export --all --no-deps --
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export --all-separate --no-metadata --directory oauthClientExportTestDir3": should export all oauth clients to separate files in the directory oauthClientExportTestDir3: oauthClientExportTestDir3/0b48992b-a2dd-4ed5-8b07-1fc5d7306da8.oauth2.app.json 1`] = `
 {
@@ -17859,7 +17863,9 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --n
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json": should export the oauth client with oauth client id "RCSClient" with no dependencies into a file named my-nodeps-RCSClient.oauth2.app.json 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json": should export the oauth client with oauth client id "RCSClient" with no dependencies into a file named my-nodeps-RCSClient.oauth2.app.json 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json": should export the oauth client with oauth client id "RCSClient" with no dependencies into a file named my-nodeps-RCSClient.oauth2.app.json 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export --app-id RCSClient --no-deps -f my-nodeps-RCSClient.oauth2.app.json": should export the oauth client with oauth client id "RCSClient" with no dependencies into a file named my-nodeps-RCSClient.oauth2.app.json: my-nodeps-RCSClient.oauth2.app.json 1`] = `
 {
@@ -18615,7 +18621,9 @@ exports[`frodo oauth client export "frodo oauth client export --app-id RCSClient
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export -A": should export all oauth clients to separate files: 0b48992b-a2dd-4ed5-8b07-1fc5d7306da8.oauth2.app.json 1`] = `
 {
@@ -32145,7 +32153,9 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientExportTestDir2": should export all oauth clients to a single file in the directory oauthClientExportTestDir2: oauthClientExportTestDir2/allAlphaApplications.oauth2.app.json 1`] = `
 {
@@ -42226,7 +42236,9 @@ exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientEx
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1": should export the oauth client with oauth client id "RCSClient" to the directory oauthClientExportTestDir1 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1": should export the oauth client with oauth client id "RCSClient" to the directory oauthClientExportTestDir1 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1": should export the oauth client with oauth client id "RCSClient" to the directory oauthClientExportTestDir1 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export -Ni RCSClient -D oauthClientExportTestDir1": should export the oauth client with oauth client id "RCSClient" to the directory oauthClientExportTestDir1: oauthClientExportTestDir1/RCSClient.oauth2.app.json 1`] = `
 {
@@ -42982,7 +42994,9 @@ exports[`frodo oauth client export "frodo oauth client export -Ni RCSClient -D o
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export -a": should export all oauth clients to a single file: allAlphaApplications.oauth2.app.json 1`] = `
 {
@@ -53064,7 +53078,9 @@ exports[`frodo oauth client export "frodo oauth client export -a": should export
 }
 `;
 
-exports[`frodo oauth client export "frodo oauth client export -i RCSClient": should export the oauth client with oauth client id "RCSClient" 1`] = `""`;
+exports[`frodo oauth client export "frodo oauth client export -i RCSClient": should export the oauth client with oauth client id "RCSClient" 1`] = `0`;
+
+exports[`frodo oauth client export "frodo oauth client export -i RCSClient": should export the oauth client with oauth client id "RCSClient" 2`] = `""`;
 
 exports[`frodo oauth client export "frodo oauth client export -i RCSClient": should export the oauth client with oauth client id "RCSClient": RCSClient.oauth2.app.json 1`] = `
 {

@@ -56,7 +56,19 @@ export async function testExport(
   checkStderr = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
-  const { stdout, stderr } = await exec(command, env);
+  let stdout;
+  let stderr;
+  let exitCode = 0;
+  try {
+    const output = await exec(command, env);
+    stdout = output.stdout;
+    stderr = output.stderr;
+  } catch (e) {
+    stdout = e.stdout;
+    stderr = e.stderr;
+    exitCode = e.code;
+  }
+  expect(exitCode).toMatchSnapshot();
   // console.error(`stdout:\n${stdout}`);
   // console.error(`stderr:\n${stderr}`);
   const regex = new RegExp(

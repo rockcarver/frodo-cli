@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json 1`] = `""`;
+exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json 1`] = `0`;
+
+exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json 2`] = `""`;
 
 exports[`frodo service export "frodo service export --all --file my-allAlphaServices.service.json": should export all services to a single file named my-allAlphaServices.service.json: my-allAlphaServices.service.json 1`] = `
 {
@@ -829,7 +831,9 @@ exports[`frodo service export "frodo service export --all --file my-allAlphaServ
 }
 `;
 
-exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json 1`] = `""`;
+exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json 1`] = `0`;
+
+exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json 2`] = `""`;
 
 exports[`frodo service export "frodo service export --global --all -f my-allGlobalServices.service.json": should export all global services to a single file named my-allGlobalServices.service.json: my-allGlobalServices.service.json 1`] = `
 {
@@ -906,7 +910,9 @@ exports[`frodo service export "frodo service export --global --all -f my-allGlob
 }
 `;
 
-exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json 1`] = `""`;
+exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json 1`] = `0`;
+
+exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json 2`] = `""`;
 
 exports[`frodo service export "frodo service export --global --service-id dashboard -f my-dashboard.service.json": should export the global service with id "dashboard" to the file my-dashboard.service.json: my-dashboard.service.json 1`] = `
 {
@@ -972,7 +978,9 @@ exports[`frodo service export "frodo service export --global --service-id dashbo
 }
 `;
 
-exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json 1`] = `""`;
+exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json 1`] = `0`;
+
+exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json 2`] = `""`;
 
 exports[`frodo service export "frodo service export --service-id policyconfiguration -f my-policyconfiguration.service.json": should export the service with id "policyconfiguration" to the file my-policyconfiguration.service.json: my-policyconfiguration.service.json 1`] = `
 {
@@ -1019,7 +1027,9 @@ exports[`frodo service export "frodo service export --service-id policyconfigura
 }
 `;
 
-exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4 1`] = `""`;
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4 1`] = `0`;
+
+exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4 2`] = `""`;
 
 exports[`frodo service export "frodo service export -A --no-metadata --directory serviceExportTestDir4": should export all services to separate files in the directory serviceExportTestDir4: serviceExportTestDir4/SocialIdentityProviders.service.json 1`] = `
 {
@@ -1894,7 +1904,9 @@ exports[`frodo service export "frodo service export -A --no-metadata --directory
 }
 `;
 
-exports[`frodo service export "frodo service export -A": should export all services to separate files 1`] = `""`;
+exports[`frodo service export "frodo service export -A": should export all services to separate files 1`] = `0`;
+
+exports[`frodo service export "frodo service export -A": should export all services to separate files 2`] = `""`;
 
 exports[`frodo service export "frodo service export -A": should export all services to separate files: SocialIdentityProviders.service.json 1`] = `
 {
@@ -2778,7 +2790,9 @@ exports[`frodo service export "frodo service export -A": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3 1`] = `""`;
+exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3 1`] = `0`;
+
+exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3 2`] = `""`;
 
 exports[`frodo service export "frodo service export -NaD serviceExportTestDir3": should export all services to a single file in the directory serviceExportTestDir3: serviceExportTestDir3/allAlphaServices.service.json 1`] = `
 {
@@ -3606,7 +3620,9 @@ exports[`frodo service export "frodo service export -NaD serviceExportTestDir3":
 }
 `;
 
-exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2 1`] = `""`;
+exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2 1`] = `0`;
+
+exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2 2`] = `""`;
 
 exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExportTestDir2": should export the global service with id "dashboard" to the directory serviceExportTestDir2: serviceExportTestDir2/dashboard.service.json 1`] = `
 {
@@ -3671,7 +3687,9 @@ exports[`frodo service export "frodo service export -Ngi dashboard -D serviceExp
 }
 `;
 
-exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1 1`] = `""`;
+exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1 1`] = `0`;
+
+exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1 2`] = `""`;
 
 exports[`frodo service export "frodo service export -Ni policyconfiguration -D serviceExportTestDir1": should export the service with id "policyconfiguration" to the directory serviceExportTestDir1: serviceExportTestDir1/policyconfiguration.service.json 1`] = `
 {
@@ -3717,7 +3735,9 @@ exports[`frodo service export "frodo service export -Ni policyconfiguration -D s
 }
 `;
 
-exports[`frodo service export "frodo service export -a": should export all services to a single file 1`] = `""`;
+exports[`frodo service export "frodo service export -a": should export all services to a single file 1`] = `0`;
+
+exports[`frodo service export "frodo service export -a": should export all services to a single file 2`] = `""`;
 
 exports[`frodo service export "frodo service export -a": should export all services to a single file: allAlphaServices.service.json 1`] = `
 {
@@ -4546,7 +4566,9 @@ exports[`frodo service export "frodo service export -a": should export all servi
 }
 `;
 
-exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files 1`] = `""`;
+exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files 1`] = `0`;
+
+exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files 2`] = `""`;
 
 exports[`frodo service export "frodo service export -g --all-separate": should export all global services to separate files: CorsService.service.json 1`] = `
 {
@@ -4629,7 +4651,9 @@ exports[`frodo service export "frodo service export -g --all-separate": should e
 }
 `;
 
-exports[`frodo service export "frodo service export -ga": should export all global services to a single file 1`] = `""`;
+exports[`frodo service export "frodo service export -ga": should export all global services to a single file 1`] = `0`;
+
+exports[`frodo service export "frodo service export -ga": should export all global services to a single file 2`] = `""`;
 
 exports[`frodo service export "frodo service export -ga": should export all global services to a single file: allGlobalServices.service.json 1`] = `
 {
@@ -4706,7 +4730,9 @@ exports[`frodo service export "frodo service export -ga": should export all glob
 }
 `;
 
-exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard" 1`] = `""`;
+exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard" 1`] = `0`;
+
+exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard" 2`] = `""`;
 
 exports[`frodo service export "frodo service export -gi dashboard": should export the global service with id "dashboard": dashboard.service.json 1`] = `
 {
@@ -4772,7 +4798,9 @@ exports[`frodo service export "frodo service export -gi dashboard": should expor
 }
 `;
 
-exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration" 1`] = `""`;
+exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration" 1`] = `0`;
+
+exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration" 2`] = `""`;
 
 exports[`frodo service export "frodo service export -i policyconfiguration": should export the service with id "policyconfiguration": policyconfiguration.service.json 1`] = `
 {

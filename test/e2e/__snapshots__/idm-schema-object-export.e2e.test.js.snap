@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo idm schema object export "frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -A -D testDir3": should export all managed objects into separate files in the directory "testDir3": testDir3/managed/managed.idm.json 1`] = `
 {
@@ -27,7 +29,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -A -D te
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -A": should export all managed objects into separate files in the default directory "managed" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -A": should export all managed objects into separate files in the default directory "managed" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -A": should export all managed objects into separate files in the default directory "managed" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -A": should export all managed objects into separate files in the default directory "managed": managed/managed.idm.json 1`] = `
 {
@@ -54,7 +58,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -A": sho
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1: testDir1/managed.idm.json 1`] = `
 {
@@ -5729,7 +5735,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -a -D te
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in testDir2 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in testDir2 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in testDir2 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir2 -f test.file.json": should export all managed objects into a single file named test.file.json in testDir2: testDir2/test.file.json 1`] = `
 {
@@ -11404,7 +11412,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -a -D te
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -a -f test.file.json": should export all managed objects into a single file named test.file.json 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -a -f test.file.json": should export all managed objects into a single file named test.file.json 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -a -f test.file.json": should export all managed objects into a single file named test.file.json 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -a -f test.file.json": should export all managed objects into a single file named test.file.json: test.file.json 1`] = `
 {
@@ -17079,7 +17089,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -a -f te
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -a": should export all managed objects into a single file 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -a": should export all managed objects into a single file 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -a": should export all managed objects into a single file 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -a": should export all managed objects into a single file: managed.idm.json 1`] = `
 {
@@ -22762,7 +22774,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -a": sho
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5": testDir5/alpha_group.managed.json 1`] = `
 {
@@ -22904,7 +22918,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -i alpha
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -i alpha_role -f test2.file.json -D testDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "testDir4" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_role -f test2.file.json -D testDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "testDir4" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_role -f test2.file.json -D testDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "testDir4" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -i alpha_role -f test2.file.json -D testDir4": should export the alpha_role managed object into a file named "test2.file.json" in the directory "testDir4": testDir4/test2.file.json 1`] = `
 {
@@ -23148,7 +23164,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -i alpha
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -i alpha_user": should export the alpha_user managed object into a file named "alpha_user.managed.json" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_user": should export the alpha_user managed object into a file named "alpha_user.managed.json" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i alpha_user": should export the alpha_user managed object into a file named "alpha_user.managed.json" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -i alpha_user": should export the alpha_user managed object into a file named "alpha_user.managed.json": alpha_user.managed.json 1`] = `
 {
@@ -24676,7 +24694,9 @@ exports[`frodo idm schema object export "frodo idm schema object export -i alpha
 }
 `;
 
-exports[`frodo idm schema object export "frodo idm schema object export -i bravo_assignment -f test2.file.json": should export the bravo_assignment managed object into a file named "test2.file.json" 1`] = `""`;
+exports[`frodo idm schema object export "frodo idm schema object export -i bravo_assignment -f test2.file.json": should export the bravo_assignment managed object into a file named "test2.file.json" 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i bravo_assignment -f test2.file.json": should export the bravo_assignment managed object into a file named "test2.file.json" 2`] = `""`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -i bravo_assignment -f test2.file.json": should export the bravo_assignment managed object into a file named "test2.file.json": test2.file.json 1`] = `
 {

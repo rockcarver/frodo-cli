@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: allVariables.variable.json 1`] = `
 {
@@ -109,7 +111,9 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-blue-piller.variable.json 1`] = `
 {
@@ -287,7 +291,9 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var": esv-test-var.variable.json 1`] = `
 {
@@ -306,7 +312,9 @@ exports[`frodo esv variable export "frodo esv variable export --variable-id esv-
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-blue-piller.variable.json 1`] = `
 {
@@ -495,7 +503,9 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allVariables.variable.json 1`] = `
 {
@@ -603,7 +613,9 @@ exports[`frodo esv variable export "frodo esv variable export -NaD variableExpor
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1: variableExportTestDir1/esv-test-var.variable.json 1`] = `
 {
@@ -621,7 +633,9 @@ exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json: my-allVariables.variable.json 1`] = `
 {
@@ -730,7 +744,9 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json: my-esv-test-var.variable.json 1`] = `
 {

@@ -41,6 +41,7 @@ const {
   getWorkingDirectory,
   saveToFile,
   decodeBase64,
+  getResults,
 } = frodo.utils;
 const {
   readScript,
@@ -351,22 +352,25 @@ export async function exportScriptsToFile(
   options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
-  try {
-    let fileName = getTypedFilename(
-      `all${titleCase(state.getRealm())}Scripts`,
-      'script'
-    );
-    if (file) {
-      fileName = file;
-    }
-    const scriptExport = await exportScripts(options);
-    saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
-    debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
-    return true;
-  } catch (error) {
-    printError(error);
+  let fileName = getTypedFilename(
+    `all${titleCase(state.getRealm())}Scripts`,
+    'script'
+  );
+  if (file) {
+    fileName = file;
   }
-  return false;
+  const exportResults = await getResults(exportScripts, options);
+  saveJsonToFile(
+    exportResults.result,
+    getFilePath(fileName, true),
+    includeMeta
+  );
+  if (exportResults.error) {
+    printError(exportResults.error);
+    return false;
+  }
+  debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
+  return true;
 }
 
 /**
@@ -383,56 +387,54 @@ export async function exportScriptsToFiles(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  let barId: string;
-  try {
-    const scriptExport = await exportScripts(options);
-    const scriptList = Object.values(scriptExport.script);
-    barId = createProgressIndicator(
+  const exportResults = await getResults(exportScripts, options);
+  const scriptList = Object.values(exportResults.result.script);
+  const barId = createProgressIndicator(
+    'determinate',
+    scriptList.length,
+    'Exporting scripts to individual files...'
+  );
+  for (const script of scriptList) {
+    const fileBarId = createProgressIndicator(
       'determinate',
-      scriptList.length,
-      'Exporting scripts to individual files...'
+      1,
+      `Exporting script ${script.name}...`
     );
-    for (const script of scriptList) {
-      const fileBarId = createProgressIndicator(
-        'determinate',
-        1,
-        `Exporting script ${script.name}...`
-      );
+    try {
       const file = getFilePath(getTypedFilename(script.name, 'script'), true);
-      try {
-        if (extract) {
-          extractScriptsToFiles({
-            script: {
-              [script._id]: script,
-            },
-          });
-        }
-        saveToFile('script', script, '_id', file, includeMeta);
-        updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
-        stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
-      } catch (error) {
-        stopProgressIndicator(
-          fileBarId,
-          `Error exporting ${script.name}`,
-          'fail'
-        );
-        errors.push(error);
+      if (extract) {
+        extractScriptsToFiles({
+          script: {
+            [script._id]: script,
+          },
+        });
       }
-      updateProgressIndicator(barId, `Exported script ${script.name}`);
+      saveToFile('script', script, '_id', file, includeMeta);
+      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
+    } catch (error) {
+      stopProgressIndicator(
+        fileBarId,
+        `Error exporting ${script.name}`,
+        'fail'
+      );
+      errors.push(error);
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting scripts`, errors);
-    }
-    stopProgressIndicator(
-      barId,
-      `Exported ${scriptList.length} scripts to individual files.`
-    );
-    debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(barId, `Error exporting scripts`);
-    printError(error);
+    updateProgressIndicator(barId, `Exported script ${script.name}`);
   }
+  if (errors.length > 0) {
+    throw new FrodoError(`Error exporting scripts`, errors);
+  }
+  stopProgressIndicator(
+    barId,
+    `Exported ${scriptList.length} scripts to individual files.`
+  );
+  debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
+  if (exportResults.error) {
+    printError(exportResults.error);
+    return false;
+  }
+  return true;
 }
 
 /**

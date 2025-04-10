@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory: authnExportDir3/global.authentication.settings.json 1`] = `
 {
@@ -116,7 +118,9 @@ exports[`frodo authn export "frodo authn export --global --no-metadata --directo
 }
 `;
 
-exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir2/authnExportTest.json 1`] = `
 {
@@ -190,7 +194,9 @@ exports[`frodo authn export "frodo authn export --no-metadata --file authnExport
 }
 `;
 
-exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory: authnExportDir1/alphaRealm.authentication.settings.json 1`] = `
 {
@@ -264,7 +270,9 @@ exports[`frodo authn export "frodo authn export -ND authnExportDir1": should exp
 }
 `;
 
-exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 1`] = `""`;
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json": authnExportTest.json 1`] = `
 {
@@ -339,7 +347,9 @@ exports[`frodo authn export "frodo authn export -f authnExportTest.json": should
 }
 `;
 
-exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file 1`] = `""`;
+exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file: global.authentication.settings.json 1`] = `
 {
