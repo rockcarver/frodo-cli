@@ -38,6 +38,7 @@ const {
   getRealmString,
   getFilePath,
   getWorkingDirectory,
+  getResults,
 } = frodo.utils;
 const {
   readJourneys,
@@ -227,17 +228,17 @@ export async function exportJourneysToFile(
     coords: true,
   }
 ): Promise<boolean> {
-  try {
-    if (!file) {
-      file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
-    }
-    const filePath = getFilePath(file, true);
-    const fileData: MultiTreeExportInterface = await exportJourneys(options);
-    saveJsonToFile(fileData, filePath, includeMeta);
-    return true;
-  } catch (error) {
-    printError(error);
+  if (!file) {
+    file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
   }
+  const filePath = getFilePath(file, true);
+  const exportResults = await getResults(exportJourneys, options);
+  saveJsonToFile(exportResults.result, filePath, includeMeta);
+  if (exportResults.error) {
+    printError(exportResults.error);
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -254,30 +255,29 @@ export async function exportJourneysToFiles(
     coords: true,
   }
 ): Promise<boolean> {
-  try {
-    const journeysExport = await exportJourneys(options);
-    const trees = Object.entries(journeysExport.trees);
-    for (const [treeId, treeValue] of trees) {
-      const indicatorId = createProgressIndicator(
-        'determinate',
-        1,
-        `Saving ${treeId}...`
-      );
-      const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
-      treeValue['meta'] = journeysExport.meta;
-      try {
-        updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
-        saveJsonToFile(treeValue, file, includeMeta);
-        stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
-      } catch (error) {
-        stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
-      }
+  const exportResults = await getResults(exportJourneys, options);
+  const trees = Object.entries(exportResults.result.trees);
+  for (const [treeId, treeValue] of trees) {
+    const indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Saving ${treeId}...`
+    );
+    const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
+    treeValue['meta'] = exportResults.result.meta;
+    try {
+      updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
+      saveJsonToFile(treeValue, file, includeMeta);
+      stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
+    } catch (error) {
+      stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
     }
-    return true;
-  } catch (error) {
-    printError(error);
   }
-  return false;
+  if (exportResults.error) {
+    printError(exportResults.error);
+    return false;
+  }
+  return true;
 }
 
 /**

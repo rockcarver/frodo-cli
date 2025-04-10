@@ -12,9 +12,10 @@ import { readServersFromFiles } from '../ops/classic/ServerOps';
 import { getManagedObjectsFromFiles } from '../ops/IdmOps';
 import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
-import { printMessage } from './Console';
+import { printError, printMessage } from './Console';
 
-const { getFilePath, readFiles, saveTextToFile, saveJsonToFile } = frodo.utils;
+const { getFilePath, readFiles, saveTextToFile, saveJsonToFile, getResults } =
+  frodo.utils;
 
 const { exportFullConfiguration } = frodo.config;
 
@@ -83,7 +84,7 @@ export async function getFullExportConfig(
   // If working directory doesn't exist, export from the cloud
   const workingDirectory = state.getDirectory();
   if (!workingDirectory) {
-    return await exportFullConfiguration({
+    const exportResults = await getResults(exportFullConfiguration, {
       useStringArrays: true,
       noDecode: false,
       coords: true,
@@ -94,6 +95,10 @@ export async function getFullExportConfig(
       onlyRealm: false,
       onlyGlobal: false,
     });
+    if (exportResults.error) {
+      printError(exportResults.error);
+    }
+    return exportResults.result;
   }
   // Go through files in the working directory and reconstruct the full export
   return await getFullExportConfigFromDirectory(workingDirectory);

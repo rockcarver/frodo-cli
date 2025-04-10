@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo role export "frodo role export --all": should export all roles to a single file. 1`] = `""`;
+exports[`frodo role export "frodo role export --all": should export all roles to a single file. 1`] = `0`;
+
+exports[`frodo role export "frodo role export --all": should export all roles to a single file. 2`] = `""`;
 
 exports[`frodo role export "frodo role export --all": should export all roles to a single file.: allInternalRoles.internalRole.json 1`] = `
 {
@@ -384,7 +386,9 @@ exports[`frodo role export "frodo role export --all": should export all roles to
 }
 `;
 
-exports[`frodo role export "frodo role export --all-separate --directory roleExportTestDir2": should export all roles to separate files 1`] = `""`;
+exports[`frodo role export "frodo role export --all-separate --directory roleExportTestDir2": should export all roles to separate files 1`] = `0`;
+
+exports[`frodo role export "frodo role export --all-separate --directory roleExportTestDir2": should export all roles to separate files 2`] = `""`;
 
 exports[`frodo role export "frodo role export --all-separate --directory roleExportTestDir2": should export all roles to separate files: roleExportTestDir2/openidm-admin.internalRole.json 1`] = `
 {
@@ -816,7 +820,9 @@ exports[`frodo role export "frodo role export --all-separate --directory roleExp
 }
 `;
 
-exports[`frodo role export "frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56". 1`] = `""`;
+exports[`frodo role export "frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56". 1`] = `0`;
+
+exports[`frodo role export "frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56". 2`] = `""`;
 
 exports[`frodo role export "frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56".: ccb11ba1-333b-4197-95db-89bb08a2ab56.internalRole.json 1`] = `
 {
@@ -1152,7 +1158,9 @@ exports[`frodo role export "frodo role export --role-id ccb11ba1-333b-4197-95db-
 }
 `;
 
-exports[`frodo role export "frodo role export --role-name test-internal-role --file roleExportTestFile2.json --no-metadata": should export the role with name "test-internal-role". 1`] = `""`;
+exports[`frodo role export "frodo role export --role-name test-internal-role --file roleExportTestFile2.json --no-metadata": should export the role with name "test-internal-role". 1`] = `0`;
+
+exports[`frodo role export "frodo role export --role-name test-internal-role --file roleExportTestFile2.json --no-metadata": should export the role with name "test-internal-role". 2`] = `""`;
 
 exports[`frodo role export "frodo role export --role-name test-internal-role --file roleExportTestFile2.json --no-metadata": should export the role with name "test-internal-role".: roleExportTestFile2.json 1`] = `
 {
@@ -1487,7 +1495,9 @@ exports[`frodo role export "frodo role export --role-name test-internal-role --f
 }
 `;
 
-exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files 1`] = `""`;
+exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files 1`] = `0`;
+
+exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files 2`] = `""`;
 
 exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files: roleExportTestDir1/openidm-admin.internalRole.json 1`] = `
 {
@@ -1912,7 +1922,9 @@ exports[`frodo role export "frodo role export -AND roleExportTestDir1": should e
 }
 `;
 
-exports[`frodo role export "frodo role export -aNf roleExportTestFile3.json": should export all roles to a single file. 1`] = `""`;
+exports[`frodo role export "frodo role export -aNf roleExportTestFile3.json": should export all roles to a single file. 1`] = `0`;
+
+exports[`frodo role export "frodo role export -aNf roleExportTestFile3.json": should export all roles to a single file. 2`] = `""`;
 
 exports[`frodo role export "frodo role export -aNf roleExportTestFile3.json": should export all roles to a single file.: roleExportTestFile3.json 1`] = `
 {
@@ -2295,7 +2307,9 @@ exports[`frodo role export "frodo role export -aNf roleExportTestFile3.json": sh
 }
 `;
 
-exports[`frodo role export "frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56" 1`] = `""`;
+exports[`frodo role export "frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56" 1`] = `0`;
+
+exports[`frodo role export "frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56" 2`] = `""`;
 
 exports[`frodo role export "frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N": should export the role with role id "ccb11ba1-333b-4197-95db-89bb08a2ab56": roleExportTestFile1.json 1`] = `
 {
@@ -2630,7 +2644,9 @@ exports[`frodo role export "frodo role export -i ccb11ba1-333b-4197-95db-89bb08a
 }
 `;
 
-exports[`frodo role export "frodo role export -n test-internal-role": should export the role with name "test-internal-role". 1`] = `""`;
+exports[`frodo role export "frodo role export -n test-internal-role": should export the role with name "test-internal-role". 1`] = `0`;
+
+exports[`frodo role export "frodo role export -n test-internal-role": should export the role with name "test-internal-role". 2`] = `""`;
 
 exports[`frodo role export "frodo role export -n test-internal-role": should export the role with name "test-internal-role".: test-internal-role.internalRole.json 1`] = `
 {

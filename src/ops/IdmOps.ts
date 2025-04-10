@@ -25,6 +25,7 @@ const {
   getWorkingDirectory,
   saveJsonToFile,
   saveToFile,
+  getResults,
 } = frodo.utils;
 
 const {
@@ -188,7 +189,7 @@ export async function exportAllConfigEntitiesToFile(
 ): Promise<boolean> {
   try {
     const options = getIdmImportExportOptions(entitiesFile, envFile);
-    const exportData = await exportConfigEntities({
+    const exportResults = await getResults(exportConfigEntities, {
       envReplaceParams: options.envReplaceParams,
       entitiesToExport: options.entitiesToExportOrImport,
     });
@@ -196,7 +197,15 @@ export async function exportAllConfigEntitiesToFile(
     if (file) {
       fileName = file;
     }
-    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    saveJsonToFile(
+      exportResults.result,
+      getFilePath(fileName, true),
+      includeMeta
+    );
+    if (exportResults.error) {
+      printError(exportResults.error);
+      return false;
+    }
     return true;
   } catch (error) {
     printError(error, `Error exporting idm config to file`);
@@ -222,11 +231,11 @@ export async function exportAllConfigEntitiesToFiles(
   const errors: Error[] = [];
   try {
     const options = getIdmImportExportOptions(entitiesFile, envFile);
-    const exportData = await exportConfigEntities({
+    const exportResults = await getResults(exportConfigEntities, {
       envReplaceParams: options.envReplaceParams,
       entitiesToExport: options.entitiesToExportOrImport,
     });
-    for (const [id, obj] of Object.entries(exportData.idm)) {
+    for (const [id, obj] of Object.entries(exportResults.result.idm)) {
       try {
         if (separateMappings && id === 'sync') {
           writeSyncJsonToDirectory(obj as SyncSkeleton, 'sync', includeMeta);
@@ -253,6 +262,10 @@ export async function exportAllConfigEntitiesToFiles(
     }
     if (errors.length > 0) {
       throw new FrodoError(`Error saving config entities`, errors);
+    }
+    if (exportResults.error) {
+      printError(exportResults.error);
+      return false;
     }
     return true;
   } catch (error) {

@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export --all --file my-allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should export all policy sets from the test-policy-set to a single file named my-allAlphaPolicySets.policyset.authz.json with no dependencies and with prereqs: my-allAlphaPolicySets.policyset.authz.json 1`] = `
 {
@@ -138,7 +140,9 @@ exports[`frodo authz set export "frodo authz set export --all --file my-allAlpha
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export --all-separate --no-metadata --directory authzPolicySetExportTestDir3 --no-deps --prereqs": should export all policy sets from the test-policy-set to separate files in the directory authzPolicySetExportTestDir3 with no dependencies and with prereqs 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export --all-separate --no-metadata --directory authzPolicySetExportTestDir3 --no-deps --prereqs": should export all policy sets from the test-policy-set to separate files in the directory authzPolicySetExportTestDir3 with no dependencies and with prereqs 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export --all-separate --no-metadata --directory authzPolicySetExportTestDir3 --no-deps --prereqs": should export all policy sets from the test-policy-set to separate files in the directory authzPolicySetExportTestDir3 with no dependencies and with prereqs 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export --all-separate --no-metadata --directory authzPolicySetExportTestDir3 --no-deps --prereqs": should export all policy sets from the test-policy-set to separate files in the directory authzPolicySetExportTestDir3 with no dependencies and with prereqs: authzPolicySetExportTestDir3/FeatureStorePolicySet.policyset.authz.json 1`] = `
 {
@@ -385,7 +389,9 @@ exports[`frodo authz set export "frodo authz set export --all-separate --no-meta
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export --set-id test-policy-set -f my-test-policy-set.policyset.authz.json --no-deps --prereqs": should export the policy set with id "test-policy-set" from the test-policy-set into the file .my-test-policy-set.policyset.authz.json with no dependencies and with prereqs: my-test-policy-set.policyset.authz.json 1`] = `
 {
@@ -472,7 +478,9 @@ exports[`frodo authz set export "frodo authz set export --set-id test-policy-set
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export -A": should export all policy sets to separate files: FeatureStorePolicySet.policyset.authz.json 1`] = `
 {
@@ -704,7 +712,9 @@ exports[`frodo authz set export "frodo authz set export -A": should export all p
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -NaD authzPolicySetExportTestDir2": should export all policy sets to a single file in the directory authzPolicySetExportTestDir2 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export -NaD authzPolicySetExportTestDir2": should export all policy sets to a single file in the directory authzPolicySetExportTestDir2 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export -NaD authzPolicySetExportTestDir2": should export all policy sets to a single file in the directory authzPolicySetExportTestDir2 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export -NaD authzPolicySetExportTestDir2": should export all policy sets to a single file in the directory authzPolicySetExportTestDir2: authzPolicySetExportTestDir2/allAlphaPolicySets.policyset.authz.json 1`] = `
 {
@@ -959,7 +969,9 @@ exports[`frodo authz set export "frodo authz set export -NaD authzPolicySetExpor
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -Ni test-policy-set -D authzPolicySetExportTestDir1": should export the policy set with id "test-policy-set" into the directory authzPolicySetExportTestDir1 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export -Ni test-policy-set -D authzPolicySetExportTestDir1": should export the policy set with id "test-policy-set" into the directory authzPolicySetExportTestDir1 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export -Ni test-policy-set -D authzPolicySetExportTestDir1": should export the policy set with id "test-policy-set" into the directory authzPolicySetExportTestDir1 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export -Ni test-policy-set -D authzPolicySetExportTestDir1": should export the policy set with id "test-policy-set" into the directory authzPolicySetExportTestDir1: authzPolicySetExportTestDir1/test-policy-set.policyset.authz.json 1`] = `
 {
@@ -1114,7 +1126,9 @@ exports[`frodo authz set export "frodo authz set export -Ni test-policy-set -D a
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export -a": should export all policy sets to a single file: allAlphaPolicySets.policyset.authz.json 1`] = `
 {
@@ -1335,7 +1349,9 @@ exports[`frodo authz set export "frodo authz set export -a": should export all p
 }
 `;
 
-exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set" 1`] = `""`;
+exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set" 1`] = `0`;
+
+exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set" 2`] = `""`;
 
 exports[`frodo authz set export "frodo authz set export -i test-policy-set": should export the policy set with id "test-policy-set": test-policy-set.policyset.authz.json 1`] = `
 {

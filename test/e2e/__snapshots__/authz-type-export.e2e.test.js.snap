@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export --all": should export all resource types to a single file: allAlphaResourceTypes.resourcetype.authz.json 1`] = `
 {
@@ -137,7 +139,9 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4: authzTypeExportTestDir4/OAuth2-Scope.resourcetype.authz.json 1`] = `
 {
@@ -198,7 +202,9 @@ exports[`frodo authz type export "frodo authz type export --all-separate --no-me
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2": 76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `
 {
@@ -233,7 +239,9 @@ exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL" 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL" 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL" 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export --type-name URL -f test.json": should export the resource type named "URL": my-URL.resourcetype.authz.json 1`] = `
 {
@@ -268,7 +276,9 @@ exports[`frodo authz type export "frodo authz type export --type-name URL -f tes
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -A": should export all resource types to separate files: FrodoTestResourceType11.resourcetype.authz.json 1`] = `
 {
@@ -471,7 +481,9 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -NaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -NaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -NaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -NaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3: authzTypeExportTestDir3/allAlphaResourceTypes.resourcetype.authz.json 1`] = `
 {
@@ -522,7 +534,9 @@ exports[`frodo authz type export "frodo authz type export -NaD authzTypeExportTe
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -D authzTypeExportTestDir2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into the directory authzTypeExportTestDir2 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -D authzTypeExportTestDir2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into the directory authzTypeExportTestDir2 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -D authzTypeExportTestDir2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into the directory authzTypeExportTestDir2 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -D authzTypeExportTestDir2": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into the directory authzTypeExportTestDir2: authzTypeExportTestDir2/76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `
 {
@@ -556,7 +570,9 @@ exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -Nn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -Nn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -Nn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -Nn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1: authzTypeExportTestDir1/URL.resourcetype.authz.json 1`] = `
 {
@@ -590,7 +606,9 @@ exports[`frodo authz type export "frodo authz type export -Nn URL -D authzTypeEx
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaResourceTypes.resourcetype.authz.json": should export all resource types to a single file named my-allAlphaResourceTypes.resourcetype.authz.json: my-allAlphaResourceTypes.resourcetype.authz.json 1`] = `
 {
@@ -727,7 +745,9 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json": should export the resource type with id "76656a38-5f8e-401b-83aa-4ccb74ce88d2" into file named my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json: my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json 1`] = `
 {
@@ -762,7 +782,9 @@ exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-
 }
 `;
 
-exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL" 1`] = `""`;
+exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL" 1`] = `0`;
+
+exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL" 2`] = `""`;
 
 exports[`frodo authz type export "frodo authz type export -n URL": should export the resource type named "URL": URL.resourcetype.authz.json 1`] = `
 {

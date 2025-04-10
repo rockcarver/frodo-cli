@@ -6,7 +6,7 @@ exports[`frodo config import "frodo config import --default -CAD test/e2e/export
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error
@@ -94,7 +94,7 @@ exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separ
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error
@@ -125,7 +125,7 @@ exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separ
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error
@@ -152,7 +152,7 @@ exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-sepa
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing authentication settings
   Error updating authentication settings
   HTTP client error
@@ -169,7 +169,7 @@ exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-sepa
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error
@@ -210,7 +210,7 @@ exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error
@@ -259,7 +259,7 @@ exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing authentication settings
   Error updating authentication settings
   HTTP client error
@@ -276,7 +276,7 @@ exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.
 ✔ Resolved all dependencies.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
+Error importing full config
   Error importing config entities
   Error updating config entity endpoint/Test
   HTTP client error

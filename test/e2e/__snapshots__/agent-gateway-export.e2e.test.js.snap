@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent" 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent" 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent" 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent": frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
@@ -37,7 +39,9 @@ exports[`frodo agent gateway export "frodo agent gateway export --agent-id frodo
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export --all": should export all gateway agents to a single file: allAlphaAgents.gateway.agent.json 1`] = `
 {
@@ -78,7 +82,9 @@ exports[`frodo agent gateway export "frodo agent gateway export --all": should e
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3": should export all gateway agents to separate files in the directory agentGatewayExportTestDir3: agentGatewayExportTestDir3/frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
@@ -124,7 +130,9 @@ exports[`frodo agent gateway export "frodo agent gateway export --all-separate -
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -A": should export all gateway agents to separate files: frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
@@ -173,7 +181,9 @@ exports[`frodo agent gateway export "frodo agent gateway export -A": should expo
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -NaD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -NaD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -NaD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -NaD agentGatewayExportTestDir2": should export all gateway agents to a single file in the directory agentGatewayExportTestDir2: agentGatewayExportTestDir2/allAlphaAgents.gateway.agent.json 1`] = `
 {
@@ -212,7 +222,9 @@ exports[`frodo agent gateway export "frodo agent gateway export -NaD agentGatewa
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -Ni frodo-test-ig-agent -D agentGatewayExportTestDir1": should export the gateway agent with agent id "frodo-test-ig-agent" into the directory named agentGatewayExportTestDir1: agentGatewayExportTestDir1/frodo-test-ig-agent.gateway.agent.json 1`] = `
 {
@@ -247,7 +259,9 @@ exports[`frodo agent gateway export "frodo agent gateway export -Ni frodo-test-i
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -a --file my-allAlphaAgents.gateway.agent.json": should export all gateway agents to a single file named my-allAlphaAgents.gateway.agent.json: my-allAlphaAgents.gateway.agent.json 1`] = `
 {
@@ -288,7 +302,9 @@ exports[`frodo agent gateway export "frodo agent gateway export -a --file my-all
 }
 `;
 
-exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json 1`] = `""`;
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json 1`] = `0`;
+
+exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json 2`] = `""`;
 
 exports[`frodo agent gateway export "frodo agent gateway export -i frodo-test-ig-agent -f my-frodo-test-ig-agent.gateway.agent.json.json": should export the gateway agent with agent id "frodo-test-ig-agent" into file named my-frodo-test-ig-agent.gateway.agent.json: my-frodo-test-ig-agent.gateway.agent.json.json 1`] = `
 {
