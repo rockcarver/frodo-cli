@@ -72,6 +72,15 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json
+
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -af test/e2e/exports/all/all.cloud.json --compare-and-delete --dry-run
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -af test/e2e/exports/all/all.cloud.json --compare-and-delete 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -af test/e2e/exports/all/all.cloud.json --compare-and-delete --include-active-values
+
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud --compare-and-delete --dry-run
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud --compare-and-delete 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/cloud --compare-and-delete --include-active-values
+
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -adf test/e2e/exports/all/all.classic.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --include-active-values --file test/e2e/exports/all/all.classic.json --type classic
@@ -104,8 +113,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -adf ${allCloudExport}" Import everything from "${allCloudFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allCloudExport}`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -123,8 +132,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -aCf ${allCloudExport}" Import everything from "${allCloudFileName}". Clean old services`, async () => {
     const CMD = `frodo config import -aCf ${allCloudExport}`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -178,8 +187,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -AD ${allSeparateCloudDirectory} --include-active-values" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
     const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --include-active-values`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -260,4 +269,67 @@ describe('frodo config import', () => {
     const { stdout } = await exec(CMD, classicEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
+
+
+  test(`"frodo config import -af ${allCloudExport} --compare-and-delete --dry-run" Import the webhook service with no errors`, async () => {
+    const CMD = `frodo config import af ${allCloudExport} --compare-and-delete --dry-run`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test(`"frodo config import -af ${allCloudExport} --compare-and-delete" Import everything from "${allCloudExport}", including default scripts.`, async () => {
+    const CMD = `frodo config import -af ${allCloudExport} --compare-and-delete `;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed")
+    } catch (e) {
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch.
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    }
+  }, 300000);
+
+  test(`"frodo config import -af ${allCloudExport} --compare-and-delete --include-active-values" Import everything from "${allCloudExport}", including default scripts.`, async () => {
+    const CMD = `frodo config import -af ${allCloudExport} --compare-and-delete --include-active-values`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed")
+    } catch (e) {
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch.
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    }
+  });
+
+
+  test(`"frodo config import -AD ${allSeparateCloudDirectory} --compare-and-delete --include-active-values --dry-run" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
+    const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --compare-and-delete --dry-run openam`;
+    const { stdout } = await exec(CMD, env);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test(`"frodo config import -AD ${allSeparateCloudDirectory} compare-and-delete" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
+    const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --compare-and-delete`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed")
+    } catch (e) {
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    }
+  });
+ 
+  test(`"frodo config import -AD ${allSeparateCloudDirectory} --compare-and-delete --include-active-values" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
+    const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --compare-and-delete --include-active-values`;
+    try {
+      await exec(CMD, env);
+      fail("Command should've failed")
+    } catch (e) {
+      // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+      // only workable solution I could find was to remove progress bar output altogether from such tests.
+      expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    }
+  });
+
 });

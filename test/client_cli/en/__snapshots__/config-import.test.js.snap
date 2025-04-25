@@ -27,6 +27,10 @@ Options:
                                        -D. Ignored with -i or -a.
   -C, --clean                          Remove existing service(s) before
                                        importing.
+  --compare-and-delete                 Export current cloud config data into
+                                       memory and compare that with the master
+                                       config data and deletes the whatever
+                                       added to the current cloud.
   --curlirize                          Output all network calls in curl format.
   -d, --default                        Import all scripts including the default
                                        scripts.
@@ -35,6 +39,9 @@ Options:
                                        If specified, may or may not produce
                                        additional output helpful for
                                        troubleshooting.
+  --dry-run                            Only run when --compare-and-delete flag
+                                       is on and it get the diffences saved on
+                                       combinedDiff.txt file.
   -f, --file <file>                    Name of the file to import. Ignored with
                                        -A. If included without -a, it will
                                        import the single entity within the
@@ -94,7 +101,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   --re-uuid-journeys                   Generate new UUIDs for all journey nodes
                                        during import. (default: off)

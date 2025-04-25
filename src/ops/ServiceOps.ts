@@ -2,6 +2,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import {
   type ServiceExportInterface,
   type ServiceImportOptions,
+
 } from '@rockcarver/frodo-lib/types/ops/ServiceOps';
 import fs from 'fs';
 
@@ -32,6 +33,7 @@ const {
   importServices,
   deleteFullService,
   deleteFullServices,
+  deleteServiceNextDescendentOnly
 } = frodo.service;
 
 /**
@@ -350,4 +352,16 @@ export async function deleteServices(globalConfig = false): Promise<boolean> {
     printError(error);
   }
   return false;
+}
+export async function deleteServiceNextDescendents(
+  serviceId:string,
+  globalConfig =false
+):Promise<boolean>{
+  try{
+    await deleteServiceNextDescendentOnly(serviceId, globalConfig);
+    return true
+  }
+  catch(error) {
+    printError(error);
+  }
 }

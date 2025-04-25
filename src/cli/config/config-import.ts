@@ -1,3 +1,6 @@
+//------------------ Modified file by Sean for test import/promote command-------------original file is in config-import-backup.ts
+
+
 import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
@@ -7,9 +10,14 @@ import {
   importEntityfromFile,
   importEverythingFromFile,
   importEverythingFromFiles,
+   compareWithMasterFileAndDeleteFromCloud, 
+   compareWithMasterDirectoryAndDeleteFromCloud
+
 } from '../../ops/ConfigOps';
+
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+
 
 export default function setup() {
   const program = new FrodoCommand('frodo config import');
@@ -55,6 +63,7 @@ export default function setup() {
         'Import all scripts including the default scripts.'
       )
     )
+  
     .addOption(
       new Option(
         '--include-active-values',
@@ -71,6 +80,18 @@ export default function setup() {
       new Option(
         '-g, --global',
         'Import global entity. Ignored with -a and -A.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--compare-and-delete',
+        'Export current cloud config data into memory as an object and compare that with the master config data from local directory/file and deletes whatever added to the current cloud. Then it imports master config file/directory back to cloud'
+      )
+    )
+    .addOption(
+      new Option(
+        '--dry-run',
+        'This prevents --compare-and-delete command to delete things, so we can see what will be deleted. Only run when --compare-and-delete flag is on.'
       )
     )
     .addHelpText(
@@ -112,8 +133,9 @@ export default function setup() {
           program.help();
           process.exitCode = 1;
         }
+        
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (options.all && !options.compareAndDelete && (await getTokens())) {
           verboseMessage('Exporting everything from a single file...');
           const outcome = await importEverythingFromFile(options.file, {
             reUuidJourneys: options.reUuidJourneys,
@@ -125,6 +147,34 @@ export default function setup() {
           });
           if (!outcome) process.exitCode = 1;
         }
+        // What I added   single file, compare and delete 
+        else if (options.all && options.compareAndDelete && (await getTokens())){
+          verboseMessage('compare and delete option in ')
+          const outcome= await compareWithMasterFileAndDeleteFromCloud(
+            options.file,  // Master File
+            options.dryRun,  //what if 
+            {
+              useStringArrays: false,
+              noDecode: undefined,
+              coords: false,                // we are not going to get coords value in case master does not have coord values.
+              includeDefault: undefined,
+              includeActiveValues: false,   //we are not going to get active values from tenant in comparison  to be safe. 
+              target: undefined,
+              includeReadOnly: undefined,
+              onlyRealm: undefined,
+              onlyGlobal: undefined,
+            },
+            {
+              
+              reUuidJourneys: options.reUuidJourneys,
+              reUuidScripts: options.reUuidScripts,
+              cleanServices: options.cleanServices,
+              includeDefault: options.default,
+              includeActiveValues: options.includeActiveValues,
+              source: options.source,
+            });
+            if(!outcome) process.exitCode = 1;
+        }
         // require --directory -D for all-separate function
         else if (options.allSeparate && !state.getDirectory()) {
           printMessage(
@@ -135,7 +185,7 @@ export default function setup() {
           process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && !options.compareAndDelete && (await getTokens())) {
           verboseMessage('Importing everything from separate files...');
           const outcome = await importEverythingFromFiles({
             reUuidJourneys: options.reUuidJourneys,
@@ -146,6 +196,33 @@ export default function setup() {
             source: options.source,
           });
           if (!outcome) process.exitCode = 1;
+        }
+        //what I added 
+        else if (options.allSeparate && options.compareAndDelete && (await getTokens())){
+          verboseMessage('Export-compare-delete-import option in ...');
+          const outcome = await compareWithMasterDirectoryAndDeleteFromCloud(
+            options.dryRun,  //what-if 
+            {// export options
+              useStringArrays: false,
+              noDecode: false,
+              coords: false,                // we are not going to get coords value in case master does not have coord values.
+              includeDefault: undefined,
+              includeActiveValues: false,   //we are not going to get active values from tenant in comparison  to be safe. 
+              target: undefined,
+              includeReadOnly: undefined,
+              onlyRealm: undefined,
+              onlyGlobal: undefined,
+              
+            },
+            {//import options
+              reUuidJourneys: options.reUuidJourneys,
+              reUuidScripts: options.reUuidScripts,
+              cleanServices: options.cleanServices,
+              includeDefault: options.default,
+              includeActiveValues: options.includeActiveValues,
+              source: options.source,
+            });
+            if(!outcome) process.exitCode = 1;
         }
         // Import entity from file
         else if (options.file && (await getTokens())) {
