@@ -1159,8 +1159,8 @@ export async function compareWithMasterFileAndDeleteFromCloud(
     const rawData = fs.readFileSync(path.resolve(masterFile), 'utf8');
     const masterConfig = JSON.parse(rawData);
 
-    saveJsonToFile(exportData, './compareResult/orphanFile.json')
-    saveJsonToFile(masterConfig, './compareResult/masterFile.json')
+    // saveJsonToFile(exportData, './compareResult/orphanFile.json')
+    // saveJsonToFile(masterConfig, './compareResult/masterFile.json')
     
     const compareResult = await compareConfigDeep(exportData, exportData, masterConfig);
     const trimResult = await trimCompareResult(compareResult);
@@ -1168,8 +1168,10 @@ export async function compareWithMasterFileAndDeleteFromCloud(
     verboseMessage(`Result after comparison ${compareResult}`)
     verboseMessage(`Result after triming and sorting ${sortResult}`)
 
-    toText(compareResult, './compareResult/compareResult.txt');
-    toText(sortResult, './compareResult/sortTrimResult.txt');
+    toText(compareResult, 'compareResult.txt');
+    verboseMessage("compareResult.txt has been saved")
+    toText(sortResult, 'sortTrimResult.txt');
+    verboseMessage("sortTrimResult.txt has been saved")
 
     if (!dryRun) {
       verboseMessage("dry run is false, so it will prompt to delete from cloud ")
@@ -1219,8 +1221,8 @@ export async function compareWithMasterDirectoryAndDeleteFromCloud(
 
     const masterConfig = await getFullExportConfigFromDirectory(getWorkingDirectory());
 
-    saveJsonToFile(exportData, './compareResult/orphanFile.json')
-    saveJsonToFile(masterConfig, './compareResult/masterFile.json')
+    // saveJsonToFile(exportData, './compareResult/orphanFile.json')
+    // saveJsonToFile(masterConfig, './compareResult/masterFile.json')
 
     const compareResult = await compareConfigDeep(exportData, exportData, masterConfig);
     const trimResult = await trimCompareResult(compareResult);
@@ -1228,8 +1230,10 @@ export async function compareWithMasterDirectoryAndDeleteFromCloud(
     verboseMessage(`Result after comparison ${compareResult}`)
     verboseMessage(`Result after triming and sorting ${sortResult}`)
 
-    toText(compareResult, './compareResult/compareResult.txt');
-    toText(sortResult, './compareResult/sortTrimResult.txt');
+    toText(compareResult, 'compareResult.txt');
+    verboseMessage("compareResult.txt has been saved")
+    toText(sortResult, 'sortTrimResult.txt');
+    verboseMessage("sortTrimResult.txt has been saved")
 
 
     if (!dryRun) {
