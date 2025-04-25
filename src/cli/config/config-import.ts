@@ -133,7 +133,12 @@ export default function setup() {
           program.help();
           process.exitCode = 1;
         }
-        
+        if(options.dryRun && !options.compareAndDelete){
+          printMessage('---compare-and-delete flag required to compare with --dry-run flag', 'error');
+          program.help();
+          process.exitCode = 1;
+        }
+
         // --all -a
         else if (options.all && !options.compareAndDelete && (await getTokens())) {
           verboseMessage('Exporting everything from a single file...');
