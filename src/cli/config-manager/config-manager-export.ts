@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../FrodoCommand';
-import Scripts from './config-manager-export-scripts'
+import Scripts from './config-manager-export-scripts';
+import Secrets from './config-manager-export-secrets'
 import Services from './config-manager-export-services';
 import Mappings from './config-manager-export-mappings';
 import Themes from './config-manager-export-themes';
@@ -11,6 +12,7 @@ export default function setup() {
     'Export IDM configuration objects.'
   );
 
+  program.addCommand(Secrets().name('secrets'));
   program.addCommand(Scripts().name('scripts'));
   program.addCommand(Services().name('services'));
   program.addCommand(Mappings().name('mappings'));

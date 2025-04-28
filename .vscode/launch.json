@@ -4,13 +4,21 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    
     {
       "type": "node",
-      "request": "attach",
-      "name": "Attach Debugger",
-      "port": 2000,
-      "restart": true
+      "request": "launch",
+      "name": "Debug",
+      "runtimeExecutable": "C:\\Users\\Devin\\AppData\\Local\\fnm_multishells\\1916_1742404469042\\node.exe",
+      "args": ["dist/app.cjs", "config-manager", "export", "scripts", "webinar"],
+      "outFiles": [
+        "${workspaceFolder}/dist/*.cjs",
+      ],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/dist/*",
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
     }
   ]
 }
