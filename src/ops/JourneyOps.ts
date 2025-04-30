@@ -189,9 +189,10 @@ export async function exportJourneyToFile(
       journeyId,
       options
     );
+    delete fileData.meta;
     if (verbose)
       spinnerId = createProgressIndicator('indeterminate', 0, `${journeyId}`);
-    saveJsonToFile(fileData, filePath, includeMeta);
+    saveJsonToFile({ trees: { [fileData.tree._id]: fileData } }, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`,
@@ -264,10 +265,9 @@ export async function exportJourneysToFiles(
         `Saving ${treeId}...`
       );
       const file = getFilePath(getTypedFilename(`${treeId}`, 'journey'), true);
-      treeValue['meta'] = journeysExport.meta;
       try {
         updateProgressIndicator(indicatorId, `Saving ${treeId} to ${file}`);
-        saveJsonToFile(treeValue, file, includeMeta);
+        saveJsonToFile({ trees: { [treeValue.tree._id]: treeValue } }, file, includeMeta);
         stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
       } catch (error) {
         stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
