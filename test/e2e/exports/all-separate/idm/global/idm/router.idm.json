@@ -1,0 +1,48 @@
+{
+  "idm": {
+    "router": {
+      "_id": "router",
+      "filters": [
+        {
+          "methods": [
+            "create",
+            "update"
+          ],
+          "onRequest": {
+            "file": "policyFilter.js",
+            "type": "text/javascript"
+          },
+          "pattern": "^(managed|internal)($|(/.+))"
+        },
+        {
+          "methods": [
+            "update"
+          ],
+          "onRequest": {
+            "file": "policyFilter.js",
+            "type": "text/javascript"
+          },
+          "pattern": "^config/managed$"
+        },
+        {
+          "condition": {
+            "source": "(context.caller.external === true) && (typeof context.privilege === 'undefined' || Object.keys(context.privilege.matchingPrivileges).length === 0)",
+            "type": "text/javascript"
+          },
+          "onResponse": {
+            "source": "require('relationshipFilter').filterResponse()",
+            "type": "text/javascript"
+          },
+          "pattern": "^(managed|internal)($|(/.+))"
+        }
+      ]
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.194Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

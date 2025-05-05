@@ -81,7 +81,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -n, --realm-name <realm-name>        Realm name. If specified, only one realm
                                        is imported and the options -a and -A
                                        are ignored.

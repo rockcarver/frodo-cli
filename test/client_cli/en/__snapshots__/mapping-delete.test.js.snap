@@ -28,7 +28,7 @@ Options:
   classic:  A classic Access Management-only deployment with custom layout and configuration. 
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
-  The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops", "idm")
   --no-cache                                       Disable token cache for this operation.
   --sa-id <sa-id>                                  Service account id.
   --sa-jwk-file <file>                             File containing the JSON Web Key (JWK) associated with the the service account.

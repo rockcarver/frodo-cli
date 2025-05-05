@@ -1,0 +1,40 @@
+{
+  "idm": {
+    "ui/configuration": {
+      "_id": "ui/configuration",
+      "configuration": {
+        "defaultNotificationType": "info",
+        "forgotUsername": false,
+        "lang": "en",
+        "notificationTypes": {
+          "error": {
+            "iconPath": "images/notifications/error.png",
+            "name": "common.notification.types.error"
+          },
+          "info": {
+            "iconPath": "images/notifications/info.png",
+            "name": "common.notification.types.info"
+          },
+          "warning": {
+            "iconPath": "images/notifications/warning.png",
+            "name": "common.notification.types.warning"
+          }
+        },
+        "passwordReset": false,
+        "passwordResetLink": "",
+        "roles": {
+          "internal/role/openidm-admin": "ui-admin",
+          "internal/role/openidm-authorized": "ui-user"
+        },
+        "selfRegistration": false
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

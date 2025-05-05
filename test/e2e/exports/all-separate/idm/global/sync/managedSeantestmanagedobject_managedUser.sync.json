@@ -1,0 +1,69 @@
+{
+  "_id": "sync/managedSeantestmanagedobject_managedUser",
+  "consentRequired": false,
+  "displayName": "managedSeantestmanagedobject_managedUser",
+  "icon": null,
+  "name": "managedSeantestmanagedobject_managedUser",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    }
+  ],
+  "properties": [],
+  "source": "managed/seantestmanagedobject",
+  "syncAfter": [
+    "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject",
+    "managedAssignment_managedUser"
+  ],
+  "target": "managed/user"
+}

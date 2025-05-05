@@ -14,3 +14,10 @@ export const classic_connection = {
   pass: 'Sup3rS3cr3t!',
   realm: '/'
 }
+
+export const idm_connection = {
+  host: 'http://openidm-frodo-dev.classic.com:9080/openidm',
+  user: 'openidm-admin',
+  pass: 'openidm-admin',
+  realm: '/',
+}

@@ -11,7 +11,8 @@ import { sourcesOptionM } from './log';
 const { resolveLevel } = frodo.cloud.log;
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 
-const deploymentTypes = ['cloud'];
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(

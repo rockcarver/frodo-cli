@@ -1,4 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import * as s from '../../help/SampleData';
@@ -10,8 +10,22 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo config export');
+  const program = new FrodoCommand('frodo config export', [], deploymentTypes);
 
   program
     .description(
@@ -148,7 +162,7 @@ export default function setup() {
           command
         );
         // --all -a
-        if (options.all && (await getTokens())) {
+        if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting everything to a single file...');
           const outcome = await exportEverythingToFile(
             options.file,
@@ -177,7 +191,10 @@ export default function setup() {
           process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting everything to separate files...');
           const outcome = await exportEverythingToFiles(
             options.extract,

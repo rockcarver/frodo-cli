@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -5,8 +6,20 @@ import { enableJourney } from '../../ops/JourneyOps';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo journey enable');
+  const program = new FrodoCommand('frodo journey enable', [], deploymentTypes);
 
   program
     .description('Enable journeys/trees.')
@@ -31,7 +44,10 @@ export default function setup() {
           command
         );
         // enable
-        if (options.journeyId && (await getTokens())) {
+        if (
+          options.journeyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           const outcome = await enableJourney(options.journeyId);
           if (!outcome) process.exitCode = 1;
         }

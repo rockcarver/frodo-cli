@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -9,8 +10,20 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo journey export');
+  const program = new FrodoCommand('frodo journey export', [], deploymentTypes);
 
   program
     .description('Export journeys/trees.')
@@ -83,7 +96,10 @@ export default function setup() {
           command
         );
         // export
-        if (options.journeyId && (await getTokens())) {
+        if (
+          options.journeyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting journey...');
           const outcome = await exportJourneyToFile(
             options.journeyId,
@@ -98,7 +114,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all journeys to a single file...');
           const outcome = await exportJourneysToFile(
             options.file,
@@ -112,7 +131,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all journeys to separate files...');
           const outcome = await exportJourneysToFiles(options.metadata, {
             useStringArrays: options.useStringArrays,

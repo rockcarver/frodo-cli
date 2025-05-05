@@ -10,7 +10,11 @@ exports[`frodo role import "frodo role import --role-name test-internal-role --f
 
 exports[`frodo role import "frodo role import -AD test/e2e/exports/all-separate/cloud/global/internalRole": should import all roles from the test/e2e/exports/all-separate/cloud/global/internalRole directory" 1`] = `""`;
 
+exports[`frodo role import "frodo role import -AD test/e2e/exports/all-separate/idm/global/internalRole -m idm ": should import all on prem idm roles from the directory" 1`] = `""`;
+
 exports[`frodo role import "frodo role import -af test/e2e/exports/all/allInternalRoles.internalRole.json": should import all roles from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -af test/e2e/exports/all/idm/allInternalRoles.internalRole.json -m idm": should import all on prem idm roles from one file" 1`] = `""`;
 
 exports[`frodo role import "frodo role import -f test/e2e/exports/all/allInternalRoles.internalRole.json": should import the first role from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
 

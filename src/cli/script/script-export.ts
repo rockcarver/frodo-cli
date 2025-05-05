@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -10,8 +11,20 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo script export');
+  const program = new FrodoCommand('frodo script export', [], deploymentTypes);
 
   program
     .description('Export scripts.')
@@ -83,7 +96,10 @@ export default function setup() {
           command
         );
         // export by id
-        if (options.scriptId && (await getTokens())) {
+        if (
+          options.scriptId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptToFile(
             options.scriptId,
@@ -101,7 +117,7 @@ export default function setup() {
         // export by name
         else if (
           (options.scriptName || options.script) &&
-          (await getTokens())
+          (await getTokens(false, true, deploymentTypes))
         ) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptByNameToFile(
@@ -118,7 +134,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all scripts to a single file...');
           const outcome = await exportScriptsToFile(
             options.file,
@@ -132,7 +151,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all scripts to separate files...');
           const outcome = await exportScriptsToFiles(
             options.extract,

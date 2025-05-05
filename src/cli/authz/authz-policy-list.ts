@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -5,8 +6,24 @@ import { listPolicies, listPoliciesByPolicySet } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz policy list');
+  const program = new FrodoCommand(
+    'frodo authz policy list',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('List authorization policies.')
@@ -26,7 +43,7 @@ export default function setup() {
           command
         );
         // by policy set
-        if (options.setId && (await getTokens())) {
+        if (options.setId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Listing authorization policies in policy set ${options.setId}...`
           );
@@ -37,7 +54,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // all policies
-        else if (await getTokens()) {
+        else if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing authorization policies...`);
           const outcome = await listPolicies(options.long);
           if (!outcome) process.exitCode = 1;

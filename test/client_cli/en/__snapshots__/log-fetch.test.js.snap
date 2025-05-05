@@ -93,7 +93,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   -s, --search-string <ss>             Filter by a specific string (ANDed with
                                        transactionID filter)
@@ -221,7 +221,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   -s, --search-string <ss>             Filter by a specific string (ANDed with
                                        transactionID filter)

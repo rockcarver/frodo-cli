@@ -10,7 +10,11 @@ exports[`frodo mapping import "frodo mapping import --no-deps --mapping-id mappi
 
 exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/cloud/global/idm": should import all mappings from the test/e2e/exports/all-separate/cloud/global/idm directory" 1`] = `""`;
 
+exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync -m idm": should import all IDM mappings from the directory" 1`] = `""`;
+
 exports[`frodo mapping import "frodo mapping import -af test/e2e/exports/all/allMappings.mapping.json": should import all mappings from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
+
+exports[`frodo mapping import "frodo mapping import -af test/e2e/exports/all/idm/allMappings.mapping.json -m idm": should import all IDM mappings from file." 1`] = `""`;
 
 exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all/allMappings.mapping.json": should import the first mapping from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
 

@@ -1,0 +1,96 @@
+{
+  "idm": {
+    "authentication": {
+      "_id": "authentication",
+      "serverAuthContext": {
+        "authModules": [
+          {
+            "enabled": true,
+            "name": "STATIC_USER",
+            "properties": {
+              "augmentSecurityContext": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "text/javascript"
+              },
+              "defaultUserRoles": [
+                "internal/role/openidm-reg"
+              ],
+              "password": {
+                "$crypto": {
+                  "type": "x-simple-encryption",
+                  "value": {
+                    "cipher": "AES/CBC/PKCS5Padding",
+                    "data": "fzE1J3P9LZOmuCuecCDnaQ==",
+                    "iv": "nhI8UHymNRChGIyOC+5Sag==",
+                    "keySize": 32,
+                    "mac": "XfF7VE/o5Shv6AqW1Xe3TQ==",
+                    "purpose": "idm.config.encryption",
+                    "salt": "v0NHakffrjBJNL3zjhEOtg==",
+                    "stableId": "openidm-sym-default"
+                  }
+                }
+              },
+              "queryOnResource": "internal/user",
+              "username": "anonymous"
+            }
+          },
+          {
+            "enabled": true,
+            "name": "STATIC_USER",
+            "properties": {
+              "defaultUserRoles": [
+                "internal/role/openidm-authorized",
+                "internal/role/openidm-admin"
+              ],
+              "password": "&{openidm.admin.password}",
+              "queryOnResource": "internal/user",
+              "username": "openidm-admin"
+            }
+          },
+          {
+            "enabled": true,
+            "name": "MANAGED_USER",
+            "properties": {
+              "augmentSecurityContext": {
+                "source": "var augmentYield = require('auth/customAuthz').setProtectedAttributes(security);require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, 'privileges', 'privilegeAssignments', augmentYield);",
+                "type": "text/javascript"
+              },
+              "defaultUserRoles": [
+                "internal/role/openidm-authorized"
+              ],
+              "propertyMapping": {
+                "additionalUserFields": [
+                  "adminOfOrg",
+                  "ownerOfOrg"
+                ],
+                "authenticationId": "username",
+                "userCredential": "password",
+                "userRoles": "authzRoles"
+              },
+              "queryId": "credential-query",
+              "queryOnResource": "managed/user"
+            }
+          }
+        ],
+        "sessionModule": {
+          "name": "JWT_SESSION",
+          "properties": {
+            "enableDynamicRoles": false,
+            "isHttpOnly": true,
+            "maxTokenLifeMinutes": 120,
+            "sessionOnly": true,
+            "tokenIdleTimeMinutes": 30
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.189Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

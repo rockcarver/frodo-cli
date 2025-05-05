@@ -7,12 +7,27 @@ import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 const { saveTextToFile } = frodo.utils;
 const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
   frodo.authn.journey;
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey describe');
+  const program = new FrodoCommand(
+    'frodo journey describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description(
@@ -137,7 +152,7 @@ export default function setup() {
             printMessage(error.message, 'error');
             process.exitCode = 1;
           }
-        } else if (await getTokens()) {
+        } else if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Describing journey(s) in realm "${state.getRealm()}"...`
           );

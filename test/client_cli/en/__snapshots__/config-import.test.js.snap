@@ -94,7 +94,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   --re-uuid-journeys                   Generate new UUIDs for all journey nodes
                                        during import. (default: off)

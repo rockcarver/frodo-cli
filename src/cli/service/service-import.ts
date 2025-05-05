@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -10,8 +11,20 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo service import');
+  const program = new FrodoCommand('frodo service import', [], deploymentTypes);
 
   interface ServiceImportOptions {
     file?: string;
@@ -92,7 +105,11 @@ export default function setup() {
           : (options.currentRealm ?? false);
 
         // import by id
-        if (options.serviceId && options.file && (await getTokens())) {
+        if (
+          options.serviceId &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing service...');
           const outcome = await importServiceFromFile(
             options.serviceId,
@@ -106,7 +123,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing all services from a single file...');
           const outcome = await importServicesFromFile(options.file, {
             clean,
@@ -116,7 +137,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing all services from separate files...');
           const outcome = await importServicesFromFiles({
             clean,
@@ -126,7 +150,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Importing service...');
           const outcome = await importFirstServiceFromFile(options.file, {
             clean,

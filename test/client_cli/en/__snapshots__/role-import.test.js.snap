@@ -82,7 +82,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -n, --role-name <role-name>          Internal role name. If specified, only
                                        one internal role is imported and the
                                        options -a and -A are ignored.

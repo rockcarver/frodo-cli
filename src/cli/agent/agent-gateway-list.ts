@@ -1,11 +1,27 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { listIdentityGatewayAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 export default function setup() {
-  const program = new FrodoCommand('frodo agent gateway list');
+  const program = new FrodoCommand(
+    'frodo agent gateway list',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('List gateway agents.')
@@ -23,7 +39,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           const outcome = await listIdentityGatewayAgents(options.long);
           if (!outcome) process.exitCode = 1;
         } else {

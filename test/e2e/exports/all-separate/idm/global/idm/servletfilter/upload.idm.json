@@ -1,0 +1,21 @@
+{
+  "idm": {
+    "servletfilter/upload": {
+      "_id": "servletfilter/upload",
+      "filterClass": "org.forgerock.openidm.jetty.LargePayloadServletFilter",
+      "initParams": {
+        "maxRequestSizeInMegabytes": 50
+      },
+      "urlPatterns": [
+        "&{openidm.servlet.upload.alias}/*"
+      ]
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

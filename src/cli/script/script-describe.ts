@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -5,8 +6,24 @@ import { describeScript } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo script describe');
+  const program = new FrodoCommand(
+    'frodo script describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Describe script.')
@@ -36,7 +53,10 @@ export default function setup() {
           options,
           command
         );
-        if ((options.scriptName || options.scriptId) && (await getTokens())) {
+        if (
+          (options.scriptName || options.scriptId) &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Describing script ${options.scriptName ? options.scriptName : options.scriptId}...`
           );

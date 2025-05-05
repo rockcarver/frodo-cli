@@ -112,6 +112,8 @@ Error Importing Services
 "
 `;
 
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/idm -m idm": should export all IDM config to a on prem idm. 1`] = `""`;
+
 exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/classic -m classic" Import everything from directory "test/e2e/exports/all-separate/classic" 1`] = `
 "Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
 Error Importing Authentication Settings
@@ -839,6 +841,8 @@ Error Importing Services
     Message: Unable to update SMS config: Data validation failed for the attribute, Transport Type
 "
 `;
+
+exports[`frodo config import "frodo config import -af test/e2e/exports/all/idm/all.config.json -m idm": should import all IDM config to on-prem idm 1`] = `""`;
 
 exports[`frodo config import "frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors 1`] = `""`;
 

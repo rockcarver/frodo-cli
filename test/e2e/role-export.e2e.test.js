@@ -46,7 +46,7 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -n test-internal-role
@@ -55,13 +55,17 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -AND roleExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export --all-separate --directory roleExportTestDir2
- */
+
+// IDM
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role export -AD testDir4 -m idm   
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role export -aD testDir5 -m idm
+*/
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, idm_connection as ic} from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-
+const idmenv =getEnv(ic)
 const type = 'internalRole';
 
 describe('frodo role export', () => {
@@ -112,4 +116,16 @@ describe('frodo role export', () => {
         const CMD = `frodo role export --all-separate --directory ${exportDirectory}`;
         await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
+    test('"frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files', async () => {
+        const exportDirectory = "roleExportTestDir3";
+        const CMD = `frodo role export -AD roleExportTestDir3 -m idm`;
+        await testExport(CMD, idmenv, type, undefined, exportDirectory, false);
+    });
+
+    test('"frodo role export -aD roleExportTestDir4 -m idm ": should export all idm roles to one file', async () => {
+        const exportDirectory = "roleExportTestDir4";
+        const CMD = `frodo role export -aD roleExportTestDir4 -m idm`;
+        await testExport(CMD, idmenv, type, undefined, exportDirectory, false);
+    });
+    
 });

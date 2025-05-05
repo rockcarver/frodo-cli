@@ -46,7 +46,7 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --template-id welcome
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -i welcome -f my-welcome.template.email.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -Ni welcome -D emailTemplateExportTestDir1
@@ -55,13 +55,18 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -NaD emailTemplateExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3
+
+// IDM
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template export -AD testDir4 -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template export -aD testDir5 -m idm
+
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, idm_connection as ic } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-
+const idmenv = getEnv(ic);
 const type = 'template.email';
 
 describe('frodo email template export', () => {
@@ -109,5 +114,15 @@ describe('frodo email template export', () => {
     const exportDirectory = 'emailTemplateExportTestDir3';
     const CMD = `frodo email template export --all-separate --no-metadata --directory ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
+  });
+  test('"frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3', async () => {
+    const exportDirectory = 'emailTemplateExportTestDir4';
+    const CMD = `frodo email template export -AD emailTemplateExportTestDir4 -m idm`;
+    await testExport(CMD, idmenv, type, undefined, exportDirectory, false);
+  });
+  test('"frodo email template export -aD emailTemplateExportTestDir5 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3', async () => {
+    const exportDirectory = 'emailTemplateExportTestDir5';
+    const CMD = `frodo email template export -aD emailTemplateExportTestDir5 -m idm`;
+    await testExport(CMD, idmenv, type, undefined, exportDirectory, false);
   });
 });

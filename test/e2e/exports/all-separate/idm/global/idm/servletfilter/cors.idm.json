@@ -1,0 +1,25 @@
+{
+  "idm": {
+    "servletfilter/cors": {
+      "_id": "servletfilter/cors",
+      "filterClass": "org.eclipse.jetty.ee10.servlets.CrossOriginFilter",
+      "initParams": {
+        "allowCredentials": true,
+        "allowedHeaders": "accept,x-openidm-password,x-openidm-nosession,x-openidm-username,content-type,origin,x-requested-with",
+        "allowedMethods": "GET,POST,PUT,DELETE,PATCH",
+        "allowedOrigins": "https://localhost:&{openidm.port.https}",
+        "chainPreflight": false
+      },
+      "urlPatterns": [
+        "/*"
+      ]
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

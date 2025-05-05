@@ -20,6 +20,7 @@ const { getFilePath, readFiles, saveTextToFile, saveJsonToFile } = frodo.utils;
 const { exportFullConfiguration } = frodo.config;
 
 const { getDefaultNoiseFilter } = frodo.cloud.log;
+const { IDM_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 
 export const FRODO_CONFIG_PATH_KEY = 'FRODO_CONFIG_PATH';
 export const FRODO_LOG_NOISEFILTER_FILENAME = 'LoggingNoiseFilter.json';
@@ -111,7 +112,11 @@ export async function getFullExportConfig(
 export async function getFullExportConfigFromDirectory(
   directory: string
 ): Promise<FullExportInterface> {
-  const realms = fs.readdirSync(directory + '/realm');
+  const realms =
+    state.getDeploymentType() === IDM_DEPLOYMENT_TYPE_KEY
+      ? []
+      : fs.readdirSync(directory + '/realm');
+
   const fullExportConfig: FullExportInterface = {
     meta: {} as ExportMetaData,
     global: {} as unknown as FullGlobalExportInterface,

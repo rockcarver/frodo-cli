@@ -88,7 +88,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -N, --no-metadata                    Does not include metadata in the export
                                        file.
   --no-cache                           Disable token cache for this operation.

@@ -1,0 +1,1026 @@
+{
+  "idm": {
+    "repo.ds": {
+      "_id": "repo.ds",
+      "commands": {
+        "delete-mapping-links": {
+          "_queryFilter": "/linkType eq \"${mapping}\"",
+          "operation": "DELETE"
+        },
+        "delete-target-ids-for-recon": {
+          "_queryFilter": "/reconId eq \"${reconId}\"",
+          "operation": "DELETE"
+        }
+      },
+      "embedded": false,
+      "ldapConnectionFactories": {
+        "bind": {
+          "connectionPoolSize": 50,
+          "connectionSecurity": "startTLS",
+          "heartBeatIntervalSeconds": 60,
+          "heartBeatTimeoutMilliSeconds": 10000,
+          "primaryLdapServers": [
+            {
+              "hostname": "opendj-frodo-dev.classic.com",
+              "port": 2389
+            }
+          ],
+          "secondaryLdapServers": []
+        },
+        "root": {
+          "authentication": {
+            "simple": {
+              "bindDn": "uid=admin",
+              "bindPassword": {
+                "$crypto": {
+                  "type": "x-simple-encryption",
+                  "value": {
+                    "cipher": "AES/CBC/PKCS5Padding",
+                    "data": "lJ/B6T9e9CDKHCN8TxkD4g==",
+                    "iv": "EdrerzwEUUkHG582cLDw5w==",
+                    "keySize": 32,
+                    "mac": "Aty9fXUtl4pexGlHOc+CBg==",
+                    "purpose": "idm.config.encryption",
+                    "salt": "BITSKlnPeT5klcuEZbngzw==",
+                    "stableId": "openidm-sym-default"
+                  }
+                }
+              }
+            }
+          },
+          "inheritFrom": "bind"
+        }
+      },
+      "maxConnectionAttempts": 5,
+      "resourceMapping": {
+        "defaultMapping": {
+          "dnTemplate": "ou=generic,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+        },
+        "explicitMapping": {
+          "clusteredrecontargetids": {
+            "dnTemplate": "ou=clusteredrecontargetids,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-recon-clusteredTargetIds"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "reconId": {
+                "ldapAttribute": "fr-idm-recon-id",
+                "type": "simple"
+              },
+              "targetIds": {
+                "ldapAttribute": "fr-idm-recon-targetIds",
+                "type": "json"
+              }
+            }
+          },
+          "dsconfig/attributeValue": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-attribute-value-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "checkSubstrings": {
+                "ldapAttribute": "ds-cfg-check-substrings",
+                "type": "simple"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "matchAttribute": {
+                "isMultiValued": true,
+                "ldapAttribute": "ds-cfg-match-attribute",
+                "type": "simple"
+              },
+              "minSubstringLength": {
+                "ldapAttribute": "ds-cfg-min-substring-length",
+                "type": "simple"
+              },
+              "testReversedPassword": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-test-reversed-password",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/characterSet": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-character-set-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "allowUnclassifiedCharacters": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-allow-unclassified-characters",
+                "type": "simple"
+              },
+              "characterSet": {
+                "isMultiValued": true,
+                "ldapAttribute": "ds-cfg-character-set",
+                "type": "simple"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "minCharacterSets": {
+                "ldapAttribute": "ds-cfg-min-character-sets",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/dictionary": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-dictionary-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "caseSensitiveValidation": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-case-sensitive-validation",
+                "type": "simple"
+              },
+              "checkSubstrings": {
+                "ldapAttribute": "ds-cfg-check-substrings",
+                "type": "simple"
+              },
+              "dictionaryFile": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-dictionary-file",
+                "type": "simple"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "minSubstringLength": {
+                "ldapAttribute": "ds-cfg-min-substring-length",
+                "type": "simple"
+              },
+              "testReversedPassword": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-test-reversed-password",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/lengthBased": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-length-based-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "maxPasswordLength": {
+                "ldapAttribute": "ds-cfg-max-password-length",
+                "type": "simple"
+              },
+              "minPasswordLength": {
+                "ldapAttribute": "ds-cfg-min-password-length",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/passwordPolicies": {
+            "dnTemplate": "cn=Password Policies,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-policy",
+              "ds-cfg-authentication-policy"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "defaultPasswordStorageScheme": {
+                "isMultiValued": true,
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-default-password-storage-scheme",
+                "type": "simple"
+              },
+              "maxPasswordAge": {
+                "ldapAttribute": "ds-cfg-max-password-age",
+                "type": "simple"
+              },
+              "passwordAttribute": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-password-attribute",
+                "type": "simple"
+              },
+              "passwordHistoryCount": {
+                "ldapAttribute": "ds-cfg-password-history-count",
+                "type": "simple"
+              },
+              "validator": {
+                "isMultiValued": true,
+                "ldapAttribute": "ds-cfg-password-validator",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/repeatedCharacters": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-repeated-characters-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "caseSensitiveValidation": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-case-sensitive-validation",
+                "type": "simple"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "maxConsecutiveLength": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-max-consecutive-length",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/similarityBased": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-similarity-based-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "minPasswordDifference": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-min-password-difference",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/uniqueCharacters": {
+            "dnTemplate": "cn=Password Validators,cn=config",
+            "objectClasses": [
+              "ds-cfg-password-validator",
+              "ds-cfg-unique-characters-password-validator"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "caseSensitiveValidation": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-case-sensitive-validation",
+                "type": "simple"
+              },
+              "enabled": {
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "javaClass": {
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "minUniqueCharacters": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-min-unique-characters",
+                "type": "simple"
+              }
+            }
+          },
+          "dsconfig/userDefinedVirtualAttribute": {
+            "dnTemplate": "cn=Virtual Attributes,cn=config",
+            "objectClasses": [
+              "ds-cfg-user-defined-virtual-attribute",
+              "ds-cfg-virtual-attribute"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "attributeType": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-attribute-type",
+                "type": "simple"
+              },
+              "baseDn": {
+                "isMultiValued": true,
+                "ldapAttribute": "ds-cfg-base-dn",
+                "type": "simple"
+              },
+              "conflictBehavior": {
+                "ldapAttribute": "ds-cfg-conflict-behavior",
+                "type": "simple"
+              },
+              "enabled": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-enabled",
+                "type": "simple"
+              },
+              "filter": {
+                "isMultiValued": true,
+                "ldapAttribute": "ds-cfg-filter",
+                "type": "simple"
+              },
+              "groupDn": {
+                "ldapAttribute": "ds-cfg-group-dn",
+                "type": "simple"
+              },
+              "javaClass": {
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-java-class",
+                "type": "simple"
+              },
+              "scope": {
+                "ldapAttribute": "ds-cfg-scope",
+                "type": "simple"
+              },
+              "value": {
+                "isMultiValued": true,
+                "isRequired": true,
+                "ldapAttribute": "ds-cfg-value",
+                "type": "simple"
+              }
+            }
+          },
+          "internal/role": {
+            "dnTemplate": "ou=roles,ou=internal,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "fr-idm-internal-role"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "cn",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "authzMembers": {
+                "isMultiValued": true,
+                "propertyName": "authzRoles",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "condition": {
+                "ldapAttribute": "fr-idm-condition",
+                "type": "simple"
+              },
+              "description": {
+                "ldapAttribute": "description",
+                "type": "simple"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-name",
+                "type": "simple"
+              },
+              "privileges": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-privilege",
+                "type": "json"
+              },
+              "temporalConstraints": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-temporal-constraints",
+                "type": "json"
+              }
+            }
+          },
+          "internal/user": {
+            "dnTemplate": "ou=users,ou=internal,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-internal-user"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "password": {
+                "ldapAttribute": "fr-idm-password",
+                "type": "json"
+              }
+            }
+          },
+          "link": {
+            "dnTemplate": "ou=links,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-link"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "firstId": {
+                "ldapAttribute": "fr-idm-link-firstId",
+                "type": "simple"
+              },
+              "linkQualifier": {
+                "ldapAttribute": "fr-idm-link-qualifier",
+                "type": "simple"
+              },
+              "linkType": {
+                "ldapAttribute": "fr-idm-link-type",
+                "type": "simple"
+              },
+              "secondId": {
+                "ldapAttribute": "fr-idm-link-secondId",
+                "type": "simple"
+              }
+            }
+          },
+          "locks": {
+            "dnTemplate": "ou=locks,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-lock"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "nodeId": {
+                "ldapAttribute": "fr-idm-lock-nodeid",
+                "type": "simple"
+              }
+            }
+          },
+          "recon/assoc": {
+            "dnTemplate": "ou=assoc,ou=recon,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "namingStrategy": {
+              "dnAttribute": "fr-idm-reconassoc-reconid",
+              "type": "clientDnNaming"
+            },
+            "objectClasses": [
+              "fr-idm-reconassoc"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "fr-idm-reconassoc-reconid",
+                "type": "simple"
+              },
+              "finishTime": {
+                "ldapAttribute": "fr-idm-reconassoc-finishtime",
+                "type": "simple"
+              },
+              "isAnalysis": {
+                "ldapAttribute": "fr-idm-reconassoc-isanalysis",
+                "type": "simple"
+              },
+              "mapping": {
+                "ldapAttribute": "fr-idm-reconassoc-mapping",
+                "type": "simple"
+              },
+              "sourceResourceCollection": {
+                "ldapAttribute": "fr-idm-reconassoc-sourceresourcecollection",
+                "type": "simple"
+              },
+              "targetResourceCollection": {
+                "ldapAttribute": "fr-idm-reconassoc-targetresourcecollection",
+                "type": "simple"
+              }
+            },
+            "subResources": {
+              "entry": {
+                "namingStrategy": {
+                  "dnAttribute": "uid",
+                  "type": "clientDnNaming"
+                },
+                "resource": "recon-assoc-entry",
+                "type": "collection"
+              }
+            }
+          },
+          "recon/assoc/entry": {
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-reconassocentry"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple"
+              },
+              "action": {
+                "ldapAttribute": "fr-idm-reconassocentry-action",
+                "type": "simple"
+              },
+              "ambiguousTargetObjectIds": {
+                "ldapAttribute": "fr-idm-reconassocentry-ambiguoustargetobjectids",
+                "type": "simple"
+              },
+              "exception": {
+                "ldapAttribute": "fr-idm-reconassocentry-exception",
+                "type": "simple"
+              },
+              "isAnalysis": {
+                "ldapAttribute": "fr-idm-reconassoc-isanalysis",
+                "type": "simple"
+              },
+              "linkQualifier": {
+                "ldapAttribute": "fr-idm-reconassocentry-linkqualifier",
+                "type": "simple"
+              },
+              "mapping": {
+                "ldapAttribute": "fr-idm-reconassoc-mapping",
+                "type": "simple"
+              },
+              "message": {
+                "ldapAttribute": "fr-idm-reconassocentry-message",
+                "type": "simple"
+              },
+              "messageDetail": {
+                "ldapAttribute": "fr-idm-reconassocentry-messagedetail",
+                "type": "simple"
+              },
+              "phase": {
+                "ldapAttribute": "fr-idm-reconassocentry-phase",
+                "type": "simple"
+              },
+              "reconId": {
+                "ldapAttribute": "fr-idm-reconassocentry-reconid",
+                "type": "simple"
+              },
+              "situation": {
+                "ldapAttribute": "fr-idm-reconassocentry-situation",
+                "type": "simple"
+              },
+              "sourceObjectId": {
+                "ldapAttribute": "fr-idm-reconassocentry-sourceObjectId",
+                "type": "simple"
+              },
+              "sourceResourceCollection": {
+                "ldapAttribute": "fr-idm-reconassoc-sourceresourcecollection",
+                "type": "simple"
+              },
+              "status": {
+                "ldapAttribute": "fr-idm-reconassocentry-status",
+                "type": "simple"
+              },
+              "targetObjectId": {
+                "ldapAttribute": "fr-idm-reconassocentry-targetObjectId",
+                "type": "simple"
+              },
+              "targetResourceCollection": {
+                "ldapAttribute": "fr-idm-reconassoc-targetresourcecollection",
+                "type": "simple"
+              }
+            },
+            "resourceName": "recon-assoc-entry",
+            "subResourceRouting": [
+              {
+                "prefix": "entry",
+                "template": "recon/assoc/{reconId}/entry"
+              }
+            ]
+          },
+          "sync/queue": {
+            "dnTemplate": "ou=queue,ou=sync,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-syncqueue"
+            ],
+            "properties": {
+              "_id": {
+                "isRequired": true,
+                "ldapAttribute": "uid",
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "context": {
+                "ldapAttribute": "fr-idm-syncqueue-context",
+                "type": "json"
+              },
+              "createDate": {
+                "ldapAttribute": "fr-idm-syncqueue-createdate",
+                "type": "simple"
+              },
+              "mapping": {
+                "ldapAttribute": "fr-idm-syncqueue-mapping",
+                "type": "simple"
+              },
+              "newObject": {
+                "ldapAttribute": "fr-idm-syncqueue-newobject",
+                "type": "json"
+              },
+              "nodeId": {
+                "ldapAttribute": "fr-idm-syncqueue-nodeid",
+                "type": "simple"
+              },
+              "objectRev": {
+                "ldapAttribute": "fr-idm-syncqueue-objectRev",
+                "type": "simple"
+              },
+              "oldObject": {
+                "ldapAttribute": "fr-idm-syncqueue-oldobject",
+                "type": "json"
+              },
+              "resourceCollection": {
+                "ldapAttribute": "fr-idm-syncqueue-resourcecollection",
+                "type": "simple"
+              },
+              "resourceId": {
+                "ldapAttribute": "fr-idm-syncqueue-resourceid",
+                "type": "simple"
+              },
+              "state": {
+                "ldapAttribute": "fr-idm-syncqueue-state",
+                "type": "simple"
+              },
+              "syncAction": {
+                "ldapAttribute": "fr-idm-syncqueue-syncaction",
+                "type": "simple"
+              }
+            }
+          }
+        },
+        "genericMapping": {
+          "cluster/*": {
+            "dnTemplate": "ou=cluster,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-cluster-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchClusterObject",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-cluster-obj"
+            ]
+          },
+          "config": {
+            "dnTemplate": "ou=config,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "file": {
+            "dnTemplate": "ou=file,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "import": {
+            "dnTemplate": "ou=import,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "import/*": {
+            "dnTemplate": "ou=import,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "internal/notification": {
+            "dnTemplate": "ou=notification,ou=internal,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-notification-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-notification"
+            ],
+            "properties": {
+              "target": {
+                "propertyName": "_notifications",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "internal/usermeta": {
+            "dnTemplate": "ou=usermeta,ou=internal,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-generic-obj"
+            ],
+            "properties": {
+              "target": {
+                "propertyName": "_meta",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "jsonstorage": {
+            "dnTemplate": "ou=jsonstorage,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "managed/*": {
+            "dnTemplate": "ou=managed,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "managed/assignment": {
+            "dnTemplate": "ou=assignment,ou=managed,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-managed-assignment-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-assignment"
+            ],
+            "properties": {
+              "condition": {
+                "ldapAttribute": "fr-idm-assignment-condition",
+                "type": "simple"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/role",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/organization": {
+            "dnTemplate": "ou=organization,ou=managed,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-managed-organization-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-organization"
+            ],
+            "properties": {
+              "admins": {
+                "isMultiValued": true,
+                "propertyName": "adminOfOrg",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "children": {
+                "isMultiValued": true,
+                "propertyName": "parent",
+                "resourcePath": "managed/organization",
+                "type": "reverseReference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "memberOfOrg",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-managed-organization-name",
+                "type": "simple"
+              },
+              "owners": {
+                "isMultiValued": true,
+                "propertyName": "ownerOfOrg",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "parent": {
+                "ldapAttribute": "fr-idm-managed-organization-parent",
+                "primaryKey": "uid",
+                "resourcePath": "managed/organization",
+                "type": "reference"
+              }
+            }
+          },
+          "managed/role": {
+            "dnTemplate": "ou=role,ou=managed,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-managed-role-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchManagedRole",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-role"
+            ],
+            "properties": {
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-role-assignments",
+                "primaryKey": "uid",
+                "resourcePath": "managed/assignment",
+                "type": "reference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "roles",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/user": {
+            "dnTemplate": "ou=user,ou=managed,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-managed-user-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchManagedUser",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-user"
+            ],
+            "properties": {
+              "_meta": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-meta",
+                "primaryKey": "uid",
+                "resourcePath": "internal/usermeta",
+                "type": "reference"
+              },
+              "_notifications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-notifications",
+                "primaryKey": "uid",
+                "resourcePath": "internal/notification",
+                "type": "reference"
+              },
+              "adminOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-admin",
+                "primaryKey": "uid",
+                "resourcePath": "managed/organization",
+                "type": "reference"
+              },
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-assignment-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/assignment",
+                "type": "reference"
+              },
+              "authzRoles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-authzroles-internal-role",
+                "primaryKey": "cn",
+                "resourcePath": "internal/role",
+                "type": "reference"
+              },
+              "manager": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-manager",
+                "primaryKey": "uid",
+                "resourcePath": "managed/user",
+                "type": "reference"
+              },
+              "memberOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/organization",
+                "type": "reference"
+              },
+              "ownerOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-owner",
+                "primaryKey": "uid",
+                "resourcePath": "managed/organization",
+                "type": "reference"
+              },
+              "passwordExpirationTime": {
+                "ldapAttribute": "pwdExpirationTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "passwordLastChangedTime": {
+                "ldapAttribute": "pwdChangedTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "reports": {
+                "isMultiValued": true,
+                "propertyName": "manager",
+                "resourcePath": "managed/user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-roles",
+                "primaryKey": "uid",
+                "resourcePath": "managed/role",
+                "type": "reference"
+              }
+            }
+          },
+          "reconprogressstate": {
+            "dnTemplate": "ou=reconprogressstate,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "relationships": {
+            "dnTemplate": "ou=relationships,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com",
+            "jsonAttribute": "fr-idm-relationship-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchRelationship",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-relationship"
+            ]
+          },
+          "scheduler": {
+            "dnTemplate": "ou=scheduler,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "scheduler/*": {
+            "dnTemplate": "ou=scheduler,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "ui/*": {
+            "dnTemplate": "ou=ui,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          },
+          "updates": {
+            "dnTemplate": "ou=updates,dc=openidm,dc=opendj-frodo-dev,dc=classic,dc=com"
+          }
+        }
+      },
+      "rest2LdapOptions": {
+        "mvccAttribute": "etag",
+        "readOnUpdatePolicy": "controls",
+        "returnNullForMissingProperties": true,
+        "useMvcc": true,
+        "usePermissiveModify": true,
+        "useSubtreeDelete": false
+      },
+      "security": {
+        "fileBasedTrustManagerFile": "&{idm.install.dir}/security/truststore",
+        "fileBasedTrustManagerPasswordFile": "&{idm.install.dir}/security/storepass",
+        "fileBasedTrustManagerType": "JKS",
+        "trustManager": "file"
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.192Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "idm": {
+    "internal": {
+      "_id": "internal",
+      "objects": [
+        {
+          "name": "role",
+          "properties": {
+            "authzMembers": {
+              "items": {
+                "resourceCollection": [
+                  {
+                    "conditionalAssociation": true,
+                    "label": "User",
+                    "notify": true,
+                    "path": "managed/user",
+                    "query": {
+                      "fields": [
+                        "userName",
+                        "givenName",
+                        "sn"
+                      ],
+                      "queryFilter": "true"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "notification",
+          "properties": {
+            "target": {
+              "reversePropertyName": "_notifications"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.190Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

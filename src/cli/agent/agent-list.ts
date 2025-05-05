@@ -5,11 +5,20 @@ import { listAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent list');
+  const program = new FrodoCommand('frodo agent list', [], deploymentTypes);
 
   program
     .description('List agents.')
@@ -32,7 +41,7 @@ export default function setup() {
           await getTokens(
             false,
             true,
-            options.global ? globalDeploymentTypes : undefined
+            options.global ? [CLASSIC_DEPLOYMENT_TYPE_KEY] : deploymentTypes
           )
         ) {
           const outcome = await listAgents(options.long, options.global);

@@ -1,0 +1,20 @@
+{
+  "idm": {
+    "cluster": {
+      "_id": "cluster",
+      "enabled": true,
+      "instanceCheckInInterval": 5000,
+      "instanceCheckInOffset": 0,
+      "instanceId": "&{openidm.node.id}",
+      "instanceRecoveryTimeout": 30000,
+      "instanceTimeout": 30000
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.189Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

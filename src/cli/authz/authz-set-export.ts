@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -9,8 +10,24 @@ import {
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set export');
+  const program = new FrodoCommand(
+    'frodo authz set export',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Export authorization policy sets.')
@@ -60,7 +77,7 @@ export default function setup() {
           command
         );
         // export
-        if (options.setId && (await getTokens())) {
+        if (options.setId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting authorization policy set to file...');
           const outcome = await exportPolicySetToFile(
             options.setId,
@@ -75,7 +92,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all authorization policy sets to file...');
           const outcome = await exportPolicySetsToFile(
             options.file,
@@ -89,7 +109,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Exporting all authorization policy sets to separate files...'
           );

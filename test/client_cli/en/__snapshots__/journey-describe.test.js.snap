@@ -79,7 +79,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --markdown                           Output in markdown.
   --no-cache                           Disable token cache for this operation.
   -o, --override-version <version>     Override version. Notation:

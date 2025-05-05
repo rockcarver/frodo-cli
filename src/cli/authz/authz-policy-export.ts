@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -11,8 +12,24 @@ import {
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz policy export');
+  const program = new FrodoCommand(
+    'frodo authz policy export',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Export authorization policies.')
@@ -68,7 +85,10 @@ export default function setup() {
           command
         );
         // export
-        if (options.policyId && (await getTokens())) {
+        if (
+          options.policyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting authorization policy to file...');
           const outcome = await exportPolicyToFile(
             options.policyId,
@@ -83,7 +103,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all by policy set
-        else if (options.setId && options.all && (await getTokens())) {
+        else if (
+          options.setId &&
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting all authorization policies in policy set ${options.setId} to file...`
           );
@@ -100,7 +124,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all authorization policies to file...');
           const outcome = await exportPoliciesToFile(
             options.file,
@@ -114,7 +141,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate by policy set
-        else if (options.setId && options.allSeparate && (await getTokens())) {
+        else if (
+          options.setId &&
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting all authorization policies in policy set ${options.setId} to separate files...`
           );
@@ -130,7 +161,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Exporting all authorization policies to separate files...'
           );

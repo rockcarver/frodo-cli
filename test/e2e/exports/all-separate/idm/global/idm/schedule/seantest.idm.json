@@ -1,0 +1,34 @@
+{
+  "idm": {
+    "schedule/seantest": {
+      "_id": "schedule/seantest",
+      "concurrentExecution": false,
+      "enabled": false,
+      "endTime": null,
+      "invokeContext": {
+        "script": {
+          "globals": {},
+          "source": "//sean has changed this script. Let's see if it is still working. qqqqqqqqqqqqqqSchedule1\n",
+          "type": "text/javascript"
+        }
+      },
+      "invokeLogLevel": "info",
+      "invokeService": "script",
+      "misfirePolicy": "fireAndProceed",
+      "persisted": true,
+      "recoverable": false,
+      "repeatCount": 0,
+      "repeatInterval": 0,
+      "schedule": null,
+      "startTime": null,
+      "type": "simple"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.194Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

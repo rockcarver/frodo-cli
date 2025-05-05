@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -8,8 +9,24 @@ import {
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz type describe');
+  const program = new FrodoCommand(
+    'frodo authz type describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Describe authorization resource types.')
@@ -27,14 +44,17 @@ export default function setup() {
           options,
           command
         );
-        if (options.typeId && (await getTokens())) {
+        if (options.typeId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(`Describing authorization resource type by uuid...`);
           const outcome = await describeResourceType(
             options.typeId,
             options.json
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.typeName && (await getTokens())) {
+        } else if (
+          options.typeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Describing authorization resource type by name...`);
           const outcome = await describeResourceTypeByName(
             options.typeName,

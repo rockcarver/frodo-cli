@@ -74,7 +74,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -M, --master-dir <directory>         The directory where the master
                                        configurations is located.
   --no-cache                           Disable token cache for this operation.

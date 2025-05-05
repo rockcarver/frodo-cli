@@ -39,7 +39,11 @@ Error updating config entity endpoint/testEndpoint2
 "
 `;
 
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/idm/global/idm -m idm": Should import on prem idm config according to the idmenv and entity files" 1`] = `""`;
+
 exports[`frodo idm import "frodo idm import -af test/e2e/exports/all/all.idm.json -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json": Should import all configs from the file 'test/e2e/exports/all/all.idm.json' according to the env and entity files" 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -af test/e2e/exports/all/idm/all.idm.json -m idm": Should import on prem idm config' according to the idmenv and entity files" 1`] = `""`;
 
 exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/cloud/global/idm/script.idm.json": should import the idm config from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;
 

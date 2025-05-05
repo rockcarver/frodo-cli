@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -5,8 +6,24 @@ import { describePolicy } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz policy describe');
+  const program = new FrodoCommand(
+    'frodo authz policy describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Describe authorization policies.')
@@ -28,7 +45,10 @@ export default function setup() {
           options,
           command
         );
-        if (options.policyId && (await getTokens())) {
+        if (
+          options.policyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Describing authorization policy ${options.policyId}...`
           );

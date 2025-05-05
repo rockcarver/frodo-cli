@@ -14,6 +14,10 @@ exports[`frodo email template import "frodo email template import --raw -i welco
 
 exports[`frodo email template import "frodo email template import --template-id welcome --file test/e2e/exports/all/allEmailTemplates.template.email.json": should import the email template with the id "welcome" from the file "test/e2e/exports/all/allEmailTemplates.template.email.json" 1`] = `""`;
 
+exports[`frodo email template import "frodo email template import -AD test/e2e/exports/all-separate/idm/global/emailTemplate -m idm": should import all on prem idm email templates from the directory" 1`] = `""`;
+
 exports[`frodo email template import "frodo email template import -af allEmailTemplates.template.email.json -D test/e2e/exports/all": should import all email templates from the file "test/e2e/exports/all/allEmailTemplates.template.email.json" 1`] = `""`;
 
 exports[`frodo email template import "frodo email template import -af test/e2e/exports/all/allEmailTemplates.template.email.json": should import all email templates from the file "test/e2e/exports/all/allEmailTemplates.template.email.json" 1`] = `""`;
+
+exports[`frodo email template import "frodo email template import -af test/e2e/exports/all/idm/allEmailTemplates.template.email.json -m idm": should import email template for on prem idm from one file 1`] = `""`;

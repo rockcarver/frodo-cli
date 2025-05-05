@@ -1,11 +1,28 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteOauth2ClientById } from '../../ops/OAuth2ClientOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client delete');
+  const program = new FrodoCommand(
+    'frodo oauth client delete',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Delete OAuth2 clients.')
@@ -35,7 +52,7 @@ export default function setup() {
           options,
           command
         );
-        if (options.appId && (await getTokens())) {
+        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
           const outcome = deleteOauth2ClientById(options.appId);
           if (!outcome) process.exitCode = 1;
         } else {

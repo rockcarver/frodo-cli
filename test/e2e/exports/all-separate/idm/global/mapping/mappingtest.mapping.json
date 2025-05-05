@@ -1,0 +1,83 @@
+{
+  "mapping": {
+    "mapping/mappingtest": {
+      "_id": "mapping/mappingtest",
+      "consentRequired": false,
+      "displayName": "mappingtest",
+      "icon": null,
+      "name": "mappingtest",
+      "policies": [
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdf",
+            "type": "text/javascript"
+          },
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdfasdf",
+            "type": "groovy"
+          },
+          "situation": "MISSING"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND"
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [],
+      "source": "managed/assignment",
+      "target": "managed/organization"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

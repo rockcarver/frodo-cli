@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -10,8 +11,20 @@ import {
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo journey import');
+  const program = new FrodoCommand('frodo journey import', [], deploymentTypes);
 
   program
     .description('Import journey/tree.')
@@ -63,7 +76,10 @@ export default function setup() {
           command
         );
         // import
-        if (options.journeyId && (await getTokens())) {
+        if (
+          options.journeyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(`Importing journey ${options.journeyId}...`);
           const outcome = await importJourneyFromFile(
             options.journeyId,
@@ -76,7 +92,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             `Importing all journeys from a single file (${options.file})...`
           );
@@ -87,7 +107,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage(
             'Importing all journeys from separate files in current directory...'
           );
@@ -98,7 +122,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first journey in file
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           printMessage('Importing first journey in file...');
           const outcome = await importFirstJourneyFromFile(options.file, {
             reUuid: options.reUuid,

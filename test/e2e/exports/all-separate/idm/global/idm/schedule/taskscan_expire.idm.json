@@ -1,0 +1,42 @@
+{
+  "idm": {
+    "schedule/taskscan_expire": {
+      "_id": "schedule/taskscan_expire",
+      "concurrentExecution": false,
+      "enabled": false,
+      "invokeContext": {
+        "numberOfThreads": 5,
+        "scan": {
+          "_queryFilter": "((/inactiveDate lt \"${Time.nowWithOffset}\") AND (!(/activeDate pr) or /activeDate le \"${Time.nowWithOffset}\"))",
+          "object": "managed/user",
+          "recovery": {
+            "timeout": "10m"
+          },
+          "taskState": {
+            "completed": "/expireAccount/task-completed",
+            "started": "/expireAccount/task-started"
+          }
+        },
+        "task": {
+          "script": {
+            "globals": {},
+            "source": "var patch = [{ \"operation\" : \"replace\", \"field\" : \"/accountStatus\", \"value\" : \"inactive\" }];\n\nlogger.debug(\"Performing Expire Account Task on {} ({})\", input.mail, objectID);\n\nopenidm.patch(objectID, null, patch); true;",
+            "type": "text/javascript"
+          }
+        },
+        "waitForCompletion": false
+      },
+      "invokeService": "taskscanner",
+      "persisted": true,
+      "repeatInterval": 86400000,
+      "type": "simple"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.194Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

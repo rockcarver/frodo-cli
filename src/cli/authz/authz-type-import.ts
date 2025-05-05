@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -11,8 +12,24 @@ import {
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo authz type import');
+  const program = new FrodoCommand(
+    'frodo authz type import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import authorization resource types.')
@@ -53,7 +70,7 @@ export default function setup() {
           command
         );
         // import by uuid
-        if (options.typeId && (await getTokens())) {
+        if (options.typeId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             'Importing authorization resource type by uuid from file...'
           );
@@ -64,7 +81,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import by name
-        else if (options.typeName && (await getTokens())) {
+        else if (
+          options.typeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing authorization resource type by name from file...'
           );
@@ -75,7 +95,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all authorization resource types from file...'
           );
@@ -83,7 +106,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all authorization resource types from separate files...'
           );
@@ -91,7 +117,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first
-        else if (options.file && (await getTokens())) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first authorization resource type from file "${options.file}"...`
           );

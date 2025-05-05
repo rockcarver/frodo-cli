@@ -81,7 +81,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -n, --type-name <type-name>          Resource type name. If specified, -a and
                                        -A are ignored.
   --no-cache                           Disable token cache for this operation.
