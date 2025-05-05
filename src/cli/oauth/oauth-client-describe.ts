@@ -2,9 +2,10 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client describe');
+  const program = new FrodoCommand('frodo oauth client describe', [], deploymentTypes);
 
   program
     .description('Describe OAuth2 client.')
@@ -20,7 +21,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;

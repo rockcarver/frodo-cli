@@ -10,9 +10,10 @@ import {
 } from '../../ops/IdpOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo idp import');
+  const program = new FrodoCommand('frodo idp import', [], deploymentTypes);
 
   program
     .description('Import (social) identity providers.')
@@ -55,7 +56,7 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.idpId && (await getTokens())) {
+        if (options.file && options.idpId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing provider "${
               options.idpId
@@ -71,7 +72,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens())) {
+        else if (options.all && options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing all providers from a single file (${options.file})...`
           );
@@ -84,7 +85,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens())) {
+        else if (options.allSeparate && !options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             'Importing all providers from separate files in current directory...'
           );
@@ -94,7 +95,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first provider from file
-        else if (options.file && (await getTokens())) {
+        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing first provider from file "${
               options.file

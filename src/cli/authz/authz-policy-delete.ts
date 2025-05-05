@@ -8,9 +8,10 @@ import {
 } from '../../ops/PolicyOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz policy delete');
+  const program = new FrodoCommand('frodo authz policy delete', [], deploymentTypes);
 
   program
     .description('Delete authorization policies.')
@@ -41,13 +42,13 @@ export default function setup() {
           command
         );
         // delete by id
-        if (options.policyId && (await getTokens())) {
+        if (options.policyId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Deleting authorization policy...');
           const outcome = await deletePolicyById(options.policyId);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a by policy set
-        else if (options.setId && options.all && (await getTokens())) {
+        else if (options.setId && options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Deleting all authorization policies in policy set ${options.setId}...`
           );
@@ -55,7 +56,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Deleting all authorization policies...');
           const outcome = await deletePolicies();
           if (!outcome) process.exitCode = 1;

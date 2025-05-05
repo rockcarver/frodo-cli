@@ -6,8 +6,10 @@ import { listSaml2Providers } from '../../ops/Saml2Ops';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo saml list');
+  const program = new FrodoCommand('frodo saml list', [], deploymentTypes);
 
   program
     .description('List SAML entity providers.')
@@ -25,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Listing SAML entity providers in realm "${state.getRealm()}"...`
           );

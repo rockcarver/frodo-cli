@@ -6,8 +6,10 @@ import { listScripts } from '../../ops/ScriptOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo script list');
+  const program = new FrodoCommand('frodo script list', [], deploymentTypes);
 
   program
     .description('List scripts.')
@@ -40,7 +42,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing scripts in realm "${state.getRealm()}"...`);
           const outcome = await listScripts(
             options.long,

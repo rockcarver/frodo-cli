@@ -9,8 +9,10 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo script import');
+  const program = new FrodoCommand('frodo script import', [], deploymentTypes);
 
   program
     .description('Import scripts.')
@@ -76,7 +78,7 @@ export default function setup() {
           command
         );
 
-        if (options.file && (await getTokens())) {
+        if (options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing script(s) into realm "${state.getRealm()}"...`
           );
@@ -91,7 +93,7 @@ export default function setup() {
             }
           );
           if (!outcome) process.exitCode = 1;
-        } else if (options.allSeparate && (await getTokens())) {
+        } else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing all script files into realm "${state.getRealm()}"...`
           );

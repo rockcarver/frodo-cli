@@ -4,9 +4,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { describePolicySet } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set describe');
+  const program = new FrodoCommand('frodo authz set describe', [], deploymentTypes);
 
   program
     .description('Describe authorization policy sets.')
@@ -28,7 +29,7 @@ export default function setup() {
           options,
           command
         );
-        if (options.setId && (await getTokens())) {
+        if (options.setId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Describing authorization policy set ${options.setId}...`
           );

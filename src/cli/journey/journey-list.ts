@@ -5,9 +5,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listJourneys } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey list');
+  const program = new FrodoCommand('frodo journey list', [], deploymentTypes);
 
   program
     .description('List journeys/trees.')
@@ -28,7 +29,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(`Listing journeys in realm "${state.getRealm()}"...`);
           const outcome = await listJourneys(options.long, options.analyze);
           if (!outcome) process.exitCode = 1;

@@ -4,7 +4,7 @@ import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops'];
+const deploymentTypes = ['cloud', 'forgeops','idm'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo app describe', [], deploymentTypes);

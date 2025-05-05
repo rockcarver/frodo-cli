@@ -8,9 +8,11 @@ import {
 } from '../../ops/OAuth2ClientOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client export');
+  const program = new FrodoCommand('frodo oauth client export', [], deploymentTypes);
 
   program
     .description('Export OAuth2 clients.')
@@ -54,7 +56,7 @@ export default function setup() {
           command
         );
         // export
-        if (options.appId && (await getTokens())) {
+        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting OAuth2 client...');
           const outcome = await exportOAuth2ClientToFile(
             options.appId,
@@ -68,7 +70,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting all OAuth2 clients to file...');
           const outcome = await exportOAuth2ClientsToFile(
             options.file,
@@ -81,7 +83,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting all clients to separate files...');
           const outcome = await exportOAuth2ClientsToFiles(options.metadata, {
             useStringArrays: true,

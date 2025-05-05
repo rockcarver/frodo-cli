@@ -5,8 +5,10 @@ import { listServices } from '../../ops/ServiceOps.js';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo service list');
+  const program = new FrodoCommand('frodo service list', [], deploymentTypes);
 
   program
     .description('List AM services.')
@@ -23,7 +25,7 @@ export default function setup() {
         options,
         command
       );
-      if (await getTokens()) {
+      if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage(`Listing all AM services for realm: ${realm}`);
         const outcome = await listServices(options.long, options.global);
         if (!outcome) process.exitCode = 1;

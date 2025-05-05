@@ -3,9 +3,10 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteConfigEntityById } from '../../ops/IdmOps';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops', 'idm'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo idm delete');
+  const program = new FrodoCommand('frodo idm delete', [], deploymentTypes);
 
   interface ServiceDeleteOptions {
     id?: string;

@@ -5,9 +5,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteJourney, deleteJourneys } from '../../ops/JourneyOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey delete');
+  const program = new FrodoCommand('frodo journey delete', [], deploymentTypes);
 
   program
     .description('Delete journeys/trees.')
@@ -47,7 +48,7 @@ export default function setup() {
           command
         );
         // delete by id
-        if (options.journeyId && (await getTokens())) {
+        if (options.journeyId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Deleting journey ${
               options.journeyId
@@ -57,7 +58,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Deleting all journeys...');
           const outcome = await deleteJourneys(options);
           if (!outcome) process.exitCode = 1;

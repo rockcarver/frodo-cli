@@ -5,9 +5,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteSocialIdentityProviderById } from '../../ops/IdpOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo idp delete');
+  const program = new FrodoCommand('frodo idp delete', [], deploymentTypes);
 
   program
     .description('Delete (social) identity providers.')
@@ -23,7 +24,7 @@ export default function setup() {
           options,
           command
         );
-        if ((await getTokens()) && options.idpId) {
+        if ((await getTokens(false, true, deploymentTypes)) && options.idpId) {
           verboseMessage(
             `Deleting idp ${options.idpId} in realm "${state.getRealm()}"...`
           );

@@ -4,9 +4,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listResourceTypes } from '../../ops/ResourceTypeOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz type list');
+  const program = new FrodoCommand('frodo authz type list', [], deploymentTypes);
 
   program
     .description('List authorization resource types.')
@@ -24,7 +25,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage('Listing resource types...');
           const outcome = await listResourceTypes(options.long);
           if (!outcome) process.exitCode = 1;

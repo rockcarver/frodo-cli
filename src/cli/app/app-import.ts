@@ -11,7 +11,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops'];
+const deploymentTypes = ['cloud', 'forgeops','idm'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo app import', [], deploymentTypes);

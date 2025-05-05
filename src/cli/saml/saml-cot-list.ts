@@ -6,8 +6,10 @@ import { listCirclesOfTrust } from '../../ops/CirclesOfTrustOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo saml cot list');
+  const program = new FrodoCommand('frodo saml cot list', [], deploymentTypes);
 
   program
     .description('List SAML circles of trust.')
@@ -25,7 +27,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Listing SAML circles of trust in realm "${state.getRealm()}"...`
           );

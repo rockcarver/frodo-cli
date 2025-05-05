@@ -9,7 +9,7 @@ import { FrodoCommand } from '../FrodoCommand';
 const deploymentTypes = ['cloud', 'forgeops'];
 
 export default function setup() {
-  const program = new FrodoCommand('promote');
+  const program = new FrodoCommand('promote', [], deploymentTypes);
 
   program
     .description('Prepares a tenant to be promoted')

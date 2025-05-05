@@ -6,8 +6,10 @@ import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo saml metadata export');
+  const program = new FrodoCommand('frodo saml metadata export', [], deploymentTypes);
 
   program
     .description('Export SAML metadata.')
@@ -41,7 +43,7 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.entityId && (await getTokens())) {
+        if (options.entityId && (await getTokens(false, true, deploymentTypes))) {
           printMessage(
             `Exporting metadata for provider "${
               options.entityId

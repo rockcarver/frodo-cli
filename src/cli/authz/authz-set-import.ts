@@ -9,9 +9,10 @@ import {
 } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set import');
+  const program = new FrodoCommand('frodo authz set import', [], deploymentTypes);
 
   program
     .description('Import authorization policy sets.')
@@ -55,7 +56,7 @@ export default function setup() {
           command
         );
         // import
-        if (options.setId && (await getTokens())) {
+        if (options.setId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Importing authorization policy set from file...');
           const outcome = await importPolicySetFromFile(
             options.setId,
@@ -68,7 +69,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             'Importing all authorization policy sets from file...'
           );
@@ -79,7 +80,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             'Importing all authorization policy sets from separate files...'
           );
@@ -90,7 +91,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first policy set from file
-        else if (options.file && (await getTokens())) {
+        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Importing first authorization policy set from file "${options.file}"...`
           );

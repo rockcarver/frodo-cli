@@ -4,9 +4,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { disableJourney } from '../../ops/JourneyOps';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey disable');
+  const program = new FrodoCommand('frodo journey disable', [], deploymentTypes);
 
   program
     .description('Disable journeys/trees.')
@@ -31,7 +32,7 @@ export default function setup() {
           command
         );
         // disable
-        if (options.journeyId && (await getTokens())) {
+        if (options.journeyId && (await getTokens(false, true, deploymentTypes))) {
           const outcome = await disableJourney(options.journeyId);
           if (!outcome) process.exitCode = 1;
         }

@@ -10,8 +10,11 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+
 export default function setup() {
-  const program = new FrodoCommand('frodo saml cot export');
+  const program = new FrodoCommand('frodo saml cot export', [], deploymentTypes);
 
   program
     .description('Export SAML circles of trust.')
@@ -57,7 +60,7 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.cotId && (await getTokens())) {
+        if (options.cotId && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Exporting circle of trust "${
               options.cotId
@@ -71,7 +74,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting all circles of trust to a single file...');
           const outcome = await exportCirclesOfTrustToFile(
             options.file,
@@ -80,7 +83,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting all circles of trust to separate files...');
           const outcome = await exportCirclesOfTrustToFiles(options.metadata);
           if (!outcome) process.exitCode = 1;

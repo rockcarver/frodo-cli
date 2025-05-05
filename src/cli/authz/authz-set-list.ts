@@ -2,9 +2,10 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listPolicySets } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set list');
+  const program = new FrodoCommand('frodo authz set list', [], deploymentTypes);
 
   program.description('List authorization policy sets.').action(
     // implement command logic inside action handler
@@ -17,7 +18,7 @@ export default function setup() {
         options,
         command
       );
-      if (await getTokens()) {
+      if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Listing authorization policy sets...');
         const outcome = await listPolicySets();
         if (!outcome) process.exitCode = 1;

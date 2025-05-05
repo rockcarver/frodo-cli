@@ -5,9 +5,11 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { describeSaml2Provider } from '../../ops/Saml2Ops';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 
 export default function setup() {
-  const program = new FrodoCommand('frodo saml describe');
+  const program = new FrodoCommand('frodo saml describe', [], deploymentTypes);
 
   program
     .description('Describe the configuration of an entity provider.')
@@ -23,7 +25,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Describing SAML entity provider ${
               options.entityId

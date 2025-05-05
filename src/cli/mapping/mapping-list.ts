@@ -5,7 +5,7 @@ import { listMappings } from '../../ops/MappingOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops'];
+const deploymentTypes = ['cloud', 'forgeops','idm'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo mapping list', [], deploymentTypes);

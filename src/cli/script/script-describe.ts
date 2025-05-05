@@ -5,8 +5,10 @@ import { describeScript } from '../../ops/ScriptOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const deploymentTypes = ['cloud', 'forgeops','classic'];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo script describe');
+  const program = new FrodoCommand('frodo script describe', [], deploymentTypes);
 
   program
     .description('Describe script.')
@@ -36,7 +38,7 @@ export default function setup() {
           options,
           command
         );
-        if ((options.scriptName || options.scriptId) && (await getTokens())) {
+        if ((options.scriptName || options.scriptId) && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage(
             `Describing script ${options.scriptName ? options.scriptName : options.scriptId}...`
           );

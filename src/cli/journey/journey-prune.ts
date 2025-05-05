@@ -6,9 +6,10 @@ import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
+const deploymentTypes = ['cloud', 'forgeops','classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey prune');
+  const program = new FrodoCommand('frodo journey prune', [], deploymentTypes);
 
   program
     .description(
@@ -25,7 +26,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Pruning orphaned configuration artifacts in realm "${state.getRealm()}"...`
           );
