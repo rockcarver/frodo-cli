@@ -1,4 +1,9 @@
 {
+  "http://openidm-frodo-dev.classic.com:9080/openidm": {
+    "deploymentType": "idm",
+    "encodedPassword": "TSdl7D/AJsuZD8hvsSsMCg/P4QUwXJDSggvr11TuCAavuUjvJtaPrr08oBGzG3HYlJFSZBM5aPpOaZGKP75WaUI67E6H+KtfLJz42wKWtOq2BXA6RcSU745krtbfBIcU5O/im9QfHz5XPG9Dg2CL",
+    "username": "openidm-admin"
+  },
   "https://openam-frodo-dev.forgeblocks.com/am": {
     "deploymentType": "cloud",
     "encodedLogApiSecret": "s/jvumbnVBgyFKC1GQKdYvUNBYdKVKiZQueQUlj0iAxucif140oyKlOw0g4rIV9K4dJ+XG7XxnSP1+4YBrm0+gUiv9a871T3qqqCbdfd7n1fIgY4bxU/c9GM6JDyE3izEP33WBRmjwPTwsOSn/5L44/XlXrRSuMmWVr/6dRwu4cG0lG/jhecMuLGyCieA4h5MZNMvO0OEDcqB8+h+tqqOWug",

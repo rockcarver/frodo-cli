@@ -1571,6 +1571,121 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `""`;
+
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir4/forgottenUsername.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "forgottenUsername": {
+      "_id": "emailTemplate/forgottenUsername",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<h4><a href="{{object.resumeURI}}">Click here to login</a></h4></body></html>",
+        "fr": "<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<h4><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></h4></body></html>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Account Information - username",
+        "fr": "Informations sur le compte - nom d'utilisateur",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir4/registration.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "registration": {
+      "_id": "emailTemplate/registration",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>This is your registration email.</h3><h4><a href="{{object.resumeURI}}">Email verification link</a></h4>",
+        "fr": "<h3>Ceci est votre mail d'inscription.</h3><h4><a href="{{object.resumeURI}}">Lien de vérification email</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Register new account",
+        "fr": "Créer un nouveau compte",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir4/resetPassword.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "resetPassword": {
+      "_id": "emailTemplate/resetPassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Click to reset your password</h3><h4><a href="{{object.resumeURI}}">Password reset link</a></h4>",
+        "fr": "<h3>Cliquez pour réinitialiser votre mot de passe</h3><h4><a href="{{object.resumeURI}}">Mot de passe lien de réinitialisation</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Reset your password",
+        "fr": "Réinitialisez votre mot de passe",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir4/updatePassword.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "updatePassword": {
+      "_id": "emailTemplate/updatePassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Verify email to update password</h3><h4><a href="{{object.resumeURI}}">Update password link</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Update your password",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo email template export "frodo email template export -AD emailTemplateExportTestDir4 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir4/welcome.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "welcome": {
+      "_id": "emailTemplate/welcome",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<html><body><p>Welcome to OpenIDM. Your username is '{{object.userName}}'.</p></body></html>",
+        "fr": "<html><body><p>Bienvenue sur OpenIDM. Votre nom d'utilisateur est '{{object.userName}}'.</p></body></html>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Your account has been created",
+        "fr": "Votre compte vient d’être créé !",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 1`] = `""`;
 
 exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2: emailTemplateExportTestDir2/allEmailTemplates.template.email.json 1`] = `
@@ -2477,6 +2592,89 @@ a {
       "styles": "body{background-color:#324054;color:#5e6d82;padding:60px;text-align:center}a{text-decoration:none;color:#109cf1}.content{background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px}",
       "subject": {
         "en": "Your account has been created",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo email template export "frodo email template export -aD emailTemplateExportTestDir5 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `""`;
+
+exports[`frodo email template export "frodo email template export -aD emailTemplateExportTestDir5 -m idm": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir5/allEmailTemplates.template.email.json 1`] = `
+{
+  "emailTemplate": {
+    "forgottenUsername": {
+      "_id": "emailTemplate/forgottenUsername",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<html><body>{{#if object.userName}}<p>Your username is '{{object.userName}}'.</p>{{else}}If you received this email in error, please disregard.{{/if}}<h4><a href="{{object.resumeURI}}">Click here to login</a></h4></body></html>",
+        "fr": "<html><body>{{#if object.userName}}<p>Votre nom d'utilisateur est '{{object.userName}}'.</p>{{else}}Si vous avez reçu cet e-mail par erreur, veuillez ne pas en tenir compte.{{/if}}<h4><a href="{{object.resumeURI}}">Cliquez ici pour vous connecter</a></h4></body></html>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Account Information - username",
+        "fr": "Informations sur le compte - nom d'utilisateur",
+      },
+    },
+    "registration": {
+      "_id": "emailTemplate/registration",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>This is your registration email.</h3><h4><a href="{{object.resumeURI}}">Email verification link</a></h4>",
+        "fr": "<h3>Ceci est votre mail d'inscription.</h3><h4><a href="{{object.resumeURI}}">Lien de vérification email</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Register new account",
+        "fr": "Créer un nouveau compte",
+      },
+    },
+    "resetPassword": {
+      "_id": "emailTemplate/resetPassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Click to reset your password</h3><h4><a href="{{object.resumeURI}}">Password reset link</a></h4>",
+        "fr": "<h3>Cliquez pour réinitialiser votre mot de passe</h3><h4><a href="{{object.resumeURI}}">Mot de passe lien de réinitialisation</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Reset your password",
+        "fr": "Réinitialisez votre mot de passe",
+      },
+    },
+    "updatePassword": {
+      "_id": "emailTemplate/updatePassword",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Verify email to update password</h3><h4><a href="{{object.resumeURI}}">Update password link</a></h4>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Update your password",
+      },
+    },
+    "welcome": {
+      "_id": "emailTemplate/welcome",
+      "defaultLocale": "en",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<html><body><p>Welcome to OpenIDM. Your username is '{{object.userName}}'.</p></body></html>",
+        "fr": "<html><body><p>Bienvenue sur OpenIDM. Votre nom d'utilisateur est '{{object.userName}}'.</p></body></html>",
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Your account has been created",
+        "fr": "Votre compte vient d’être créé !",
       },
     },
   },

@@ -80,9 +80,7 @@ export function getTableRowMd(themeObj: ThemeSkeleton): string {
  */
 export async function listThemes(long: boolean = false): Promise<boolean> {
   try {
-    console.log(" is it here beofre freadthemes? ")
     const themeList = await readThemes();
-    console.log("is it here in listThemes?")
     themeList.sort((a, b) => a.name.localeCompare(b.name));
     if (!long) {
       themeList.forEach((theme) => {

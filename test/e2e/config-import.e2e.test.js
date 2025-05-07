@@ -80,17 +80,21 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
+// IDM
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -af test/e2e/exports/idm/all.config.json 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -AD test/e2e/exports/idm/A -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
 import { getEnv, removeAnsiEscapeCodes, removeProgressBarOutput } from './utils/TestUtils';
-import { connection as c, classic_connection as cc } from './utils/TestConfig';
+import { connection as c, classic_connection as cc , idm_connection as ic} from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
+const idmEnv = getEnv(ic);
 
 const allDirectory = 'test/e2e/exports/all';
 const allCloudFileName = 'all.cloud.json';
@@ -104,8 +108,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -adf ${allCloudExport}" Import everything from "${allCloudFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allCloudExport}`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -123,8 +127,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -aCf ${allCloudExport}" Import everything from "${allCloudFileName}". Clean old services`, async () => {
     const CMD = `frodo config import -aCf ${allCloudExport}`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -178,8 +182,8 @@ describe('frodo config import', () => {
   test(`"frodo config import -AD ${allSeparateCloudDirectory} --include-active-values" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
     const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --include-active-values`;
     try {
-        await exec(CMD, env);
-        fail("Command should've failed")
+      await exec(CMD, env);
+      fail("Command should've failed")
     } catch (e) {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
       // only workable solution I could find was to remove progress bar output altogether from such tests.
@@ -260,4 +264,17 @@ describe('frodo config import', () => {
     const { stdout } = await exec(CMD, classicEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
+
+  test('"frodo config import -af test/e2e/exports/idm/all.config.json": should import all IDM config to on-prem idm', async () => {
+    const CMD = `frodo config import -af test/e2e/exports/idm/all.config.json`;
+    const { stdout } = await exec(CMD, idmEnv);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  test('"frodo config import -AD test/e2e/exports/idm/A": should export all IDM config to a single file.', async () => {
+    const CMD = `frodo config import -AD test/e2e/exports/idm/A`;
+    const { stdout } = await exec(CMD, idmEnv);
+    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+  
 });

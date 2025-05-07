@@ -81,7 +81,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   --no-deps                            Do not import dependencies (scripts)
                                        even if they are available in the import

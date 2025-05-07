@@ -75,7 +75,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   --sa-id <sa-id>                      Service account id.
   --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)

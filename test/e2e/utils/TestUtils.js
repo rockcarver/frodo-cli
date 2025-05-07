@@ -241,7 +241,8 @@ export function getEnv(connection = undefined) {
       ...(connection?.saId && { FRODO_SA_ID: connection.saId }),
       ...(connection?.saJwk && { FRODO_SA_JWK: connection.saJwk }),
       ...(connection?.user && { FRODO_USERNAME: connection.user }),
-      ...(connection?.pass && { FRODO_PASSWORD: connection.pass }),
+      ...(connection?.pass && { FRODO_PASSWORD: connection.pass }), 
+      ...(connection?.insecure && { FRODO_INSECURE: connection.insecure }),
     },
   };
 }

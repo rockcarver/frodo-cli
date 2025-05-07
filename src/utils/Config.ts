@@ -107,23 +107,29 @@ export async function getFullExportConfig(
 export async function getFullExportConfigFromDirectory(
   directory: string
 ): Promise<FullExportInterface> {
-  const realms = fs.readdirSync(directory + '/realm');
+  let realms = {} as string[];
+  let realmInterface;
+  if (state.getDeploymentType() !== 'idm') {
+    realms = fs.readdirSync(directory + '/realm')
+    realmInterface = Object.fromEntries(
+    realms.map((r) => [r, {} as FullRealmExportInterface]));
+  }
   const fullExportConfig: FullExportInterface = {
     meta: {} as ExportMetaData,
     global: {} as unknown as FullGlobalExportInterface,
-    realm: Object.fromEntries(
-      realms.map((r) => [r, {} as FullRealmExportInterface])
-    ),
+    realm: realmInterface,
   } as FullExportInterface;
   // Get global
   await getConfig(fullExportConfig.global, undefined, directory + '/global');
   // Get realms
-  for (const realm of realms) {
-    await getConfig(
-      fullExportConfig.realm[realm],
-      undefined,
-      directory + '/realm/' + realm
-    );
+  if (state.getDeploymentType() !== 'idm') {
+    for (const realm of realms) {
+      await getConfig(
+        fullExportConfig.realm[realm],
+        undefined,
+        directory + '/realm/' + realm
+      );
+    }
   }
   return fullExportConfig;
 }
@@ -318,14 +324,14 @@ export function getIdLocations(
     configuration,
     isEsv
       ? // For ESV ids, they contain either letters, numbers, dashes, or underscores. The dashes get replaced with periods (escaped with a \ for the regex)
-        // since anywhere they are being used they will be used with periods, not dashes. Note that the (?:[^a-z0-9._]|$) expressions at the beginning and
-        // end are meant to ensure that the id found is not a substring of some other id (i.e. the id found must either be at the beginning or end of the
-        // string, or if in the middle of a string, is not preceded or followed by a character that would be part of another id).
-        new RegExp(
-          `(?:[^a-z0-9._]|^)${id.replaceAll('-', '\\.')}(?:[^a-z0-9._]|$)`
-        )
+      // since anywhere they are being used they will be used with periods, not dashes. Note that the (?:[^a-z0-9._]|$) expressions at the beginning and
+      // end are meant to ensure that the id found is not a substring of some other id (i.e. the id found must either be at the beginning or end of the
+      // string, or if in the middle of a string, is not preceded or followed by a character that would be part of another id).
+      new RegExp(
+        `(?:[^a-z0-9._]|^)${id.replaceAll('-', '\\.')}(?:[^a-z0-9._]|$)`
+      )
       : // For normal ids, they contain only letters, numbers, or dashes.
-        new RegExp(`(?:[^a-z0-9-]|^)${id}(?:[^a-z0-9-]|$)`)
+      new RegExp(`(?:[^a-z0-9-]|^)${id}(?:[^a-z0-9-]|$)`)
   );
 }
 

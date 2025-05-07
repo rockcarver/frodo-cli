@@ -91,7 +91,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   --no-llt-esv                         Don't store the token in a secret and
                                        output to console instead. This option

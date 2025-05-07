@@ -78,7 +78,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   -n, --script-name <name>             Name of the script.
   --no-cache                           Disable token cache for this operation.
   --sa-id <sa-id>                      Service account id.

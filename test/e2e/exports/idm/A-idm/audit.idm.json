@@ -1,0 +1,123 @@
+{
+  "idm": {
+    "audit": {
+      "_id": "audit",
+      "auditServiceConfig": {
+        "availableAuditEventHandlers": [
+          "org.forgerock.audit.handlers.csv.CsvAuditEventHandler",
+          "org.forgerock.audit.handlers.jms.JmsAuditEventHandler",
+          "org.forgerock.audit.handlers.json.JsonAuditEventHandler",
+          "org.forgerock.audit.handlers.json.stdout.JsonStdoutAuditEventHandler",
+          "org.forgerock.openidm.audit.impl.RepositoryAuditEventHandler",
+          "org.forgerock.openidm.audit.impl.RouterAuditEventHandler",
+          "org.forgerock.audit.handlers.syslog.SyslogAuditEventHandler"
+        ],
+        "caseInsensitiveFields": [
+          "/access/http/request/headers",
+          "/access/http/response/headers"
+        ],
+        "filterPolicies": {
+          "field": {
+            "excludeIf": [],
+            "includeIf": []
+          }
+        },
+        "handlerForQueries": "json"
+      },
+      "eventHandlers": [
+        {
+          "class": "org.forgerock.audit.handlers.json.JsonAuditEventHandler",
+          "config": {
+            "buffering": {
+              "maxSize": 100000,
+              "writeInterval": "100 millis"
+            },
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.json.enabled|true}"
+            },
+            "logDirectory": "&{idm.data.dir}/audit",
+            "name": "json",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        },
+        {
+          "class": "org.forgerock.audit.handlers.json.stdout.JsonStdoutAuditEventHandler",
+          "config": {
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.stdout.enabled|false}"
+            },
+            "name": "stdout",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        },
+        {
+          "class": "org.forgerock.openidm.audit.impl.RepositoryAuditEventHandler",
+          "config": {
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.repo.enabled|false}"
+            },
+            "name": "repo",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        }
+      ],
+      "eventTopics": {
+        "activity": {
+          "filter": {
+            "actions": [
+              "create",
+              "update",
+              "delete",
+              "patch",
+              "action"
+            ]
+          },
+          "passwordFields": [
+            "password"
+          ],
+          "watchedFields": []
+        },
+        "config": {
+          "filter": {
+            "actions": [
+              "create",
+              "update",
+              "delete",
+              "patch",
+              "action"
+            ]
+          }
+        }
+      },
+      "exceptionFormatter": {
+        "file": "bin/defaults/script/audit/stacktraceFormatter.js",
+        "type": "text/javascript"
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-06T17:51:14.023Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.0.4-0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

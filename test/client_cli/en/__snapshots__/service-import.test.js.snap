@@ -83,7 +83,7 @@ Options:
                                        walk through the tenant admin login flow
                                        of Identity Cloud and handle MFA
                                        (choices: "classic", "cloud",
-                                       "forgeops")
+                                       "forgeops", "idm")
   --no-cache                           Disable token cache for this operation.
   -r, --current-realm                  Import service(s) into the current
                                        realm. Use this flag if you exported a

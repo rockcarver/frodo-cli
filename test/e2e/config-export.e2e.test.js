@@ -63,15 +63,24 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --realm-only -AD exportAllTestDir10 -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --global-only -af testExportAllGlobal.json -m classic
+
+// IDM
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -af idmexport.json -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -aD exportAllTestDir12 -f testExportAllIdm.config.json -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -AD exportAllTestDir13 -m idm
 */
+
+
+
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c, classic_connection as cc } from './utils/TestConfig';
+import { connection as c, classic_connection as cc, idm_connection as ic } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
+const idmEnv = getEnv(ic)
 
 const type = 'config';
 
@@ -174,5 +183,23 @@ describe('frodo config export', () => {
     const exportFile = 'testExportAllGlobal.json';
     const CMD = `frodo config export --global-only -af ${exportFile} -m classic`;
     await testExport(CMD, env, type, exportFile);
+  });
+
+  test('"frodo config export -af idmexport.json -m idm": should export all IDM config to a single file.', async () => {
+    const exportFile = 'idmexport.json';
+    const CMD = `frodo config export -af ${exportFile} -m idm`;
+    await testExport(CMD, idmEnv, type, exportFile);
+  });
+
+  test('"frodo config export -aD exportAllTestDir12 -f testExportAllIdm.config.json -m idm": should export all IDM config to a single file.', async () => {
+    const exportFile = 'testExportAllIdm.config.json';
+    const exportDirectory = 'exportAllTestDir12';
+    const CMD = `frodo config export -aD ${exportDirectory} -f ${exportFile} -m idm`;
+    await testExport(CMD, idmEnv, type, exportFile, exportDirectory, false);
+  });
+  test('"frodo config export -AD exportAllTestDir13 -m idm": should export all IDM config to the directory with separate mappings', async () => {
+    const exportDirectory = 'exportAllTestDir13';
+    const CMD = `frodo config export -AD ${exportDirectory} -m idm`;
+    await testExport(CMD, idmEnv, undefined, undefined, exportDirectory, false);
   });
 });
