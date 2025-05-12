@@ -29,8 +29,8 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
-import wordwrap from './utils/Wordwrap';
 import { errorHandler } from './utils/OpsUtils';
+import wordwrap from './utils/Wordwrap';
 
 const {
   getTypedFilename,
@@ -633,7 +633,14 @@ async function handleScriptFileImport(
   const script = getScriptExportByScriptFile(file);
   const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
   try {
-    await importScripts(id, name, script, options, validateScripts, errorHandler);
+    await importScripts(
+      id,
+      name,
+      script,
+      options,
+      validateScripts,
+      errorHandler
+    );
     updateProgressIndicator(indicatorId, `${file}`);
     stopProgressIndicator(indicatorId, `${file}`);
   } catch (error) {

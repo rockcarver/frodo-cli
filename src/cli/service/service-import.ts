@@ -89,7 +89,7 @@ export default function setup() {
         const globalConfig = options.global ?? false;
         const realmConfig = globalConfig
           ? false
-          : options.currentRealm ?? false;
+          : (options.currentRealm ?? false);
 
         // import by id
         if (options.serviceId && options.file && (await getTokens())) {

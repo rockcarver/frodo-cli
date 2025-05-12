@@ -189,10 +189,13 @@ export async function exportAllConfigEntitiesToFile(
 ): Promise<boolean> {
   try {
     const options = getIdmImportExportOptions(entitiesFile, envFile);
-    const exportData = await exportConfigEntities({
-      envReplaceParams: options.envReplaceParams,
-      entitiesToExport: options.entitiesToExportOrImport,
-    }, errorHandler);
+    const exportData = await exportConfigEntities(
+      {
+        envReplaceParams: options.envReplaceParams,
+        entitiesToExport: options.entitiesToExportOrImport,
+      },
+      errorHandler
+    );
     let fileName = getTypedFilename(`all`, `idm`);
     if (file) {
       fileName = file;
@@ -223,10 +226,13 @@ export async function exportAllConfigEntitiesToFiles(
   const errors: Error[] = [];
   try {
     const options = getIdmImportExportOptions(entitiesFile, envFile);
-    const exportData = await exportConfigEntities({
-      envReplaceParams: options.envReplaceParams,
-      entitiesToExport: options.entitiesToExportOrImport,
-    }, errorHandler);
+    const exportData = await exportConfigEntities(
+      {
+        envReplaceParams: options.envReplaceParams,
+        entitiesToExport: options.entitiesToExportOrImport,
+      },
+      errorHandler
+    );
     for (const [id, obj] of Object.entries(exportData.idm)) {
       try {
         if (separateMappings && id === 'sync') {
@@ -310,11 +316,16 @@ export async function importConfigEntityByIdFromFile(
 
     const options = getIdmImportExportOptions(undefined, envFile);
 
-    await importConfigEntities(importData, entityId, {
-      envReplaceParams: options.envReplaceParams,
-      entitiesToImport: undefined,
-      validate,
-    }, errorHandler);
+    await importConfigEntities(
+      importData,
+      entityId,
+      {
+        envReplaceParams: options.envReplaceParams,
+        entitiesToImport: undefined,
+        validate,
+      },
+      errorHandler
+    );
     return true;
   } catch (error) {
     printError(error);
@@ -399,11 +410,16 @@ export async function importFirstConfigEntityFromFile(
 
     const options = getIdmImportExportOptions(undefined, envFile);
 
-    await importConfigEntities(importData, entityId, {
-      envReplaceParams: options.envReplaceParams,
-      entitiesToImport: undefined,
-      validate,
-    }, errorHandler);
+    await importConfigEntities(
+      importData,
+      entityId,
+      {
+        envReplaceParams: options.envReplaceParams,
+        entitiesToImport: undefined,
+        validate,
+      },
+      errorHandler
+    );
     stopProgressIndicator(
       indicatorId,
       `Imported ${entityId} from ${filePath}.`,

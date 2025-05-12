@@ -105,30 +105,30 @@ export async function exportEverythingToFiles(
     const baseDirectory = getWorkingDirectory(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(exportData.global).forEach(([type, obj]: [string, any]) =>
-        exportItem(
+      exportItem(
         exportData.global,
+        type,
+        obj,
+        `${baseDirectory}/global`,
+        includeMeta,
+        extract,
+        separateMappings,
+        separateObjects
+      )
+    );
+    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
+      Object.entries(data).forEach(([type, obj]: [string, any]) =>
+        exportItem(
+          data,
           type,
           obj,
-          `${baseDirectory}/global`,
+          `${baseDirectory}/realm/${realm}`,
           includeMeta,
           extract,
           separateMappings,
           separateObjects
         )
-    );
-    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
-        Object.entries(data).forEach(([type, obj]: [string, any]) =>
-          exportItem(
-            data,
-            type,
-            obj,
-            `${baseDirectory}/realm/${realm}`,
-            includeMeta,
-            extract,
-            separateMappings,
-            separateObjects
-          )
-        )
+      )
     );
     if (collectErrors.length > 0) {
       throw new FrodoError(`Errors occurred during full export`, collectErrors);

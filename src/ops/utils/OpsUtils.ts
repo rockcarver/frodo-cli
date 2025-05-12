@@ -1,5 +1,6 @@
-import { FrodoError } from "@rockcarver/frodo-lib";
-import { printError } from "../../utils/Console";
+import { FrodoError } from '@rockcarver/frodo-lib';
+
+import { printError } from '../../utils/Console';
 
 /**
  * Deep clone object
@@ -17,5 +18,5 @@ export function cloneDeep(obj: any): any {
 export function errorHandler(error?: FrodoError) {
   if (!error) return;
   printError(error);
-  process.exitCode = 1
+  process.exitCode = 1;
 }

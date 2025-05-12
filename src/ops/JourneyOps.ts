@@ -232,7 +232,10 @@ export async function exportJourneysToFile(
       file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
     }
     const filePath = getFilePath(file, true);
-    const fileData: MultiTreeExportInterface = await exportJourneys(options, errorHandler);
+    const fileData: MultiTreeExportInterface = await exportJourneys(
+      options,
+      errorHandler
+    );
     saveJsonToFile(fileData, filePath, includeMeta);
     return true;
   } catch (error) {
@@ -535,7 +538,11 @@ export async function importJourneysFromFiles(
         allJourneysData.trees[id] = obj;
       }
     }
-    await importJourneys(allJourneysData as MultiTreeExportInterface, options, errorHandler);
+    await importJourneys(
+      allJourneysData as MultiTreeExportInterface,
+      options,
+      errorHandler
+    );
     return true;
   } catch (error) {
     printError(error);
@@ -1182,7 +1189,10 @@ export async function deleteJourneys(
     `Deleting journeys...`
   );
   try {
-    const status: DeleteJourneysStatus = await _deleteJourneys(options, errorHandler);
+    const status: DeleteJourneysStatus = await _deleteJourneys(
+      options,
+      errorHandler
+    );
     stopProgressIndicator(
       indicatorId,
       `Deleted ${Object.keys(status).length} journeys`
