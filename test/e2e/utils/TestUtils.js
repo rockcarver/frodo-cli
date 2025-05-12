@@ -173,17 +173,14 @@ export async function testPromote(
   modifiedFilesDir,
   referenceSubDirs,
   env, 
-  name,
-  number,
+  name
 ) {
   env.env.FRODO_TEST_NAME = name
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
-  // const exportDirectory = 'promoteTestDir';
-  // const CMD2 = `frodo config export -AxND ${exportDirectory}`;
-  // await testExport(CMD2, env, undefined, undefined, exportDirectory, false);
-
+  expect(stdout).toMatchSnapshot();
+  expect(stderr).toMatchSnapshot();
 }
 
 async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {
