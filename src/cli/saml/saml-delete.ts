@@ -5,7 +5,7 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 const { deleteSaml2Provider, deleteSaml2Providers } =
   frodo.saml2.entityProvider;
@@ -36,12 +36,18 @@ export default function setup() {
           command
         );
         // -i / --entity-id
-        if (options.entityId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.entityId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Deleting entity provider '${options.entityId}'...`);
           await deleteSaml2Provider(options.entityId);
         }
         // -a / --all
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Deleting all entity providers...`);
           await deleteSaml2Providers();
         }

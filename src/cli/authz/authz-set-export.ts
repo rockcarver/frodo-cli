@@ -8,10 +8,15 @@ import {
 } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set export', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo authz set export',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Export authorization policy sets.')
@@ -76,7 +81,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all authorization policy sets to file...');
           const outcome = await exportPolicySetsToFile(
             options.file,
@@ -90,7 +98,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Exporting all authorization policy sets to separate files...'
           );

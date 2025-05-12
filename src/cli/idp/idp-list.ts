@@ -4,7 +4,8 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listSocialProviders } from '../../ops/IdpOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo idp list', [], deploymentTypes);

@@ -10,7 +10,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo script delete', [], deploymentTypes);
@@ -46,7 +46,10 @@ export default function setup() {
           options,
           command
         );
-        if (options.scriptId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.scriptId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Deleting script ${
               options.scriptId
@@ -54,7 +57,10 @@ export default function setup() {
           );
           const outcome = await deleteScriptId(options.scriptId);
           if (!outcome) process.exitCode = 1;
-        } else if (options.scriptName && (await getTokens(false, true, deploymentTypes))) {
+        } else if (
+          options.scriptName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Deleting script ${
               options.scriptName
@@ -62,7 +68,10 @@ export default function setup() {
           );
           const outcome = await deleteScriptName(options.scriptName);
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        } else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting all non-default scripts...');
           const outcome = await deleteAllScripts();
           if (!outcome) process.exitCode = 1;

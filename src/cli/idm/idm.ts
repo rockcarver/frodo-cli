@@ -20,8 +20,8 @@ export default function setup() {
   program.addCommand(CountCmd().name('count'));
 
   program.addCommand(Schema().name('schema'));
-  
+
   program.addCommand(DeleteCmd().name(`delete`));
-  
+
   return program;
 }

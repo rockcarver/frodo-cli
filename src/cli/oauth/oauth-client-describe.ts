@@ -2,10 +2,15 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client describe', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo oauth client describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Describe OAuth2 client.')

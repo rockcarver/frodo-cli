@@ -4,10 +4,15 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listPolicies, listPoliciesByPolicySet } from '../../ops/PolicyOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz policy list', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo authz policy list',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('List authorization policies.')

@@ -5,10 +5,14 @@ import { listOAuth2Clients } from '../../ops/OAuth2ClientOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client list', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo oauth client list',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('List OAuth2 clients.')

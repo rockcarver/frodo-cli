@@ -9,7 +9,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo service export', [], deploymentTypes);
@@ -72,7 +72,10 @@ export default function setup() {
         const globalConfig = options.global ?? false;
 
         // export by name
-        if (options.serviceId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.serviceId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting service...');
           const outcome = await exportServiceToFile(
             options.serviceId,
@@ -83,7 +86,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all services to a single file...');
           const outcome = await exportServicesToFile(
             options.file,
@@ -93,7 +99,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all services to separate files...');
           const outcome = await exportServicesToFiles(
             globalConfig,

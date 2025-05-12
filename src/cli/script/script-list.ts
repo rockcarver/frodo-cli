@@ -6,7 +6,7 @@ import { listScripts } from '../../ops/ScriptOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo script list', [], deploymentTypes);

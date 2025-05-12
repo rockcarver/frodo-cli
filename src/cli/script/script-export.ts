@@ -10,7 +10,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo script export', [], deploymentTypes);
@@ -85,7 +85,10 @@ export default function setup() {
           command
         );
         // export by id
-        if (options.scriptId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.scriptId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting script...');
           const outcome = await exportScriptToFile(
             options.scriptId,
@@ -120,7 +123,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all scripts to a single file...');
           const outcome = await exportScriptsToFile(
             options.file,
@@ -134,7 +140,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all scripts to separate files...');
           const outcome = await exportScriptsToFiles(
             options.extract,

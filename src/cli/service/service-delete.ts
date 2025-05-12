@@ -3,7 +3,8 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteService, deleteServices } from '../../ops/ServiceOps.js';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo service delete', [], deploymentTypes);
@@ -47,7 +48,10 @@ export default function setup() {
         if (options.id && (await getTokens(false, true, deploymentTypes))) {
           const outcome = await deleteService(options.id, globalConfig);
           if (!outcome) process.exitCode = 1;
-        } else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        } else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           const outcome = await deleteServices(globalConfig);
           if (!outcome) process.exitCode = 1;
         } else {

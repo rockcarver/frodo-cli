@@ -9,10 +9,15 @@ import {
 } from '../../ops/ResourceTypeOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz type export', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo authz type export',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Export authorization resource types.')
@@ -69,7 +74,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // export by name
-        else if (options.typeName && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.typeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting authorization resource type to file...');
           const outcome = await exportResourceTypeByNameToFile(
             options.typeName,
@@ -79,7 +87,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Exporting all authorization resource types to file...'
           );
@@ -90,7 +101,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A/--all-separate
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Exporting all authorization resource types to separate files...'
           );

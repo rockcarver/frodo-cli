@@ -8,10 +8,15 @@ import {
 } from '../../ops/ResourceTypeOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz type delete', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo authz type delete',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Delete authorization resource types.')
@@ -51,13 +56,19 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // delete by name
-        else if (options.typeName && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.typeName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting authorization resource type...');
           const outcome = await deleteResourceTypeUsingName(options.typeName);
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting all authorization resource types...');
           const outcome = await deleteResourceTypes();
           if (!outcome) process.exitCode = 1;

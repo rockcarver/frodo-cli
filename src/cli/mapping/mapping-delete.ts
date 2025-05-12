@@ -5,7 +5,7 @@ import { deleteMapping, deleteMappings } from '../../ops/MappingOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','idm'];
+const deploymentTypes = ['cloud', 'forgeops', 'idm'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo mapping delete', [], deploymentTypes);

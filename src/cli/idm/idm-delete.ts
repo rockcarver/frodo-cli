@@ -3,6 +3,7 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteConfigEntityById } from '../../ops/IdmOps';
 import { FrodoCommand } from '../FrodoCommand';
+
 const deploymentTypes = ['cloud', 'forgeops', 'idm'];
 
 export default function setup() {

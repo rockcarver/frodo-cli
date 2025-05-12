@@ -9,7 +9,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops' , 'classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey export', [], deploymentTypes);
@@ -85,7 +85,10 @@ export default function setup() {
           command
         );
         // export
-        if (options.journeyId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.journeyId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting journey...');
           const outcome = await exportJourneyToFile(
             options.journeyId,
@@ -100,7 +103,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all journeys to a single file...');
           const outcome = await exportJourneysToFile(
             options.file,
@@ -114,7 +120,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all journeys to separate files...');
           const outcome = await exportJourneysToFiles(options.metadata, {
             useStringArrays: options.useStringArrays,

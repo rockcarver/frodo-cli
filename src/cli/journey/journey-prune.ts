@@ -6,7 +6,7 @@ import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { findOrphanedNodes, removeOrphanedNodes } = frodo.authn.node;
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey prune', [], deploymentTypes);

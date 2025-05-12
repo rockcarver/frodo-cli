@@ -5,7 +5,8 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listJourneys } from '../../ops/JourneyOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey list', [], deploymentTypes);

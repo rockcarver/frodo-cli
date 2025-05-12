@@ -6,14 +6,19 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 const { saveTextToFile } = frodo.utils;
 const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
   frodo.authn.journey;
 
 export default function setup() {
-  const program = new FrodoCommand('frodo journey describe', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo journey describe',
+    [],
+    deploymentTypes
+  );
 
   program
     .description(

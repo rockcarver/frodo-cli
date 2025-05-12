@@ -10,10 +10,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client import', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo oauth client import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import OAuth2 clients.')
@@ -51,7 +55,11 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.appId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.file &&
+          options.appId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(`Importing OAuth2 client "${options.appId}"...`);
           const outcome = await importOAuth2ClientFromFile(
             options.appId,
@@ -63,7 +71,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all OAuth2 clients from a single file (${options.file})...`
           );
@@ -73,7 +85,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all OAuth2 clients from separate files in current directory...'
           );
@@ -83,7 +99,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first provider from file
-        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first OAuth2 client from file "${options.file}"...`
           );

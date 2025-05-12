@@ -6,7 +6,7 @@ import ImportCmd from './authz-policy-import.js';
 import ListCmd from './authz-policy-list.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('frodo authz policy' );
+  const program = new FrodoStubCommand('frodo authz policy');
 
   program.description('Manages authorization policies.');
 

@@ -11,7 +11,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo saml import', [], deploymentTypes);
@@ -57,7 +57,11 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.entityId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.file &&
+          options.entityId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing provider "${
               options.entityId
@@ -73,7 +77,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all providers from a single file (${options.file})...`
           );
@@ -83,7 +91,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all providers from separate files (*.saml.json) in current directory...'
           );
@@ -93,7 +105,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first provider from file
-        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first provider from file "${
               options.file

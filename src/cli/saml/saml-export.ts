@@ -10,7 +10,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo saml export', [], deploymentTypes);
@@ -62,7 +62,10 @@ export default function setup() {
           command
         );
         // export by id/name
-        if (options.entityId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.entityId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Exporting provider "${
               options.entityId
@@ -79,7 +82,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all providers to a single file...');
           const outcome = await exportSaml2ProvidersToFile(
             options.file,
@@ -91,7 +97,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all providers to separate files...');
           const outcome = await exportSaml2ProvidersToFiles(options.metadata, {
             deps: options.deps,

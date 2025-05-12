@@ -32,9 +32,6 @@ const {
 } = frodo.utils;
 const { exportFullConfiguration, importFullConfiguration } = frodo.config;
 
-
-
-
 /**
  * Export everything to separate files
  * @param {String} file file name

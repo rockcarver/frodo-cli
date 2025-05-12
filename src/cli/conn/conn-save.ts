@@ -110,7 +110,7 @@ export default function setup() {
             options.sa &&
             (await isServiceAccountsFeatureAvailable())
           ) {
-            // validate and add existing service account          
+            // validate and add existing service account
             if (options.saId && options.saJwkFile) {
               verboseMessage(`Validating and adding service account...`);
               if (

@@ -4,10 +4,14 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deleteOauth2ClientById } from '../../ops/OAuth2ClientOps';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo oauth client delete', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo oauth client delete',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Delete OAuth2 clients.')

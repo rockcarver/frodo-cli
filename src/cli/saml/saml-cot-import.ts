@@ -11,10 +11,14 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo saml cot import', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo saml cot import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import SAML circles of trust.')
@@ -54,7 +58,11 @@ export default function setup() {
           command
         );
         // import by id
-        if (options.file && options.cotId && (await getTokens(false, true, deploymentTypes))) {
+        if (
+          options.file &&
+          options.cotId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing circle of trust "${
               options.cotId
@@ -67,7 +75,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing all circles of trust from a single file (${options.file})...`
           );
@@ -75,7 +87,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && !options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          !options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             'Importing all circles of trust from separate files (*.saml.json) in current directory...'
           );
@@ -83,7 +99,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // import first from file
-        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.file &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage(
             `Importing first circle of trust from file "${
               options.file

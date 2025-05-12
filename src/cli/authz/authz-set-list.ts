@@ -2,7 +2,8 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { listPolicySets } from '../../ops/PolicySetOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo authz set list', [], deploymentTypes);

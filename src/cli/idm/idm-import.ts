@@ -11,7 +11,7 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops' , 'idm'];
+const deploymentTypes = ['cloud', 'forgeops', 'idm'];
 
 export default function setup() {
   const program = new FrodoCommand('frodo idm import', [], deploymentTypes);

@@ -4,10 +4,15 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { deletePolicySetById, deletePolicySets } from '../../ops/PolicySetOps';
 import { printMessage, verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
-const deploymentTypes = ['cloud', 'forgeops','classic'];
+
+const deploymentTypes = ['cloud', 'forgeops', 'classic'];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authz set delete', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo authz set delete',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Delete authorization policy sets.')
@@ -36,7 +41,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting all authorization policy sets...');
           const outcome = await deletePolicySets();
           if (!outcome) process.exitCode = 1;
