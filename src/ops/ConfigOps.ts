@@ -20,6 +20,7 @@ import { saveServersToFiles } from './classic/ServerOps';
 import { ManagedSkeleton, writeManagedJsonToDirectory } from './IdmOps';
 import { writeSyncJsonToDirectory } from './MappingOps';
 import { extractScriptsToFiles } from './ScriptOps';
+import { errorHandler } from './utils/OpsUtils';
 
 const {
   getTypedFilename,
@@ -55,16 +56,12 @@ export async function exportEverythingToFile(
   }
 ): Promise<boolean> {
   try {
-    const collectErrors: Error[] = [];
-    const exportData = await exportFullConfiguration(options, collectErrors);
+    const exportData = await exportFullConfiguration(options, errorHandler);
     let fileName = 'all.config.json';
     if (file) {
       fileName = file;
     }
     saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
-    if (collectErrors.length > 0) {
-      throw new FrodoError(`Errors occurred during full export`, collectErrors);
-    }
     return true;
   } catch (error) {
     printError(error);
@@ -102,36 +99,36 @@ export async function exportEverythingToFiles(
     const collectErrors: Error[] = [];
     const exportData: FullExportInterface = await exportFullConfiguration(
       options,
-      collectErrors
+      errorHandler
     );
     delete exportData.meta;
     const baseDirectory = getWorkingDirectory(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(exportData.global).forEach(([type, obj]: [string, any]) =>
-      exportItem(
-        exportData.global,
-        type,
-        obj,
-        `${baseDirectory}/global`,
-        includeMeta,
-        extract,
-        separateMappings,
-        separateObjects
-      )
-    );
-    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
-      Object.entries(data).forEach(([type, obj]: [string, any]) =>
         exportItem(
-          data,
+        exportData.global,
           type,
           obj,
-          `${baseDirectory}/realm/${realm}`,
+          `${baseDirectory}/global`,
           includeMeta,
           extract,
           separateMappings,
           separateObjects
         )
-      )
+    );
+    Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
+        Object.entries(data).forEach(([type, obj]: [string, any]) =>
+          exportItem(
+            data,
+            type,
+            obj,
+            `${baseDirectory}/realm/${realm}`,
+            includeMeta,
+            extract,
+            separateMappings,
+            separateObjects
+          )
+        )
     );
     if (collectErrors.length > 0) {
       throw new FrodoError(`Errors occurred during full export`, collectErrors);
@@ -354,14 +351,7 @@ export async function importEverythingFromFile(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfig(file);
-    const collectErrors: Error[] = [];
-    await importFullConfiguration(data, options, collectErrors);
-    if (collectErrors.length > 0) {
-      throw new FrodoError(
-        `Errors occurred during full config import`,
-        collectErrors
-      );
-    }
+    await importFullConfiguration(data, options, errorHandler);
     return true;
   } catch (error) {
     cleanupProgressIndicators();
@@ -386,14 +376,7 @@ export async function importEverythingFromFiles(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
-    const collectErrors: Error[] = [];
-    await importFullConfiguration(data, options, collectErrors);
-    if (collectErrors.length > 0) {
-      throw new FrodoError(
-        `Errors occurred during full config import`,
-        collectErrors
-      );
-    }
+    await importFullConfiguration(data, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);
@@ -438,14 +421,7 @@ export async function importEntityfromFile(
       data.realm[realm] = {} as FullRealmExportInterface;
       await getConfig(data.realm[realm], file, undefined);
     }
-    const collectErrors: Error[] = [];
-    const imports = await importFullConfiguration(data, options, collectErrors);
-    if (collectErrors.length > 0) {
-      throw new FrodoError(
-        `Error occurred during config import`,
-        collectErrors
-      );
-    }
+    const imports = await importFullConfiguration(data, options, errorHandler);
     if (imports.length === 0) {
       throw new FrodoError(`No imports were made`);
     }

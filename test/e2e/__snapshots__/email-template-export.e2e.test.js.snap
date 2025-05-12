@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 1`] = `""`;
+exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export --all --file my-allEmailTemplates.template.email.json": should export all email templates to a single file named my-allEmailTemplates.template.email.json: my-allEmailTemplates.template.email.json 1`] = `
 {
@@ -435,7 +437,9 @@ a {
 }
 `;
 
-exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `""`;
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export --all-separate --no-metadata --directory emailTemplateExportTestDir3": should export all email templates to separate files in the directory emailTemplateExportTestDir3: emailTemplateExportTestDir3/baselineDemoEmailVerification.template.email.json 1`] = `
 {
@@ -981,7 +985,9 @@ exports[`frodo email template export "frodo email template export --all-separate
 }
 `;
 
-exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome" 1`] = `""`;
+exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome" 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome" 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export --template-id welcome": should export the email template with email id "welcome": welcome.template.email.json 1`] = `
 {
@@ -1008,7 +1014,9 @@ exports[`frodo email template export "frodo email template export --template-id 
 }
 `;
 
-exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 1`] = `""`;
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export -A": should export all email templates to separate files: baselineDemoEmailVerification.template.email.json 1`] = `
 {
@@ -1571,7 +1579,9 @@ exports[`frodo email template export "frodo email template export -A": should ex
 }
 `;
 
-exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 1`] = `""`;
+exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export -NaD emailTemplateExportTestDir2": should export all email templates to a single file in the directory emailTemplateExportTestDir2: emailTemplateExportTestDir2/allEmailTemplates.template.email.json 1`] = `
 {
@@ -2005,7 +2015,9 @@ a {
 }
 `;
 
-exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1 1`] = `""`;
+exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export -Ni welcome -D emailTemplateExportTestDir1": should export the email template with email id "welcome" into the directory emailTemplateExportTestDir1: emailTemplateExportTestDir1/welcome.template.email.json 1`] = `
 {
@@ -2049,7 +2061,9 @@ a{
 }
 `;
 
-exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 1`] = `""`;
+exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export -a": should export all email templates to a single file: allEmailTemplates.template.email.json 1`] = `
 {
@@ -2484,7 +2498,9 @@ a {
 }
 `;
 
-exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json 1`] = `""`;
+exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json 1`] = `0`;
+
+exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json 2`] = `""`;
 
 exports[`frodo email template export "frodo email template export -i welcome -f my-welcome.template.email.json": should export the email template with email id "welcome" into file named my-welcome.template.email.json: my-welcome.template.email.json 1`] = `
 {

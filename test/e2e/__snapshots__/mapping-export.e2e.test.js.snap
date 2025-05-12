@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export --all": should export all mappings to a single file: allMappings.mapping.json 1`] = `
 {
@@ -669,7 +671,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user": managedAlpha_user_managedBravo_user.sync.json 1`] = `
 {
@@ -769,7 +773,9 @@ exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlp
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps.sync.json 1`] = `
 {
@@ -1015,7 +1021,9 @@ exports[`frodo mapping export "frodo mapping export --no-deps --use-string-array
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2": should export all mappings to a single file in the directory mappingExportTestDir2: mappingExportTestDir2/allMappings.mapping.json 1`] = `
 {
@@ -1256,7 +1264,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/mapping/managedBravo_group_managedBravo_group.mapping.json 1`] = `
 {
@@ -1961,7 +1971,9 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_group_managedBravo_group --no-deps --use-string-arrays -D mappingExportTestDir1": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into the directory named mappingExportTestDir1: mappingExportTestDir1/managedBravo_group_managedBravo_group.mapping.json 1`] = `
 {
@@ -2038,7 +2050,9 @@ exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_gro
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export -a --file my-allMappings.mapping.json": should export all mappings to a single file named my-allMappings.mapping.json: my-allMappings.mapping.json 1`] = `
 {
@@ -2707,7 +2721,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 1`] = `""`;
+exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 2`] = `""`;
 
 exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json: my-frodo-test-mapping.mapping.json 1`] = `
 {

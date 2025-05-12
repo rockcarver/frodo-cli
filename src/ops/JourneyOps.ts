@@ -29,7 +29,7 @@ import * as Node from './NodeOps';
 import * as Saml2 from './Saml2Ops';
 import * as Script from './ScriptOps';
 import * as Theme from './ThemeOps';
-import { cloneDeep } from './utils/OpsUtils';
+import { cloneDeep, errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -232,7 +232,7 @@ export async function exportJourneysToFile(
       file = getTypedFilename(`all${getRealmString()}Journeys`, 'journey');
     }
     const filePath = getFilePath(file, true);
-    const fileData: MultiTreeExportInterface = await exportJourneys(options);
+    const fileData: MultiTreeExportInterface = await exportJourneys(options, errorHandler);
     saveJsonToFile(fileData, filePath, includeMeta);
     return true;
   } catch (error) {
@@ -255,7 +255,7 @@ export async function exportJourneysToFiles(
   }
 ): Promise<boolean> {
   try {
-    const journeysExport = await exportJourneys(options);
+    const journeysExport = await exportJourneys(options, errorHandler);
     const trees = Object.entries(journeysExport.trees);
     for (const [treeId, treeValue] of trees) {
       const indicatorId = createProgressIndicator(
@@ -507,7 +507,7 @@ export async function importJourneysFromFile(
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await importJourneys(fileData, options);
+    await importJourneys(fileData, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);
@@ -535,7 +535,7 @@ export async function importJourneysFromFiles(
         allJourneysData.trees[id] = obj;
       }
     }
-    await importJourneys(allJourneysData as MultiTreeExportInterface, options);
+    await importJourneys(allJourneysData as MultiTreeExportInterface, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);
@@ -1182,7 +1182,7 @@ export async function deleteJourneys(
     `Deleting journeys...`
   );
   try {
-    const status: DeleteJourneysStatus = await _deleteJourneys(options);
+    const status: DeleteJourneysStatus = await _deleteJourneys(options, errorHandler);
     stopProgressIndicator(
       indicatorId,
       `Deleted ${Object.keys(status).length} journeys`

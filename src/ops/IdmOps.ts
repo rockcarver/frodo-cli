@@ -17,6 +17,7 @@ import {
   getLegacyMappingsFromFiles,
   writeSyncJsonToDirectory,
 } from './MappingOps';
+import { errorHandler } from './utils/OpsUtils';
 
 const {
   getFilePath,
@@ -191,7 +192,7 @@ export async function exportAllConfigEntitiesToFile(
     const exportData = await exportConfigEntities({
       envReplaceParams: options.envReplaceParams,
       entitiesToExport: options.entitiesToExportOrImport,
-    });
+    }, errorHandler);
     let fileName = getTypedFilename(`all`, `idm`);
     if (file) {
       fileName = file;
@@ -225,7 +226,7 @@ export async function exportAllConfigEntitiesToFiles(
     const exportData = await exportConfigEntities({
       envReplaceParams: options.envReplaceParams,
       entitiesToExport: options.entitiesToExportOrImport,
-    });
+    }, errorHandler);
     for (const [id, obj] of Object.entries(exportData.idm)) {
       try {
         if (separateMappings && id === 'sync') {
@@ -313,7 +314,7 @@ export async function importConfigEntityByIdFromFile(
       envReplaceParams: options.envReplaceParams,
       entitiesToImport: undefined,
       validate,
-    });
+    }, errorHandler);
     return true;
   } catch (error) {
     printError(error);
@@ -402,7 +403,7 @@ export async function importFirstConfigEntityFromFile(
       envReplaceParams: options.envReplaceParams,
       entitiesToImport: undefined,
       validate,
-    });
+    }, errorHandler);
     stopProgressIndicator(
       indicatorId,
       `Imported ${entityId} from ${filePath}.`,
@@ -448,7 +449,8 @@ export async function importAllConfigEntitiesFromFile(
         entitiesToImport: options.entitiesToExportOrImport,
         envReplaceParams: options.envReplaceParams,
         validate,
-      }
+      },
+      errorHandler
     );
     stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
     return true;
@@ -538,7 +540,8 @@ export async function importAllConfigEntitiesFromFiles(
         entitiesToImport: options.entitiesToExportOrImport,
         envReplaceParams: options.envReplaceParams,
         validate,
-      }
+      },
+      errorHandler
     );
     stopProgressIndicator(indicatorId, `Imported config entities`, 'success');
     return true;

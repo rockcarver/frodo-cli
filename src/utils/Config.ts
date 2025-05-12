@@ -13,6 +13,7 @@ import { getManagedObjectsFromFiles } from '../ops/IdmOps';
 import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { printMessage } from './Console';
+import { errorHandler } from '../ops/utils/OpsUtils';
 
 const { getFilePath, readFiles, saveTextToFile, saveJsonToFile } = frodo.utils;
 
@@ -93,7 +94,7 @@ export async function getFullExportConfig(
       includeReadOnly: true,
       onlyRealm: false,
       onlyGlobal: false,
-    });
+    }, errorHandler);
   }
   // Go through files in the working directory and reconstruct the full export
   return await getFullExportConfigFromDirectory(workingDirectory);

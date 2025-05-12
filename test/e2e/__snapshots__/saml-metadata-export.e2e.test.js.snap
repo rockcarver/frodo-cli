@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2": should export the saml metadata with entity id "iSPAzure" to the file test.xml in the directory samlMetadataExportTestDir2 1`] = `""`;
+exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2": should export the saml metadata with entity id "iSPAzure" to the file test.xml in the directory samlMetadataExportTestDir2 1`] = `0`;
+
+exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2": should export the saml metadata with entity id "iSPAzure" to the file test.xml in the directory samlMetadataExportTestDir2 2`] = `""`;
 
 exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure --file test.xml --directory samlMetadataExportTestDir2": should export the saml metadata with entity id "iSPAzure" to the file test.xml in the directory samlMetadataExportTestDir2: samlMetadataExportTestDir2/test.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -81,7 +83,9 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
 "
 `;
 
-exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml 1`] = `""`;
+exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml 1`] = `0`;
+
+exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml 2`] = `""`;
 
 exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPAzure -f my-iSPAzure.metadata.xml": should export the saml metadata with entity id "iSPAzure" to the file my-iSPAzure.metadata.xml: my-iSPAzure.metadata.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -162,7 +166,9 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
 "
 `;
 
-exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1": should export the saml metadata with entity id "iSPAzure" to the directory samlMetadataExportTestDir1 1`] = `""`;
+exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1": should export the saml metadata with entity id "iSPAzure" to the directory samlMetadataExportTestDir1 1`] = `0`;
+
+exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1": should export the saml metadata with entity id "iSPAzure" to the directory samlMetadataExportTestDir1 2`] = `""`;
 
 exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure -D samlMetadataExportTestDir1": should export the saml metadata with entity id "iSPAzure" to the directory samlMetadataExportTestDir1: samlMetadataExportTestDir1/iSPAzure.metadata.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -243,7 +249,9 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
 "
 `;
 
-exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure" 1`] = `""`;
+exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure" 1`] = `0`;
+
+exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure" 2`] = `""`;
 
 exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": should export the saml metadata with entity id "iSPAzure": iSPAzure.metadata.xml 1`] = `
 "<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
