@@ -7,8 +7,17 @@ import { describeJourney, describeJourneyMd } from '../../ops/JourneyOps';
 import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops', 'classic'];
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
 
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 const { saveTextToFile } = frodo.utils;
 const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
   frodo.authn.journey;

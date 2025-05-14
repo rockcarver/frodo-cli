@@ -1,9 +1,12 @@
+import { frodo } from '@rockcarver/frodo-lib';
+
 import { getTokens } from '../../ops/AuthenticateOps';
 import { listAdminFederationProviders } from '../../ops/cloud/AdminFederationOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud'];
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(

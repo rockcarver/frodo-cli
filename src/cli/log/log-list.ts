@@ -9,7 +9,8 @@ import { FrodoCommand } from '../FrodoCommand';
 const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 const { getLogSources } = frodo.cloud.log;
 
-const deploymentTypes = ['cloud'];
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(

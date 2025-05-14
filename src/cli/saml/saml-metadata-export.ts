@@ -1,4 +1,4 @@
-import { state } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -6,7 +6,17 @@ import { exportSaml2MetadataToFile } from '../../ops/Saml2Ops';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops', 'classic'];
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -63,7 +73,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // // --all-separate -A
-        // else if (options.allSeparate && (await getTokens())) {
+        // else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
         //   printMessage('Exporting all providers to separate files...');
         //   exportProvidersToFiles();
         // }

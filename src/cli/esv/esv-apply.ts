@@ -9,7 +9,8 @@ import { FrodoCommand } from '../FrodoCommand';
 const { checkForUpdates, applyUpdates } = frodo.cloud.startup;
 const { resolveUserName } = frodo.idm.managed;
 
-const deploymentTypes = ['cloud'];
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(

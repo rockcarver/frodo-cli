@@ -5,8 +5,20 @@ import { describeRealm } from '../../ops/RealmOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo realm describe');
+  const program = new FrodoCommand('frodo realm describe', [], deploymentTypes);
 
   program.description('Describe realms.').action(
     // implement command logic inside action handler
@@ -19,7 +31,7 @@ export default function setup() {
         options,
         command
       );
-      if (await getTokens()) {
+      if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage(`Retrieving details of realm ${state.getRealm()}...`);
         describeRealm(frodo.utils.getRealmName(state.getRealm()));
       } else {

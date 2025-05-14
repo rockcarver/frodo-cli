@@ -15,7 +15,11 @@ const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent import');
+  const program = new FrodoCommand(
+    'frodo agent import',
+    [],
+    globalDeploymentTypes
+  );
 
   program
     .description('Import agents.')

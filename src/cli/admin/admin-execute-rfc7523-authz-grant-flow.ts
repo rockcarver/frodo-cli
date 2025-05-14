@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
 import { Option } from 'commander';
 import fs from 'fs';
@@ -8,6 +9,18 @@ import { executeRfc7523AuthZGrantFlow } from '../../ops/AdminOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand.js';
+
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -65,7 +78,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           printMessage(`Executing RFC7523 authorization grant flow...`);
           let clientId = uuidv4();
           if (options.clientId) {

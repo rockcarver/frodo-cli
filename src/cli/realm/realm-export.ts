@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -10,8 +11,20 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo realm export');
+  const program = new FrodoCommand('frodo realm export', [], deploymentTypes);
 
   program
     .description('Export realms.')
@@ -58,7 +71,10 @@ export default function setup() {
           command
         );
         // export by id
-        if (options.realmId && (await getTokens())) {
+        if (
+          options.realmId &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting realm...');
           const outcome = await exportRealmById(
             options.realmId,
@@ -68,7 +84,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // export by name
-        else if (options.realmName && (await getTokens())) {
+        else if (
+          options.realmName &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting realm...');
           const outcome = await exportRealmByName(
             options.realmName,
@@ -78,7 +97,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -a / --all
-        else if (options.all && (await getTokens())) {
+        else if (
+          options.all &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all realms to a single file...');
           const outcome = await exportRealmsToFile(
             options.file,
@@ -87,7 +109,10 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // -A / --all-separate
-        else if (options.allSeparate && (await getTokens())) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting all realms to separate files...');
           const outcome = await exportRealmsToFiles(options.metadata);
           if (!outcome) process.exitCode = 1;

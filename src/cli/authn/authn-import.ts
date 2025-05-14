@@ -10,7 +10,11 @@ const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo authn import');
+  const program = new FrodoCommand(
+    'frodo authn import',
+    [],
+    globalDeploymentTypes
+  );
 
   program
     .description('Import authentication settings.')

@@ -14,7 +14,7 @@ const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
 const deploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo realm import');
+  const program = new FrodoCommand('frodo realm import', [], deploymentTypes);
 
   program
     .description('Import realms.')

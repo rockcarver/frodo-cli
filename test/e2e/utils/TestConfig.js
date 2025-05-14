@@ -20,5 +20,4 @@ export const idm_connection = {
   user: 'openidm-admin',
   pass: 'openidm-admin',
   realm: '/',
-  insecure: true
 }

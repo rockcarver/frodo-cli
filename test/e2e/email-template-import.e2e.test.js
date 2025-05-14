@@ -46,7 +46,8 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+
+/* cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -i welcome -f emailTemplate-welcome.json -D test/e2e/exports/all-separate/raw
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --template-id welcome --file test/e2e/exports/all/allEmailTemplates.template.email.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -f emailTemplate-welcome.json -D test/e2e/exports/all-separate/raw
@@ -57,8 +58,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --raw -AD test/e2e/exports/all-separate/raw
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo email template import --all-separate --directory test/e2e/exports/all-separate/cloud/global/emailTemplate
 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template import -af test/e2e/exports/idm/allEmailTemplates.template.email.json -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template import -AD test/e2e/exports/idm/A-email -m idm
+// idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template import -af test/e2e/exports/all/idm/allEmailTemplates.template.email.json -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo email template import -AD test/e2e/exports/all-separate/idm/A-email -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -133,14 +135,14 @@ describe('frodo email template import', () => {
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
-  test(`"frodo email template import -af test/e2e/exports/idm/allEmailTemplates.template.email.json -m idm": should import email template for on prem idm from one file`, async () => {
-    const CMD = `frodo email template import -af test/e2e/exports/idm/allEmailTemplates.template.email.json -m idm`;
+  test(`"frodo email template import -af test/e2e/exports/all/idm/allEmailTemplates.template.email.json -m idm": should import email template for on prem idm from one file`, async () => {
+    const CMD = `frodo email template import -af test/e2e/exports/all/idm/allEmailTemplates.template.email.json -m idm`;
     const { stdout } = await exec(CMD, idmenv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo email template import -AD test/e2e/exports/idm/A-email -m idm": should import all on prem idm email templates from the directory"`, async () => {
-    const CMD = `frodo email template import -AD test/e2e/exports/idm/A-email -m idm`;
+  test(`"frodo email template import -AD test/e2e/exports/all-separate/idm/A-email -m idm": should import all on prem idm email templates from the directory"`, async () => {
+    const CMD = `frodo email template import -AD test/e2e/exports/all-separate/idm/A-email -m idm`;
     const { stdout } = await exec(CMD, idmenv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });

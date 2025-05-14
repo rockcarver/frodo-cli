@@ -57,8 +57,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/global/idm
 
 //IDM
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -af test/e2e/exports/idm/allMappings.mapping.json -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -AD test/e2e/exports/idm/A-mapping -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -af test/e2e/exports/all/idm/allMappings.mapping.json -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -124,14 +124,14 @@ describe('frodo mapping import', () => {
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
-    test(`"frodo mapping import -af test/e2e/exports/idm/allMappings.mapping.json -m idm": should import all IDM mappings from file."`, async () => {
-        const CMD = `frodo mapping import -af test/e2e/exports/idm/allMappings.mapping.json -m idm`;
+    test(`"frodo mapping import -af test/e2e/exports/all/idm/allMappings.mapping.json -m idm": should import all IDM mappings from file."`, async () => {
+        const CMD = `frodo mapping import -af test/e2e/exports/all/idm/allMappings.mapping.json -m idm`;
         const { stdout } = await exec(CMD, idmEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo mapping import -AD test/e2e/exports/idm/A-mapping -m idm": should import all IDM mappings from the directory"`, async () => {
-        const CMD = `frodo mapping import -AD test/e2e/exports/idm/A-mapping -m idm`;
+    test(`"frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm": should import all IDM mappings from the directory"`, async () => {
+        const CMD = `frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm`;
         const { stdout } = await exec(CMD, idmEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

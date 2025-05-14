@@ -5,10 +5,26 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+];
+
 const { removeCustomDomain } = frodo.realm;
 
 export default function setup() {
-  const program = new FrodoCommand('frodo realm remove-custom-domain');
+  const program = new FrodoCommand(
+    'frodo realm remove-custom-domain',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Remove custom domain (realm DNS alias).')
@@ -29,7 +45,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           verboseMessage(
             `Removing custom DNS domain ${
               options.domain

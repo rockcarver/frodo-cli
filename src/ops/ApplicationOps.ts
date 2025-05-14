@@ -216,7 +216,6 @@ export async function exportApplicationsToFile(
       0,
       `Exporting applications...`
     );
-
     let fileName = getTypedFilename(
       `all${titleCase(frodo.utils.getRealmName(state.getRealm()))}Applications`,
       'application'
