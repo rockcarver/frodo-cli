@@ -46,7 +46,7 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -D test/e2e/exports/all-separate/cloud/global/idm/managed
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -i -f test/e2e/exports/all-separate/cloud/global/idm/managed/alpha_user.managed.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -f test/e2e/exports/all/all.managed.json

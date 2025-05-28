@@ -46,7 +46,7 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role import -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f test/e2e/exports/all/allInternalRoles.internalRole.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role import --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56 --file test/e2e/exports/all/allInternalRoles.internalRole.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role import -n test-internal-role -f test/e2e/exports/all/allInternalRoles.internalRole.json
@@ -57,9 +57,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role import -AD test/e2e/exports/all-separate/cloud/global/internalRole
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role import --all-separate --directory test/e2e/exports/all-separate/cloud/global/internalRole
  
-//idm
+// IDM
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role import -af test/e2e/exports/all/idm/allInternalRoles.internalRole.json -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role import -AD test/e2e/exports/all-separate/idm/A-role -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role import -AD test/e2e/exports/all-separate/idm/global/internalRole -m idm
 */
 
 import cp from 'child_process';
@@ -139,8 +139,8 @@ describe('frodo role import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo role import -AD test/e2e/exports/all-separate/idm/A-role -m idm ": should import all on prem idm roles from the directory"`, async () => {
-        const CMD = `frodo role import -AD test/e2e/exports/all-separate/idm/A-role -m idm`;
+    test(`"frodo role import -AD test/e2e/exports/all-separate/idm/global/internalRole -m idm ": should import all on prem idm roles from the directory"`, async () => {
+        const CMD = `frodo role import -AD test/e2e/exports/all-separate/idm/global/internalRole -m idm`;
         const { stdout } = await exec(CMD, idmenv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

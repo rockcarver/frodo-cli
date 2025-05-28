@@ -525,7 +525,19 @@
           }
         ],
         "eventTopics": {
+          "access": {
+            "defaultEvents": true,
+            "filter": {
+              "script": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "groovy"
+              }
+            },
+            "name": "access"
+          },
           "activity": {
+            "defaultEvents": true,
             "filter": {
               "actions": [
                 "create",
@@ -535,12 +547,25 @@
                 "action"
               ]
             },
+            "name": "activity",
             "passwordFields": [
               "password"
             ],
             "watchedFields": []
           },
+          "authentication": {
+            "defaultEvents": true,
+            "filter": {
+              "script": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "text/javascript"
+              }
+            },
+            "name": "authentication"
+          },
           "config": {
+            "defaultEvents": true,
             "filter": {
               "actions": [
                 "create",
@@ -549,11 +574,21 @@
                 "patch",
                 "action"
               ]
-            }
+            },
+            "name": "config"
+          },
+          "recon": {
+            "defaultEvents": true,
+            "name": "recon"
+          },
+          "sync": {
+            "defaultEvents": true,
+            "name": "sync"
           }
         },
         "exceptionFormatter": {
-          "file": "bin/defaults/script/audit/stacktraceFormatter.js",
+          "globals": {},
+          "source": "//seantest",
           "type": "text/javascript"
         }
       },
@@ -565,6 +600,11 @@
               "enabled": true,
               "name": "STATIC_USER",
               "properties": {
+                "augmentSecurityContext": {
+                  "globals": {},
+                  "source": "//seantest",
+                  "type": "text/javascript"
+                },
                 "defaultUserRoles": [
                   "internal/role/openidm-reg"
                 ],
@@ -743,14 +783,6 @@
             "lastSync": {
               "effectiveAssignmentsProperty": "effectiveAssignments",
               "lastSyncProperty": "lastSync"
-            },
-            "meta": {
-              "property": "_meta",
-              "resourceCollection": "internal/usermeta",
-              "trackedProperties": [
-                "createDate",
-                "lastChanged"
-              ]
             },
             "name": "user",
             "notifications": {
@@ -1793,9 +1825,13 @@
           },
           {
             "name": "role",
+            "onCreate": {
+              "globals": {},
+              "source": "//asdfasdfadsfasdf",
+              "type": "text/javascript"
+            },
             "schema": {
               "$schema": "http://forgerock.org/json-schema#",
-              "description": "",
               "icon": "fa-check-square",
               "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Role",
               "mat-icon": "assignment_ind",
@@ -2217,6 +2253,16 @@
           },
           {
             "name": "organization",
+            "onCreate": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "text/javascript"
+            },
+            "onRead": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "groovy"
+            },
             "schema": {
               "$schema": "http://forgerock.org/json-schema#",
               "description": "An organization or tenant, whose resources are managed by organizational admins.",
@@ -4842,6 +4888,29 @@
           }
         ]
       },
+      "schedule/seantest": {
+        "_id": "schedule/seantest",
+        "concurrentExecution": false,
+        "enabled": false,
+        "endTime": null,
+        "invokeContext": {
+          "script": {
+            "globals": {},
+            "source": "//sean has changed this script. Let's see if it is still working. qqqqqqqqqqqqqqSchedule1\n",
+            "type": "text/javascript"
+          }
+        },
+        "invokeLogLevel": "info",
+        "invokeService": "script",
+        "misfirePolicy": "fireAndProceed",
+        "persisted": true,
+        "recoverable": false,
+        "repeatCount": 0,
+        "repeatInterval": 0,
+        "schedule": null,
+        "startTime": null,
+        "type": "simple"
+      },
       "schedule/taskscan_activate": {
         "_id": "schedule/taskscan_activate",
         "concurrentExecution": false,
@@ -5610,6 +5679,250 @@
       "_id": "sync",
       "mappings": [
         {
+          "_id": "sync/managedOrganization_managedRole",
+          "consentRequired": false,
+          "displayName": "managedOrganization_managedRole",
+          "icon": null,
+          "name": "managedOrganization_managedRole",
+          "policies": [
+            {
+              "action": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "text/javascript"
+              },
+              "situation": "AMBIGUOUS"
+            },
+            {
+              "action": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "text/javascript"
+              },
+              "condition": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "text/javascript"
+              },
+              "situation": "SOURCE_MISSING"
+            },
+            {
+              "action": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "groovy"
+              },
+              "postAction": {
+                "globals": {},
+                "source": "//seantest",
+                "type": "groovy"
+              },
+              "situation": "MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND_ALREADY_LINKED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNQUALIFIED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNASSIGNED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "LINK_ONLY"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "TARGET_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ALL_GONE"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "CONFIRMED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ABSENT"
+            }
+          ],
+          "properties": [],
+          "source": "managed/organization",
+          "syncAfter": [],
+          "target": "managed/role"
+        },
+        {
+          "_id": "sync/managedOrganization_managedSeantestmanagedobject",
+          "consentRequired": false,
+          "displayName": "managedOrganization_managedSeantestmanagedobject",
+          "icon": null,
+          "name": "managedOrganization_managedSeantestmanagedobject",
+          "policies": [
+            {
+              "action": "ASYNC",
+              "situation": "ABSENT"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ALL_GONE"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "AMBIGUOUS"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "CONFIRMED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND_ALREADY_LINKED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "LINK_ONLY"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "TARGET_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNASSIGNED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNQUALIFIED"
+            }
+          ],
+          "properties": [],
+          "source": "managed/organization",
+          "syncAfter": [
+            "managedOrganization_managedRole"
+          ],
+          "target": "managed/seantestmanagedobject"
+        },
+        {
+          "_id": "sync/managedAssignment_managedUser",
+          "consentRequired": false,
+          "displayName": "managedAssignment_managedUser",
+          "icon": null,
+          "name": "managedAssignment_managedUser",
+          "policies": [
+            {
+              "action": {
+                "globals": {},
+                "source": "//asdfasdf",
+                "type": "groovy"
+              },
+              "situation": "AMBIGUOUS"
+            },
+            {
+              "action": {
+                "globals": {},
+                "source": "//asdfasdfasdf",
+                "type": "text/javascript"
+              },
+              "condition": {
+                "globals": {},
+                "source": "//asdfasdfasdf",
+                "type": "groovy"
+              },
+              "postAction": {
+                "globals": {},
+                "source": "//asdfasdf",
+                "type": "text/javascript"
+              },
+              "situation": "SOURCE_MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND_ALREADY_LINKED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNQUALIFIED"
+            },
+            {
+              "action": {
+                "globals": {},
+                "source": "//asdfasdfasdf",
+                "type": "text/javascript"
+              },
+              "situation": "UNASSIGNED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "LINK_ONLY"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "TARGET_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ALL_GONE"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "CONFIRMED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ABSENT"
+            }
+          ],
+          "properties": [],
+          "source": "managed/assignment",
+          "syncAfter": [
+            "managedOrganization_managedRole",
+            "managedOrganization_managedSeantestmanagedobject"
+          ],
+          "target": "managed/user"
+        },
+        {
           "_id": "sync/seantestmapping",
           "consentRequired": false,
           "displayName": "seantestmapping",
@@ -5671,18 +5984,85 @@
           ],
           "properties": [],
           "source": "managed/assignment",
-          "syncAfter": [],
+          "syncAfter": [
+            "managedOrganization_managedRole",
+            "managedOrganization_managedSeantestmanagedobject",
+            "managedAssignment_managedUser"
+          ],
           "target": "managed/organization"
+        },
+        {
+          "_id": "sync/managedSeantestmanagedobject_managedUser",
+          "consentRequired": false,
+          "displayName": "managedSeantestmanagedobject_managedUser",
+          "icon": null,
+          "name": "managedSeantestmanagedobject_managedUser",
+          "policies": [
+            {
+              "action": "ASYNC",
+              "situation": "ABSENT"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "ALL_GONE"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "AMBIGUOUS"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "CONFIRMED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "FOUND_ALREADY_LINKED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "LINK_ONLY"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "SOURCE_MISSING"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "TARGET_IGNORED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNASSIGNED"
+            },
+            {
+              "action": "ASYNC",
+              "situation": "UNQUALIFIED"
+            }
+          ],
+          "properties": [],
+          "source": "managed/seantestmanagedobject",
+          "syncAfter": [
+            "managedOrganization_managedRole",
+            "managedOrganization_managedSeantestmanagedobject",
+            "managedAssignment_managedUser",
+            "seantestmapping"
+          ],
+          "target": "managed/user"
         }
       ]
     }
-  },
-  "meta": {
-    "exportDate": "2025-05-06T15:35:37.242Z",
-    "exportTool": "frodo",
-    "exportToolVersion": "v3.0.4-0 [v20.18.0]",
-    "exportedBy": "openidm-admin",
-    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
   },
   "realm": {}
 }

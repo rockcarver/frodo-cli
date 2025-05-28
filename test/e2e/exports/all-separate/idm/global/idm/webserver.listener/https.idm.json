@@ -1,0 +1,22 @@
+{
+  "idm": {
+    "webserver.listener/https": {
+      "_id": "webserver.listener/https",
+      "enabled": {
+        "$bool": "&{openidm.https.enabled|true}"
+      },
+      "port": {
+        "$int": "&{openidm.port.https|8443}"
+      },
+      "secure": true,
+      "sslCertAlias": "&{openidm.https.keystore.cert.alias|openidm-localhost}"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

@@ -47,6 +47,7 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --entity-id script
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -i script -D testDir4
@@ -57,7 +58,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -AD testDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env
 
-//idm
+// IDM
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo idm export -AD testDir4 -m idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo idm export -aD testDir5 -m idm 
 */

@@ -24,7 +24,9 @@ const deploymentTypes = [
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin execute-rfc7523-authz-grant-flow'
+    'frodo admin execute-rfc7523-authz-grant-flow',
+    [],
+    deploymentTypes
   );
 
   program

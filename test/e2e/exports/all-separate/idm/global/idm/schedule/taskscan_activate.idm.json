@@ -1,0 +1,42 @@
+{
+  "idm": {
+    "schedule/taskscan_activate": {
+      "_id": "schedule/taskscan_activate",
+      "concurrentExecution": false,
+      "enabled": false,
+      "invokeContext": {
+        "numberOfThreads": 5,
+        "scan": {
+          "_queryFilter": "((/activeDate le \"${Time.nowWithOffset}\") AND (!(/inactiveDate pr) or /inactiveDate ge \"${Time.nowWithOffset}\"))",
+          "object": "managed/user",
+          "recovery": {
+            "timeout": "10m"
+          },
+          "taskState": {
+            "completed": "/activateAccount/task-completed",
+            "started": "/activateAccount/task-started"
+          }
+        },
+        "task": {
+          "script": {
+            "globals": {},
+            "source": "var patch = [{ \"operation\" : \"replace\", \"field\" : \"/accountStatus\", \"value\" : \"active\" }];\n\nlogger.debug(\"Performing Activate Account Task on {} ({})\", input.mail, objectID);\n\nopenidm.patch(objectID, null, patch); true;",
+            "type": "text/javascript"
+          }
+        },
+        "waitForCompletion": false
+      },
+      "invokeService": "taskscanner",
+      "persisted": true,
+      "repeatInterval": 86400000,
+      "type": "simple"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.194Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

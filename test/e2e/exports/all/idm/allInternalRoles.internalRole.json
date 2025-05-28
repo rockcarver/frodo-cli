@@ -48,12 +48,5 @@
       "privileges": [],
       "temporalConstraints": []
     }
-  },
-  "meta": {
-    "exportDate": "2025-05-06T17:50:34.819Z",
-    "exportTool": "frodo",
-    "exportToolVersion": "v3.0.4-0 [v20.18.0]",
-    "exportedBy": "openidm-admin",
-    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
   }
 }

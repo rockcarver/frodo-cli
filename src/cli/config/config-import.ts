@@ -1,6 +1,5 @@
-import { state } from '@rockcarver/frodo-lib';
+import { state, frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
-
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -11,8 +10,26 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo config import');
+  const program = new FrodoCommand(
+    'frodo config import',
+    [],
+    deploymentTypes
+  );
 
   program
     .description('Import full cloud configuration.')

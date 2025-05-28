@@ -47,6 +47,7 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -i script -D test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -f test/e2e/exports/all-separate/cloud/global/idm/script.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --entity-id script --file test/e2e/exports/all-separate/cloud/global/idm/script.idm.json
@@ -56,9 +57,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/cloud/global/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
 
-//idm
+// IDM
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo idm import -af test/e2e/exports/all/idm/all.idm.json -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo idm import -AD test/e2e/exports/all-separate/idm/A-idm -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo idm import -AD test/e2e/exports/all-separate/idm/global/idm -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -141,8 +142,8 @@ describe('frodo idm import', () => {
         const { stdout } = await exec(CMD, idmenv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
-    test(`"frodo idm import -AD test/e2e/exports/all-separate/idm/A-idm -m idm": Should import on prem idm config according to the idmenv and entity files"`, async () => {
-        const CMD = `frodo idm import -AD test/e2e/exports/all-separate/idm/A-idm -m idm`;
+    test(`"frodo idm import -AD test/e2e/exports/all-separate/idm/global/idm -m idm": Should import on prem idm config according to the idmenv and entity files"`, async () => {
+        const CMD = `frodo idm import -AD test/e2e/exports/all-separate/idm/global/idm -m idm`;
         const { stdout } = await exec(CMD, idmenv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

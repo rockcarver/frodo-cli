@@ -1,0 +1,22 @@
+{
+  "idm": {
+    "ui.context/admin": {
+      "_id": "ui.context/admin",
+      "cacheEnabled": true,
+      "defaultDir": "&{idm.install.dir}/ui/admin/default",
+      "enabled": true,
+      "extensionDir": "&{idm.install.dir}/ui/admin/extension",
+      "responseHeaders": {
+        "X-Frame-Options": "SAMEORIGIN"
+      },
+      "urlContextRoot": "/admin"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

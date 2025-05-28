@@ -18,7 +18,10 @@ const deploymentTypes = [
 ];
 const { clientCredentialsGrant } = frodo.oauth2oidc.endpoint;
 export default function setup() {
-  const program = new FrodoCommand('frodo admin get-access-token');
+  const program = new FrodoCommand(
+    'frodo admin get-access-token', 
+    [],
+    deploymentTypes);
 
   program
     .description('Get an access token using client credentials grant type.')

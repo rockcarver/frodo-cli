@@ -1,0 +1,274 @@
+{
+  "idm": {
+    "policy": {
+      "_id": "policy",
+      "additionalFiles": [],
+      "file": "policy.js",
+      "resources": [
+        {
+          "calculatedProperties": {
+            "source": "require('selfServicePolicies').getRegistrationProperties()",
+            "type": "text/javascript"
+          },
+          "resource": "selfservice/registration"
+        },
+        {
+          "calculatedProperties": {
+            "source": "require('selfServicePolicies').getResetProperties()",
+            "type": "text/javascript"
+          },
+          "resource": "selfservice/reset"
+        },
+        {
+          "properties": [
+            {
+              "name": "_id",
+              "policies": [
+                {
+                  "params": {
+                    "forbiddenChars": [
+                      "/"
+                    ]
+                  },
+                  "policyId": "cannot-contain-characters"
+                }
+              ]
+            },
+            {
+              "name": "password",
+              "policies": [
+                {
+                  "params": {
+                    "minLength": 8
+                  },
+                  "policyId": "minimum-length"
+                }
+              ]
+            }
+          ],
+          "resource": "internal/user/*"
+        },
+        {
+          "properties": [
+            {
+              "name": "name",
+              "policies": [
+                {
+                  "policyId": "required"
+                },
+                {
+                  "policyId": "not-empty"
+                },
+                {
+                  "params": {
+                    "forbiddenChars": [
+                      "/*"
+                    ]
+                  },
+                  "policyId": "cannot-contain-characters"
+                }
+              ]
+            },
+            {
+              "name": "temporalConstraints",
+              "policies": [
+                {
+                  "policyId": "valid-temporal-constraints"
+                }
+              ]
+            },
+            {
+              "name": "condition",
+              "policies": [
+                {
+                  "policyId": "valid-query-filter"
+                }
+              ]
+            },
+            {
+              "name": "privileges",
+              "policies": [
+                {
+                  "params": {
+                    "types": [
+                      "array"
+                    ]
+                  },
+                  "policyId": "valid-type"
+                },
+                {
+                  "params": {
+                    "properties": [
+                      {
+                        "name": "name",
+                        "policies": [
+                          {
+                            "policyId": "required"
+                          },
+                          {
+                            "policyId": "not-empty"
+                          },
+                          {
+                            "params": {
+                              "types": [
+                                "string"
+                              ]
+                            },
+                            "policyId": "valid-type"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "path",
+                        "policies": [
+                          {
+                            "policyId": "required"
+                          },
+                          {
+                            "policyId": "not-empty"
+                          },
+                          {
+                            "params": {
+                              "forbiddenChars": [
+                                "/*"
+                              ]
+                            },
+                            "policyId": "cannot-contain-characters"
+                          },
+                          {
+                            "policyId": "valid-privilege-path"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "accessFlags",
+                        "policies": [
+                          {
+                            "policyId": "required"
+                          },
+                          {
+                            "policyId": "not-empty"
+                          },
+                          {
+                            "params": {
+                              "types": [
+                                "array"
+                              ]
+                            },
+                            "policyId": "valid-type"
+                          },
+                          {
+                            "policyId": "valid-accessFlags-object"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "actions",
+                        "policies": [
+                          {
+                            "policyId": "required"
+                          },
+                          {
+                            "params": {
+                              "types": [
+                                "array"
+                              ]
+                            },
+                            "policyId": "valid-type"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "permissions",
+                        "policies": [
+                          {
+                            "policyId": "required"
+                          },
+                          {
+                            "policyId": "not-empty"
+                          },
+                          {
+                            "params": {
+                              "types": [
+                                "array"
+                              ]
+                            },
+                            "policyId": "valid-type"
+                          },
+                          {
+                            "policyId": "valid-permissions"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "filter",
+                        "policies": [
+                          {
+                            "params": {
+                              "types": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "policyId": "valid-type"
+                          },
+                          {
+                            "policyId": "valid-query-filter"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "policyId": "valid-array-items"
+                }
+              ]
+            }
+          ],
+          "resource": "internal/role/*"
+        },
+        {
+          "properties": [
+            {
+              "name": "temporalConstraints",
+              "policies": [
+                {
+                  "policyId": "valid-temporal-constraints"
+                }
+              ]
+            },
+            {
+              "name": "condition",
+              "policies": [
+                {
+                  "policyId": "valid-query-filter"
+                }
+              ]
+            }
+          ],
+          "resource": "managed/role/*"
+        },
+        {
+          "properties": [
+            {
+              "name": "objects",
+              "policies": [
+                {
+                  "policyId": "valid-event-scripts"
+                }
+              ]
+            }
+          ],
+          "resource": "config/managed"
+        }
+      ],
+      "type": "text/javascript"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.191Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

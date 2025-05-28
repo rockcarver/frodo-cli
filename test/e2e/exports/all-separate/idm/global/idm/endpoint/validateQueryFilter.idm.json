@@ -1,0 +1,17 @@
+{
+  "idm": {
+    "endpoint/validateQueryFilter": {
+      "_id": "endpoint/validateQueryFilter",
+      "context": "util/validateQueryFilter",
+      "source": "try { org.forgerock.openidm.query.StringQueryFilters.parse(request.content._queryFilter).accept(new org.forgerock.util.query.MapFilterVisitor(), null); } catch (e) { throw { 'code' : 400, 'message' : e.message } };",
+      "type": "text/javascript"
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.190Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

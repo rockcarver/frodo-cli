@@ -1,0 +1,19 @@
+{
+  "internalRole": {
+    "openidm-admin": {
+      "_id": "openidm-admin",
+      "condition": null,
+      "description": "Administrative access",
+      "name": "openidm-admin",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.195Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}

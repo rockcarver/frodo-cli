@@ -59,6 +59,13 @@ rm -rf test/e2e/exports/all-separate/classic
 FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdaD test/e2e/exports/all -f all.classic.json --include-active-values
 FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdxAD test/e2e/exports/all-separate/classic --include-active-values
 
+To update classic exports, ensure you have a local on-prem instance of AM with the host http://openidm-frodo-dev.classic.com:9080/openidm, then run these:
+rm test/e2e/exports/all/idm/all.idm.json
+rm -rf test/e2e/exports/all-separate/idm
+FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -NdaD test/e2e/exports/all/idm -f all.config.json
+FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -NdxAD test/e2e/exports/all-separate/idm 
+
+
 To record, run these:
 
 // Cloud
@@ -81,8 +88,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
 // IDM
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -af test/e2e/exports/idm/all.config.json 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -AD test/e2e/exports/idm/A -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -af test/e2e/exports/all/idm/all.config.json 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -AD test/e2e/exports/all-separate/idm -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -271,8 +278,8 @@ describe('frodo config import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo config import -AD test/e2e/exports/idm/A": should export all IDM config to a single file.', async () => {
-    const CMD = `frodo config import -AD test/e2e/exports/idm/A`;
+  test('"frodo config import -AD test/e2e/exports/idm": should export all IDM config to a single file.', async () => {
+    const CMD = `frodo config import -AD test/e2e/exports/idm/`;
     const { stdout } = await exec(CMD, idmEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });

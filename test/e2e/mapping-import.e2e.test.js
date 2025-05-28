@@ -46,7 +46,8 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* 
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f test/e2e/exports/all/allMappings.mapping.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --no-deps --mapping-id mapping/managedBravo_group_managedBravo_group --file allMappings.mapping.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -f test/e2e/exports/all/allMappings.mapping.json
@@ -56,9 +57,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -AD test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/global/idm
 
-//IDM
+// IDM
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -af test/e2e/exports/all/idm/allMappings.mapping.json -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync -m idm
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -130,8 +131,8 @@ describe('frodo mapping import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm": should import all IDM mappings from the directory"`, async () => {
-        const CMD = `frodo mapping import -AD test/e2e/exports/all-separate/idm/A-mapping -m idm`;
+    test(`"frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync-m idm": should import all IDM mappings from the directory"`, async () => {
+        const CMD = `frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync -m idm`;
         const { stdout } = await exec(CMD, idmEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

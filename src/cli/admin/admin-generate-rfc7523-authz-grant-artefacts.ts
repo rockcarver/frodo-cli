@@ -23,7 +23,9 @@ const deploymentTypes = [
 ];
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo admin generate-rfc7523-authz-grant-artefacts'
+    'frodo admin generate-rfc7523-authz-grant-artefacts',
+    [],
+    deploymentTypes
   );
 
   program

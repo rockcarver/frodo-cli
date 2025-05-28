@@ -46,7 +46,7 @@
  *    the recordings must be committed to the frodo-lib project.
  */
 
-/*
+/* Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f roleExportTestFile1.json -N
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -n test-internal-role
@@ -56,7 +56,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export -AND roleExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo role export --all-separate --directory roleExportTestDir2
 
-//idm 
+// IDM
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role export -AD testDir4 -m idm   
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo role export -aD testDir5 -m idm
 */

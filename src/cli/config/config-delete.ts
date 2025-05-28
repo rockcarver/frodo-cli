@@ -1,10 +1,27 @@
 import { Option } from 'commander';
-
+import { frodo } from '@rockcarver/frodo-lib';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
+const {
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
+
+const deploymentTypes = [
+  CLOUD_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  IDM_DEPLOYMENT_TYPE_KEY,
+];
+
 export default function setup() {
-  const program = new FrodoCommand('frodo config delete');
+  const program = new FrodoCommand(
+    'frodo config delete',
+    [],
+    deploymentTypes);
 
   program
     .description('Delete full cloud configuration.')

@@ -108,30 +108,23 @@ export async function getFullExportConfig(
 export async function getFullExportConfigFromDirectory(
   directory: string
 ): Promise<FullExportInterface> {
-  let realms = {} as string[];
-  let realmInterface;
-  if (state.getDeploymentType() !== IDM_DEPLOYMENT_TYPE_KEY) {
-    realms = fs.readdirSync(directory + '/realm');
-    realmInterface = Object.fromEntries(
-      realms.map((r) => [r, {} as FullRealmExportInterface])
-    );
-  }
+  const realms = state.getDeploymentType() === IDM_DEPLOYMENT_TYPE_KEY ? [] : fs.readdirSync(directory + '/realm');
+
   const fullExportConfig: FullExportInterface = {
     meta: {} as ExportMetaData,
     global: {} as unknown as FullGlobalExportInterface,
-    realm: realmInterface,
-  } as FullExportInterface;
+    realm: Object.fromEntries(
+      realms.map((r) => [r, {} as FullRealmExportInterface])
+    ),  } as FullExportInterface;
   // Get global
   await getConfig(fullExportConfig.global, undefined, directory + '/global');
   // Get realms
-  if (state.getDeploymentType() !== IDM_DEPLOYMENT_TYPE_KEY) {
-    for (const realm of realms) {
-      await getConfig(
-        fullExportConfig.realm[realm],
-        undefined,
-        directory + '/realm/' + realm
-      );
-    }
+  for (const realm of realms) {
+    await getConfig(
+      fullExportConfig.realm[realm],
+      undefined,
+      directory + '/realm/' + realm
+    );
   }
   return fullExportConfig;
 }

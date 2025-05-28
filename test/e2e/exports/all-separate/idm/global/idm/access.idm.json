@@ -1,0 +1,333 @@
+{
+  "idm": {
+    "access": {
+      "_id": "access",
+      "configs": [
+        {
+          "actions": "",
+          "methods": "read",
+          "pattern": "health",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "info/*",
+          "roles": "*"
+        },
+        {
+          "actions": "login,logout",
+          "methods": "read,action",
+          "pattern": "authentication",
+          "roles": "*"
+        },
+        {
+          "actions": "validate",
+          "methods": "action",
+          "pattern": "util/validateQueryFilter",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "config/ui/themeconfig",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "config/ui/theme-*",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "checkIfAnyFeatureEnabled(['registration', 'passwordReset'])",
+          "methods": "read",
+          "pattern": "config/selfservice/kbaConfig",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "config/ui/dashboard",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "query",
+          "pattern": "info/features",
+          "roles": "*"
+        },
+        {
+          "actions": "listPrivileges",
+          "methods": "action",
+          "pattern": "privilege",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "privilege/*",
+          "roles": "*"
+        },
+        {
+          "actions": "submitRequirements",
+          "methods": "read,action",
+          "pattern": "selfservice/termsAndConditions",
+          "roles": "*"
+        },
+        {
+          "actions": "submitRequirements",
+          "methods": "read,action",
+          "pattern": "selfservice/kbaUpdate",
+          "roles": "*"
+        },
+        {
+          "actions": "",
+          "customAuthz": "isMyProfile()",
+          "methods": "read,query",
+          "pattern": "profile/*",
+          "roles": "*"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "checkIfAnyFeatureEnabled('kba')",
+          "methods": "read",
+          "pattern": "selfservice/kba",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "schema/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "action,query",
+          "pattern": "consent",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "customAuthz": "checkIfApiRequest()",
+          "methods": "read",
+          "pattern": "*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "*",
+          "excludePatterns": "repo,repo/*",
+          "methods": "*",
+          "pattern": "*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "",
+          "methods": "create,read,update,delete,patch,query",
+          "pattern": "system/*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "*",
+          "methods": "script",
+          "pattern": "system/*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "test,testConfig,createconfiguration,liveSync,authenticate",
+          "methods": "action",
+          "pattern": "system/*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "disallowCommandAction()",
+          "methods": "*",
+          "pattern": "repo",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "disallowCommandAction()",
+          "methods": "*",
+          "pattern": "repo/*",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "actions": "command",
+          "customAuthz": "request.additionalParameters.commandId === 'delete-mapping-links'",
+          "methods": "action",
+          "pattern": "repo/link",
+          "roles": "internal/role/openidm-admin"
+        },
+        {
+          "methods": "create,read,query,patch",
+          "pattern": "managed/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "methods": "read,query",
+          "pattern": "internal/role/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "*",
+          "methods": "create,read,action,update",
+          "pattern": "profile/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "*",
+          "methods": "read,action",
+          "pattern": "policy/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "methods": "read",
+          "pattern": "schema/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "*",
+          "methods": "action,query",
+          "pattern": "consent",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "methods": "read",
+          "pattern": "selfservice/kba",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "methods": "read",
+          "pattern": "selfservice/terms",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "sendTemplate",
+          "methods": "action",
+          "pattern": "external/email",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "authenticate",
+          "methods": "action",
+          "pattern": "system/*",
+          "roles": "internal/role/platform-provisioning"
+        },
+        {
+          "actions": "*",
+          "methods": "read,action",
+          "pattern": "policy/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "config/ui/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "reauthenticate",
+          "methods": "action",
+          "pattern": "authentication",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "bind,unbind",
+          "customAuthz": "ownDataOnly()",
+          "methods": "read,action,delete",
+          "pattern": "*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "patch",
+          "customAuthz": "ownDataOnly() && onlyEditableManagedObjectProperties('user', []) && reauthIfProtectedAttributeChange()",
+          "methods": "update,patch,action",
+          "pattern": "*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "read",
+          "pattern": "endpoint/getprocessesforuser",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "methods": "query",
+          "pattern": "endpoint/gettasksview",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "complete",
+          "customAuthz": "isMyTask()",
+          "methods": "action",
+          "pattern": "workflow/taskinstance/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "canUpdateTask()",
+          "methods": "read,update",
+          "pattern": "workflow/taskinstance/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "isAllowedToStartProcess()",
+          "methods": "create",
+          "pattern": "workflow/processinstance",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "read",
+          "methods": "*",
+          "pattern": "workflow/processdefinition/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "customAuthz": "restrictPatchToFields(['password'])",
+          "methods": "patch",
+          "pattern": "managed/user/*",
+          "roles": "internal/role/openidm-cert"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "ownRelationshipProperty('_meta', false)",
+          "methods": "read",
+          "pattern": "internal/usermeta/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "ownRelationshipProperty('_notifications', true)",
+          "methods": "read,delete",
+          "pattern": "internal/notification/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "*",
+          "customAuthz": "ownRelationshipCollection(['idps','_meta','_notifications'])",
+          "methods": "read,query",
+          "pattern": "managed/user/*",
+          "roles": "internal/role/openidm-authorized"
+        },
+        {
+          "actions": "deleteNotificationsForTarget",
+          "customAuthz": "request.additionalParameters.target === (context.security.authorization.component + '/' + context.security.authorization.id)",
+          "methods": "action",
+          "pattern": "notification",
+          "roles": "internal/role/openidm-authorized"
+        }
+      ]
+    }
+  },
+  "meta": {
+    "exportDate": "2025-05-28T20:27:39.189Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.1.0 [v20.18.0]",
+    "exportedBy": "openidm-admin",
+    "origin": "http://openidm-frodo-dev.classic.com:9080/openidm"
+  }
+}
