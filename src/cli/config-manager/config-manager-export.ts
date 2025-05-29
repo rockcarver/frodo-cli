@@ -7,6 +7,7 @@ import Themes from './config-manager-export-themes';
 import UiConfig from './config-manager-export-uiConfig';
 import Terms from './config-manager-export-terms-and-conditions';
 import Variables from './config-manager-export-variables';
+import AuthzPolicies from './config-manager-export-authz-policies';
 
 export default function setup() {
   const program = new FrodoStubCommand('config-manager export').description(
@@ -21,6 +22,7 @@ export default function setup() {
   program.addCommand(Variables().name('variables'));
   program.addCommand(Terms().name('terms-and-conditions'));
   program.addCommand(UiConfig().name('ui-config'));
+  program.addCommand(AuthzPolicies().name('authz-policies'));
 
   return program;
 }
