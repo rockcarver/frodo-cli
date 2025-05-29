@@ -1,10 +1,11 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import Scripts from './config-manager-export-scripts';
-import Secrets from './config-manager-export-secrets'
+import Secrets from './config-manager-export-secrets';
 import Services from './config-manager-export-services';
 import Mappings from './config-manager-export-mappings';
 import Themes from './config-manager-export-themes';
 import UiConfig from './config-manager-export-uiConfig';
+import Terms from './config-manager-export-terms-and-conditions';
 import Variables from './config-manager-export-variables';
 
 export default function setup() {
@@ -18,6 +19,7 @@ export default function setup() {
   program.addCommand(Mappings().name('mappings'));
   program.addCommand(Themes().name('themes'));
   program.addCommand(Variables().name('variables'));
+  program.addCommand(Terms().name('terms-and-conditions'));
   program.addCommand(UiConfig().name('ui-config'));
 
   return program;

@@ -1,5 +1,5 @@
+import { exportTermsAndConditionsToFiles } from '../../configManagerOps/FrConfigTermsAndConditionsOps';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { exportVariablesToFiles } from '../../configManagerOps/FrConfigVariableOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -7,12 +7,13 @@ const deploymentTypes = ['cloud', 'forgeops'];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager export variables',
+    'frodo config-manager export terms-and-conditions',
+    [],
     deploymentTypes
   );
 
   program
-    .description('Export variables objects.')
+    .description('Export terms and conditions.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -24,8 +25,8 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting variables');
-        const outcome = await exportVariablesToFiles();
+        verboseMessage('Exporting terms and conditions');
+        const outcome = await exportTermsAndConditionsToFiles();
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

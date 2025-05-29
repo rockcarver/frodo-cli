@@ -311,7 +311,7 @@ export async function configManagerExportServices(
       debugMessage(
         `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
       );
-      saveJsonToFile(exportData.service[service._type._id], filePath, false, false);
+      saveJsonToFile(exportData.service[service._type._id], filePath, false);
     }
     debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);
     return true;
