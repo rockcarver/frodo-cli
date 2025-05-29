@@ -43,7 +43,6 @@ export async function configManagerExportServices(
         saveJsonToFile(
           exportData.service[service._type._id],
           filePath,
-          false,
           false
         );
       } else {
@@ -57,7 +56,6 @@ export async function configManagerExportServices(
         saveJsonToFile(
           exportData.service[service._type._id],
           filePath,
-          false,
           false
         );
       }
