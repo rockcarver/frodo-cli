@@ -1,3 +1,5 @@
+import { state } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { exportAuthzPoliciesToFiles } from '../../configManagerOps/FrConfigAuthzPolicies';
 import { printMessage, verboseMessage } from '../../utils/Console';
@@ -12,7 +14,9 @@ export default function setup() {
   );
 
   program
-    .description('Export authorization policies.')
+    .description('Export authorization policies from realm.')
+    .addOption(new Option('-p, --p-set <policy-set-id>', 'Get all the policies from a specific set. Ignored with -a.'))
+    .addOption(new Option('-a, --all', 'Get all policies from all sets in all realms. If specified, -p and [realm] are ignored.'))
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -24,7 +28,16 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting authorization policies.');
+        if(options.all) {
+          verboseMessage('Exporting all authorization policies from tenant.');
+        } else if(options.pSet) {
+          verboseMessage(`Exporting all authorization policies from ${options.pSet} in the ${state.getRealm()} realm.`);
+        } else {
+          verboseMessage(`Exporting all authorization policies from all sets in the ${state.getRealm()} realm.`);
+        }
+
+
+        //verboseMessage('Exporting authorization policies.');
         const outcome = await exportAuthzPoliciesToFiles();
         if (!outcome) process.exitCode = 1;
       }
@@ -37,7 +50,8 @@ export default function setup() {
         program.help();
         process.exitCode = 1;
       }
-    });
+    }
+  );
 
   return program;
 }
