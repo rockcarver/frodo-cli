@@ -1,8 +1,7 @@
-import { state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { exportAuthzPoliciesToFiles } from '../../configManagerOps/FrConfigAuthzPolicies';
-import { printMessage, verboseMessage } from '../../utils/Console';
+import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const deploymentTypes = ['cloud', 'forgeops'];
@@ -28,17 +27,8 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        if(options.all) {
-          verboseMessage('Exporting all authorization policies from tenant.');
-        } else if(options.pSet) {
-          verboseMessage(`Exporting all authorization policies from ${options.pSet} in the ${state.getRealm()} realm.`);
-        } else {
-          verboseMessage(`Exporting all authorization policies from all sets in the ${state.getRealm()} realm.`);
-        }
-
-
-        //verboseMessage('Exporting authorization policies.');
-        const outcome = await exportAuthzPoliciesToFiles();
+        printMessage('Getting Authorization Policies');
+        const outcome = await exportAuthzPoliciesToFiles(options.all, options.pSet);
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
