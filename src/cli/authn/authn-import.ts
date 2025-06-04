@@ -19,11 +19,7 @@ const deploymentTypes = [
 ];
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo authn import',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo authn import', [], deploymentTypes);
 
   program
     .description('Import authentication settings.')

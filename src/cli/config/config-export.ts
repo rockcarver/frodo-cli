@@ -1,5 +1,6 @@
-import { state ,frodo} from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
@@ -24,11 +25,7 @@ const deploymentTypes = [
 ];
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo config export',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo config export', [], deploymentTypes);
 
   program
     .description(

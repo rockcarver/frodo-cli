@@ -71,7 +71,7 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-const idmenv =getEnv(ic);
+const idmenv = getEnv(ic);
 
 const allDirectory = 'test/e2e/exports/all';
 const allAlphaEmailTemplatesFileName = 'allEmailTemplates.template.email.json';

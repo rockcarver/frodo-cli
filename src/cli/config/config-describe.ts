@@ -1,5 +1,6 @@
-import { Option } from 'commander';
 import { frodo } from '@rockcarver/frodo-lib';
+import { Option } from 'commander';
+
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
@@ -21,7 +22,8 @@ export default function setup() {
   const program = new FrodoCommand(
     'frodo config describe',
     [],
-    deploymentTypes);
+    deploymentTypes
+  );
 
   program
     .description('Describe full cloud configuration.')

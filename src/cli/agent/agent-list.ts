@@ -18,11 +18,7 @@ const deploymentTypes = [
 ];
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo agent list',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo agent list', [], deploymentTypes);
 
   program
     .description('List agents.')

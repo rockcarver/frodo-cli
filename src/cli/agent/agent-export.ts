@@ -20,14 +20,10 @@ const deploymentTypes = [
   CLOUD_DEPLOYMENT_TYPE_KEY,
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
   CLASSIC_DEPLOYMENT_TYPE_KEY,
-]
+];
 
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo agent export',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo agent export', [], deploymentTypes);
 
   program
     .description('Export agents.')

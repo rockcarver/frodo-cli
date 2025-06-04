@@ -59,12 +59,11 @@ rm -rf test/e2e/exports/all-separate/classic
 FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdaD test/e2e/exports/all -f all.classic.json --include-active-values
 FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -NRdxAD test/e2e/exports/all-separate/classic --include-active-values
 
-To update classic exports, ensure you have a local on-prem instance of AM with the host http://openidm-frodo-dev.classic.com:9080/openidm, then run these:
+To update classic exports, ensure you have a local on-prem instance of IDM with the host http://openidm-frodo-dev.classic.com:9080/openidm, then run these:
 rm test/e2e/exports/all/idm/all.idm.json
 rm -rf test/e2e/exports/all-separate/idm
 FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -NdaD test/e2e/exports/all/idm -f all.config.json
 FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -NdxAD test/e2e/exports/all-separate/idm 
-
 
 To record, run these:
 

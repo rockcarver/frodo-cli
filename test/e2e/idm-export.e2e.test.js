@@ -67,7 +67,7 @@ import { connection as c , idm_connection as ic} from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-const idmenv =getEnv(ic);
+const idmenv = getEnv(ic);
 const type = 'idm';
 const entitiesFile = 'test/e2e/env/testEntitiesFile.json';
 const envFile = 'test/e2e/env/testEnvFile.env';

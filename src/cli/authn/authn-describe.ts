@@ -18,13 +18,8 @@ const deploymentTypes = [
   CLASSIC_DEPLOYMENT_TYPE_KEY,
 ];
 
-
 export default function setup() {
-  const program = new FrodoCommand(
-    'frodo authn describe',
-    [],
-    deploymentTypes
-  );
+  const program = new FrodoCommand('frodo authn describe', [], deploymentTypes);
 
   program
     .description('Describe authentication settings.')
