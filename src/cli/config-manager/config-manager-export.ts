@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import AuthzPolicies from './config-manager-export-authz-policies';
+import ConnectorDefinitions from './config-manager-export-connector-definitions';
 import Mappings from './config-manager-export-mappings';
 import Scripts from './config-manager-export-scripts';
 import Secrets from './config-manager-export-secrets';
@@ -23,6 +24,7 @@ export default function setup() {
   program.addCommand(Terms().name('terms-and-conditions'));
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
+  program.addCommand(ConnectorDefinitions().name('connector-definitions'));
 
   return program;
 }
