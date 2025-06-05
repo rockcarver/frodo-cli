@@ -23,6 +23,12 @@ export default function setup() {
     .description('Export authorization policies from realm.')
     .addOption(
       new Option(
+        '-r, --realm <realm>',
+        'Specifies the realm to export from. Only the entity object from this realm will be exported.'
+      )
+    )
+    .addOption(
+      new Option(
         '-p, --p-set <policy-set-id>',
         'Get all the policies from a specific set.'
       )
@@ -37,26 +43,33 @@ export default function setup() {
         command
       );
 
+      // -r flag has precedence
+      if (options.realm) {
+        realm = options.realm;
+      }
+
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;
         if (options.pSet) {
           printMessage(
             `Exporting all authorization policies from ${options.pSet} in the ${state.getRealm()} realm.`
           );
-          outcome = !(await exportAuthzPolicySet({
+          outcome = await exportAuthzPolicySet({
             policySetName: options.pSet,
-          }));
+          });
         } else if (realm !== constants.DEFAULT_REALM_KEY) {
           printMessage(
             `Exporting all authorization policies from all sets in the ${state.getRealm()} realm.`
           );
-          exportRealmAuthzPolicySets();
+          outcome = await exportRealmAuthzPolicySets();
         } else {
           printMessage('Exporting all authorization policies from tenant.');
-          outcome = !(await exportAllAuthzPolicies());
+          outcome = await exportAllAuthzPolicies();
         }
 
-        if (!outcome) process.exitCode = 1;
+        if (!outcome) {
+          process.exitCode = 1;
+        }
       }
 
       // unrecognized combination of options or no options

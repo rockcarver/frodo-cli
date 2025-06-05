@@ -19,14 +19,14 @@ type BySkeleton = { ps: PolicySetSkeleton };
  */
 async function savePolicy(p: PolicySkeleton) {
   verboseMessage(`        Saving ${p.name} policy.`);
-
-  // save to that policy sets policy folder
+  // save to that policy-set's policy folder
   saveJsonToFile(
     p,
     getFilePath(
       `realms/${state.getRealm()}/authorization/policy-sets/${p.applicationName}/policies/${p.name}.json`,
       true
     ),
+    false,
     false
   );
 
@@ -36,13 +36,14 @@ async function savePolicy(p: PolicySkeleton) {
   );
   verboseMessage(`            Saving ${r.name} resource-type.`);
   r._id = r.uuid;
-  r._rev = Date.now().toString();
+  // r._rev = Date.now().toString();
   saveJsonToFile(
     r,
     getFilePath(
       `realms/${state.getRealm()}/authorization/resource-types/${r.name}.json`,
       true
     ),
+    false,
     false
   );
 }
@@ -77,7 +78,7 @@ export async function exportAuthzPolicySet(
 
     // these two fields aren't automatically provided in PolicySetSkeleton
     ps._id = ps.name;
-    ps._rev = ps.lastModifiedDate.toString();
+    //ps._rev = ps.lastModifiedDate.toString();
 
     // save to same relative location as fr-config-manager
     saveJsonToFile(
@@ -86,6 +87,7 @@ export async function exportAuthzPolicySet(
         `realms/${state.getRealm()}/authorization/policy-sets/${ps.name}/${ps.name}.json`,
         true
       ),
+      false,
       false
     );
 
