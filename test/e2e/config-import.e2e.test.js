@@ -87,7 +87,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic
 // IDM
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -af test/e2e/exports/all/idm/all.config.json 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -af test/e2e/exports/all/idm/all.config.json -m idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config import -AD test/e2e/exports/all-separate/idm -m idm
 */
 import cp from 'child_process';
@@ -271,14 +271,14 @@ describe('frodo config import', () => {
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo config import -af test/e2e/exports/idm/all.config.json": should import all IDM config to on-prem idm', async () => {
-    const CMD = `frodo config import -af test/e2e/exports/idm/all.config.json`;
+  test('"frodo config import -af test/e2e/exports/all/idm/all.config.json -m idm": should import all IDM config to on-prem idm', async () => {
+    const CMD = `frodo config import -af test/e2e/exports/all/idm/all.config.json -m idm`;
     const { stdout } = await exec(CMD, idmEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo config import -AD test/e2e/exports/idm": should export all IDM config to a single file.', async () => {
-    const CMD = `frodo config import -AD test/e2e/exports/idm/`;
+  test('"frodo config import -AD test/e2e/exports/all-separate/idm -m idm": should export all IDM config to a on prem idm.', async () => {
+    const CMD = `frodo config import -AD test/e2e/exports/all-separate/idm -m idm`;
     const { stdout } = await exec(CMD, idmEnv);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });

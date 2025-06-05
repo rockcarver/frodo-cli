@@ -39,7 +39,7 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (await getTokens(false, true, deploymentTypes)) {
           // code goes here
         } else {
           process.exitCode = 1;

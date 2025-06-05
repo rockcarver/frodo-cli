@@ -1963,6 +1963,251 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5 1`] = `""`;
 
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5: mappingExportTestDir5/mapping/mappingtest.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/mappingtest": {
+      "_id": "mapping/mappingtest",
+      "consentRequired": false,
+      "displayName": "mappingtest",
+      "icon": null,
+      "name": "mappingtest",
+      "policies": [
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdf",
+            "type": "text/javascript",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdfasdf",
+            "type": "groovy",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [],
+      "source": "managed/assignment",
+      "target": "managed/organization",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5: mappingExportTestDir5/mapping/seantestmapping.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/seantestmapping": {
+      "_id": "mapping/seantestmapping",
+      "consentRequired": false,
+      "displayName": "seantestmapping",
+      "icon": null,
+      "name": "seantestmapping",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/assignment",
+      "target": "managed/organization",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5: mappingExportTestDir5/sync/managedAssignment_managedUser.sync.json 1`] = `
+{
+  "_id": "sync/managedAssignment_managedUser",
+  "consentRequired": false,
+  "displayName": "managedAssignment_managedUser",
+  "icon": null,
+  "name": "managedAssignment_managedUser",
+  "policies": [
+    {
+      "action": {
+        "globals": {},
+        "source": "//asdfasdf",
+        "type": "groovy",
+      },
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "//asdfasdfasdf",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {},
+        "source": "//asdfasdfasdf",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {},
+        "source": "//asdfasdf",
+        "type": "text/javascript",
+      },
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "//asdfasdfasdf",
+        "type": "text/javascript",
+      },
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [],
+  "source": "managed/assignment",
+  "syncAfter": [
+    "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject",
+  ],
+  "target": "managed/user",
+}
+`;
+
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5: mappingExportTestDir5/sync/managedOrganization_managedRole.sync.json 1`] = `
 {
   "_id": "sync/managedOrganization_managedRole",
@@ -1970,6 +2215,96 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m
   "displayName": "managedOrganization_managedRole",
   "icon": null,
   "name": "managedOrganization_managedRole",
+  "policies": [
+    {
+      "action": {
+        "globals": {},
+        "source": "//seantest",
+        "type": "text/javascript",
+      },
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "//seantest",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {},
+        "source": "//seantest",
+        "type": "text/javascript",
+      },
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "//seantest",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {},
+        "source": "//seantest",
+        "type": "groovy",
+      },
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [],
+  "source": "managed/organization",
+  "syncAfter": [],
+  "target": "managed/role",
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5: mappingExportTestDir5/sync/managedOrganization_managedSeantestmanagedobject.sync.json 1`] = `
+{
+  "_id": "sync/managedOrganization_managedSeantestmanagedobject",
+  "consentRequired": false,
+  "displayName": "managedOrganization_managedSeantestmanagedobject",
+  "icon": null,
+  "name": "managedOrganization_managedSeantestmanagedobject",
   "policies": [
     {
       "action": "ASYNC",
@@ -2027,9 +2362,9 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m
   "properties": [],
   "source": "managed/organization",
   "syncAfter": [
-    "seantestmapping",
+    "managedOrganization_managedRole",
   ],
-  "target": "managed/role",
+  "target": "managed/seantestmanagedobject",
 }
 `;
 
@@ -2097,8 +2432,10 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m
   "properties": [],
   "source": "managed/seantestmanagedobject",
   "syncAfter": [
-    "seantestmapping",
     "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject",
+    "managedAssignment_managedUser",
+    "seantestmapping",
   ],
   "target": "managed/user",
 }
@@ -2167,7 +2504,11 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m
   ],
   "properties": [],
   "source": "managed/assignment",
-  "syncAfter": [],
+  "syncAfter": [
+    "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject",
+    "managedAssignment_managedUser",
+  ],
   "target": "managed/organization",
 }
 `;
@@ -2178,8 +2519,10 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m
     "sync": {
       "_id": "sync",
       "mappings": [
-        "file://seantestmapping.sync.json",
         "file://managedOrganization_managedRole.sync.json",
+        "file://managedOrganization_managedSeantestmanagedobject.sync.json",
+        "file://managedAssignment_managedUser.sync.json",
+        "file://seantestmapping.sync.json",
         "file://managedSeantestmanagedobject_managedUser.sync.json",
       ],
     },
@@ -2938,11 +3281,392 @@ exports[`frodo mapping export "frodo mapping export -aD mappingExportTestDir4 -m
 
 exports[`frodo mapping export "frodo mapping export -aD mappingExportTestDir4 -m idm": should export all IDM mappings to one file in the directory mappingExportTestDir4: mappingExportTestDir4/allMappings.mapping.json 1`] = `
 {
-  "mapping": {},
+  "mapping": {
+    "mapping/mappingtest": {
+      "_id": "mapping/mappingtest",
+      "consentRequired": false,
+      "displayName": "mappingtest",
+      "icon": null,
+      "name": "mappingtest",
+      "policies": [
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdf",
+            "type": "text/javascript",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {},
+            "source": "//asdfasdfasdf",
+            "type": "groovy",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [],
+      "source": "managed/assignment",
+      "target": "managed/organization",
+    },
+    "mapping/seantestmapping": {
+      "_id": "mapping/seantestmapping",
+      "consentRequired": false,
+      "displayName": "seantestmapping",
+      "icon": null,
+      "name": "seantestmapping",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/assignment",
+      "target": "managed/organization",
+    },
+  },
   "meta": Any<Object>,
   "sync": {
     "_id": "sync",
     "mappings": [
+      {
+        "_id": "sync/managedOrganization_managedRole",
+        "consentRequired": false,
+        "displayName": "managedOrganization_managedRole",
+        "icon": null,
+        "name": "managedOrganization_managedRole",
+        "policies": [
+          {
+            "action": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "text/javascript",
+            },
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "text/javascript",
+            },
+            "condition": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "text/javascript",
+            },
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {},
+              "source": "//seantest",
+              "type": "groovy",
+            },
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [],
+        "source": "managed/organization",
+        "syncAfter": [],
+        "target": "managed/role",
+      },
+      {
+        "_id": "sync/managedOrganization_managedSeantestmanagedobject",
+        "consentRequired": false,
+        "displayName": "managedOrganization_managedSeantestmanagedobject",
+        "icon": null,
+        "name": "managedOrganization_managedSeantestmanagedobject",
+        "policies": [
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+        ],
+        "properties": [],
+        "source": "managed/organization",
+        "syncAfter": [
+          "managedOrganization_managedRole",
+        ],
+        "target": "managed/seantestmanagedobject",
+      },
+      {
+        "_id": "sync/managedAssignment_managedUser",
+        "consentRequired": false,
+        "displayName": "managedAssignment_managedUser",
+        "icon": null,
+        "name": "managedAssignment_managedUser",
+        "policies": [
+          {
+            "action": {
+              "globals": {},
+              "source": "//asdfasdf",
+              "type": "groovy",
+            },
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "//asdfasdfasdf",
+              "type": "text/javascript",
+            },
+            "condition": {
+              "globals": {},
+              "source": "//asdfasdfasdf",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {},
+              "source": "//asdfasdf",
+              "type": "text/javascript",
+            },
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "MISSING",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": {
+              "globals": {},
+              "source": "//asdfasdfasdf",
+              "type": "text/javascript",
+            },
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "FOUND",
+          },
+          {
+            "action": "ASYNC",
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [],
+        "source": "managed/assignment",
+        "syncAfter": [
+          "managedOrganization_managedRole",
+          "managedOrganization_managedSeantestmanagedobject",
+        ],
+        "target": "managed/user",
+      },
       {
         "_id": "sync/seantestmapping",
         "consentRequired": false,
@@ -3005,75 +3729,12 @@ exports[`frodo mapping export "frodo mapping export -aD mappingExportTestDir4 -m
         ],
         "properties": [],
         "source": "managed/assignment",
-        "syncAfter": [],
-        "target": "managed/organization",
-      },
-      {
-        "_id": "sync/managedOrganization_managedRole",
-        "consentRequired": false,
-        "displayName": "managedOrganization_managedRole",
-        "icon": null,
-        "name": "managedOrganization_managedRole",
-        "policies": [
-          {
-            "action": "ASYNC",
-            "situation": "ABSENT",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "ALL_GONE",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "AMBIGUOUS",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "CONFIRMED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "FOUND",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "FOUND_ALREADY_LINKED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "LINK_ONLY",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "MISSING",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "SOURCE_IGNORED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "SOURCE_MISSING",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "TARGET_IGNORED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "UNASSIGNED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "UNQUALIFIED",
-          },
-        ],
-        "properties": [],
-        "source": "managed/organization",
         "syncAfter": [
-          "seantestmapping",
+          "managedOrganization_managedRole",
+          "managedOrganization_managedSeantestmanagedobject",
+          "managedAssignment_managedUser",
         ],
-        "target": "managed/role",
+        "target": "managed/organization",
       },
       {
         "_id": "sync/managedSeantestmanagedobject_managedUser",
@@ -3138,8 +3799,10 @@ exports[`frodo mapping export "frodo mapping export -aD mappingExportTestDir4 -m
         "properties": [],
         "source": "managed/seantestmanagedobject",
         "syncAfter": [
-          "seantestmapping",
           "managedOrganization_managedRole",
+          "managedOrganization_managedSeantestmanagedobject",
+          "managedAssignment_managedUser",
+          "seantestmapping",
         ],
         "target": "managed/user",
       },

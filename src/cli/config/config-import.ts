@@ -127,7 +127,7 @@ export default function setup() {
           process.exitCode = 1;
         }
         // --all -a
-        else if (options.all && (await getTokens())) {
+        else if (options.all && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Exporting everything from a single file...');
           const outcome = await importEverythingFromFile(options.file, {
             reUuidJourneys: options.reUuidJourneys,
@@ -149,7 +149,7 @@ export default function setup() {
           process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens())) {
+        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Importing everything from separate files...');
           const outcome = await importEverythingFromFiles({
             reUuidJourneys: options.reUuidJourneys,
@@ -162,7 +162,7 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         }
         // Import entity from file
-        else if (options.file && (await getTokens())) {
+        else if (options.file && (await getTokens(false, true, deploymentTypes))) {
           verboseMessage('Importing config entity from file...');
           const outcome = await importEntityfromFile(
             options.file,

@@ -131,7 +131,7 @@ describe('frodo mapping import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync-m idm": should import all IDM mappings from the directory"`, async () => {
+    test(`"frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync -m idm": should import all IDM mappings from the directory"`, async () => {
         const CMD = `frodo mapping import -AD test/e2e/exports/all-separate/idm/global/sync -m idm`;
         const { stdout } = await exec(CMD, idmEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
