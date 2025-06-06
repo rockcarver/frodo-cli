@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager exports "frodo config-manager export cors -D configManagerExportCorsDir0": should export globals CORS configuration in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager exports "frodo config-manager export cors -D configManagerExportCorsDir0": should export globals CORS configuration in fr-config manager style.: configManagerExportCorsDir0/cors/cors-config.json 1`] = `
+{
+  "corsServiceGlobal": {
+    "_id": "",
+    "_rev": "515901845",
+    "_type": {
+      "_id": "CorsService",
+      "collection": false,
+      "name": "CORS Service",
+    },
+    "enabled": true,
+  },
+  "corsServices": [
+    {
+      "_id": "test",
+      "_type": {
+        "_id": "configuration",
+        "collection": true,
+        "name": "Cors Configuration",
+      },
+      "acceptedHeaders": [],
+      "acceptedMethods": [],
+      "acceptedOrigins": [],
+      "allowCredentials": false,
+      "enabled": false,
+      "exposedHeaders": [],
+      "maxAge": 0,
+    },
+  ],
+  "idmCorsConfig": {
+    "_id": "servletfilter/cors",
+    "initParams": {
+      "allowCredentials": false,
+      "allowedHeaders": "authorization,accept,content-type,origin,x-requested-with,cache-control,accept-api-version,if-match,if-none-match",
+      "allowedMethods": "GET,POST,PUT,DELETE,PATCH",
+      "allowedOrigins": "*",
+      "chainPreflight": false,
+      "exposedHeaders": "WWW-Authenticate",
+    },
+    "urlPatterns": [
+      "/*",
+    ],
+  },
+}
+`;

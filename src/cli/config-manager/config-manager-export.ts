@@ -1,6 +1,7 @@
 import { FrodoStubCommand } from '../FrodoCommand';
 import AuthzPolicies from './config-manager-export-authz-policies';
 import ConnectorDefinitions from './config-manager-export-connector-definitions';
+import CORS from './config-manager-export-cors';
 import Mappings from './config-manager-export-mappings';
 import Scripts from './config-manager-export-scripts';
 import Secrets from './config-manager-export-secrets';
@@ -25,6 +26,6 @@ export default function setup() {
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
-
+  program.addCommand(CORS().name('cors'));
   return program;
 }
