@@ -8,21 +8,19 @@ const { getFilePath, saveJsonToFile } = frodo.utils;
 
 /**
  * Export the content security policy in fr-config manager format
- * @returns
+ * @returns True if file was successfully saved
  */
 export async function exportCsp(): Promise<boolean> {
   try {
-    const cspEnforced: ContentSecurityPolicy = await env.readEnforcedContentSecurityPolicy();
-    const cspReport: ContentSecurityPolicy = await env.readReportOnlyContentSecurityPolicy();
-    const csp = {enforced: cspEnforced, 'report-only' : cspReport};
-    saveJsonToFile(
-      csp,
-      getFilePath('csp/csp.json', true),
-      false,
-      false
-    );
+    const cspEnforced: ContentSecurityPolicy =
+      await env.readEnforcedContentSecurityPolicy();
+    const cspReport: ContentSecurityPolicy =
+      await env.readReportOnlyContentSecurityPolicy();
+    const csp = { enforced: cspEnforced, 'report-only': cspReport };
+    saveJsonToFile(csp, getFilePath('csp/csp.json', true), false, false);
     return true;
   } catch (error) {
     printError(error);
+    return false;
   }
 }

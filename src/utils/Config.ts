@@ -261,16 +261,20 @@ export function extractDataToFile(
   return `file://${file}`;
 }
 
-export function extractFrConfigDataToFile(data: any, file: string, directory?: string): { file: string } {
+export function extractFrConfigDataToFile(
+  data: any,
+  file: string,
+  directory?: string
+): { file: string } {
   const filePath = getFilePath((directory ? `${directory}/` : '') + file, true);
-    if (typeof data === 'object') {
+  if (typeof data === 'object') {
     saveJsonToFile(data, filePath, false);
   } else {
     saveTextToFile(String(data), filePath);
   }
   return {
-    file
-  }
+    file,
+  };
 }
 
 /**

@@ -1,4 +1,8 @@
 import { frodo, FrodoError } from '@rockcarver/frodo-lib';
+import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
+import { ScriptExportOptions } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
+import fs from 'fs';
+
 import {
   createProgressIndicator,
   debugMessage,
@@ -6,9 +10,6 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import fs from 'fs';
-import { ScriptExportOptions } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
-import { ScriptSkeleton } from '@rockcarver/frodo-lib/types/api/ScriptApi';
 
 const { exportScripts } = frodo.script;
 const { getFilePath, getTypedFilename, saveJsonToFile, getCurrentRealmName } =

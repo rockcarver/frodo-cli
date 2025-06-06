@@ -1,0 +1,16 @@
+{
+  "idm": {
+    "privileges": {
+      "_id": "privileges",
+      "privileges": []
+    }
+  },
+  "meta": {
+    "exportDate": "2025-06-06T21:45:26.382Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v3.0.1 [v22.14.0]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "8.0.0"
+  }
+}

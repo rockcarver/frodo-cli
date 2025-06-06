@@ -1,6 +1,7 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { debugMessage, printError } from '../utils/Console';
 import fs from 'fs';
+
+import { debugMessage, printError } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile, getCurrentRealmName } = frodo.utils;
 const { getFullServices, createServiceExportTemplate } = frodo.service;
@@ -40,11 +41,7 @@ export async function configManagerExportServices(
         debugMessage(
           `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
         );
-        saveJsonToFile(
-          exportData.service[service._type._id],
-          filePath,
-          false
-        );
+        saveJsonToFile(exportData.service[service._type._id], filePath, false);
       } else {
         exportData.service[service._type._id] = {
           ...service,
@@ -53,11 +50,7 @@ export async function configManagerExportServices(
         debugMessage(
           `cli.ServiceOps.exportServicesToFiles: exporting ${service._type._id} to ${filePath}`
         );
-        saveJsonToFile(
-          exportData.service[service._type._id],
-          filePath,
-          false
-        );
+        saveJsonToFile(exportData.service[service._type._id], filePath, false);
       }
     }
     debugMessage(`cli.ServiceOps.exportServicesToFiles: end.`);

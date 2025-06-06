@@ -1,5 +1,5 @@
-import { getTokens } from '../../ops/AuthenticateOps';
 import { configManagerExportMappings } from '../../configManagerOps/FrConfigMappingOps';
+import { getTokens } from '../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 

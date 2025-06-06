@@ -11,7 +11,7 @@ type CorsObject = { idmCorsConfig; corsServices; corsServiceGlobal };
 
 /**
  * Export the global CORS configuration json in fr-config manager format
- * @returns
+ * @returns True if file was successfully saved
  */
 export async function exportCorsConfiguration(): Promise<boolean> {
   try {
@@ -38,5 +38,6 @@ export async function exportCorsConfiguration(): Promise<boolean> {
     return true;
   } catch (error) {
     printError(error);
+    return false;
   }
 }

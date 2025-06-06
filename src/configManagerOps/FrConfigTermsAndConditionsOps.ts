@@ -1,14 +1,10 @@
-
 import { frodo } from '@rockcarver/frodo-lib';
-import {  printError } from '../utils/Console';
+
 import { extractFrConfigDataToFile } from '../utils/Config';
-const {
-  exportTermsAndConditions,
-} = frodo.terms;
-const {
-  saveJsonToFile,
-  getFilePath
-} = frodo.utils;
+import { printError } from '../utils/Console';
+
+const { exportTermsAndConditions } = frodo.terms;
+const { saveJsonToFile, getFilePath } = frodo.utils;
 
 /**
  * Export terms and conditions to file
@@ -18,11 +14,17 @@ export async function exportTermsAndConditionsToFiles(): Promise<boolean> {
   try {
     const exportData = await exportTermsAndConditions();
     for (const version of exportData.versions) {
-      for (const [language, text] of Object.entries(version.termsTranslations)) {
+      for (const [language, text] of Object.entries(
+        version.termsTranslations
+      )) {
         const languageFileName = `${version.version}/${language}.html`;
-        const directoryName = `terms-conditions`
+        const directoryName = `terms-conditions`;
         // @ts-expect-error
-        version.termsTranslations[language] = extractFrConfigDataToFile(text, languageFileName, directoryName);
+        version.termsTranslations[language] = extractFrConfigDataToFile(
+          text,
+          languageFileName,
+          directoryName
+        );
       }
     }
     saveJsonToFile(

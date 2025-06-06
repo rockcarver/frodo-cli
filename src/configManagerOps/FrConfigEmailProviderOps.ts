@@ -1,6 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
-import { FullService } from '@rockcarver/frodo-lib/types/api/ServiceApi';
 
 import { printError } from '../utils/Console';
 
@@ -9,7 +8,7 @@ const { getFilePath, saveJsonToFile } = frodo.utils;
 
 /**
  * Export the email provider configuration json in fr-config manager format
- * @returns
+ * @returns True if file was successfully saved
  */
 export async function exportEmailProviderConfiguration(): Promise<boolean> {
   try {
@@ -25,5 +24,6 @@ export async function exportEmailProviderConfiguration(): Promise<boolean> {
     return true;
   } catch (error) {
     printError(error);
+    return false;
   }
 }

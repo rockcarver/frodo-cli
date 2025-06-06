@@ -1,8 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { printError } from '../utils/Console';
+import { MappingExportOptions } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
 import * as path from 'path';
-import { MappingExportOptions } from '@rockcarver/frodo-lib/types/ops/MappingOps';
+
+import { printError } from '../utils/Console';
 
 const { exportMappings } = frodo.idm.mapping;
 const { saveJsonToFile } = frodo.utils;

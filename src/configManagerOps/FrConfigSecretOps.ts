@@ -1,12 +1,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import { SecretSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
+import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
+
 import {
   createProgressIndicator,
   printError,
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import { SecretSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
-import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
 
 const { getFilePath, saveJsonToFile } = frodo.utils;
 const {

@@ -1,13 +1,14 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
+import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   createProgressIndicator,
   printError,
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
-import fs from 'fs';
-import * as path from 'path';
 
 const { getFilePath, saveJsonToFile, getCurrentRealmName } = frodo.utils;
 const {
