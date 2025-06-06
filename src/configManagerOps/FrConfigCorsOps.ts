@@ -10,7 +10,7 @@ const { getFilePath, saveJsonToFile } = frodo.utils;
 type CorsObject = { idmCorsConfig; corsServices; corsServiceGlobal };
 
 /**
- * Export all the connector definitions in the tenant each in their own file in fr-config manager format
+ * Export the global CORS configuration json in fr-config manager format
  * @returns
  */
 export async function exportCorsConfiguration(): Promise<boolean> {

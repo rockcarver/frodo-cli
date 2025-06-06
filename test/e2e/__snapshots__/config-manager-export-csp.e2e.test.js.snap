@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager exports "frodo config-manager export csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager exports "frodo config-manager export csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style.: configManagerExportCspDir0/csp/csp.json 1`] = `
+{
+  "enforced": {
+    "active": false,
+    "directives": {},
+  },
+  "report-only": {
+    "active": true,
+    "directives": {
+      "frame-ancestors": [
+        "'self'",
+      ],
+      "script-src": [
+        "'self'",
+        "'unsafe-eval'",
+        "'unsafe-inline'",
+      ],
+    },
+  },
+}
+`;

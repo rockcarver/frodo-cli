@@ -10,6 +10,7 @@ import Terms from './config-manager-export-terms-and-conditions';
 import Themes from './config-manager-export-themes';
 import UiConfig from './config-manager-export-uiConfig';
 import Variables from './config-manager-export-variables';
+import CSP from './config-manager-export-csp';
 
 export default function setup() {
   const program = new FrodoStubCommand('config-manager export').description(
@@ -27,5 +28,6 @@ export default function setup() {
   program.addCommand(AuthzPolicies().name('authz-policies'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(CORS().name('cors'));
+  program.addCommand(CSP().name('csp'));
   return program;
 }
