@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager exports "frodo config-manager export email-provider -D configManagerExportEmailProviderDir0": should export email provider configuration in fr-config manager style. 1`] = `""`;
+
+exports[`frodo config-manager exports "frodo config-manager export email-provider -D configManagerExportEmailProviderDir0": should export email provider configuration in fr-config manager style.: configManagerExportEmailProviderDir0/email-provider/external.email.json 1`] = `
+{
+  "_id": "external.email",
+  "auth": {
+    "enable": true,
+    "password": "&{aic.customer.sasl.pass}",
+    "username": "&{aic.customer.sasl.user|donotuse@pingidentity.com}",
+  },
+  "connectiontimeout": 300000,
+  "debug": false,
+  "from": "&{email.sender.address}",
+  "host": "&{aic.smtp.relay.host|smtp-relay.fr-platform.svc.cluster.local}",
+  "port": 25,
+  "smtpProperties": [],
+  "ssl": {
+    "enable": false,
+  },
+  "starttls": {
+    "enable": false,
+  },
+  "threadPoolSize": 20,
+  "timeout": 300000,
+  "writetimeout": 300000,
+}
+`;

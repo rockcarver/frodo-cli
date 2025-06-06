@@ -11,6 +11,7 @@ import Themes from './config-manager-export-themes';
 import UiConfig from './config-manager-export-uiConfig';
 import Variables from './config-manager-export-variables';
 import CSP from './config-manager-export-csp';
+import EmailProvider from './config-manager-export-email-provider';
 
 export default function setup() {
   const program = new FrodoStubCommand('config-manager export').description(
@@ -29,5 +30,6 @@ export default function setup() {
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(CORS().name('cors'));
   program.addCommand(CSP().name('csp'));
+  program.addCommand(EmailProvider().name('email-provider'));
   return program;
 }
