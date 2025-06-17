@@ -191,7 +191,10 @@ export default function setup() {
           process.exitCode = 1;
         }
         // --all-separate -A
-        else if (options.allSeparate && (await getTokens(false, true, deploymentTypes))) {
+        else if (
+          options.allSeparate &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting everything to separate files...');
           const outcome = await exportEverythingToFiles(
             options.extract,
