@@ -179,8 +179,8 @@ export async function testPromote(
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
-  expect(stdout).toMatchSnapshot();
-  expect(stderr).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
 }
 
 async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {
