@@ -887,6 +887,20 @@ Yahoo Profile           │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy    │S
 `;
 
 exports[`frodo script list "frodo script list -lu": should list the names, uuids, languages, contexts, usage, and descriptions of the scripts 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Reading scripts...
+✔ Successfully read 67 scripts.
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo script list "frodo script list -lu": should list the names, uuids, languages, contexts, usage, and descriptions of the scripts 2`] = `
 "Name                    │UUID                                │Language  │Context                  │Description                   │Used                                                                                                                          
 ADFS Profile            │dbe0bf9a-72aa-49d5-8483-9db147985a47│JavaScript│Social Idp Profile       │Normalizes raw profile data   │yes (at realm.root-alpha.idp.adfs.transform)                                                                                  
   Normalization (JS)    │                                    │          │Transformation           │from ADFS                     │                                                                                                                              
@@ -1038,6 +1052,20 @@ Yahoo Profile           │424da748-82cc-4b54-be6f-82bd64d82a74│Groovy    │S
 `;
 
 exports[`frodo script list "frodo script list -u": should list the usage of the scripts 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Reading scripts...
+✔ Successfully read 67 scripts.
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo script list "frodo script list -u": should list the usage of the scripts 2`] = `
 "Name                    │Used                                                                                                                          
 ADFS Profile            │yes (at realm.root-alpha.idp.adfs.transform)                                                                                  
   Normalization (JS)    │                                                                                                                              

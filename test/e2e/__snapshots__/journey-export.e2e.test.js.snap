@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json 1`] = `""`;
+exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export --all --file my-allAlphaJourneys.journey.json": should export all journeys to a single file named my-allAlphaJourneys.journey.json: my-allAlphaJourneys.journey.json 1`] = `
 {
@@ -3250,7 +3252,9 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
 }
 `;
 
-exports[`frodo journey export "frodo journey export --all-separate --no-deps --no-coords --use-string-arrays": should export all journeys to separate files with no dependencies, no coordinates, and using string arrays 1`] = `""`;
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --no-coords --use-string-arrays": should export all journeys to separate files with no dependencies, no coordinates, and using string arrays 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export --all-separate --no-deps --no-coords --use-string-arrays": should export all journeys to separate files with no dependencies, no coordinates, and using string arrays 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export --all-separate --no-deps --no-coords --use-string-arrays": should export all journeys to separate files with no dependencies, no coordinates, and using string arrays: ForgottenUsername.journey.json 1`] = `
 {
@@ -5694,7 +5698,9 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
 }
 `;
 
-exports[`frodo journey export "frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies or coordinates, and should use string arrays. 1`] = `""`;
+exports[`frodo journey export "frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies or coordinates, and should use string arrays. 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies or coordinates, and should use string arrays. 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export --journey-id j02 --no-metadata --no-deps --no-coords --use-string-arrays -D journeyTestDirectory1": should export the journey with journey id "j02" to the folder named "journeyTestDirectory1", and the export should not contain dependencies or coordinates, and should use string arrays.: journeyTestDirectory1/j02.journey.json 1`] = `
 {
@@ -5931,9 +5937,11 @@ exports[`frodo journey export "frodo journey export --journey-id j02 --no-metada
 }
 `;
 
-exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `""`;
+exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `0`;
 
-exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 2`] = `
+exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 2`] = `""`;
+
+exports[`frodo journey export "frodo journey export --verbose -i FrodoTest": should export the journey with journey id "FrodoTest" 3`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 Exporting journey...
 - FrodoTest
@@ -7105,7 +7113,9 @@ a{
 }
 `;
 
-exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3": should export all journeys to separate files in the folder named "journeyTestDirectory3" 1`] = `""`;
+exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3": should export all journeys to separate files in the folder named "journeyTestDirectory3" 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3": should export all journeys to separate files in the folder named "journeyTestDirectory3" 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3": should export all journeys to separate files in the folder named "journeyTestDirectory3": journeyTestDirectory3/ForgottenUsername.journey.json 1`] = `
 {
@@ -10868,7 +10878,9 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
 }
 `;
 
-exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies, no coordinates, and only string arrays in the export. 1`] = `""`;
+exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies, no coordinates, and only string arrays in the export. 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies, no coordinates, and only string arrays in the export. 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --use-string-arrays --directory journeyTestDirectory2": should export all journeys to a single file in the folder named "journeyTestDirectory2" with no dependencies, no coordinates, and only string arrays in the export.: journeyTestDirectory2/allAlphaJourneys.journey.json 1`] = `
 {
@@ -13279,7 +13291,9 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
 }
 `;
 
-exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file 1`] = `""`;
+exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export -a": should export all journeys to a single file: allAlphaJourneys.journey.json 1`] = `
 {
@@ -16529,7 +16543,9 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
 }
 `;
 
-exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `""`;
+exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest" 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest" 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export -i FrodoTest": should export the journey with journey id "FrodoTest": FrodoTest.journey.json 1`] = `
 {
@@ -17816,7 +17832,9 @@ a{
 }
 `;
 
-exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json 1`] = `""`;
+exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json 1`] = `0`;
+
+exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json 2`] = `""`;
 
 exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": should export the journey with journey id "j01" into file named my-j01.json: my-j01.json 1`] = `
 {

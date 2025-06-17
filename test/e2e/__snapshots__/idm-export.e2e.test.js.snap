@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 1`] = `""`;
+exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json: allIdmTestFile.json 1`] = `
 {
@@ -2704,7 +2706,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 1`] = `""`;
+exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files: testDir3/repo.ds.idm.json 1`] = `
 {
@@ -5442,7 +5446,9 @@ exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separ
 }
 `;
 
-exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory 1`] = `""`;
+exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory 1`] = `1`;
+
+exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory: testDir5/access.idm.json 1`] = `
 {
@@ -21547,7 +21553,9 @@ exports[`frodo idm export "frodo idm export --all-separate --no-metadata --separ
 }
 `;
 
-exports[`frodo idm export "frodo idm export --entity-id script": should export the idm config entity with idm id "script" 1`] = `""`;
+exports[`frodo idm export "frodo idm export --entity-id script": should export the idm config entity with idm id "script" 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export --entity-id script": should export the idm config entity with idm id "script" 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export --entity-id script": should export the idm config entity with idm id "script": script.idm.json 1`] = `
 {
@@ -21596,7 +21604,9 @@ exports[`frodo idm export "frodo idm export --entity-id script": should export t
 }
 `;
 
-exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 1`] = `""`;
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 1`] = `1`;
+
+exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm config entities to separate files in the "testDir" directory: testDir1/access.idm.json 1`] = `
 {
@@ -38177,7 +38187,9 @@ exports[`frodo idm export "frodo idm export -AD testDir1": should export all idm
 }
 `;
 
-exports[`frodo idm export "frodo idm export -Ni sync": should export the idm config entity with idm id "sync" separately 1`] = `""`;
+exports[`frodo idm export "frodo idm export -Ni sync": should export the idm config entity with idm id "sync" separately 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export -Ni sync": should export the idm config entity with idm id "sync" separately 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -Ni sync": should export the idm config entity with idm id "sync" separately: sync.idm.json 1`] = `
 {
@@ -38717,7 +38729,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo idm export "frodo idm export -a": should export all idm config entities to a single file 1`] = `""`;
+exports[`frodo idm export "frodo idm export -a": should export all idm config entities to a single file 1`] = `1`;
+
+exports[`frodo idm export "frodo idm export -a": should export all idm config entities to a single file 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -a": should export all idm config entities to a single file: all.idm.json 1`] = `
 {
@@ -54778,7 +54792,9 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo idm export "frodo idm export -i script -D testDir4": should export the idm config entity with idm id "script" into the directory testDir4 1`] = `""`;
+exports[`frodo idm export "frodo idm export -i script -D testDir4": should export the idm config entity with idm id "script" into the directory testDir4 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export -i script -D testDir4": should export the idm config entity with idm id "script" into the directory testDir4 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -i script -D testDir4": should export the idm config entity with idm id "script" into the directory testDir4: testDir4/script.idm.json 1`] = `
 {
@@ -54827,7 +54843,9 @@ exports[`frodo idm export "frodo idm export -i script -D testDir4": should expor
 }
 `;
 
-exports[`frodo idm export "frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `""`;
+exports[`frodo idm export "frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json: my-script.idm.json 1`] = `
 {
@@ -54876,7 +54894,9 @@ exports[`frodo idm export "frodo idm export -i script -e test/e2e/env/testEnvFil
 }
 `;
 
-exports[`frodo idm export "frodo idm export -si sync": should export the idm config entity with idm id "sync" separately 1`] = `""`;
+exports[`frodo idm export "frodo idm export -si sync": should export the idm config entity with idm id "sync" separately 1`] = `0`;
+
+exports[`frodo idm export "frodo idm export -si sync": should export the idm config entity with idm id "sync" separately 2`] = `""`;
 
 exports[`frodo idm export "frodo idm export -si sync": should export the idm config entity with idm id "sync" separately: sync/AlphaUser2GoogleApps.sync.json 1`] = `
 {

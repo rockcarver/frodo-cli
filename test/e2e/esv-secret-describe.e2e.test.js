@@ -56,7 +56,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, removeProgressBarOutput } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -76,8 +76,13 @@ describe('frodo esv secret describe', () => {
 
     test(`"frodo esv secret describe -ui esv-test-secret-pi": should describe the esv secret "esv-test-secret-pi" with usage`, async () => {
         const CMD = `frodo esv secret describe -ui esv-test-secret-pi`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stdout))).toMatchSnapshot();
+        }
     });
 
     test(`"frodo esv secret describe -ui esv-test-secret-pi -f ${allConfigFile}": should describe the esv secret "esv-test-secret-pi" with usage from file ${allConfigFile}`, async () => {

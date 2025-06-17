@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file 1`] = `""`;
+exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export --all": should export all idp providers to a single file: allAlphaProviders.idp.json 1`] = `
 {
@@ -747,7 +749,9 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
 }
 `;
 
-exports[`frodo idp export "frodo idp export --all-separate --no-metadata --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3 1`] = `""`;
+exports[`frodo idp export "frodo idp export --all-separate --no-metadata --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export --all-separate --no-metadata --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export --all-separate --no-metadata --directory idpExportTestDir3": should export all idp providers to separate files in the directory idpExportTestDir3: idpExportTestDir3/adfs.idp.json 1`] = `
 {
@@ -1091,7 +1095,9 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
 }
 `;
 
-exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google" 1`] = `""`;
+exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google" 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google" 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export --idp-id google": should export the idp provider with idp id "google": google.idp.json 1`] = `
 {
@@ -1189,7 +1195,9 @@ exports[`frodo idp export "frodo idp export --idp-id google": should export the 
 }
 `;
 
-exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 1`] = `""`;
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export -A": should export all idp providers to separate files: adfs.idp.json 1`] = `
 {
@@ -2069,7 +2077,9 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
 }
 `;
 
-exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2 1`] = `""`;
+exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should export all idp providers to a single file in the directory idpExportTestDir2: idpExportTestDir2/allAlphaProviders.idp.json 1`] = `
 {
@@ -2395,7 +2405,9 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
 }
 `;
 
-exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1 1`] = `""`;
+exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": should export the idp provider with idp id "google" into the directory idpExportTestDir1: idpExportTestDir1/google.idp.json 1`] = `
 {
@@ -2492,7 +2504,9 @@ exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": sh
 }
 `;
 
-exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json 1`] = `""`;
+exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.json": should export all idp providers to a single file named my-allAlphaProviders.idp.json: my-allAlphaProviders.idp.json 1`] = `
 {
@@ -3239,7 +3253,9 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
 }
 `;
 
-exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json 1`] = `""`;
+exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json 1`] = `0`;
+
+exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json 2`] = `""`;
 
 exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": should export the idp provider with idp id "google" into file named my-google.idp.json: my-google.idp.json 1`] = `
 {

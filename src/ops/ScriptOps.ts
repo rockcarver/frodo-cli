@@ -29,6 +29,7 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -359,7 +360,7 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts(options);
+    const scriptExport = await exportScripts(options, errorHandler);
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
@@ -383,56 +384,50 @@ export async function exportScriptsToFiles(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  let barId: string;
-  try {
-    const scriptExport = await exportScripts(options);
-    const scriptList = Object.values(scriptExport.script);
-    barId = createProgressIndicator(
+  const scriptExport = await exportScripts(options, errorHandler);
+  const scriptList = Object.values(scriptExport.script);
+  const barId = createProgressIndicator(
+    'determinate',
+    scriptList.length,
+    'Exporting scripts to individual files...'
+  );
+  for (const script of scriptList) {
+    const fileBarId = createProgressIndicator(
       'determinate',
-      scriptList.length,
-      'Exporting scripts to individual files...'
+      1,
+      `Exporting script ${script.name}...`
     );
-    for (const script of scriptList) {
-      const fileBarId = createProgressIndicator(
-        'determinate',
-        1,
-        `Exporting script ${script.name}...`
-      );
+    try {
       const file = getFilePath(getTypedFilename(script.name, 'script'), true);
-      try {
-        if (extract) {
-          extractScriptsToFiles({
-            script: {
-              [script._id]: script,
-            },
-          });
-        }
-        saveToFile('script', script, '_id', file, includeMeta);
-        updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
-        stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
-      } catch (error) {
-        stopProgressIndicator(
-          fileBarId,
-          `Error exporting ${script.name}`,
-          'fail'
-        );
-        errors.push(error);
+      if (extract) {
+        extractScriptsToFiles({
+          script: {
+            [script._id]: script,
+          },
+        });
       }
-      updateProgressIndicator(barId, `Exported script ${script.name}`);
+      saveToFile('script', script, '_id', file, includeMeta);
+      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
+    } catch (error) {
+      stopProgressIndicator(
+        fileBarId,
+        `Error exporting ${script.name}`,
+        'fail'
+      );
+      errors.push(error);
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting scripts`, errors);
-    }
-    stopProgressIndicator(
-      barId,
-      `Exported ${scriptList.length} scripts to individual files.`
-    );
-    debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(barId, `Error exporting scripts`);
-    printError(error);
+    updateProgressIndicator(barId, `Exported script ${script.name}`);
   }
+  if (errors.length > 0) {
+    throw new FrodoError(`Error exporting scripts`, errors);
+  }
+  stopProgressIndicator(
+    barId,
+    `Exported ${scriptList.length} scripts to individual files.`
+  );
+  debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
+  return true;
 }
 
 /**
@@ -638,7 +633,14 @@ async function handleScriptFileImport(
   const script = getScriptExportByScriptFile(file);
   const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
   try {
-    await importScripts(id, name, script, options, validateScripts);
+    await importScripts(
+      id,
+      name,
+      script,
+      options,
+      validateScripts,
+      errorHandler
+    );
     updateProgressIndicator(indicatorId, `${file}`);
     stopProgressIndicator(indicatorId, `${file}`);
   } catch (error) {
@@ -763,7 +765,7 @@ export async function deleteAllScripts(): Promise<boolean> {
     `Deleting all non-default scripts...`
   );
   try {
-    await deleteScripts();
+    await deleteScripts(errorHandler);
     stopProgressIndicator(
       spinnerId,
       `Deleted all non-default scripts.`,

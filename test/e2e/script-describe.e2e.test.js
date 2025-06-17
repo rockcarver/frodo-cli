@@ -56,7 +56,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, removeProgressBarOutput } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -76,8 +76,13 @@ describe('frodo script describe', () => {
 
     test(`"frodo script describe -un shared": should describe the script with name "shared" with usage`, async () => {
         const CMD = `frodo script describe -un shared`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stdout))).toMatchSnapshot();
+        }
     });
 
     test(`"frodo script describe -un shared -f ${allConfigFile}": should describe the script with name "shared" with usage from file ${allConfigFile}`, async () => {

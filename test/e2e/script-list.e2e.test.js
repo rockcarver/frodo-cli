@@ -58,7 +58,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, removeProgressBarOutput } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -84,14 +84,24 @@ describe('frodo script list', () => {
 
     test('"frodo script list -u": should list the usage of the scripts', async () => {
         const CMD = `frodo script list -u`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stdout))).toMatchSnapshot();
+        }
     });
 
     test('"frodo script list -lu": should list the names, uuids, languages, contexts, usage, and descriptions of the scripts', async () => {
         const CMD = `frodo script list -lu`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stdout))).toMatchSnapshot();
+        }
     });
 
     test(`"frodo script list -uf ${allConfigFile}": should list the usage of the scripts in the ${allConfigFile} file`, async () => {

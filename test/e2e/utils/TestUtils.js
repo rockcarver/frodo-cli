@@ -56,7 +56,19 @@ export async function testExport(
   checkStderr = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
-  const { stdout, stderr } = await exec(command, env);
+  let stdout;
+  let stderr;
+  let exitCode = 0;
+  try {
+    const output = await exec(command, env);
+    stdout = output.stdout;
+    stderr = output.stderr;
+  } catch (e) {
+    stdout = e.stdout;
+    stderr = e.stderr;
+    exitCode = e.code;
+  }
+  expect(exitCode).toMatchSnapshot();
   // console.error(`stdout:\n${stdout}`);
   // console.error(`stderr:\n${stderr}`);
   const regex = new RegExp(
@@ -161,17 +173,14 @@ export async function testPromote(
   modifiedFilesDir,
   referenceSubDirs,
   env, 
-  name,
-  number,
+  name
 ) {
   env.env.FRODO_TEST_NAME = name
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
-  // const exportDirectory = 'promoteTestDir';
-  // const CMD2 = `frodo config export -AxND ${exportDirectory}`;
-  // await testExport(CMD2, env, undefined, undefined, exportDirectory, false);
-
+  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
 }
 
 async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {

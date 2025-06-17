@@ -59,6 +59,20 @@ esv-test-variable-light                     │299792458                      �
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Reading variables...
+✔ Successfully read 12 variables.
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 2`] = `
 "Id                               │Value                                   │Status│Description                             │Modifier                     │Modified (UTC)               │Used                                                                                                                                          
 esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:11 GMT│no                                                                                                                                            
 esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:13 GMT│no                                                                                                                                            
@@ -83,6 +97,20 @@ esv-trinity-phone                │(312)-555-0690                          │l
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Reading variables...
+✔ Successfully read 12 variables.
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 2`] = `
 "Id                               │Used                                                                                                                                          
 esv-blue-piller                  │no                                                                                                                                            
 esv-ipv4-cidr-access-rules       │no                                                                                                                                            

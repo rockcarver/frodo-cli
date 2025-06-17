@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo theme export "frodo theme export --all": should export all themes to a single file 1`] = `""`;
+exports[`frodo theme export "frodo theme export --all": should export all themes to a single file 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export --all": should export all themes to a single file 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export --all": should export all themes to a single file: allAlphaThemes.theme.json 1`] = `
 {
@@ -795,7 +797,9 @@ exports[`frodo theme export "frodo theme export --all": should export all themes
 }
 `;
 
-exports[`frodo theme export "frodo theme export --all-separate --no-metadata --directory themeExportTestDir4": should export all themes to separate files in the directory themeExportTestDir4 1`] = `""`;
+exports[`frodo theme export "frodo theme export --all-separate --no-metadata --directory themeExportTestDir4": should export all themes to separate files in the directory themeExportTestDir4 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export --all-separate --no-metadata --directory themeExportTestDir4": should export all themes to separate files in the directory themeExportTestDir4 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export --all-separate --no-metadata --directory themeExportTestDir4": should export all themes to separate files in the directory themeExportTestDir4: themeExportTestDir4/Contrast.theme.json 1`] = `
 {
@@ -1614,7 +1618,9 @@ exports[`frodo theme export "frodo theme export --all-separate --no-metadata --d
 }
 `;
 
-exports[`frodo theme export "frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" 1`] = `""`;
+exports[`frodo theme export "frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export --theme-id 86ce2f64-586d-44fe-8593-b12a85aac68d": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d": 86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 1`] = `
 {
@@ -1709,7 +1715,9 @@ exports[`frodo theme export "frodo theme export --theme-id 86ce2f64-586d-44fe-85
 }
 `;
 
-exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme" 1`] = `""`;
+exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme" 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme" 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": should export the theme named "Starter Theme": Starter-Theme.theme.json 1`] = `
 {
@@ -1807,7 +1815,9 @@ exports[`frodo theme export "frodo theme export --theme-name 'Starter Theme'": s
 }
 `;
 
-exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 1`] = `""`;
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -A": should export all themes to separate files 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -A": should export all themes to separate files: Contrast.theme.json 1`] = `
 {
@@ -2634,7 +2644,9 @@ exports[`frodo theme export "frodo theme export -A": should export all themes to
 }
 `;
 
-exports[`frodo theme export "frodo theme export -NaD themeExportTestDir3": should export all themes to a single file in the directory themeExportTestDir3 1`] = `""`;
+exports[`frodo theme export "frodo theme export -NaD themeExportTestDir3": should export all themes to a single file in the directory themeExportTestDir3 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -NaD themeExportTestDir3": should export all themes to a single file in the directory themeExportTestDir3 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -NaD themeExportTestDir3": should export all themes to a single file in the directory themeExportTestDir3: themeExportTestDir3/allAlphaThemes.theme.json 1`] = `
 {
@@ -3425,7 +3437,9 @@ exports[`frodo theme export "frodo theme export -NaD themeExportTestDir3": shoul
 }
 `;
 
-exports[`frodo theme export "frodo theme export -Ni 86ce2f64-586d-44fe-8593-b12a85aac68d -D themeExportTestDir2": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into a file in the directory themeExportTestDir2 1`] = `""`;
+exports[`frodo theme export "frodo theme export -Ni 86ce2f64-586d-44fe-8593-b12a85aac68d -D themeExportTestDir2": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into a file in the directory themeExportTestDir2 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -Ni 86ce2f64-586d-44fe-8593-b12a85aac68d -D themeExportTestDir2": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into a file in the directory themeExportTestDir2 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -Ni 86ce2f64-586d-44fe-8593-b12a85aac68d -D themeExportTestDir2": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into a file in the directory themeExportTestDir2: themeExportTestDir2/86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 1`] = `
 {
@@ -3519,7 +3533,9 @@ exports[`frodo theme export "frodo theme export -Ni 86ce2f64-586d-44fe-8593-b12a
 }
 `;
 
-exports[`frodo theme export "frodo theme export -Nn 'Starter Theme' -D themeExportTestDir1": should export the theme named "Starter Theme" into a file in the directory themeExportTestDir1 1`] = `""`;
+exports[`frodo theme export "frodo theme export -Nn 'Starter Theme' -D themeExportTestDir1": should export the theme named "Starter Theme" into a file in the directory themeExportTestDir1 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -Nn 'Starter Theme' -D themeExportTestDir1": should export the theme named "Starter Theme" into a file in the directory themeExportTestDir1 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -Nn 'Starter Theme' -D themeExportTestDir1": should export the theme named "Starter Theme" into a file in the directory themeExportTestDir1: themeExportTestDir1/Starter-Theme.theme.json 1`] = `
 {
@@ -3613,7 +3629,9 @@ exports[`frodo theme export "frodo theme export -Nn 'Starter Theme' -D themeExpo
 }
 `;
 
-exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json 1`] = `""`;
+exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.theme.json": should export all themes to a single file named my-allAlphaThemes.theme.json: my-allAlphaThemes.theme.json 1`] = `
 {
@@ -4408,7 +4426,9 @@ exports[`frodo theme export "frodo theme export -a --file my-allAlphaThemes.them
 }
 `;
 
-exports[`frodo theme export "frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into file named my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 1`] = `""`;
+exports[`frodo theme export "frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into file named my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into file named my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -i 86ce2f64-586d-44fe-8593-b12a85aac68d -f my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json": should export the theme with id "86ce2f64-586d-44fe-8593-b12a85aac68d" into file named my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json: my-86ce2f64-586d-44fe-8593-b12a85aac68d.theme.json 1`] = `
 {
@@ -4503,7 +4523,9 @@ exports[`frodo theme export "frodo theme export -i 86ce2f64-586d-44fe-8593-b12a8
 }
 `;
 
-exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json 1`] = `""`;
+exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json 1`] = `0`;
+
+exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json 2`] = `""`;
 
 exports[`frodo theme export "frodo theme export -n 'Starter Theme' -f my-Starter-Theme.theme.json": should export the theme named "Starter Theme" into file named my-Starter-Theme.theme.json: my-tarter-Theme.theme.json 1`] = `
 {

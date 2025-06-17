@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 1`] = `""`;
+exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.saml.json": should export all saml providers to a single file named my-allAlphaProviders.saml.json: my-allAlphaProviders.saml.json 1`] = `
 {
@@ -2261,7 +2263,9 @@ exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.
 }
 `;
 
-exports[`frodo saml export "frodo saml export --all-separate --no-metadata --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3 1`] = `""`;
+exports[`frodo saml export "frodo saml export --all-separate --no-metadata --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export --all-separate --no-metadata --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export --all-separate --no-metadata --directory samlExportTestDir3": should export all saml providers to separate files in the directory samlExportTestDir3: samlExportTestDir3/SPAzure.saml.json 1`] = `
 {
@@ -4626,7 +4630,9 @@ exports[`frodo saml export "frodo saml export --all-separate --no-metadata --dir
 }
 `;
 
-exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `""`;
+exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure" 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should export the saml provider with entity id "iSPAzure": iSPAzure.saml.json 1`] = `
 {
@@ -5110,7 +5116,9 @@ exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should expo
 }
 `;
 
-exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 1`] = `""`;
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export -A": should export all saml providers to separate files: SPAzure.saml.json 1`] = `
 {
@@ -7484,7 +7492,9 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
 }
 `;
 
-exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2 1`] = `""`;
+exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should export all saml providers to a single file in the directory samlExportTestDir2: samlExportTestDir2/allAlphaProviders.saml.json 1`] = `
 {
@@ -9744,7 +9754,9 @@ exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should e
 }
 `;
 
-exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file 1`] = `""`;
+exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export -a": should export all saml providers to a single file: allAlphaProviders.saml.json 1`] = `
 {
@@ -12005,7 +12017,9 @@ exports[`frodo saml export "frodo saml export -a": should export all saml provid
 }
 `;
 
-exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json 1`] = `""`;
+exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.json": should export the saml provider with entity id "iSPAzure" into file named my-iSPAzure.saml.json: my-iSPAzure.saml.json 1`] = `
 {
@@ -12489,7 +12503,9 @@ exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.js
 }
 `;
 
-exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `""`;
+exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure" 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure" 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export -i iSPAzure": should export the saml provider with entity id "iSPAzure": iSPAzure.saml.json 1`] = `
 {
@@ -12973,7 +12989,9 @@ exports[`frodo saml export "frodo saml export -i iSPAzure": should export the sa
 }
 `;
 
-exports[`frodo saml export "frodo saml export Ni iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1 1`] = `""`;
+exports[`frodo saml export "frodo saml export Ni iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1 1`] = `0`;
+
+exports[`frodo saml export "frodo saml export Ni iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1 2`] = `""`;
 
 exports[`frodo saml export "frodo saml export Ni iSPAzure -D samlExportTestDir1": should export the saml provider with entity id "iSPAzure" into the directory samlExportTestDir1: samlExportTestDir1/iSPAzure.saml.json 1`] = `
 {
