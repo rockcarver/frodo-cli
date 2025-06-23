@@ -6483,7 +6483,7 @@
           "collection": true,
           "name": "Keystore"
         },
-        "file": "/home/prestonhales/am/security/keystores/keystore.jceks",
+        "file": "/root/am/security/keystores/keystore.jceks",
         "keyEntryPassword": "entrypass",
         "leaseExpiryDuration": 5,
         "mappings": [
@@ -6979,7 +6979,7 @@
           "collection": true,
           "name": "File System Secret Volumes"
         },
-        "directory": "/home/prestonhales/am/security/secrets/encrypted",
+        "directory": "/root/am/security/secrets/encrypted",
         "format": "ENCRYPTED_PLAIN"
       }
     },
@@ -14374,30 +14374,85 @@
       },
       "secrets": {},
       "secretstore": {
-        "default-keystore": {
-          "_id": "default-keystore",
+        "Keystore": {
+          "_id": "Keystore",
           "_type": {
             "_id": "KeyStoreSecretStore",
             "collection": true,
             "name": "Keystore"
           },
-          "file": "/home/prestonhales/am/security/keystores/keystore.jceks",
-          "keyEntryPassword": "entrypass",
+          "file": "/home/trivir/secrets/keystore.jceks",
           "leaseExpiryDuration": 5,
-          "mappings": [],
-          "providerName": "SunJCE",
-          "storePassword": "storepass",
+          "mappings": [
+            {
+              "_id": "a5f8a49b-a954-41c4-9f8a-f643c43ebc7e",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES512"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES256",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES256"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES384",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES384"
+            },
+            {
+              "_id": "am.services.uma.pct.encryption",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey",
+                "mypassword",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.services.uma.pct.encryption"
+            }
+          ],
           "storetype": "JCEKS"
         },
-        "default-passwords-store": {
-          "_id": "default-passwords-store",
+        "Volumes": {
+          "_id": "Volumes",
           "_type": {
             "_id": "FileSystemSecretStore",
             "collection": true,
             "name": "File System Secret Volumes"
           },
-          "directory": "/home/prestonhales/am/security/secrets/encrypted",
-          "format": "ENCRYPTED_PLAIN"
+          "directory": "/home/trivir/secrets",
+          "format": "BASE64",
+          "suffix": ".txt",
+          "versionSuffix": ".v"
         }
       },
       "service": {
@@ -20313,30 +20368,85 @@
       },
       "secrets": {},
       "secretstore": {
-        "default-keystore": {
-          "_id": "default-keystore",
+        "Keystore": {
+          "_id": "Keystore",
           "_type": {
             "_id": "KeyStoreSecretStore",
             "collection": true,
             "name": "Keystore"
           },
-          "file": "/home/prestonhales/am/security/keystores/keystore.jceks",
-          "keyEntryPassword": "entrypass",
+          "file": "/home/trivir/secrets/keystore.jceks",
           "leaseExpiryDuration": 5,
-          "mappings": [],
-          "providerName": "SunJCE",
-          "storePassword": "storepass",
+          "mappings": [
+            {
+              "_id": "a5f8a49b-a954-41c4-9f8a-f643c43ebc7e",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES512"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES256",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES256"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES384",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES384"
+            },
+            {
+              "_id": "am.services.uma.pct.encryption",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey",
+                "mypassword",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.services.uma.pct.encryption"
+            }
+          ],
           "storetype": "JCEKS"
         },
-        "default-passwords-store": {
-          "_id": "default-passwords-store",
+        "Volumes": {
+          "_id": "Volumes",
           "_type": {
             "_id": "FileSystemSecretStore",
             "collection": true,
             "name": "File System Secret Volumes"
           },
-          "directory": "/home/prestonhales/am/security/secrets/encrypted",
-          "format": "ENCRYPTED_PLAIN"
+          "directory": "/home/trivir/secrets",
+          "format": "BASE64",
+          "suffix": ".txt",
+          "versionSuffix": ".v"
         }
       },
       "service": {
@@ -24783,30 +24893,85 @@
       },
       "secrets": {},
       "secretstore": {
-        "default-keystore": {
-          "_id": "default-keystore",
+        "Keystore": {
+          "_id": "Keystore",
           "_type": {
             "_id": "KeyStoreSecretStore",
             "collection": true,
             "name": "Keystore"
           },
-          "file": "/home/prestonhales/am/security/keystores/keystore.jceks",
-          "keyEntryPassword": "entrypass",
+          "file": "/home/trivir/secrets/keystore.jceks",
           "leaseExpiryDuration": 5,
-          "mappings": [],
-          "providerName": "SunJCE",
-          "storePassword": "storepass",
+          "mappings": [
+            {
+              "_id": "a5f8a49b-a954-41c4-9f8a-f643c43ebc7e",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES512"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES256",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES256"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES384",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mypassword",
+                "mysecretkey"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES384"
+            },
+            {
+              "_id": "am.services.uma.pct.encryption",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "mysecretkey",
+                "mypassword",
+                "thirdpassword",
+                "fourthpassword"
+              ],
+              "secretId": "am.services.uma.pct.encryption"
+            }
+          ],
           "storetype": "JCEKS"
         },
-        "default-passwords-store": {
-          "_id": "default-passwords-store",
+        "Volumes": {
+          "_id": "Volumes",
           "_type": {
             "_id": "FileSystemSecretStore",
             "collection": true,
             "name": "File System Secret Volumes"
           },
-          "directory": "/home/prestonhales/am/security/secrets/encrypted",
-          "format": "ENCRYPTED_PLAIN"
+          "directory": "/home/trivir/secrets",
+          "format": "BASE64",
+          "suffix": ".txt",
+          "versionSuffix": ".v"
         }
       },
       "service": {
