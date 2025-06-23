@@ -108,7 +108,7 @@ export async function listEmailTemplates(
 ): Promise<boolean> {
   let emailTemplates = [];
   try {
-    emailTemplates = await readEmailTemplates();
+    emailTemplates = await readEmailTemplates(true);
   } catch (error) {
     printError(error);
     return false;
@@ -219,7 +219,7 @@ export async function exportEmailTemplatesToFile(
       );
     }
     const filePath = getFilePath(fileName, true);
-    const exportData = await exportEmailTemplates();
+    const exportData = await exportEmailTemplates(true);
     saveJsonToFile(exportData, filePath, includeMeta);
     return true;
   } catch (error) {
@@ -239,7 +239,7 @@ export async function exportEmailTemplatesToFiles(
   let indicatorId;
   try {
     const exportData = Object.entries(
-      (await exportEmailTemplates()).emailTemplate
+      (await exportEmailTemplates(true)).emailTemplate
     );
     indicatorId = createProgressIndicator(
       'determinate',
@@ -563,7 +563,7 @@ export async function deleteAllEmailTemplates(): Promise<boolean> {
   try {
     showSpinner(`Retrieving all email templates...`);
     try {
-      templates = await readEmailTemplates();
+      templates = await readEmailTemplates(true);
       succeedSpinner(`Found ${templates.length} email templates.`);
     } catch (error) {
       failSpinner(`Error retrieving all email templates`);

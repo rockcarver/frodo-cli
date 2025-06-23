@@ -3,7 +3,7 @@ import {
   ThemeExportInterface,
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib/types/ops/ThemeOps';
-import fs from 'fs';
+import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {

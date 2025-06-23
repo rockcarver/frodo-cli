@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull test": should receive access tokens" 1`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull test": should receive access tokens" 2`] = `
+"[96mConnected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1748967688823 [b672336b-41ef-428d-ae4a-e0c082875377][39m
+Authenticated successfully
+"
+`;

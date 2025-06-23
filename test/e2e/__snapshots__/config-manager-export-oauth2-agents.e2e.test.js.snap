@@ -1,0 +1,8526 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file. 1`] = `0`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file. 2`] = `""`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/2.2_Agent/my-policy-agent.json 1`] = `
+{
+  "_id": "my-policy-agent",
+  "_rev": "-1073182983",
+  "_type": {
+    "_id": "2.2_Agent",
+    "collection": true,
+    "name": "Policy Agents",
+  },
+  "cdssoRootUrl": {
+    "inherited": false,
+    "value": [],
+  },
+  "description": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/IdentityGatewayAgent/cdsso-ig-agent.json 1`] = `
+{
+  "_id": "cdsso-ig-agent",
+  "_rev": "505834845",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent",
+  "_rev": "-255733308",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "agentgroup": "test_ig_group",
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": null,
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent2.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent2",
+  "_rev": "1471334408",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/IdentityGatewayAgent/ig-agent.json 1`] = `
+{
+  "_id": "ig-agent",
+  "_rev": "81854864",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent.json 1`] = `
+{
+  "_id": "frodo-test-java-agent",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent2.json 1`] = `
+{
+  "_id": "frodo-test-java-agent2",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/RemoteConsentAgent/test.json 1`] = `
+{
+  "_id": "test",
+  "_rev": "1629044953",
+  "_type": {
+    "_id": "RemoteConsentAgent",
+    "collection": true,
+    "name": "OAuth2 Remote Consent Service",
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "remoteConsentRedirectUrl": {
+    "inherited": false,
+  },
+  "remoteConsentRequestEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentRequestEncryptionEnabled": {
+    "inherited": false,
+    "value": true,
+  },
+  "remoteConsentRequestEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentRequestSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "remoteConsentResponseEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentResponseEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentResponseSigningAlg": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "requestTimeLimit": {
+    "inherited": false,
+    "value": 180,
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
+{
+  "_id": "test software publisher",
+  "_rev": "1920993704",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher",
+  },
+  "issuer": {
+    "inherited": false,
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "softwareStatementSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
+{
+  "_id": "frodo-test-web-agent",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents --directory configManagerExportOauth2AgentsDir5 -f test/e2e/fr-config-manager-pull-config/oauth2-agents.json": should export all the agents defined in the config file.: configManagerExportOauth2AgentsDir5/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent2.json 1`] = `
+{
+  "_id": "frodo-test-web-agent2",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style. 1`] = `0`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style. 2`] = `""`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/2.2_Agent/my-policy-agent.json 1`] = `
+{
+  "_id": "my-policy-agent",
+  "_rev": "-1073182983",
+  "_type": {
+    "_id": "2.2_Agent",
+    "collection": true,
+    "name": "Policy Agents",
+  },
+  "cdssoRootUrl": {
+    "inherited": false,
+    "value": [],
+  },
+  "description": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/IdentityGatewayAgent/cdsso-ig-agent.json 1`] = `
+{
+  "_id": "cdsso-ig-agent",
+  "_rev": "505834845",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent",
+  "_rev": "-255733308",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "agentgroup": "test_ig_group",
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": null,
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent2.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent2",
+  "_rev": "1471334408",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/IdentityGatewayAgent/ig-agent.json 1`] = `
+{
+  "_id": "ig-agent",
+  "_rev": "81854864",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent.json 1`] = `
+{
+  "_id": "frodo-test-java-agent",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent2.json 1`] = `
+{
+  "_id": "frodo-test-java-agent2",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/RemoteConsentAgent/test.json 1`] = `
+{
+  "_id": "test",
+  "_rev": "1629044953",
+  "_type": {
+    "_id": "RemoteConsentAgent",
+    "collection": true,
+    "name": "OAuth2 Remote Consent Service",
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "remoteConsentRedirectUrl": {
+    "inherited": false,
+  },
+  "remoteConsentRequestEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentRequestEncryptionEnabled": {
+    "inherited": false,
+    "value": true,
+  },
+  "remoteConsentRequestEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentRequestSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "remoteConsentResponseEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentResponseEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentResponseSigningAlg": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "requestTimeLimit": {
+    "inherited": false,
+    "value": 180,
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
+{
+  "_id": "test software publisher",
+  "_rev": "1920993704",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher",
+  },
+  "issuer": {
+    "inherited": false,
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "softwareStatementSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
+{
+  "_id": "frodo-test-web-agent",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir0": should export all agents from all realms in fr-config manager style.: configManagerExportOauth2AgentsDir0/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent2.json 1`] = `
+{
+  "_id": "frodo-test-web-agent2",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style. 1`] = `0`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style. 2`] = `""`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/2.2_Agent/my-policy-agent.json 1`] = `
+{
+  "_id": "my-policy-agent",
+  "_rev": "-1073182983",
+  "_type": {
+    "_id": "2.2_Agent",
+    "collection": true,
+    "name": "Policy Agents",
+  },
+  "cdssoRootUrl": {
+    "inherited": false,
+    "value": [],
+  },
+  "description": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/IdentityGatewayAgent/cdsso-ig-agent.json 1`] = `
+{
+  "_id": "cdsso-ig-agent",
+  "_rev": "505834845",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com:443/apps/contractor/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/hrlite-rest/redirect",
+      "https://volker-demo.encore.forgerock.com/apps/contractor/redirect",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent",
+  "_rev": "-255733308",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "agentgroup": "test_ig_group",
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": null,
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/IdentityGatewayAgent/frodo-test-ig-agent2.json 1`] = `
+{
+  "_id": "frodo-test-ig-agent2",
+  "_rev": "1471334408",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+    "value": "http://testurl.com:8080/frodo",
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [
+      "http://testurl.com:8080/frodo",
+    ],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Inactive",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/IdentityGatewayAgent/ig-agent.json 1`] = `
+{
+  "_id": "ig-agent",
+  "_rev": "81854864",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "collection": true,
+    "name": "Identity Gateway Agents",
+  },
+  "igCdssoLoginUrlTemplate": {
+    "inherited": false,
+  },
+  "igCdssoRedirectUrls": {
+    "inherited": false,
+    "value": [],
+  },
+  "igTokenIntrospection": {
+    "inherited": false,
+    "value": "Realm_Subs",
+  },
+  "secretLabelIdentifier": {
+    "inherited": false,
+  },
+  "status": {
+    "inherited": false,
+    "value": "Active",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent.json 1`] = `
+{
+  "_id": "frodo-test-java-agent",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent2.json 1`] = `
+{
+  "_id": "frodo-test-java-agent2",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/RemoteConsentAgent/test.json 1`] = `
+{
+  "_id": "test",
+  "_rev": "1629044953",
+  "_type": {
+    "_id": "RemoteConsentAgent",
+    "collection": true,
+    "name": "OAuth2 Remote Consent Service",
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "remoteConsentRedirectUrl": {
+    "inherited": false,
+  },
+  "remoteConsentRequestEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentRequestEncryptionEnabled": {
+    "inherited": false,
+    "value": true,
+  },
+  "remoteConsentRequestEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentRequestSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "remoteConsentResponseEncryptionAlgorithm": {
+    "inherited": false,
+    "value": "RSA-OAEP-256",
+  },
+  "remoteConsentResponseEncryptionMethod": {
+    "inherited": false,
+    "value": "A128GCM",
+  },
+  "remoteConsentResponseSigningAlg": {
+    "inherited": false,
+    "value": "RS256",
+  },
+  "requestTimeLimit": {
+    "inherited": false,
+    "value": 180,
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/SoftwarePublisher/test software publisher.json 1`] = `
+{
+  "_id": "test software publisher",
+  "_rev": "1920993704",
+  "_type": {
+    "_id": "SoftwarePublisher",
+    "collection": true,
+    "name": "OAuth2 Software Publisher",
+  },
+  "issuer": {
+    "inherited": false,
+  },
+  "jwkSet": {
+    "inherited": false,
+  },
+  "jwkStoreCacheMissCacheTime": {
+    "inherited": false,
+    "value": 60000,
+  },
+  "jwksCacheTimeout": {
+    "inherited": false,
+    "value": 3600000,
+  },
+  "jwksUri": {
+    "inherited": false,
+  },
+  "publicKeyLocation": {
+    "inherited": false,
+    "value": "jwks_uri",
+  },
+  "softwareStatementSigningAlgorithm": {
+    "inherited": false,
+    "value": "RS256",
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent.json 1`] = `
+{
+  "_id": "frodo-test-web-agent",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir1 -r alpha": should export all agents in the alpha realm in fr-config manager style.: configManagerExportOauth2AgentsDir1/realms/alpha/realm-config/agents/WebAgent/frodo-test-web-agent2.json 1`] = `
+{
+  "_id": "frodo-test-web-agent2",
+  "_rev": "-1940700403",
+  "_type": {
+    "_id": "WebAgent",
+    "collection": true,
+    "name": "Web Agents",
+  },
+  "advancedWebAgentConfig": {
+    "apacheAuthDirectives": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "fragmentRedirectEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "hostnameToIpAddress": {
+      "inherited": false,
+      "value": [],
+    },
+    "logonAndImpersonation": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestHost": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestPort": {
+      "inherited": false,
+      "value": false,
+    },
+    "overrideRequestProtocol": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpJavascriptRepost": {
+      "inherited": false,
+      "value": false,
+    },
+    "pdpSkipPostUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "pdpStickySessionCookieName": {
+      "inherited": false,
+    },
+    "pdpStickySessionMode": {
+      "inherited": false,
+      "value": "OFF",
+    },
+    "pdpStickySessionValue": {
+      "inherited": false,
+    },
+    "postDataCachePeriod": {
+      "inherited": false,
+      "value": 10,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "replayPasswordKey": {
+      "inherited": false,
+    },
+    "retainSessionCache": {
+      "inherited": false,
+      "value": false,
+    },
+    "showPasswordInHeader": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+  "amServicesWebAgent": {
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "amLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "http://testserverurl.com:8080/UI/Logout",
+      ],
+    },
+    "applicationLogoutUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginMode": {
+      "inherited": false,
+      "value": 0,
+    },
+    "enableLogoutRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "fetchPoliciesFromRootResource": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidateLogoutSession": {
+      "inherited": false,
+      "value": true,
+    },
+    "logoutRedirectDisabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRedirectUrl": {
+      "inherited": false,
+    },
+    "logoutResetCookies": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "logoutUrlRegex": {
+      "inherited": false,
+    },
+    "policyCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "policyClockSkew": {
+      "inherited": false,
+      "value": 0,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "publicAmUrl": {
+      "inherited": false,
+    },
+    "regexConditionalLoginPattern": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "regexConditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "retrieveClientHostname": {
+      "inherited": false,
+      "value": false,
+    },
+    "ssoCachePollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "userIdParameter": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "userIdParameterType": {
+      "inherited": false,
+      "value": "session",
+    },
+  },
+  "applicationWebAgentConfig": {
+    "attributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "clientIpValidation": {
+      "inherited": false,
+      "value": false,
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "fetchAttributesForNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "ignorePathInfoForNotEnforcedUrls": {
+      "inherited": false,
+      "value": true,
+    },
+    "invertNotEnforcedUrls": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "notEnforcedUrls": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrlsRegex": {
+      "inherited": false,
+      "value": false,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalWebAgentConfig": {
+    "accessDeniedUrl": {
+      "inherited": false,
+    },
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agentDebugLevel": {
+      "inherited": false,
+      "value": "Error",
+    },
+    "agentUriPrefix": {
+      "inherited": false,
+      "value": "http://testagenturl.com:8080/amagent",
+    },
+    "amLbCookieEnable": {
+      "inherited": false,
+      "value": false,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testagenturl.com:8080/",
+      ],
+    },
+    "configurationPollingInterval": {
+      "inherited": false,
+      "value": 60,
+    },
+    "disableJwtAudit": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testagenturl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "jwtAuditWhitelist": {
+      "inherited": false,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "notificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "repositoryLocation": "centralized",
+    "resetIdleTime": {
+      "inherited": false,
+      "value": false,
+    },
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "ssoOnlyMode": {
+      "inherited": false,
+      "value": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscWebAgentConfig": {
+    "addCacheControlHeader": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "anonymousUserId": {
+      "inherited": false,
+      "value": "anonymous",
+    },
+    "caseInsensitiveUrlComparison": {
+      "inherited": false,
+      "value": true,
+    },
+    "compositeAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "compositeAdviceRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeSpecialCharsInCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "encodeUrlSpecialCharacters": {
+      "inherited": false,
+      "value": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "headerJsonResponse": {
+      "inherited": false,
+      "value": {},
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "invalidUrlRegex": {
+      "inherited": false,
+    },
+    "invertUrlJsonResponse": {
+      "inherited": false,
+      "value": false,
+    },
+    "mineEncodeHeader": {
+      "inherited": false,
+      "value": 0,
+    },
+    "profileAttributesCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "profileAttributesCookiePrefix": {
+      "inherited": false,
+      "value": "HTTP_",
+    },
+    "statusCodeJsonResponse": {
+      "inherited": false,
+      "value": 202,
+    },
+    "urlJsonResponse": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoWebAgentConfig": {
+    "acceptSsoToken": {
+      "inherited": false,
+      "value": false,
+    },
+    "cdssoCookieDomain": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "agent/cdsso-oauth2",
+    },
+    "cookieName": {
+      "inherited": false,
+      "value": "iPlanetDirectoryPro",
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetOnRedirect": {
+      "inherited": false,
+      "value": false,
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "multivaluePreAuthnCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "persistentJwtCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "sameSite": {
+      "inherited": false,
+    },
+    "secureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir3 -n frodo-test-java-agent -r alpha": should export only the agent with the id: "frodo-test-java-agent". 1`] = `0`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir3 -n frodo-test-java-agent -r alpha": should export only the agent with the id: "frodo-test-java-agent". 2`] = `""`;
+
+exports[`frodo config-manager pull oauth2-agents "frodo config-manager pull oauth2-agents -D configManagerExportOauth2AgentsDir3 -n frodo-test-java-agent -r alpha": should export only the agent with the id: "frodo-test-java-agent".: configManagerExportOauth2AgentsDir3/realms/alpha/realm-config/agents/J2EEAgent/frodo-test-java-agent.json 1`] = `
+{
+  "_id": "frodo-test-java-agent",
+  "_rev": "1692981145",
+  "_type": {
+    "_id": "J2EEAgent",
+    "collection": true,
+    "name": "J2EE Agents",
+  },
+  "advancedJ2EEAgentConfig": {
+    "alternativeAgentHostname": {
+      "inherited": false,
+    },
+    "alternativeAgentPort": {
+      "inherited": false,
+    },
+    "alternativeAgentProtocol": {
+      "inherited": false,
+    },
+    "clientHostnameHeader": {
+      "inherited": false,
+    },
+    "clientIpHeader": {
+      "inherited": false,
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": [],
+    },
+    "expiredSessionCacheSize": {
+      "inherited": false,
+      "value": 500,
+    },
+    "expiredSessionCacheTTL": {
+      "inherited": false,
+      "value": 20,
+    },
+    "fragmentRelayUri": {
+      "inherited": false,
+    },
+    "idleTimeRefreshWindow": {
+      "inherited": false,
+      "value": 1,
+    },
+    "jwtCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "jwtCacheTTL": {
+      "inherited": false,
+      "value": 30,
+    },
+    "missingPostDataPreservationEntryUri": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "monitoringToCSV": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyCachePerUser": {
+      "inherited": false,
+      "value": 50,
+    },
+    "policyCacheSize": {
+      "inherited": false,
+      "value": 5000,
+    },
+    "policyClientPollingInterval": {
+      "inherited": false,
+      "value": 3,
+    },
+    "possibleXssCodeElements": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "postDataCacheTtlMin": {
+      "inherited": false,
+      "value": 5,
+    },
+    "postDataPreservation": {
+      "inherited": false,
+      "value": false,
+    },
+    "postDataPreserveCacheEntryMaxEntries": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "postDataPreserveCacheEntryMaxTotalSizeMb": {
+      "inherited": false,
+      "value": -1,
+    },
+    "postDataPreserveMultipartLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataPreserveMultipartParameterLimitBytes": {
+      "inherited": false,
+      "value": 104857600,
+    },
+    "postDataStickySessionKeyValue": {
+      "inherited": false,
+    },
+    "postDataStickySessionMode": {
+      "inherited": false,
+      "value": "URL",
+    },
+    "retainPreviousOverrideBehavior": {
+      "inherited": false,
+      "value": true,
+    },
+    "sessionCacheTTL": {
+      "inherited": false,
+      "value": 15,
+    },
+    "ssoExchangeCacheSize": {
+      "inherited": false,
+      "value": 100,
+    },
+    "ssoExchangeCacheTTL": {
+      "inherited": false,
+      "value": 5,
+    },
+    "xssDetectionRedirectUri": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "amServicesJ2EEAgent": {
+    "agentAdviceEncode": {
+      "inherited": false,
+      "value": false,
+    },
+    "amLoginUrl": {
+      "inherited": false,
+      "value": [],
+    },
+    "authServiceHost": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "authServicePort": {
+      "inherited": false,
+      "value": 8080,
+    },
+    "authServiceProtocol": {
+      "inherited": false,
+      "value": "http",
+    },
+    "authSuccessRedirectUrl": {
+      "inherited": false,
+      "value": false,
+    },
+    "conditionalLoginUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "conditionalLogoutUrl": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "customLoginEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyLoginUrlList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "overridePolicyEvaluationRealmEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "policyEvaluationApplication": {
+      "inherited": false,
+      "value": "iPlanetAMWebAgentService",
+    },
+    "policyEvaluationRealm": {
+      "inherited": false,
+      "value": "/",
+    },
+    "policyNotifications": {
+      "inherited": false,
+      "value": true,
+    },
+    "restrictToRealm": {
+      "inherited": false,
+      "value": {},
+    },
+    "strategyWhenAMUnavailable": {
+      "inherited": false,
+      "value": "EVAL_NER_USE_CACHE_UNTIL_EXPIRED_ELSE_503",
+    },
+    "urlPolicyEnvGetParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvJsessionParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "urlPolicyEnvPostParameters": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "applicationJ2EEAgentConfig": {
+    "applicationLogoutUris": {
+      "inherited": false,
+      "value": {},
+    },
+    "clientIpValidationMode": {
+      "inherited": false,
+      "value": {
+        "": "OFF",
+      },
+    },
+    "clientIpValidationRange": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityCookies": {
+      "inherited": false,
+      "value": {},
+    },
+    "continuousSecurityHeaders": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieAttributeMultiValueSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "cookieAttributeUrlEncoded": {
+      "inherited": false,
+      "value": true,
+    },
+    "headerAttributeDateFormat": {
+      "inherited": false,
+      "value": "EEE, d MMM yyyy hh:mm:ss z",
+    },
+    "invertNotEnforcedIps": {
+      "inherited": false,
+      "value": false,
+    },
+    "invertNotEnforcedUris": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutEntryUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "logoutIntrospection": {
+      "inherited": false,
+      "value": false,
+    },
+    "logoutRequestParameters": {
+      "inherited": false,
+      "value": {},
+    },
+    "notEnforcedFavicon": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIps": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedIpsCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedIpsCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "notEnforcedRuleCompoundSeparator": {
+      "inherited": false,
+      "value": "|",
+    },
+    "notEnforcedUris": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "notEnforcedUrisCacheEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "notEnforcedUrisCacheSize": {
+      "inherited": false,
+      "value": 1000,
+    },
+    "profileAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "profileAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "resourceAccessDeniedUri": {
+      "inherited": false,
+      "value": {},
+    },
+    "responseAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "responseAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "sessionAttributeFetchMode": {
+      "inherited": false,
+      "value": "NONE",
+    },
+    "sessionAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+  "globalJ2EEAgentConfig": {
+    "agentConfigChangeNotificationsEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "auditAccessType": {
+      "inherited": false,
+      "value": "LOG_NONE",
+    },
+    "auditLogLocation": {
+      "inherited": false,
+      "value": "REMOTE",
+    },
+    "cdssoRootUrl": {
+      "inherited": false,
+      "value": [
+        "agentRootURL=http://testurl.com:8080/",
+      ],
+    },
+    "configurationReloadInterval": {
+      "inherited": false,
+      "value": 0,
+    },
+    "customResponseHeader": {
+      "inherited": false,
+      "value": {},
+    },
+    "debugLevel": {
+      "inherited": false,
+      "value": "error",
+    },
+    "debugLogfilePrefix": {
+      "inherited": false,
+    },
+    "debugLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationMinutes": {
+      "inherited": false,
+      "value": -1,
+    },
+    "debugLogfileRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "debugLogfileSuffix": {
+      "inherited": false,
+      "value": "-yyyy.MM.dd-HH.mm.ss",
+    },
+    "filterMode": {
+      "inherited": false,
+      "value": {
+        "": "ALL",
+      },
+    },
+    "fqdnCheck": {
+      "inherited": false,
+      "value": false,
+    },
+    "fqdnDefault": {
+      "inherited": false,
+      "value": "testurl.com",
+    },
+    "fqdnMapping": {
+      "inherited": false,
+      "value": {},
+    },
+    "httpSessionBinding": {
+      "inherited": false,
+      "value": true,
+    },
+    "jwtName": {
+      "inherited": false,
+      "value": "am-auth-jwt",
+    },
+    "lbCookieEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "lbCookieName": {
+      "inherited": false,
+      "value": "amlbcookie",
+    },
+    "localAuditLogRotation": {
+      "inherited": false,
+      "value": false,
+    },
+    "localAuditLogfileRetentionCount": {
+      "inherited": false,
+      "value": -1,
+    },
+    "localAuditRotationSize": {
+      "inherited": false,
+      "value": 52428800,
+    },
+    "loginAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "loginAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterParam",
+    },
+    "preAuthCookieMaxAge": {
+      "inherited": false,
+      "value": 300,
+    },
+    "preAuthCookieName": {
+      "inherited": false,
+      "value": "amFilterCDSSORequest",
+    },
+    "recheckAmUnavailabilityInSeconds": {
+      "inherited": false,
+      "value": 5,
+    },
+    "redirectAttemptLimit": {
+      "inherited": false,
+      "value": 0,
+    },
+    "redirectAttemptLimitCookieName": {
+      "inherited": false,
+      "value": "amFilterRDParam",
+    },
+    "repositoryLocation": "centralized",
+    "secretLabelIdentifier": {
+      "inherited": false,
+    },
+    "status": {
+      "inherited": false,
+      "value": "Inactive",
+    },
+    "userAttributeName": {
+      "inherited": false,
+      "value": "employeenumber",
+    },
+    "userMappingMode": {
+      "inherited": false,
+      "value": "USER_ID",
+    },
+    "userPrincipalFlag": {
+      "inherited": false,
+      "value": false,
+    },
+    "userTokenName": {
+      "inherited": false,
+      "value": "UserToken",
+    },
+    "webSocketConnectionIntervalInMinutes": {
+      "inherited": false,
+      "value": 30,
+    },
+  },
+  "miscJ2EEAgentConfig": {
+    "agent302RedirectContentType": {
+      "inherited": false,
+      "value": "application/json",
+    },
+    "agent302RedirectEnabled": {
+      "inherited": false,
+      "value": true,
+    },
+    "agent302RedirectHttpData": {
+      "inherited": false,
+      "value": "{redirect:{requestUri:%REQUEST_URI%,requestUrl:%REQUEST_URL%,targetUrl:%TARGET%}}",
+    },
+    "agent302RedirectInvertEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "agent302RedirectNerList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "agent302RedirectStatusCode": {
+      "inherited": false,
+      "value": 200,
+    },
+    "authFailReasonParameterName": {
+      "inherited": false,
+    },
+    "authFailReasonParameterRemapper": {
+      "inherited": false,
+      "value": {},
+    },
+    "authFailReasonUrl": {
+      "inherited": false,
+    },
+    "gotoParameterName": {
+      "inherited": false,
+      "value": "goto",
+    },
+    "gotoUrl": {
+      "inherited": false,
+    },
+    "ignorePathInfo": {
+      "inherited": false,
+      "value": false,
+    },
+    "legacyRedirectUri": {
+      "inherited": false,
+      "value": "/agent/sunwLegacySupportURI",
+    },
+    "legacyUserAgentList": {
+      "inherited": false,
+      "value": [
+        "Mozilla/4.7*",
+      ],
+    },
+    "legacyUserAgentSupport": {
+      "inherited": false,
+      "value": false,
+    },
+    "localeCountry": {
+      "inherited": false,
+      "value": "US",
+    },
+    "localeLanguage": {
+      "inherited": false,
+      "value": "en",
+    },
+    "loginReasonMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "loginReasonParameterName": {
+      "inherited": false,
+    },
+    "portCheckEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "portCheckFile": {
+      "inherited": false,
+      "value": "PortCheckContent.txt",
+    },
+    "portCheckSetting": {
+      "inherited": false,
+      "value": {
+        "8080": "http",
+      },
+    },
+    "unwantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "unwantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "wantedHttpUrlRegexParams": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+  },
+  "ssoJ2EEAgentConfig": {
+    "acceptIPDPCookie": {
+      "inherited": false,
+      "value": false,
+    },
+    "acceptSsoTokenDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "acceptSsoTokenEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "authExchangeCookieName": {
+      "inherited": false,
+    },
+    "authExchangeUri": {
+      "inherited": false,
+    },
+    "cdssoDomainList": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cdssoRedirectUri": {
+      "inherited": false,
+      "value": "/agent/post-authn-redirect",
+    },
+    "cdssoSecureCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetDomains": {
+      "inherited": false,
+      "value": {},
+    },
+    "cookieResetEnabled": {
+      "inherited": false,
+      "value": false,
+    },
+    "cookieResetNames": {
+      "inherited": false,
+      "value": [
+        "",
+      ],
+    },
+    "cookieResetPaths": {
+      "inherited": false,
+      "value": {},
+    },
+    "encodeCookies": {
+      "inherited": false,
+      "value": false,
+    },
+    "excludedUserAgentsList": {
+      "inherited": false,
+      "value": [],
+    },
+    "httpOnly": {
+      "inherited": false,
+      "value": true,
+    },
+    "setCookieAttributeMap": {
+      "inherited": false,
+      "value": {},
+    },
+    "setCookieInternalMap": {
+      "inherited": false,
+      "value": {},
+    },
+  },
+}
+`;

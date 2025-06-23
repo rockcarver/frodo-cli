@@ -1,0 +1,21 @@
+{
+  "alpha": {
+    "samlProviders": [
+      {
+        "entityId": "urn:federation:MicrosoftOnline",
+        "fileName" : "microsoftOnline"
+      },
+      {
+      	"entityId": "iSPAzure",
+      	"replacements": [
+	   {
+	   "search":"https://idc.scheuber.io/am",
+	   "replacement": "${TENANT_BASE_URL}"
+      	   }
+      	]
+      }
+    ],
+    "circlesOfTrust": ["AzureCOT", "affiliation-test"]
+  }
+}
+

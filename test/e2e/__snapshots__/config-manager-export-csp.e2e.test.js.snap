@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp --directory configManagerExportCspDir1 -f test/e2e/fr-config-manager-pull-config/csp-overrides.json": should export the content security policy with overrides defined in the config file. 1`] = `0`;
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp --directory configManagerExportCspDir1 -f test/e2e/fr-config-manager-pull-config/csp-overrides.json": should export the content security policy with overrides defined in the config file. 2`] = `""`;
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp --directory configManagerExportCspDir1 -f test/e2e/fr-config-manager-pull-config/csp-overrides.json": should export the content security policy with overrides defined in the config file.: configManagerExportCspDir1/csp/csp.json 1`] = `
+{
+  "enforced": {
+    "active": {
+      "$bool": "\${CSP_ENFORCED}",
+    },
+    "directives": {},
+  },
+  "report-only": {
+    "active": {
+      "$bool": "\${CSP_REPORT_ONLY}",
+    },
+    "directives": {
+      "frame-ancestors": [
+        "'self'",
+      ],
+      "script-src": [
+        "'self'",
+        "'unsafe-eval'",
+        "'unsafe-inline'",
+      ],
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style. 1`] = `0`;
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style. 2`] = `""`;
+
+exports[`frodo config-manager pull csp "frodo config-manager pull csp -D configManagerExportCspDir0": should export the content security policy in fr-config manager style.: configManagerExportCspDir0/csp/csp.json 1`] = `
+{
+  "enforced": {
+    "active": false,
+    "directives": {},
+  },
+  "report-only": {
+    "active": true,
+    "directives": {
+      "frame-ancestors": [
+        "'self'",
+      ],
+      "script-src": [
+        "'self'",
+        "'unsafe-eval'",
+        "'unsafe-inline'",
+      ],
+    },
+  },
+}
+`;

@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style": testDir7/endpoints/Test/Test.js 1`] = `
+"  (function () {
+    if (request.method === 'create') {
+      // POST
+      return {};
+    } else if (request.method === 'read') {
+      // GET
+      return {};
+    } else if (request.method === 'update') {
+      // PUT
+      return {};
+    } else if (request.method === 'patch') {
+      return {};
+    } else if (request.method === 'delete') {
+      return {};
+    }
+    throw { code: 500, message: 'Unknown error' };
+  }());
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style": testDir7/endpoints/Test/Test.json 1`] = `
+{
+  "_id": "endpoint/Test",
+  "description": "test",
+  "file": "Test.js",
+  "globalsObject": ""  {\\n    \\"request\\": {\\n      \\"method\\": \\"create\\"\\n    }\\n  }"",
+  "type": "text/javascript",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style": testDir7/endpoints/testEndpoint2/testEndpoint2.js 1`] = `
+"  (function () {
+    if (request.method === 'create') {
+      // POST
+      return {};
+    } else if (request.method === 'read') {
+      // GET
+      return {};
+    } else if (request.method === 'update') {
+      // PUT
+      return {};
+    } else if (request.method === 'patch') {
+      return {};
+    } else if (request.method === 'delete') {
+      return {};
+    }
+    throw { code: 500, message: 'Unknown error' };
+  }());
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -D testDir7": should export the endpoints in fr-config-manager style": testDir7/endpoints/testEndpoint2/testEndpoint2.json 1`] = `
+{
+  "_id": "endpoint/testEndpoint2",
+  "description": "",
+  "file": "testEndpoint2.js",
+  "globalsObject": ""  {\\n    \\"request\\": {\\n      \\"method\\": \\"create\\"\\n    }\\n  }"",
+  "type": "text/javascript",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -n testEndpoint2 -D testDir8": should export the endpoint with name testEndpoint2 in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -n testEndpoint2 -D testDir8": should export the endpoint with name testEndpoint2 in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -n testEndpoint2 -D testDir8": should export the endpoint with name testEndpoint2 in fr-config-manager style": testDir8/endpoints/testEndpoint2/testEndpoint2.js 1`] = `
+"  (function () {
+    if (request.method === 'create') {
+      // POST
+      return {};
+    } else if (request.method === 'read') {
+      // GET
+      return {};
+    } else if (request.method === 'update') {
+      // PUT
+      return {};
+    } else if (request.method === 'patch') {
+      return {};
+    } else if (request.method === 'delete') {
+      return {};
+    }
+    throw { code: 500, message: 'Unknown error' };
+  }());
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull endpoints -n testEndpoint2 -D testDir8": should export the endpoint with name testEndpoint2 in fr-config-manager style": testDir8/endpoints/testEndpoint2/testEndpoint2.json 1`] = `
+{
+  "_id": "endpoint/testEndpoint2",
+  "description": "",
+  "file": "testEndpoint2.js",
+  "globalsObject": ""  {\\n    \\"request\\": {\\n      \\"method\\": \\"create\\"\\n    }\\n  }"",
+  "type": "text/javascript",
+}
+`;

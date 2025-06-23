@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -D testDir23": should export the schedules in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -D testDir23": should export the schedules in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -D testDir23": should export the schedules in fr-config-manager style": testDir23/schedules/TestSchedule/TestSchedule.js 1`] = `
+"logger.info("hello");
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -D testDir23": should export the schedules in fr-config-manager style": testDir23/schedules/TestSchedule/TestSchedule.json 1`] = `
+{
+  "_id": "schedule/TestSchedule",
+  "concurrentExecution": false,
+  "enabled": {
+    "$bool": "&{esv.red.piller}",
+  },
+  "endTime": null,
+  "invokeContext": {
+    "script": {
+      "file": "TestSchedule.js",
+      "globals": {
+        "test": true,
+      },
+      "type": "text/javascript",
+    },
+  },
+  "invokeLogLevel": "info",
+  "invokeService": "script",
+  "isCron": true,
+  "misfirePolicy": "fireAndProceed",
+  "persisted": true,
+  "schedule": "24 5 2 * * ?",
+  "startTime": null,
+  "timeZone": null,
+  "type": "cron",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -n TestSchedule -D testDir24": should export the schedule named:TestSchedule in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -n TestSchedule -D testDir24": should export the schedule named:TestSchedule in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -n TestSchedule -D testDir24": should export the schedule named:TestSchedule in fr-config-manager style": testDir24/schedules/TestSchedule/TestSchedule.js 1`] = `
+"logger.info("hello");
+"
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull schedules -n TestSchedule -D testDir24": should export the schedule named:TestSchedule in fr-config-manager style": testDir24/schedules/TestSchedule/TestSchedule.json 1`] = `
+{
+  "_id": "schedule/TestSchedule",
+  "concurrentExecution": false,
+  "enabled": {
+    "$bool": "&{esv.red.piller}",
+  },
+  "endTime": null,
+  "invokeContext": {
+    "script": {
+      "file": "TestSchedule.js",
+      "globals": {
+        "test": true,
+      },
+      "type": "text/javascript",
+    },
+  },
+  "invokeLogLevel": "info",
+  "invokeService": "script",
+  "isCron": true,
+  "misfirePolicy": "fireAndProceed",
+  "persisted": true,
+  "schedule": "24 5 2 * * ?",
+  "startTime": null,
+  "timeZone": null,
+  "type": "cron",
+}
+`;

@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-blue-piller.json 1`] = `
+{
+  "_id": "esv-blue-piller",
+  "description": "Zion membership criteria.",
+  "expressionType": "bool",
+  "valueBase64": "\${ESV_BLUE_PILLER}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-ipv4-cidr-access-rules.json 1`] = `
+{
+  "_id": "esv-ipv4-cidr-access-rules",
+  "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
+  "expressionType": "object",
+  "valueBase64": "\${ESV_IPV4_CIDR_ACCESS_RULES}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-nebuchadnezzar-crew.json 1`] = `
+{
+  "_id": "esv-nebuchadnezzar-crew",
+  "description": "The crew of the Nebuchadnezzar hovercraft.",
+  "expressionType": "array",
+  "valueBase64": "\${ESV_NEBUCHADNEZZAR_CREW}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-nebuchadnezzar-crew-structure.json 1`] = `
+{
+  "_id": "esv-nebuchadnezzar-crew-structure",
+  "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
+  "expressionType": "object",
+  "valueBase64": "\${ESV_NEBUCHADNEZZAR_CREW_STRUCTURE}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-neo-age.json 1`] = `
+{
+  "_id": "esv-neo-age",
+  "description": "Neo's age in the matrix.",
+  "expressionType": "int",
+  "valueBase64": "\${ESV_NEO_AGE}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-number.json 1`] = `
+{
+  "_id": "esv-number",
+  "description": "test number",
+  "expressionType": "number",
+  "valueBase64": "\${ESV_NUMBER}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-test.json 1`] = `
+{
+  "_id": "esv-test",
+  "description": "list",
+  "expressionType": "list",
+  "valueBase64": "\${ESV_TEST}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-test-var.json 1`] = `
+{
+  "_id": "esv-test-var",
+  "description": "this is a test description",
+  "expressionType": "string",
+  "valueBase64": "\${ESV_TEST_VAR}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-test-var-pi.json 1`] = `
+{
+  "_id": "esv-test-var-pi",
+  "description": "This is another test variable.",
+  "expressionType": "number",
+  "valueBase64": "\${ESV_TEST_VAR_PI}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-test-var-pi-string.json 1`] = `
+{
+  "_id": "esv-test-var-pi-string",
+  "description": "This is another test variable.",
+  "expressionType": "string",
+  "valueBase64": "\${ESV_TEST_VAR_PI_STRING}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-test-variable-light.json 1`] = `
+{
+  "_id": "esv-test-variable-light",
+  "description": "Test variable containing the speed of light in meters per second (as an int).",
+  "expressionType": "int",
+  "valueBase64": "\${ESV_TEST_VARIABLE_LIGHT}",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -D variableTestDir": should export the secrets in fr-config-manager style": variableTestDir/esvs/variables/esv-trinity-phone.json 1`] = `
+{
+  "_id": "esv-trinity-phone",
+  "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
+  "expressionType": "string",
+  "valueBase64": "\${ESV_TRINITY_PHONE}",
+}
+`;

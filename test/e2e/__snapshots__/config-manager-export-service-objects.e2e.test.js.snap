@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style": objectTestDir/service-objects/alpha_role/TestRole.json 1`] = `
+{
+  "_id": "61941c91-a759-44dd-9793-80e189d9dec7",
+  "_rev": "8c54af69-7c7b-4981-b99c-c8f69446ab66-5894",
+  "name": "TestRole",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style": objectTestDir/service-objects/alpha_user/kirk.json 1`] = `
+{
+  "_id": "0440291a-75b1-4041-b3ff-23f10965ed82",
+  "_rev": "8c54af69-7c7b-4981-b99c-c8f69446ab66-5827",
+  "authzRoles": [],
+  "givenName": "Test",
+  "mail": "dholderness@trivir.com",
+  "password": "\${SERVICE_ACCOUNT_JOURNEY_PASSWORD}",
+  "sn": "Frodo",
+  "userName": "kirk",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style": objectTestDir/service-objects/alpha_user/seantest.json 1`] = `
+{
+  "_id": "695552c7-c2b8-407f-8762-320b681d278c",
+  "_rev": "8c54af69-7c7b-4981-b99c-c8f69446ab66-5888",
+  "authzRoles": [],
+  "givenName": "sean",
+  "mail": "skoo@trivir.com",
+  "password": "\${SERVICE_ACCOUNT_JOURNEY_PASSWORD}",
+  "sn": "seantest",
+  "userName": "seantest",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull service-objects -f test/fr-config-manager-pull-config/service-objects.json -D objectTestDir": should export the service-objects based on service-objects.json config file in fr-config-manager style": objectTestDir/service-objects/bravo_user/bravo_test_user.json 1`] = `
+{
+  "_id": "d58a6420-7aed-4939-a6dc-203309f3cfc3",
+  "_rev": "8c54af69-7c7b-4981-b99c-c8f69446ab66-5935",
+  "authzRoles": [],
+  "givenName": "bravo_user",
+  "mail": "dholderness@test.com",
+  "sn": "user",
+  "userName": "bravo_test_user",
+}
+`;

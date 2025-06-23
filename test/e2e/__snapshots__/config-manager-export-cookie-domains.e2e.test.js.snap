@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull cookie-domains -D testDir4": should export the cookie-domains in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull cookie-domains -D testDir4": should export the cookie-domains in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull cookie-domains -D testDir4": should export the cookie-domains in fr-config-manager style": testDir4/cookie-domains/cookie-domains.json 1`] = `
+{
+  "domains": [],
+}
+`;

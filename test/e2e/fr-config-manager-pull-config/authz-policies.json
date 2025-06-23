@@ -1,0 +1,13 @@
+{
+    "alpha": [
+        "oauth2Scopes",
+        "EdgePolicySet",
+        "FeatureStorePolicySet",
+        "data",
+        "test-policy-set"
+    ],
+    "bravo": [
+        "oauth2Scopes",
+        "murphyTestPolicySet"
+    ]
+}

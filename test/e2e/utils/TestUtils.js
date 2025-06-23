@@ -172,7 +172,7 @@ export async function testPromote(
   sourceDir,
   modifiedFilesDir,
   referenceSubDirs,
-  env, 
+  env,
   name
 ) {
   env.env.FRODO_TEST_NAME = name
@@ -189,7 +189,7 @@ async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubD
 
   // Step 2: Copy the source directory to the temporary location
   await fspromise.cp(sourceDir, tmpDir, { recursive: true });
- 
+
   // Step 3: Overwrite with modified files
   await fspromise.cp(modifiedFilesDir, tmpDir, { recursive: true });
 
@@ -222,7 +222,7 @@ async function deleteFilesNotPresent(referenceSubDir, tmpDir, modifiedFilesDir) 
 async function getAllFiles(dir, base) {
   let files = [];
   const items = await fspromise.readdir(dir, { withFileTypes: true });
-  
+
   for (const item of items) {
     const itemPath = path.join(dir, item.name);
     const relativePath = path.relative(base, itemPath);

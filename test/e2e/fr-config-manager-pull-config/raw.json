@@ -1,0 +1,17 @@
+
+[
+  { 
+    "path": "/openidm/config/authentication" 
+  },
+  {
+    "path": "/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook",
+    "overrides": { "url": "${TEST_WEBHOOK_URL}" },
+    "pushApiVersion": {
+      "protocol": "2.0",
+      "resource": "1.0"
+    }
+  },
+  {
+    "path": "/environment/release"
+  }
+]  

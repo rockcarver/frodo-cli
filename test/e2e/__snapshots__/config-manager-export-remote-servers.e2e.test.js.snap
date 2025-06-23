@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull remote-servers -D testDir21": should export the remote-servers in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull remote-servers -D testDir21": should export the remote-servers in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull remote-servers -D testDir21": should export the remote-servers in fr-config-manager style": testDir21/sync/rcs/provisioner.openicf.connectorinfoprovider.json 1`] = `
+{
+  "_id": "provisioner.openicf.connectorinfoprovider",
+  "connectorsLocation": "connectors",
+  "remoteConnectorClients": [
+    {
+      "enabled": true,
+      "name": "rcs1",
+      "useSSL": true,
+    },
+  ],
+  "remoteConnectorClientsGroups": [],
+  "remoteConnectorServers": [],
+  "remoteConnectorServersGroups": [],
+}
+`;
