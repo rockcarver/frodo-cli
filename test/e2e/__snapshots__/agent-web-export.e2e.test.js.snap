@@ -1,10 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent" 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent" 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent" 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent": frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -491,11 +493,13 @@ exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-we
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export --all": should export all web agents to a single file 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export --all": should export all web agents to a single file 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export --all": should export all web agents to a single file 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export --all": should export all web agents to a single file: allAlphaAgents.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -824,11 +828,13 @@ exports[`frodo agent web export "frodo agent web export --all": should export al
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3: agentWebExportTestDir3/frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -996,7 +1002,7 @@ exports[`frodo agent web export "frodo agent web export --all-separate --no-meta
 
 exports[`frodo agent web export "frodo agent web export --all-separate --no-metadata --directory agentWebExportTestDir3": should export all web agents to separate files in the directory agentWebExportTestDir3: agentWebExportTestDir3/frodo-test-web-agent2.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent2": {
       "_id": "frodo-test-web-agent2",
       "_type": {
@@ -1162,11 +1168,13 @@ exports[`frodo agent web export "frodo agent web export --all-separate --no-meta
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -A": should export all web agents to separate files 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -A": should export all web agents to separate files 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export -A": should export all web agents to separate files 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export -A": should export all web agents to separate files: frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -1336,7 +1344,7 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
 
 exports[`frodo agent web export "frodo agent web export -A": should export all web agents to separate files: frodo-test-web-agent2.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent2": {
       "_id": "frodo-test-web-agent2",
       "_type": {
@@ -1503,11 +1511,13 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestDir2": should export all web agents to a single file in the directory agentWebExportTestDir2: agentWebExportTestDir2/allAlphaAgents.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -1834,11 +1844,13 @@ exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestD
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent -D agentWebExportTestDir1": should export the web agent with agent id "frodo-test-web-agent" into the directory agentWebExportTestDir1: agentWebExportTestDir1/frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {
@@ -2323,11 +2335,13 @@ exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent
 }
 `;
 
-exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -f my-frodo-test-web-agent.web.agent.json": should export the web agent with agent id "frodo-test-web-agent" into file named test.json 1`] = `""`;
+exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -f my-frodo-test-web-agent.web.agent.json": should export the web agent with agent id "frodo-test-web-agent" into file named test.json 1`] = `0`;
+
+exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -f my-frodo-test-web-agent.web.agent.json": should export the web agent with agent id "frodo-test-web-agent" into file named test.json 2`] = `""`;
 
 exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent -f my-frodo-test-web-agent.web.agent.json": should export the web agent with agent id "frodo-test-web-agent" into file named test.json: my-frodo-test-web-agent.web.agent.json 1`] = `
 {
-  "agents": {
+  "agent": {
     "frodo-test-web-agent": {
       "_id": "frodo-test-web-agent",
       "_type": {

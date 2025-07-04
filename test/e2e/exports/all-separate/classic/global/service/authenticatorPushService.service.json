@@ -1,0 +1,22 @@
+{
+  "service": {
+    "authenticatorPushService": {
+      "_id": "",
+      "_type": {
+        "_id": "authenticatorPushService",
+        "collection": false,
+        "name": "ForgeRock Authenticator (Push) Service"
+      },
+      "defaults": {
+        "authenticatorPushDeviceSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+        "authenticatorPushDeviceSettingsEncryptionKeystorePassword": null,
+        "authenticatorPushDeviceSettingsEncryptionKeystoreType": "JKS",
+        "authenticatorPushDeviceSettingsEncryptionScheme": "NONE",
+        "authenticatorPushSkippableName": "push2faEnabled",
+        "pushAttrName": "pushDeviceProfiles"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

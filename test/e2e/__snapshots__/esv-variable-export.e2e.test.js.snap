@@ -1,11 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --all": should export all variables to a single file: allVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
@@ -109,11 +111,13 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-blue-piller.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
@@ -129,7 +133,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
@@ -145,7 +149,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
@@ -161,7 +165,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-nebuchadnezzar-crew-structure": {
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
@@ -177,7 +181,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-neo-age.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
@@ -193,7 +197,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-number.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-number": {
       "_id": "esv-number",
       "description": "test number",
@@ -209,7 +213,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
@@ -225,7 +229,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-test-var-pi": {
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
@@ -241,7 +245,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi-string.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
@@ -257,7 +261,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-variable-light.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-test-variable-light": {
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
@@ -273,7 +277,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 
 exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-trinity-phone.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-trinity-phone": {
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
@@ -287,12 +291,14 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var" 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export --variable-id esv-test-var": should export the variable with variable id "esv-test-var": esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
@@ -306,12 +312,14 @@ exports[`frodo esv variable export "frodo esv variable export --variable-id esv-
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-blue-piller.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
@@ -328,7 +336,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-ipv4-cidr-access-rules": {
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
@@ -345,7 +353,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-nebuchadnezzar-crew": {
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
@@ -362,7 +370,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-nebuchadnezzar-crew-structure": {
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
@@ -379,7 +387,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-neo-age.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-neo-age": {
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
@@ -396,7 +404,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-number.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-number": {
       "_id": "esv-number",
       "description": "test number",
@@ -413,7 +421,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
@@ -430,7 +438,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-var-pi": {
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
@@ -447,7 +455,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-var-pi-string.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-var-pi-string": {
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
@@ -464,7 +472,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-test-variable-light.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-variable-light": {
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
@@ -481,7 +489,7 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 exports[`frodo esv variable export "frodo esv variable export -A": should export all variables to separate files: esv-trinity-phone.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-trinity-phone": {
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
@@ -495,11 +503,13 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allVariables.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
@@ -603,11 +613,13 @@ exports[`frodo esv variable export "frodo esv variable export -NaD variableExpor
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1: variableExportTestDir1/esv-test-var.variable.json 1`] = `
 {
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",
@@ -621,12 +633,14 @@ exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -a --file my-allVariables.variable.json --no-decode": should export all variables to a single file named my-allVariables.variable.json: my-allVariables.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-blue-piller": {
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
@@ -730,12 +744,14 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 1`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 1`] = `0`;
+
+exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json 2`] = `""`;
 
 exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode": should export the variable with variable id "esv-test-var" into file named my-esv-test-var.variable.json: my-esv-test-var.variable.json 1`] = `
 {
   "meta": Any<Object>,
-  "variables": {
+  "variable": {
     "esv-test-var": {
       "_id": "esv-test-var",
       "description": "this is a test description",

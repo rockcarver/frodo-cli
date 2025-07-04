@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo role import "frodo role import --all --file test/e2e/exports/all/allInternalRoles.internalRole.json": should import all roles from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import --all-separate --directory test/e2e/exports/all-separate/cloud/global/internalRole": should import all roles from the test/e2e/exports/all-separate/cloud/global/internalRole directory" 1`] = `""`;
+
+exports[`frodo role import "frodo role import --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56 --file test/e2e/exports/all/allInternalRoles.internalRole.json": should import the role with the id "ccb11ba1-333b-4197-95db-89bb08a2ab56" from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import --role-name test-internal-role --file test/e2e/exports/all/allInternalRoles.internalRole.json": should import the role with the name "test-internal-role" from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -AD test/e2e/exports/all-separate/cloud/global/internalRole": should import all roles from the test/e2e/exports/all-separate/cloud/global/internalRole directory" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -af test/e2e/exports/all/allInternalRoles.internalRole.json": should import all roles from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -f test/e2e/exports/all/allInternalRoles.internalRole.json": should import the first role from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f test/e2e/exports/all/allInternalRoles.internalRole.json": should import the role with the id "ccb11ba1-333b-4197-95db-89bb08a2ab56" from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;
+
+exports[`frodo role import "frodo role import -n test-internal-role -f test/e2e/exports/all/allInternalRoles.internalRole.json": should import the role with the name "test-internal-role" from the file "test/e2e/exports/all/allInternalRoles.internalRole.json" 1`] = `""`;

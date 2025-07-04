@@ -1,0 +1,18 @@
+{
+  "script": {
+    "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
+      "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
+      "context": "OIDC_CLAIMS",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for OIDC claims",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "OIDC Claims Script",
+      "script": "file://OIDC-Claims-Script.script.js"
+    }
+  }
+}

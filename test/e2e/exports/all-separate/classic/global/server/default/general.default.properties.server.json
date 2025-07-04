@@ -1,0 +1,18 @@
+{
+  "_id": "null/properties/general",
+  "amconfig.header.debug": {
+    "com.iplanet.services.debug.directory": "%BASE_DIR%/var/debug",
+    "com.iplanet.services.debug.level": "off",
+    "com.sun.services.debug.mergeall": "on"
+  },
+  "amconfig.header.installdir": {
+    "com.iplanet.am.locale": "en_US",
+    "com.iplanet.am.util.xml.validating": "off",
+    "com.iplanet.services.configpath": "%BASE_DIR%",
+    "com.sun.identity.client.notification.url": "%SERVER_PROTO%://%SERVER_HOST%:%SERVER_PORT%/%SERVER_URI%/notificationservice"
+  },
+  "amconfig.header.mailserver": {
+    "com.iplanet.am.smtphost": "localhost",
+    "com.iplanet.am.smtpport": "25"
+  }
+}

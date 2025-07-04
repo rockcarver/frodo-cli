@@ -1,0 +1,53 @@
+{
+  "policyset": {
+    "oauth2Scopes": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [
+        "AND",
+        "OR",
+        "NOT",
+        "AMIdentityMembership",
+        "AuthLevel",
+        "LEAuthLevel",
+        "AuthScheme",
+        "AuthenticateToRealm",
+        "AuthenticateToService",
+        "IPv4",
+        "IPv6",
+        "LDAPFilter",
+        "OAuth2Scope",
+        "ResourceEnvIP",
+        "Session",
+        "SessionProperty",
+        "SimpleTime",
+        "Script",
+        "Transaction"
+      ],
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1718897366918,
+      "description": "The built-in Application used by the OAuth2 scope authorization process.",
+      "displayName": "Default OAuth2 Scopes Policy Set",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1728509786761,
+      "name": "oauth2Scopes",
+      "resourceComparator": null,
+      "resourceTypeUuids": [
+        "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b"
+      ],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "AND",
+        "OR",
+        "NOT",
+        "AuthenticatedUsers",
+        "Identity",
+        "JwtClaim",
+        "NONE"
+      ]
+    }
+  }
+}

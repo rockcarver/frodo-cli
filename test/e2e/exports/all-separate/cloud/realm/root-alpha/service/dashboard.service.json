@@ -1,0 +1,15 @@
+{
+  "service": {
+    "dashboard": {
+      "_id": "",
+      "_type": {
+        "_id": "dashboard",
+        "collection": false,
+        "name": "Dashboard"
+      },
+      "assignedDashboard": [],
+      "location": "/alpha",
+      "nextDescendents": []
+    }
+  }
+}

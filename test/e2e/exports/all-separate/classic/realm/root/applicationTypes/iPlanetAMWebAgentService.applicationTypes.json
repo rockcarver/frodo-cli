@@ -1,0 +1,21 @@
+{
+  "applicationTypes": {
+    "iPlanetAMWebAgentService": {
+      "_id": "iPlanetAMWebAgentService",
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true
+      },
+      "applicationClassName": "com.sun.identity.entitlement.Application",
+      "name": "iPlanetAMWebAgentService",
+      "resourceComparator": "com.sun.identity.entitlement.URLResourceName",
+      "saveIndex": "org.forgerock.openam.entitlement.indextree.TreeSaveIndex",
+      "searchIndex": "org.forgerock.openam.entitlement.indextree.TreeSearchIndex"
+    }
+  }
+}

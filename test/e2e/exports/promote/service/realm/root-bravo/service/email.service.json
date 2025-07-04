@@ -1,0 +1,21 @@
+{
+  "service": {
+    "email": {
+      "_id": "",
+      "_type": {
+        "_id": "email",
+        "collection": false,
+        "name": "Email Service"
+      },
+      "emailAddressAttribute": "mail change",
+      "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+      "emailRateLimitSeconds": 1,
+      "from": "change@me",
+      "location": "/bravo",
+      "nextDescendents": [],
+      "port": 465,
+      "sslState": "SSL",
+      "transportType": "[Empty]"
+    }
+  }
+}

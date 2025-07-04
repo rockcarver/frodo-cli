@@ -1,0 +1,28 @@
+{
+  "defaultProperties": {
+    "advanced": "file://default/advanced.default.properties.server.json",
+    "cts": "file://default/cts.default.properties.server.json",
+    "general": "file://default/general.default.properties.server.json",
+    "sdk": "file://default/sdk.default.properties.server.json",
+    "security": "file://default/security.default.properties.server.json",
+    "session": "file://default/session.default.properties.server.json",
+    "uma": "file://default/uma.default.properties.server.json"
+  },
+  "server": {
+    "03": {
+      "_id": "03",
+      "properties": {
+        "advanced": "file://03/advanced.properties.server.json",
+        "cts": "file://03/cts.properties.server.json",
+        "directoryConfiguration": "file://03/directoryConfiguration.properties.server.json",
+        "general": "file://03/general.properties.server.json",
+        "sdk": "file://03/sdk.properties.server.json",
+        "security": "file://03/security.properties.server.json",
+        "session": "file://03/session.properties.server.json",
+        "uma": "file://03/uma.properties.server.json"
+      },
+      "siteName": "testsite",
+      "url": "http://localhost:8081/am"
+    }
+  }
+}

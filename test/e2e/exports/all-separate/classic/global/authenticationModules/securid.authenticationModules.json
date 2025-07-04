@@ -1,0 +1,16 @@
+{
+  "authenticationModules": {
+    "securid": {
+      "_id": "securid",
+      "_type": {
+        "_id": "securid",
+        "collection": false,
+        "name": "SecurID"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "serverConfigPath": "/home/prestonhales/am/config/auth/ace/data"
+      }
+    }
+  }
+}

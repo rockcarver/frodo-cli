@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo role list "frodo role list --long": should list the ids, names, descriptions, and conditions of the internal roles 1`] = `
+"Id                                  │Name                 │Description                       │Condition                         
+openidm-admin                       │openidm-admin        │Administrative access             │                                  
+openidm-authorized                  │openidm-authorized   │Basic minimum user                │                                  
+openidm-reg                         │openidm-reg          │Anonymous access                  │                                  
+openidm-cert                        │openidm-cert         │Authenticated via certificate     │                                  
+openidm-tasks-manager               │openidm-tasks-manager│Allowed to reassign workflow tasks│                                  
+platform-provisioning               │platform-provisioning│Platform provisioning access      │                                  
+ccb11ba1-333b-4197-95db-89bb08a2ab56│test-internal-role   │A test internal role              │/description co "somerandomstring"
+"
+`;
+
+exports[`frodo role list "frodo role list -l": should list the ids, names, descriptions, and conditions of the internal roles 1`] = `
+"Id                                  │Name                 │Description                       │Condition                         
+openidm-admin                       │openidm-admin        │Administrative access             │                                  
+openidm-authorized                  │openidm-authorized   │Basic minimum user                │                                  
+openidm-reg                         │openidm-reg          │Anonymous access                  │                                  
+openidm-cert                        │openidm-cert         │Authenticated via certificate     │                                  
+openidm-tasks-manager               │openidm-tasks-manager│Allowed to reassign workflow tasks│                                  
+platform-provisioning               │platform-provisioning│Platform provisioning access      │                                  
+ccb11ba1-333b-4197-95db-89bb08a2ab56│test-internal-role   │A test internal role              │/description co "somerandomstring"
+"
+`;
+
+exports[`frodo role list "frodo role list": should list the names of the internal roles 1`] = `
+"openidm-admin
+openidm-authorized
+openidm-reg
+openidm-cert
+openidm-tasks-manager
+platform-provisioning
+test-internal-role
+"
+`;

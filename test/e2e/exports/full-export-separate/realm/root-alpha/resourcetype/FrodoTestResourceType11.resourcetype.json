@@ -1,0 +1,21 @@
+{
+  "resourcetype": {
+    "993eba78-1c3f-4f27-b205-b4b29418f831": {
+      "actions": {
+        "action1": true,
+        "action2": true
+      },
+      "createdBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "creationDate": 1725916400290,
+      "description": "Frodo Test Resource Type Eleven",
+      "lastModifiedBy": "id=7a031a92-f70d-4b30-9d70-da7cfb1d9c93,ou=user,ou=am-config",
+      "lastModifiedDate": 1731021992540,
+      "name": "FrodoTestResourceType11",
+      "patterns": [
+        "pattern2://*:*/*?*",
+        "pattern1://*:*/*"
+      ],
+      "uuid": "993eba78-1c3f-4f27-b205-b4b29418f831"
+    }
+  }
+}

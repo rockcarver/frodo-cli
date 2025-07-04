@@ -1,8 +1,128 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 1`] = `0`;
 
-exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir1": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir1/authnExportTest.json 1`] = `
+exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory 2`] = `""`;
+
+exports[`frodo authn export "frodo authn export --global --no-metadata --directory  authnExportDir3 --type classic": should export global authentication settings to a file in the "authnExportDir3" directory: authnExportDir3/global.authentication.settings.json 1`] = `
+{
+  "authentication": {
+    "_id": "",
+    "_type": {
+      "_id": "EMPTY",
+      "collection": false,
+      "name": "Core",
+    },
+    "authenticators": [
+      "com.sun.identity.authentication.modules.ad.AD",
+      "org.forgerock.openam.authentication.modules.saml2.SAML2",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthInstagram",
+      "org.forgerock.openam.authentication.modules.oath.OATH",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthVK",
+      "com.sun.identity.authentication.modules.membership.Membership",
+      "com.sun.identity.authentication.modules.windowsdesktopsso.WindowsDesktopSSO",
+      "org.forgerock.openam.authentication.modules.deviceprint.DeviceIdSave",
+      "com.sun.identity.authentication.modules.federation.Federation",
+      "org.forgerock.openam.authentication.modules.deviceprint.DeviceIdMatch",
+      "com.sun.identity.authentication.modules.jdbc.JDBC",
+      "com.sun.identity.authentication.modules.radius.RADIUS",
+      "com.sun.identity.authentication.modules.anonymous.Anonymous",
+      "com.sun.identity.authentication.modules.cert.Cert",
+      "org.forgerock.openam.authentication.modules.push.registration.AuthenticatorPushRegistration",
+      "com.sun.identity.authentication.modules.httpbasic.HTTPBasic",
+      "org.forgerock.openam.authentication.modules.oidc.OpenIdConnect",
+      "com.sun.identity.authentication.modules.sae.SAE",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthWeChat",
+      "org.forgerock.openam.authentication.modules.persistentcookie.PersistentCookie",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthTwitter",
+      "com.sun.identity.authentication.modules.ldap.LDAP",
+      "org.forgerock.openam.authentication.modules.push.AuthenticatorPush",
+      "org.forgerock.openam.authentication.modules.oauth2.OAuth",
+      "com.sun.identity.authentication.modules.nt.NT",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthWeChatMobile",
+      "org.forgerock.openam.authentication.modules.jwtpop.JwtProofOfPossession",
+      "com.sun.identity.authentication.modules.application.Application",
+      "org.forgerock.openam.authentication.modules.scripted.Scripted",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthOAuth2",
+      "com.sun.identity.authentication.modules.hotp.HOTP",
+      "org.forgerock.openam.authentication.modules.adaptive.Adaptive",
+      "org.forgerock.openam.authentication.modules.accountactivecheck.AccountActiveCheck",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthOpenID",
+      "com.sun.identity.authentication.modules.msisdn.MSISDN",
+      "org.forgerock.openam.authentication.modules.fr.oath.AuthenticatorOATH",
+      "com.sun.identity.authentication.modules.datastore.DataStore",
+      "com.sun.identity.authentication.modules.securid.SecurID",
+      "org.forgerock.openam.authentication.modules.amster.Amster",
+    ],
+    "defaults": {
+      "accountlockout": {
+        "lockoutDuration": 0,
+        "lockoutDurationMultiplier": 1,
+        "lockoutWarnUserCount": 0,
+        "loginFailureCount": 5,
+        "loginFailureDuration": 300,
+        "loginFailureLockoutMode": false,
+        "storeInvalidAttemptsInDataStore": true,
+      },
+      "core": {
+        "adminAuthModule": "[Empty]",
+        "orgConfig": "[Empty]",
+      },
+      "general": {
+        "defaultAuthLevel": 0,
+        "identityType": [
+          "agent",
+          "user",
+        ],
+        "locale": "en_US",
+        "statelessSessionsEnabled": false,
+        "twoFactorRequired": false,
+        "userStatusCallbackPlugins": [],
+      },
+      "postauthprocess": {
+        "loginFailureUrl": [],
+        "loginPostProcessClass": [],
+        "loginSuccessUrl": [
+          "/am/console",
+        ],
+        "userAttributeSessionMapping": [],
+        "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+        "usernameGeneratorEnabled": true,
+      },
+      "security": {
+        "addClearSiteDataHeader": true,
+        "moduleBasedAuthEnabled": true,
+        "sharedSecret": null,
+        "zeroPageLoginAllowedWithoutReferrer": true,
+        "zeroPageLoginEnabled": false,
+        "zeroPageLoginReferrerWhiteList": [],
+      },
+      "trees": {
+        "authenticationSessionsMaxDuration": 5,
+        "authenticationSessionsStateManagement": "JWT",
+        "authenticationSessionsWhitelist": false,
+        "authenticationTreeCookieHttpOnly": true,
+        "suspendedAuthenticationTimeout": 5,
+      },
+      "userprofile": {
+        "aliasAttributeName": [],
+        "defaultRole": [],
+        "dynamicProfileCreation": "false",
+      },
+    },
+    "keepPostProcessInstances": false,
+    "ldapConnectionPoolDefaultSize": "1:10",
+    "ldapConnectionPoolSize": [],
+    "remoteAuthSecurityEnabled": false,
+  },
+}
+`;
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory 2`] = `""`;
+
+exports[`frodo authn export "frodo authn export --no-metadata --file authnExportTest.json --directory  authnExportDir2": should export authentication settings to a file named "authnExportTest.json" in the "authnExportDir2" directory: authnExportDir2/authnExportTest.json 1`] = `
 {
   "authentication": {
     "_id": "",
@@ -74,7 +194,9 @@ exports[`frodo authn export "frodo authn export --no-metadata --file authnExport
 }
 `;
 
-exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 1`] = `""`;
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export -ND authnExportDir1": should export authentication settings to a single file in the "authnExportDir1" directory: authnExportDir1/alphaRealm.authentication.settings.json 1`] = `
 {
@@ -148,7 +270,9 @@ exports[`frodo authn export "frodo authn export -ND authnExportDir1": should exp
 }
 `;
 
-exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 1`] = `""`;
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json" 2`] = `""`;
 
 exports[`frodo authn export "frodo authn export -f authnExportTest.json": should export authentication settings to a file named "authnExportTest.json": authnExportTest.json 1`] = `
 {
@@ -218,6 +342,125 @@ exports[`frodo authn export "frodo authn export -f authnExportTest.json": should
       "defaultRole": [],
       "dynamicProfileCreation": "false",
     },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file 1`] = `0`;
+
+exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file 2`] = `""`;
+
+exports[`frodo authn export "frodo authn export -g -m classic": should export global authentication settings to a file: global.authentication.settings.json 1`] = `
+{
+  "authentication": {
+    "_id": "",
+    "_type": {
+      "_id": "EMPTY",
+      "collection": false,
+      "name": "Core",
+    },
+    "authenticators": [
+      "com.sun.identity.authentication.modules.ad.AD",
+      "org.forgerock.openam.authentication.modules.saml2.SAML2",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthInstagram",
+      "org.forgerock.openam.authentication.modules.oath.OATH",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthVK",
+      "com.sun.identity.authentication.modules.membership.Membership",
+      "com.sun.identity.authentication.modules.windowsdesktopsso.WindowsDesktopSSO",
+      "org.forgerock.openam.authentication.modules.deviceprint.DeviceIdSave",
+      "com.sun.identity.authentication.modules.federation.Federation",
+      "org.forgerock.openam.authentication.modules.deviceprint.DeviceIdMatch",
+      "com.sun.identity.authentication.modules.jdbc.JDBC",
+      "com.sun.identity.authentication.modules.radius.RADIUS",
+      "com.sun.identity.authentication.modules.anonymous.Anonymous",
+      "com.sun.identity.authentication.modules.cert.Cert",
+      "org.forgerock.openam.authentication.modules.push.registration.AuthenticatorPushRegistration",
+      "com.sun.identity.authentication.modules.httpbasic.HTTPBasic",
+      "org.forgerock.openam.authentication.modules.oidc.OpenIdConnect",
+      "com.sun.identity.authentication.modules.sae.SAE",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthWeChat",
+      "org.forgerock.openam.authentication.modules.persistentcookie.PersistentCookie",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthTwitter",
+      "com.sun.identity.authentication.modules.ldap.LDAP",
+      "org.forgerock.openam.authentication.modules.push.AuthenticatorPush",
+      "org.forgerock.openam.authentication.modules.oauth2.OAuth",
+      "com.sun.identity.authentication.modules.nt.NT",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthWeChatMobile",
+      "org.forgerock.openam.authentication.modules.jwtpop.JwtProofOfPossession",
+      "com.sun.identity.authentication.modules.application.Application",
+      "org.forgerock.openam.authentication.modules.scripted.Scripted",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthOAuth2",
+      "com.sun.identity.authentication.modules.hotp.HOTP",
+      "org.forgerock.openam.authentication.modules.adaptive.Adaptive",
+      "org.forgerock.openam.authentication.modules.accountactivecheck.AccountActiveCheck",
+      "org.forgerock.openam.authentication.modules.social.SocialAuthOpenID",
+      "com.sun.identity.authentication.modules.msisdn.MSISDN",
+      "org.forgerock.openam.authentication.modules.fr.oath.AuthenticatorOATH",
+      "com.sun.identity.authentication.modules.datastore.DataStore",
+      "com.sun.identity.authentication.modules.securid.SecurID",
+      "org.forgerock.openam.authentication.modules.amster.Amster",
+    ],
+    "defaults": {
+      "accountlockout": {
+        "lockoutDuration": 0,
+        "lockoutDurationMultiplier": 1,
+        "lockoutWarnUserCount": 0,
+        "loginFailureCount": 5,
+        "loginFailureDuration": 300,
+        "loginFailureLockoutMode": false,
+        "storeInvalidAttemptsInDataStore": true,
+      },
+      "core": {
+        "adminAuthModule": "[Empty]",
+        "orgConfig": "[Empty]",
+      },
+      "general": {
+        "defaultAuthLevel": 0,
+        "identityType": [
+          "agent",
+          "user",
+        ],
+        "locale": "en_US",
+        "statelessSessionsEnabled": false,
+        "twoFactorRequired": false,
+        "userStatusCallbackPlugins": [],
+      },
+      "postauthprocess": {
+        "loginFailureUrl": [],
+        "loginPostProcessClass": [],
+        "loginSuccessUrl": [
+          "/am/console",
+        ],
+        "userAttributeSessionMapping": [],
+        "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+        "usernameGeneratorEnabled": true,
+      },
+      "security": {
+        "addClearSiteDataHeader": true,
+        "moduleBasedAuthEnabled": true,
+        "sharedSecret": null,
+        "zeroPageLoginAllowedWithoutReferrer": true,
+        "zeroPageLoginEnabled": false,
+        "zeroPageLoginReferrerWhiteList": [],
+      },
+      "trees": {
+        "authenticationSessionsMaxDuration": 5,
+        "authenticationSessionsStateManagement": "JWT",
+        "authenticationSessionsWhitelist": false,
+        "authenticationTreeCookieHttpOnly": true,
+        "suspendedAuthenticationTimeout": 5,
+      },
+      "userprofile": {
+        "aliasAttributeName": [],
+        "defaultRole": [],
+        "dynamicProfileCreation": "false",
+      },
+    },
+    "keepPostProcessInstances": false,
+    "ldapConnectionPoolDefaultSize": "1:10",
+    "ldapConnectionPoolSize": [],
+    "remoteAuthSecurityEnabled": false,
   },
   "meta": Any<Object>,
 }

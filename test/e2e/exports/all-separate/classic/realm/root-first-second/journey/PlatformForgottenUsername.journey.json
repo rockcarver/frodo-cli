@@ -1,0 +1,172 @@
+{
+  "trees": {
+    "PlatformForgottenUsername": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "d82c8d16-19ad-3176-9665-453cfb2e55f0": {
+          "_id": "d82c8d16-19ad-3176-9665-453cfb2e55f0",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "mail"
+          ],
+          "identityAttribute": "mail",
+          "required": true,
+          "validateInputs": false
+        }
+      },
+      "nodes": {
+        "72b32a1f-754b-31c0-9b36-95e0cb6cde7f": {
+          "_id": "72b32a1f-754b-31c0-9b36-95e0cb6cde7f",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator"
+          },
+          "tree": "PlatformLogin"
+        },
+        "9f61408e-3afb-333e-90cd-f1b20de6f466": {
+          "_id": "9f61408e-3afb-333e-90cd-f1b20de6f466",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "EmailSuspendNode",
+            "collection": true,
+            "name": "Email Suspend Node"
+          },
+          "emailAttribute": "mail",
+          "emailSuspendMessage": {
+            "en": "An email has been sent to the address you entered. Click the link in that email to proceed."
+          },
+          "emailTemplateName": "forgottenUsername",
+          "identityAttribute": "mail",
+          "objectLookup": true
+        },
+        "a684ecee-e76f-3522-b732-86a895bc8436": {
+          "_id": "a684ecee-e76f-3522-b732-86a895bc8436",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "d82c8d16-19ad-3176-9665-453cfb2e55f0",
+              "displayName": "Attribute Collector",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "Enter your email address or <a href=\"#/service/PlatformLogin\">Sign in</a>"
+          },
+          "pageHeader": {
+            "en": "Forgotten Username"
+          },
+          "stage": "null"
+        },
+        "b53b3a3d-6ab9-3ce0-a682-29151c9bde11": {
+          "_id": "b53b3a3d-6ab9-3ce0-a682-29151c9bde11",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User"
+          },
+          "identityAttribute": "mail"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "PlatformForgottenUsername",
+        "description": "Forgotten Username Tree",
+        "enabled": true,
+        "entryNodeId": "a684ecee-e76f-3522-b732-86a895bc8436",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "72b32a1f-754b-31c0-9b36-95e0cb6cde7f": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Inner Tree Evaluator",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 0,
+            "y": 0
+          },
+          "9f61408e-3afb-333e-90cd-f1b20de6f466": {
+            "connections": {
+              "outcome": "72b32a1f-754b-31c0-9b36-95e0cb6cde7f"
+            },
+            "displayName": "Email Suspend",
+            "nodeType": "EmailSuspendNode",
+            "x": 0,
+            "y": 0
+          },
+          "a684ecee-e76f-3522-b732-86a895bc8436": {
+            "connections": {
+              "outcome": "b53b3a3d-6ab9-3ce0-a682-29151c9bde11"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 0,
+            "y": 0
+          },
+          "b53b3a3d-6ab9-3ce0-a682-29151c9bde11": {
+            "connections": {
+              "false": "9f61408e-3afb-333e-90cd-f1b20de6f466",
+              "true": "9f61408e-3afb-333e-90cd-f1b20de6f466"
+            },
+            "displayName": "Identify Existing User",
+            "nodeType": "IdentifyExistingUserNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

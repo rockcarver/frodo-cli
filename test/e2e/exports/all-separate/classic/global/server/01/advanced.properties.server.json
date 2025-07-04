@@ -1,0 +1,14 @@
+{
+  "_id": "01/properties/advanced",
+  "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+  "com.iplanet.am.lbcookie.value": "01",
+  "com.iplanet.am.serverMode": true,
+  "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
+  "com.sun.embedded.replicationport": "",
+  "com.sun.embedded.sync.servers": "on",
+  "com.sun.identity.common.systemtimerpool.size": "3",
+  "com.sun.identity.sm.sms_object_class_name": "com.sun.identity.sm.SmsWrapperObject",
+  "com.sun.identity.urlconnection.useCache": false,
+  "opensso.protocol.handler.pkgs": "",
+  "org.forgerock.embedded.dsadminport": "4444"
+}

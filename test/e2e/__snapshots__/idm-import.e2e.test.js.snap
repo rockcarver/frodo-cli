@@ -1,17 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo idm import "frodo idm import --all-separate --directory test/e2e/exports/all-separate/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json": Should import all configs from the directory 'test/e2e/exports/all-separate/idm' according to the env and entity files" 1`] = `""`;
+exports[`frodo idm import "frodo idm import --all --file all.idm.json -D test/e2e/exports/all": Should import all configs from the file 'all.idm.json' in directory 'test/e2e/exports/all'" 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Importing config entities from test/e2e/exports/all/all.idm.json...
+Error updating config entity bravoOrgPrivileges
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+✔ Imported config entities
+"
+`;
 
-exports[`frodo idm import "frodo idm import --name script --file test/e2e/exports/all-separate/idm/script.idm.json": should import the idm config with name 'script' from the file named 'test/e2e/exports/all-separate/idm/script.idm.json'" 1`] = `""`;
+exports[`frodo idm import "frodo idm import --all-separate --directory test/e2e/exports/all-separate/cloud/global/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json": Should import all configs from the directory 'test/e2e/exports/all-separate/cloud/global/idm' according to the env and entity files" 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/idm -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json": Should import all configs from the directory 'test/e2e/exports/all-separate/idm' according to the env and entity files" 1`] = `""`;
+exports[`frodo idm import "frodo idm import --entity-id script --file test/e2e/exports/all-separate/cloud/global/idm/script.idm.json": should import the idm config with name 'script' from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/idm": Should import all configs from the directory 'test/e2e/exports/all-separate/idm'" 1`] = `""`;
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm": Should import all configs from the directory 'test/e2e/exports/all-separate/cloud/global/idm'" 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Importing config entities from test/e2e/exports/all-separate/cloud/global/idm...
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error updating config entity endpoint/testEndpoint2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+✔ Imported config entities
+"
+`;
 
-exports[`frodo idm import "frodo idm import -N script -D test/e2e/exports/all-separate/idm": should import the idm config with name 'script' from the directory test/e2e/exports/all-separate/idm" 1`] = `""`;
+exports[`frodo idm import "frodo idm import -af test/e2e/exports/all/all.idm.json -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json": Should import all configs from the file 'test/e2e/exports/all/all.idm.json' according to the env and entity files" 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -N script -f script.idm.json -D test/e2e/exports/all-separate/idm": should import the idm config with name 'script' from the file named 'test/e2e/exports/all-separate/idm/script.idm.json'" 1`] = `""`;
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/cloud/global/idm/script.idm.json": should import the idm config from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -f script.idm.json -D test/e2e/exports/all-separate/idm": should import the idm config from the file named 'test/e2e/exports/all-separate/idm/script.idm.json'" 1`] = `""`;
+exports[`frodo idm import "frodo idm import -i script -D test/e2e/exports/all-separate/cloud/global/idm": should import the idm config with name 'script' from the directory test/e2e/exports/all-separate/cloud/global/idm" 1`] = `""`;
 
-exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/idm/script.idm.json": should import the idm config from the file named 'test/e2e/exports/all-separate/idm/script.idm.json'" 1`] = `""`;
+exports[`frodo idm import "frodo idm import -i script -e test/e2e/env/testEnvFile.env -f script.idm.json -D test/e2e/exports/all-separate/cloud/global/idm": should import the idm config with name 'script' from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;

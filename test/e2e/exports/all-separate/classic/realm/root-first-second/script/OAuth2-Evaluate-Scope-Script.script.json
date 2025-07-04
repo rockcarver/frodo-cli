@@ -1,0 +1,18 @@
+{
+  "script": {
+    "da56fe60-8b38-4c46-a405-d6b306d4b336": {
+      "_id": "da56fe60-8b38-4c46-a405-d6b306d4b336",
+      "context": "OAUTH2_EVALUATE_SCOPE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for OAuth2 Scope Evaluation",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "OAuth2 Evaluate Scope Script",
+      "script": "file://OAuth2-Evaluate-Scope-Script.script.js"
+    }
+  }
+}

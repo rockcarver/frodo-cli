@@ -1,0 +1,38 @@
+{
+  "service": {
+    "uma": {
+      "_id": "",
+      "_type": {
+        "_id": "uma",
+        "collection": false,
+        "name": "UMA Provider"
+      },
+      "defaults": {
+        "claimsGathering": {
+          "claimsGatheringService": "[Empty]",
+          "interactiveClaimsGatheringEnabled": false,
+          "pctLifetime": 604800
+        },
+        "generalSettings": {
+          "deletePoliciesOnDeleteRS": true,
+          "deleteResourceSetsOnDeleteRS": true,
+          "emailRequestingPartyOnPendingRequestApproval": true,
+          "emailResourceOwnerOnPendingRequestCreation": true,
+          "grantResourceOwnerImplicitConsent": true,
+          "grantRptConditions": [
+            "REQUEST_PARTIAL",
+            "REQUEST_NONE",
+            "TICKET_PARTIAL"
+          ],
+          "pendingRequestsEnabled": true,
+          "permissionTicketLifetime": 120,
+          "resharingMode": "IMPLICIT",
+          "userProfileLocaleAttribute": "inetOrgPerson"
+        }
+      },
+      "location": "global",
+      "nextDescendents": [],
+      "umaPolicyUpgradeCompatibilityMode": false
+    }
+  }
+}

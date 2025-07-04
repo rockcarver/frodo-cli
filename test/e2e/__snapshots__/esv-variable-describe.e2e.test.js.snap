@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo esv variable describe "frodo esv variable describe --json --usage --variable-id esv-test-var-pi --directory test/e2e/exports/all-separate/everything": should describe the esv variable "esv-test-var-pi" with usage from directory test/e2e/exports/all-separate/everything and json output 1`] = `
+exports[`frodo esv variable describe "frodo esv variable describe --json --usage --variable-id esv-test-var-pi --directory test/e2e/exports/all-separate/cloud": should describe the esv variable "esv-test-var-pi" with usage from directory test/e2e/exports/all-separate/cloud and json output 1`] = `
 "{
   _id: 'esv-test-var-pi',
   description: 'This is another test variable.',
@@ -17,7 +17,7 @@ exports[`frodo esv variable describe "frodo esv variable describe --json --usage
 "
 `;
 
-exports[`frodo esv variable describe "frodo esv variable describe --json --usage --variable-id esv-test-var-pi --file test/e2e/exports/all/all.config.json": should describe the esv variable "esv-test-var-pi" with usage from file test/e2e/exports/all/all.config.json and json output 1`] = `
+exports[`frodo esv variable describe "frodo esv variable describe --json --usage --variable-id esv-test-var-pi --file test/e2e/exports/all/all.cloud.json": should describe the esv variable "esv-test-var-pi" with usage from file test/e2e/exports/all/all.cloud.json and json output 1`] = `
 "{
   _id: 'esv-test-var-pi',
   description: 'This is another test variable.',
@@ -27,8 +27,7 @@ exports[`frodo esv variable describe "frodo esv variable describe --json --usage
   loaded: true,
   value: '3.1415926',
   locations: [
-    "realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0",
-    "realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.4"
+    "realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script"
   ]
 }
 "
@@ -45,7 +44,7 @@ Modifier UUID│b672336b-41ef-428d-ae4a-e0c082875377
 "
 `;
 
-exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi -D test/e2e/exports/all-separate/everything": should describe the esv variable "esv-test-var-pi" with usage from directory test/e2e/exports/all-separate/everything 1`] = `
+exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi -D test/e2e/exports/all-separate/cloud": should describe the esv variable "esv-test-var-pi" with usage from directory test/e2e/exports/all-separate/cloud 1`] = `
 "Name                     │esv-test-var-pi                                                                                                      
 Value                    │3.1415926                                                                                                            
 Type                     │number                                                                                                               
@@ -58,20 +57,31 @@ Usage Locations (2 total)│realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812
 "
 `;
 
-exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi -f test/e2e/exports/all/all.config.json": should describe the esv variable "esv-test-var-pi" with usage from file test/e2e/exports/all/all.config.json 1`] = `
-"Name                     │esv-test-var-pi                                                                                                      
-Value                    │3.1415926                                                                                                            
-Type                     │number                                                                                                               
-Status                   │loaded                                                                                                               
-Description              │This is another test variable.                                                                                       
-Modified                 │7/12/2024, 5:40:41 PM                                                                                                
-Modifier UUID            │Frodo-SA-1720799681233                                                                                               
-Usage Locations (2 total)│realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0
-                         │realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.4
+exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi -f test/e2e/exports/all/all.cloud.json": should describe the esv variable "esv-test-var-pi" with usage from file test/e2e/exports/all/all.cloud.json 1`] = `
+"Name                     │esv-test-var-pi                                                                                                    
+Value                    │3.1415926                                                                                                          
+Type                     │number                                                                                                             
+Status                   │loaded                                                                                                             
+Description              │This is another test variable.                                                                                     
+Modified                 │7/12/2024, 5:40:41 PM                                                                                              
+Modifier UUID            │Frodo-SA-1720799681233                                                                                             
+Usage Locations (1 total)│realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script
 "
 `;
 
 exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi": should describe the esv variable "esv-test-var-pi" with usage 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-var-pi": should describe the esv variable "esv-test-var-pi" with usage 2`] = `
 "Name                     │esv-test-var-pi                                                                                                      
 Value                    │3.1415926                                                                                                            
 Type                     │number                                                                                                               

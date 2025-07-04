@@ -1,0 +1,69 @@
+{
+  "_id": "sync/managedAlpha_user_managedAlpha_user",
+  "consentRequired": true,
+  "displayName": "managedAlpha_user_managedAlpha_user",
+  "icon": null,
+  "name": "managedAlpha_user_managedAlpha_user",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    }
+  ],
+  "properties": [],
+  "source": "managed/alpha_user",
+  "syncAfter": [
+    "managedBravo_user_managedBravo_user",
+    "managedBravo_user_managedAlpha_user",
+    "AlphaUser2GoogleApps"
+  ],
+  "target": "managed/alpha_user"
+}

@@ -1,0 +1,758 @@
+{
+  "trees": {
+    "IntervieweeSelfieAuthentication": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "03eae59a-d184-482e-82a7-ad0a99d5ee6e": {
+          "_id": "03eae59a-d184-482e-82a7-ad0a99d5ee6e",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "178ad9e5-7825-40bb-a426-ae991d0ffcea": {
+          "_id": "178ad9e5-7825-40bb-a426-ae991d0ffcea",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "eaab5b6d-fc11-4365-93da-00eb9121adb9"
+        },
+        "19562a6f-aae4-4925-a5db-7785862d504b": {
+          "_id": "19562a6f-aae4-4925-a5db-7785862d504b",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "1ecaf904-20be-401a-90bc-84b84fa3dfbf": {
+          "_id": "1ecaf904-20be-401a-90bc-84b84fa3dfbf",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "2bb843f4-e864-49c4-a432-a6bfc020bf54": {
+          "_id": "2bb843f4-e864-49c4-a432-a6bfc020bf54",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "eaab5b6d-fc11-4365-93da-00eb9121adb9"
+        },
+        "574800d6-a41f-42a3-b8d6-2d47eb57af90": {
+          "_id": "574800d6-a41f-42a3-b8d6-2d47eb57af90",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node"
+          },
+          "message": {
+            "en": "Before viewing the selfie authentication results, make sure you stop sharing your screen with the interviewee."
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Proceed to results"
+          }
+        },
+        "7d73a04b-47bc-4466-9ad4-950a78b63fd6": {
+          "_id": "7d73a04b-47bc-4466-9ad4-950a78b63fd6",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node"
+          },
+          "message": {
+            "en": "Before viewing the selfie authentication results, make sure you stop sharing your screen with the interviewee."
+          },
+          "messageNo": {},
+          "messageYes": {
+            "en": "Proceed to results"
+          }
+        },
+        "81523af4-3a82-4df7-9d9c-e45fc1e3d5f3": {
+          "_id": "81523af4-3a82-4df7-9d9c-e45fc1e3d5f3",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "cbfe448f-b242-4c96-9191-9140d8d13f14": {
+          "_id": "cbfe448f-b242-4c96-9191-9140d8d13f14",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3cb43516-ae69-433a-8787-501d45db14e9"
+        },
+        "d45a23ef-ac2f-49dc-a071-24ea69342c58": {
+          "_id": "d45a23ef-ac2f-49dc-a071-24ea69342c58",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "mail"
+          ],
+          "identityAttribute": "userName",
+          "required": true,
+          "validateInputs": true
+        },
+        "e08c5232-2b8c-4d40-958b-2cb5a261d5e6": {
+          "_id": "e08c5232-2b8c-4d40-958b-2cb5a261d5e6",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "SUCCESS"
+            },
+            {
+              "displayName": "Success (Patch ID)",
+              "id": "SUCCESPATCH"
+            },
+            {
+              "displayName": "Fail",
+              "id": "FAIL"
+            },
+            {
+              "displayName": "Fail (Patch ID)",
+              "id": "FAILPATCH"
+            },
+            {
+              "displayName": "Cancel",
+              "id": "CANCEL"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "PingOneVerifyAuthentication",
+            "collection": true,
+            "name": "PingOne Verify Authentication"
+          },
+          "demoMode": false,
+          "pictureAttribute": "fr-attr-str1",
+          "pollWaitMessage": "Waiting for completion.  Here is the code you will see on your device: %s",
+          "saveMetadata": false,
+          "timeOut": 270,
+          "tntpPingOneConfigName": "p1-volker-dev [/bravo]",
+          "tsAccessToken": false,
+          "tsTransactionId": false,
+          "userIdAttribute": "fr-attr-istr1",
+          "userNotification": "QR",
+          "userNotificationChoice": true,
+          "userNotificationChoiceMessage": "Invite interviewee via (must complete within 15mins):",
+          "verifyPolicyId": "b10955bd-bf7d-46ba-89ce-f2be16dd1533"
+        }
+      },
+      "nodes": {
+        "290f65ae-de1a-40be-9c3c-c0174decb0a2": {
+          "_id": "290f65ae-de1a-40be-9c3c-c0174decb0a2",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User"
+          },
+          "identifier": "userName",
+          "identityAttribute": "mail"
+        },
+        "67f33640-a333-4172-8339-2346d873627c": {
+          "_id": "67f33640-a333-4172-8339-2346d873627c",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/bravo_user",
+          "ignoredFields": [
+            "mail",
+            "fr-attr-istr1",
+            "fr-attr-istr2"
+          ],
+          "patchAsObject": false
+        },
+        "6b761fcb-3f19-489d-8273-0c2e6b49faca": {
+          "_id": "6b761fcb-3f19-489d-8273-0c2e6b49faca",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "1ecaf904-20be-401a-90bc-84b84fa3dfbf",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Selfie Verification Canceled"
+          }
+        },
+        "70f2653c-66e7-4787-96d1-6c56b0ffc9fd": {
+          "_id": "70f2653c-66e7-4787-96d1-6c56b0ffc9fd",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "cbfe448f-b242-4c96-9191-9140d8d13f14",
+              "displayName": "Debug",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "81523af4-3a82-4df7-9d9c-e45fc1e3d5f3",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Selfie Verification Error"
+          }
+        },
+        "7f0f546b-4d92-4450-9e0d-fc07830ea3db": {
+          "_id": "7f0f546b-4d92-4450-9e0d-fc07830ea3db",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "178ad9e5-7825-40bb-a426-ae991d0ffcea",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "03eae59a-d184-482e-82a7-ad0a99d5ee6e",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Selfie Authentication Success"
+          }
+        },
+        "91afb28b-6cb6-4bc4-b781-5802f7570da0": {
+          "_id": "91afb28b-6cb6-4bc4-b781-5802f7570da0",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "SUCCESS"
+            },
+            {
+              "displayName": "Success (Patch ID)",
+              "id": "SUCCESPATCH"
+            },
+            {
+              "displayName": "Fail",
+              "id": "FAIL"
+            },
+            {
+              "displayName": "Fail (Patch ID)",
+              "id": "FAILPATCH"
+            },
+            {
+              "displayName": "Cancel",
+              "id": "CANCEL"
+            },
+            {
+              "displayName": "Error",
+              "id": "ERROR"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "e08c5232-2b8c-4d40-958b-2cb5a261d5e6",
+              "displayName": "Selfie AuthN",
+              "nodeType": "PingOneVerifyAuthentication"
+            }
+          ],
+          "pageDescription": {
+            "en": "Please choose how to delegate the selfie authentication step to the interviewee. If you choose QR, share your screen via zoom and have the interviewee scan it, then stop sharing."
+          },
+          "pageHeader": {
+            "en": "Authenticate Interviewee"
+          }
+        },
+        "96e7155e-be3d-4f15-8c50-8a299e0d68ce": {
+          "_id": "96e7155e-be3d-4f15-8c50-8a299e0d68ce",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "7d73a04b-47bc-4466-9ad4-950a78b63fd6",
+              "displayName": "Proceed?",
+              "nodeType": "MessageNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Stop Screen Sharing"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"7d73a04b-47bc-4466-9ad4-950a78b63fd6\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "98b783bd-e27d-4343-90bb-dc6cb6433347": {
+          "_id": "98b783bd-e27d-4343-90bb-dc6cb6433347",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "574800d6-a41f-42a3-b8d6-2d47eb57af90",
+              "displayName": "Proceed?",
+              "nodeType": "MessageNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Stop Screen Sharing"
+          },
+          "stage": "{\"ConfirmationCallback\":[{\"id\":\"574800d6-a41f-42a3-b8d6-2d47eb57af90\",\"showOnlyPositiveAnswer\":true}]}"
+        },
+        "a5ad6592-b37a-43fb-9202-117f6ef7b1c2": {
+          "_id": "a5ad6592-b37a-43fb-9202-117f6ef7b1c2",
+          "_outcomes": [
+            {
+              "displayName": "known",
+              "id": "known"
+            },
+            {
+              "displayName": "unknown",
+              "id": "unknown"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "known",
+            "unknown"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "739bdc48-fd24-4c52-b353-88706d75558a"
+        },
+        "bb782509-821a-4dfb-ae28-52c3cf0ba52e": {
+          "_id": "bb782509-821a-4dfb-ae28-52c3cf0ba52e",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "d45a23ef-ac2f-49dc-a071-24ea69342c58",
+              "displayName": "Email",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "d801bc95-03d6-4733-ae64-6270d56cd1ff": {
+          "_id": "d801bc95-03d6-4733-ae64-6270d56cd1ff",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "2bb843f4-e864-49c4-a432-a6bfc020bf54",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "19562a6f-aae4-4925-a5db-7785862d504b",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Selfie Verification Failed"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "IntervieweeSelfieAuthentication",
+        "description": "Interviewee selfie authentication",
+        "enabled": true,
+        "entryNodeId": "a5ad6592-b37a-43fb-9202-117f6ef7b1c2",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "290f65ae-de1a-40be-9c3c-c0174decb0a2": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "91afb28b-6cb6-4bc4-b781-5802f7570da0"
+            },
+            "displayName": "Find Interviewee",
+            "nodeType": "IdentifyExistingUserNode",
+            "x": 614,
+            "y": 189
+          },
+          "67f33640-a333-4172-8339-2346d873627c": {
+            "connections": {
+              "FAILURE": "70f2653c-66e7-4787-96d1-6c56b0ffc9fd",
+              "PATCHED": "98b783bd-e27d-4343-90bb-dc6cb6433347"
+            },
+            "displayName": "Update Account",
+            "nodeType": "PatchObjectNode",
+            "x": 1119,
+            "y": 151.015625
+          },
+          "6b761fcb-3f19-489d-8273-0c2e6b49faca": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Cancel Dialog",
+            "nodeType": "PageNode",
+            "x": 1561,
+            "y": 292.015625
+          },
+          "70f2653c-66e7-4787-96d1-6c56b0ffc9fd": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Error Dialog",
+            "nodeType": "PageNode",
+            "x": 1564,
+            "y": 653.015625
+          },
+          "7f0f546b-4d92-4450-9e0d-fc07830ea3db": {
+            "connections": {
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Success Dialog",
+            "nodeType": "PageNode",
+            "x": 1562,
+            "y": 84.015625
+          },
+          "91afb28b-6cb6-4bc4-b781-5802f7570da0": {
+            "connections": {
+              "CANCEL": "6b761fcb-3f19-489d-8273-0c2e6b49faca",
+              "ERROR": "70f2653c-66e7-4787-96d1-6c56b0ffc9fd",
+              "FAIL": "96e7155e-be3d-4f15-8c50-8a299e0d68ce",
+              "FAILPATCH": "96e7155e-be3d-4f15-8c50-8a299e0d68ce",
+              "SUCCESPATCH": "67f33640-a333-4172-8339-2346d873627c",
+              "SUCCESS": "67f33640-a333-4172-8339-2346d873627c"
+            },
+            "displayName": "AuthN Interviewee",
+            "nodeType": "PageNode",
+            "x": 842,
+            "y": 117.015625
+          },
+          "96e7155e-be3d-4f15-8c50-8a299e0d68ce": {
+            "connections": {
+              "false": "d801bc95-03d6-4733-ae64-6270d56cd1ff",
+              "true": "d801bc95-03d6-4733-ae64-6270d56cd1ff"
+            },
+            "displayName": "Stop Screen Share",
+            "nodeType": "PageNode",
+            "x": 1344,
+            "y": 448.015625
+          },
+          "98b783bd-e27d-4343-90bb-dc6cb6433347": {
+            "connections": {
+              "false": "7f0f546b-4d92-4450-9e0d-fc07830ea3db",
+              "true": "7f0f546b-4d92-4450-9e0d-fc07830ea3db"
+            },
+            "displayName": "Stop Screen Share",
+            "nodeType": "PageNode",
+            "x": 1336,
+            "y": 86.015625
+          },
+          "a5ad6592-b37a-43fb-9202-117f6ef7b1c2": {
+            "connections": {
+              "known": "290f65ae-de1a-40be-9c3c-c0174decb0a2",
+              "unknown": "bb782509-821a-4dfb-ae28-52c3cf0ba52e"
+            },
+            "displayName": "Check username",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 183,
+            "y": 184.015625
+          },
+          "bb782509-821a-4dfb-ae28-52c3cf0ba52e": {
+            "connections": {
+              "outcome": "290f65ae-de1a-40be-9c3c-c0174decb0a2"
+            },
+            "displayName": "Select Interviewee",
+            "nodeType": "PageNode",
+            "x": 383,
+            "y": 295.015625
+          },
+          "d801bc95-03d6-4733-ae64-6270d56cd1ff": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Failed Dialog",
+            "nodeType": "PageNode",
+            "x": 1563,
+            "y": 447.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1827,
+            "y": 47
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1830,
+            "y": 635
+          },
+          "startNode": {
+            "x": 60,
+            "y": 202
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"IDV\",\"P1 Verify\"]"
+        }
+      }
+    }
+  }
+}

@@ -1,28 +1,30 @@
+import repl from 'node:repl';
+
 import { frodo } from '@rockcarver/frodo-lib';
-import fuzzy from 'fuzzy';
-import inquirer from 'inquirer';
-import inquirerPrompt from 'inquirer-autocomplete-prompt';
+import { Option } from 'commander';
+import vm from 'vm';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { printError, printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const exits = ['exit', 'quit', 'q'];
-const functions = frodo.utils.json.getPaths(frodo, 'this.');
+async function startRepl(allowAwait = false) {
+  const baseConfig = {
+    prompt: '> ',
+    ignoreUndefined: true,
+    useGlobal: true,
+  };
 
-function searchFunctions(_answers, input = '') {
-  return new Promise((resolve) => {
-    setTimeout(
-      () => {
-        const results = fuzzy.filter(input, functions).map((el) => el.original);
-        // results.splice(5, 0, new inquirer.Separator());
-        // results.push(new inquirer.Separator());
-        resolve(results);
-      },
-      Math.random() * 470 + 30
-    );
-  });
+  const configWithoutAwait = {
+    ...baseConfig,
+    eval: async function myEval(cmd, context, _filename, callback) {
+      callback(null, await vm.runInNewContext(cmd, context));
+    },
+  };
+
+  const replServer = repl.start(allowAwait ? baseConfig : configWithoutAwait);
+
+  replServer.context.frodoLib = frodo;
 }
 
 export default function setup() {
@@ -33,13 +35,19 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Launch a frodo shell using explicit login parameters:\n` +
-        `  $ frodo shell ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+        `  $ frodo shell ${s.amBaseUrl} ${s.realm} ${s.username} '${s.password}'\n`[
           'brightCyan'
         ] +
         `  Launch a frodo shell using a connection profile (identified by the full AM base URL):\n` +
         `  $ frodo shell ${s.amBaseUrl}\n`['brightCyan'] +
         `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL):\n` +
         `  $ frodo shell ${s.connId}\n`['brightCyan']
+    )
+    .addOption(
+      new Option(
+        '--allow-await',
+        'Allows top-level awaits to be used in the shell.'
+      )
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -51,32 +59,7 @@ export default function setup() {
         command
       );
       if (host) await getTokens();
-      let exit = false;
-      do {
-        try {
-          inquirer.registerPrompt('autocomplete', inquirerPrompt);
-          const response = await inquirer.prompt([
-            {
-              type: 'autocomplete',
-              prefix: '',
-              name: 'command',
-              message: '>',
-              source: searchFunctions,
-              suggestOnly: true,
-            },
-          ]);
-          exit = exits.includes(response.command);
-          // evaluate code with context
-          if (!exit) {
-            const result = await function (str: string) {
-              return eval(str);
-            }.call(frodo, `${response.command}`);
-            printMessage(result, 'data');
-          }
-        } catch (error) {
-          printError(error);
-        }
-      } while (!exit);
+      startRepl(options.allowAwait);
     });
   return program;
 }

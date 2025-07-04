@@ -2,8 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import cp from 'child_process';
+import tmp from 'tmp'
 
 const exec = promisify(cp.exec);
+const fspromise = fs.promises
 
 const ansiEscapeCodes =
   // eslint-disable-next-line no-control-regex
@@ -54,7 +56,19 @@ export async function testExport(
   checkStderr = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
-  const { stdout, stderr } = await exec(command, env);
+  let stdout;
+  let stderr;
+  let exitCode = 0;
+  try {
+    const output = await exec(command, env);
+    stdout = output.stdout;
+    stderr = output.stderr;
+  } catch (e) {
+    stdout = e.stdout;
+    stderr = e.stderr;
+    exitCode = e.code;
+  }
+  expect(exitCode).toMatchSnapshot();
   // console.error(`stdout:\n${stdout}`);
   // console.error(`stderr:\n${stderr}`);
   const regex = new RegExp(
@@ -152,6 +166,74 @@ function getFilePaths(directoryPath, recursive = false) {
         : paths.push(filePath);
     });
   return paths;
+}
+
+export async function testPromote(
+  sourceDir,
+  modifiedFilesDir,
+  referenceSubDirs,
+  env, 
+  name
+) {
+  env.env.FRODO_TEST_NAME = name
+  const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
+  const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
+  const { stdout, stderr } = await exec(CMD, env);
+  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+}
+
+async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {
+  // Step 1: Create a temporary directory
+  const tmpDir = tmp.dirSync().name;
+
+  // Step 2: Copy the source directory to the temporary location
+  await fspromise.cp(sourceDir, tmpDir, { recursive: true });
+ 
+  // Step 3: Overwrite with modified files
+  await fspromise.cp(modifiedFilesDir, tmpDir, { recursive: true });
+
+  // Step 4: Delete files not present in modified files dir
+  for (const referenceSubDir of referenceSubDirs) {
+    await deleteFilesNotPresent(referenceSubDir, tmpDir, modifiedFilesDir)
+  }
+  // Step 5: Return the path to the temporary directory
+  return tmpDir;
+}
+
+async function deleteFilesNotPresent(referenceSubDir, tmpDir, modifiedFilesDir) {
+  // Step 4.1: Get a list of files in the reference directory of modifiedFilesDir
+  const referenceDir = path.join(modifiedFilesDir, referenceSubDir);
+  const referenceFiles = new Set(await getAllFiles(referenceDir, referenceDir));
+
+  // Step 4.2: Delete files in tmpDir that aren’t in the referenceFiles list
+  const targetDir = path.join(tmpDir, referenceSubDir);
+  const targetFiles = await getAllFiles(targetDir, targetDir);
+
+  for (const file of targetFiles) {
+    if (!referenceFiles.has(file)) {
+      const filePath = path.join(targetDir, file);
+      await fspromise.rm(filePath);
+    }
+  }
+}
+
+// Helper function to get all file paths within a directory, relative to the base
+async function getAllFiles(dir, base) {
+  let files = [];
+  const items = await fspromise.readdir(dir, { withFileTypes: true });
+  
+  for (const item of items) {
+    const itemPath = path.join(dir, item.name);
+    const relativePath = path.relative(base, itemPath);
+
+    if (item.isDirectory()) {
+      files = files.concat(await getAllFiles(itemPath, base));
+    } else {
+      files.push(relativePath);
+    }
+  }
+  return files;
 }
 
 /**

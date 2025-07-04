@@ -35,8 +35,13 @@ Options:
                                        If specified, may or may not produce
                                        additional output helpful for
                                        troubleshooting.
-  -f, --file <file>                    Name of the file to import.
+  -f, --file <file>                    Name of the file to import. Ignored with
+                                       -A. If included without -a, it will
+                                       import the single entity within the
+                                       file.
   --flush-cache                        Flush token cache.
+  -g, --global                         Import global entity. Ignored with -a
+                                       and -A.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
                                        https://cdk.idm.example.com/myidm. Use

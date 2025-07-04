@@ -1,0 +1,21 @@
+{
+  "service": {
+    "email": {
+      "_id": "",
+      "_type": {
+        "_id": "email",
+        "collection": false,
+        "name": "Email Service"
+      },
+      "defaults": {
+        "emailAddressAttribute": "mail",
+        "emailImplClassName": "org.forgerock.openam.services.email.MailServerImpl",
+        "emailRateLimitSeconds": 1,
+        "port": 465,
+        "sslState": "SSL"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

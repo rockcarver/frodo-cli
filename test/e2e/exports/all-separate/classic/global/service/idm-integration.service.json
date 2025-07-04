@@ -1,0 +1,22 @@
+{
+  "service": {
+    "idm-integration": {
+      "_id": "",
+      "_type": {
+        "_id": "idm-integration",
+        "collection": false,
+        "name": "IDM Provisioning"
+      },
+      "configurationCacheDuration": 0,
+      "enabled": false,
+      "idmProvisioningClient": "idm-provisioning",
+      "jwtSigningCompatibilityMode": false,
+      "location": "global",
+      "nextDescendents": [],
+      "provisioningClientScopes": [
+        "fr:idm:*"
+      ],
+      "useInternalOAuth2Provider": false
+    }
+  }
+}

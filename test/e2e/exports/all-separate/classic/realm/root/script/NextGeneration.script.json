@@ -1,0 +1,40 @@
+{
+  "script": {
+    "31bd2ae6-c929-4547-b636-84b874715d60": {
+      "_id": "31bd2ae6-c929-4547-b636-84b874715d60",
+      "context": "LIBRARY",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": false,
+      "description": "null",
+      "evaluatorVersion": "2.0",
+      "exports": [
+        {
+          "arity": 2,
+          "id": "logError",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logWarning",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logInfo",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logDebug",
+          "type": "Function"
+        }
+      ],
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "NextGeneration",
+      "script": "file://NextGeneration.script.js"
+    }
+  }
+}

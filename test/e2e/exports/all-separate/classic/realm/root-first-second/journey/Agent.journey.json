@@ -1,0 +1,86 @@
+{
+  "trees": {
+    "Agent": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "a87ff679-a2f3-371d-9181-a67b7542122c": {
+          "_id": "a87ff679-a2f3-371d-9181-a67b7542122c",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AgentDataStoreDecisionNode",
+            "collection": true,
+            "name": "Agent Data Store Decision"
+          }
+        },
+        "e4da3b7f-bbce-3345-9777-2b0674a318d5": {
+          "_id": "e4da3b7f-bbce-3345-9777-2b0674a318d5",
+          "_outcomes": [
+            {
+              "displayName": "Has Credentials",
+              "id": "true"
+            },
+            {
+              "displayName": "No Credentials",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ZeroPageLoginNode",
+            "collection": true,
+            "name": "Zero Page Login Collector"
+          },
+          "allowWithoutReferer": true,
+          "passwordHeader": "X-OpenAM-Password",
+          "referrerWhiteList": [],
+          "usernameHeader": "X-OpenAM-Username"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Agent",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "e4da3b7f-bbce-3345-9777-2b0674a318d5",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "a87ff679-a2f3-371d-9181-a67b7542122c": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Agent Data Store Decision",
+            "nodeType": "AgentDataStoreDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "e4da3b7f-bbce-3345-9777-2b0674a318d5": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "a87ff679-a2f3-371d-9181-a67b7542122c"
+            },
+            "displayName": "Zero Page Login Collector",
+            "nodeType": "ZeroPageLoginNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

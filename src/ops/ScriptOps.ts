@@ -9,7 +9,12 @@ import {
 import chokidar from 'chokidar';
 import fs from 'fs';
 
-import { getFullExportConfig, getIdLocations } from '../utils/Config';
+import {
+  extractDataToFile,
+  getExtractedData,
+  getFullExportConfig,
+  getIdLocations,
+} from '../utils/Config';
 import {
   createKeyValueTable,
   createProgressIndicator,
@@ -24,13 +29,13 @@ import {
   succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
+import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
 
 const {
   getTypedFilename,
   isValidUrl,
   saveJsonToFile,
-  saveTextToFile,
   titleCase,
   isBase64Encoded,
   getFilePath,
@@ -191,11 +196,6 @@ export async function describeScript(
   usage = false,
   json = false
 ): Promise<boolean> {
-  const spinnerId = createProgressIndicator(
-    'indeterminate',
-    0,
-    `Describing script '${scriptId ? scriptId : scriptName}'...`
-  );
   try {
     let script;
     if (scriptId) {
@@ -215,20 +215,10 @@ export async function describeScript(
           getScriptLocations(scriptExport, script.name)
         );
       } catch (error) {
-        stopProgressIndicator(
-          spinnerId,
-          `Error determining usage for script '${scriptId ? scriptId : scriptName}'`,
-          'fail'
-        );
         printError(error);
         return false;
       }
     }
-    stopProgressIndicator(
-      spinnerId,
-      `Successfully retrieved script '${scriptId ? scriptId : scriptName}'`,
-      'success'
-    );
     if (json) {
       printMessage(script, 'data');
     } else {
@@ -266,11 +256,6 @@ export async function describeScript(
     }
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error describing script '${scriptId ? scriptId : scriptName}'`,
-      'fail'
-    );
     printError(error);
   }
   return false;
@@ -375,7 +360,7 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts(options);
+    const scriptExport = await exportScripts(options, errorHandler);
     saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
@@ -399,56 +384,50 @@ export async function exportScriptsToFiles(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  let barId: string;
-  try {
-    const scriptExport = await exportScripts(options);
-    const scriptList = Object.values(scriptExport.script);
-    barId = createProgressIndicator(
+  const scriptExport = await exportScripts(options, errorHandler);
+  const scriptList = Object.values(scriptExport.script);
+  const barId = createProgressIndicator(
+    'determinate',
+    scriptList.length,
+    'Exporting scripts to individual files...'
+  );
+  for (const script of scriptList) {
+    const fileBarId = createProgressIndicator(
       'determinate',
-      scriptList.length,
-      'Exporting scripts to individual files...'
+      1,
+      `Exporting script ${script.name}...`
     );
-    for (const script of scriptList) {
-      const fileBarId = createProgressIndicator(
-        'determinate',
-        1,
-        `Exporting script ${script.name}...`
-      );
+    try {
       const file = getFilePath(getTypedFilename(script.name, 'script'), true);
-      try {
-        if (extract) {
-          extractScriptsToFiles({
-            script: {
-              [script._id]: script,
-            },
-          });
-        }
-        saveToFile('script', script, '_id', file, includeMeta);
-        updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
-        stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
-      } catch (error) {
-        stopProgressIndicator(
-          fileBarId,
-          `Error exporting ${script.name}`,
-          'fail'
-        );
-        errors.push(error);
+      if (extract) {
+        extractScriptsToFiles({
+          script: {
+            [script._id]: script,
+          },
+        });
       }
-      updateProgressIndicator(barId, `Exported script ${script.name}`);
+      saveToFile('script', script, '_id', file, includeMeta);
+      updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
+      stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
+    } catch (error) {
+      stopProgressIndicator(
+        fileBarId,
+        `Error exporting ${script.name}`,
+        'fail'
+      );
+      errors.push(error);
     }
-    if (errors.length > 0) {
-      throw new FrodoError(`Error exporting scripts`, errors);
-    }
-    stopProgressIndicator(
-      barId,
-      `Exported ${scriptList.length} scripts to individual files.`
-    );
-    debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
-    return true;
-  } catch (error) {
-    stopProgressIndicator(barId, `Error exporting scripts`);
-    printError(error);
+    updateProgressIndicator(barId, `Exported script ${script.name}`);
   }
+  if (errors.length > 0) {
+    throw new FrodoError(`Error exporting scripts`, errors);
+  }
+  stopProgressIndicator(
+    barId,
+    `Exported ${scriptList.length} scripts to individual files.`
+  );
+  debugMessage(`Cli.ScriptOps.exportScriptsToFiles: end`);
+  return true;
 }
 
 /**
@@ -476,15 +455,10 @@ export function extractScriptsToFiles(
         'script',
         fileExtension
       );
-      const scriptFilePath = getFilePath(
-        (directory ? `${directory}/` : '') + scriptFileName,
-        true
-      );
       const scriptText = Array.isArray(script.script)
         ? script.script.join('\n')
         : script.script;
-      script.script = `file://${scriptFileName}`;
-      saveTextToFile(scriptText, scriptFilePath);
+      script.script = extractDataToFile(scriptText, scriptFileName, directory);
     }
     return true;
   } catch (error) {
@@ -501,7 +475,7 @@ function isScriptExtracted(script: string | string[]): boolean {
     extracted = false;
   } else if (isValidUrl(script as string)) {
     debugMessage(`Cli.ScriptOps.isScriptExtracted: script is extracted`);
-    extracted = true;
+    extracted = script.startsWith('file://');
   } else if (isBase64Encoded(script)) {
     debugMessage(`Cli.ScriptOps.isScriptExtracted: script is base64-encoded`);
     extracted = false;
@@ -552,10 +526,11 @@ export async function importScriptsFromFiles(
   options: ScriptImportOptions,
   validateScripts: boolean
 ): Promise<void> {
+  debugMessage(`Cli.ScriptOps.importScriptsFromFiles: start`);
+
   // If watch is true, it doesn't make sense to reUuid.
   options.reUuid = watch ? false : options.reUuid;
 
-  // When doing initial import, only focus on .json files.
   let initialImport = true;
   // Generate mappings while importing to identify script files with their script ids and json files for use in watching.
   const scriptPathToJsonMapping = {};
@@ -566,8 +541,14 @@ export async function importScriptsFromFiles(
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onChange(path: string, _stats?: fs.Stats): Promise<void> {
+    debugMessage(
+      `Cli.ScriptOps.importScriptsFromFiles.onChange: start [initialImport=${initialImport}, path=${path}]`
+    );
     try {
       if (initialImport && path.endsWith('.script.json')) {
+        debugMessage(
+          `Cli.ScriptOps.importScriptsFromFiles.onChange: initial import of ${path}`
+        );
         if (watch) {
           scriptPathToJsonMapping[path] = path;
           for (const extracted of getExtractedPathsAndNames(path)) {
@@ -589,37 +570,48 @@ export async function importScriptsFromFiles(
     } catch (error) {
       printError(error, `${path}`);
     }
+    debugMessage(`Cli.ScriptOps.importScriptsFromFiles.onChange: end`);
   }
 
   // We watch json files and script files.
-  const watcher = chokidar.watch(
-    [
-      `${getWorkingDirectory()}/**/*.script.json`,
-      `${getWorkingDirectory()}/**/*.script.js`,
-      `${getWorkingDirectory()}/**/*.script.groovy`,
-    ],
-    {
-      persistent: watch,
-      ignoreInitial: false,
-    }
-  );
+  const watcher = chokidar.watch(getWorkingDirectory(), {
+    // ignored: (path, stats) =>
+    //   watch
+    //     ? // in watch mode, ignore everything but raw scripts
+    //       stats?.isFile() &&
+    //       !path?.endsWith('.script.js') &&
+    //       !path?.endsWith('.script.groovy')
+    //     : // in regular mode, ignore everything but frodo script exports
+    //       stats?.isFile() && !path?.endsWith('.script.json'),
+    ignored: (path, stats) =>
+      stats?.isFile() &&
+      !path?.endsWith('.script.json') &&
+      !path?.endsWith('.script.js') &&
+      !path?.endsWith('.script.groovy'),
+    persistent: watch,
+    ignoreInitial: false,
+  });
 
   watcher
     .on('add', onChange)
     .on('change', onChange)
     .on('error', (error) => {
-      printError(error, `Watcher error`);
+      printError(error as Error, `Watcher error`);
       watcher.close();
     })
-    .on('ready', () => {
+    .on('ready', async () => {
+      debugMessage(
+        `Cli.ScriptOps.importScriptsFromFiles: Watcher ready: ${JSON.stringify(watcher.getWatched())}`
+      );
       if (watch) {
         initialImport = false;
         printMessage('Watching for changes...');
       } else {
-        watcher.close();
-        printMessage('Done.');
+        await watcher.close();
       }
     });
+
+  debugMessage(`Cli.ScriptOps.importScriptsFromFiles: end`);
 }
 
 /**
@@ -639,15 +631,20 @@ async function handleScriptFileImport(
 ) {
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: start`);
   const script = getScriptExportByScriptFile(file);
-  const imported = await importScripts(
-    id,
-    name,
-    script,
-    options,
-    validateScripts
-  );
-  if (imported) {
-    printMessage(`Imported '${file}'`);
+  const indicatorId = createProgressIndicator('determinate', 1, `${file}`);
+  try {
+    await importScripts(
+      id,
+      name,
+      script,
+      options,
+      validateScripts,
+      errorHandler
+    );
+    updateProgressIndicator(indicatorId, `${file}`);
+    stopProgressIndicator(indicatorId, `${file}`);
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `${file}: ${error}`);
   }
   debugMessage(`Cli.ScriptOps.handleScriptFileImport: end`);
 }
@@ -663,36 +660,16 @@ export function getScriptExportByScriptFile(
 ): ScriptExportInterface {
   const scriptExport = getScriptExport(scriptFile);
   for (const script of Object.values(scriptExport.script)) {
-    const extractFile = getExtractFile(script);
-    if (!extractFile) {
+    if (!isScriptExtracted(script.script)) {
       continue;
     }
-    const directory =
-      scriptFile.substring(0, scriptFile.lastIndexOf('/')) || '.';
-    const scriptRaw = fs.readFileSync(`${directory}/${extractFile}`, 'utf8');
+    const scriptRaw = getExtractedData(
+      script.script as string,
+      scriptFile.substring(0, scriptFile.lastIndexOf('/'))
+    );
     script.script = scriptRaw.split('\n');
   }
   return scriptExport;
-}
-
-/**
- * Get an extract file from a script skeleton.
- *
- * @param scriptSkeleton The script skeleton
- * @returns The extract file or null if there is no extract file
- */
-function getExtractFile(scriptSkeleton: ScriptSkeleton): string | null {
-  const extractFile = scriptSkeleton.script as string;
-  if (!isScriptExtracted(extractFile)) {
-    return null;
-  }
-  if (
-    extractFile.startsWith('file://') &&
-    (extractFile.endsWith('.js') || extractFile.endsWith('.groovy'))
-  ) {
-    return extractFile.replace('file://', '');
-  }
-  return null;
 }
 
 /**
@@ -717,14 +694,16 @@ function getExtractedPathsAndNames(
 ): { path: string; id: string }[] {
   const extractedFileNames = [];
   const scriptExport = getScriptExport(file);
-  const directory = file.substring(0, file.lastIndexOf('/')) || '.';
+  const directory =
+    file.lastIndexOf('/') === -1
+      ? ''
+      : file.substring(0, file.lastIndexOf('/')) + '/';
   for (const script of Object.values(scriptExport.script)) {
-    const extractFile = getExtractFile(script);
-    if (!extractFile) {
+    if (!isScriptExtracted(script.script)) {
       continue;
     }
     extractedFileNames.push({
-      path: `${directory}/${extractFile}`,
+      path: `${directory}${(script.script as string).replace('file://', '')}`,
       id: script._id,
     });
   }
@@ -786,7 +765,7 @@ export async function deleteAllScripts(): Promise<boolean> {
     `Deleting all non-default scripts...`
   );
   try {
-    await deleteScripts();
+    await deleteScripts(errorHandler);
     stopProgressIndicator(
       spinnerId,
       `Deleted all non-default scripts.`,

@@ -2,13 +2,13 @@
 
 exports[`frodo saml cot import "frodo saml cot import --all --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
 
-exports[`frodo saml cot import "frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/saml/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/saml/cot directory" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/cloud/realm/root-alpha/cot directory" 1`] = `""`;
 
 exports[`frodo saml cot import "frodo saml cot import --cot-id AzureCOT --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the saml circle of trust with the id "AzureCOT" from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
 
 exports[`frodo saml cot import "frodo saml cot import --file test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json": should import the first saml cot from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
 
-exports[`frodo saml cot import "frodo saml cot import -AD test/e2e/exports/all-separate/saml/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/saml/cot directory" 1`] = `""`;
+exports[`frodo saml cot import "frodo saml cot import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/cot": should import all saml circle of trusts from the test/e2e/exports/all-separate/cloud/realm/root-alpha/cot directory" 1`] = `""`;
 
 exports[`frodo saml cot import "frodo saml cot import -af allAlphaCirclesOfTrust.cot.saml.json -D test/e2e/exports/all": should import all saml circle of trusts from the file "test/e2e/exports/all/allAlphaCirclesOfTrust.cot.saml.json" 1`] = `""`;
 

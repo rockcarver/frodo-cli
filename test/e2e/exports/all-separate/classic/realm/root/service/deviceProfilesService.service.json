@@ -1,0 +1,19 @@
+{
+  "service": {
+    "deviceProfilesService": {
+      "_id": "",
+      "_type": {
+        "_id": "deviceProfilesService",
+        "collection": false,
+        "name": "Device Profiles Service"
+      },
+      "deviceProfilesAttrName": "deviceProfiles",
+      "deviceProfilesSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "deviceProfilesSettingsEncryptionKeystorePassword": null,
+      "deviceProfilesSettingsEncryptionKeystoreType": "JKS",
+      "deviceProfilesSettingsEncryptionScheme": "NONE",
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

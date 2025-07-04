@@ -1,0 +1,47 @@
+{
+  "_id": "04/properties/session",
+  "amconfig.header.sessionlogging": {
+    "com.iplanet.am.stats.interval": {
+      "inherited": true,
+      "value": "60"
+    },
+    "com.iplanet.services.stats.directory": {
+      "inherited": true,
+      "value": "%BASE_DIR%/var/stats"
+    },
+    "com.iplanet.services.stats.state": {
+      "inherited": true,
+      "value": "file"
+    },
+    "com.sun.am.session.enableHostLookUp": {
+      "inherited": true,
+      "value": false
+    }
+  },
+  "amconfig.header.sessionnotification": {
+    "com.iplanet.am.notification.threadpool.size": {
+      "inherited": true,
+      "value": "10"
+    },
+    "com.iplanet.am.notification.threadpool.threshold": {
+      "inherited": true,
+      "value": "5000"
+    }
+  },
+  "amconfig.header.sessionthresholds": {
+    "com.iplanet.am.session.invalidsessionmaxtime": {
+      "inherited": true,
+      "value": "3"
+    },
+    "org.forgerock.openam.session.service.access.persistence.caching.maxsize": {
+      "inherited": true,
+      "value": "5000"
+    }
+  },
+  "amconfig.header.sessionvalidation": {
+    "com.sun.am.session.caseInsensitiveDN": {
+      "inherited": true,
+      "value": true
+    }
+  }
+}

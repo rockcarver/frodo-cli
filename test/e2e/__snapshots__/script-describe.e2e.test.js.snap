@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo script describe "frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.config.json": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901" with usage from file test/e2e/exports/all/all.config.json and json output 1`] = `
+exports[`frodo script describe "frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.cloud.json": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901" with usage from file test/e2e/exports/all/all.cloud.json and json output 1`] = `
 "{
   _id: '1b52a7e0-4019-40fa-958a-15a49870e901',
   name: 'shared',
@@ -42,7 +42,7 @@ exports[`frodo script describe "frodo script describe --json --usage --script-id
 "
 `;
 
-exports[`frodo script describe "frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/everything": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/everything and json output 1`] = `
+exports[`frodo script describe "frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/cloud": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/cloud and json output 1`] = `
 "{
   _id: '1b52a7e0-4019-40fa-958a-15a49870e901',
   name: 'shared',
@@ -100,7 +100,7 @@ Script (Base 64) │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZhciBsZXZl
 "
 `;
 
-exports[`frodo script describe "frodo script describe -un shared -D test/e2e/exports/all-separate/everything": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/everything 1`] = `
+exports[`frodo script describe "frodo script describe -un shared -D test/e2e/exports/all-separate/cloud": should describe the script with name "shared" with usage from directory test/e2e/exports/all-separate/cloud 1`] = `
 "Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
 Name                      │shared                                                                           
 Language                  │JavaScript                                                                       
@@ -138,7 +138,7 @@ Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7
 "
 `;
 
-exports[`frodo script describe "frodo script describe -un shared -f test/e2e/exports/all/all.config.json": should describe the script with name "shared" with usage from file test/e2e/exports/all/all.config.json 1`] = `
+exports[`frodo script describe "frodo script describe -un shared -f test/e2e/exports/all/all.cloud.json": should describe the script with name "shared" with usage from file test/e2e/exports/all/all.cloud.json 1`] = `
 "Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
 Name                      │shared                                                                           
 Language                  │JavaScript                                                                       
@@ -177,6 +177,18 @@ Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7
 `;
 
 exports[`frodo script describe "frodo script describe -un shared": should describe the script with name "shared" with usage 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error exporting idm config entity fidc/federation-EntraID
+  Error reading config entity fidc/federation-EntraID
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: Access denied
+"
+`;
+
+exports[`frodo script describe "frodo script describe -un shared": should describe the script with name "shared" with usage 2`] = `
 "Id                        │1b52a7e0-4019-40fa-958a-15a49870e901                                             
 Name                      │shared                                                                           
 Language                  │JavaScript                                                                       
@@ -188,7 +200,7 @@ Script (Base 64)          │KGZ1bmN0aW9uICgpIHsKICBvdXRjb21lID0gJ3RydWUnOwogIHZ
                           │XQoJ2xldmVsJykuYXNJbnRlZ2VyKCk7CiAgc2hhcmVkU3RhdGUucHV0KCdzaGFyZWRWYWx1ZScsICdMZX
                           │ZlbCAnICsgbGV2ZWwgKyAnOiBUaGlzIGlzIGEgbG9uZ2VyIHN0cmluZyB2YWx1ZSBzaGFyZWQgYWNyb3N
                           │zIGFsbCBuZXN0ZWQgam91cm5leXMuIEl0IGNvbnRhaW5zIGFuIGluZGljYXRvciBpbiB3aGljaCBsZXZl
-                          │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7                                             
+                          │bCBpdCB3YXMgbGFzdCBzZXQuJyk7Cn0oKSk7Cg==                                         
 Usage Locations (22 total)│realm.root-alpha.trees.j00.nodes.01d3785f-7fb4-44a7-9458-72c380a9818f.script     
                           │realm.root-alpha.trees.j00.nodes.d17ffaa1-2c61-4abd-9bb1-2559160d0a5c.script     
                           │realm.root-alpha.trees.j01.nodes.6674b4ac-dd89-4e13-9440-6f81194e3a22.script     

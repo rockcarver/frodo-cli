@@ -1,0 +1,54 @@
+{
+  "authenticationModules": {
+    "authSocialWeChat": {
+      "_id": "authSocialWeChat",
+      "_type": {
+        "_id": "authSocialWeChat",
+        "collection": false,
+        "name": "Social Auth WeChat"
+      },
+      "defaults": {
+        "accountProvisioning": {
+          "accountMapperClass": "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|*|wechat-",
+          "accountMapperConfiguration": [
+            "openid=uid"
+          ],
+          "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "anonymousUserName": "anonymous",
+          "attributeMapperConfiguration": [
+            "nickname=givenName",
+            "openid=uid",
+            "nickname=cn",
+            "nickname=sn"
+          ],
+          "attributeMappingClasses": [
+            "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|uid|wechat-"
+          ],
+          "createAccount": true,
+          "enableRegistrationService": false,
+          "mapToAnonymousUser": false,
+          "promptPasswordFlag": false,
+          "saveAttributesInSession": true
+        },
+        "core": {
+          "authenticationLevel": 0,
+          "authorizeEndpoint": "https://open.weixin.qq.com/connect/qrconnect",
+          "provider": "WeChat",
+          "scope": [
+            "snsapi_login"
+          ],
+          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "subjectProperty": "openid",
+          "tokenEndpoint": "https://api.wechat.com/sns/oauth2/access_token",
+          "userInfoEndpoint": "https://api.wechat.com/sns/userinfo",
+          "usesBasicAuth": false
+        },
+        "emailSettings": {
+          "emailGateway": "org.forgerock.openam.authentication.modules.oauth2.DefaultEmailGatewayImpl",
+          "smtpHost": "localhost",
+          "smtpPort": "25"
+        }
+      }
+    }
+  }
+}

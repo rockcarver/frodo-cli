@@ -1,0 +1,115 @@
+{
+  "trees": {
+    "RadioChoice": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "a566e474-99f3-46e4-9e70-682402bfaa84": {
+          "_id": "a566e474-99f3-46e4-9e70-682402bfaa84",
+          "_outcomes": [
+            {
+              "displayName": "one",
+              "id": "one"
+            },
+            {
+              "displayName": "two",
+              "id": "two"
+            },
+            {
+              "displayName": "three",
+              "id": "three"
+            }
+          ],
+          "_type": {
+            "_id": "ChoiceCollectorNode",
+            "collection": true,
+            "name": "Choice Collector"
+          },
+          "choices": [
+            "one",
+            "two",
+            "three"
+          ],
+          "defaultChoice": "one",
+          "prompt": "Choice?"
+        }
+      },
+      "nodes": {
+        "5d6cd20e-5074-43de-8832-fddd95fb078e": {
+          "_id": "5d6cd20e-5074-43de-8832-fddd95fb078e",
+          "_outcomes": [
+            {
+              "displayName": "one",
+              "id": "one"
+            },
+            {
+              "displayName": "two",
+              "id": "two"
+            },
+            {
+              "displayName": "three",
+              "id": "three"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "a566e474-99f3-46e4-9e70-682402bfaa84",
+              "displayName": "Choice Collector",
+              "nodeType": "ChoiceCollectorNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {},
+          "stage": "{\"ChoiceCallback\":[{\"id\":\"a566e474-99f3-46e4-9e70-682402bfaa84\",\"displayType\":\"radio\"}]}"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "RadioChoice",
+        "enabled": true,
+        "entryNodeId": "5d6cd20e-5074-43de-8832-fddd95fb078e",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "5d6cd20e-5074-43de-8832-fddd95fb078e": {
+            "connections": {
+              "one": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "three": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "two": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 260,
+            "y": 409.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 500,
+            "y": 50
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 744,
+            "y": 327
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[]"
+        }
+      }
+    }
+  }
+}

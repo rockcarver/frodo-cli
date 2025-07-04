@@ -1,0 +1,217 @@
+{
+  "trees": {
+    "oath_registration": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "7d7c8acb-e39b-466c-bbaf-cc70a3bf247c": {
+          "_id": "7d7c8acb-e39b-466c-bbaf-cc70a3bf247c",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "a2f9aa81-fdea-403d-bcc8-a5342cc5d34f": {
+          "_id": "a2f9aa81-fdea-403d-bcc8-a5342cc5d34f",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "35ca2418-908d-4b92-9320-ef8576851abb": {
+          "_id": "35ca2418-908d-4b92-9320-ef8576851abb",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision"
+          }
+        },
+        "9bfb80e1-e05a-4b3c-90bd-7091c2839e28": {
+          "_id": "9bfb80e1-e05a-4b3c-90bd-7091c2839e28",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "successOutcome"
+            },
+            {
+              "displayName": "Failure",
+              "id": "failureOutcome"
+            }
+          ],
+          "_type": {
+            "_id": "OathRegistrationNode",
+            "collection": true,
+            "name": "OATH Registration"
+          },
+          "accountName": "USERNAME",
+          "addChecksum": false,
+          "algorithm": "TOTP",
+          "bgColor": "032b75",
+          "generateRecoveryCodes": true,
+          "issuer": "ForgeRock",
+          "minSharedSecretLength": 32,
+          "passwordLength": "SIX_DIGITS",
+          "postponeDeviceProfileStorage": false,
+          "scanQRCodeMessage": {},
+          "totpHashAlgorithm": "HMAC_SHA1",
+          "totpTimeInterval": 30,
+          "truncationOffset": -1
+        },
+        "ab49ab43-4d09-46f2-a9ba-7330a6a7dce6": {
+          "_id": "ab49ab43-4d09-46f2-a9ba-7330a6a7dce6",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "successOutcome"
+            },
+            {
+              "displayName": "Failure",
+              "id": "failureOutcome"
+            },
+            {
+              "displayName": "Not registered",
+              "id": "notRegisteredOutcome"
+            }
+          ],
+          "_type": {
+            "_id": "OathTokenVerifierNode",
+            "collection": true,
+            "name": "OATH Token Verifier"
+          },
+          "algorithm": "TOTP",
+          "hotpWindowSize": 100,
+          "isRecoveryCodeAllowed": false,
+          "maximumAllowedClockDrift": 5,
+          "totpHashAlgorithm": "HMAC_SHA1",
+          "totpTimeInterval": 30,
+          "totpTimeSteps": 2
+        },
+        "fc5481db-cbee-479f-915a-2b40c54ce04e": {
+          "_id": "fc5481db-cbee-479f-915a-2b40c54ce04e",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "7d7c8acb-e39b-466c-bbaf-cc70a3bf247c",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "a2f9aa81-fdea-403d-bcc8-a5342cc5d34f",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "oath_registration",
+        "enabled": true,
+        "entryNodeId": "fc5481db-cbee-479f-915a-2b40c54ce04e",
+        "innerTreeOnly": false,
+        "nodes": {
+          "35ca2418-908d-4b92-9320-ef8576851abb": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "ab49ab43-4d09-46f2-a9ba-7330a6a7dce6"
+            },
+            "displayName": "Data Store Decision",
+            "nodeType": "DataStoreDecisionNode",
+            "x": 416,
+            "y": 161
+          },
+          "9bfb80e1-e05a-4b3c-90bd-7091c2839e28": {
+            "connections": {
+              "failureOutcome": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "successOutcome": "ab49ab43-4d09-46f2-a9ba-7330a6a7dce6"
+            },
+            "displayName": "OATH Registration",
+            "nodeType": "OathRegistrationNode",
+            "x": 717,
+            "y": 290
+          },
+          "ab49ab43-4d09-46f2-a9ba-7330a6a7dce6": {
+            "connections": {
+              "failureOutcome": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "notRegisteredOutcome": "9bfb80e1-e05a-4b3c-90bd-7091c2839e28",
+              "successOutcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "OATH Token Verifier",
+            "nodeType": "OathTokenVerifierNode",
+            "x": 689,
+            "y": 102
+          },
+          "fc5481db-cbee-479f-915a-2b40c54ce04e": {
+            "connections": {
+              "outcome": "35ca2418-908d-4b92-9320-ef8576851abb"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 202,
+            "y": 139
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1103,
+            "y": 47
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1100,
+            "y": 240
+          },
+          "startNode": {
+            "x": 50,
+            "y": 25
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

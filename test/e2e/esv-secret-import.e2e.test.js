@@ -56,9 +56,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -a --file test/e2e/exports/all/allSecrets.secret.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -a -f allSecrets.secret.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -a -f test/e2e/exports/all/allSecrets.secret.json --include-active-values
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -AD test/e2e/exports/all-separate/esv/secret
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -AD test/e2e/exports/all-separate/esv/secret --include-active-values
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -f esv-test-secret.secret.json --directory test/e2e/exports/all-separate/esv/secret
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -AD test/e2e/exports/all-separate/cloud/global/secret
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -AD test/e2e/exports/all-separate/cloud/global/secret --include-active-values
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret import -f esv-test-secret.secret.json --directory test/e2e/exports/all-separate/cloud/global/secret
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -73,7 +73,7 @@ const env = getEnv(c);
 const allDirectory = 'test/e2e/exports/all';
 const allSecretsFileName = 'allSecrets.secret.json';
 const allSecretsExport = `${allDirectory}/${allSecretsFileName}`;
-const allSeparateSecretsDirectory = `test/e2e/exports/all-separate/esv/secret`;
+const allSeparateSecretsDirectory = `test/e2e/exports/all-separate/cloud/global/secret`;
 
 describe('frodo esv secret import', () => {
     test(`"frodo esv secret import -i esv-test-secret -f ${allSecretsExport}" Import secret "esv-test-secret" from "${allSecretsExport}".`, async () => {

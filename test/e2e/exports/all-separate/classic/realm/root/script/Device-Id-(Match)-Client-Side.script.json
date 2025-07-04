@@ -1,0 +1,18 @@
+{
+  "script": {
+    "157298c0-7d31-4059-a95b-eeb08473b7e5": {
+      "_id": "157298c0-7d31-4059-a95b-eeb08473b7e5",
+      "context": "AUTHENTICATION_CLIENT_SIDE",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for client side Device Id (Match) Authentication Module",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Device Id (Match) - Client Side",
+      "script": "file://Device-Id-(Match)-Client-Side.script.js"
+    }
+  }
+}

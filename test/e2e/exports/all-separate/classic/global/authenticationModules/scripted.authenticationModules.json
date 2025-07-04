@@ -1,0 +1,18 @@
+{
+  "authenticationModules": {
+    "scripted": {
+      "_id": "scripted",
+      "_type": {
+        "_id": "scripted",
+        "collection": false,
+        "name": "Scripted Module"
+      },
+      "defaults": {
+        "authenticationLevel": 1,
+        "clientScript": "[Empty]",
+        "clientScriptEnabled": true,
+        "serverScript": "7e3d7067-d50f-4674-8c76-a3e13a810c33"
+      }
+    }
+  }
+}

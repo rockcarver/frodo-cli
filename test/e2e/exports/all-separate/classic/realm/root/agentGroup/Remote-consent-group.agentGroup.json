@@ -1,0 +1,26 @@
+{
+  "agentGroup": {
+    "Remote consent group": {
+      "_id": "Remote consent group",
+      "_type": {
+        "_id": "RemoteConsentAgent",
+        "collection": true,
+        "name": "OAuth2 Remote Consent Service"
+      },
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "remoteConsentRedirectUrl": null,
+      "remoteConsentRequestEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentRequestEncryptionEnabled": true,
+      "remoteConsentRequestEncryptionMethod": "A128GCM",
+      "remoteConsentRequestSigningAlgorithm": "RS256",
+      "remoteConsentResponseEncryptionAlgorithm": "RSA-OAEP-256",
+      "remoteConsentResponseEncryptionMethod": "A128GCM",
+      "remoteConsentResponseSigningAlg": "RS256",
+      "requestTimeLimit": 180
+    }
+  }
+}

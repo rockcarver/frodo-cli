@@ -1,0 +1,55 @@
+{
+  "authenticationModules": {
+    "authSocialVk": {
+      "_id": "authSocialVk",
+      "_type": {
+        "_id": "authSocialVk",
+        "collection": false,
+        "name": "Social Auth VKontakte"
+      },
+      "defaults": {
+        "accountProvisioning": {
+          "accountMapperClass": "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|uid|vkontakte-",
+          "accountMapperConfiguration": [
+            "id=uid"
+          ],
+          "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "anonymousUserName": "anonymous",
+          "attributeMapperConfiguration": [
+            "first_name=givenName",
+            "first_name=cn",
+            "id=uid",
+            "last_name=sn",
+            "email=mail"
+          ],
+          "attributeMappingClasses": [
+            "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|uid|vkontakte-"
+          ],
+          "createAccount": true,
+          "enableRegistrationService": false,
+          "mapToAnonymousUser": false,
+          "promptPasswordFlag": false,
+          "saveAttributesInSession": true
+        },
+        "core": {
+          "apiVersion": "5.73",
+          "authorizeEndpoint": "https://oauth.vk.com/authorize",
+          "forgerock-am-auth-socialauthvk-auth-level": 0,
+          "provider": "VKontakte",
+          "scope": [
+            "email"
+          ],
+          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "subjectProperty": "id",
+          "tokenEndpoint": "https://oauth.vk.com/access_token",
+          "userInfoEndpoint": "https://api.vk.com/method/users.get"
+        },
+        "emailSettings": {
+          "emailGateway": "org.forgerock.openam.authentication.modules.oauth2.DefaultEmailGatewayImpl",
+          "smtpHost": "localhost",
+          "smtpPort": "25"
+        }
+      }
+    }
+  }
+}

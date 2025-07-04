@@ -1,0 +1,19 @@
+{
+  "service": {
+    "deviceIdService": {
+      "_id": "",
+      "_type": {
+        "_id": "deviceIdService",
+        "collection": false,
+        "name": "Device ID Service"
+      },
+      "deviceIdAttrName": "devicePrintProfiles",
+      "deviceIdSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "deviceIdSettingsEncryptionKeystorePassword": null,
+      "deviceIdSettingsEncryptionKeystoreType": "JKS",
+      "deviceIdSettingsEncryptionScheme": "NONE",
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

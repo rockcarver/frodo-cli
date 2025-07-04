@@ -1,24 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo config import "frodo config import --default -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything", including default scripts. Clean old services 1`] = `
+exports[`frodo config import "frodo config import --default -CAD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud", including default scripts. Clean old services 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
+Error updating config entity endpoint/Test
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
+    Message: Access Denied
+Error updating config entity endpoint/testEndpoint2
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 401
     Reason: Unauthorized
-    Message: Unauthorized
+    Message: Access Denied
+Error Importing Services
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
@@ -35,342 +31,298 @@ Errors occurred during full config import
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-"
-`;
-
-exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything --include-active-values" Import everything with secret values from directory "test/e2e/exports/all-separate/everything" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_RESPONSE
+    Status: 502
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing services
-  Error putting global full service configs
-  Error putting realm full service config CorsService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'CorsService' not found
-  Error putting global full service config dashboard
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid attribute specified.
-    Detail: [object Object]
-"
-`;
-
-exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity bravoOrgPrivileges
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing services
-  Error putting global full service configs
-  Error putting realm full service config CorsService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'CorsService' not found
-  Error putting global full service config dashboard
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid attribute specified.
-    Detail: [object Object]
-"
-`;
-
-exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/everything -m classic" Import everything from directory "test/e2e/exports/all-separate/everything" 1`] = `
-"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing services
-  Error putting global full service configs
-  Error putting realm full service config CorsService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'CorsService' not found
-  Error putting global full service config dashboard
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid attribute specified.
-    Detail: [object Object]
+Error Importing Services
   Error importing services
   Error putting realm full service configs
-  Error putting realm full service config policyconfiguration
+  Error putting realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
-    Message: Invalid attribute value syntax: '&{am.stores.ssl.enabled}' Attribute name: iplanet-am-policy-config-ldap-ssl-enabled
-  Error importing oauth2 clients
-  Error updating oauth2 client RCSClient
+    Message: Data validation failed for the attribute, Transport Type
+Error updating script
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Data validation failed for the attribute, OIDC Claims Script
-  Error importing journeys
-  Error importing journey
-  Error importing node fc7e47cd-c679-4211-8e05-a36654f23c67 in journey FrodoTest
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating script
   HTTP client error
     Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
-  Error importing journey
-  Error importing node 7f0c2aee-8c74-4d02-82a6-9d4ed9d11708 in journey Login
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
-  Error importing journey
-  Error importing node 343e745f-923a-43c4-8675-649a490fd0a3 in journey OrphanedTest
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
-"
-`;
-
-exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-separate/everything" Import everything from directory "test/e2e/exports/all-separate/everything". Clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing services
-  Error putting global full service configs
-  Error putting global full service config CorsService
-  Error deleting service 'CorsService' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-  Error putting global full service config dashboard
-  Error deleting service 'dashboard' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-"
-`;
-
-exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.config.json" Import everything from "all.config.json". Clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing services
-  Error putting global full service configs
-  Error putting global full service config CorsService
-  Error deleting service 'CorsService' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-  Error putting global full service config dashboard
-  Error deleting service 'dashboard' before import
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-"
-`;
-
-exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.config.json -m classic" Import everything from "all.config.json", including default scripts. 1`] = `
-"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
-- Resolving dependencies
-✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing services
-  Error putting global full service configs
-  Error putting realm full service config CorsService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'CorsService' not found
-  Error putting global full service config dashboard
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid attribute specified.
-    Detail: [object Object]
+Error Importing Services
   Error importing services
   Error putting realm full service configs
-  Error putting realm full service config policyconfiguration
+  Error putting realm full service config TNTPPingOneService
+  Error putting descendent 'JC' of service 'TNTPPingOneService'
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
-    Message: Invalid attribute value syntax: '&{am.stores.ssl.enabled}' Attribute name: iplanet-am-policy-config-ldap-ssl-enabled
-  Error importing oauth2 clients
-  Error updating oauth2 client RCSClient
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Data validation failed for the attribute, OIDC Claims Script
-  Error importing journeys
-  Error importing journey
-  Error importing node fc7e47cd-c679-4211-8e05-a36654f23c67 in journey FrodoTest
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
-  Error importing journey
-  Error importing node 7f0c2aee-8c74-4d02-82a6-9d4ed9d11708 in journey Login
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
-  Error importing journey
-  Error importing node 343e745f-923a-43c4-8675-649a490fd0a3 in journey OrphanedTest
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'IdentityStoreDecisionNode' not found
+    Message: Invalid config: Unable to add subConfig PingOneService
 "
 `;
 
-exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.config.json" Import everything from "all.config.json", including default scripts. 1`] = `
+exports[`frodo config import "frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors 1`] = `""`;
+
+exports[`frodo config import "frodo config import --global --file test/e2e/exports/all-separate/classic/global/authenticationModules/authPushReg.authenticationModules.json --type classic" Fail to import authentication module due to it being read only. 1`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+No imports were made
+"
+`;
+
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/cloud --include-active-values" Import everything with secret values from directory "test/e2e/exports/all-separate/cloud" 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error updating config entity endpoint/testEndpoint2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
 - Resolving dependencies
 ✔ Resolved all dependencies.
-Errors occurred during full config import
-  Error importing config entities
-  Error updating config entity emailTemplate/baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error updating config entity emailTemplate/baselineDemoMagicLink
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error updating config entity emailTemplate/forgottenUsername
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error importing email templates
-  Error updating email template baselineDemoEmailVerification
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error updating email template baselineDemoMagicLink
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
-  Error updating email template forgottenUsername
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Unauthorized
+Error Importing Services
   Error importing services
-  Error putting global full service configs
-  Error putting realm full service config CorsService
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 404
-    Reason: Not Found
-    Message: Resource 'CorsService' not found
-  Error putting global full service config dashboard
+  Error putting realm full service configs
+  Error putting realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
-    Message: Invalid attribute specified.
-    Detail: [object Object]
+    Message: Data validation failed for the attribute, Transport Type
+- Resolving dependencies
+✔ Resolved all dependencies.
 "
 `;
+
+exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud" 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+- Resolving dependencies
+✔ Resolved all dependencies.
+Error Importing Services
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config email
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Data validation failed for the attribute, Transport Type
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/classic -m classic" Import everything from directory "test/e2e/exports/all-separate/classic" 1`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+Error Importing Authentication Settings
+  Error importing authentication settings
+  Error updating authentication settings
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource '' not found
+- Resolving dependencies
+✔ Resolved all dependencies.
+- Resolving dependencies
+✔ Resolved all dependencies.
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud". Clean old services 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error Importing Services
+  Error importing services
+  Error putting global full service configs
+  Error putting global full service config CorsService
+  Error deleting service 'CorsService' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
+  Error putting global full service config dashboard
+  Error deleting service 'dashboard' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
+- Resolving dependencies
+✔ Resolved all dependencies.
+Error Importing Services
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config email
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Data validation failed for the attribute, Transport Type
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.cloud.json" Import everything from "all.cloud.json". Clean old services 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error updating config entity endpoint/testEndpoint2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error Importing Services
+  Error importing services
+  Error putting global full service configs
+  Error putting global full service config CorsService
+  Error deleting service 'CorsService' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
+  Error putting global full service config dashboard
+  Error deleting service 'dashboard' before import
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: The singleton resource cannot be deleted
+- Resolving dependencies
+✔ Resolved all dependencies.
+Error Importing Services
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config email
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Data validation failed for the attribute, Transport Type
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.classic.json -m classic" Import everything from "all.classic.json", including default scripts. 1`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+Error Importing Authentication Settings
+  Error importing authentication settings
+  Error updating authentication settings
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 404
+    Reason: Not Found
+    Message: Resource '' not found
+- Resolving dependencies
+✔ Resolved all dependencies.
+- Resolving dependencies
+✔ Resolved all dependencies.
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.cloud.json" Import everything from "all.cloud.json", including default scripts. 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error updating config entity endpoint/Test
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error updating config entity endpoint/testEndpoint2
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 401
+    Reason: Unauthorized
+    Message: Access Denied
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+- Resolving dependencies
+✔ Resolved all dependencies.
+Error Importing Services
+  Error importing services
+  Error putting realm full service configs
+  Error putting realm full service config email
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 400
+    Reason: Bad Request
+    Message: Data validation failed for the attribute, Transport Type
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+Error updating script
+  HTTP client error
+    Code: ERR_BAD_REQUEST
+    Status: 403
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+- Resolving dependencies
+✔ Resolved all dependencies.
+"
+`;
+
+exports[`frodo config import "frodo config import -f test/e2e/exports/all-separate/classic/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors 1`] = `""`;
+
+exports[`frodo config import "frodo config import -gf test/e2e/exports/all-separate/classic/global/server/01.server.json -m classic" Import server 01 along with extracted properties and no errors 1`] = `""`;
+
+exports[`frodo config import "frodo config import -gf test/e2e/exports/all-separate/cloud/global/sync/sync.idm.json" Import sync.idm.json along with extracted mappings and no errors 1`] = `""`;

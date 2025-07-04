@@ -1,0 +1,12 @@
+{
+  "webhookService": {
+    "webhooks": {
+      "_id": "",
+      "_type": {
+        "_id": "webhooks",
+        "collection": false,
+        "name": "Webhook Service"
+      }
+    }
+  }
+}

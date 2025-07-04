@@ -1,0 +1,35 @@
+{
+  "conditionTypes": {
+    "SimpleTime": {
+      "_id": "SimpleTime",
+      "config": {
+        "properties": {
+          "endDate": {
+            "type": "string"
+          },
+          "endDay": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "enforcementTimeZone": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "startDay": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "SimpleTime"
+    }
+  }
+}

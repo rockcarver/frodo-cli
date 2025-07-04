@@ -1,0 +1,18 @@
+{
+  "authenticationModules": {
+    "authJwtPoP": {
+      "_id": "authJwtPoP",
+      "_type": {
+        "_id": "authJwtPoP",
+        "collection": false,
+        "name": "JWT Proof of Possession (PoP)"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "enableTlsSessionBinding": true,
+        "responseEncryptionCipher": "A128GCM",
+        "responseEncryptionMethod": "ECDHE"
+      }
+    }
+  }
+}

@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import -af test/e2e/exports/all/allAlphaAgents.java.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import --all --file test/e2e/exports/all/allAlphaAgents.java.agent.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import -af allAlphaAgents.java.agent.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import -AD test/e2e/exports/all-separate/agent/java
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import --all-separate --directory test/e2e/exports/all-separate/agent/java
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent java import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/agent
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaJavaAgentsFileName = "allAlphaAgents.java.agent.json";
 const allAlphaJavaAgentsExport = `${allDirectory}/${allAlphaJavaAgentsFileName}`;
-const allSeparateJavaAgentsDirectory = `test/e2e/exports/all-separate/agent/java`;
+const allSeparateJavaAgentsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/agent`;
 
 describe('frodo agent java import', () => {
     test(`"frodo agent java import -i frodo-test-java-agent -f ${allAlphaJavaAgentsExport}": should import the agent with the id "frodo-test-java-agent" from the file "${allAlphaJavaAgentsExport}"`, async () => {

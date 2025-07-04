@@ -7,6 +7,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.6] - 2025-06-18
+
+## [3.0.5] - 2025-04-07
+
+### Fixed
+
+- \#494: Frodo CLI now properly imports script from separate files using `frodo script import -A`.
+
+## [3.0.4] - 2025-04-04
+
+### Changed
+
+- Update to frodo-lib 3.0.4
+
+### Fixed
+
+- \#477: Frodo CLI now properly includes the transformation script for both `Social Provider Handler Node` and `Legacy Social Provider Handler Node`.
+- \#482: Frodo CLI now properly honors the NO_PROXY environment variable in addition to HTTP_PROXY and HTTPS_PROXY.
+- \#489: MacOS binaries are now provided for both Intel and ARM64 architectures.
+- \#490: Linux ARM64 binary now works on Linux running on ARM64 hardware.
+
+## [3.0.4-1] - 2025-04-03
+
+### Fixed
+
+- \#489: MacOS binaries are now provided for both Intel and ARM64 architectures.
+- \#490: Linux ARM64 binary now works on Linux running on ARM64 hardware.
+
+## [3.0.4-0] - 2025-04-03
+
+### Changed
+
+- Update to frodo-lib 3.0.4-2
+
+### Fixed
+
+- \#477: Frodo CLI now properly includes the transformation script for both `Social Provider Handler Node` and `Legacy Social Provider Handler Node`.
+- \#482: Frodo CLI now properly honors the NO_PROXY environment variable in addition to HTTP_PROXY and HTTPS_PROXY.
+
+## [3.0.3] - 2025-03-11
+
+### Changed
+
+- Update to frodo-lib 3.0.3
+
+### Fixed
+
+- \#479: Fixes issues introduced by a recent PingOne Advanced Identity Cloud release (16747.0 on 27 Feb 2025) which prevented Frodo from correctly determining the deployment type of `cloud` and led to failures in the `frodo conn save` and `frodo conn add` commands when Frodo was attempting to create service accounts with scopes that are not available in an environment.
+
+## [3.0.2] - 2025-03-11
+
+### Changed
+
+- Update to frodo-lib 3.0.2
+
+### Fixed
+
+- \#479: Fixes issues introduced by a recent PingOne Advanced Identity Cloud release (16747.0 on 27 Feb 2025) which prevented Frodo from correctly determining the deployment type of `cloud` and led to failures in the `frodo conn save` and `frodo conn add` commands when Frodo was attempting to create service accounts with scopes that are not available in an environment.
+- Updated dependencies with vulnerabilities
+
+## [3.0.1] - 2025-02-06
+
+### Changed
+
+- Update to frodo-lib 3.0.1
+
+## [3.0.0] - 2024-11-05
+
+### Changed
+
+- Update to frodo-lib 3.0.0
+- Fixes and improvements to imports and exports:
+
+  - Fixed an issue with file paths on the Windows version of Frodo that was causing errors on imports due to the differences between Windows and Linux file paths.
+  - **_BREAKING_**: Updated IDM exports to be formatted the same as normal exports instead of as raw data by putting the raw data into a type object. This included changing the names of the exports to have a type ‘idm’, such as ‘sync.idm.json’ instead of ‘sync.json’, in order to reflect this change.
+  - Added option to import an entity from a single file from the full export using the -f flag in the config import command.
+  - Added option to do env substitution on single entity IDM exports/imports, and put logic for handling it all in Frodo-Lib
+  - Added option to export/import all IDM entities to/from a single file using the -a flag
+  - Added option to include or not include metadata in IDM exports
+  - **_BREAKING_**: Updated exports for agents, secrets, and variables to have a singular rather than plural type to be more consistent with other exports (see frodo-lib PR for more information on this change)
+  - Fixed a bug where the agent list command wouldn’t work if the agent had no status
+  - Fixed a bug where oauth2 and managed applications were exported with the wrong type in a full export
+  - Fixed a bug where journey imports weren’t working when importing using -D flag
+  - Standardized file extraction since it is used in multiple places (namely scripts, sync mappings, and, in a future PR, servers).
+  - Removed progress indicators for script, esv variable and esv secret describe commands since they caused Frodo to never terminate.
+  - Improved config imports to be able to import individual files based on the file type in the name instead of on directory structure (although directory structure is still used to determine whether to import globally or to know which realm to import to).
+
 ## [2.1.0] - 2024-10-10
 
 ### Changed
@@ -1988,7 +2075,16 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v2.1.0...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.6...HEAD
+[3.0.6]: https://github.com/rockcarver/frodo-cli/compare/v3.0.5...v3.0.6
+[3.0.5]: https://github.com/rockcarver/frodo-cli/compare/v3.0.4...v3.0.5
+[3.0.4]: https://github.com/rockcarver/frodo-cli/compare/v3.0.4-1...v3.0.4
+[3.0.4-1]: https://github.com/rockcarver/frodo-cli/compare/v3.0.4-0...v3.0.4-1
+[3.0.4-0]: https://github.com/rockcarver/frodo-cli/compare/v3.0.3...v3.0.4-0
+[3.0.3]: https://github.com/rockcarver/frodo-cli/compare/v3.0.2...v3.0.3
+[3.0.2]: https://github.com/rockcarver/frodo-cli/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/rockcarver/frodo-cli/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/rockcarver/frodo-cli/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-2...v2.1.0
 [2.0.6-2]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-1...v2.0.6-2
 [2.0.6-1]: https://github.com/rockcarver/frodo-cli/compare/v2.0.6-0...v2.0.6-1

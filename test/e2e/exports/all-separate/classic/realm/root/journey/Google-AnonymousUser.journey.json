@@ -1,0 +1,129 @@
+{
+  "trees": {
+    "Google-AnonymousUser": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "1ff1de77-4005-38da-93f4-2943881c655f": {
+          "_id": "1ff1de77-4005-38da-93f4-2943881c655f",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "SetSuccessUrlNode",
+            "collection": true,
+            "name": "Success URL"
+          },
+          "successUrl": "https://www.forgerock.com/"
+        },
+        "4e732ced-3463-306d-a0ca-9a15b6153677": {
+          "_id": "4e732ced-3463-306d-a0ca-9a15b6153677",
+          "_outcomes": [
+            {
+              "displayName": "Account exists",
+              "id": "ACCOUNT_EXISTS"
+            },
+            {
+              "displayName": "No account exists",
+              "id": "NO_ACCOUNT"
+            }
+          ],
+          "_type": {
+            "_id": "SocialGoogleNode",
+            "collection": true,
+            "name": "Social Google"
+          },
+          "authenticationIdKey": "sub",
+          "authorizeEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+          "basicAuth": true,
+          "cfgAccountMapperClass": "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|*|google-",
+          "cfgAccountMapperConfiguration": {
+            "sub": "iplanet-am-user-alias-list"
+          },
+          "cfgAccountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "cfgAttributeMappingClasses": [
+            "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|iplanet-am-user-alias-list|google-"
+          ],
+          "cfgAttributeMappingConfiguration": {
+            "email": "mail",
+            "family_name": "sn",
+            "given_name": "givenName",
+            "name": "cn",
+            "sub": "iplanet-am-user-alias-list"
+          },
+          "cfgMixUpMitigation": false,
+          "clientId": "aClientId",
+          "clientSecret": null,
+          "provider": "google",
+          "redirectURI": "http://localhost:8080/am",
+          "saveUserAttributesToSession": true,
+          "scopeString": "profile email",
+          "tokenEndpoint": "https://www.googleapis.com/oauth2/v4/token",
+          "userInfoEndpoint": "https://www.googleapis.com/oauth2/v3/userinfo"
+        },
+        "8e296a06-7a37-3633-b0de-d05f5a3bf3ec": {
+          "_id": "8e296a06-7a37-3633-b0de-d05f5a3bf3ec",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AnonymousUserNode",
+            "collection": true,
+            "name": "Anonymous User Mapping"
+          },
+          "anonymousUserName": "anonymous"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Google-AnonymousUser",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "4e732ced-3463-306d-a0ca-9a15b6153677",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "1ff1de77-4005-38da-93f4-2943881c655f": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Set Success URL",
+            "nodeType": "SetSuccessUrlNode",
+            "x": 0,
+            "y": 0
+          },
+          "4e732ced-3463-306d-a0ca-9a15b6153677": {
+            "connections": {
+              "ACCOUNT_EXISTS": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "NO_ACCOUNT": "8e296a06-7a37-3633-b0de-d05f5a3bf3ec"
+            },
+            "displayName": "Google Social Authentication",
+            "nodeType": "SocialGoogleNode",
+            "x": 0,
+            "y": 0
+          },
+          "8e296a06-7a37-3633-b0de-d05f5a3bf3ec": {
+            "connections": {
+              "outcome": "1ff1de77-4005-38da-93f4-2943881c655f"
+            },
+            "displayName": "Map to Anonymous User",
+            "nodeType": "AnonymousUserNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

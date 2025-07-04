@@ -1,0 +1,17 @@
+{
+  "_id": "sync",
+  "mappings": [
+    "file://managedBravo_user_managedBravo_user.sync.json",
+    "file://managedBravo_user_managedAlpha_user.sync.json",
+    "file://AlphaUser2GoogleApps.sync.json",
+    "file://managedAlpha_user_managedAlpha_user.sync.json"
+  ],
+  "meta": {
+    "exportDate": "2024-11-01T16:31:11.973Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v2.2.0 [v20.11.1]",
+    "exportedBy": "phales@trivir.com",
+    "origin": "https://openam-frodo-dev.forgeblocks.com/am",
+    "originAmVersion": "7.6.0"
+  }
+}

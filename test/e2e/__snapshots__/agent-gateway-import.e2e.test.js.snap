@@ -4,11 +4,11 @@ exports[`frodo agent gateway import "frodo agent gateway import --agent-id frodo
 
 exports[`frodo agent gateway import "frodo agent gateway import --all --file test/e2e/exports/all/allAlphaAgents.gateway.agent.json": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.gateway.agent.json" 1`] = `""`;
 
-exports[`frodo agent gateway import "frodo agent gateway import --all-separate --directory test/e2e/exports/all-separate/agent/gateway": should import all agents from the test/e2e/exports/all-separate/agent/gateway directory" 1`] = `""`;
+exports[`frodo agent gateway import "frodo agent gateway import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/agent": should import all agents from the test/e2e/exports/all-separate/cloud/realm/root-alpha/agent directory" 1`] = `""`;
 
 exports[`frodo agent gateway import "frodo agent gateway import --file test/e2e/exports/all/allAlphaAgents.gateway.agent.json": should import the first agent from the file "test/e2e/exports/all/allAlphaAgents.gateway.agent.json" 1`] = `""`;
 
-exports[`frodo agent gateway import "frodo agent gateway import -AD test/e2e/exports/all-separate/agent/gateway": should import all agents from the test/e2e/exports/all-separate/agent/gateway directory" 1`] = `""`;
+exports[`frodo agent gateway import "frodo agent gateway import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/agent": should import all agents from the test/e2e/exports/all-separate/cloud/realm/root-alpha/agent directory" 1`] = `""`;
 
 exports[`frodo agent gateway import "frodo agent gateway import -af allAlphaAgents.gateway.agent.json -D test/e2e/exports/all": should import all agents from the file "test/e2e/exports/all/allAlphaAgents.gateway.agent.json" 1`] = `""`;
 

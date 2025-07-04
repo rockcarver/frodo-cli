@@ -27,6 +27,7 @@ Options:
                                        additional output helpful for
                                        troubleshooting.
   --flush-cache                        Flush token cache.
+  -g, --global                         Describe global authentication settings.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
                                        https://cdk.idm.example.com/myidm. Use

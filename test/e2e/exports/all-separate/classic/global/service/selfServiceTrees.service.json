@@ -1,0 +1,18 @@
+{
+  "service": {
+    "selfServiceTrees": {
+      "_id": "",
+      "_type": {
+        "_id": "selfServiceTrees",
+        "collection": false,
+        "name": "Self Service Trees"
+      },
+      "defaults": {
+        "enabled": true,
+        "treeMapping": {}
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

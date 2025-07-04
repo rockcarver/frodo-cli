@@ -2,7 +2,7 @@
 
 exports[`frodo journey import "frodo journey import --all --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import all journeys from the file"test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/journey": should import all journeys from the test/e2e/exports/all-separate/journey directory with no deps 1`] = `""`;
+exports[`frodo journey import "frodo journey import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/journey": should import all journeys from the test/e2e/exports/all-separate/cloud/realm/root-alpha/journey directory with no deps 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import --file test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import the first journey from the file"test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
@@ -10,41 +10,15 @@ exports[`frodo journey import "frodo journey import --file test/e2e/exports/all/
 
 exports[`frodo journey import "frodo journey import --journey-id j00 -f test/e2e/exports/all/allAlphaJourneys.journey.json --no-deps": should import the journey with the id "j00" from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" with no deps 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/journey/FrodoTest.journey.json" 1`] = `""`;
+exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json" 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/journey/FrodoTest.journey.json" 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
+exports[`frodo journey import "frodo journey import --verbose -f test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json" 2`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 Importing first journey in file...
 - Resolving dependencies
 ✔ Resolved all dependencies.
 - FrodoTest
-  - Scripts:
-    - 23143919-6b78-40c3-b25e-beca19b229e0 (GitHub Profile Normalization (VS))
-    - 484e6246-dbc6-4288-97e6-54e55431402e (Apple Profile Normalization)
-    - 58c824ae-84ed-4724-82cd-db128fc3f6c (Normalized Profile to Managed User)
-    - 58d29080-4563-480b-89bb-1e7719776a21 (Google Profile Normalization)
-    - 6325cf19-a49b-471e-8d26-7e4df76df0e2 (Okta Profile Normalization)
-    - 739bdc48-fd24-4c52-b353-88706d75558a (Check Username)
-    - 73cecbfc-dad0-4395-be6a-6858ee3a80e5 (Microsoft Profile Normalization)
-    - bae1d54a-e97d-4997-aa5d-c027f21af82c (Facebook Profile Normalization)
-    - dbe0bf9a-72aa-49d5-8483-9db147985a47 (ADFS Profile Normalization (JS))
-  - Email templates:
-    - welcome
-  - Themes:
-    - 63e19668-909f-479e-83d7-be7a01cd8187 (NoAccess)
-  - OAuth2/OIDC (social) identity providers:
-    - adfs
-    - apple_web
-    - azure
-    - facebook
-    - github
-    - google
-    - okta-trial-5735851
-  - SAML2 entity providers:
-    - hosted iSPAzure
-    - remote urn:federation:MicrosoftOnline
-  - SAML2 circles of trust:
-    - AzureCOT
+
   - Inner nodes:
     - 038f9b2a-36b2-489b-9e03-386c9a62ea21 (SelectIdPNode)
     - 228a44d5-fd78-4278-8999-fdd470ea7ebf (SelectIdPNode)
@@ -67,9 +41,7 @@ Importing first journey in file...
 "
 `;
 
-exports[`frodo journey import "frodo journey import -AD test/e2e/exports/all-separate/journey --re-uuid": should import all journeys from the test/e2e/exports/all-separate/journey directory with new uuids 1`] = `""`;
-
-exports[`frodo journey import "frodo journey import -AD test/e2e/exports/all-separate/journey": should import all journeys from the test/e2e/exports/all-separate/journey directory" 1`] = `""`;
+exports[`frodo journey import "frodo journey import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/journey": should import all journeys from the test/e2e/exports/all-separate/cloud/realm/root-alpha/journey directory" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -af allAlphaJourneys.journey.json -D test/e2e/exports/all": should import all journeys from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
 
@@ -81,7 +53,7 @@ exports[`frodo journey import "frodo journey import -f allAlphaJourneys.journey.
 
 exports[`frodo journey import "frodo journey import -f test/e2e/exports/all/allAlphaJourneys.journey.json --re-uuid": should import the first journey from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" with new uuids 1`] = `""`;
 
-exports[`frodo journey import "frodo journey import -f test/e2e/exports/all-separate/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/journey/FrodoTest.journey.json" 1`] = `""`;
+exports[`frodo journey import "frodo journey import -f test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json": should import the journey in file "test/e2e/exports/all-separate/cloud/realm/root-alpha/journey/FrodoTest.journey.json" 1`] = `""`;
 
 exports[`frodo journey import "frodo journey import -i j00 -f allAlphaJourneys.journey.json -D test/e2e/exports/all": should import the journey with the id "j00" from the file "test/e2e/exports/all/allAlphaJourneys.journey.json" 1`] = `""`;
 

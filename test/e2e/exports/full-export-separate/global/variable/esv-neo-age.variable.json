@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "esv-neo-age": {
+      "_id": "esv-neo-age",
+      "description": "Neo's age in the matrix.",
+      "expressionType": "int",
+      "lastChangeDate": "2024-11-01T16:21:14.46187Z",
+      "lastChangedBy": "Frodo-SA-1730238488278",
+      "loaded": true,
+      "value": "28"
+    }
+  }
+}

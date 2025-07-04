@@ -1,0 +1,24 @@
+{
+  "service": {
+    "security": {
+      "_id": "",
+      "_type": {
+        "_id": "security",
+        "collection": false,
+        "name": "Legacy User Self Service"
+      },
+      "confirmationIdHmacKey": "YcGfeuzSM14OG5djEcxEnvPydX28nsuxAZyDX1VA8iY=",
+      "forgotPasswordConfirmationUrl": "http://localhost:8080/am/XUI/confirm.html",
+      "forgotPasswordEnabled": false,
+      "forgotPasswordTokenLifetime": 900,
+      "location": "/",
+      "nextDescendents": [],
+      "protectedUserAttributes": [],
+      "selfRegistrationConfirmationUrl": "http://localhost:8080/am/XUI/confirm.html",
+      "selfRegistrationEnabled": false,
+      "selfRegistrationTokenLifetime": 900,
+      "selfServiceEnabled": false,
+      "userRegisteredDestination": "default"
+    }
+  }
+}

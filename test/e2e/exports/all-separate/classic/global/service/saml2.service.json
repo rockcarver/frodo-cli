@@ -1,0 +1,25 @@
+{
+  "service": {
+    "saml2": {
+      "_id": "",
+      "_type": {
+        "_id": "saml2",
+        "collection": false,
+        "name": "SAML v2.0 Service Configuration"
+      },
+      "bufferLength": 2048,
+      "caCertValidation": false,
+      "cacheCleanupInterval": 600,
+      "encryptedKeyInKeyInfo": true,
+      "idpDiscoveryCookieType": "PERSISTENT",
+      "idpDiscoveryUrlSchema": "HTTPS",
+      "location": "global",
+      "nameIDInfoAttribute": "sun-fm-saml2-nameid-info",
+      "nameIDInfoKeyAttribute": "sun-fm-saml2-nameid-infokey",
+      "nextDescendents": [],
+      "signingCertValidation": false,
+      "xmlEncryptionClass": "com.sun.identity.saml2.xmlenc.FMEncProvider",
+      "xmlSigningClass": "com.sun.identity.saml2.xmlsig.FMSigProvider"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "_id": "04/properties/sdk",
+  "amconfig.header.cachingreplica": {
+    "com.iplanet.am.sdk.cache.maxSize": {
+      "inherited": true,
+      "value": "10000"
+    }
+  },
+  "amconfig.header.datastore": {
+    "com.sun.identity.sm.enableDataStoreNotification": {
+      "inherited": true,
+      "value": false
+    },
+    "com.sun.identity.sm.notification.threadpool.size": {
+      "inherited": true,
+      "value": "1"
+    }
+  },
+  "amconfig.header.eventservice": {
+    "com.iplanet.am.event.connection.delay.between.retries": {
+      "inherited": true,
+      "value": "3000"
+    },
+    "com.iplanet.am.event.connection.ldap.error.codes.retries": {
+      "inherited": true,
+      "value": "80,81,91"
+    },
+    "com.iplanet.am.event.connection.num.retries": {
+      "inherited": true,
+      "value": "3"
+    },
+    "com.sun.am.event.connection.disable.list": {
+      "inherited": true,
+      "value": "aci,um,sm"
+    }
+  },
+  "amconfig.header.ldapconnection": {
+    "com.iplanet.am.ldap.connection.delay.between.retries": {
+      "inherited": true,
+      "value": "1000"
+    },
+    "com.iplanet.am.ldap.connection.ldap.error.codes.retries": {
+      "inherited": true,
+      "value": "80,81,91"
+    },
+    "com.iplanet.am.ldap.connection.num.retries": {
+      "inherited": true,
+      "value": "3"
+    }
+  },
+  "amconfig.header.sdktimetoliveconfig": {
+    "com.iplanet.am.sdk.cache.entry.default.expire.time": {
+      "inherited": true,
+      "value": "30"
+    },
+    "com.iplanet.am.sdk.cache.entry.expire.enabled": {
+      "inherited": true,
+      "value": false
+    },
+    "com.iplanet.am.sdk.cache.entry.user.expire.time": {
+      "inherited": true,
+      "value": "15"
+    }
+  }
+}

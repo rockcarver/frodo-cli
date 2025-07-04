@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-authorized": {
+      "_id": "openidm-authorized",
+      "condition": null,
+      "description": "Basic minimum user",
+      "name": "openidm-authorized",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

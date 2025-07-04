@@ -1,0 +1,17 @@
+{
+  "service": {
+    "pingOneWorkerService": {
+      "_id": "",
+      "_type": {
+        "_id": "pingOneWorkerService",
+        "collection": false,
+        "name": "PingOne Worker Service"
+      },
+      "defaults": {
+        "enabled": true
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "authenticationModules": {
+    "authSocialOAuth2": {
+      "_id": "authSocialOAuth2",
+      "_type": {
+        "_id": "authSocialOAuth2",
+        "collection": false,
+        "name": "Social Auth OAuth2"
+      },
+      "defaults": {
+        "accountProvisioning": {
+          "accountMapperConfiguration": [],
+          "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+          "anonymousUserName": "anonymous",
+          "attributeMapperConfiguration": [],
+          "attributeMappingClasses": [],
+          "createAccount": true,
+          "enableRegistrationService": false,
+          "mapToAnonymousUser": false,
+          "promptPasswordFlag": false,
+          "saveAttributesInSession": true
+        },
+        "core": {
+          "authenticationLevel": 0,
+          "logoutBehaviour": "prompt",
+          "mixUpMitigation": false,
+          "scope": [],
+          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "usesBasicAuth": true
+        },
+        "emailSettings": {
+          "emailGateway": "org.forgerock.openam.authentication.modules.oauth2.DefaultEmailGatewayImpl",
+          "smtpHost": "localhost",
+          "smtpPort": "25"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "script": {
+    "1d475815-72cb-42eb-aafd-4026989d28a7": {
+      "_id": "1d475815-72cb-42eb-aafd-4026989d28a7",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for Social Identity Provider Profile Transformation",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Social Identity Provider Profile Transformation Script",
+      "script": "file://Social-Identity-Provider-Profile-Transformation-Script.script.groovy"
+    }
+  }
+}

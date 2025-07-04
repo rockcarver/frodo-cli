@@ -56,8 +56,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af test/e2e/exports/all/allAlphaProviders.saml.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all --no-deps --file test/e2e/exports/all/allAlphaProviders.saml.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -af allAlphaProviders.saml.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -AD test/e2e/exports/all-separate/saml
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all-separate --no-deps --directory test/e2e/exports/all-separate/saml
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/saml
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo saml import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/saml
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -72,7 +72,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaSamlProvidersFileName = "allAlphaProviders.saml.json";
 const allAlphaSamlProvidersExport = `${allDirectory}/${allAlphaSamlProvidersFileName}`;
-const allSeparateSamlProvidersDirectory = "test/e2e/exports/all-separate/saml";
+const allSeparateSamlProvidersDirectory = "test/e2e/exports/all-separate/cloud/realm/root-alpha/saml";
 
 describe('frodo saml import', () => {
     test(`"frodo saml import -i iSPAzure -f ${allAlphaSamlProvidersExport}": should import the saml provider with the id "iSPAzure" from the file "${allAlphaSamlProvidersExport}"`, async () => {

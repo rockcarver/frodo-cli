@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo idm delete -i "emailTemplate/deleteTemplate" "frodo idm delete -i emailTemplate/deleteTemplate": should delete idm config with entityId emailTemplate/deleteTemplate 1`] = `""`;

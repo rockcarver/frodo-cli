@@ -1,3 +1,4 @@
+import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
@@ -8,6 +9,9 @@ import {
 import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
+
+const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand('frodo agent export');
@@ -39,6 +43,7 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .addOption(new Option('-g, --global', 'Export global agents.'))
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -50,13 +55,20 @@ export default function setup() {
           options,
           command
         );
-        if (await getTokens()) {
+        if (
+          await getTokens(
+            false,
+            true,
+            options.global ? globalDeploymentTypes : undefined
+          )
+        ) {
           // export
           if (options.agentId) {
             verboseMessage('Exporting agent...');
             const outcome = await exportAgentToFile(
               options.agentId,
               options.file,
+              options.global,
               options.metadata
             );
             if (!outcome) process.exitCode = 1;
@@ -66,6 +78,7 @@ export default function setup() {
             verboseMessage('Exporting all agents to a single file...');
             const outcome = await exportAgentsToFile(
               options.file,
+              options.global,
               options.metadata
             );
             if (!outcome) process.exitCode = 1;
@@ -73,7 +86,10 @@ export default function setup() {
           // --all-separate -A
           else if (options.allSeparate) {
             verboseMessage('Exporting all agents to separate files...');
-            const outcome = await exportAgentsToFiles(options.metadata);
+            const outcome = await exportAgentsToFiles(
+              options.global,
+              options.metadata
+            );
             if (!outcome) process.exitCode = 1;
           }
           // unrecognized combination of options or no options

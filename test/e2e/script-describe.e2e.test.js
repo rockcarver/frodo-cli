@@ -49,14 +49,14 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -i 1b52a7e0-4019-40fa-958a-15a49870e901
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -f test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -D test/e2e/exports/all-separate/everything
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.config.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/everything
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -f test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe -un shared -D test/e2e/exports/all-separate/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-id 1b52a7e0-4019-40fa-958a-15a49870e901 --file test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script describe --json --usage --script-name shared --directory test/e2e/exports/all-separate/cloud
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, removeProgressBarOutput } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -64,8 +64,8 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
-const allConfigFile = 'test/e2e/exports/all/all.config.json';
-const allConfigDirectory = 'test/e2e/exports/all-separate/everything';
+const allConfigFile = 'test/e2e/exports/all/all.cloud.json';
+const allConfigDirectory = 'test/e2e/exports/all-separate/cloud';
 
 describe('frodo script describe', () => {
     test(`"frodo script describe -i 1b52a7e0-4019-40fa-958a-15a49870e901": should describe the script with id "1b52a7e0-4019-40fa-958a-15a49870e901"`, async () => {
@@ -76,8 +76,13 @@ describe('frodo script describe', () => {
 
     test(`"frodo script describe -un shared": should describe the script with name "shared" with usage`, async () => {
         const CMD = `frodo script describe -un shared`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed")
+        } catch (e) {
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+            expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stdout))).toMatchSnapshot();
+        }
     });
 
     test(`"frodo script describe -un shared -f ${allConfigFile}": should describe the script with name "shared" with usage from file ${allConfigFile}`, async () => {

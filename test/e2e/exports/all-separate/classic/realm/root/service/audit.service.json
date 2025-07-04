@@ -1,0 +1,17 @@
+{
+  "service": {
+    "audit": {
+      "_id": "",
+      "_type": {
+        "_id": "audit",
+        "collection": false,
+        "name": "Audit Logging"
+      },
+      "auditEnabled": true,
+      "blacklistFieldFilters": [],
+      "location": "/",
+      "nextDescendents": [],
+      "whitelistFieldFilters": []
+    }
+  }
+}

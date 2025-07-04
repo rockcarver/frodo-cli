@@ -1,0 +1,48 @@
+{
+  "service": {
+    "TNTPPingOneService": {
+      "_id": "",
+      "_type": {
+        "_id": "TNTPPingOneService",
+        "collection": false,
+        "name": "PingOne Service"
+      },
+      "enable": true,
+      "location": "/bravo",
+      "nextDescendents": [
+        {
+          "_id": "p1-volker-dev",
+          "_type": {
+            "_id": "PingOneService",
+            "collection": true,
+            "name": "instance"
+          },
+          "clientIdWorkerApp": "9e4b8778-8d02-4533-b11f-407c15e5519e",
+          "clientIdWorkerSecret": "MYeArFcBVz_koayPMhz8dSmkKN9P1SjEA3CApwzWTfKuGvhS3XERxRpR1zTYg0ZT",
+          "dvAPIKey": "",
+          "environmentId": "183aa418-cdd3-4075-b20d-1ed89c8ca36e",
+          "environmentRegion": "NA",
+          "p1APIKey": "",
+          "p1APISecret": "",
+          "p1RedirectURL": ""
+        },
+        {
+          "_id": "JC",
+          "_type": {
+            "_id": "PingOneService",
+            "collection": true,
+            "name": "instance"
+          },
+          "clientIdWorkerApp": "bc700ab9-b18d-4d75-9c10-0ddfd7a2fcf6",
+          "clientIdWorkerSecret": "PYT2yEkgv73IAXf7W-Gxo32SdANddMPdRPHuo8btgIR~qoU_KBmP3NfGpVxxGCK-",
+          "dvAPIKey": "",
+          "environmentId": "77826556-ad2a-4cb9-86fc-41f53fd35d4d",
+          "environmentRegion": "NA",
+          "p1APIKey": "",
+          "p1APISecret": "",
+          "p1RedirectURL": ""
+        }
+      ]
+    }
+  }
+}

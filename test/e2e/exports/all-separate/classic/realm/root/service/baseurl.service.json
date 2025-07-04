@@ -1,0 +1,16 @@
+{
+  "service": {
+    "baseurl": {
+      "_id": "",
+      "_type": {
+        "_id": "baseurl",
+        "collection": false,
+        "name": "Base URL Source"
+      },
+      "contextPath": "/am",
+      "location": "/",
+      "nextDescendents": [],
+      "source": "REQUEST_VALUES"
+    }
+  }
+}

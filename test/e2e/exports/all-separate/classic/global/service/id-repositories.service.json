@@ -1,0 +1,132 @@
+{
+  "service": {
+    "id-repositories": {
+      "_id": "",
+      "_type": {
+        "_id": "id-repositories",
+        "collection": false,
+        "name": "sunIdentityRepositoryService"
+      },
+      "defaults": {
+        "sunIdRepoAttributeCombiner": "com.iplanet.am.sdk.AttributeCombiner",
+        "sunIdRepoAttributeValidator": [
+          "class=com.sun.identity.idm.server.IdRepoAttributeValidatorImpl",
+          "minimumPasswordLength=8",
+          "usernameInvalidChars=*|(|)|&|!"
+        ]
+      },
+      "location": "global",
+      "nextDescendents": [
+        {
+          "_id": "agent",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "agentgroup",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "agentonly",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "filteredrole",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "group",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "realm",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "role",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "user",
+          "_type": {
+            "_id": "SupportedIdentities",
+            "collection": true,
+            "name": "SupportedIdentities"
+          }
+        },
+        {
+          "_id": "amAdmin",
+          "_type": {
+            "_id": "user",
+            "collection": true,
+            "name": "User"
+          },
+          "cn": "amAdmin",
+          "dn": "uid=amAdmin,ou=people,",
+          "givenName": "amAdmin",
+          "inetUserStatus": "Active",
+          "iplanet-am-user-auth-config": "[Empty]",
+          "roles": [],
+          "sn": "amAdmin",
+          "userPassword": null
+        },
+        {
+          "_id": "anonymous",
+          "_type": {
+            "_id": "user",
+            "collection": true,
+            "name": "User"
+          },
+          "cn": "anonymous",
+          "dn": "uid=anonymous,ou=people,",
+          "givenName": "anonymous",
+          "inetUserStatus": "Inactive",
+          "iplanet-am-user-auth-config": "[Empty]",
+          "roles": [],
+          "sn": "anonymous",
+          "userPassword": null
+        },
+        {
+          "_id": "dsameuser",
+          "_type": {
+            "_id": "user",
+            "collection": true,
+            "name": "User"
+          },
+          "dn": "cn=dsameuser,ou=DSAME Users,",
+          "inetUserStatus": "Active",
+          "iplanet-am-user-auth-config": "[Empty]",
+          "roles": [],
+          "userPassword": null
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "agent": {
+    "test software publisher": {
+      "_id": "test software publisher",
+      "_type": {
+        "_id": "SoftwarePublisher",
+        "collection": true,
+        "name": "OAuth2 Software Publisher"
+      },
+      "agentgroup": null,
+      "issuer": null,
+      "jwkSet": null,
+      "jwkStoreCacheMissCacheTime": 60000,
+      "jwksCacheTimeout": 3600000,
+      "jwksUri": null,
+      "publicKeyLocation": "jwks_uri",
+      "softwareStatementSigningAlgorithm": "RS256"
+    }
+  }
+}

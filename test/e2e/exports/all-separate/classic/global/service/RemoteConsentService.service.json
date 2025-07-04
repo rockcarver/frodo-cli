@@ -1,0 +1,19 @@
+{
+  "service": {
+    "RemoteConsentService": {
+      "_id": "",
+      "_type": {
+        "_id": "RemoteConsentService",
+        "collection": false,
+        "name": "Remote Consent Service"
+      },
+      "defaults": {
+        "consentResponseTimeLimit": 2,
+        "jwkStoreCacheMissCacheTime": 1,
+        "jwkStoreCacheTimeout": 5
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

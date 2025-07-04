@@ -1,0 +1,18 @@
+{
+  "script": {
+    "9de3eb62-f131-4fac-a294-7bd170fd4acb": {
+      "_id": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
+      "context": "POLICY_CONDITION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for Scripted Policy Conditions",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "Scripted Policy Condition",
+      "script": "file://Scripted-Policy-Condition.script.js"
+    }
+  }
+}

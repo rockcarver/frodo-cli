@@ -1,0 +1,225 @@
+{
+  "trees": {
+    "PlatformRegistration": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "19ca14e7-ea63-38a4-ae0e-b13d585e4c22": {
+          "_id": "19ca14e7-ea63-38a4-ae0e-b13d585e4c22",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "givenName",
+            "sn",
+            "mail",
+            "preferences/marketing",
+            "preferences/updates"
+          ],
+          "identityAttribute": "userName",
+          "required": true,
+          "validateInputs": true
+        },
+        "1c383cd3-0b7c-398a-b502-93adfecb7b18": {
+          "_id": "1c383cd3-0b7c-398a-b502-93adfecb7b18",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password"
+          },
+          "passwordAttribute": "password",
+          "validateInput": true
+        },
+        "a5771bce-93e2-30c3-af7c-d9dfd0e5deaa": {
+          "_id": "a5771bce-93e2-30c3-af7c-d9dfd0e5deaa",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AcceptTermsAndConditionsNode",
+            "collection": true,
+            "name": "Accept Terms and Conditions"
+          }
+        },
+        "a5bfc9e0-7964-38dd-9eb9-5fc584cd965d": {
+          "_id": "a5bfc9e0-7964-38dd-9eb9-5fc584cd965d",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "KbaCreateNode",
+            "collection": true,
+            "name": "KBA Definition"
+          },
+          "allowUserDefinedQuestions": true,
+          "message": {
+            "en": "Select a security question"
+          }
+        },
+        "e369853d-f766-3a44-a1ed-0ff613f563bd": {
+          "_id": "e369853d-f766-3a44-a1ed-0ff613f563bd",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": true
+        }
+      },
+      "nodes": {
+        "3416a75f-4cea-3109-907c-acd8e2f2aefc": {
+          "_id": "3416a75f-4cea-3109-907c-acd8e2f2aefc",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "IncrementLoginCountNode",
+            "collection": true,
+            "name": "Increment Login Count"
+          },
+          "identityAttribute": "userName"
+        },
+        "d645920e-395f-3dad-bbbb-ed0eca3fe2e0": {
+          "_id": "d645920e-395f-3dad-bbbb-ed0eca3fe2e0",
+          "_outcomes": [
+            {
+              "displayName": "Created",
+              "id": "CREATED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "CreateObjectNode",
+            "collection": true,
+            "name": "Create Object"
+          },
+          "identityResource": "managed/user"
+        },
+        "d67d8ab4-f4c1-3bf2-aaa3-53e27879133c": {
+          "_id": "d67d8ab4-f4c1-3bf2-aaa3-53e27879133c",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "e369853d-f766-3a44-a1ed-0ff613f563bd",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "19ca14e7-ea63-38a4-ae0e-b13d585e4c22",
+              "displayName": "Attribute Collector",
+              "nodeType": "AttributeCollectorNode"
+            },
+            {
+              "_id": "1c383cd3-0b7c-398a-b502-93adfecb7b18",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            },
+            {
+              "_id": "a5bfc9e0-7964-38dd-9eb9-5fc584cd965d",
+              "displayName": "KBA Definition",
+              "nodeType": "KbaCreateNode"
+            },
+            {
+              "_id": "a5771bce-93e2-30c3-af7c-d9dfd0e5deaa",
+              "displayName": "Accept Terms and Conditions",
+              "nodeType": "AcceptTermsAndConditionsNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "Signing up is fast and easy.<br>Already have an account?<a href='#/service/PlatformLogin'>Sign In</a>"
+          },
+          "pageHeader": {
+            "en": "Sign Up"
+          },
+          "stage": "null"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "PlatformRegistration",
+        "description": "Platform Registration Tree",
+        "enabled": true,
+        "entryNodeId": "d67d8ab4-f4c1-3bf2-aaa3-53e27879133c",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "nodes": {
+          "3416a75f-4cea-3109-907c-acd8e2f2aefc": {
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Increment Login Count",
+            "nodeType": "IncrementLoginCountNode",
+            "x": 0,
+            "y": 0
+          },
+          "d645920e-395f-3dad-bbbb-ed0eca3fe2e0": {
+            "connections": {
+              "CREATED": "3416a75f-4cea-3109-907c-acd8e2f2aefc",
+              "FAILURE": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Create Object",
+            "nodeType": "CreateObjectNode",
+            "x": 0,
+            "y": 0
+          },
+          "d67d8ab4-f4c1-3bf2-aaa3-53e27879133c": {
+            "connections": {
+              "outcome": "d645920e-395f-3dad-bbbb-ed0eca3fe2e0"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mapping": {
+    "mapping/mapping12": {
+      "_id": "mapping/mapping12",
+      "consentRequired": false,
+      "displayName": "mapping12",
+      "linkQualifiers": [],
+      "name": "mapping12",
+      "policies": [],
+      "properties": [],
+      "source": "managed/bravo_user",
+      "syncAfter": [],
+      "target": "managed/bravo_user"
+    }
+  }
+}

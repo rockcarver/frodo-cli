@@ -27,6 +27,7 @@ Options:
                                        additional output helpful for
                                        troubleshooting.
   --flush-cache                        Flush token cache.
+  -g, --global                         Describe global agent.
   -h, --help                           Help
   -i, --agent-id <agent-id>            Agent id.
   --idm-host <idm-host>                IDM base URL, e.g.:

@@ -59,8 +59,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import -af test/e2e/exports/all/allAlphaResourceTypes.resourcetype.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import --all --file test/e2e/exports/all/allAlphaResourceTypes.resourcetype.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import -af allAlphaResourceTypes.resourcetype.authz.json -D test/e2e/exports/all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import -AD test/e2e/exports/all-separate/authz/type
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import --all-separate --directory test/e2e/exports/all-separate/authz/type
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import -AD test/e2e/exports/all-separate/cloud/realm/root-alpha/resourcetype
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/resourcetype
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -76,7 +76,7 @@ const env = getEnv(c);
 const allDirectory = "test/e2e/exports/all";
 const allAlphaResourceTypesFileName = "allAlphaResourceTypes.resourcetype.authz.json";
 const allAlphaResourceTypesExport = `${allDirectory}/${allAlphaResourceTypesFileName}`;
-const allSeparateResourceTypesDirectory = `test/e2e/exports/all-separate/authz/type`;
+const allSeparateResourceTypesDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/resourcetype`;
 
 describe('frodo authz type import', () => {
     test(`"frodo authz type import -n URL -f ${allAlphaResourceTypesExport}": should import the resource type with the name "URL" from the file "${allAlphaResourceTypesExport}"`, async () => {

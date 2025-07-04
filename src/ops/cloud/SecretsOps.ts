@@ -102,7 +102,7 @@ export async function listSecrets(
       return false;
     }
     //Delete secrets from full export so they aren't mistakenly used for determining usage
-    delete fullExport.global.secrets;
+    delete fullExport.global.secret;
     headers.push('Used'['brightCyan']);
   }
   const table = createTable(headers);
@@ -385,13 +385,7 @@ export async function describeSecret(
   usage = false,
   json = false
 ): Promise<boolean> {
-  let spinnerId: string;
   try {
-    spinnerId = createProgressIndicator(
-      'indeterminate',
-      0,
-      `Reading secret ${secretId}...`
-    );
     const secret = (await readSecret(secretId)) as SecretSkeleton & {
       locations: string[];
     };
@@ -399,23 +393,13 @@ export async function describeSecret(
       try {
         const fullExport = await getFullExportConfig(file);
         //Delete secrets from full export so they aren't mistakenly used for determining usage
-        delete fullExport.global.secrets;
+        delete fullExport.global.secret;
         secret.locations = getIdLocations(fullExport, secretId, true);
       } catch (error) {
-        stopProgressIndicator(
-          spinnerId,
-          `Error determining usage for secret with id ${secretId}`,
-          'fail'
-        );
         printError(error);
         return false;
       }
     }
-    stopProgressIndicator(
-      spinnerId,
-      `Successfully read secret ${secretId}.`,
-      'success'
-    );
     if (json) {
       printMessage(secret, 'data');
     } else {
@@ -465,11 +449,6 @@ export async function describeSecret(
     await listSecretVersions(secretId, json);
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error describing secret ${secretId}`,
-      'fail'
-    );
     printError(error);
   }
   return false;
@@ -701,7 +680,7 @@ export async function importSecretsFromFiles(
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData = JSON.parse(data);
-        const count = Object.keys(fileData.secrets).length;
+        const count = Object.keys(fileData.secret).length;
         total += count;
         await importSecrets(fileData, includeActiveValues, source);
         updateProgressIndicator(

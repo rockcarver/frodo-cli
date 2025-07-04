@@ -1,0 +1,282 @@
+{
+  "trees": {
+    "push_registration": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "1eb148f2-82e0-49c6-a330-e6a6d1a9eea9": {
+          "_id": "1eb148f2-82e0-49c6-a330-e6a6d1a9eea9",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "7ab18633-6eb0-455d-97ff-40ff7db4862a": {
+          "_id": "7ab18633-6eb0-455d-97ff-40ff7db4862a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "07bc635b-5a3f-461b-87ee-e76c9fa22738": {
+          "_id": "07bc635b-5a3f-461b-87ee-e76c9fa22738",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "1eb148f2-82e0-49c6-a330-e6a6d1a9eea9",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "7ab18633-6eb0-455d-97ff-40ff7db4862a",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "0e161d10-c2d1-4196-8b41-59f80be4a587": {
+          "_id": "0e161d10-c2d1-4196-8b41-59f80be4a587",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision"
+          }
+        },
+        "1323d24e-b9f8-4396-a9ce-4550fe3ac84f": {
+          "_id": "1323d24e-b9f8-4396-a9ce-4550fe3ac84f",
+          "_outcomes": [
+            {
+              "displayName": "Sent",
+              "id": "SENT"
+            },
+            {
+              "displayName": "Not Registered",
+              "id": "NOT_REGISTERED"
+            },
+            {
+              "displayName": "Skipped",
+              "id": "SKIPPED"
+            }
+          ],
+          "_type": {
+            "_id": "PushAuthenticationSenderNode",
+            "collection": true,
+            "name": "Push Sender"
+          },
+          "captureFailure": false,
+          "contextInfo": false,
+          "customPayload": [],
+          "mandatory": false,
+          "messageTimeout": 120000,
+          "pushType": "DEFAULT",
+          "userMessage": {}
+        },
+        "527e6b31-01db-409c-8f52-01a5b7f48737": {
+          "_id": "527e6b31-01db-409c-8f52-01a5b7f48737",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "TRUE"
+            },
+            {
+              "displayName": "Failure",
+              "id": "FALSE"
+            },
+            {
+              "displayName": "Expired",
+              "id": "EXPIRED"
+            },
+            {
+              "displayName": "Waiting",
+              "id": "WAITING"
+            }
+          ],
+          "_type": {
+            "_id": "PushResultVerifierNode",
+            "collection": true,
+            "name": "Push Result Verifier Node"
+          }
+        },
+        "c03b9d7b-3c91-4de4-9f6b-b9f7f7ce999c": {
+          "_id": "c03b9d7b-3c91-4de4-9f6b-b9f7f7ce999c",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "successOutcome"
+            },
+            {
+              "displayName": "Failure",
+              "id": "failureOutcome"
+            },
+            {
+              "displayName": "Time Out",
+              "id": "timeoutOutcome"
+            }
+          ],
+          "_type": {
+            "_id": "PushRegistrationNode",
+            "collection": true,
+            "name": "Push Registration"
+          },
+          "accountName": "USERNAME",
+          "bgColor": "032b75",
+          "generateRecoveryCodes": true,
+          "issuer": "ForgeRock",
+          "scanQRCodeMessage": {},
+          "timeout": 60
+        },
+        "ccb48486-0d8e-475d-a002-29d0bfa1177a": {
+          "_id": "ccb48486-0d8e-475d-a002-29d0bfa1177a",
+          "_outcomes": [
+            {
+              "displayName": "Done",
+              "id": "DONE"
+            },
+            {
+              "displayName": "Exit",
+              "id": "EXITED"
+            }
+          ],
+          "_type": {
+            "_id": "PushWaitNode",
+            "collection": true,
+            "name": "Push Wait Node"
+          },
+          "challengeMessage": {},
+          "exitMessage": {},
+          "secondsToWait": 5,
+          "waitingMessage": {}
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "push_registration",
+        "enabled": true,
+        "entryNodeId": "07bc635b-5a3f-461b-87ee-e76c9fa22738",
+        "innerTreeOnly": false,
+        "nodes": {
+          "07bc635b-5a3f-461b-87ee-e76c9fa22738": {
+            "connections": {},
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 180,
+            "y": 133
+          },
+          "0e161d10-c2d1-4196-8b41-59f80be4a587": {
+            "connections": {
+              "true": "1323d24e-b9f8-4396-a9ce-4550fe3ac84f"
+            },
+            "displayName": "Data Store Decision",
+            "nodeType": "DataStoreDecisionNode",
+            "x": 406,
+            "y": 126
+          },
+          "1323d24e-b9f8-4396-a9ce-4550fe3ac84f": {
+            "connections": {
+              "NOT_REGISTERED": "c03b9d7b-3c91-4de4-9f6b-b9f7f7ce999c",
+              "SENT": "ccb48486-0d8e-475d-a002-29d0bfa1177a",
+              "SKIPPED": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Push Sender",
+            "nodeType": "PushAuthenticationSenderNode",
+            "x": 647,
+            "y": 79
+          },
+          "527e6b31-01db-409c-8f52-01a5b7f48737": {
+            "connections": {
+              "EXPIRED": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "FALSE": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "TRUE": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+              "WAITING": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Push Result Verifier Node",
+            "nodeType": "PushResultVerifierNode",
+            "x": 1016,
+            "y": 122
+          },
+          "c03b9d7b-3c91-4de4-9f6b-b9f7f7ce999c": {
+            "connections": {
+              "failureOutcome": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "successOutcome": "1323d24e-b9f8-4396-a9ce-4550fe3ac84f",
+              "timeoutOutcome": "07bc635b-5a3f-461b-87ee-e76c9fa22738"
+            },
+            "displayName": "Push Registration",
+            "nodeType": "PushRegistrationNode",
+            "x": 639,
+            "y": 299
+          },
+          "ccb48486-0d8e-475d-a002-29d0bfa1177a": {
+            "connections": {
+              "DONE": "527e6b31-01db-409c-8f52-01a5b7f48737",
+              "EXITED": "07bc635b-5a3f-461b-87ee-e76c9fa22738"
+            },
+            "displayName": "Push Wait Node",
+            "nodeType": "PushWaitNode",
+            "x": 823,
+            "y": 126
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1245,
+            "y": 35
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1292,
+            "y": 172
+          },
+          "startNode": {
+            "x": 57,
+            "y": 22
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

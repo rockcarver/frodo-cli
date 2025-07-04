@@ -1,24 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo journey describe "frodo journey describe --file test/e2e/exports/all/allAlphaJourneys.journey.json": should describe all journeys from file 1`] = `
-"[j00]
+"[ForgottenUsername]
 
-Node Types (1):
-- 6 [ScriptedDecisionNode] (custom)
+Forgotten Username Tree
 
-Nodes (6):
-- [01d3785f-7fb4-44a7-9458-72c380a9818f] (custom) ScriptedDecisionNode - shared
-- [39b48197-f4be-42b9-800a-866587b4b9b5] (custom) ScriptedDecisionNode - level
-- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] (custom) ScriptedDecisionNode - level
-- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] (custom) ScriptedDecisionNode - mode
-- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] (custom) ScriptedDecisionNode - debug
-- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] (custom) ScriptedDecisionNode - shared
+Categories/Tags
+Username Reset
 
-Scripts (4):
-- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
-- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
-- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+Inner Tree Dependencies (1):
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
+
+Node Types (5):
+- 1 [PageNode] (custom)
+- 1 [InnerTreeEvaluatorNode] (custom)
+- 1 [IdentifyExistingUserNode] (custom)
+- 1 [EmailSuspendNode] (custom)
+- 1 [AttributeCollectorNode] (custom)
+
+Nodes (5):
+- [5e2a7c95-94af-4b23-8724-deb13853726a] (custom) PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] (custom) InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] (custom) IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] (custom) EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] (custom) AttributeCollectorNode - Attribute Collector
+
+Email Templates (1):
+- [forgottenUsername]  - Account Information - username
 "
 `;
 
@@ -1731,77 +1741,105 @@ Scripts (3):
 `;
 
 exports[`frodo journey describe "frodo journey describe -f test/e2e/exports/all/allAlphaJourneys.journey.json --markdown": should describe all journeys from file in markdown 1`] = `
-"# j00 - :white_check_mark: \`enabled\`, :red_circle: \`custom\`
+"# ForgottenUsername - :white_check_mark: \`enabled\`, :red_circle: \`custom\`
+\`Username Reset\`
 
-[![](./j00.png)]()
+Forgotten Username Tree
 
-## Node Types (1)
+[![](./ForgottenUsername.png)]()
+
+## Inner Tree Dependencies (1)
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
+
+## Node Types (5)
 | Count | Type | Classification |
 | -----:| ---- | -------------- |
-| 6 | ScriptedDecisionNode | :red_circle: \`custom\` |
-## Nodes (6)
+| 1 | PageNode | :red_circle: \`custom\` |
+| 1 | InnerTreeEvaluatorNode | :red_circle: \`custom\` |
+| 1 | IdentifyExistingUserNode | :red_circle: \`custom\` |
+| 1 | EmailSuspendNode | :red_circle: \`custom\` |
+| 1 | AttributeCollectorNode | :red_circle: \`custom\` |
+## Nodes (5)
 | Display Name | Type | Classification | Id |
 | ------------ | ---- | -------------- | ---|
-| shared | ScriptedDecisionNode | :red_circle: \`custom\` | \`01d3785f-7fb4-44a7-9458-72c380a9818f\` |
-| level | ScriptedDecisionNode | :red_circle: \`custom\` | \`39b48197-f4be-42b9-800a-866587b4b9b5\` |
-| level | ScriptedDecisionNode | :red_circle: \`custom\` | \`3c1e8d61-0c48-44ba-86dc-52e9555b6aeb\` |
-| mode | ScriptedDecisionNode | :red_circle: \`custom\` | \`513a2ab4-f0b8-4f94-b840-6fe14796cc84\` |
-| debug | ScriptedDecisionNode | :red_circle: \`custom\` | \`ba503a1e-633e-4d0d-ba18-c9a9b1105b5b\` |
-| shared | ScriptedDecisionNode | :red_circle: \`custom\` | \`d17ffaa1-2c61-4abd-9bb1-2559160d0a5c\` |
-## Scripts (4)
-| Name | Language | Type | Id |
-| ---- | -------- | ---- | ---|
-| shared | JavaScript | Authentication Tree Decision Node | \`1b52a7e0-4019-40fa-958a-15a49870e901\` |
-| debug | JavaScript | Authentication Tree Decision Node | \`3cb43516-ae69-433a-8787-501d45db14e9\` |
-| level | JavaScript | Authentication Tree Decision Node | \`41c24257-d7fc-4654-8b46-c2666dc5b56d\` |
-| mode | JavaScript | Authentication Tree Decision Node | \`5bbdaeff-ddee-44b9-b608-8d413d7d65a6\` |
+| Page Node | PageNode | :red_circle: \`custom\` | \`5e2a7c95-94af-4b23-8724-deb13853726a\` |
+| Inner Tree Evaluator | InnerTreeEvaluatorNode | :red_circle: \`custom\` | \`b93ce36e-1976-4610-b24f-8d6760b5463b\` |
+| Identify Existing User | IdentifyExistingUserNode | :red_circle: \`custom\` | \`bf9ea8d5-9802-4f26-9664-a21840faac23\` |
+| Email Suspend Node | EmailSuspendNode | :red_circle: \`custom\` | \`d9a79f01-2ce3-4be2-a28a-975f35c3c8ca\` |
+| Attribute Collector | AttributeCollectorNode | :red_circle: \`custom\` | \`9f1e8d94-4922-481b-9e14-212b66548900\` |
+## Email Templates (1)
+| Display Name | Locale(s) | Subject | Id |
+| ------------ | --------- | ------- | ---|
+| forgottenUsername | en (fr) | Account Information - username | \`forgottenUsername\` |
 "
 `;
 
 exports[`frodo journey describe "frodo journey describe -f test/e2e/exports/all/allAlphaJourneys.journey.json -o 4.2.0": should describe all journeys from file and override version to 4.2.0 1`] = `
-"[j00]
+"[ForgottenUsername]
+
+Forgotten Username Tree
 
 Classification
 custom
 
-Node Types (1):
-- 6 [ScriptedDecisionNode] (custom)
+Categories/Tags
+Username Reset
 
-Nodes (6):
-- [01d3785f-7fb4-44a7-9458-72c380a9818f] (custom) ScriptedDecisionNode - shared
-- [39b48197-f4be-42b9-800a-866587b4b9b5] (custom) ScriptedDecisionNode - level
-- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] (custom) ScriptedDecisionNode - level
-- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] (custom) ScriptedDecisionNode - mode
-- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] (custom) ScriptedDecisionNode - debug
-- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] (custom) ScriptedDecisionNode - shared
+Inner Tree Dependencies (1):
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
 
-Scripts (4):
-- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
-- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
-- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+Node Types (5):
+- 1 [PageNode] (custom)
+- 1 [InnerTreeEvaluatorNode] (custom)
+- 1 [IdentifyExistingUserNode] (custom)
+- 1 [EmailSuspendNode] (custom)
+- 1 [AttributeCollectorNode] (custom)
+
+Nodes (5):
+- [5e2a7c95-94af-4b23-8724-deb13853726a] (custom) PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] (custom) InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] (custom) IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] (custom) EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] (custom) AttributeCollectorNode - Attribute Collector
+
+Email Templates (1):
+- [forgottenUsername]  - Account Information - username
 "
 `;
 
 exports[`frodo journey describe "frodo journey describe -f test/e2e/exports/all/allAlphaJourneys.journey.json": should describe all journeys from file 1`] = `
-"[j00]
+"[ForgottenUsername]
 
-Node Types (1):
-- 6 [ScriptedDecisionNode] (custom)
+Forgotten Username Tree
 
-Nodes (6):
-- [01d3785f-7fb4-44a7-9458-72c380a9818f] (custom) ScriptedDecisionNode - shared
-- [39b48197-f4be-42b9-800a-866587b4b9b5] (custom) ScriptedDecisionNode - level
-- [3c1e8d61-0c48-44ba-86dc-52e9555b6aeb] (custom) ScriptedDecisionNode - level
-- [513a2ab4-f0b8-4f94-b840-6fe14796cc84] (custom) ScriptedDecisionNode - mode
-- [ba503a1e-633e-4d0d-ba18-c9a9b1105b5b] (custom) ScriptedDecisionNode - debug
-- [d17ffaa1-2c61-4abd-9bb1-2559160d0a5c] (custom) ScriptedDecisionNode - shared
+Categories/Tags
+Username Reset
 
-Scripts (4):
-- [1b52a7e0-4019-40fa-958a-15a49870e901] AUTHENTICATION_TREE_DECISION_NODE - shared
-- [3cb43516-ae69-433a-8787-501d45db14e9] AUTHENTICATION_TREE_DECISION_NODE - debug
-- [41c24257-d7fc-4654-8b46-c2666dc5b56d] AUTHENTICATION_TREE_DECISION_NODE - level
-- [5bbdaeff-ddee-44b9-b608-8d413d7d65a6] AUTHENTICATION_TREE_DECISION_NODE - mode
+Inner Tree Dependencies (1):
+- ForgottenUsername
+  - Login
+    - ProgressiveProfile
+
+Node Types (5):
+- 1 [PageNode] (custom)
+- 1 [InnerTreeEvaluatorNode] (custom)
+- 1 [IdentifyExistingUserNode] (custom)
+- 1 [EmailSuspendNode] (custom)
+- 1 [AttributeCollectorNode] (custom)
+
+Nodes (5):
+- [5e2a7c95-94af-4b23-8724-deb13853726a] (custom) PageNode - Page Node
+- [b93ce36e-1976-4610-b24f-8d6760b5463b] (custom) InnerTreeEvaluatorNode - Inner Tree Evaluator
+- [bf9ea8d5-9802-4f26-9664-a21840faac23] (custom) IdentifyExistingUserNode - Identify Existing User
+- [d9a79f01-2ce3-4be2-a28a-975f35c3c8ca] (custom) EmailSuspendNode - Email Suspend Node
+- [9f1e8d94-4922-481b-9e14-212b66548900] (custom) AttributeCollectorNode - Attribute Collector
+
+Email Templates (1):
+- [forgottenUsername]  - Account Information - username
 "
 `;
 

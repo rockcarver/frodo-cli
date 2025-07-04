@@ -1,0 +1,18 @@
+{
+  "script": {
+    "248b8a56-df81-4b1b-b4ba-45d994f6504c": {
+      "_id": "248b8a56-df81-4b1b-b4ba-45d994f6504c",
+      "context": "SAML2_IDP_ADAPTER",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for SAML2 IDP Adapter",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "SAML2 IDP Adapter Script",
+      "script": "file://SAML2-IDP-Adapter-Script.script.js"
+    }
+  }
+}

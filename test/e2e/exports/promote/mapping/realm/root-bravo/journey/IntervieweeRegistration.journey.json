@@ -1,0 +1,594 @@
+{
+  "trees": {
+    "IntervieweeRegistration": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "29f9b4a6-e9b1-4d82-a3de-1d5e06672ee1": {
+          "_id": "29f9b4a6-e9b1-4d82-a3de-1d5e06672ee1",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "7a17bd74-d6b0-4f33-993d-1ec9e9700cc4": {
+          "_id": "7a17bd74-d6b0-4f33-993d-1ec9e9700cc4",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "9535446c-0ff6-4a76-8576-616599119d64"
+        },
+        "b3cb17c3-1066-4daa-87b8-e8902f84c650": {
+          "_id": "b3cb17c3-1066-4daa-87b8-e8902f84c650",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "MessageNode",
+            "collection": true,
+            "name": "Message Node"
+          },
+          "message": {
+            "en": "This applicant has already been successfully verified."
+          },
+          "messageNo": {
+            "et": "Authenticate applicant"
+          },
+          "messageYes": {
+            "en": "Verify again"
+          }
+        },
+        "c8376489-5929-476e-bb5a-5b3b7a24084b": {
+          "_id": "c8376489-5929-476e-bb5a-5b3b7a24084b",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "3cb43516-ae69-433a-8787-501d45db14e9"
+        },
+        "d1513615-96e6-483a-b169-f465fbea4acc": {
+          "_id": "d1513615-96e6-483a-b169-f465fbea4acc",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "collection": true,
+            "name": "Attribute Collector"
+          },
+          "attributesToCollect": [
+            "givenName",
+            "sn",
+            "mail",
+            "telephoneNumber"
+          ],
+          "identityAttribute": "userName",
+          "required": true,
+          "validateInputs": true
+        },
+        "efa28d41-24b0-405d-8add-ae6baba145e4": {
+          "_id": "efa28d41-24b0-405d-8add-ae6baba145e4",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "ca0c39c5-9c50-417f-a36e-815cfd1ecffe"
+        }
+      },
+      "nodes": {
+        "029c508c-2c37-47b5-842d-6a914106995b": {
+          "_id": "029c508c-2c37-47b5-842d-6a914106995b",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "efa28d41-24b0-405d-8add-ae6baba145e4",
+              "displayName": "Results",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "b3cb17c3-1066-4daa-87b8-e8902f84c650",
+              "displayName": "Verify or authenticate?",
+              "nodeType": "MessageNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {
+            "en": "Applicant Already Verified"
+          }
+        },
+        "139d3499-ebe9-48aa-8230-a7ee11165f60": {
+          "_id": "139d3499-ebe9-48aa-8230-a7ee11165f60",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "IdentifyExistingUserNode",
+            "collection": true,
+            "name": "Identify Existing User"
+          },
+          "identifier": "userName",
+          "identityAttribute": "mail"
+        },
+        "1e4264ea-7329-4ab6-b536-2990ba2ff6c0": {
+          "_id": "1e4264ea-7329-4ab6-b536-2990ba2ff6c0",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "29f9b4a6-e9b1-4d82-a3de-1d5e06672ee1",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "There was an error registering the applicant. Please contact your system administrator."
+          },
+          "pageHeader": {
+            "en": "Error Creating Account"
+          }
+        },
+        "1f503e47-5b59-4ff3-950b-d86f75daedd9": {
+          "_id": "1f503e47-5b59-4ff3-950b-d86f75daedd9",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "d1513615-96e6-483a-b169-f465fbea4acc",
+              "displayName": "Attributes",
+              "nodeType": "AttributeCollectorNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "Please provide the applicant/interviewee's first name, last name, private email address, and mobile phone number to start the process"
+          },
+          "pageHeader": {
+            "en": "Register Applicant/Interviewee"
+          }
+        },
+        "2295c6bc-6eb5-4822-978e-640312c34ea0": {
+          "_id": "2295c6bc-6eb5-4822-978e-640312c34ea0",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator"
+          },
+          "tree": "IntervieweeSelfieAuthentication"
+        },
+        "5214b99f-fd80-4f25-8798-4530eea5e3cb": {
+          "_id": "5214b99f-fd80-4f25-8798-4530eea5e3cb",
+          "_outcomes": [
+            {
+              "displayName": "Created",
+              "id": "CREATED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "CreateObjectNode",
+            "collection": true,
+            "name": "Create Object"
+          },
+          "identityResource": "managed/bravo_user"
+        },
+        "5a52a154-9bc9-461a-aee2-85e9cfb34fd9": {
+          "_id": "5a52a154-9bc9-461a-aee2-85e9cfb34fd9",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "835c3d04-4883-4fb7-b957-bd6ff6ff9d50"
+        },
+        "ae3b66b6-f4b1-4b40-ad90-f478a9c766a2": {
+          "_id": "ae3b66b6-f4b1-4b40-ad90-f478a9c766a2",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "ScriptedDecisionNode",
+            "collection": true,
+            "name": "Scripted Decision"
+          },
+          "inputs": [
+            "*"
+          ],
+          "outcomes": [
+            "true"
+          ],
+          "outputs": [
+            "*"
+          ],
+          "script": "835c3d04-4883-4fb7-b957-bd6ff6ff9d50"
+        },
+        "af9a8a68-571a-4434-9b3d-bc84e4ec6fb6": {
+          "_id": "af9a8a68-571a-4434-9b3d-bc84e4ec6fb6",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AttributeValueDecisionNode",
+            "collection": true,
+            "name": "Attribute Value Decision"
+          },
+          "comparisonAttribute": "custom_verifyStatus",
+          "comparisonOperation": "EQUALS",
+          "comparisonValue": "Successfully verified",
+          "identityAttribute": "userName"
+        },
+        "b5ca1e74-ee28-45ef-95ee-bf53e1ead142": {
+          "_id": "b5ca1e74-ee28-45ef-95ee-bf53e1ead142",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator"
+          },
+          "tree": "IntervieweeFullVerification"
+        },
+        "d31ee3a0-9b8d-4f72-9037-deb2eb27268a": {
+          "_id": "d31ee3a0-9b8d-4f72-9037-deb2eb27268a",
+          "_outcomes": [
+            {
+              "displayName": "Patched",
+              "id": "PATCHED"
+            },
+            {
+              "displayName": "Failed",
+              "id": "FAILURE"
+            }
+          ],
+          "_type": {
+            "_id": "PatchObjectNode",
+            "collection": true,
+            "name": "Patch Object"
+          },
+          "identityAttribute": "userName",
+          "identityResource": "managed/bravo_user",
+          "ignoredFields": [],
+          "patchAsObject": false
+        },
+        "ed269417-887d-4e6a-9569-ca3cae6f0424": {
+          "_id": "ed269417-887d-4e6a-9569-ca3cae6f0424",
+          "_outcomes": [
+            {
+              "displayName": "true",
+              "id": "true"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "c8376489-5929-476e-bb5a-5b3b7a24084b",
+              "displayName": "Debug",
+              "nodeType": "ScriptedDecisionNode"
+            },
+            {
+              "_id": "7a17bd74-d6b0-4f33-993d-1ec9e9700cc4",
+              "displayName": "Remove Button",
+              "nodeType": "ScriptedDecisionNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "An error occurred updating the account."
+          },
+          "pageHeader": {
+            "en": "Error Updating Account"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "IntervieweeRegistration",
+        "description": "Interviewee registration journey with full identity verification",
+        "enabled": true,
+        "entryNodeId": "1f503e47-5b59-4ff3-950b-d86f75daedd9",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "nodes": {
+          "029c508c-2c37-47b5-842d-6a914106995b": {
+            "connections": {
+              "false": "2295c6bc-6eb5-4822-978e-640312c34ea0",
+              "true": "5a52a154-9bc9-461a-aee2-85e9cfb34fd9"
+            },
+            "displayName": "Already verified",
+            "nodeType": "PageNode",
+            "x": 853,
+            "y": 292.015625
+          },
+          "139d3499-ebe9-48aa-8230-a7ee11165f60": {
+            "connections": {
+              "false": "ae3b66b6-f4b1-4b40-ad90-f478a9c766a2",
+              "true": "af9a8a68-571a-4434-9b3d-bc84e4ec6fb6"
+            },
+            "displayName": "Lookup Interviewee",
+            "nodeType": "IdentifyExistingUserNode",
+            "x": 386,
+            "y": 232.015625
+          },
+          "1e4264ea-7329-4ab6-b536-2990ba2ff6c0": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Error Creating Account",
+            "nodeType": "PageNode",
+            "x": 1552,
+            "y": 253.015625
+          },
+          "1f503e47-5b59-4ff3-950b-d86f75daedd9": {
+            "connections": {
+              "outcome": "139d3499-ebe9-48aa-8230-a7ee11165f60"
+            },
+            "displayName": "Register Interviewee",
+            "nodeType": "PageNode",
+            "x": 164,
+            "y": 230.015625
+          },
+          "2295c6bc-6eb5-4822-978e-640312c34ea0": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Selfie Authenticate",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 1550,
+            "y": 387.015625
+          },
+          "5214b99f-fd80-4f25-8798-4530eea5e3cb": {
+            "connections": {
+              "CREATED": "b5ca1e74-ee28-45ef-95ee-bf53e1ead142",
+              "FAILURE": "1e4264ea-7329-4ab6-b536-2990ba2ff6c0"
+            },
+            "displayName": "Create Account",
+            "nodeType": "CreateObjectNode",
+            "x": 1317,
+            "y": 179.015625
+          },
+          "5a52a154-9bc9-461a-aee2-85e9cfb34fd9": {
+            "connections": {
+              "true": "d31ee3a0-9b8d-4f72-9037-deb2eb27268a"
+            },
+            "displayName": "Prepare Account",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1098,
+            "y": 546.015625
+          },
+          "ae3b66b6-f4b1-4b40-ad90-f478a9c766a2": {
+            "connections": {
+              "true": "5214b99f-fd80-4f25-8798-4530eea5e3cb"
+            },
+            "displayName": "Prepare Account",
+            "nodeType": "ScriptedDecisionNode",
+            "x": 1094,
+            "y": 196.015625
+          },
+          "af9a8a68-571a-4434-9b3d-bc84e4ec6fb6": {
+            "connections": {
+              "false": "5a52a154-9bc9-461a-aee2-85e9cfb34fd9",
+              "true": "029c508c-2c37-47b5-842d-6a914106995b"
+            },
+            "displayName": "Already verified?",
+            "nodeType": "AttributeValueDecisionNode",
+            "x": 627.15625,
+            "y": 344.015625
+          },
+          "b5ca1e74-ee28-45ef-95ee-bf53e1ead142": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Verify Applicant",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 1553,
+            "y": 125.015625
+          },
+          "d31ee3a0-9b8d-4f72-9037-deb2eb27268a": {
+            "connections": {
+              "FAILURE": "ed269417-887d-4e6a-9569-ca3cae6f0424",
+              "PATCHED": "b5ca1e74-ee28-45ef-95ee-bf53e1ead142"
+            },
+            "displayName": "Update Account",
+            "nodeType": "PatchObjectNode",
+            "x": 1321,
+            "y": 530.015625
+          },
+          "ed269417-887d-4e6a-9569-ca3cae6f0424": {
+            "connections": {
+              "true": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Error Updating Account",
+            "nodeType": "PageNode",
+            "x": 1551,
+            "y": 522.015625
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 54,
+            "y": 140
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1838,
+            "y": 351
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"P1 Verify\"]"
+        }
+      }
+    }
+  }
+}
