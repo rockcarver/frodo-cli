@@ -3,14 +3,14 @@
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525936837,
       "name": "OIDC Claims Script",
       "script": "file://OIDC-Claims-Script.script.groovy"
     }

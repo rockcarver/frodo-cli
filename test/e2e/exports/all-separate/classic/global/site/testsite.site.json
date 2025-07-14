@@ -3,12 +3,7 @@
     "testsite": {
       "_id": "testsite",
       "secondaryURLs": [],
-      "servers": [
-        {
-          "id": "03",
-          "url": "http://localhost:8081/am"
-        }
-      ],
+      "servers": [],
       "url": "http://testurl.com:8080"
     }
   }

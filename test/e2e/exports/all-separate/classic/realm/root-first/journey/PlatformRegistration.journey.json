@@ -188,6 +188,8 @@
         "entryNodeId": "d67d8ab4-f4c1-3bf2-aaa3-53e27879133c",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "3416a75f-4cea-3109-907c-acd8e2f2aefc": {
             "connections": {

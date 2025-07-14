@@ -1,6 +1,6 @@
 {
   "_id": "01/properties/advanced",
-  "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+  "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
   "com.iplanet.am.lbcookie.value": "01",
   "com.iplanet.am.serverMode": true,
   "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",

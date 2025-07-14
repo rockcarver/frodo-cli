@@ -3,8 +3,8 @@
     "9a7836ff-b597-4799-8a6f-306fdf40f238": {
       "_id": "9a7836ff-b597-4799-8a6f-306fdf40f238",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": 1752525913373,
       "default": false,
       "description": "This is a test script",
       "evaluatorVersion": "2.0",
@@ -31,8 +31,8 @@
         }
       ],
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752533573740,
       "name": "test script 2",
       "script": "file://test-script-2.script.js"
     }

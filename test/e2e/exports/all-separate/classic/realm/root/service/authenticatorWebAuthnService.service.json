@@ -7,7 +7,7 @@
         "collection": false,
         "name": "WebAuthn Profile Encryption Service"
       },
-      "authenticatorWebAuthnDeviceSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jceks",
+      "authenticatorWebAuthnDeviceSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jceks",
       "authenticatorWebAuthnDeviceSettingsEncryptionKeystorePassword": null,
       "authenticatorWebAuthnDeviceSettingsEncryptionKeystoreType": "JCEKS",
       "authenticatorWebAuthnDeviceSettingsEncryptionScheme": "NONE",

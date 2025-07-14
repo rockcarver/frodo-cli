@@ -3,14 +3,14 @@
     "69f06e63-128c-4e2f-af52-079a8a6f448b": {
       "_id": "69f06e63-128c-4e2f-af52-079a8a6f448b",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for SAML2 SP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937005,
       "name": "SAML2 SP Adapter Script",
       "script": "file://SAML2-SP-Adapter-Script.script.js"
     }

@@ -34,7 +34,7 @@
           "authorizeEndpoint": "https://api.twitter.com/oauth/authenticate",
           "provider": "Twitter",
           "requestTokenEndpoint": "https://api.twitter.com/oauth/request_token",
-          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "ssoProxyUrl": "http://openam-frodo-dev.classic.com:8080/am/oauth2c/OAuthProxy.jsp",
           "subjectProperty": "id_str",
           "tokenEndpoint": "https://api.twitter.com/oauth/access_token",
           "userInfoEndpoint": "https://api.twitter.com/1.1/account/verify_credentials.json",

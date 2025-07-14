@@ -1,0 +1,159 @@
+{
+  "trees": {
+    "ldapService": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "c4ca4238-a0b9-3382-8dcc-509a6f75849c": {
+          "_id": "c4ca4238-a0b9-3382-8dcc-509a6f75849c",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PasswordCollectorNode",
+            "collection": true,
+            "name": "Password Collector"
+          }
+        },
+        "cfcd2084-95d5-35ef-a6e7-dff9f98764db": {
+          "_id": "cfcd2084-95d5-35ef-a6e7-dff9f98764db",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "UsernameCollectorNode",
+            "collection": true,
+            "name": "Username Collector"
+          }
+        }
+      },
+      "nodes": {
+        "6c8349cc-7260-3e62-a3b1-396831a8398a": {
+          "_id": "6c8349cc-7260-3e62-a3b1-396831a8398a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node"
+          },
+          "nodes": [
+            {
+              "_id": "cfcd2084-95d5-35ef-a6e7-dff9f98764db",
+              "displayName": "User Name Collector",
+              "nodeType": "UsernameCollectorNode"
+            },
+            {
+              "_id": "c4ca4238-a0b9-3382-8dcc-509a6f75849c",
+              "displayName": "Password Collector",
+              "nodeType": "PasswordCollectorNode"
+            }
+          ],
+          "pageDescription": {
+            "en": ""
+          },
+          "pageHeader": {
+            "en": "Sign In"
+          },
+          "stage": "null"
+        },
+        "c81e728d-9d4c-3f63-af06-7f89cc14862d": {
+          "_id": "c81e728d-9d4c-3f63-af06-7f89cc14862d",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "DataStoreDecisionNode",
+            "collection": true,
+            "name": "Data Store Decision"
+          }
+        },
+        "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5": {
+          "_id": "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5",
+          "_outcomes": [
+            {
+              "displayName": "Has Credentials",
+              "id": "true"
+            },
+            {
+              "displayName": "No Credentials",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ZeroPageLoginNode",
+            "collection": true,
+            "name": "Zero Page Login Collector"
+          },
+          "allowWithoutReferer": true,
+          "passwordHeader": "X-OpenAM-Password",
+          "referrerWhiteList": [],
+          "usernameHeader": "X-OpenAM-Username"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "ldapService",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "6c8349cc-7260-3e62-a3b1-396831a8398a": {
+            "connections": {
+              "outcome": "c81e728d-9d4c-3f63-af06-7f89cc14862d"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 0,
+            "y": 0
+          },
+          "c81e728d-9d4c-3f63-af06-7f89cc14862d": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Data Store Decision",
+            "nodeType": "DataStoreDecisionNode",
+            "x": 0,
+            "y": 0
+          },
+          "eccbc87e-4b5c-32fe-a830-8fd9f2a7baf5": {
+            "connections": {
+              "false": "6c8349cc-7260-3e62-a3b1-396831a8398a",
+              "true": "c81e728d-9d4c-3f63-af06-7f89cc14862d"
+            },
+            "displayName": "Zero Page Login Collector",
+            "nodeType": "ZeroPageLoginNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

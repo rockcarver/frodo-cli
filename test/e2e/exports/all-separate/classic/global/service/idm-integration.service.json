@@ -5,7 +5,7 @@
       "_type": {
         "_id": "idm-integration",
         "collection": false,
-        "name": "IDM Provisioning"
+        "name": "IdmIntegrationService"
       },
       "configurationCacheDuration": 0,
       "enabled": false,

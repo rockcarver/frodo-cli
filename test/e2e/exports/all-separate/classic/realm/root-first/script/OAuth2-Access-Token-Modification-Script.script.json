@@ -3,14 +3,14 @@
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937205,
       "name": "OAuth2 Access Token Modification Script",
       "script": "file://OAuth2-Access-Token-Modification-Script.script.groovy"
     }

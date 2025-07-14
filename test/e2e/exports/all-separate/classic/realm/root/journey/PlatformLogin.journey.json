@@ -70,6 +70,7 @@
             "collection": true,
             "name": "Inner Tree Evaluator"
           },
+          "displayErrorOutcome": false,
           "tree": "PlatformProgressiveProfile"
         },
         "c0c7c76d-30bd-3dca-afc9-6f40275bdc0a": {
@@ -135,6 +136,8 @@
         "entryNodeId": "f457c545-a9de-388f-98ec-ee47145a72c0",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "2838023a-778d-3aec-9c21-2708f721b788": {
             "connections": {

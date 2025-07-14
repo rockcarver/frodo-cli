@@ -10,13 +10,13 @@
       "defaults": {
         "authenticationLevel": 0,
         "baseSearchDN": [
-          "dc=openam,dc=forgerock,dc=org"
+          "ou=identities"
         ],
         "ldapProviderUrl": [
-          "localhost:50636"
+          "opendj-frodo-dev.classic.com:2636"
         ],
         "ldapSslEnabled": false,
-        "ldapUserBindDN": "cn=Directory Manager",
+        "ldapUserBindDN": "uid=am-identity-bind-account,ou=admins,ou=identities",
         "msisdnParameterNames": [],
         "msisdnRequestSearchLocations": [
           "searchRequest",

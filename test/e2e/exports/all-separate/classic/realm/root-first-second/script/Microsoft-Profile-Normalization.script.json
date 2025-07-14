@@ -3,14 +3,14 @@
     "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
       "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937058,
       "name": "Microsoft Profile Normalization",
       "script": "file://Microsoft-Profile-Normalization.script.groovy"
     }

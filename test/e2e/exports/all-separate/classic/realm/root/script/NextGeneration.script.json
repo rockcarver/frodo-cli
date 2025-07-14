@@ -3,8 +3,8 @@
     "31bd2ae6-c929-4547-b636-84b874715d60": {
       "_id": "31bd2ae6-c929-4547-b636-84b874715d60",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": 1752525913094,
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
@@ -31,8 +31,8 @@
         }
       ],
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752533573727,
       "name": "NextGeneration",
       "script": "file://NextGeneration.script.js"
     }

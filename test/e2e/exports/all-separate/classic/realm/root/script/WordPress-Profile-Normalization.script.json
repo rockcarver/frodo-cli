@@ -3,14 +3,14 @@
     "91d197de-5916-4dca-83b5-9a4df26e7159": {
       "_id": "91d197de-5916-4dca-83b5-9a4df26e7159",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from WordPress",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937110,
       "name": "WordPress Profile Normalization",
       "script": "file://WordPress-Profile-Normalization.script.groovy"
     }

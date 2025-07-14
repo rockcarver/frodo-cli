@@ -9,7 +9,7 @@
       },
       "defaults": {
         "authenticationLevel": 0,
-        "serverConfigPath": "/home/prestonhales/am/config/auth/ace/data"
+        "serverConfigPath": "/root/am/config/auth/ace/data"
       }
     }
   }

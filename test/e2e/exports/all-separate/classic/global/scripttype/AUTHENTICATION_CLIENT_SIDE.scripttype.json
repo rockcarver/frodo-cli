@@ -9,7 +9,8 @@
       },
       "context": {
         "_id": "AUTHENTICATION_CLIENT_SIDE",
-        "allowLists": {},
+        "allowLists": [],
+        "bindings": [],
         "evaluatorVersions": {
           "GROOVY": [
             "1.0"
@@ -20,6 +21,7 @@
         }
       },
       "defaultScript": "[Empty]",
+      "isHidden": false,
       "languages": [
         "JAVASCRIPT",
         "GROOVY"

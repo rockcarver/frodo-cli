@@ -1,0 +1,57 @@
+{
+  "trees": {
+    "amsterService": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "cfcd2084-95d5-35ef-a6e7-d7f9f98764db": {
+          "_id": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AmsterJwtDecisionNode",
+            "collection": true,
+            "name": "Amster Jwt Decision Node"
+          },
+          "authorizedKeys": "/root/am/security/keys/amster/authorized_keys"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "amsterService",
+        "description": "null",
+        "enabled": true,
+        "entryNodeId": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
+        "identityResource": "null",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "cfcd2084-95d5-35ef-a6e7-d7f9f98764db": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Amster Jwt Decision Node",
+            "nodeType": "AmsterJwtDecisionNode",
+            "x": 0,
+            "y": 0
+          }
+        },
+        "uiConfig": {}
+      }
+    }
+  }
+}

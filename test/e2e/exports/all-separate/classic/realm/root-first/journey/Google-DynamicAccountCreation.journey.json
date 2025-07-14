@@ -72,7 +72,7 @@
           },
           "cfgMixUpMitigation": false,
           "clientId": "aClientId",
-          "clientSecret": null,
+          "issuer": "",
           "provider": "google",
           "redirectURI": "http://localhost:8080/am",
           "saveUserAttributesToSession": true,
@@ -103,7 +103,6 @@
           "fromEmailAddress": "admin@example.com",
           "hostName": "mail.example.com",
           "hostPort": 25,
-          "password": null,
           "smsGatewayImplementationClass": "com.sun.identity.authentication.modules.hotp.DefaultSMSGatewayImpl",
           "sslOption": "SSL",
           "username": "admin@example.com"
@@ -174,6 +173,8 @@
         "entryNodeId": "33e75ff0-9dd6-31bb-a69f-351039152189",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "02e74f10-e032-3ad8-a8d1-38f2b4fdd6f0": {
             "connections": {

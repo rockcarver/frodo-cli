@@ -38,7 +38,7 @@
           "scope": [
             "basic"
           ],
-          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "ssoProxyUrl": "http://openam-frodo-dev.classic.com:8080/am/oauth2c/OAuthProxy.jsp",
           "subjectProperty": "id",
           "tokenEndpoint": "https://api.instagram.com/oauth/access_token",
           "userInfoEndpoint": "https://api.instagram.com/v1/users/self",

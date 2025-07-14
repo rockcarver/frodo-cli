@@ -30,8 +30,8 @@
       "displayName": "Default Policy Set",
       "editable": true,
       "entitlementCombiner": "DenyOverride",
-      "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728509786744,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752533574036,
       "name": "iPlanetAMWebAgentService",
       "resourceComparator": null,
       "resourceTypeUuids": [

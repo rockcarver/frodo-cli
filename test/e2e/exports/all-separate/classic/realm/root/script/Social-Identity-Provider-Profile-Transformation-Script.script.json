@@ -3,14 +3,14 @@
     "1d475815-72cb-42eb-aafd-4026989d28a7": {
       "_id": "1d475815-72cb-42eb-aafd-4026989d28a7",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for Social Identity Provider Profile Transformation",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525936785,
       "name": "Social Identity Provider Profile Transformation Script",
       "script": "file://Social-Identity-Provider-Profile-Transformation-Script.script.groovy"
     }

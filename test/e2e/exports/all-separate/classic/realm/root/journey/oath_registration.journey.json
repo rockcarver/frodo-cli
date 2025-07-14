@@ -78,6 +78,7 @@
           "algorithm": "TOTP",
           "bgColor": "032b75",
           "generateRecoveryCodes": true,
+          "imgUrl": "",
           "issuer": "ForgeRock",
           "minSharedSecretLength": 32,
           "passwordLength": "SIX_DIGITS",
@@ -154,6 +155,8 @@
         "enabled": true,
         "entryNodeId": "fc5481db-cbee-479f-915a-2b40c54ce04e",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "35ca2418-908d-4b92-9320-ef8576851abb": {
             "connections": {

@@ -8,6 +8,7 @@
         "name": "Base URL Source"
       },
       "contextPath": "/am",
+      "fixedValue": "http://openam-frodo-dev.classic.com:8080/am",
       "location": "/",
       "nextDescendents": [],
       "source": "REQUEST_VALUES"

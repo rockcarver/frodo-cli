@@ -8,7 +8,7 @@
         "name": "Device Profiles Service"
       },
       "deviceProfilesAttrName": "deviceProfiles",
-      "deviceProfilesSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "deviceProfilesSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jks",
       "deviceProfilesSettingsEncryptionKeystorePassword": null,
       "deviceProfilesSettingsEncryptionKeystoreType": "JKS",
       "deviceProfilesSettingsEncryptionScheme": "NONE",

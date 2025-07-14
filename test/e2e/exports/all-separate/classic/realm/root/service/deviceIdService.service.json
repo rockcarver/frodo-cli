@@ -8,7 +8,7 @@
         "name": "Device ID Service"
       },
       "deviceIdAttrName": "devicePrintProfiles",
-      "deviceIdSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "deviceIdSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jks",
       "deviceIdSettingsEncryptionKeystorePassword": null,
       "deviceIdSettingsEncryptionKeystoreType": "JKS",
       "deviceIdSettingsEncryptionScheme": "NONE",

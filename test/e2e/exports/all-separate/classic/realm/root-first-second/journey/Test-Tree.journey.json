@@ -29,6 +29,8 @@
         "enabled": true,
         "entryNodeId": "0254ab35-daea-40db-9a53-44fc06715e48",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "0254ab35-daea-40db-9a53-44fc06715e48": {
             "connections": {
