@@ -14,7 +14,6 @@ const { getConnectionProfile, saveConnectionProfile } = frodo.conn;
 const SECONDS_IN_30_DAYS = 2592000;
 const SECONDS_IN_1_HOUR = 3600;
 const LOG_TIME_WINDOW_MAX = SECONDS_IN_30_DAYS;
-const LOG_TIME_WINDOW_INCREMENT = 1;
 
 const deploymentTypes = ['cloud'];
 
@@ -38,10 +37,16 @@ export default function setup() {
   \n0, SEVERE, FATAL, or ERROR\n1, WARNING, WARN or CONFIG\
   \n2, INFO or INFORMATION\n3, DEBUG, FINE, FINER or FINEST\
   \n4 or ALL'
-      ).default('ERROR', `${resolveLevel('ERROR')}`)
+      ).default('ALL', `${resolveLevel('ALL')}`)
     )
     .addOption(
       new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
+    )
+    .addOption(
+      new Option(
+        '-f, --query-filter <filter exp>',
+        'Filter using a query expression'
+      )
     )
     .addOption(
       new Option(
@@ -123,53 +128,64 @@ export default function setup() {
       if (foundCredentials) {
         const now = Date.now() / 1000;
         const nowString = new Date(now * 1000).toISOString();
+        let beginTs = -1;
+        let endTs = -1;
+
         if (
-          typeof options.beginTimestamp === 'undefined' ||
-          !options.beginTimestamp
+          (typeof options.beginTimestamp === 'undefined' ||
+            !options.beginTimestamp) &&
+          (typeof options.endTimestamp === 'undefined' || !options.endTimestamp)
         ) {
-          // no beginTimestamp value specified, default is 1 hour ago
-          const tempStartDate = new Date();
-          tempStartDate.setTime((now - SECONDS_IN_1_HOUR) * 1000);
-          options.beginTimestamp = tempStartDate.toISOString();
-          // also override endTimestamp to now
-          const tempEndDate = new Date();
-          tempEndDate.setTime(now * 1000);
-          options.endTimestamp = tempEndDate;
-          printMessage(
-            'No timestamps specified, defaulting to logs from 1 hour ago',
-            'info'
-          );
+          beginTs = -1;
+          endTs = -1;
+        } else {
+          if (
+            typeof options.beginTimestamp === 'undefined' ||
+            !options.beginTimestamp
+          ) {
+            // no beginTimestamp value specified, default is 1 hour ago
+            const tempStartDate = new Date();
+            tempStartDate.setTime((now - SECONDS_IN_1_HOUR) * 1000);
+            options.beginTimestamp = tempStartDate.toISOString();
+            // also override endTimestamp to now
+            const tempEndDate = new Date();
+            tempEndDate.setTime(now * 1000);
+            options.endTimestamp = tempEndDate;
+            printMessage(
+              'No begin timestamp specified, defaulting to logs from 1 hour ago',
+              'info'
+            );
+          }
+          if (
+            typeof options.endTimestamp === 'undefined' ||
+            !options.endTimestamp
+          ) {
+            // no endTimestamp value specified, default is now
+            options.endTimestamp = nowString;
+            printMessage(
+              'No end timestamp specified, defaulting end timestamp to "now"',
+              'info'
+            );
+          }
+          beginTs = Date.parse(options.beginTimestamp) / 1000;
+          endTs = Date.parse(options.endTimestamp) / 1000;
+          if (endTs < beginTs) {
+            printMessage(
+              'End timestamp can not be before begin timestamp',
+              'error'
+            );
+            process.exitCode = 1;
+            return;
+          }
+          if (now - beginTs > LOG_TIME_WINDOW_MAX) {
+            printMessage(
+              'Begin timestamp can not be more than 30 days in the past',
+              'error'
+            );
+            process.exitCode = 1;
+            return;
+          }
         }
-        if (
-          typeof options.endTimestamp === 'undefined' ||
-          !options.endTimestamp
-        ) {
-          // no endTimestamp value specified, default is now
-          options.endTimestamp = nowString;
-          printMessage(
-            'No end timestamp specified, defaulting end timestamp to "now"',
-            'info'
-          );
-        }
-        let beginTs = Date.parse(options.beginTimestamp) / 1000;
-        const endTs = Date.parse(options.endTimestamp) / 1000;
-        if (endTs < beginTs) {
-          printMessage(
-            'End timestamp can not be before begin timestamp',
-            'error'
-          );
-          process.exitCode = 1;
-          return;
-        }
-        if (now - beginTs > LOG_TIME_WINDOW_MAX) {
-          printMessage(
-            'Begin timestamp can not be more than 30 days in the past',
-            'error'
-          );
-          process.exitCode = 1;
-          return;
-        }
-        let intermediateEndTs = 0;
         printMessage(
           `Fetching ID Cloud logs from the following sources: ${
             command.opts().sources
@@ -178,24 +194,18 @@ export default function setup() {
           }...`
         );
 
-        let timeIncrement = LOG_TIME_WINDOW_INCREMENT;
-        if (endTs - beginTs > 30) {
-          timeIncrement = timeIncrement * 30;
-        }
-        do {
-          intermediateEndTs = beginTs + timeIncrement;
-          await fetchLogs(
-            command.opts().sources,
-            new Date(beginTs * 1000).toISOString(),
-            new Date(intermediateEndTs * 1000).toISOString(),
-            resolveLevel(command.opts().level),
-            command.opts().transactionId,
-            command.opts().searchString,
-            null,
-            config.getNoiseFilters(options.defaults)
-          );
-          beginTs = intermediateEndTs;
-        } while (intermediateEndTs < endTs);
+        await fetchLogs(
+          command.opts().sources,
+          beginTs == -1 ? null : new Date(beginTs * 1000).toISOString(),
+          endTs == -1 ? null : new Date(endTs * 1000).toISOString(),
+          resolveLevel(command.opts().level),
+          command.opts().transactionId,
+          command.opts().queryFilter,
+          command.opts().searchString,
+          null,
+          config.getNoiseFilters(options.defaults)
+        );
+        // printMessage(`count: ${counter++}, ts: ${new Date().toISOString()}`);
       }
       // no log api credentials
       else {
