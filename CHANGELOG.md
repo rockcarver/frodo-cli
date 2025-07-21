@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- log fetch now repects the log API request limit (1 per second)
+- log fetch and log tail default to ALL levels by default
+
 ## [3.0.6] - 2025-06-18
 
 ## [3.0.5] - 2025-04-07

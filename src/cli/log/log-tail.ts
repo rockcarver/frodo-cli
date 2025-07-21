@@ -30,7 +30,7 @@ export default function setup() {
   \n0, SEVERE, FATAL, or ERROR\n1, WARNING, WARN or CONFIG\
   \n2, INFO or INFORMATION\n3, DEBUG, FINE, FINER or FINEST\
   \n4 or ALL'
-      ).default('ERROR', `${resolveLevel('ERROR')}`)
+      ).default('ALL', `${resolveLevel('ALL')}`)
     )
     .addOption(
       new Option('-t, --transaction-id <txid>', 'Filter by transactionId')
