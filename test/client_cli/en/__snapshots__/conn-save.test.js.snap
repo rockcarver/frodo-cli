@@ -6,11 +6,12 @@ exports[`CLI help interface for 'add' should be expected english 1`] = `
 Save connection profiles.
 
 Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
 
 Options:
+  --alias [name]                               Alias name for this connection profile.
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
@@ -73,8 +74,12 @@ Usage Examples:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
+[39m  Create a connection profile with a new log API key and secret and a new service account and set an alias:
+[96m  $ frodo conn save --alias MyConnection https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
+[39m  Save an existing service account to an existing or new connection profile and set an alias:
+[96m  $ frodo conn save --alias MyConnection --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:
@@ -93,11 +98,12 @@ exports[`CLI help interface for 'add' should be expected english 2`] = `
 Save connection profiles.
 
 Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
 
 Options:
+  --alias [name]                               Alias name for this connection profile.
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
@@ -160,8 +166,12 @@ Usage Examples:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
+[39m  Create a connection profile with a new log API key and secret and a new service account and set an alias:
+[96m  $ frodo conn save --alias MyConnection https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
+[39m  Save an existing service account to an existing or new connection profile and set an alias:
+[96m  $ frodo conn save --alias MyConnection --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:
@@ -180,11 +190,12 @@ exports[`CLI help interface for 'save' should be expected english 1`] = `
 Save connection profiles.
 
 Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
 
 Options:
+  --alias [name]                               Alias name for this connection profile.
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
@@ -247,8 +258,12 @@ Usage Examples:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
+[39m  Create a connection profile with a new log API key and secret and a new service account and set an alias:
+[96m  $ frodo conn save --alias MyConnection https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
+[39m  Save an existing service account to an existing or new connection profile and set an alias:
+[96m  $ frodo conn save --alias MyConnection --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:
@@ -267,11 +282,12 @@ exports[`CLI help interface for 'save' should be expected english 2`] = `
 Save connection profiles.
 
 Arguments:
-  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                         AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                                     Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                     Password.
 
 Options:
+  --alias [name]                               Alias name for this connection profile.
   --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --curlirize                                  Output all network calls in curl format.
@@ -334,8 +350,12 @@ Usage Examples:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
+[39m  Create a connection profile with a new log API key and secret and a new service account and set an alias:
+[96m  $ frodo conn save --alias MyConnection https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
+[39m  Save an existing service account to an existing or new connection profile and set an alias:
+[96m  $ frodo conn save --alias MyConnection --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk matrix
 [39m  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:

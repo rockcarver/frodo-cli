@@ -6,7 +6,7 @@ exports[`CLI help interface for 'log list' should be expected english 1`] = `
 List available ID Cloud log sources.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                               Password.
 
@@ -70,7 +70,7 @@ exports[`CLI help interface for 'logs list' should be expected english 1`] = `
 List available ID Cloud log sources.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                               Password.
 

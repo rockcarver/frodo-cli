@@ -6,7 +6,7 @@ exports[`CLI help interface for 'info' should be expected english 1`] = `
 Print versions and tokens.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                               Password.
 
@@ -65,9 +65,9 @@ Usage Examples:
 [96m  $ frodo info https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Show human-readable output and login using a connection profile (identified by the full AM base URL):
 [96m  $ frodo info https://openam-matrix.id.forgerock.io/am
-[39m  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL):
+[39m  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL or a saved alias):
 [96m  $ frodo info matrix
-[39m  Show JSON output and login using the AM base URL's unique substring to identify the connection profile:
+[39m  Show JSON output and login using the AM base URL's unique substring or a saved alias to identify the connection profile:
 [96m  $ frodo info --json matrix
 [39m
 "

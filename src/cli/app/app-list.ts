@@ -28,7 +28,7 @@ export default function setup() {
         ] +
         `  List applications using a connection profile (identified by the full AM base URL):\n` +
         `  $ frodo app list ${s.amBaseUrl}\n`['brightCyan'] +
-        `  List applications using a connection profile (identified by a unique substring of the AM base URL):\n` +
+        `  List applications using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         `  $ frodo app list ${s.connId}\n`['brightCyan']
     )
     .action(

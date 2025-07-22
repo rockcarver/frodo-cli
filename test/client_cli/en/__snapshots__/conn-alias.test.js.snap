@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'conn alias' should be expected english 1`] = `
+"Usage: frodo conn alias [options] [command]
+
+Manage connection aliases.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  add         Add connection profile alias.
+  delete      Delete connection profile alias.
+  help        display help for command
+"
+`;

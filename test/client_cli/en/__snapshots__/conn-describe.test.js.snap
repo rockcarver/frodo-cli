@@ -6,7 +6,7 @@ exports[`CLI help interface for 'conn describe' should be expected english 1`] =
 Describe connection profile.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
 
 Options:
   -D, --directory <directory>            Set the working directory.

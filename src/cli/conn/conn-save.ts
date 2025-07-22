@@ -50,6 +50,9 @@ export default function setup() {
         'Map of headers: {"host":"am.example.com:8081"}.'
       )
     )
+    .addOption(
+      new Option('--alias [name]', 'Alias name for this connection profile.')
+    )
     .addHelpText(
       'after',
       `Usage Examples:\n` +
@@ -61,8 +64,16 @@ export default function setup() {
         `  $ frodo conn save --private-key ${s.amsterPrivateKey} ${s.amClassicBaseUrl}\n`[
           'brightCyan'
         ] +
+        `  Create a connection profile with a new log API key and secret and a new service account and set an alias:\n` +
+        `  $ frodo conn save --alias ${s.alias} ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
         `  Save an existing service account to an existing or new connection profile:\n` +
         `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
+          'brightCyan'
+        ] +
+        `  Save an existing service account to an existing or new connection profile and set an alias:\n` +
+        `  $ frodo conn save --alias ${s.alias} --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
           'brightCyan'
         ] +
         `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
@@ -120,6 +131,9 @@ export default function setup() {
           verboseMessage(
             `Saving connection profile for tenant ${state.getHost()}...`
           );
+          if (options.alias) {
+            state.setAlias(options.alias);
+          }
           // if cloud deployment add service account
           if (
             options.validate &&

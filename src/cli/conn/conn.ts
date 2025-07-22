@@ -1,4 +1,5 @@
 import { FrodoStubCommand } from '../FrodoCommand';
+import AliasCmd from './conn-alias.js';
 import DeleteCmd from './conn-delete.js';
 import DescribeCmd from './conn-describe.js';
 import ListCmd from './conn-list.js';
@@ -12,6 +13,8 @@ export default function setup() {
     .description('Manage connection profiles.');
 
   program.addCommand(SaveCmd().name('save'));
+
+  program.addCommand(AliasCmd().name('alias'));
 
   program.addCommand(DeleteCmd().name('delete'));
 

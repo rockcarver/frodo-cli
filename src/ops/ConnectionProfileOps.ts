@@ -31,6 +31,7 @@ export function listConnectionProfiles(long: boolean = false): void {
       if (long) {
         const table = createTable([
           'Host',
+          'Alias',
           'Service Account',
           'Username',
           'Log API Key',
@@ -39,6 +40,7 @@ export function listConnectionProfiles(long: boolean = false): void {
         Object.keys(connectionsData).forEach((c) => {
           table.push([
             c,
+            connectionsData[c].alias,
             connectionsData[c].svcacctName || connectionsData[c].svcacctId,
             connectionsData[c].username,
             connectionsData[c].logApiKey,
@@ -53,7 +55,7 @@ export function listConnectionProfiles(long: boolean = false): void {
         // getUniqueNames(5, Object.keys(connectionsData));
       }
       printMessage(
-        'Any unique substring of a saved host can be used as the value for host parameter in all commands',
+        'Any unique substring or alias of a saved host can be used as the value for host parameter in all commands',
         'info'
       );
     }
@@ -65,7 +67,7 @@ export function listConnectionProfiles(long: boolean = false): void {
 
 /**
  * Describe connection profile
- * @param {string} host Host URL or unique substring
+ * @param {string} host Host URL, unique substring, or alias
  * @param {boolean} showSecrets Whether secrets should be shown in clear text or not
  */
 export async function describeConnectionProfile(
@@ -141,8 +143,12 @@ export async function describeConnectionProfile(
     if (!profile.authenticationService) {
       delete profile.authenticationService;
     }
+    if (!profile.alias) {
+      delete profile.alias;
+    }
     const keyMap = {
       tenant: 'Host',
+      alias: 'Alias',
       deploymentType: 'Deployment Type',
       username: 'Username',
       password: 'Password',

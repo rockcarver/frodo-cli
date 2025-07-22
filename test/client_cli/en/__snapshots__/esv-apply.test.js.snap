@@ -8,7 +8,7 @@ requires a restart of the AM and IDM pods and can take up to 10 minutes to
 complete.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                               Password.
 
