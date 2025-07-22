@@ -57,7 +57,7 @@ export default function setup() {
         ] +
         `  Launch a frodo shell using a connection profile (identified by the full AM base URL):\n` +
         `  $ frodo shell ${s.amBaseUrl}\n`['brightCyan'] +
-        `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL):\n` +
+        `  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         `  $ frodo shell ${s.connId}\n`['brightCyan']
     )
     .addOption(

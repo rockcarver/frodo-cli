@@ -23,9 +23,9 @@ const {
 } = frodo.utils.constants;
 const { convertPrivateKeyToPem } = frodo.utils.crypto;
 
-const hostArgument = new Argument(
+export const hostArgument = new Argument(
   '[host]',
-  'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.'
+  'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.'
 );
 
 const realmArgument = new Argument(

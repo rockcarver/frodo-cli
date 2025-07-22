@@ -34,9 +34,9 @@ export default function setup() {
         ] +
         `  Show human-readable output and login using a connection profile (identified by the full AM base URL):\n` +
         `  $ frodo info ${s.amBaseUrl}\n`['brightCyan'] +
-        `  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL):\n` +
+        `  Show human-readable output and login using a connection profile (identified by a unique substring of the AM base URL or a saved alias):\n` +
         `  $ frodo info ${s.connId}\n`['brightCyan'] +
-        `  Show JSON output and login using the AM base URL's unique substring to identify the connection profile:\n` +
+        `  Show JSON output and login using the AM base URL's unique substring or a saved alias to identify the connection profile:\n` +
         `  $ frodo info --json ${s.connId}\n`['brightCyan']
     )
     .action(async (host, user, password, options, command) => {

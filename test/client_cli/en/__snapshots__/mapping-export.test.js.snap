@@ -6,7 +6,7 @@ exports[`CLI help interface for 'mapping export' should be expected english 1`] 
 Export IDM mappings.
 
 Arguments:
-  host                                             AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                             AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   realm                                            Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
   username                                         Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                                         Password.
