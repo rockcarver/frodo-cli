@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.7] - 2025-07-24
+
 ### Fixed
 
 - log fetch now repects the log API request limit (1 per second)
@@ -2080,7 +2082,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.6...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.7...HEAD
+[3.0.7]: https://github.com/rockcarver/frodo-cli/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/rockcarver/frodo-cli/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/rockcarver/frodo-cli/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/rockcarver/frodo-cli/compare/v3.0.4-1...v3.0.4
