@@ -34,6 +34,7 @@ export function listConnectionProfiles(long: boolean = false): void {
           'Service Account',
           'Username',
           'Log API Key',
+          'Authentication Service',
         ]);
         Object.keys(connectionsData).forEach((c) => {
           table.push([
@@ -41,6 +42,7 @@ export function listConnectionProfiles(long: boolean = false): void {
             connectionsData[c].svcacctName || connectionsData[c].svcacctId,
             connectionsData[c].username,
             connectionsData[c].logApiKey,
+            connectionsData[c].authenticationService,
           ]);
         });
         printMessage(table.toString(), 'data');
@@ -76,10 +78,12 @@ export async function describeConnectionProfile(
     debugMessage(profile);
     const present = '[present]';
     const jwk = profile.svcacctJwk;
+    const privateKey = profile.amsterPrivateKey;
     if (!showSecrets) {
       if (profile.password) profile.password = present;
       if (profile.logApiSecret) profile.logApiSecret = present;
       if (profile.svcacctJwk) (profile as unknown)['svcacctJwk'] = present;
+      if (profile.amsterPrivateKey) profile.amsterPrivateKey = present;
     }
     if (!profile.idmHost) {
       delete profile.idmHost;
@@ -122,8 +126,14 @@ export async function describeConnectionProfile(
         // do nothing
       }
     }
+    if (!profile.amsterPrivateKey) {
+      delete profile.amsterPrivateKey;
+    }
     if (showSecrets && jwk) {
       (profile as unknown)['svcacctJwk'] = 'see below';
+    }
+    if (showSecrets && privateKey) {
+      profile.amsterPrivateKey = 'see below';
     }
     if (!profile.authenticationService) {
       delete profile.authenticationService;
@@ -141,11 +151,15 @@ export async function describeConnectionProfile(
       svcacctId: 'Service Account Id',
       svcacctJwk: 'Service Account JWK',
       svcacctScope: 'Service Account Scope',
+      amsterPrivateKey: 'Amster Private Key',
     };
     const table = createObjectTable(profile, keyMap);
     printMessage(table.toString(), 'data');
     if (showSecrets && jwk) {
       printMessage(JSON.stringify(jwk), 'data');
+    }
+    if (showSecrets && privateKey) {
+      printMessage(privateKey, 'data');
     }
   } else {
     printMessage(`No connection profile ${host} found`);

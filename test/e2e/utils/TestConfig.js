@@ -12,5 +12,7 @@ export const classic_connection = {
   host: 'http://openam-frodo-dev.classic.com:8080/am',
   user: 'amAdmin',
   pass: 'Sup3rS3cr3t!',
-  realm: '/'
+  realm: '/',
+  pk: '/home/user/am/security/keys/amster/amster_rsa',
+  authService: 'MockAmsterService'
 }
