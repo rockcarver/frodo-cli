@@ -43,6 +43,10 @@ export default function setup() {
         "Override version. Notation: '<major>.<minor>.<patch>' e.g. '7.2.0'. Override detected version with any version. This is helpful in order to check if journeys in one environment would be compatible running in another environment (e.g. in preparation of migrating from on-prem to ForgeRock Identity Cloud."
       )
     )
+    .addOption(
+      new Option(
+        '-u, --usage',
+      'List all uses of the journey.'))
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -119,7 +123,8 @@ export default function setup() {
             if (!options.markdown) {
               const outcome = await describeJourney(
                 journeyData,
-                createFileParamTreeExportResolver(options.file)
+                createFileParamTreeExportResolver(options.file),
+                options.usage
               );
               if (!outcome) process.exitCode = 1;
             }
@@ -154,7 +159,7 @@ export default function setup() {
                 const treeData = await exportJourney(journey['_id']);
                 // ANSI text output
                 if (!options.markdown) {
-                  const outcome = await describeJourney(treeData);
+                  const outcome = await describeJourney(treeData, undefined, options.usage);
                   if (!outcome) process.exitCode = 1;
                 }
                 // Markdown output
@@ -175,7 +180,7 @@ export default function setup() {
               const treeData = await exportJourney(options.journeyId);
               // ANSI text output
               if (!options.markdown) {
-                const outcome = await describeJourney(treeData);
+                const outcome = await describeJourney(treeData, undefined, options.usage);
                 if (!outcome) process.exitCode = 1;
               }
               // Markdown output

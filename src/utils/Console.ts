@@ -330,6 +330,13 @@ function stopProgressBar(id: string, message: string = null) {
   );
 }
 
+export function stopAllProgressBars() {
+  if (multiBarContainer) {
+    multiBarContainer.stop();
+    multiBarContainer = null;
+  }
+}
+
 /**
  * Clean-up progress bars
  */

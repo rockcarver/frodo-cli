@@ -28,6 +28,7 @@ import {
   stopProgressIndicator,
   succeedSpinner,
   updateProgressIndicator,
+  stopAllProgressBars,
 } from '../utils/Console';
 import { errorHandler } from './utils/OpsUtils';
 import wordwrap from './utils/Wordwrap';
@@ -252,6 +253,7 @@ export async function describeScript(
           table.push(['', script.locations[i]]);
         }
       }
+      stopAllProgressBars();
       printMessage(table.toString(), 'data');
     }
     return true;
