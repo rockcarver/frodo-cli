@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Exports using the -a and -A options no longer stop prematurely if errors are encountered.
+
 ## [3.0.7] - 2025-07-24
 
 ### Fixed
