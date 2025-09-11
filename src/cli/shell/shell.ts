@@ -2,6 +2,7 @@ import repl from 'node:repl';
 
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import util from 'util';
 import vm from 'vm';
 
 import * as s from '../../help/SampleData';
@@ -13,6 +14,20 @@ async function startRepl(allowAwait = false) {
     prompt: '> ',
     ignoreUndefined: true,
     useGlobal: true,
+    useColors: true,
+    writer: function (output) {
+      // Check if the output is an object
+      if (typeof output === 'object' && output !== null) {
+        // Use util.inspect with desired depth
+        return util.inspect(output, {
+          depth: 10,
+          colors: true,
+          maxArrayLength: null,
+        });
+      }
+      // For non-object outputs, return as is
+      return output;
+    },
   };
 
   const configWithoutAwait = {
