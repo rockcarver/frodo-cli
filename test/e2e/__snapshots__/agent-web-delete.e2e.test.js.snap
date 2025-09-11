@@ -2,8 +2,8 @@
 
 exports[`frodo agent web delete "frodo agent web delete --agent-id frodo-test-web-agent": should display error when the web agent with id 'frodo-test-web-agent' cannot be deleted since it does not exist 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error deleting web agent frodo-test-web-agent
-  Web agent 'frodo-test-web-agent' not found!
+Error deleting alpha realm web agent frodo-test-web-agent
+  alpha realm web agent 'frodo-test-web-agent' not found!
 "
 `;
 

@@ -13,7 +13,7 @@ exports[`frodo authz policy delete "frodo authz policy delete --policy-id 'Test 
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Deleting Test Policy...
 ✖ Error deleting policy Test Policy
-Error deleting policy Test Policy
+Error deleting alpha realm policy Test Policy
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404

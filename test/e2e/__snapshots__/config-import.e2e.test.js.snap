@@ -31,45 +31,45 @@ Error Importing Services
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-Error updating script
+Error updating alpha realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating alpha realm script
   HTTP client error
     Code: ERR_BAD_RESPONSE
     Status: 502
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-Error updating script
+Error updating bravo realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating bravo realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config TNTPPingOneService
+  Error putting bravo realm full service configs
+  Error putting bravo realm full service config TNTPPingOneService
   Error putting descendent 'JC' of service 'TNTPPingOneService'
   HTTP client error
     Code: ERR_BAD_REQUEST
@@ -101,19 +101,19 @@ Error updating config entity endpoint/testEndpoint2
     Status: 401
     Reason: Unauthorized
     Message: Access Denied
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
@@ -125,38 +125,38 @@ Error updating config entity endpoint/Test
     Status: 401
     Reason: Unauthorized
     Message: Access Denied
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/classic -m classic" Import everything from directory "test/e2e/exports/all-separate/classic" 1`] = `
 "Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
 Error Importing Authentication Settings
-  Error importing authentication settings
-  Error updating authentication settings
+  Error importing / realm authentication settings
+  Error updating / realm authentication settings
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404
     Reason: Not Found
     Message: Resource '' not found
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving / realm dependencies
+✔ Resolved all / realm dependencies.
+- Resolving first realm dependencies
+✔ Resolved all first realm dependencies.
+- Resolving second realm dependencies
+✔ Resolved all second realm dependencies.
 "
 `;
 
@@ -185,19 +185,19 @@ Error Importing Services
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
@@ -232,38 +232,38 @@ Error Importing Services
     Status: 400
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.classic.json -m classic" Import everything from "all.classic.json", including default scripts. 1`] = `
 "Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
 Error Importing Authentication Settings
-  Error importing authentication settings
-  Error updating authentication settings
+  Error importing / realm authentication settings
+  Error updating / realm authentication settings
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 404
     Reason: Not Found
     Message: Resource '' not found
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving / realm dependencies
+✔ Resolved all / realm dependencies.
+- Resolving first realm dependencies
+✔ Resolved all first realm dependencies.
+- Resolving second realm dependencies
+✔ Resolved all second realm dependencies.
 "
 `;
 
@@ -281,43 +281,43 @@ Error updating config entity endpoint/testEndpoint2
     Status: 401
     Reason: Unauthorized
     Message: Access Denied
-Error updating script
+Error updating alpha realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating alpha realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 400
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-Error updating script
+Error updating bravo realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating bravo realm script
   HTTP client error
     Code: ERR_BAD_REQUEST
     Status: 403
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
