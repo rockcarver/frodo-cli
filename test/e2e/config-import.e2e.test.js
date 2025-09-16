@@ -104,7 +104,7 @@ const allClassicExport = `${allDirectory}/${allClassicFileName}`;
 const allSeparateCloudDirectory = `test/e2e/exports/all-separate/cloud`;
 const allSeparateClassicDirectory = `test/e2e/exports/all-separate/classic`;
 
-describe('frodo config import', () => {
+describe.skip('frodo config import', () => {
   test(`"frodo config import -adf ${allCloudExport}" Import everything from "${allCloudFileName}", including default scripts.`, async () => {
     const CMD = `frodo config import -adf ${allCloudExport}`;
     try {

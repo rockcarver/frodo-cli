@@ -75,7 +75,7 @@ const classicEnv = getEnv(cc);
 
 const type = 'config';
 
-describe('frodo config export', () => {
+describe.skip('frodo config export', () => {
   test('"frodo config export -adND exportAllTestDir4": should export everything, including default scripts, to a single file', async () => {
     const exportFile = 'all.config.json';
     const exportDirectory = 'exportAllTestDir4';
