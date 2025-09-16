@@ -74,8 +74,9 @@ exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-v
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: Access denied
 "

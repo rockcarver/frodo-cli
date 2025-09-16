@@ -6,8 +6,9 @@ exports[`frodo authz type delete "frodo authz type delete --type-id 0aa5ed25-0c6
 ✖ Error deleting resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
 Error deleting alpha realm resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/resourcetypes/0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
     Status: 404
+    Code: ERR_BAD_REQUEST
     Reason: Not Found
     Message: Resource Type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76 does not exist in realm /alpha
 "

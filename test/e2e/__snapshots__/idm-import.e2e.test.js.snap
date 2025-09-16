@@ -5,8 +5,9 @@ exports[`frodo idm import "frodo idm import --all --file all.idm.json -D test/e2
 - Importing config entities from test/e2e/exports/all/all.idm.json...
 Error updating config entity bravoOrgPrivileges
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/bravoOrgPrivileges
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: Access denied
 ✔ Imported config entities
@@ -22,14 +23,16 @@ exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/cl
 - Importing config entities from test/e2e/exports/all-separate/cloud/global/idm...
 Error updating config entity endpoint/Test
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/Test
     Status: 401
+    Code: ERR_BAD_REQUEST
     Reason: Unauthorized
     Message: Access Denied
 Error updating config entity endpoint/testEndpoint2
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/endpoint/testEndpoint2
     Status: 401
+    Code: ERR_BAD_REQUEST
     Reason: Unauthorized
     Message: Access Denied
 ✔ Imported config entities
