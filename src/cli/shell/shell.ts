@@ -8,6 +8,7 @@ import vm from 'vm';
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
+import { printMessage } from '../../utils/Console';
 
 async function startRepl(allowAwait = false) {
   const baseConfig = {
@@ -40,6 +41,7 @@ async function startRepl(allowAwait = false) {
   const replServer = repl.start(allowAwait ? baseConfig : configWithoutAwait);
 
   replServer.context.frodoLib = frodo;
+  replServer.context.frodo = frodo;
 }
 
 export default function setup() {
@@ -74,6 +76,9 @@ export default function setup() {
         command
       );
       if (host) await getTokens();
+      printMessage(
+        'Welcome to the interactive frodo shell!\nFor help type ".help", to quit shell type ".exit".\n\nType "frodo" to see a hierarchy of all available Frodo Library commands.\n\nSample commands:\n - "frodo.info.getInfo()" - prints information about the currently connected environment\n - "frodo.login.getTokens()" - gets fresh or cached tokens\n'
+      );
       startRepl(options.allowAwait);
     });
   return program;
