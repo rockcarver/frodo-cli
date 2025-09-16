@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.9] - 2025-09-16
+
 ### Fixed
 
 - Further improve exports using the -a and -A options to no longer stop prematurely if errors are encountered. This version resolves issues with large sets of IDM configurations.
@@ -2092,7 +2094,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.8...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.9...HEAD
+[3.0.9]: https://github.com/rockcarver/frodo-cli/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/rockcarver/frodo-cli/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/rockcarver/frodo-cli/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/rockcarver/frodo-cli/compare/v3.0.5...v3.0.6
