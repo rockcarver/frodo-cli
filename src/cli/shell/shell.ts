@@ -7,8 +7,8 @@ import vm from 'vm';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
-import { FrodoCommand } from '../FrodoCommand';
 import { printMessage } from '../../utils/Console';
+import { FrodoCommand } from '../FrodoCommand';
 
 async function startRepl(allowAwait = false) {
   const baseConfig = {
