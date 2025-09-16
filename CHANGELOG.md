@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Further improve exports using the -a and -A options to no longer stop prematurely if errors are encountered. This version resolves issues with large sets of IDM configurations.
+
 ## [3.0.8] - 2025-09-11
 
 ### Fixed

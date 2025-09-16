@@ -317,6 +317,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j01": {
       "circlesOfTrust": {},
@@ -610,6 +611,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j02": {
       "circlesOfTrust": {},
@@ -903,6 +905,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j03": {
       "circlesOfTrust": {},
@@ -1196,6 +1199,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j04": {
       "circlesOfTrust": {},
@@ -1489,6 +1493,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j05": {
       "circlesOfTrust": {},
@@ -1782,6 +1787,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j06": {
       "circlesOfTrust": {},
@@ -2075,6 +2081,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j07": {
       "circlesOfTrust": {},
@@ -2368,6 +2375,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j08": {
       "circlesOfTrust": {},
@@ -2661,6 +2669,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j09": {
       "circlesOfTrust": {},
@@ -2954,6 +2963,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j10": {
       "circlesOfTrust": {},
@@ -3247,6 +3257,7 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -3426,6 +3437,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Username Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -3819,6 +3831,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Frodo","Prototype"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -4071,6 +4084,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Authentication"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -4249,6 +4263,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Progressive Profile"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -4506,6 +4521,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Registration"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -4734,6 +4750,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -5009,6 +5026,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -5253,6 +5271,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -5493,6 +5512,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -5733,6 +5753,7 @@ exports[`frodo journey export "frodo journey export --all-separate --no-deps --n
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -5976,6 +5997,7 @@ exports[`frodo journey export "frodo journey export --journey-id j02 --no-metada
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -7156,6 +7178,7 @@ a{
           "categories": "["Frodo","Prototype"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -7372,6 +7395,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Username Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -8697,6 +8721,7 @@ a{
           "categories": "["Frodo","Prototype"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -8969,6 +8994,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Authentication"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -9163,6 +9189,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Progressive Profile"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -9457,6 +9484,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Registration"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -9719,6 +9747,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -10034,6 +10063,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -10355,6 +10385,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -10658,6 +10689,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -10961,6 +10993,7 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -11139,6 +11172,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Username Reset"]",
         },
       },
+      "variable": {},
     },
     "FrodoTest": {
       "circlesOfTrust": {},
@@ -11524,6 +11558,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Frodo","Prototype"]",
         },
       },
+      "variable": {},
     },
     "Login": {
       "circlesOfTrust": {},
@@ -11768,6 +11803,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Authentication"]",
         },
       },
+      "variable": {},
     },
     "ProgressiveProfile": {
       "circlesOfTrust": {},
@@ -11938,6 +11974,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Progressive Profile"]",
         },
       },
+      "variable": {},
     },
     "Registration": {
       "circlesOfTrust": {},
@@ -12187,6 +12224,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Registration"]",
         },
       },
+      "variable": {},
     },
     "ResetPassword": {
       "circlesOfTrust": {},
@@ -12407,6 +12445,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
     "UpdatePassword": {
       "circlesOfTrust": {},
@@ -12674,6 +12713,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "["Password Reset"]",
         },
       },
+      "variable": {},
     },
     "j00": {
       "circlesOfTrust": {},
@@ -12910,6 +12950,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j01": {
       "circlesOfTrust": {},
@@ -13142,6 +13183,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j02": {
       "circlesOfTrust": {},
@@ -13374,6 +13416,7 @@ exports[`frodo journey export "frodo journey export -Na --no-deps --no-coords --
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -13696,6 +13739,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j01": {
       "circlesOfTrust": {},
@@ -13989,6 +14033,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j02": {
       "circlesOfTrust": {},
@@ -14282,6 +14327,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j03": {
       "circlesOfTrust": {},
@@ -14575,6 +14621,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j04": {
       "circlesOfTrust": {},
@@ -14868,6 +14915,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j05": {
       "circlesOfTrust": {},
@@ -15161,6 +15209,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j06": {
       "circlesOfTrust": {},
@@ -15454,6 +15503,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j07": {
       "circlesOfTrust": {},
@@ -15747,6 +15797,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j08": {
       "circlesOfTrust": {},
@@ -16040,6 +16091,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j09": {
       "circlesOfTrust": {},
@@ -16333,6 +16385,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
     "j10": {
       "circlesOfTrust": {},
@@ -16626,6 +16679,7 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -17919,6 +17973,7 @@ a{
           "categories": "["Frodo","Prototype"]",
         },
       },
+      "variable": {},
     },
   },
 }
@@ -18224,6 +18279,7 @@ exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": shou
           "categories": "[]",
         },
       },
+      "variable": {},
     },
   },
 }

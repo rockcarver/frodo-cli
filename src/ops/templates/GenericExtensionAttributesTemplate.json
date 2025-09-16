@@ -214,6 +214,156 @@
     "userEditable": true,
     "viewable": true
   },
+  "frIndexedString6": {
+    "description": "Generic Indexed String 6",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 6",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString7": {
+    "description": "Generic Indexed String 7",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 7",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString8": {
+    "description": "Generic Indexed String 8",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 8",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString9": {
+    "description": "Generic Indexed String 9",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 9",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString10": {
+    "description": "Generic Indexed String 10",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 10",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString11": {
+    "description": "Generic Indexed String 11",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 11",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString12": {
+    "description": "Generic Indexed String 12",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 12",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString13": {
+    "description": "Generic Indexed String 13",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 13",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString14": {
+    "description": "Generic Indexed String 14",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 14",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString15": {
+    "description": "Generic Indexed String 15",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 15",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString16": {
+    "description": "Generic Indexed String 16",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 16",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString17": {
+    "description": "Generic Indexed String 17",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 17",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString18": {
+    "description": "Generic Indexed String 18",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 18",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString19": {
+    "description": "Generic Indexed String 19",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 19",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
+  "frIndexedString20": {
+    "description": "Generic Indexed String 20",
+    "isPersonal": false,
+    "searchable": true,
+    "title": "Generic Indexed String 20",
+    "type": "string",
+    "usageDescription": "",
+    "userEditable": true,
+    "viewable": true
+  },
   "frUnindexedDate1": {
     "description": "Generic Unindexed Date 1",
     "isPersonal": false,

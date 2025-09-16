@@ -13,8 +13,9 @@ exports[`frodo authz set delete "frodo authz set delete --set-id test-policy-set
 ✖ Error deleting policy set test-policy-set
 Error deleting alpha realm policy set test-policy-set
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/applications/test-policy-set
     Status: 404
+    Code: ERR_BAD_REQUEST
     Reason: Not Found
     Message: test-policy-set application not found in realm.
 "
