@@ -17,7 +17,11 @@ const deploymentTypes = [
 ];
 
 export default function setup() {
-  const program = new FrodoCommand('frodo agent describe', [], deploymentTypes);
+  const program = new FrodoCommand(
+    'frodo agent describe',
+    [],
+    globalDeploymentTypes
+  );
 
   program
     .description('Describe agents.')

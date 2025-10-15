@@ -39,6 +39,7 @@ Options:
   -t, --managed-object-type <managed-object-type>  Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.
   --use-string-arrays                              Where applicable, use string arrays to store multi-line text (e.g. scripts). (default: off)
   --verbose                                        Verbose output during command execution. If specified, may or may not produce additional output.
+  -x, --extract                                    Extract the script from the exported file, and save it to a separate file. Ignored with -a.
 
 Environment Variables:
   FRODO_HOST: AM base URL. Overridden by 'host' argument.

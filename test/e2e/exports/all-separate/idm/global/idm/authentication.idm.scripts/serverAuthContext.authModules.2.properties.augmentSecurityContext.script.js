@@ -1,0 +1,1 @@
+var augmentYield = require('auth/customAuthz').setProtectedAttributes(security);require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, 'privileges', 'privilegeAssignments', augmentYield);

@@ -1,0 +1,1 @@
+require('postDelete-idp-cleanup').removeConnectedIdpData(oldObject, resourceName, request);require('postDelete-notification-cleanup').removeConnectedNotificationData(oldObject, resourceName, request);

@@ -77,6 +77,13 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+
+    .addOption(
+      new Option(
+        '-x, --extract',
+        'Extract the scripts from the exported file, and save it to a separate file. Ignored with -a.'
+      )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -112,7 +119,8 @@ export default function setup() {
             options.envFile,
             options.separateMappings,
             options.separateObjects,
-            options.metadata
+            options.metadata,
+            options.extract
           );
           if (!outcome) process.exitCode = 1;
           // --all -a
@@ -154,7 +162,8 @@ export default function setup() {
             options.envFile,
             options.separateMappings,
             options.separateObjects,
-            options.metadata
+            options.metadata,
+            options.extract
           );
           if (!outcome) process.exitCode = 1;
           await warnAboutOfflineConnectorServers();

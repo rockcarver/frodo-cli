@@ -1,0 +1,9 @@
+{
+  "name": "seantestmanagedobject",
+  "schema": {
+    "description": null,
+    "icon": "fa-database",
+    "mat-icon": null,
+    "title": null
+  }
+}

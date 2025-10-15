@@ -17,8 +17,19 @@ import {
 } from '../utils/Config';
 import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
-import { ManagedSkeleton, writeManagedJsonToDirectory } from './IdmOps';
-import { writeSyncJsonToDirectory } from './MappingOps';
+import {
+  extractIdmEndpointScript,
+  extractIdmScriptsToFolder,
+  extractIdmScriptToSameLevel,
+  findScriptsFromIdm,
+  ManagedSkeleton,
+  writeManagedJsonToDirectory,
+} from './IdmOps';
+import {
+  extractMappingScripts,
+  writeMappingJsonToDirectory,
+  writeSyncJsonToDirectory,
+} from './MappingOps';
 import { extractScriptsToFiles } from './ScriptOps';
 import { errorHandler } from './utils/OpsUtils';
 
@@ -242,7 +253,8 @@ export function exportItem(
     writeSyncJsonToDirectory(
       obj as SyncSkeleton,
       `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
-      includeMeta
+      includeMeta,
+      extract
     );
   } else if (type === 'server') {
     saveServersToFiles(
@@ -252,24 +264,79 @@ export function exportItem(
       extract,
       includeMeta
     );
+  } else if (type === 'mapping') {
+    writeMappingJsonToDirectory(
+      obj,
+      `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
+      includeMeta,
+      extract
+    );
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(obj).forEach(([id, value]: [string, any]) => {
       if (type === 'idm') {
         if (value != null) {
-          if (separateMappings && id === 'sync') {
+          if ((separateMappings || extract) && id === 'sync') {
             writeSyncJsonToDirectory(
               value as SyncSkeleton,
               `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/sync`,
-              includeMeta
+              includeMeta,
+              extract
             );
-          } else if (separateObjects && id === 'managed') {
+          } else if ((separateObjects || extract) && id === 'managed') {
             writeManagedJsonToDirectory(
               value as ManagedSkeleton,
               `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/managed`,
-              includeMeta
+              includeMeta,
+              extract
             );
           } else {
+            if (extract) {
+              if (id.includes('endpoint/')) {
+                const result = findScriptsFromIdm(value);
+                if (result.length !== 0) {
+                  const endpointId = id.replace('endpoint/', '');
+                  extractIdmEndpointScript(
+                    endpointId,
+                    value,
+                    result,
+                    `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/endpoint/`
+                  );
+                }
+              } else if (id.includes('schedule/')) {
+                const result = findScriptsFromIdm(value);
+                if (result.length !== 0) {
+                  const scheduleId = id.replace('schedule/', '');
+                  extractIdmScriptToSameLevel(
+                    scheduleId,
+                    value,
+                    result,
+                    `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/schedule/`
+                  );
+                }
+              } else if (id.includes('mapping/')) {
+                const result = findScriptsFromIdm(obj);
+                if (result.length !== 0) {
+                  const mappingId = id.replace('mapping/', '');
+                  extractMappingScripts(
+                    `${mappingId}.mapping.script`,
+                    obj,
+                    result,
+                    `mapping/`
+                  );
+                }
+              } else {
+                const result = findScriptsFromIdm(value);
+                if (result.length !== 0) {
+                  extractIdmScriptsToFolder(
+                    `${id}.idm.scripts`,
+                    value,
+                    result,
+                    `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
+                  );
+                }
+              }
+            }
             const filename = `${id}.idm.json`;
             if (filename.includes('/')) {
               fs.mkdirSync(
@@ -376,7 +443,16 @@ export async function importEverythingFromFiles(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
-    await importFullConfiguration(data, options, errorHandler);
+    const collectErrors: Error[] = [];
+    saveJsonToFile(data, '../idmtest/aasdfasdf.json');
+
+    await importFullConfiguration(data, options, collectErrors);
+    if (collectErrors.length > 0) {
+      throw new FrodoError(
+        `Errors occurred during full config import`,
+        collectErrors
+      );
+    }
     return true;
   } catch (error) {
     printError(error);
