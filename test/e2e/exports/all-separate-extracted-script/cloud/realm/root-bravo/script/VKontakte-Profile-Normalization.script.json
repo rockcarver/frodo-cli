@@ -1,0 +1,18 @@
+{
+  "script": {
+    "403cf226-6051-4368-8b72-9ba14f9a5140": {
+      "_id": "403cf226-6051-4368-8b72-9ba14f9a5140",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from VKontakte",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "VKontakte Profile Normalization",
+      "script": "file://VKontakte-Profile-Normalization.script.groovy"
+    }
+  }
+}

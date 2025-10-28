@@ -1,0 +1,42 @@
+{
+  "idm": {
+    "internal": {
+      "_id": "internal",
+      "objects": [
+        {
+          "name": "role",
+          "properties": {
+            "authzMembers": {
+              "items": {
+                "resourceCollection": [
+                  {
+                    "conditionalAssociation": true,
+                    "label": "User",
+                    "notify": true,
+                    "path": "managed/user",
+                    "query": {
+                      "fields": [
+                        "userName",
+                        "givenName",
+                        "sn"
+                      ],
+                      "queryFilter": "true"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "notification",
+          "properties": {
+            "target": {
+              "reversePropertyName": "_notifications"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

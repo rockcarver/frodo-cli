@@ -1,0 +1,57 @@
+{
+  "idm": {
+    "repo.init": {
+      "_id": "repo.init",
+      "insert": {
+        "internal/role": [
+          {
+            "description": "Administrative access",
+            "id": "openidm-admin",
+            "name": "openidm-admin"
+          },
+          {
+            "description": "Basic minimum user",
+            "id": "openidm-authorized",
+            "name": "openidm-authorized"
+          },
+          {
+            "description": "Anonymous access",
+            "id": "openidm-reg",
+            "name": "openidm-reg"
+          },
+          {
+            "description": "Authenticated via certificate",
+            "id": "openidm-cert",
+            "name": "openidm-cert"
+          },
+          {
+            "description": "Allowed to reassign workflow tasks",
+            "id": "openidm-tasks-manager",
+            "name": "openidm-tasks-manager"
+          },
+          {
+            "description": "Platform provisioning access",
+            "id": "platform-provisioning",
+            "name": "platform-provisioning"
+          }
+        ],
+        "internal/user": [
+          {
+            "id": "openidm-admin",
+            "password": "&{openidm.admin.password}"
+          },
+          {
+            "id": "anonymous",
+            "password": "anonymous"
+          },
+          {
+            "id": "idm-provisioning"
+          },
+          {
+            "id": "connector-server-client"
+          }
+        ]
+      }
+    }
+  }
+}

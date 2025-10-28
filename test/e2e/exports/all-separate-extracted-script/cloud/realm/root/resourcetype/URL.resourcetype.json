@@ -1,0 +1,26 @@
+{
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true
+      },
+      "createdBy": "id=dsameuser,ou=user,ou=am-config",
+      "creationDate": 1422892465848,
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": 1761154788397,
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*"
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
+    }
+  }
+}

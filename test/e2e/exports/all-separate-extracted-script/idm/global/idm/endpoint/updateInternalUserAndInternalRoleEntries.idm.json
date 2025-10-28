@@ -1,0 +1,9 @@
+{
+  "idm": {
+    "endpoint/updateInternalUserAndInternalRoleEntries": {
+      "_id": "endpoint/updateInternalUserAndInternalRoleEntries",
+      "file": "update/updateInternalUserAndInternalRoleEntries.js",
+      "type": "text/javascript"
+    }
+  }
+}

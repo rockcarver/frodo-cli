@@ -1,0 +1,29 @@
+{
+  "policy": {
+    "analytics_introspect_import_templates_admin": {
+      "_id": "analytics_introspect_import_templates_admin",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:45.921Z",
+      "description": "Admin policy for manage /reports/templates/import",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:52.205Z",
+      "name": "analytics_introspect_import_templates_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/templates/import"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

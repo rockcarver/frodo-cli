@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "LEAuthLevel": {
+      "_id": "LEAuthLevel",
+      "config": {
+        "properties": {
+          "authLevel": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "LEAuthLevel"
+    }
+  }
+}

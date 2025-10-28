@@ -1,0 +1,28 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_p1connect_post": {
+      "_id": "org_environment_introspect_admins__environment_p1connect_post",
+      "actionValues": {
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:47.157Z",
+      "description": "Admin policy for POST /environment/p1connect",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:03.99Z",
+      "name": "org_environment_introspect_admins__environment_p1connect_post",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/p1connect"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

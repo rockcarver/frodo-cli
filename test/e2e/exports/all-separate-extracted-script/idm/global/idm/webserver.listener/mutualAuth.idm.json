@@ -1,0 +1,16 @@
+{
+  "idm": {
+    "webserver.listener/mutualAuth": {
+      "_id": "webserver.listener/mutualAuth",
+      "enabled": {
+        "$bool": "&{openidm.mutualauth.enabled|true}"
+      },
+      "mutualAuth": true,
+      "port": {
+        "$int": "&{openidm.port.mutualauth|8444}"
+      },
+      "secure": true,
+      "sslCertAlias": "&{openidm.https.keystore.cert.alias|openidm-localhost}"
+    }
+  }
+}

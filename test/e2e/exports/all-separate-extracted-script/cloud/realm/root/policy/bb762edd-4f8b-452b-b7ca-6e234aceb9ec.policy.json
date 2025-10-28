@@ -1,0 +1,29 @@
+{
+  "policy": {
+    "bb762edd-4f8b-452b-b7ca-6e234aceb9ec": {
+      "_id": "bb762edd-4f8b-452b-b7ca-6e234aceb9ec",
+      "actionValues": {
+        "MODIFY": true,
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "createdBy": "",
+      "creationDate": "1970-01-01T00:00:00.0Z",
+      "description": "",
+      "lastModifiedBy": "",
+      "lastModifiedDate": "1970-01-01T00:00:00.0Z",
+      "name": "bb762edd-4f8b-452b-b7ca-6e234aceb9ec",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://*ou=am-config/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=org-engine-client,ou=agent,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

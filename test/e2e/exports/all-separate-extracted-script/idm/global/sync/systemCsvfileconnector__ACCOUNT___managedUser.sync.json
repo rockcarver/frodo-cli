@@ -1,0 +1,88 @@
+{
+  "_id": "sync/systemCsvfileconnector__ACCOUNT___managedUser",
+  "consentRequired": false,
+  "displayName": "systemCsvfileconnector__ACCOUNT___managedUser",
+  "icon": null,
+  "name": "systemCsvfileconnector__ACCOUNT___managedUser",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "UPDATE",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "UPDATE",
+      "situation": "FOUND"
+    },
+    {
+      "action": "CREATE",
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [
+    {
+      "source": "name",
+      "target": "userName"
+    },
+    {
+      "source": "firstName",
+      "target": "givenName"
+    },
+    {
+      "source": "lastName",
+      "target": "sn"
+    },
+    {
+      "source": "email",
+      "target": "mail"
+    }
+  ],
+  "source": "system/csvFileConnector/__ACCOUNT__",
+  "syncAfter": [
+    "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject",
+    "managedAssignment_managedUser",
+    "managedSeantestmanagedobject_managedUser",
+    "seantestmapping"
+  ],
+  "target": "managed/user"
+}

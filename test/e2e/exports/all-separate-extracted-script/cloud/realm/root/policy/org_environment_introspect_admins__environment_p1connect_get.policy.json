@@ -1,0 +1,28 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_p1connect_get": {
+      "_id": "org_environment_introspect_admins__environment_p1connect_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:47.130Z",
+      "description": "Admin policy for GET /environment/p1connect",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:02.963Z",
+      "name": "org_environment_introspect_admins__environment_p1connect_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/p1connect"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

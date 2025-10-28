@@ -1,0 +1,18 @@
+{
+  "script": {
+    "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30": {
+      "_id": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from Amazon",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Amazon Profile Normalization",
+      "script": "file://Amazon-Profile-Normalization.script.groovy"
+    }
+  }
+}

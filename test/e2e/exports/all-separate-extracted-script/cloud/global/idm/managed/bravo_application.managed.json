@@ -1,0 +1,332 @@
+{
+  "name": "bravo_application",
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Application Object",
+    "icon": "fa-folder",
+    "order": [
+      "name",
+      "description",
+      "url",
+      "icon",
+      "mappingNames",
+      "owners",
+      "roles",
+      "members"
+    ],
+    "properties": {
+      "_id": {
+        "description": "Application ID",
+        "isPersonal": false,
+        "searchable": false,
+        "type": "string",
+        "userEditable": false,
+        "viewable": false
+      },
+      "authoritative": {
+        "description": "Is this an authoritative application",
+        "searchable": false,
+        "title": "Authoritative",
+        "type": "boolean",
+        "viewable": false
+      },
+      "connectorId": {
+        "description": "Id of the connector associated with the application",
+        "searchable": false,
+        "title": "Connector ID",
+        "type": "string",
+        "userEditable": false,
+        "viewable": false
+      },
+      "description": {
+        "description": "Application Description",
+        "searchable": true,
+        "title": "Description",
+        "type": "string",
+        "viewable": true
+      },
+      "icon": {
+        "searchable": true,
+        "title": "Icon",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "mappingNames": {
+        "description": "Names of the sync mappings used by an application with provisioning configured.",
+        "items": {
+          "title": "Mapping Name Items",
+          "type": "string"
+        },
+        "searchable": true,
+        "title": "Sync Mapping Names",
+        "type": "array",
+        "viewable": true
+      },
+      "members": {
+        "description": "Application Members",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Application:members:items",
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_accountType": {
+                  "description": "Account type",
+                  "type": "string"
+                },
+                "_grantType": {
+                  "description": "Grant Type",
+                  "label": "Grant Type",
+                  "type": "string"
+                },
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                },
+                "_uniqueId": {
+                  "description": "Unique identifier",
+                  "type": "string"
+                }
+              },
+              "title": "Group Members Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "notify": true,
+              "path": "managed/bravo_user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "applications",
+          "reverseRelationship": true,
+          "title": "Group Members Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "policies": [],
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Members",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "name": {
+        "description": "Application name",
+        "notifyRelationships": [
+          "roles",
+          "members"
+        ],
+        "policies": [
+          {
+            "policyId": "unique"
+          }
+        ],
+        "returnByDefault": true,
+        "searchable": true,
+        "title": "Name",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      },
+      "owners": {
+        "description": "Application Owners",
+        "items": {
+          "properties": {
+            "_ref": {
+              "type": "string"
+            },
+            "_refProperties": {
+              "properties": {
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                }
+              },
+              "title": "Application _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "User",
+              "path": "managed/bravo_user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "ownerOfApp",
+          "reverseRelationship": true,
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Owners",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "roles": {
+        "description": "Roles granting users the application",
+        "items": {
+          "notifySelf": true,
+          "properties": {
+            "_ref": {
+              "type": "string"
+            },
+            "_refProperties": {
+              "properties": {
+                "_accountType": {
+                  "description": "Account type",
+                  "type": "string"
+                },
+                "_id": {
+                  "propName": "_id",
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "label": "Role",
+              "notify": true,
+              "path": "managed/bravo_role",
+              "query": {
+                "fields": [
+                  "name"
+                ],
+                "queryFilter": "true",
+                "sortKeys": []
+              }
+            }
+          ],
+          "reversePropertyName": "applications",
+          "reverseRelationship": true,
+          "type": "relationship",
+          "validate": true
+        },
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Roles",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "ssoEntities": {
+        "description": "SSO Entity Id",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "federatedDomain": {
+            "type": "string"
+          },
+          "idpLocation": {
+            "type": "string"
+          },
+          "idpLoginUrl": {
+            "type": "string"
+          },
+          "idpPrivateId": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "oidcId": {
+            "type": "string"
+          },
+          "pfApcId": {
+            "type": "string"
+          },
+          "pfIdpAdapterId": {
+            "type": "string"
+          },
+          "pfPolicyId": {
+            "type": "string"
+          },
+          "pfSigningCertId": {
+            "type": "string"
+          },
+          "pfSpConnectionId": {
+            "type": "string"
+          },
+          "spLocation": {
+            "type": "string"
+          },
+          "spPrivate": {
+            "type": "string"
+          }
+        },
+        "searchable": false,
+        "title": "SSO Entity Id",
+        "type": "object",
+        "userEditable": false,
+        "viewable": false
+      },
+      "templateName": {
+        "description": "Name of the template the application was created from",
+        "searchable": false,
+        "title": "Template Name",
+        "type": "string",
+        "userEditable": false,
+        "viewable": false
+      },
+      "templateVersion": {
+        "description": "The template version",
+        "searchable": false,
+        "title": "Template Version",
+        "type": "string",
+        "userEditable": false,
+        "viewable": false
+      },
+      "uiConfig": {
+        "description": "UI Config",
+        "isPersonal": false,
+        "properties": {},
+        "searchable": false,
+        "title": "UI Config",
+        "type": "object",
+        "usageDescription": "",
+        "viewable": false
+      },
+      "url": {
+        "searchable": true,
+        "title": "Url",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "title": "Bravo realm - Application",
+    "type": "object"
+  }
+}

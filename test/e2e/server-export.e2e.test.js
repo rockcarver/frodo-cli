@@ -47,14 +47,14 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --server-id 01
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -u 8081 --file serverExportTestFile2.json --default --no-metadata
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --server-url http://localhost:8081/am --extract --directory serverExportTestDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -axNdf serverExportTestFile3.json -D serverExportTestDir3
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --all
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -AxNdD serverExportTestDir4
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --all-separate --directory serverExportTestDir5
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1 -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --server-id 01 -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -u 8081 --file serverExportTestFile2.json --default --no-metadata -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --server-url http://localhost:8081/am --extract --directory serverExportTestDir2 -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -axNdf serverExportTestFile3.json -D serverExportTestDir3 -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --all -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export -AxNdD serverExportTestDir4 -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server export --all-separate --directory serverExportTestDir5 -m classic
  */
 import { getEnv, testExport } from './utils/TestUtils';
 import { classic_connection as cc } from './utils/TestConfig';
@@ -67,51 +67,51 @@ const classicEnv = getEnv(cc);
 const type = 'server';
 
 describe('frodo server export', () => {
-    test('"frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1": should export the server with server id "01" along with extracted properties and default properties.', async () => {
+    test('"frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1 -m classic": should export the server with server id "01" along with extracted properties and default properties.', async () => {
         const exportDirectory = "serverExportTestDir1";
-        const CMD = `frodo server export -i 01 -f serverExportTestFile1.json -xNdD ${exportDirectory}`;
+        const CMD = `frodo server export -i 01 -f serverExportTestFile1.json -xNdD ${exportDirectory} -m classic`;
         await testExport(CMD, classicEnv, type, undefined, exportDirectory, false);
     });
 
-    test('"frodo server export --server-id 01": should export the server with server id "01".', async () => {
+    test('"frodo server export --server-id 01 -m classic": should export the server with server id "01".', async () => {
         const exportfile = "01.server.json";
-        const CMD = `frodo server export --server-id 01`;
+        const CMD = `frodo server export --server-id 01 -m classic`;
         await testExport(CMD, classicEnv, type, exportfile);
     });
 
-    test('"frodo server export -u 8081 --file serverExportTestFile2.json --default --no-metadata": should export the server with url containing "8081" along with default properties.', async () => {
+    test('"frodo server export -u 8081 --file serverExportTestFile2.json --default --no-metadata -m classic": should export the server with url containing "8081" along with default properties.', async () => {
         const exportfile = "serverExportTestFile2.json";
-        const CMD = `frodo server export -u 8081 --file ${exportfile} --default --no-metadata`;
+        const CMD = `frodo server export -u 8081 --file ${exportfile} --default --no-metadata -m classic`;
         await testExport(CMD, classicEnv, type, exportfile, undefined, false);
     });
 
-    test('"frodo server export --server-url http://localhost:8081/am --extract --directory serverExportTestDir2": should export the server with url "http://localhost:8081/am" along with extracted properties.', async () => {
+    test('"frodo server export --server-url http://localhost:8081/am --extract --directory serverExportTestDir2 -m classic": should export the server with url "http://localhost:8081/am" along with extracted properties.', async () => {
         const exportDirectory = "serverExportTestDir2";
-        const CMD = `frodo server export --server-url http://localhost:8081/am --extract --directory ${exportDirectory}`;
+        const CMD = `frodo server export --server-url http://localhost:8081/am --extract --directory ${exportDirectory} -m classic`;
         await testExport(CMD, classicEnv, type, undefined, exportDirectory, false);
     });
 
-    test('"frodo server export -axNdf serverExportTestFile3.json -D serverExportTestDir3": should export all servers to a single file in the directory serverExportTestDir3 along with extracted and default properties.', async () => {
+    test('"frodo server export -axNdf serverExportTestFile3.json -D serverExportTestDir3 -m classic": should export all servers to a single file in the directory serverExportTestDir3 along with extracted and default properties.', async () => {
         const exportDirectory = "serverExportTestDir3";
-        const CMD = `frodo server export -axNdf serverExportTestFile3.json -D ${exportDirectory}`;
+        const CMD = `frodo server export -axNdf serverExportTestFile3.json -D ${exportDirectory} -m classic`;
         await testExport(CMD, classicEnv, type, undefined, exportDirectory, false);
     });
 
-    test('"frodo server export --all": should export all servers to a single file', async () => {
+    test('"frodo server export --all -m classic": should export all servers to a single file', async () => {
         const exportFile = "allServers.server.json";
-        const CMD = `frodo server export --all`;
+        const CMD = `frodo server export --all -m classic`;
         await testExport(CMD, classicEnv, type, exportFile);
     });
 
-    test('"frodo server export -AxNdD serverExportTestDir4": should export all servers to separate files along with extracted and default properties', async () => {
+    test('"frodo server export -AxNdD serverExportTestDir4 -m classic": should export all servers to separate files along with extracted and default properties', async () => {
         const exportDirectory = "serverExportTestDir4";
-        const CMD = `frodo server export -AxNdD ${exportDirectory}`;
+        const CMD = `frodo server export -AxNdD ${exportDirectory} -m classic`;
         await testExport(CMD, classicEnv, type, undefined, exportDirectory, false);
     });
 
-    test('"frodo server export --all-separate --directory serverExportTestDir5": should export all servers to separate files in the directory serverExportTestDir5', async () => {
+    test('"frodo server export --all-separate --directory serverExportTestDir5 -m classic": should export all servers to separate files in the directory serverExportTestDir5', async () => {
         const exportDirectory = "serverExportTestDir5";
-        const CMD = `frodo server export --all-separate --directory ${exportDirectory}`;
+        const CMD = `frodo server export --all-separate --directory ${exportDirectory} -m classic`;
         await testExport(CMD, classicEnv, type, undefined, exportDirectory, false);
     });
 });

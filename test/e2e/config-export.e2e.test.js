@@ -68,6 +68,8 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.co
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -af idmexport.json -m idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -aD exportAllTestDir12 -f testExportAllIdm.config.json -m idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -AD exportAllTestDir13 -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo config export -AxD exportAllTestDir14 -m idm
+
 */
 
 
@@ -202,6 +204,11 @@ describe.skip('frodo config export', () => {
   test('"frodo config export -AD exportAllTestDir13 -m idm": should export all IDM config to the directory with separate mappings', async () => {
     const exportDirectory = 'exportAllTestDir13';
     const CMD = `frodo config export -AD ${exportDirectory} -m idm`;
+    await testExport(CMD, idmEnv, undefined, undefined, exportDirectory, false);
+  });
+  test('"frodo config export -AxD exportAllTestDir14 -m idm": should export all IDM config with script extracted to the directory with separate mappings', async () => {
+    const exportDirectory = 'exportAllTestDir14';
+    const CMD = `frodo config export -AxD ${exportDirectory} -m idm`;
     await testExport(CMD, idmEnv, undefined, undefined, exportDirectory, false);
   });
 });

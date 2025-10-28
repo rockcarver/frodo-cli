@@ -1,0 +1,151 @@
+{
+  "idm": {
+    "audit": {
+      "_id": "audit",
+      "auditServiceConfig": {
+        "availableAuditEventHandlers": [
+          "org.forgerock.audit.handlers.csv.CsvAuditEventHandler",
+          "org.forgerock.audit.handlers.jms.JmsAuditEventHandler",
+          "org.forgerock.audit.handlers.json.JsonAuditEventHandler",
+          "org.forgerock.audit.handlers.json.stdout.JsonStdoutAuditEventHandler",
+          "org.forgerock.openidm.audit.impl.RepositoryAuditEventHandler",
+          "org.forgerock.openidm.audit.impl.RouterAuditEventHandler",
+          "org.forgerock.audit.handlers.syslog.SyslogAuditEventHandler"
+        ],
+        "caseInsensitiveFields": [
+          "/access/http/request/headers",
+          "/access/http/response/headers"
+        ],
+        "filterPolicies": {
+          "field": {
+            "excludeIf": [],
+            "includeIf": []
+          }
+        },
+        "handlerForQueries": "json"
+      },
+      "eventHandlers": [
+        {
+          "class": "org.forgerock.audit.handlers.json.JsonAuditEventHandler",
+          "config": {
+            "buffering": {
+              "maxSize": 100000,
+              "writeInterval": "100 millis"
+            },
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.json.enabled|true}"
+            },
+            "logDirectory": "&{idm.data.dir}/audit",
+            "name": "json",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        },
+        {
+          "class": "org.forgerock.audit.handlers.json.stdout.JsonStdoutAuditEventHandler",
+          "config": {
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.stdout.enabled|false}"
+            },
+            "name": "stdout",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        },
+        {
+          "class": "org.forgerock.openidm.audit.impl.RepositoryAuditEventHandler",
+          "config": {
+            "enabled": {
+              "$bool": "&{openidm.audit.handler.repo.enabled|false}"
+            },
+            "name": "repo",
+            "topics": [
+              "access",
+              "activity",
+              "sync",
+              "authentication",
+              "config"
+            ]
+          }
+        }
+      ],
+      "eventTopics": {
+        "access": {
+          "defaultEvents": true,
+          "filter": {
+            "script": {
+              "globals": {},
+              "source": "file://audit.idm.scripts/eventTopics.access.filter.script.script.groovy",
+              "type": "groovy"
+            }
+          },
+          "name": "access"
+        },
+        "activity": {
+          "defaultEvents": true,
+          "filter": {
+            "actions": [
+              "create",
+              "update",
+              "delete",
+              "patch",
+              "action"
+            ]
+          },
+          "name": "activity",
+          "passwordFields": [
+            "password"
+          ],
+          "watchedFields": []
+        },
+        "authentication": {
+          "defaultEvents": true,
+          "filter": {
+            "script": {
+              "globals": {},
+              "source": "file://audit.idm.scripts/eventTopics.authentication.filter.script.script.js",
+              "type": "text/javascript"
+            }
+          },
+          "name": "authentication"
+        },
+        "config": {
+          "defaultEvents": true,
+          "filter": {
+            "actions": [
+              "create",
+              "update",
+              "delete",
+              "patch",
+              "action"
+            ]
+          },
+          "name": "config"
+        },
+        "recon": {
+          "defaultEvents": true,
+          "name": "recon"
+        },
+        "sync": {
+          "defaultEvents": true,
+          "name": "sync"
+        }
+      },
+      "exceptionFormatter": {
+        "globals": {},
+        "source": "file://audit.idm.scripts/exceptionFormatter.script.js",
+        "type": "text/javascript"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "script": {
+    "25e6c06d-cf70-473b-bd28-26931edc476b": {
+      "_id": "25e6c06d-cf70-473b-bd28-26931edc476b",
+      "context": "OAUTH2_VALIDATE_SCOPE",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for OAuth2 Scope Validation",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "OAuth2 Validate Scope Script",
+      "script": "file://OAuth2-Validate-Scope-Script.script.js"
+    }
+  }
+}

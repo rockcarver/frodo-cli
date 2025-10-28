@@ -1,0 +1,282 @@
+{
+  "trees": {
+    "Login": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "0c80c39b-4813-4e67-b4fb-5a0bba85f994": {
+          "_id": "0c80c39b-4813-4e67-b4fb-5a0bba85f994",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password",
+            "version": "1.0"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        },
+        "7354982f-57b6-4b04-9ddc-f1dd1e1e07d0": {
+          "_id": "7354982f-57b6-4b04-9ddc-f1dd1e1e07d0",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username",
+            "version": "1.0"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "2119f332-0f69-4088-a7a1-6582bf0f2001": {
+          "_id": "2119f332-0f69-4088-a7a1-6582bf0f2001",
+          "_outcomes": [
+            {
+              "displayName": "Retry",
+              "id": "Retry"
+            },
+            {
+              "displayName": "Reject",
+              "id": "Reject"
+            }
+          ],
+          "_type": {
+            "_id": "RetryLimitDecisionNode",
+            "collection": true,
+            "name": "Retry Limit Decision",
+            "version": "1.0"
+          },
+          "incrementUserAttributeOnFailure": true,
+          "retryLimit": 5
+        },
+        "33b24514-3e50-4180-8f08-ab6f4e51b07e": {
+          "_id": "33b24514-3e50-4180-8f08-ab6f4e51b07e",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "InnerTreeEvaluatorNode",
+            "collection": true,
+            "name": "Inner Tree Evaluator",
+            "version": "1.0"
+          },
+          "displayErrorOutcome": false,
+          "tree": "ProgressiveProfile"
+        },
+        "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5": {
+          "_id": "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "AccountLockoutNode",
+            "collection": true,
+            "name": "Account Lockout",
+            "version": "1.0"
+          },
+          "lockAction": "LOCK"
+        },
+        "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708": {
+          "_id": "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "TRUE"
+            },
+            {
+              "displayName": "False",
+              "id": "FALSE"
+            },
+            {
+              "displayName": "Locked",
+              "id": "LOCKED"
+            },
+            {
+              "displayName": "Cancelled",
+              "id": "CANCELLED"
+            },
+            {
+              "displayName": "Expired",
+              "id": "EXPIRED"
+            }
+          ],
+          "_type": {
+            "_id": "IdentityStoreDecisionNode",
+            "collection": true,
+            "name": "Identity Store Decision",
+            "version": "1.0"
+          },
+          "minimumPasswordLength": 8,
+          "mixedCaseForPasswordChangeMessages": false,
+          "useUniversalIdForUsername": false
+        },
+        "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8": {
+          "_id": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "7354982f-57b6-4b04-9ddc-f1dd1e1e07d0",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "0c80c39b-4813-4e67-b4fb-5a0bba85f994",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            }
+          ],
+          "pageDescription": {
+            "en": "New here? <a href=\"#/service/Registration\">Create an account</a><br><a href=\"#/service/ForgottenUsername\">Forgot username?</a><a href=\"#/service/ResetPassword\"> Forgot password?</a>"
+          },
+          "pageHeader": {
+            "en": "Sign In"
+          }
+        },
+        "bba3e0d8-8525-4e82-bf48-ac17f7988917": {
+          "_id": "bba3e0d8-8525-4e82-bf48-ac17f7988917",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "IncrementLoginCountNode",
+            "collection": true,
+            "name": "Increment Login Count",
+            "version": "1.0"
+          },
+          "identityAttribute": "userName"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Login",
+        "description": "Platform Login Tree",
+        "enabled": true,
+        "entryNodeId": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "2119f332-0f69-4088-a7a1-6582bf0f2001": {
+            "connections": {
+              "Reject": "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5",
+              "Retry": "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8"
+            },
+            "displayName": "Retry Limit Decision",
+            "nodeType": "RetryLimitDecisionNode",
+            "x": 612,
+            "y": 105.015625
+          },
+          "33b24514-3e50-4180-8f08-ab6f4e51b07e": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Inner Tree Evaluator",
+            "nodeType": "InnerTreeEvaluatorNode",
+            "x": 827,
+            "y": 13
+          },
+          "51e8c4c1-3509-4635-90e6-d2cc31c4a6a5": {
+            "connections": {
+              "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Account Lockout",
+            "nodeType": "AccountLockoutNode",
+            "x": 836,
+            "y": 184.015625
+          },
+          "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708": {
+            "connections": {
+              "CANCELLED": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "EXPIRED": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "FALSE": "2119f332-0f69-4088-a7a1-6582bf0f2001",
+              "LOCKED": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "TRUE": "bba3e0d8-8525-4e82-bf48-ac17f7988917"
+            },
+            "displayName": "Identity Store Decision",
+            "nodeType": "IdentityStoreDecisionNode",
+            "x": 352,
+            "y": 40.015625
+          },
+          "a12bc72f-ad97-4f1e-a789-a1fa3dd566c8": {
+            "connections": {
+              "outcome": "7f0c2aee-8c74-4d02-82a6-9d4ed9d11708"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 136,
+            "y": 59
+          },
+          "bba3e0d8-8525-4e82-bf48-ac17f7988917": {
+            "connections": {
+              "outcome": "33b24514-3e50-4180-8f08-ab6f4e51b07e"
+            },
+            "displayName": "Increment Login Count",
+            "nodeType": "IncrementLoginCountNode",
+            "x": 579,
+            "y": 34
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1073,
+            "y": 30
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 761,
+            "y": 401
+          },
+          "startNode": {
+            "x": 50,
+            "y": 25
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Authentication\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

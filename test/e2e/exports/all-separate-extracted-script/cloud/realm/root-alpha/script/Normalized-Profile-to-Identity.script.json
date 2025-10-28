@@ -1,0 +1,18 @@
+{
+  "script": {
+    "ed685f9f-5909-4726-86e8-22bd38b47663": {
+      "_id": "ed685f9f-5909-4726-86e8-22bd38b47663",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Converts a normalized social profile into an Identity",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Normalized Profile to Identity",
+      "script": "file://Normalized-Profile-to-Identity.script.groovy"
+    }
+  }
+}

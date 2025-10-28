@@ -1,0 +1,18 @@
+{
+  "idm": {
+    "servletfilter/cors": {
+      "_id": "servletfilter/cors",
+      "filterClass": "org.eclipse.jetty.ee10.servlets.CrossOriginFilter",
+      "initParams": {
+        "allowCredentials": true,
+        "allowedHeaders": "accept,x-openidm-password,x-openidm-nosession,x-openidm-username,content-type,origin,x-requested-with",
+        "allowedMethods": "GET,POST,PUT,DELETE,PATCH",
+        "allowedOrigins": "https://localhost:&{openidm.port.https}",
+        "chainPreflight": false
+      },
+      "urlPatterns": [
+        "/*"
+      ]
+    }
+  }
+}

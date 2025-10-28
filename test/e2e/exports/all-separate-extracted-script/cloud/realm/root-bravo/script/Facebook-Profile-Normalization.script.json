@@ -1,0 +1,18 @@
+{
+  "script": {
+    "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
+      "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from Facebook",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Facebook Profile Normalization",
+      "script": "file://Facebook-Profile-Normalization.script.groovy"
+    }
+  }
+}

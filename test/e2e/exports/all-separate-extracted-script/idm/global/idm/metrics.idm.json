@@ -1,0 +1,8 @@
+{
+  "idm": {
+    "metrics": {
+      "_id": "metrics",
+      "enabled": false
+    }
+  }
+}

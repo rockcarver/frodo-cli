@@ -1,0 +1,18 @@
+{
+  "script": {
+    "3d97c436-42c0-4dd0-a571-ea6f34f752b3": {
+      "_id": "3d97c436-42c0-4dd0-a571-ea6f34f752b3",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from Itsme",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Itsme Profile Normalization",
+      "script": "file://Itsme-Profile-Normalization.script.groovy"
+    }
+  }
+}

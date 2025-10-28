@@ -1,0 +1,14 @@
+{
+  "idm": {
+    "managed": {
+      "_id": "managed",
+      "objects": [
+        "file://user.managed.json",
+        "file://role.managed.json",
+        "file://assignment.managed.json",
+        "file://organization.managed.json",
+        "file://seantestmanagedobject.managed.json"
+      ]
+    }
+  }
+}

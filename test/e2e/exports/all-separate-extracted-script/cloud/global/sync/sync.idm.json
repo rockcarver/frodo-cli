@@ -1,0 +1,10 @@
+{
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://extract_script_test.sync.json"
+      ]
+    }
+  }
+}

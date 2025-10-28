@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "org_log_spewer_introspect_admins__auth_head": {
+      "_id": "org_log_spewer_introspect_admins__auth_head",
+      "actionValues": {
+        "HEAD": true
+      },
+      "active": true,
+      "applicationName": "org-log-spewer-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:49.75Z",
+      "description": "Admin policy for HEAD /auth",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:08.113Z",
+      "name": "org_log_spewer_introspect_admins__auth_head",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/auth"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

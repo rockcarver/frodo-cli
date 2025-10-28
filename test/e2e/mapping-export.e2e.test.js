@@ -56,10 +56,11 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping export --no-deps --use-string-arrays -c GoogleApps -t alpha_user -NaD mappingExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping export -AD mappingExportTestDir4
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping export -AxD mappingExportTestDir7
 
 // IDM
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping export -AD mappingExportTestDir4 -m idm
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping export -aD mappingExportTestDir5 -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping export -AD mappingExportTestDir8 -m idm
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openidm-frodo-dev.classic.com:9080/openidm frodo mapping export -aD mappingExportTestDir9 -m idm
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c , idm_connection as ic} from './utils/TestConfig';
@@ -120,14 +121,20 @@ describe('frodo mapping export', () => {
         await testExport(CMD, env, undefined, undefined, exportDirectory, false);
     });
 
-    test('"frodo mapping export -aD mappingExportTestDir4 -m idm": should export all IDM mappings to one file in the directory mappingExportTestDir4', async () => {
-        const exportDirectory = "mappingExportTestDir4";
-        const CMD = `frodo mapping export -aD mappingExportTestDir4 -m idm`;
+    test('"frodo mapping export -AxD mappingExportTestDir7": should export all mappings into separated fils with extracted scripts', async () => {
+        const exportDirectory = "mappingExportTestDir7";
+        const CMD = `frodo mapping export -AxD ${exportDirectory}`;
+        await testExport(CMD, env, undefined, undefined, exportDirectory, false);
+    });
+
+    test('"frodo mapping export -aD mappingExportTestDir9 -m idm": should export all IDM mappings to one file in the directory mappingExportTestDir4', async () => {
+        const exportDirectory = "mappingExportTestDir9";
+        const CMD = `frodo mapping export -aD mappingExportTestDir9 -m idm`;
         await testExport(CMD, idmEnv, undefined, undefined, exportDirectory, false);
     });
-    test('"frodo mapping export -AD mappingExportTestDir5 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5', async () => {        
-        const exportDirectory = "mappingExportTestDir5";
-        const CMD = `frodo mapping export -AD mappingExportTestDir5 -m idm`;
+    test('"frodo mapping export -AD mappingExportTestDir8 -m idm": should export all IDM mappings to separate files in the directory mappingExportTestDir5', async () => {        
+        const exportDirectory = "mappingExportTestDir8";
+        const CMD = `frodo mapping export -AD mappingExportTestDir8 -m idm`;
         await testExport(CMD, idmEnv, undefined, undefined, exportDirectory, false);
     });
 });

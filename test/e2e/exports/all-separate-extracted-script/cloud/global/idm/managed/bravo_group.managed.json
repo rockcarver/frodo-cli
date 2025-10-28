@@ -1,0 +1,137 @@
+{
+  "name": "bravo_group",
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "icon": "fa-group",
+    "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group",
+    "mat-icon": "group",
+    "order": [
+      "_id",
+      "name",
+      "description",
+      "condition",
+      "members"
+    ],
+    "properties": {
+      "_id": {
+        "description": "Group ID",
+        "isPersonal": false,
+        "policies": [
+          {
+            "params": {
+              "propertyName": "name"
+            },
+            "policyId": "id-must-equal-property"
+          }
+        ],
+        "searchable": false,
+        "type": "string",
+        "usageDescription": "",
+        "userEditable": false,
+        "viewable": false
+      },
+      "condition": {
+        "description": "A filter for conditionally assigned members",
+        "isConditional": true,
+        "policies": [
+          {
+            "policyId": "valid-query-filter"
+          }
+        ],
+        "searchable": false,
+        "title": "Condition",
+        "type": "string",
+        "viewable": false
+      },
+      "description": {
+        "description": "Group Description",
+        "searchable": true,
+        "title": "Description",
+        "type": "string",
+        "userEditable": false,
+        "viewable": true
+      },
+      "members": {
+        "description": "Group Members",
+        "items": {
+          "id": "urn:jsonschema:org:forgerock:openidm:managed:api:Group:members:items",
+          "properties": {
+            "_ref": {
+              "description": "References a relationship from a managed object",
+              "type": "string"
+            },
+            "_refProperties": {
+              "description": "Supports metadata within the relationship",
+              "properties": {
+                "_grantType": {
+                  "description": "Grant Type",
+                  "label": "Grant Type",
+                  "type": "string"
+                },
+                "_id": {
+                  "description": "_refProperties object ID",
+                  "type": "string"
+                }
+              },
+              "title": "Group Members Items _refProperties",
+              "type": "object"
+            }
+          },
+          "resourceCollection": [
+            {
+              "conditionalAssociation": true,
+              "label": "User",
+              "notify": true,
+              "path": "managed/bravo_user",
+              "query": {
+                "fields": [
+                  "userName",
+                  "givenName",
+                  "sn"
+                ],
+                "queryFilter": "true"
+              }
+            }
+          ],
+          "reversePropertyName": "groups",
+          "reverseRelationship": true,
+          "title": "Group Members Items",
+          "type": "relationship",
+          "validate": true
+        },
+        "policies": [],
+        "returnByDefault": false,
+        "searchable": false,
+        "title": "Members",
+        "type": "array",
+        "userEditable": false,
+        "viewable": true
+      },
+      "name": {
+        "description": "Group Name",
+        "policies": [
+          {
+            "policyId": "required"
+          },
+          {
+            "params": {
+              "forbiddenChars": [
+                "/*"
+              ]
+            },
+            "policyId": "cannot-contain-characters"
+          }
+        ],
+        "searchable": true,
+        "title": "Name",
+        "type": "string",
+        "viewable": true
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "title": "Bravo realm - Group",
+    "viewable": true
+  }
+}

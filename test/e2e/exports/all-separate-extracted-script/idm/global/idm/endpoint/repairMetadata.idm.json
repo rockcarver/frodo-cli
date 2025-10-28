@@ -1,0 +1,9 @@
+{
+  "idm": {
+    "endpoint/repairMetadata": {
+      "_id": "endpoint/repairMetadata",
+      "file": "meta/metadataScanner.js",
+      "type": "text/javascript"
+    }
+  }
+}

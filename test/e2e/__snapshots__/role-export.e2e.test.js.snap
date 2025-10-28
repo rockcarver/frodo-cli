@@ -1495,6 +1495,106 @@ exports[`frodo role export "frodo role export --role-name test-internal-role --f
 }
 `;
 
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files 1`] = `0`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files 2`] = `""`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/openidm-admin.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-admin": {
+      "_id": "openidm-admin",
+      "condition": null,
+      "description": "Administrative access",
+      "name": "openidm-admin",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/openidm-authorized.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-authorized": {
+      "_id": "openidm-authorized",
+      "condition": null,
+      "description": "Basic minimum user",
+      "name": "openidm-authorized",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/openidm-cert.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-cert": {
+      "_id": "openidm-cert",
+      "condition": null,
+      "description": "Authenticated via certificate",
+      "name": "openidm-cert",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/openidm-reg.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-reg": {
+      "_id": "openidm-reg",
+      "condition": null,
+      "description": "Anonymous access",
+      "name": "openidm-reg",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/openidm-tasks-manager.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-tasks-manager": {
+      "_id": "openidm-tasks-manager",
+      "condition": null,
+      "description": "Allowed to reassign workflow tasks",
+      "name": "openidm-tasks-manager",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo role export "frodo role export -AD roleExportTestDir3 -m idm": should export all idm roles to separate files: roleExportTestDir3/platform-provisioning.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "platform-provisioning": {
+      "_id": "platform-provisioning",
+      "condition": null,
+      "description": "Platform provisioning access",
+      "name": "platform-provisioning",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files 1`] = `0`;
 
 exports[`frodo role export "frodo role export -AND roleExportTestDir1": should export all roles to separate files 2`] = `""`;
@@ -1919,6 +2019,66 @@ exports[`frodo role export "frodo role export -AND roleExportTestDir1": should e
       ],
     },
   },
+}
+`;
+
+exports[`frodo role export "frodo role export -aD roleExportTestDir4 -m idm ": should export all idm roles to one file 1`] = `0`;
+
+exports[`frodo role export "frodo role export -aD roleExportTestDir4 -m idm ": should export all idm roles to one file 2`] = `""`;
+
+exports[`frodo role export "frodo role export -aD roleExportTestDir4 -m idm ": should export all idm roles to one file: roleExportTestDir4/allInternalRoles.internalRole.json 1`] = `
+{
+  "internalRole": {
+    "openidm-admin": {
+      "_id": "openidm-admin",
+      "condition": null,
+      "description": "Administrative access",
+      "name": "openidm-admin",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+    "openidm-authorized": {
+      "_id": "openidm-authorized",
+      "condition": null,
+      "description": "Basic minimum user",
+      "name": "openidm-authorized",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+    "openidm-cert": {
+      "_id": "openidm-cert",
+      "condition": null,
+      "description": "Authenticated via certificate",
+      "name": "openidm-cert",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+    "openidm-reg": {
+      "_id": "openidm-reg",
+      "condition": null,
+      "description": "Anonymous access",
+      "name": "openidm-reg",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+    "openidm-tasks-manager": {
+      "_id": "openidm-tasks-manager",
+      "condition": null,
+      "description": "Allowed to reassign workflow tasks",
+      "name": "openidm-tasks-manager",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+    "platform-provisioning": {
+      "_id": "platform-provisioning",
+      "condition": null,
+      "description": "Platform provisioning access",
+      "name": "platform-provisioning",
+      "privileges": [],
+      "temporalConstraints": [],
+    },
+  },
+  "meta": Any<Object>,
 }
 `;
 

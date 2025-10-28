@@ -1,0 +1,1437 @@
+{
+  "idm": {
+    "repo.ds": {
+      "_id": "repo.ds",
+      "resourceMapping": {
+        "genericMapping": {
+          "managed/alpha_application": {
+            "dnTemplate": "ou=application,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-application-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-application"
+            ],
+            "properties": {
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "applications",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-managed-application-name",
+                "type": "simple"
+              },
+              "owners": {
+                "isMultiValued": true,
+                "propertyName": "ownerOfApp",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "propertyName": "applications",
+                "resourcePath": "managed/alpha_role",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/alpha_assignment": {
+            "dnTemplate": "ou=assignment,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-assignment-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-assignment"
+            ],
+            "properties": {
+              "condition": {
+                "ldapAttribute": "fr-idm-assignment-condition",
+                "type": "simple"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/alpha_role",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/alpha_group": {
+            "dnTemplate": "ou=groups,o=alpha,o=root,ou=identities",
+            "idGenerator": {
+              "propertyName": "name",
+              "type": "property"
+            },
+            "jsonAttribute": "fr-idm-managed-group-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "namingStrategy": {
+              "dnAttribute": "cn",
+              "type": "clientDnNaming"
+            },
+            "nativeId": false,
+            "objectClasses": [
+              "top",
+              "groupOfURLs",
+              "fr-idm-managed-group"
+            ],
+            "properties": {
+              "_id": {
+                "ldapAttribute": "cn",
+                "primaryKey": true,
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "condition": {
+                "ldapAttribute": "fr-idm-managed-group-condition",
+                "type": "simple"
+              },
+              "description": {
+                "ldapAttribute": "description",
+                "type": "simple"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "groups",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/alpha_organization": {
+            "dnTemplate": "ou=organization,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-organization-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-organization",
+              "fr-ext-attrs"
+            ],
+            "properties": {
+              "admins": {
+                "isMultiValued": true,
+                "propertyName": "adminOfOrg",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "children": {
+                "isMultiValued": true,
+                "propertyName": "parent",
+                "resourcePath": "managed/alpha_organization",
+                "type": "reverseReference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "memberOfOrg",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-managed-organization-name",
+                "type": "simple"
+              },
+              "owners": {
+                "isMultiValued": true,
+                "propertyName": "ownerOfOrg",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "parent": {
+                "ldapAttribute": "fr-idm-managed-organization-parent",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_organization",
+                "type": "reference"
+              }
+            }
+          },
+          "managed/alpha_role": {
+            "dnTemplate": "ou=role,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-role-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchManagedRole",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-role"
+            ],
+            "properties": {
+              "applications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-role-applications",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_application",
+                "type": "reference"
+              },
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-role-assignments",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_assignment",
+                "type": "reference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "roles",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/alpha_user": {
+            "dnTemplate": "ou=user,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-custom-attrs",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "namingStrategy": {
+              "dnAttribute": "fr-idm-uuid",
+              "type": "clientDnNaming"
+            },
+            "nativeId": false,
+            "objectClasses": [
+              "person",
+              "organizationalPerson",
+              "inetOrgPerson",
+              "iplanet-am-user-service",
+              "devicePrintProfilesContainer",
+              "deviceProfilesContainer",
+              "kbaInfoContainer",
+              "fr-idm-managed-user-explicit",
+              "forgerock-am-dashboard-service",
+              "inetuser",
+              "iplanet-am-auth-configuration-service",
+              "iplanet-am-managed-person",
+              "iPlanetPreferences",
+              "oathDeviceProfilesContainer",
+              "pushDeviceProfilesContainer",
+              "sunAMAuthAccountLockout",
+              "sunFMSAML2NameIdentifier",
+              "webauthnDeviceProfilesContainer",
+              "fr-idm-hybrid-obj",
+              "fr-ext-attrs"
+            ],
+            "properties": {
+              "_id": {
+                "ldapAttribute": "fr-idm-uuid",
+                "primaryKey": true,
+                "type": "simple"
+              },
+              "_meta": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-meta",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_usermeta",
+                "type": "reference"
+              },
+              "_notifications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-notifications",
+                "primaryKey": "uid",
+                "resourcePath": "internal/notification",
+                "type": "reference"
+              },
+              "accountStatus": {
+                "ldapAttribute": "inetUserStatus",
+                "type": "simple"
+              },
+              "adminOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-admin",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_organization",
+                "type": "reference"
+              },
+              "aliasList": {
+                "isMultiValued": true,
+                "ldapAttribute": "iplanet-am-user-alias-list",
+                "type": "simple"
+              },
+              "applications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-application-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_application",
+                "type": "reference"
+              },
+              "assignedDashboard": {
+                "isMultiValued": true,
+                "ldapAttribute": "assignedDashboard",
+                "type": "simple"
+              },
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-assignment-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_assignment",
+                "type": "reference"
+              },
+              "authzRoles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-authzroles-internal-role",
+                "primaryKey": "cn",
+                "resourcePath": "internal/role",
+                "type": "reference"
+              },
+              "city": {
+                "ldapAttribute": "l",
+                "type": "simple"
+              },
+              "cn": {
+                "ldapAttribute": "cn",
+                "type": "simple"
+              },
+              "consentedMappings": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-consentedMapping",
+                "type": "json"
+              },
+              "country": {
+                "ldapAttribute": "co",
+                "type": "simple"
+              },
+              "description": {
+                "ldapAttribute": "description",
+                "type": "simple"
+              },
+              "devicePrintProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "devicePrintProfiles",
+                "type": "simple"
+              },
+              "deviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "deviceProfiles",
+                "type": "simple"
+              },
+              "displayName": {
+                "ldapAttribute": "displayName",
+                "type": "simple"
+              },
+              "effectiveApplications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveApplications",
+                "type": "json"
+              },
+              "effectiveAssignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveAssignment",
+                "type": "json"
+              },
+              "effectiveGroups": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveGroup",
+                "type": "json"
+              },
+              "effectiveRoles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveRole",
+                "type": "json"
+              },
+              "frIndexedDate1": {
+                "ldapAttribute": "fr-attr-idate1",
+                "type": "simple"
+              },
+              "frIndexedDate2": {
+                "ldapAttribute": "fr-attr-idate2",
+                "type": "simple"
+              },
+              "frIndexedDate3": {
+                "ldapAttribute": "fr-attr-idate3",
+                "type": "simple"
+              },
+              "frIndexedDate4": {
+                "ldapAttribute": "fr-attr-idate4",
+                "type": "simple"
+              },
+              "frIndexedDate5": {
+                "ldapAttribute": "fr-attr-idate5",
+                "type": "simple"
+              },
+              "frIndexedInteger1": {
+                "ldapAttribute": "fr-attr-iint1",
+                "type": "simple"
+              },
+              "frIndexedInteger2": {
+                "ldapAttribute": "fr-attr-iint2",
+                "type": "simple"
+              },
+              "frIndexedInteger3": {
+                "ldapAttribute": "fr-attr-iint3",
+                "type": "simple"
+              },
+              "frIndexedInteger4": {
+                "ldapAttribute": "fr-attr-iint4",
+                "type": "simple"
+              },
+              "frIndexedInteger5": {
+                "ldapAttribute": "fr-attr-iint5",
+                "type": "simple"
+              },
+              "frIndexedMultivalued1": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti1",
+                "type": "simple"
+              },
+              "frIndexedMultivalued2": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti2",
+                "type": "simple"
+              },
+              "frIndexedMultivalued3": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti3",
+                "type": "simple"
+              },
+              "frIndexedMultivalued4": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti4",
+                "type": "simple"
+              },
+              "frIndexedMultivalued5": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti5",
+                "type": "simple"
+              },
+              "frIndexedString1": {
+                "ldapAttribute": "fr-attr-istr1",
+                "type": "simple"
+              },
+              "frIndexedString10": {
+                "ldapAttribute": "fr-attr-istr10",
+                "type": "simple"
+              },
+              "frIndexedString11": {
+                "ldapAttribute": "fr-attr-istr11",
+                "type": "simple"
+              },
+              "frIndexedString12": {
+                "ldapAttribute": "fr-attr-istr12",
+                "type": "simple"
+              },
+              "frIndexedString13": {
+                "ldapAttribute": "fr-attr-istr13",
+                "type": "simple"
+              },
+              "frIndexedString14": {
+                "ldapAttribute": "fr-attr-istr14",
+                "type": "simple"
+              },
+              "frIndexedString15": {
+                "ldapAttribute": "fr-attr-istr15",
+                "type": "simple"
+              },
+              "frIndexedString16": {
+                "ldapAttribute": "fr-attr-istr16",
+                "type": "simple"
+              },
+              "frIndexedString17": {
+                "ldapAttribute": "fr-attr-istr17",
+                "type": "simple"
+              },
+              "frIndexedString18": {
+                "ldapAttribute": "fr-attr-istr18",
+                "type": "simple"
+              },
+              "frIndexedString19": {
+                "ldapAttribute": "fr-attr-istr19",
+                "type": "simple"
+              },
+              "frIndexedString2": {
+                "ldapAttribute": "fr-attr-istr2",
+                "type": "simple"
+              },
+              "frIndexedString20": {
+                "ldapAttribute": "fr-attr-istr20",
+                "type": "simple"
+              },
+              "frIndexedString3": {
+                "ldapAttribute": "fr-attr-istr3",
+                "type": "simple"
+              },
+              "frIndexedString4": {
+                "ldapAttribute": "fr-attr-istr4",
+                "type": "simple"
+              },
+              "frIndexedString5": {
+                "ldapAttribute": "fr-attr-istr5",
+                "type": "simple"
+              },
+              "frIndexedString6": {
+                "ldapAttribute": "fr-attr-istr6",
+                "type": "simple"
+              },
+              "frIndexedString7": {
+                "ldapAttribute": "fr-attr-istr7",
+                "type": "simple"
+              },
+              "frIndexedString8": {
+                "ldapAttribute": "fr-attr-istr8",
+                "type": "simple"
+              },
+              "frIndexedString9": {
+                "ldapAttribute": "fr-attr-istr9",
+                "type": "simple"
+              },
+              "frUnindexedDate1": {
+                "ldapAttribute": "fr-attr-date1",
+                "type": "simple"
+              },
+              "frUnindexedDate2": {
+                "ldapAttribute": "fr-attr-date2",
+                "type": "simple"
+              },
+              "frUnindexedDate3": {
+                "ldapAttribute": "fr-attr-date3",
+                "type": "simple"
+              },
+              "frUnindexedDate4": {
+                "ldapAttribute": "fr-attr-date4",
+                "type": "simple"
+              },
+              "frUnindexedDate5": {
+                "ldapAttribute": "fr-attr-date5",
+                "type": "simple"
+              },
+              "frUnindexedInteger1": {
+                "ldapAttribute": "fr-attr-int1",
+                "type": "simple"
+              },
+              "frUnindexedInteger2": {
+                "ldapAttribute": "fr-attr-int2",
+                "type": "simple"
+              },
+              "frUnindexedInteger3": {
+                "ldapAttribute": "fr-attr-int3",
+                "type": "simple"
+              },
+              "frUnindexedInteger4": {
+                "ldapAttribute": "fr-attr-int4",
+                "type": "simple"
+              },
+              "frUnindexedInteger5": {
+                "ldapAttribute": "fr-attr-int5",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued1": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi1",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued2": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi2",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued3": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi3",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued4": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi4",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued5": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi5",
+                "type": "simple"
+              },
+              "frUnindexedString1": {
+                "ldapAttribute": "fr-attr-str1",
+                "type": "simple"
+              },
+              "frUnindexedString2": {
+                "ldapAttribute": "fr-attr-str2",
+                "type": "simple"
+              },
+              "frUnindexedString3": {
+                "ldapAttribute": "fr-attr-str3",
+                "type": "simple"
+              },
+              "frUnindexedString4": {
+                "ldapAttribute": "fr-attr-str4",
+                "type": "simple"
+              },
+              "frUnindexedString5": {
+                "ldapAttribute": "fr-attr-str5",
+                "type": "simple"
+              },
+              "givenName": {
+                "ldapAttribute": "givenName",
+                "type": "simple"
+              },
+              "groups": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-groups",
+                "primaryKey": "cn",
+                "resourcePath": "managed/alpha_group",
+                "type": "reference"
+              },
+              "kbaInfo": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-kbaInfo",
+                "type": "json"
+              },
+              "lastSync": {
+                "ldapAttribute": "fr-idm-lastSync",
+                "type": "json"
+              },
+              "mail": {
+                "ldapAttribute": "mail",
+                "type": "simple"
+              },
+              "manager": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-manager",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_user",
+                "type": "reference"
+              },
+              "memberOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_organization",
+                "type": "reference"
+              },
+              "memberOfOrgIDs": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-memberoforgid",
+                "type": "simple"
+              },
+              "oathDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "oathDeviceProfiles",
+                "type": "simple"
+              },
+              "ownerOfApp": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-application-owner",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_application",
+                "type": "reference"
+              },
+              "ownerOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-owner",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_organization",
+                "type": "reference"
+              },
+              "password": {
+                "ldapAttribute": "userPassword",
+                "type": "simple"
+              },
+              "passwordExpirationTime": {
+                "ldapAttribute": "pwdExpirationTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "passwordLastChangedTime": {
+                "ldapAttribute": "pwdChangedTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "postalAddress": {
+                "ldapAttribute": "street",
+                "type": "simple"
+              },
+              "postalCode": {
+                "ldapAttribute": "postalCode",
+                "type": "simple"
+              },
+              "preferences": {
+                "ldapAttribute": "fr-idm-preferences",
+                "type": "json"
+              },
+              "profileImage": {
+                "ldapAttribute": "labeledURI",
+                "type": "simple"
+              },
+              "pushDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "pushDeviceProfiles",
+                "type": "simple"
+              },
+              "reports": {
+                "isMultiValued": true,
+                "propertyName": "manager",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-roles",
+                "primaryKey": "uid",
+                "resourcePath": "managed/alpha_role",
+                "type": "reference"
+              },
+              "sn": {
+                "ldapAttribute": "sn",
+                "type": "simple"
+              },
+              "stateProvince": {
+                "ldapAttribute": "st",
+                "type": "simple"
+              },
+              "telephoneNumber": {
+                "ldapAttribute": "telephoneNumber",
+                "type": "simple"
+              },
+              "userName": {
+                "ldapAttribute": "uid",
+                "type": "simple"
+              },
+              "webauthnDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "webauthnDeviceProfiles",
+                "type": "simple"
+              }
+            }
+          },
+          "managed/alpha_usermeta": {
+            "dnTemplate": "ou=usermeta,o=alpha,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-generic-obj"
+            ],
+            "properties": {
+              "target": {
+                "propertyName": "_meta",
+                "resourcePath": "managed/alpha_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/bravo_application": {
+            "dnTemplate": "ou=application,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-application-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-application"
+            ],
+            "properties": {
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "applications",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-managed-application-name",
+                "type": "simple"
+              },
+              "owners": {
+                "isMultiValued": true,
+                "propertyName": "ownerOfApp",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "propertyName": "applications",
+                "resourcePath": "managed/bravo_role",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/bravo_assignment": {
+            "dnTemplate": "ou=assignment,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-assignment-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-assignment"
+            ],
+            "properties": {
+              "condition": {
+                "ldapAttribute": "fr-idm-assignment-condition",
+                "type": "simple"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "propertyName": "assignments",
+                "resourcePath": "managed/bravo_role",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/bravo_group": {
+            "dnTemplate": "ou=groups,o=bravo,o=root,ou=identities",
+            "idGenerator": {
+              "propertyName": "name",
+              "type": "property"
+            },
+            "jsonAttribute": "fr-idm-managed-group-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "namingStrategy": {
+              "dnAttribute": "cn",
+              "type": "clientDnNaming"
+            },
+            "nativeId": false,
+            "objectClasses": [
+              "top",
+              "groupOfURLs",
+              "fr-idm-managed-group"
+            ],
+            "properties": {
+              "_id": {
+                "ldapAttribute": "cn",
+                "primaryKey": true,
+                "type": "simple",
+                "writability": "createOnly"
+              },
+              "condition": {
+                "ldapAttribute": "fr-idm-managed-group-condition",
+                "type": "simple"
+              },
+              "description": {
+                "ldapAttribute": "description",
+                "type": "simple"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "groups",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/bravo_organization": {
+            "dnTemplate": "ou=organization,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-organization-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-organization",
+              "fr-ext-attrs"
+            ],
+            "properties": {
+              "admins": {
+                "isMultiValued": true,
+                "propertyName": "adminOfOrg",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "children": {
+                "isMultiValued": true,
+                "propertyName": "parent",
+                "resourcePath": "managed/bravo_organization",
+                "type": "reverseReference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "memberOfOrg",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "name": {
+                "ldapAttribute": "fr-idm-managed-organization-name",
+                "type": "simple"
+              },
+              "owners": {
+                "isMultiValued": true,
+                "propertyName": "ownerOfOrg",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "parent": {
+                "ldapAttribute": "fr-idm-managed-organization-parent",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_organization",
+                "type": "reference"
+              }
+            }
+          },
+          "managed/bravo_role": {
+            "dnTemplate": "ou=role,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-managed-role-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatchManagedRole",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-managed-role"
+            ],
+            "properties": {
+              "applications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-role-applications",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_application",
+                "type": "reference"
+              },
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-role-assignments",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_assignment",
+                "type": "reference"
+              },
+              "members": {
+                "isMultiValued": true,
+                "propertyName": "roles",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/bravo_user": {
+            "dnTemplate": "ou=user,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-custom-attrs",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "namingStrategy": {
+              "dnAttribute": "fr-idm-uuid",
+              "type": "clientDnNaming"
+            },
+            "nativeId": false,
+            "objectClasses": [
+              "person",
+              "organizationalPerson",
+              "inetOrgPerson",
+              "iplanet-am-user-service",
+              "devicePrintProfilesContainer",
+              "deviceProfilesContainer",
+              "kbaInfoContainer",
+              "fr-idm-managed-user-explicit",
+              "forgerock-am-dashboard-service",
+              "inetuser",
+              "iplanet-am-auth-configuration-service",
+              "iplanet-am-managed-person",
+              "iPlanetPreferences",
+              "oathDeviceProfilesContainer",
+              "pushDeviceProfilesContainer",
+              "sunAMAuthAccountLockout",
+              "sunFMSAML2NameIdentifier",
+              "webauthnDeviceProfilesContainer",
+              "fr-idm-hybrid-obj",
+              "fr-ext-attrs"
+            ],
+            "properties": {
+              "_id": {
+                "ldapAttribute": "fr-idm-uuid",
+                "primaryKey": true,
+                "type": "simple"
+              },
+              "_meta": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-meta",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_usermeta",
+                "type": "reference"
+              },
+              "_notifications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-notifications",
+                "primaryKey": "uid",
+                "resourcePath": "internal/notification",
+                "type": "reference"
+              },
+              "accountStatus": {
+                "ldapAttribute": "inetUserStatus",
+                "type": "simple"
+              },
+              "adminOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-admin",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_organization",
+                "type": "reference"
+              },
+              "aliasList": {
+                "isMultiValued": true,
+                "ldapAttribute": "iplanet-am-user-alias-list",
+                "type": "simple"
+              },
+              "applications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-application-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_application",
+                "type": "reference"
+              },
+              "assignedDashboard": {
+                "isMultiValued": true,
+                "ldapAttribute": "assignedDashboard",
+                "type": "simple"
+              },
+              "assignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-assignment-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_assignment",
+                "type": "reference"
+              },
+              "authzRoles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-authzroles-internal-role",
+                "primaryKey": "cn",
+                "resourcePath": "internal/role",
+                "type": "reference"
+              },
+              "city": {
+                "ldapAttribute": "l",
+                "type": "simple"
+              },
+              "cn": {
+                "ldapAttribute": "cn",
+                "type": "simple"
+              },
+              "consentedMappings": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-consentedMapping",
+                "type": "json"
+              },
+              "country": {
+                "ldapAttribute": "co",
+                "type": "simple"
+              },
+              "description": {
+                "ldapAttribute": "description",
+                "type": "simple"
+              },
+              "devicePrintProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "devicePrintProfiles",
+                "type": "simple"
+              },
+              "deviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "deviceProfiles",
+                "type": "simple"
+              },
+              "displayName": {
+                "ldapAttribute": "displayName",
+                "type": "simple"
+              },
+              "effectiveApplications": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveApplications",
+                "type": "json"
+              },
+              "effectiveAssignments": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveAssignment",
+                "type": "json"
+              },
+              "effectiveGroups": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveGroup",
+                "type": "json"
+              },
+              "effectiveRoles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-effectiveRole",
+                "type": "json"
+              },
+              "frIndexedDate1": {
+                "ldapAttribute": "fr-attr-idate1",
+                "type": "simple"
+              },
+              "frIndexedDate2": {
+                "ldapAttribute": "fr-attr-idate2",
+                "type": "simple"
+              },
+              "frIndexedDate3": {
+                "ldapAttribute": "fr-attr-idate3",
+                "type": "simple"
+              },
+              "frIndexedDate4": {
+                "ldapAttribute": "fr-attr-idate4",
+                "type": "simple"
+              },
+              "frIndexedDate5": {
+                "ldapAttribute": "fr-attr-idate5",
+                "type": "simple"
+              },
+              "frIndexedInteger1": {
+                "ldapAttribute": "fr-attr-iint1",
+                "type": "simple"
+              },
+              "frIndexedInteger2": {
+                "ldapAttribute": "fr-attr-iint2",
+                "type": "simple"
+              },
+              "frIndexedInteger3": {
+                "ldapAttribute": "fr-attr-iint3",
+                "type": "simple"
+              },
+              "frIndexedInteger4": {
+                "ldapAttribute": "fr-attr-iint4",
+                "type": "simple"
+              },
+              "frIndexedInteger5": {
+                "ldapAttribute": "fr-attr-iint5",
+                "type": "simple"
+              },
+              "frIndexedMultivalued1": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti1",
+                "type": "simple"
+              },
+              "frIndexedMultivalued2": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti2",
+                "type": "simple"
+              },
+              "frIndexedMultivalued3": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti3",
+                "type": "simple"
+              },
+              "frIndexedMultivalued4": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti4",
+                "type": "simple"
+              },
+              "frIndexedMultivalued5": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-imulti5",
+                "type": "simple"
+              },
+              "frIndexedString1": {
+                "ldapAttribute": "fr-attr-istr1",
+                "type": "simple"
+              },
+              "frIndexedString10": {
+                "ldapAttribute": "fr-attr-istr10",
+                "type": "simple"
+              },
+              "frIndexedString11": {
+                "ldapAttribute": "fr-attr-istr11",
+                "type": "simple"
+              },
+              "frIndexedString12": {
+                "ldapAttribute": "fr-attr-istr12",
+                "type": "simple"
+              },
+              "frIndexedString13": {
+                "ldapAttribute": "fr-attr-istr13",
+                "type": "simple"
+              },
+              "frIndexedString14": {
+                "ldapAttribute": "fr-attr-istr14",
+                "type": "simple"
+              },
+              "frIndexedString15": {
+                "ldapAttribute": "fr-attr-istr15",
+                "type": "simple"
+              },
+              "frIndexedString16": {
+                "ldapAttribute": "fr-attr-istr16",
+                "type": "simple"
+              },
+              "frIndexedString17": {
+                "ldapAttribute": "fr-attr-istr17",
+                "type": "simple"
+              },
+              "frIndexedString18": {
+                "ldapAttribute": "fr-attr-istr18",
+                "type": "simple"
+              },
+              "frIndexedString19": {
+                "ldapAttribute": "fr-attr-istr19",
+                "type": "simple"
+              },
+              "frIndexedString2": {
+                "ldapAttribute": "fr-attr-istr2",
+                "type": "simple"
+              },
+              "frIndexedString20": {
+                "ldapAttribute": "fr-attr-istr20",
+                "type": "simple"
+              },
+              "frIndexedString3": {
+                "ldapAttribute": "fr-attr-istr3",
+                "type": "simple"
+              },
+              "frIndexedString4": {
+                "ldapAttribute": "fr-attr-istr4",
+                "type": "simple"
+              },
+              "frIndexedString5": {
+                "ldapAttribute": "fr-attr-istr5",
+                "type": "simple"
+              },
+              "frIndexedString6": {
+                "ldapAttribute": "fr-attr-istr6",
+                "type": "simple"
+              },
+              "frIndexedString7": {
+                "ldapAttribute": "fr-attr-istr7",
+                "type": "simple"
+              },
+              "frIndexedString8": {
+                "ldapAttribute": "fr-attr-istr8",
+                "type": "simple"
+              },
+              "frIndexedString9": {
+                "ldapAttribute": "fr-attr-istr9",
+                "type": "simple"
+              },
+              "frUnindexedDate1": {
+                "ldapAttribute": "fr-attr-date1",
+                "type": "simple"
+              },
+              "frUnindexedDate2": {
+                "ldapAttribute": "fr-attr-date2",
+                "type": "simple"
+              },
+              "frUnindexedDate3": {
+                "ldapAttribute": "fr-attr-date3",
+                "type": "simple"
+              },
+              "frUnindexedDate4": {
+                "ldapAttribute": "fr-attr-date4",
+                "type": "simple"
+              },
+              "frUnindexedDate5": {
+                "ldapAttribute": "fr-attr-date5",
+                "type": "simple"
+              },
+              "frUnindexedInteger1": {
+                "ldapAttribute": "fr-attr-int1",
+                "type": "simple"
+              },
+              "frUnindexedInteger2": {
+                "ldapAttribute": "fr-attr-int2",
+                "type": "simple"
+              },
+              "frUnindexedInteger3": {
+                "ldapAttribute": "fr-attr-int3",
+                "type": "simple"
+              },
+              "frUnindexedInteger4": {
+                "ldapAttribute": "fr-attr-int4",
+                "type": "simple"
+              },
+              "frUnindexedInteger5": {
+                "ldapAttribute": "fr-attr-int5",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued1": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi1",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued2": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi2",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued3": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi3",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued4": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi4",
+                "type": "simple"
+              },
+              "frUnindexedMultivalued5": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-attr-multi5",
+                "type": "simple"
+              },
+              "frUnindexedString1": {
+                "ldapAttribute": "fr-attr-str1",
+                "type": "simple"
+              },
+              "frUnindexedString2": {
+                "ldapAttribute": "fr-attr-str2",
+                "type": "simple"
+              },
+              "frUnindexedString3": {
+                "ldapAttribute": "fr-attr-str3",
+                "type": "simple"
+              },
+              "frUnindexedString4": {
+                "ldapAttribute": "fr-attr-str4",
+                "type": "simple"
+              },
+              "frUnindexedString5": {
+                "ldapAttribute": "fr-attr-str5",
+                "type": "simple"
+              },
+              "givenName": {
+                "ldapAttribute": "givenName",
+                "type": "simple"
+              },
+              "groups": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-groups",
+                "primaryKey": "cn",
+                "resourcePath": "managed/bravo_group",
+                "type": "reference"
+              },
+              "kbaInfo": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-kbaInfo",
+                "type": "json"
+              },
+              "lastSync": {
+                "ldapAttribute": "fr-idm-lastSync",
+                "type": "json"
+              },
+              "mail": {
+                "ldapAttribute": "mail",
+                "type": "simple"
+              },
+              "manager": {
+                "isMultiValued": false,
+                "ldapAttribute": "fr-idm-managed-user-manager",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_user",
+                "type": "reference"
+              },
+              "memberOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-member",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_organization",
+                "type": "reference"
+              },
+              "memberOfOrgIDs": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-memberoforgid",
+                "type": "simple"
+              },
+              "oathDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "oathDeviceProfiles",
+                "type": "simple"
+              },
+              "ownerOfApp": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-application-owner",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_application",
+                "type": "reference"
+              },
+              "ownerOfOrg": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-organization-owner",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_organization",
+                "type": "reference"
+              },
+              "password": {
+                "ldapAttribute": "userPassword",
+                "type": "simple"
+              },
+              "passwordExpirationTime": {
+                "ldapAttribute": "pwdExpirationTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "passwordLastChangedTime": {
+                "ldapAttribute": "pwdChangedTime",
+                "type": "simple",
+                "writability": "readOnlyDiscardWrites"
+              },
+              "postalAddress": {
+                "ldapAttribute": "street",
+                "type": "simple"
+              },
+              "postalCode": {
+                "ldapAttribute": "postalCode",
+                "type": "simple"
+              },
+              "preferences": {
+                "ldapAttribute": "fr-idm-preferences",
+                "type": "json"
+              },
+              "profileImage": {
+                "ldapAttribute": "labeledURI",
+                "type": "simple"
+              },
+              "pushDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "pushDeviceProfiles",
+                "type": "simple"
+              },
+              "reports": {
+                "isMultiValued": true,
+                "propertyName": "manager",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              },
+              "roles": {
+                "isMultiValued": true,
+                "ldapAttribute": "fr-idm-managed-user-roles",
+                "primaryKey": "uid",
+                "resourcePath": "managed/bravo_role",
+                "type": "reference"
+              },
+              "sn": {
+                "ldapAttribute": "sn",
+                "type": "simple"
+              },
+              "stateProvince": {
+                "ldapAttribute": "st",
+                "type": "simple"
+              },
+              "telephoneNumber": {
+                "ldapAttribute": "telephoneNumber",
+                "type": "simple"
+              },
+              "userName": {
+                "ldapAttribute": "uid",
+                "type": "simple"
+              },
+              "webauthnDeviceProfiles": {
+                "isMultiValued": true,
+                "ldapAttribute": "webauthnDeviceProfiles",
+                "type": "simple"
+              }
+            }
+          },
+          "managed/bravo_usermeta": {
+            "dnTemplate": "ou=usermeta,o=bravo,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-generic-obj"
+            ],
+            "properties": {
+              "target": {
+                "propertyName": "_meta",
+                "resourcePath": "managed/bravo_user",
+                "type": "reverseReference"
+              }
+            }
+          },
+          "managed/teammembermeta": {
+            "dnTemplate": "ou=teammembermeta,o=root,ou=identities",
+            "jsonAttribute": "fr-idm-json",
+            "jsonQueryEqualityMatchingRule": "caseIgnoreJsonQueryMatch",
+            "objectClasses": [
+              "uidObject",
+              "fr-idm-generic-obj"
+            ],
+            "properties": {
+              "target": {
+                "propertyName": "_meta",
+                "resourcePath": "managed/teammember",
+                "type": "reverseReference"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

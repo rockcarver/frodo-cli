@@ -1,0 +1,1 @@
+//tests UPDATED RESULT SCRIPT

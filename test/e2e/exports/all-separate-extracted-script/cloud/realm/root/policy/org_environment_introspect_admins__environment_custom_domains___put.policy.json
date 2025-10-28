@@ -1,0 +1,29 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_custom_domains___put": {
+      "_id": "org_environment_introspect_admins__environment_custom_domains___put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:46.746Z",
+      "description": "Admin policy for PUT /environment/custom-domains/*",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:01.112Z",
+      "name": "org_environment_introspect_admins__environment_custom_domains___put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/custom-domains/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

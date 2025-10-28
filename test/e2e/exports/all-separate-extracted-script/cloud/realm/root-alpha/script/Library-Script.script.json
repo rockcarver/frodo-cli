@@ -1,0 +1,40 @@
+{
+  "script": {
+    "6c49bebe-3a62-11ed-a261-0242ac120002": {
+      "_id": "6c49bebe-3a62-11ed-a261-0242ac120002",
+      "context": "LIBRARY",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global library script to be referenced from other scripts",
+      "evaluatorVersion": "2.0",
+      "exports": [
+        {
+          "arity": 2,
+          "id": "logError",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logWarning",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logInfo",
+          "type": "Function"
+        },
+        {
+          "arity": 2,
+          "id": "logDebug",
+          "type": "Function"
+        }
+      ],
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Library Script",
+      "script": "file://Library-Script.script.js"
+    }
+  }
+}

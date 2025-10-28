@@ -1,0 +1,34 @@
+{
+  "policy": {
+    "idmadminclient_scope_pingfederate": {
+      "_id": "idmadminclient_scope_pingfederate",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": true,
+      "applicationName": "idmAdminClient-scope",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:49.858Z",
+      "description": "Policy for PingFederate scopes",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:58.554Z",
+      "name": "idmadminclient_scope_pingfederate",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:idc:ws:admin"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

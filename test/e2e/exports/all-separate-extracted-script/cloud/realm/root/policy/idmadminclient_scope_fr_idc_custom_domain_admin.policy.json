@@ -1,0 +1,34 @@
+{
+  "policy": {
+    "idmadminclient_scope_fr_idc_custom_domain_admin": {
+      "_id": "idmadminclient_scope_fr_idc_custom_domain_admin",
+      "actionValues": {
+        "GRANT": false
+      },
+      "active": true,
+      "applicationName": "idmAdminClient-scope",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:47.843Z",
+      "description": "Policy for fr:idc:custom-domain:*",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:54.309Z",
+      "name": "idmadminclient_scope_fr_idc_custom_domain_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "fr:idc:custom-domain:*"
+      ],
+      "subject": {
+        "subject": {
+          "subjectValues": [
+            "id=tenant-auditor,ou=group,ou=am-config",
+            "id=tenant-admins,ou=group,ou=am-config",
+            "id=amadmin,ou=user,ou=am-config",
+            "id=super-admins,ou=group,ou=am-config"
+          ],
+          "type": "Identity"
+        },
+        "type": "NOT"
+      }
+    }
+  }
+}

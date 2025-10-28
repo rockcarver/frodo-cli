@@ -1,0 +1,18 @@
+{
+  "script": {
+    "58d29080-4563-480b-89bb-1e7719776a21": {
+      "_id": "58d29080-4563-480b-89bb-1e7719776a21",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from Google",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Google Profile Normalization",
+      "script": "file://Google-Profile-Normalization.script.groovy"
+    }
+  }
+}

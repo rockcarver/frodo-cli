@@ -1,0 +1,181 @@
+{
+  "trees": {
+    "Agent": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018": {
+          "_id": "2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username",
+            "version": "1.0"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "6072842f-5f7c-4b62-8ae2-4f18a5701ba4": {
+          "_id": "6072842f-5f7c-4b62-8ae2-4f18a5701ba4",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password",
+            "version": "1.0"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "51e2cd24-cf1f-4313-8af0-35ea9e04d2fe": {
+          "_id": "51e2cd24-cf1f-4313-8af0-35ea9e04d2fe",
+          "_outcomes": [
+            {
+              "displayName": "Has Credentials",
+              "id": "true"
+            },
+            {
+              "displayName": "No Credentials",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ZeroPageLoginNode",
+            "collection": true,
+            "name": "Zero Page Login Collector",
+            "version": "1.0"
+          },
+          "allowWithoutReferer": true,
+          "passwordHeader": "X-OpenAM-Password",
+          "referrerWhiteList": [],
+          "usernameHeader": "X-OpenAM-Username"
+        },
+        "6736a00a-fc65-438e-b4ea-23f66b4a8739": {
+          "_id": "6736a00a-fc65-438e-b4ea-23f66b4a8739",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AgentDataStoreDecisionNode",
+            "collection": true,
+            "name": "Agent Data Store Decision",
+            "version": "1.0"
+          }
+        },
+        "cbd1f1af-eb0a-4274-a762-adacf04c7080": {
+          "_id": "cbd1f1af-eb0a-4274-a762-adacf04c7080",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "2eaad2f9-5c4b-405f-bf3f-1e99bdc0d018",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "6072842f-5f7c-4b62-8ae2-4f18a5701ba4",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Agent",
+        "description": "CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.",
+        "enabled": true,
+        "entryNodeId": "51e2cd24-cf1f-4313-8af0-35ea9e04d2fe",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "51e2cd24-cf1f-4313-8af0-35ea9e04d2fe": {
+            "connections": {
+              "false": "cbd1f1af-eb0a-4274-a762-adacf04c7080",
+              "true": "6736a00a-fc65-438e-b4ea-23f66b4a8739"
+            },
+            "displayName": "Zero Page Login Collector",
+            "nodeType": "ZeroPageLoginNode",
+            "x": 163,
+            "y": 225
+          },
+          "6736a00a-fc65-438e-b4ea-23f66b4a8739": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Agent Data Store Decision",
+            "nodeType": "AgentDataStoreDecisionNode",
+            "x": 762,
+            "y": 243
+          },
+          "cbd1f1af-eb0a-4274-a762-adacf04c7080": {
+            "connections": {
+              "outcome": "6736a00a-fc65-438e-b4ea-23f66b4a8739"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 477,
+            "y": 324
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1065,
+            "y": 206
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1064,
+            "y": 394
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Authentication\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

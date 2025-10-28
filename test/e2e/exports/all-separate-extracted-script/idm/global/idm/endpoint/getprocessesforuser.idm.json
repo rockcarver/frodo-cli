@@ -1,0 +1,9 @@
+{
+  "idm": {
+    "endpoint/getprocessesforuser": {
+      "_id": "endpoint/getprocessesforuser",
+      "file": "workflow/getprocessesforuser.js",
+      "type": "text/javascript"
+    }
+  }
+}

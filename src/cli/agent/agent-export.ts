@@ -10,17 +10,8 @@ import { getTokens } from '../../ops/AuthenticateOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const {
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-  CLASSIC_DEPLOYMENT_TYPE_KEY,
-} = frodo.utils.constants;
-
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-  CLASSIC_DEPLOYMENT_TYPE_KEY,
-];
+const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
 
 export default function setup() {
   const program = new FrodoCommand(
@@ -72,7 +63,7 @@ export default function setup() {
           await getTokens(
             false,
             true,
-            options.global ? [CLASSIC_DEPLOYMENT_TYPE_KEY] : deploymentTypes
+            options.global ? globalDeploymentTypes : undefined
           )
         ) {
           // export

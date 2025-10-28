@@ -1,0 +1,27 @@
+{
+  "idm": {
+    "schedule/seantest": {
+      "_id": "schedule/seantest",
+      "concurrentExecution": false,
+      "enabled": false,
+      "endTime": null,
+      "invokeContext": {
+        "script": {
+          "globals": {},
+          "source": "file://seantest.invokeContext.script.script.js",
+          "type": "text/javascript"
+        }
+      },
+      "invokeLogLevel": "info",
+      "invokeService": "script",
+      "misfirePolicy": "fireAndProceed",
+      "persisted": true,
+      "recoverable": false,
+      "repeatCount": 0,
+      "repeatInterval": 0,
+      "schedule": null,
+      "startTime": null,
+      "type": "simple"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "idm": {
+    "notification/profileUpdate": {
+      "_id": "notification/profileUpdate",
+      "condition": {
+        "file": "propertiesModifiedFilter.groovy",
+        "globals": {
+          "propertiesToCheck": [
+            "userName",
+            "givenName",
+            "sn",
+            "mail",
+            "description",
+            "accountStatus",
+            "telephoneNumber",
+            "postalAddress",
+            "city",
+            "postalCode",
+            "country",
+            "stateProvince",
+            "preferences"
+          ]
+        },
+        "type": "groovy"
+      },
+      "enabled": {
+        "$bool": "&{openidm.notifications.profileUpdate|false}"
+      },
+      "methods": [
+        "update",
+        "patch"
+      ],
+      "notification": {
+        "message": "Your profile has been updated.",
+        "notificationType": "info"
+      },
+      "path": "managed/user/*",
+      "target": {
+        "resource": "managed/user/{{response/_id}}"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "script": {
+    "4b6b7e8e-cf03-46c8-949f-c5742dbd6bc5": {
+      "_id": "4b6b7e8e-cf03-46c8-949f-c5742dbd6bc5",
+      "context": "OAUTH2_DYNAMIC_CLIENT_REGISTRATION",
+      "createdBy": "null",
+      "creationDate": 0,
+      "default": true,
+      "description": "Default global script for Dynamic Client Registration",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "null",
+      "lastModifiedDate": 0,
+      "name": "OAuth2 Dynamic Client Registration Script",
+      "script": "file://OAuth2-Dynamic-Client-Registration-Script.script.js"
+    }
+  }
+}

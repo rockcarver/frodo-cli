@@ -1,0 +1,28 @@
+{
+  "policy": {
+    "71d81019-a9d6-4e0c-b7a8-6951b244d363": {
+      "_id": "71d81019-a9d6-4e0c-b7a8-6951b244d363",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "createdBy": "",
+      "creationDate": "1970-01-01T00:00:00.0Z",
+      "description": "",
+      "lastModifiedBy": "",
+      "lastModifiedDate": "1970-01-01T00:00:00.0Z",
+      "name": "71d81019-a9d6-4e0c-b7a8-6951b244d363",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://ou=am-config/rest/1.0/scripts/read"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=helix-client,ou=agent,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

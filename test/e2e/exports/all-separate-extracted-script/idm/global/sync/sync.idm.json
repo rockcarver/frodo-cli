@@ -1,0 +1,16 @@
+{
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://managedOrganization_managedRole.sync.json",
+        "file://managedOrganization_managedSeantestmanagedobject.sync.json",
+        "file://managedAssignment_managedUser.sync.json",
+        "file://managedSeantestmanagedobject_managedUser.sync.json",
+        "file://seantestmapping.sync.json",
+        "file://systemCsvfileconnector__ACCOUNT___managedUser.sync.json",
+        "file://systemCsvsampleconnector__ACCOUNT___managedUser.sync.json"
+      ]
+    }
+  }
+}

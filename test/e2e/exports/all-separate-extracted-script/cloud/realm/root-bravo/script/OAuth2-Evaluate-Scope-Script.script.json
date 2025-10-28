@@ -1,0 +1,18 @@
+{
+  "script": {
+    "da56fe60-8b38-4c46-a405-d6b306d4b336": {
+      "_id": "da56fe60-8b38-4c46-a405-d6b306d4b336",
+      "context": "OAUTH2_EVALUATE_SCOPE",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for OAuth2 Scope Evaluation",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "OAuth2 Evaluate Scope Script",
+      "script": "file://OAuth2-Evaluate-Scope-Script.script.js"
+    }
+  }
+}

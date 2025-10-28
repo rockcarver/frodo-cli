@@ -1,0 +1,14 @@
+{
+  "idm": {
+    "servletfilter/payload": {
+      "_id": "servletfilter/payload",
+      "filterClass": "org.forgerock.openidm.jetty.LargePayloadServletFilter",
+      "initParams": {
+        "maxRequestSizeInMegabytes": 5
+      },
+      "urlPatterns": [
+        "&{openidm.servlet.alias}/*"
+      ]
+    }
+  }
+}

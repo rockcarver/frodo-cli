@@ -1,0 +1,90 @@
+{
+  "_id": "sync/managedAssignment_managedUser",
+  "consentRequired": false,
+  "displayName": "managedAssignment_managedUser",
+  "icon": null,
+  "name": "managedAssignment_managedUser",
+  "policies": [
+    {
+      "action": {
+        "globals": {},
+        "source": "file://managedAssignment_managedUser.sync.scripts/policies.AMBIGUOUS.action.script.groovy",
+        "type": "groovy"
+      },
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "file://managedAssignment_managedUser.sync.scripts/policies.SOURCE_MISSING.action.script.js",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {},
+        "source": "file://managedAssignment_managedUser.sync.scripts/policies.SOURCE_MISSING.condition.script.groovy",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {},
+        "source": "file://managedAssignment_managedUser.sync.scripts/policies.SOURCE_MISSING.postAction.script.js",
+        "type": "text/javascript"
+      },
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": {
+        "globals": {},
+        "source": "file://managedAssignment_managedUser.sync.scripts/policies.UNASSIGNED.action.script.js",
+        "type": "text/javascript"
+      },
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND"
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [],
+  "source": "managed/assignment",
+  "syncAfter": [
+    "managedOrganization_managedRole",
+    "managedOrganization_managedSeantestmanagedobject"
+  ],
+  "target": "managed/user"
+}

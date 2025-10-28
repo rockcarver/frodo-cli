@@ -1,0 +1,16 @@
+{
+  "idm": {
+    "notificationFactory": {
+      "_id": "notificationFactory",
+      "enabled": {
+        "$bool": "&{openidm.notifications|false}"
+      },
+      "threadPool": {
+        "maxPoolThreads": 2,
+        "maxQueueSize": 20000,
+        "steadyPoolThreads": 1,
+        "threadKeepAlive": 60
+      }
+    }
+  }
+}

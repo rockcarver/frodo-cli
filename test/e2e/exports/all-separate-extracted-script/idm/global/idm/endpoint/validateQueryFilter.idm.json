@@ -1,0 +1,10 @@
+{
+  "idm": {
+    "endpoint/validateQueryFilter": {
+      "_id": "endpoint/validateQueryFilter",
+      "context": "util/validateQueryFilter",
+      "source": "file://validateQueryFilter.script.js",
+      "type": "text/javascript"
+    }
+  }
+}

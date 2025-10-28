@@ -1,0 +1,9 @@
+{
+  "idm": {
+    "endpoint/gettasksview": {
+      "_id": "endpoint/gettasksview",
+      "file": "workflow/gettasksview.js",
+      "type": "text/javascript"
+    }
+  }
+}

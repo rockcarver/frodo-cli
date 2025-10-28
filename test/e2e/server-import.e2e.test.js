@@ -47,15 +47,15 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -di 01 -f test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --server-id 01 --file test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -u 8081 -f test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --default --server-url http://localhost:8081/am --file test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -f test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -daf test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --all --file test/e2e/exports/all/allServers.server.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -dAD test/e2e/exports/all-separate/classic/global/server
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --all-separate --directory test/e2e/exports/all-separate/classic/global/server
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -di 01 -f test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --server-id 01 --file test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -u 8081 -f test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --default --server-url http://localhost:8081/am --file test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -f test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -daf test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --all --file test/e2e/exports/all/allServers.server.json -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import -dAD test/e2e/exports/all-separate/classic/global/server -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server import --all-separate --directory test/e2e/exports/all-separate/classic/global/server -m classic
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -76,56 +76,57 @@ const allSeparateServersDirectory = `test/e2e/exports/all-separate/classic/globa
 
 describe('frodo server import', () => {
 
-    test(`"frodo server import -di 01 -f ${allServersExport}": should import the server with the id "01" from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import -di 01 -f ${allServersExport}`;
+    test(`"frodo server import -di 01 -f ${allServersExport} -m classic": should import the server with the id "01" from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import -di 01 -f ${allServersExport} -m classic`;
+        const { stdout, stderr } = await exec(CMD, classicEnv);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+    });
+
+    test(`"frodo server import --server-id 01 --file ${allServersExport} -m classic": should import the server with the id "01" from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import --server-id 01 --file ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import --server-id 01 --file ${allServersExport}": should import the server with the id "01" from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import --server-id 01 --file ${allServersExport}`;
+    test(`"frodo server import -u 8081 -f ${allServersExport} -m classic": should import the server with the url containing "8081" from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import -u 8081 -f ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import -u 8081 -f ${allServersExport}": should import the server with the url containing "8081" from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import -u 8081 -f ${allServersExport}`;
+    test(`"frodo server import --default  --server-url http://localhost:8081/am --file ${allServersExport} -m classic": should import the server with the url "http://localhost:8081/am" from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import --default --server-url http://localhost:8081/am --file ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import --default  --server-url http://localhost:8081/am --file ${allServersExport}": should import the server with the url "http://localhost:8081/am" from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import --default --server-url http://localhost:8081/am --file ${allServersExport}`;
+    test(`"frodo server import -f ${allServersExport} -m classic": should import the first server from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import -f ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import -f ${allServersExport}": should import the first server from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import -f ${allServersExport}`;
+    test(`"frodo server import -daf ${allServersExport} -m classic": should import all servers from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import -daf ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import -daf ${allServersExport}": should import all servers from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import -daf ${allServersExport}`;
+    test(`"frodo server import --all --file ${allServersExport} -m classic": should import all servers from the file "${allServersExport}"`, async () => {
+        const CMD = `frodo server import --all --file ${allServersExport} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import --all --file ${allServersExport}": should import all servers from the file "${allServersExport}"`, async () => {
-        const CMD = `frodo server import --all --file ${allServersExport}`;
+    test(`"frodo server import -dAD ${allSeparateServersDirectory} -m classic": should import all servers from the ${allSeparateServersDirectory} directory"`, async () => {
+        const CMD = `frodo server import -dAD ${allSeparateServersDirectory} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo server import -dAD ${allSeparateServersDirectory}": should import all servers from the ${allSeparateServersDirectory} directory"`, async () => {
-        const CMD = `frodo server import -dAD ${allSeparateServersDirectory}`;
-        const { stdout } = await exec(CMD, classicEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-    });
-
-    test(`"frodo server import --all-separate --directory ${allSeparateServersDirectory}": should import all servers from the ${allSeparateServersDirectory} directory"`, async () => {
-        const CMD = `frodo server import --all-separate --directory ${allSeparateServersDirectory}`;
+    test(`"frodo server import --all-separate --directory ${allSeparateServersDirectory} -m classic": should import all servers from the ${allSeparateServersDirectory} directory"`, async () => {
+        const CMD = `frodo server import --all-separate --directory ${allSeparateServersDirectory} -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

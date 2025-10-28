@@ -1,0 +1,33 @@
+{
+  "policy": {
+    "org_promo_internal_introspect_clients__environment_promotion_internal__": {
+      "_id": "org_promo_internal_introspect_clients__environment_promotion_internal__",
+      "actionValues": {
+        "DELETE": true,
+        "GET": true,
+        "POST": true
+      },
+      "active": true,
+      "applicationName": "org-promo-internal-introspect",
+      "condition": {
+        "requiredScopes": [
+          "fr:idc:promotion:*"
+        ],
+        "type": "OAuth2Scope"
+      },
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:49.832Z",
+      "description": "Client policy for /environment/promotion/internal/*",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:11.141Z",
+      "name": "org_promo_internal_introspect_clients__environment_promotion_internal__",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/*"
+      ],
+      "subject": {
+        "type": "ResourceOwnerPresent"
+      }
+    }
+  }
+}

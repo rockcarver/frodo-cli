@@ -1,0 +1,35 @@
+{
+  "idm": {
+    "schedule/taskscan_activate": {
+      "_id": "schedule/taskscan_activate",
+      "concurrentExecution": false,
+      "enabled": false,
+      "invokeContext": {
+        "numberOfThreads": 5,
+        "scan": {
+          "_queryFilter": "((/activeDate le \"${Time.nowWithOffset}\") AND (!(/inactiveDate pr) or /inactiveDate ge \"${Time.nowWithOffset}\"))",
+          "object": "managed/user",
+          "recovery": {
+            "timeout": "10m"
+          },
+          "taskState": {
+            "completed": "/activateAccount/task-completed",
+            "started": "/activateAccount/task-started"
+          }
+        },
+        "task": {
+          "script": {
+            "globals": {},
+            "source": "file://taskscan_activate.invokeContext.task.script.script.js",
+            "type": "text/javascript"
+          }
+        },
+        "waitForCompletion": false
+      },
+      "invokeService": "taskscanner",
+      "persisted": true,
+      "repeatInterval": 86400000,
+      "type": "simple"
+    }
+  }
+}

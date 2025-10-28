@@ -1,0 +1,41 @@
+{
+  "idm": {
+    "router": {
+      "_id": "router",
+      "filters": [
+        {
+          "methods": [
+            "create",
+            "update"
+          ],
+          "onRequest": {
+            "file": "policyFilter.js",
+            "type": "text/javascript"
+          },
+          "pattern": "^(managed|internal)($|(/.+))"
+        },
+        {
+          "methods": [
+            "update"
+          ],
+          "onRequest": {
+            "file": "policyFilter.js",
+            "type": "text/javascript"
+          },
+          "pattern": "^config/managed$"
+        },
+        {
+          "condition": {
+            "source": "file://router.idm.scripts/filters.2.condition.script.js",
+            "type": "text/javascript"
+          },
+          "onResponse": {
+            "source": "file://router.idm.scripts/filters.2.onResponse.script.js",
+            "type": "text/javascript"
+          },
+          "pattern": "^(managed|internal)($|(/.+))"
+        }
+      ]
+    }
+  }
+}

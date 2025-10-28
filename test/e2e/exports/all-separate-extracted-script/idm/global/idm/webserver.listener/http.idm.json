@@ -1,0 +1,13 @@
+{
+  "idm": {
+    "webserver.listener/http": {
+      "_id": "webserver.listener/http",
+      "enabled": {
+        "$bool": "&{openidm.http.enabled|true}"
+      },
+      "port": {
+        "$int": "&{openidm.port.http|8080}"
+      }
+    }
+  }
+}

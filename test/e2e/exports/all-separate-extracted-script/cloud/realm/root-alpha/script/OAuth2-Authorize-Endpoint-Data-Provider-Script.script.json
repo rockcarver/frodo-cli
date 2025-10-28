@@ -1,0 +1,18 @@
+{
+  "script": {
+    "3f93ef6e-e54a-4393-aba1-f322656db28a": {
+      "_id": "3f93ef6e-e54a-4393-aba1-f322656db28a",
+      "context": "OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for OAuth2 Authorize Endpoint Data Provider",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "OAuth2 Authorize Endpoint Data Provider Script",
+      "script": "file://OAuth2-Authorize-Endpoint-Data-Provider-Script.script.js"
+    }
+  }
+}

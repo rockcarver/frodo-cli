@@ -1,0 +1,18 @@
+{
+  "script": {
+    "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
+      "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
+      "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for OAuth2 Access Token Modification",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "OAuth2 Access Token Modification Script",
+      "script": "file://OAuth2-Access-Token-Modification-Script.script.js"
+    }
+  }
+}

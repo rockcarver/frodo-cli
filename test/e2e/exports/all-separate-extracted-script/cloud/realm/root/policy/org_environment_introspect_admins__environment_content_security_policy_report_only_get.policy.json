@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "org_environment_introspect_admins__environment_content_security_policy_report_only_get": {
+      "_id": "org_environment_introspect_admins__environment_content_security_policy_report_only_get",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "org-environment-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:46.436Z",
+      "description": "Admin policy for GET /environment/content-security-policy/report-only",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:59.734Z",
+      "name": "org_environment_introspect_admins__environment_content_security_policy_report_only_get",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/content-security-policy/report-only"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-auditor,ou=group,ou=am-config",
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

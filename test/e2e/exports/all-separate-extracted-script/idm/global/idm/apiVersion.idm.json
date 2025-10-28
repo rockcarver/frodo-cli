@@ -1,0 +1,51 @@
+{
+  "idm": {
+    "apiVersion": {
+      "_id": "apiVersion",
+      "warning": {
+        "enabled": {
+          "$bool": "&{openidm.apiVersion.warning.enabled|false}"
+        },
+        "includeScripts": {
+          "$bool": "&{openidm.apiVersion.warning.includeScripts|false}"
+        },
+        "logFilterResourcePaths": [
+          "audit",
+          "authentication",
+          "cluster",
+          "config",
+          "consent",
+          "csv",
+          "external/rest",
+          "identityProviders",
+          "info",
+          "internal",
+          "internal/role",
+          "internal/user",
+          "internal/usermeta",
+          "managed",
+          "managed/assignment",
+          "managed/organization",
+          "managed/role",
+          "managed/user",
+          "notification",
+          "policy",
+          "privilege",
+          "profile",
+          "recon",
+          "recon/assoc",
+          "repo",
+          "selfservice/kba",
+          "selfservice/terms",
+          "scheduler/job",
+          "scheduler/trigger",
+          "schema",
+          "sync",
+          "sync/mappings",
+          "system",
+          "taskscanner"
+        ]
+      }
+    }
+  }
+}

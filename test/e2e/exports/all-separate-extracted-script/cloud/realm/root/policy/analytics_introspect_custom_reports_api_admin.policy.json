@@ -1,0 +1,36 @@
+{
+  "policy": {
+    "analytics_introspect_custom_reports_api_admin": {
+      "_id": "analytics_introspect_custom_reports_api_admin",
+      "actionValues": {
+        "GET": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:45.956Z",
+      "description": "Admin policy for GET custom reports API",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:51.525Z",
+      "name": "analytics_introspect_custom_reports_api_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/config",
+        "/reports/aggregates",
+        "/reports/parameters/types",
+        "/reports/helix/templates",
+        "/reports/helix/entities",
+        "/reports/entities",
+        "/reports/operators",
+        "/reports/entities/*"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

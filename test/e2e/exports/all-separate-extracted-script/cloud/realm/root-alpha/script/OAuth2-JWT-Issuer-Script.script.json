@@ -1,0 +1,18 @@
+{
+  "script": {
+    "400e48ba-3f13-4144-ac7b-f824ea8e98c5": {
+      "_id": "400e48ba-3f13-4144-ac7b-f824ea8e98c5",
+      "context": "OAUTH2_SCRIPTED_JWT_ISSUER",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for scripted JWT Issuers",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "OAuth2 JWT Issuer Script",
+      "script": "file://OAuth2-JWT-Issuer-Script.script.js"
+    }
+  }
+}

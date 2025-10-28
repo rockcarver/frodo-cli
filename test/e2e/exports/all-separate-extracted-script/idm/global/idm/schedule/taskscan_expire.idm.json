@@ -1,0 +1,35 @@
+{
+  "idm": {
+    "schedule/taskscan_expire": {
+      "_id": "schedule/taskscan_expire",
+      "concurrentExecution": false,
+      "enabled": false,
+      "invokeContext": {
+        "numberOfThreads": 5,
+        "scan": {
+          "_queryFilter": "((/inactiveDate lt \"${Time.nowWithOffset}\") AND (!(/activeDate pr) or /activeDate le \"${Time.nowWithOffset}\"))",
+          "object": "managed/user",
+          "recovery": {
+            "timeout": "10m"
+          },
+          "taskState": {
+            "completed": "/expireAccount/task-completed",
+            "started": "/expireAccount/task-started"
+          }
+        },
+        "task": {
+          "script": {
+            "globals": {},
+            "source": "file://taskscan_expire.invokeContext.task.script.script.js",
+            "type": "text/javascript"
+          }
+        },
+        "waitForCompletion": false
+      },
+      "invokeService": "taskscanner",
+      "persisted": true,
+      "repeatInterval": 86400000,
+      "type": "simple"
+    }
+  }
+}

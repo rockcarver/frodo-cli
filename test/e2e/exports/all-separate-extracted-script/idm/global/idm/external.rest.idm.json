@@ -1,0 +1,8 @@
+{
+  "idm": {
+    "external.rest": {
+      "_id": "external.rest",
+      "hostnameVerifier": "&{openidm.external.rest.hostnameVerifier}"
+    }
+  }
+}

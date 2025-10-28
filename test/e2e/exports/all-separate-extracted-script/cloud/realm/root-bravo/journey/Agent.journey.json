@@ -1,0 +1,181 @@
+{
+  "trees": {
+    "Agent": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {
+        "16ac997e-4d48-4c19-b6b9-98086845131a": {
+          "_id": "16ac997e-4d48-4c19-b6b9-98086845131a",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedUsernameNode",
+            "collection": true,
+            "name": "Platform Username",
+            "version": "1.0"
+          },
+          "usernameAttribute": "userName",
+          "validateInput": false
+        },
+        "52db314b-2eda-41a9-8dda-8d0b8b8e5876": {
+          "_id": "52db314b-2eda-41a9-8dda-8d0b8b8e5876",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "ValidatedPasswordNode",
+            "collection": true,
+            "name": "Platform Password",
+            "version": "1.0"
+          },
+          "passwordAttribute": "password",
+          "validateInput": false
+        }
+      },
+      "nodes": {
+        "0fde84fa-bf2f-4322-a040-fc700bd9b8f2": {
+          "_id": "0fde84fa-bf2f-4322-a040-fc700bd9b8f2",
+          "_outcomes": [
+            {
+              "displayName": "Outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "PageNode",
+            "collection": true,
+            "name": "Page Node",
+            "version": "1.0"
+          },
+          "nodes": [
+            {
+              "_id": "16ac997e-4d48-4c19-b6b9-98086845131a",
+              "displayName": "Platform Username",
+              "nodeType": "ValidatedUsernameNode"
+            },
+            {
+              "_id": "52db314b-2eda-41a9-8dda-8d0b8b8e5876",
+              "displayName": "Platform Password",
+              "nodeType": "ValidatedPasswordNode"
+            }
+          ],
+          "pageDescription": {},
+          "pageHeader": {}
+        },
+        "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6": {
+          "_id": "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6",
+          "_outcomes": [
+            {
+              "displayName": "Has Credentials",
+              "id": "true"
+            },
+            {
+              "displayName": "No Credentials",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "ZeroPageLoginNode",
+            "collection": true,
+            "name": "Zero Page Login Collector",
+            "version": "1.0"
+          },
+          "allowWithoutReferer": true,
+          "passwordHeader": "X-OpenAM-Password",
+          "referrerWhiteList": [],
+          "usernameHeader": "X-OpenAM-Username"
+        },
+        "a02fa1ec-2752-42bc-a98f-e41e08f225e7": {
+          "_id": "a02fa1ec-2752-42bc-a98f-e41e08f225e7",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AgentDataStoreDecisionNode",
+            "collection": true,
+            "name": "Agent Data Store Decision",
+            "version": "1.0"
+          }
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Agent",
+        "description": "CAUTION: PingAM Agent and PingGateway profiles require an Agent journey. Don't change this configuration.",
+        "enabled": true,
+        "entryNodeId": "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6",
+        "identityResource": "managed/bravo_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "0fde84fa-bf2f-4322-a040-fc700bd9b8f2": {
+            "connections": {
+              "outcome": "a02fa1ec-2752-42bc-a98f-e41e08f225e7"
+            },
+            "displayName": "Page Node",
+            "nodeType": "PageNode",
+            "x": 469,
+            "y": 320
+          },
+          "53fc9e71-93b1-4329-a0ee-0493c6b4fcd6": {
+            "connections": {
+              "false": "0fde84fa-bf2f-4322-a040-fc700bd9b8f2",
+              "true": "a02fa1ec-2752-42bc-a98f-e41e08f225e7"
+            },
+            "displayName": "Zero Page Login Collector",
+            "nodeType": "ZeroPageLoginNode",
+            "x": 167,
+            "y": 222
+          },
+          "a02fa1ec-2752-42bc-a98f-e41e08f225e7": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Agent Data Store Decision",
+            "nodeType": "AgentDataStoreDecisionNode",
+            "x": 749,
+            "y": 238
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1066,
+            "y": 226
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1070,
+            "y": 374
+          },
+          "startNode": {
+            "x": 50,
+            "y": 250
+          }
+        },
+        "transactionalOnly": false,
+        "uiConfig": {
+          "categories": "[\"Authentication\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

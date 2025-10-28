@@ -1,0 +1,15 @@
+{
+  "idm": {
+    "webserver.listener/https": {
+      "_id": "webserver.listener/https",
+      "enabled": {
+        "$bool": "&{openidm.https.enabled|true}"
+      },
+      "port": {
+        "$int": "&{openidm.port.https|8443}"
+      },
+      "secure": true,
+      "sslCertAlias": "&{openidm.https.keystore.cert.alias|openidm-localhost}"
+    }
+  }
+}

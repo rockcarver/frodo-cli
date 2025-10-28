@@ -1,0 +1,23 @@
+{
+  "idm": {
+    "process/access": {
+      "_id": "process/access",
+      "workflowAccess": [
+        {
+          "propertiesCheck": {
+            "matches": ".*",
+            "property": "_id",
+            "requiresRole": "internal/role/openidm-authorized"
+          }
+        },
+        {
+          "propertiesCheck": {
+            "matches": ".*",
+            "property": "_id",
+            "requiresRole": "internal/role/openidm-admin"
+          }
+        }
+      ]
+    }
+  }
+}

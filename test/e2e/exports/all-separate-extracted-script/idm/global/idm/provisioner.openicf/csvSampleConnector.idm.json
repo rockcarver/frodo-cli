@@ -1,0 +1,98 @@
+{
+  "idm": {
+    "provisioner.openicf/csvSampleConnector": {
+      "_id": "provisioner.openicf/csvSampleConnector",
+      "configurationProperties": {
+        "csvFile": "/home/trivir/Work/csv-file-connector/csvConnectorData.csv",
+        "escapeCharacter": "\\",
+        "fieldDelimiter": ",",
+        "headerPassword": "password",
+        "headerUid": "uid",
+        "newlineString": "\n",
+        "quoteCharacter": "\"",
+        "spaceReplacementString": "_",
+        "syncFileRetentionCount": "3"
+      },
+      "connectorRef": {
+        "bundleName": "org.forgerock.openicf.connectors.csvfile-connector",
+        "bundleVersion": "1.5.20.28",
+        "connectorHostRef": "",
+        "connectorName": "org.forgerock.openicf.csvfile.CSVFileConnector",
+        "displayName": "CSV File Connector",
+        "systemType": "provisioner.openicf"
+      },
+      "enabled": true,
+      "objectTypes": {
+        "__ACCOUNT__": {
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "__ACCOUNT__",
+          "nativeType": "__ACCOUNT__",
+          "properties": {
+            "__NAME__": {
+              "nativeName": "__NAME__",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "description": {
+              "nativeName": "description",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "email": {
+              "nativeName": "email",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "firstname": {
+              "nativeName": "firstname",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "lastname": {
+              "nativeName": "lastname",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "mobileTelephoneNumber": {
+              "nativeName": "mobileTelephoneNumber",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "roles": {
+              "nativeName": "roles",
+              "nativeType": "string",
+              "type": "string"
+            },
+            "username": {
+              "nativeName": "username",
+              "nativeType": "string",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "operationTimeout": {
+        "AUTHENTICATE": -1,
+        "CREATE": -1,
+        "DELETE": -1,
+        "GET": -1,
+        "RESOLVEUSERNAME": -1,
+        "SCHEMA": -1,
+        "SCRIPT_ON_CONNECTOR": -1,
+        "SCRIPT_ON_RESOURCE": -1,
+        "SEARCH": -1,
+        "SYNC": -1,
+        "TEST": -1,
+        "UPDATE": -1,
+        "VALIDATE": -1
+      },
+      "resultsHandlerConfig": {
+        "enableAttributesToGetSearchResultsHandler": true,
+        "enableCaseInsensitiveFilter": false,
+        "enableFilteredResultsHandler": false,
+        "enableNormalizingResultsHandler": false
+      }
+    }
+  }
+}

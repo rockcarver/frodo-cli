@@ -1,0 +1,18 @@
+{
+  "script": {
+    "484e6246-dbc6-4288-97e6-54e55431402e": {
+      "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from Apple",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Apple Profile Normalization",
+      "script": "file://Apple-Profile-Normalization.script.groovy"
+    }
+  }
+}

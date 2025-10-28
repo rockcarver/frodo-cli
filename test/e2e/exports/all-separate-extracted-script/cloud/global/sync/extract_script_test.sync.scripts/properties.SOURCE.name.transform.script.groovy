@@ -1,0 +1,1 @@
+//groovy EXTRACT SCRIPT test UPDATED

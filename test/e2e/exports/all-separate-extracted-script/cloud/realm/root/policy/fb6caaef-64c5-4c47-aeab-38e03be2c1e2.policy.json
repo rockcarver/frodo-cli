@@ -1,0 +1,28 @@
+{
+  "policy": {
+    "fb6caaef-64c5-4c47-aeab-38e03be2c1e2": {
+      "_id": "fb6caaef-64c5-4c47-aeab-38e03be2c1e2",
+      "actionValues": {
+        "READ": true
+      },
+      "active": true,
+      "applicationName": "sunAMDelegationService",
+      "createdBy": "",
+      "creationDate": "1970-01-01T00:00:00.0Z",
+      "description": "",
+      "lastModifiedBy": "",
+      "lastModifiedDate": "1970-01-01T00:00:00.0Z",
+      "name": "fb6caaef-64c5-4c47-aeab-38e03be2c1e2",
+      "resourceTypeUuid": "",
+      "resources": [
+        "sms://*ou=am-config/sunAMRealmService/*"
+      ],
+      "subject": {
+        "subjectValues": [
+          "id=brand-admin,ou=group,ou=am-config"
+        ],
+        "type": "Identity"
+      }
+    }
+  }
+}

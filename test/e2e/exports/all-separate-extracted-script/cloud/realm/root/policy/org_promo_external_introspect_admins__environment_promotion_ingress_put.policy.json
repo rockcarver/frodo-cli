@@ -1,0 +1,29 @@
+{
+  "policy": {
+    "org_promo_external_introspect_admins__environment_promotion_ingress_put": {
+      "_id": "org_promo_external_introspect_admins__environment_promotion_ingress_put",
+      "actionValues": {
+        "PUT": true
+      },
+      "active": true,
+      "applicationName": "org-promo-external-introspect",
+      "createdBy": "id=org-engine-client,ou=agent,ou=am-config",
+      "creationDate": "2025-10-15T09:17:02.182Z",
+      "description": "Admin policy for PUT /environment/promotion/ingress",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:40:09.488Z",
+      "name": "org_promo_external_introspect_admins__environment_promotion_ingress_put",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/environment/promotion/ingress"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

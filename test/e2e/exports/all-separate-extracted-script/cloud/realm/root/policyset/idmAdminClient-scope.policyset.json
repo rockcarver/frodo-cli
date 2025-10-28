@@ -1,0 +1,27 @@
+{
+  "policyset": {
+    "idmAdminClient-scope": {
+      "applicationType": "iPlanetAMWebAgentService",
+      "attributeNames": [],
+      "conditions": [],
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": 1758643004899,
+      "description": "The set of policies used by idmAdminClient for issuing tokens",
+      "displayName": "Policies for idmAdminClient scopes",
+      "editable": true,
+      "entitlementCombiner": "DenyOverride",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": 1761154789116,
+      "name": "idmAdminClient-scope",
+      "resourceComparator": "org.forgerock.openam.entitlement.indexsimple.SimpleResourceMatcher",
+      "resourceTypeUuids": [],
+      "saveIndex": null,
+      "searchIndex": null,
+      "subjects": [
+        "Identity",
+        "OR",
+        "NOT"
+      ]
+    }
+  }
+}

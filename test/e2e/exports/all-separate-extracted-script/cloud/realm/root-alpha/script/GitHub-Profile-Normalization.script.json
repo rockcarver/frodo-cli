@@ -1,0 +1,18 @@
+{
+  "script": {
+    "a7a78773-445b-4eca-bb93-409e86bced81": {
+      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Normalizes raw profile data from GitHub",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "GitHub Profile Normalization",
+      "script": "file://GitHub-Profile-Normalization.script.groovy"
+    }
+  }
+}

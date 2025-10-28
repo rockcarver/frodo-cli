@@ -1,0 +1,36 @@
+{
+  "idm": {
+    "authentication": {
+      "_id": "authentication",
+      "rsFilter": {
+        "augmentSecurityContext": {
+          "source": "file://authentication.idm.scripts/rsFilter.augmentSecurityContext.script.js",
+          "type": "text/javascript"
+        },
+        "cache": {
+          "maxTimeout": "300 seconds"
+        },
+        "scopes": [
+          "fr:idm:*"
+        ],
+        "staticUserMapping": [],
+        "subjectMapping": [
+          {
+            "additionalUserFields": [
+              "adminOfOrg",
+              "ownerOfOrg"
+            ],
+            "defaultRoles": [
+              "internal/role/openidm-authorized"
+            ],
+            "propertyMapping": {
+              "sub": "_id"
+            },
+            "queryOnResource": "managed/{{substring realm 1}}_user",
+            "userRoles": "authzRoles/*"
+          }
+        ]
+      }
+    }
+  }
+}

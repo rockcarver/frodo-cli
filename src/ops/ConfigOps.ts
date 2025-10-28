@@ -443,16 +443,7 @@ export async function importEverythingFromFiles(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
-    const collectErrors: Error[] = [];
-    saveJsonToFile(data, '../idmtest/aasdfasdf.json');
-
-    await importFullConfiguration(data, options, collectErrors);
-    if (collectErrors.length > 0) {
-      throw new FrodoError(
-        `Errors occurred during full config import`,
-        collectErrors
-      );
-    }
+    await importFullConfiguration(data, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);

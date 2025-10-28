@@ -1,0 +1,9 @@
+{
+  "idm": {
+    "endpoint/removeRepoPathFromRelationships": {
+      "_id": "endpoint/removeRepoPathFromRelationships",
+      "file": "update/removeRepoPathFromRelationships.js",
+      "type": "text/javascript"
+    }
+  }
+}

@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list -l
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list --long
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list -l -m classic
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo server list --long -m classic
  */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -63,21 +63,21 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const classicEnv = getEnv(cc);
 
-describe('frodo server list', () => {
+describe('frodo server list -m classic', () => {
     test('"frodo server list": should list the urls of the servers', async () => {
-        const CMD = `frodo server list`;
+        const CMD = `frodo server list -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo server list -l": should list the ids, urls, and site names of the servers', async () => {
-        const CMD = `frodo server list -l`;
+    test('"frodo server list -l -m classic": should list the ids, urls, and site names of the servers', async () => {
+        const CMD = `frodo server list -l -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test('"frodo server list --long": should list the ids, urls, and site names of the servers', async () => {
-        const CMD = `frodo server list --long`;
+    test('"frodo server list --long -m classic": should list the ids, urls, and site names of the servers', async () => {
+        const CMD = `frodo server list --long -m classic`;
         const { stdout } = await exec(CMD, classicEnv);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });

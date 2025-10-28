@@ -1,24 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo server list "frodo server list --long": should list the ids, urls, and site names of the servers 1`] = `
-"Id│Url                     │Site Name
-01│http://localhost:8080/am│         
-03│http://localhost:8081/am│testsite 
-04│http://localhost:8082/am│         
+exports[`frodo server list -m classic "frodo server list --long -m classic": should list the ids, urls, and site names of the servers 1`] = `
+"Id│Url                                        │Site Name
+03│http://localhost:8081/am                   │         
+04│http://localhost:8082/am                   │         
+01│http://openam-frodo-dev.classic.com:8080/am│         
 "
 `;
 
-exports[`frodo server list "frodo server list -l": should list the ids, urls, and site names of the servers 1`] = `
-"Id│Url                     │Site Name
-01│http://localhost:8080/am│         
-03│http://localhost:8081/am│testsite 
-04│http://localhost:8082/am│         
+exports[`frodo server list -m classic "frodo server list -l -m classic": should list the ids, urls, and site names of the servers 1`] = `
+"Id│Url                                        │Site Name
+03│http://localhost:8081/am                   │         
+04│http://localhost:8082/am                   │         
+01│http://openam-frodo-dev.classic.com:8080/am│         
 "
 `;
 
-exports[`frodo server list "frodo server list": should list the urls of the servers 1`] = `
-"http://localhost:8080/am
-http://localhost:8081/am
+exports[`frodo server list -m classic "frodo server list": should list the urls of the servers 1`] = `
+"http://localhost:8081/am
 http://localhost:8082/am
+http://openam-frodo-dev.classic.com:8080/am
 "
 `;

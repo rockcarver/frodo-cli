@@ -1,0 +1,30 @@
+{
+  "policy": {
+    "analytics_introspect_create_update_templates_admin": {
+      "_id": "analytics_introspect_create_update_templates_admin",
+      "actionValues": {
+        "CREATE": true,
+        "UPDATE": true
+      },
+      "active": true,
+      "applicationName": "auto-analytics-introspect",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": "2025-09-23T15:56:45.851Z",
+      "description": "Admin policy for CREATE/UPDATE /reports/templates",
+      "lastModifiedBy": "id=ad62492c-d064-4952-95ed-0a74ed5b2fd1,ou=user,ou=am-config",
+      "lastModifiedDate": "2025-10-22T17:39:51.409Z",
+      "name": "analytics_introspect_create_update_templates_admin",
+      "resourceTypeUuid": "",
+      "resources": [
+        "/reports/templates"
+      ],
+      "subject": {
+        "groupUniversalIds": [
+          "id=tenant-admins,ou=group,ou=am-config",
+          "id=super-admins,ou=group,ou=am-config"
+        ],
+        "type": "ResourceOwnerInGroup"
+      }
+    }
+  }
+}

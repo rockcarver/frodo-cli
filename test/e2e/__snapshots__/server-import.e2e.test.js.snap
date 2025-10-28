@@ -1,19 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo server import "frodo server import --all --file test/e2e/exports/all/allServers.server.json": should import all servers from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import --all --file test/e2e/exports/all/allServers.server.json -m classic": should import all servers from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 
-exports[`frodo server import "frodo server import --all-separate --directory test/e2e/exports/all-separate/classic/global/server": should import all servers from the test/e2e/exports/all-separate/classic/global/server directory" 1`] = `""`;
+exports[`frodo server import "frodo server import --all-separate --directory test/e2e/exports/all-separate/classic/global/server -m classic": should import all servers from the test/e2e/exports/all-separate/classic/global/server directory" 1`] = `""`;
 
-exports[`frodo server import "frodo server import --default  --server-url http://localhost:8081/am --file test/e2e/exports/all/allServers.server.json": should import the server with the url "http://localhost:8081/am" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import --default  --server-url http://localhost:8081/am --file test/e2e/exports/all/allServers.server.json -m classic": should import the server with the url "http://localhost:8081/am" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 
-exports[`frodo server import "frodo server import --server-id 01 --file test/e2e/exports/all/allServers.server.json": should import the server with the id "01" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import --server-id 01 --file test/e2e/exports/all/allServers.server.json -m classic": should import the server with the id "01" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 
-exports[`frodo server import "frodo server import -dAD test/e2e/exports/all-separate/classic/global/server": should import all servers from the test/e2e/exports/all-separate/classic/global/server directory" 1`] = `""`;
+exports[`frodo server import "frodo server import -dAD test/e2e/exports/all-separate/classic/global/server -m classic": should import all servers from the test/e2e/exports/all-separate/classic/global/server directory" 1`] = `""`;
 
-exports[`frodo server import "frodo server import -daf test/e2e/exports/all/allServers.server.json": should import all servers from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import -daf test/e2e/exports/all/allServers.server.json -m classic": should import all servers from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 
-exports[`frodo server import "frodo server import -di 01 -f test/e2e/exports/all/allServers.server.json": should import the server with the id "01" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import -di 01 -f test/e2e/exports/all/allServers.server.json -m classic": should import the server with the id "01" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
 
-exports[`frodo server import "frodo server import -f test/e2e/exports/all/allServers.server.json": should import the first server from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import -di 01 -f test/e2e/exports/all/allServers.server.json -m classic": should import the server with the id "01" from the file "test/e2e/exports/all/allServers.server.json" 2`] = `
+"Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
+- Reading server from file...
+- Importing server...
+- Successfully imported server 01.
+"
+`;
 
-exports[`frodo server import "frodo server import -u 8081 -f test/e2e/exports/all/allServers.server.json": should import the server with the url containing "8081" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+exports[`frodo server import "frodo server import -f test/e2e/exports/all/allServers.server.json -m classic": should import the first server from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;
+
+exports[`frodo server import "frodo server import -u 8081 -f test/e2e/exports/all/allServers.server.json -m classic": should import the server with the url containing "8081" from the file "test/e2e/exports/all/allServers.server.json" 1`] = `""`;

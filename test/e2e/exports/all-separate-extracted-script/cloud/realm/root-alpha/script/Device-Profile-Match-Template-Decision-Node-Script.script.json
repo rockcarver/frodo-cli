@@ -1,0 +1,18 @@
+{
+  "script": {
+    "13e3f263-9cd3-4844-8d1c-040fd0dd02eb": {
+      "_id": "13e3f263-9cd3-4844-8d1c-040fd0dd02eb",
+      "context": "AUTHENTICATION_TREE_DECISION_NODE",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script template for Device Profile Match decision node script for Authentication Tree",
+      "evaluatorVersion": "1.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "Device Profile Match Template - Decision Node Script",
+      "script": "file://Device-Profile-Match-Template-Decision-Node-Script.script.js"
+    }
+  }
+}
