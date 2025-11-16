@@ -7,13 +7,15 @@ exports[`frodo esv variable create "frodo esv variable create --variable-id esv-
 - Creating variable esv-test-var-pi-unknown...
 ✖ Error updating variable esv-test-var-pi-unknown
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
+    Code: ERR_BAD_REQUEST
     Message: request body has an error: doesn't match schema #/components/schemas/esvVariableCreateUpdateRequest: Error at "/expressionType": value is not one of the allowed values ["string","list","array","object","bool","int","number","base64encodedinlined","keyvaluelist"]
 Error updating variable esv-test-var-pi-unknown
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
+    Code: ERR_BAD_REQUEST
     Message: request body has an error: doesn't match schema #/components/schemas/esvVariableCreateUpdateRequest: Error at "/expressionType": value is not one of the allowed values ["string","list","array","object","bool","int","number","base64encodedinlined","keyvaluelist"]
 "
 `;

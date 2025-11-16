@@ -153,12 +153,20 @@ export async function fetchLogs(
   endTs: string,
   levels: string[],
   txid: string,
+  filter: string,
   ffString: string,
   cookie: string,
   nf: string[]
 ) {
   try {
-    const logsObject = await fetch(source, startTs, endTs, cookie);
+    const logsObject = await fetch(
+      source,
+      startTs,
+      endTs,
+      cookie,
+      txid,
+      filter
+    );
     let filteredLogs = [];
     const noiseFilter = nf == null ? getDefaultNoiseFilter() : nf;
     if (Array.isArray(logsObject.result)) {
@@ -168,12 +176,7 @@ export async function fetchLogs(
             (el.payload as LogEventPayloadSkeleton).logger
           ) &&
           !noiseFilter.includes(el.type) &&
-          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el))) &&
-          (typeof txid === 'undefined' ||
-            txid === null ||
-            (el.payload as LogEventPayloadSkeleton).transactionId?.includes(
-              txid
-            ))
+          (levels[0] === 'ALL' || levels.includes(resolvePayloadLevel(el)))
       );
     }
 
@@ -188,12 +191,14 @@ export async function fetchLogs(
       }
     });
     if (logsObject.pagedResultsCookie != null) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await fetchLogs(
         source,
         startTs,
         endTs,
         levels,
         txid,
+        filter,
         ffString,
         logsObject.pagedResultsCookie,
         nf

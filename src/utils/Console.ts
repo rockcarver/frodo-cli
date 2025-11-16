@@ -219,7 +219,9 @@ export function printError(error: Error, message?: string) {
       errorMessage += code ? `\n  Code: ${code}` : '';
       errorMessage += status ? `\n  Status: ${status}` : '';
       errorMessage += message ? `\n  Message: ${message}` : '';
-      errorMessage += detail ? `\n  Detail: ${detail}` : '';
+      errorMessage += detail
+        ? `\n  Detail: ${typeof detail === 'object' ? JSON.stringify(detail) : detail}`
+        : '';
       printMessage(errorMessage, 'error');
       break;
     }

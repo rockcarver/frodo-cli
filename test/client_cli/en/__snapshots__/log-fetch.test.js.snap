@@ -37,6 +37,7 @@ Options:
                                        additional output helpful for
                                        troubleshooting.
   -e, --end-timestamp <endTs>          End timestamp for period. Default: "now"
+  -f, --query-filter <filter exp>      Filter using a query expression
   --flush-cache                        Flush token cache.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
@@ -60,7 +61,7 @@ Options:
                                        1, WARNING, WARN or CONFIG
                                        2, INFO or INFORMATION
                                        3, DEBUG, FINE, FINER or FINEST
-                                       4 or ALL (default: SEVERE,ERROR,FATAL)
+                                       4 or ALL (default: ALL)
   --login-client-id <client-id>        Specify a custom OAuth2 client id to use
                                        a your own oauth2 client for IDM API
                                        calls in deployments of type "cloud" or
@@ -164,6 +165,7 @@ Options:
                                        additional output helpful for
                                        troubleshooting.
   -e, --end-timestamp <endTs>          End timestamp for period. Default: "now"
+  -f, --query-filter <filter exp>      Filter using a query expression
   --flush-cache                        Flush token cache.
   -h, --help                           Help
   --idm-host <idm-host>                IDM base URL, e.g.:
@@ -187,7 +189,7 @@ Options:
                                        1, WARNING, WARN or CONFIG
                                        2, INFO or INFORMATION
                                        3, DEBUG, FINE, FINER or FINEST
-                                       4 or ALL (default: SEVERE,ERROR,FATAL)
+                                       4 or ALL (default: ALL)
   --login-client-id <client-id>        Specify a custom OAuth2 client id to use
                                        a your own oauth2 client for IDM API
                                        calls in deployments of type "cloud" or

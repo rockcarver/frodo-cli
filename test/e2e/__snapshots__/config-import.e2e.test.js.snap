@@ -1,81 +1,68 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo config import "frodo config import --default -CAD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud", including default scripts. Clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating config entity endpoint/testEndpoint2
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
 Error Importing Services
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
   Error deleting service 'CorsService' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
   Error putting global full service config dashboard
   Error deleting service 'dashboard' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-Error updating script
+Error updating alpha realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating alpha realm script
   HTTP client error
-    Code: ERR_BAD_RESPONSE
-    Status: 502
-- Resolving dependencies
-✔ Resolved all dependencies.
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
+    Status: 403
+    Code: ERR_BAD_REQUEST
+    Reason: Forbidden
+    Message: This operation is not available in PingOne Advanced Identity Cloud.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-Error updating script
+Error updating bravo realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating bravo realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
-Error Importing Services
-  Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config TNTPPingOneService
-  Error putting descendent 'JC' of service 'TNTPPingOneService'
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Invalid config: Unable to add subConfig PingOneService
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
@@ -88,236 +75,768 @@ No imports were made
 `;
 
 exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/cloud --include-active-values" Import everything with secret values from directory "test/e2e/exports/all-separate/cloud" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating config entity endpoint/testEndpoint2
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-- Resolving dependencies
-✔ Resolved all dependencies.
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -AD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud" 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-- Resolving dependencies
-✔ Resolved all dependencies.
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -AdD test/e2e/exports/all-separate/classic -m classic" Import everything from directory "test/e2e/exports/all-separate/classic" 1`] = `
 "Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
 Error Importing Authentication Settings
-  Error importing authentication settings
-  Error updating authentication settings
+  Error importing / realm authentication settings
+  Error updating / realm authentication settings
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: http://openam-frodo-dev.classic.com:8080/am/json/global-config/authentication
     Status: 404
+    Code: ERR_BAD_REQUEST
     Reason: Not Found
     Message: Resource '' not found
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
+Errored ➞ PUT http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test _PollyError: [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-45446f61-14b9-43e0-b9cf-2c91ba945c9a",
+    "accept-api-version": "protocol=2.1,resource=1.0",
+    "cookie": "iPlanetDirectoryPro=<token id>",
+    "content-length": "1447",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.classic.com:8080"
+  },
+  "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+  "recordingName": "config/import/0_AdD_m/am",
+  "id": "bf5b484dda6e45e16a289b207286c6e1",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+    "url": "/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+    at assert (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:107562:1)
+    at FrodoNodeHttpAdapter.assert (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:277:5)
+    at FrodoNodeHttpAdapter.replay (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120466:1)
+    at FrodoNodeHttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120350:1)
+Error Importing Social Identity Providers
+  Error importing / realm providers
+  Error updating / realm provider Google Test
+  [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-45446f61-14b9-43e0-b9cf-2c91ba945c9a",
+    "accept-api-version": "protocol=2.1,resource=1.0",
+    "cookie": "iPlanetDirectoryPro=<token id>",
+    "content-length": "1447",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.classic.com:8080"
+  },
+  "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+  "recordingName": "config/import/0_AdD_m/am",
+  "id": "bf5b484dda6e45e16a289b207286c6e1",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+    "url": "/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+- Resolving / realm dependencies
+✔ Resolved all / realm dependencies.
+- Resolving first realm dependencies
+✔ Resolved all first realm dependencies.
+- Resolving second realm dependencies
+✔ Resolved all second realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -CAD test/e2e/exports/all-separate/cloud" Import everything from directory "test/e2e/exports/all-separate/cloud". Clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
 Error Importing Services
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
   Error deleting service 'CorsService' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
   Error putting global full service config dashboard
   Error deleting service 'dashboard' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -aCf test/e2e/exports/all/all.cloud.json" Import everything from "all.cloud.json". Clean old services 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating config entity endpoint/testEndpoint2
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
 Error Importing Services
   Error importing services
   Error putting global full service configs
   Error putting global full service config CorsService
   Error deleting service 'CorsService' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
   Error putting global full service config dashboard
   Error deleting service 'dashboard' before import
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: The singleton resource cannot be deleted
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
     Status: 400
+    Code: ERR_BAD_REQUEST
     Reason: Bad Request
     Message: Data validation failed for the attribute, Transport Type
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.classic.json -m classic" Import everything from "all.classic.json", including default scripts. 1`] = `
 "Connected to http://openam-frodo-dev.classic.com:8080/am [/] as user amAdmin
 Error Importing Authentication Settings
-  Error importing authentication settings
-  Error updating authentication settings
+  Error importing / realm authentication settings
+  Error updating / realm authentication settings
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: http://openam-frodo-dev.classic.com:8080/am/json/global-config/authentication
     Status: 404
+    Code: ERR_BAD_REQUEST
     Reason: Not Found
     Message: Resource '' not found
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
-- Resolving dependencies
-✔ Resolved all dependencies.
+Errored ➞ PUT http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test _PollyError: [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-7029cd5f-ca3e-401a-a362-fcda13caa2a4",
+    "accept-api-version": "protocol=2.1,resource=1.0",
+    "cookie": "iPlanetDirectoryPro=<token id>",
+    "content-length": "1447",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.classic.com:8080"
+  },
+  "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+  "recordingName": "config/import/0_adf_m/am",
+  "id": "bf5b484dda6e45e16a289b207286c6e1",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+    "url": "/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+    at assert (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:107562:1)
+    at FrodoNodeHttpAdapter.assert (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:277:5)
+    at FrodoNodeHttpAdapter.replay (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120466:1)
+    at FrodoNodeHttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120350:1)
+Error Importing Social Identity Providers
+  Error importing / realm providers
+  Error updating / realm provider Google Test
+  [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "http://openam-frodo-dev.classic.com:8080/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-7029cd5f-ca3e-401a-a362-fcda13caa2a4",
+    "accept-api-version": "protocol=2.1,resource=1.0",
+    "cookie": "iPlanetDirectoryPro=<token id>",
+    "content-length": "1447",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.classic.com:8080"
+  },
+  "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+  "recordingName": "config/import/0_adf_m/am",
+  "id": "bf5b484dda6e45e16a289b207286c6e1",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"_id\\":\\"Google Test\\",\\"_type\\":{\\"_id\\":\\"googleConfig\\",\\"collection\\":true,\\"name\\":\\"Client configuration for Google.\\"},\\"acrValues\\":[],\\"authenticationIdKey\\":\\"sub\\",\\"authorizationEndpoint\\":\\"https://accounts.google.com/o/oauth2/v2/auth\\",\\"clientAuthenticationMethod\\":\\"CLIENT_SECRET_POST\\",\\"clientId\\":\\"test\\",\\"enableNativeNonce\\":true,\\"enabled\\":true,\\"encryptJwtRequestParameter\\":false,\\"encryptedIdTokens\\":false,\\"issuer\\":\\"https://accounts.google.com\\",\\"issuerComparisonCheckType\\":\\"EXACT\\",\\"jwtEncryptionAlgorithm\\":\\"NONE\\",\\"jwtEncryptionMethod\\":\\"NONE\\",\\"jwtRequestParameterOption\\":\\"NONE\\",\\"jwtSigningAlgorithm\\":\\"NONE\\",\\"pkceMethod\\":\\"S256\\",\\"privateKeyJwtExpTime\\":600,\\"redirectURI\\":\\"https://testurl.com\\",\\"responseMode\\":\\"DEFAULT\\",\\"revocationCheckOptions\\":[],\\"scopeDelimiter\\":\\" \\",\\"scopes\\":[\\"openid\\",\\"profile\\",\\"email\\"],\\"tokenEndpoint\\":\\"https://www.googleapis.com/oauth2/v4/token\\",\\"transform\\":\\"58d29080-4563-480b-89bb-1e7719776a21\\",\\"uiConfig\\":{\\"buttonClass\\":\\"\\",\\"buttonCustomStyle\\":\\"background-color: #fff; color: #757575; border-color: #ddd;\\",\\"buttonCustomStyleHover\\":\\"color: #6d6d6d; background-color: #eee; border-color: #ccc;\\",\\"buttonDisplayName\\":\\"Google\\",\\"buttonImage\\":\\"images/g-logo.png\\",\\"iconBackground\\":\\"#4184f3\\",\\"iconClass\\":\\"fa-google\\",\\"iconFontColor\\":\\"white\\"},\\"useCustomTrustStore\\":false,\\"userInfoEndpoint\\":\\"https://www.googleapis.com/oauth2/v3/userinfo\\",\\"userInfoResponseType\\":\\"JSON\\",\\"wellKnownEndpoint\\":\\"https://accounts.google.com/.well-known/openid-configuration\\"}",
+    "url": "/am/json/realms/root/realm-config/services/SocialIdentityProviders/googleConfig/Google%20Test"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+- Resolving / realm dependencies
+✔ Resolved all / realm dependencies.
+- Resolving first realm dependencies
+✔ Resolved all first realm dependencies.
+- Resolving second realm dependencies
+✔ Resolved all second realm dependencies.
 "
 `;
 
 exports[`frodo config import "frodo config import -adf test/e2e/exports/all/all.cloud.json" Import everything from "all.cloud.json", including default scripts. 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-Error updating config entity endpoint/Test
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701393386423 [b672336b-41ef-428d-ae4a-e0c082875377]
+Errored ➞ PUT https://openam-frodo-dev.forgeblocks.com/openidm/config/sync _PollyError: [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "1169",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedAlpha_user_managedBravo_user\\",\\"consentRequired\\":true,\\"displayName\\":\\"Test Mapping for Frodo\\",\\"icon\\":null,\\"name\\":\\"managedAlpha_user_managedBravo_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"Hello World!\\\\\\");\\",\\"type\\":\\"text/javascript\\"},\\"default\\":[\\"Default value string\\"],\\"source\\":\\"accountStatus\\",\\"target\\":\\"applications\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"hello\\\\\\");\\",\\"type\\":\\"text/javascript\\"}}],\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\"],\\"target\\":\\"managed/bravo_user\\"}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "e9b06217f1389cf3de1b9ca2b6dc851a",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedAlpha_user_managedBravo_user\\",\\"consentRequired\\":true,\\"displayName\\":\\"Test Mapping for Frodo\\",\\"icon\\":null,\\"name\\":\\"managedAlpha_user_managedBravo_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"Hello World!\\\\\\");\\",\\"type\\":\\"text/javascript\\"},\\"default\\":[\\"Default value string\\"],\\"source\\":\\"accountStatus\\",\\"target\\":\\"applications\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"hello\\\\\\");\\",\\"type\\":\\"text/javascript\\"}}],\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\"],\\"target\\":\\"managed/bravo_user\\"}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+    at assert (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:107562:1)
+    at FrodoNodeHttpAdapter.assert (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:277:5)
+    at FrodoNodeHttpAdapter.replay (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120466:1)
+    at FrodoNodeHttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120350:1)
+Errored ➞ PUT https://openam-frodo-dev.forgeblocks.com/openidm/config/sync _PollyError: [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "938",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedBravo_user_managedAlpha_user\\",\\"consentRequired\\":false,\\"displayName\\":\\"Frodo test mapping\\",\\"icon\\":null,\\"name\\":\\"managedBravo_user_managedAlpha_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[],\\"source\\":\\"managed/bravo_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\"],\\"target\\":\\"managed/alpha_user\\"}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "6ba1524faef65f476e472cad1124d188",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedBravo_user_managedAlpha_user\\",\\"consentRequired\\":false,\\"displayName\\":\\"Frodo test mapping\\",\\"icon\\":null,\\"name\\":\\"managedBravo_user_managedAlpha_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[],\\"source\\":\\"managed/bravo_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\"],\\"target\\":\\"managed/alpha_user\\"}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+    at assert (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:107562:1)
+    at FrodoNodeHttpAdapter.assert (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:277:5)
+    at FrodoNodeHttpAdapter.replay (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120466:1)
+    at FrodoNodeHttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120350:1)
+Errored ➞ PUT https://openam-frodo-dev.forgeblocks.com/openidm/config/sync _PollyError: [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "5370",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/AlphaUser2GoogleApps\\",\\"consentRequired\\":false,\\"correlationQuery\\":[{\\"expressionTree\\":{\\"all\\":[\\"__NAME__\\"]},\\"file\\":\\"ui/correlateTreeToQueryFilter.js\\",\\"linkQualifier\\":\\"default\\",\\"mapping\\":\\"AlphaUser2GoogleApps\\",\\"type\\":\\"text/javascript\\"}],\\"displayName\\":\\"AlphaUser2GoogleApps\\",\\"enableSync\\":{\\"$bool\\":\\"&{esv.gac.enable.mapping}\\"},\\"icon\\":null,\\"name\\":\\"AlphaUser2GoogleApps\\",\\"onCreate\\":{\\"globals\\":{},\\"source\\":\\"target.orgUnitPath = \\\\\\"/NewAccounts\\\\\\";\\",\\"type\\":\\"text/javascript\\"},\\"onUpdate\\":{\\"globals\\":{},\\"source\\":\\"//testing1234\\\\ntarget.givenName = oldTarget.givenName;\\\\ntarget.familyName = oldTarget.familyName;\\\\ntarget.__NAME__ = oldTarget.__NAME__;\\",\\"type\\":\\"text/javascript\\"},\\"policies\\":[{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":{\\"globals\\":{},\\"source\\":\\"// Timing Constants\\\\nvar ATTEMPT = 6; // Number of attempts to find the Google user.\\\\nvar SLEEP_TIME = 500; // Milliseconds between retries.\\\\nvar SYSTEM_ENDPOINT = \\\\\\"system/GoogleApps/__ACCOUNT__\\\\\\";\\\\nvar MAPPING_NAME = \\\\\\"AlphaUser2GoogleApps\\\\\\";\\\\nvar GOOGLE_DOMAIN = identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\\\nvar googleEmail = source.userName + \\\\\\"@\\\\\\" + GOOGLE_DOMAIN;\\\\nvar frUserGUID = source._id;\\\\nvar resultingAction = \\\\\\"ASYNC\\\\\\";\\\\n\\\\n// Get the Google GUID\\\\nvar linkQueryParams = {'_queryFilter': 'firstId eq \\\\\\"' + frUserGUID + '\\\\\\" and linkType eq \\\\\\"' + MAPPING_NAME + '\\\\\\"'};\\\\nvar linkResults = openidm.query(\\\\\\"repo/link/\\\\\\", linkQueryParams, null);\\\\nvar googleGUID;\\\\n\\\\nif (linkResults.resultCount === 1) {\\\\n  googleGUID = linkResults.result[0].secondId;\\\\n}\\\\n\\\\nvar queryResults; // Resulting query from looking for the Google user.\\\\nvar params = {'_queryFilter': '__UID__ eq \\\\\\"' + googleGUID + '\\\\\\"'};\\\\n\\\\nfor (var i = 1; i <= ATTEMPT; i++) {\\\\n    queryResults = openidm.query(SYSTEM_ENDPOINT, params);\\\\n    if (queryResults.result && queryResults.result.length > 0) {\\\\n        logger.info(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in \\\\\\" + i + \\\\\\" attempts. Query result: \\\\\\" + JSON.stringify(queryResults));\\\\n        resultingAction = \\\\\\"UPDATE\\\\\\";\\\\n        break;\\\\n    }\\\\n    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.\\\\n}\\\\n\\\\nif (!queryResults.result || queryResults.resultCount === 0) {\\\\n    logger.warn(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - \\\\\\" + googleEmail + \\\\\\" not found after \\\\\\" + ATTEMPT + \\\\\\" attempts.\\\\\\");\\\\n    resultingAction = \\\\\\"UNLINK\\\\\\";\\\\n}\\\\nresultingAction;\\\\n\\",\\"type\\":\\"text/javascript\\"},\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNQUALIFIED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"UPDATE\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"LINK\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"CREATE\\",\\"situation\\":\\"ABSENT\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"object.custom_password_encrypted != null\\",\\"type\\":\\"text/javascript\\"},\\"source\\":\\"custom_password_encrypted\\",\\"target\\":\\"__PASSWORD__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"openidm.decrypt(source);\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"cn\\",\\"target\\":\\"__NAME__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"source + \\\\\\"@\\\\\\" + identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"givenName\\",\\"target\\":\\"givenName\\"},{\\"source\\":\\"\\",\\"target\\":\\"familyName\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {\\\\n  source.sn + \\\\\\" (Student)\\\\\\"\\\\n} else {\\\\n  source.sn\\\\n}\\",\\"type\\":\\"text/javascript\\"}}],\\"queuedSync\\":{\\"enabled\\":true,\\"maxQueueSize\\":20000,\\"maxRetries\\":5,\\"pageSize\\":100,\\"pollingInterval\\":1000,\\"postRetryAction\\":\\"logged-ignore\\",\\"retryDelay\\":1000},\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\",\\"managedBravo_user_managedAlpha_user\\"],\\"target\\":\\"system/GoogleApps/__ACCOUNT__\\",\\"validSource\\":{\\"globals\\":{},\\"source\\":\\"var isGoogleEligible = true;\\\\n//var logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\" cn: \\\\\\" + source.cn + \\\\\\") -\\\\\\";\\\\nvar logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\") -\\\\\\";\\\\n\\\\n//Get Applicable userTypes (no Parent accounts)\\\\nif (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" Account type not eligible.\\\\\\";\\\\n}\\\\n\\\\n//Make sure the account has a valid encrypted password.\\\\nif (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" No encrypted password yet.\\\\\\";\\\\n}\\\\n\\\\n//Check that CN exists and has no space.\\\\nif (source.cn && source.cn.includes(' ')) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" CN with a space is not allowed.\\\\\\";\\\\n}\\\\n\\\\nif (!isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Not sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n} \\\\n\\\\nif (isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n}\\\\n\\\\nisGoogleEligible;\\\\n\\",\\"type\\":\\"text/javascript\\"}}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "ffe9ba444cc9035ff9d94f239f15a2e0",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/AlphaUser2GoogleApps\\",\\"consentRequired\\":false,\\"correlationQuery\\":[{\\"expressionTree\\":{\\"all\\":[\\"__NAME__\\"]},\\"file\\":\\"ui/correlateTreeToQueryFilter.js\\",\\"linkQualifier\\":\\"default\\",\\"mapping\\":\\"AlphaUser2GoogleApps\\",\\"type\\":\\"text/javascript\\"}],\\"displayName\\":\\"AlphaUser2GoogleApps\\",\\"enableSync\\":{\\"$bool\\":\\"&{esv.gac.enable.mapping}\\"},\\"icon\\":null,\\"name\\":\\"AlphaUser2GoogleApps\\",\\"onCreate\\":{\\"globals\\":{},\\"source\\":\\"target.orgUnitPath = \\\\\\"/NewAccounts\\\\\\";\\",\\"type\\":\\"text/javascript\\"},\\"onUpdate\\":{\\"globals\\":{},\\"source\\":\\"//testing1234\\\\ntarget.givenName = oldTarget.givenName;\\\\ntarget.familyName = oldTarget.familyName;\\\\ntarget.__NAME__ = oldTarget.__NAME__;\\",\\"type\\":\\"text/javascript\\"},\\"policies\\":[{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":{\\"globals\\":{},\\"source\\":\\"// Timing Constants\\\\nvar ATTEMPT = 6; // Number of attempts to find the Google user.\\\\nvar SLEEP_TIME = 500; // Milliseconds between retries.\\\\nvar SYSTEM_ENDPOINT = \\\\\\"system/GoogleApps/__ACCOUNT__\\\\\\";\\\\nvar MAPPING_NAME = \\\\\\"AlphaUser2GoogleApps\\\\\\";\\\\nvar GOOGLE_DOMAIN = identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\\\nvar googleEmail = source.userName + \\\\\\"@\\\\\\" + GOOGLE_DOMAIN;\\\\nvar frUserGUID = source._id;\\\\nvar resultingAction = \\\\\\"ASYNC\\\\\\";\\\\n\\\\n// Get the Google GUID\\\\nvar linkQueryParams = {'_queryFilter': 'firstId eq \\\\\\"' + frUserGUID + '\\\\\\" and linkType eq \\\\\\"' + MAPPING_NAME + '\\\\\\"'};\\\\nvar linkResults = openidm.query(\\\\\\"repo/link/\\\\\\", linkQueryParams, null);\\\\nvar googleGUID;\\\\n\\\\nif (linkResults.resultCount === 1) {\\\\n  googleGUID = linkResults.result[0].secondId;\\\\n}\\\\n\\\\nvar queryResults; // Resulting query from looking for the Google user.\\\\nvar params = {'_queryFilter': '__UID__ eq \\\\\\"' + googleGUID + '\\\\\\"'};\\\\n\\\\nfor (var i = 1; i <= ATTEMPT; i++) {\\\\n    queryResults = openidm.query(SYSTEM_ENDPOINT, params);\\\\n    if (queryResults.result && queryResults.result.length > 0) {\\\\n        logger.info(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in \\\\\\" + i + \\\\\\" attempts. Query result: \\\\\\" + JSON.stringify(queryResults));\\\\n        resultingAction = \\\\\\"UPDATE\\\\\\";\\\\n        break;\\\\n    }\\\\n    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.\\\\n}\\\\n\\\\nif (!queryResults.result || queryResults.resultCount === 0) {\\\\n    logger.warn(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - \\\\\\" + googleEmail + \\\\\\" not found after \\\\\\" + ATTEMPT + \\\\\\" attempts.\\\\\\");\\\\n    resultingAction = \\\\\\"UNLINK\\\\\\";\\\\n}\\\\nresultingAction;\\\\n\\",\\"type\\":\\"text/javascript\\"},\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNQUALIFIED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"UPDATE\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"LINK\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"CREATE\\",\\"situation\\":\\"ABSENT\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"object.custom_password_encrypted != null\\",\\"type\\":\\"text/javascript\\"},\\"source\\":\\"custom_password_encrypted\\",\\"target\\":\\"__PASSWORD__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"openidm.decrypt(source);\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"cn\\",\\"target\\":\\"__NAME__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"source + \\\\\\"@\\\\\\" + identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"givenName\\",\\"target\\":\\"givenName\\"},{\\"source\\":\\"\\",\\"target\\":\\"familyName\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {\\\\n  source.sn + \\\\\\" (Student)\\\\\\"\\\\n} else {\\\\n  source.sn\\\\n}\\",\\"type\\":\\"text/javascript\\"}}],\\"queuedSync\\":{\\"enabled\\":true,\\"maxQueueSize\\":20000,\\"maxRetries\\":5,\\"pageSize\\":100,\\"pollingInterval\\":1000,\\"postRetryAction\\":\\"logged-ignore\\",\\"retryDelay\\":1000},\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\",\\"managedBravo_user_managedAlpha_user\\"],\\"target\\":\\"system/GoogleApps/__ACCOUNT__\\",\\"validSource\\":{\\"globals\\":{},\\"source\\":\\"var isGoogleEligible = true;\\\\n//var logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\" cn: \\\\\\" + source.cn + \\\\\\") -\\\\\\";\\\\nvar logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\") -\\\\\\";\\\\n\\\\n//Get Applicable userTypes (no Parent accounts)\\\\nif (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" Account type not eligible.\\\\\\";\\\\n}\\\\n\\\\n//Make sure the account has a valid encrypted password.\\\\nif (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" No encrypted password yet.\\\\\\";\\\\n}\\\\n\\\\n//Check that CN exists and has no space.\\\\nif (source.cn && source.cn.includes(' ')) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" CN with a space is not allowed.\\\\\\";\\\\n}\\\\n\\\\nif (!isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Not sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n} \\\\n\\\\nif (isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n}\\\\n\\\\nisGoogleEligible;\\\\n\\",\\"type\\":\\"text/javascript\\"}}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+    at assert (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:107562:1)
+    at FrodoNodeHttpAdapter.assert (/Users/vscheuber/Projects/frodo-lib/node_modules/@pollyjs/adapter/src/index.js:277:5)
+    at FrodoNodeHttpAdapter.replay (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120466:1)
+    at FrodoNodeHttpAdapter.handleRequest (/Users/vscheuber/Projects/frodo-cli/dist/app.cjs:120350:1)
+Error Importing Mappings
+  Error importing mappings
+  Error updating sync mapping sync/managedAlpha_user_managedBravo_user
+  [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "1169",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedAlpha_user_managedBravo_user\\",\\"consentRequired\\":true,\\"displayName\\":\\"Test Mapping for Frodo\\",\\"icon\\":null,\\"name\\":\\"managedAlpha_user_managedBravo_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"Hello World!\\\\\\");\\",\\"type\\":\\"text/javascript\\"},\\"default\\":[\\"Default value string\\"],\\"source\\":\\"accountStatus\\",\\"target\\":\\"applications\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"hello\\\\\\");\\",\\"type\\":\\"text/javascript\\"}}],\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\"],\\"target\\":\\"managed/bravo_user\\"}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "e9b06217f1389cf3de1b9ca2b6dc851a",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedAlpha_user_managedBravo_user\\",\\"consentRequired\\":true,\\"displayName\\":\\"Test Mapping for Frodo\\",\\"icon\\":null,\\"name\\":\\"managedAlpha_user_managedBravo_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"Hello World!\\\\\\");\\",\\"type\\":\\"text/javascript\\"},\\"default\\":[\\"Default value string\\"],\\"source\\":\\"accountStatus\\",\\"target\\":\\"applications\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"console.log(\\\\\\"hello\\\\\\");\\",\\"type\\":\\"text/javascript\\"}}],\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\"],\\"target\\":\\"managed/bravo_user\\"}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+  Error updating sync mapping sync/managedBravo_user_managedAlpha_user
+  [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "938",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedBravo_user_managedAlpha_user\\",\\"consentRequired\\":false,\\"displayName\\":\\"Frodo test mapping\\",\\"icon\\":null,\\"name\\":\\"managedBravo_user_managedAlpha_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[],\\"source\\":\\"managed/bravo_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\"],\\"target\\":\\"managed/alpha_user\\"}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "6ba1524faef65f476e472cad1124d188",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/managedBravo_user_managedAlpha_user\\",\\"consentRequired\\":false,\\"displayName\\":\\"Frodo test mapping\\",\\"icon\\":null,\\"name\\":\\"managedBravo_user_managedAlpha_user\\",\\"policies\\":[{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ABSENT\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"ASYNC\\",\\"situation\\":\\"UNQUALIFIED\\"}],\\"properties\\":[],\\"source\\":\\"managed/bravo_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\"],\\"target\\":\\"managed/alpha_user\\"}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+  Error updating sync mapping sync/AlphaUser2GoogleApps
+  [Polly] [adapter:node-http] Recording for the following request is not found and \`recordIfMissing\` is \`false\`.
+{
+  "url": "https://openam-frodo-dev.forgeblocks.com/openidm/config/sync",
+  "method": "PUT",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+    "user-agent": "@rockcarver/frodo-lib/3.3.3",
+    "x-forgerock-transactionid": "frodo-2bdd9903-16bb-4cfa-b7d0-db5a0d43a14d",
+    "authorization": "Bearer <access token>",
+    "content-length": "5370",
+    "accept-encoding": "gzip, compress, deflate, br",
+    "host": "openam-frodo-dev.forgeblocks.com"
+  },
+  "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/AlphaUser2GoogleApps\\",\\"consentRequired\\":false,\\"correlationQuery\\":[{\\"expressionTree\\":{\\"all\\":[\\"__NAME__\\"]},\\"file\\":\\"ui/correlateTreeToQueryFilter.js\\",\\"linkQualifier\\":\\"default\\",\\"mapping\\":\\"AlphaUser2GoogleApps\\",\\"type\\":\\"text/javascript\\"}],\\"displayName\\":\\"AlphaUser2GoogleApps\\",\\"enableSync\\":{\\"$bool\\":\\"&{esv.gac.enable.mapping}\\"},\\"icon\\":null,\\"name\\":\\"AlphaUser2GoogleApps\\",\\"onCreate\\":{\\"globals\\":{},\\"source\\":\\"target.orgUnitPath = \\\\\\"/NewAccounts\\\\\\";\\",\\"type\\":\\"text/javascript\\"},\\"onUpdate\\":{\\"globals\\":{},\\"source\\":\\"//testing1234\\\\ntarget.givenName = oldTarget.givenName;\\\\ntarget.familyName = oldTarget.familyName;\\\\ntarget.__NAME__ = oldTarget.__NAME__;\\",\\"type\\":\\"text/javascript\\"},\\"policies\\":[{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":{\\"globals\\":{},\\"source\\":\\"// Timing Constants\\\\nvar ATTEMPT = 6; // Number of attempts to find the Google user.\\\\nvar SLEEP_TIME = 500; // Milliseconds between retries.\\\\nvar SYSTEM_ENDPOINT = \\\\\\"system/GoogleApps/__ACCOUNT__\\\\\\";\\\\nvar MAPPING_NAME = \\\\\\"AlphaUser2GoogleApps\\\\\\";\\\\nvar GOOGLE_DOMAIN = identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\\\nvar googleEmail = source.userName + \\\\\\"@\\\\\\" + GOOGLE_DOMAIN;\\\\nvar frUserGUID = source._id;\\\\nvar resultingAction = \\\\\\"ASYNC\\\\\\";\\\\n\\\\n// Get the Google GUID\\\\nvar linkQueryParams = {'_queryFilter': 'firstId eq \\\\\\"' + frUserGUID + '\\\\\\" and linkType eq \\\\\\"' + MAPPING_NAME + '\\\\\\"'};\\\\nvar linkResults = openidm.query(\\\\\\"repo/link/\\\\\\", linkQueryParams, null);\\\\nvar googleGUID;\\\\n\\\\nif (linkResults.resultCount === 1) {\\\\n  googleGUID = linkResults.result[0].secondId;\\\\n}\\\\n\\\\nvar queryResults; // Resulting query from looking for the Google user.\\\\nvar params = {'_queryFilter': '__UID__ eq \\\\\\"' + googleGUID + '\\\\\\"'};\\\\n\\\\nfor (var i = 1; i <= ATTEMPT; i++) {\\\\n    queryResults = openidm.query(SYSTEM_ENDPOINT, params);\\\\n    if (queryResults.result && queryResults.result.length > 0) {\\\\n        logger.info(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in \\\\\\" + i + \\\\\\" attempts. Query result: \\\\\\" + JSON.stringify(queryResults));\\\\n        resultingAction = \\\\\\"UPDATE\\\\\\";\\\\n        break;\\\\n    }\\\\n    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.\\\\n}\\\\n\\\\nif (!queryResults.result || queryResults.resultCount === 0) {\\\\n    logger.warn(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - \\\\\\" + googleEmail + \\\\\\" not found after \\\\\\" + ATTEMPT + \\\\\\" attempts.\\\\\\");\\\\n    resultingAction = \\\\\\"UNLINK\\\\\\";\\\\n}\\\\nresultingAction;\\\\n\\",\\"type\\":\\"text/javascript\\"},\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNQUALIFIED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"UPDATE\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"LINK\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"CREATE\\",\\"situation\\":\\"ABSENT\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"object.custom_password_encrypted != null\\",\\"type\\":\\"text/javascript\\"},\\"source\\":\\"custom_password_encrypted\\",\\"target\\":\\"__PASSWORD__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"openidm.decrypt(source);\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"cn\\",\\"target\\":\\"__NAME__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"source + \\\\\\"@\\\\\\" + identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"givenName\\",\\"target\\":\\"givenName\\"},{\\"source\\":\\"\\",\\"target\\":\\"familyName\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {\\\\n  source.sn + \\\\\\" (Student)\\\\\\"\\\\n} else {\\\\n  source.sn\\\\n}\\",\\"type\\":\\"text/javascript\\"}}],\\"queuedSync\\":{\\"enabled\\":true,\\"maxQueueSize\\":20000,\\"maxRetries\\":5,\\"pageSize\\":100,\\"pollingInterval\\":1000,\\"postRetryAction\\":\\"logged-ignore\\",\\"retryDelay\\":1000},\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\",\\"managedBravo_user_managedAlpha_user\\"],\\"target\\":\\"system/GoogleApps/__ACCOUNT__\\",\\"validSource\\":{\\"globals\\":{},\\"source\\":\\"var isGoogleEligible = true;\\\\n//var logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\" cn: \\\\\\" + source.cn + \\\\\\") -\\\\\\";\\\\nvar logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\") -\\\\\\";\\\\n\\\\n//Get Applicable userTypes (no Parent accounts)\\\\nif (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" Account type not eligible.\\\\\\";\\\\n}\\\\n\\\\n//Make sure the account has a valid encrypted password.\\\\nif (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" No encrypted password yet.\\\\\\";\\\\n}\\\\n\\\\n//Check that CN exists and has no space.\\\\nif (source.cn && source.cn.includes(' ')) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" CN with a space is not allowed.\\\\\\";\\\\n}\\\\n\\\\nif (!isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Not sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n} \\\\n\\\\nif (isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n}\\\\n\\\\nisGoogleEligible;\\\\n\\",\\"type\\":\\"text/javascript\\"}}]}",
+  "recordingName": "config/import/0_adf/openidm",
+  "id": "ffe9ba444cc9035ff9d94f239f15a2e0",
+  "order": 0,
+  "identifiers": {
+    "method": "PUT",
+    "body": "{\\"mappings\\":[{\\"_id\\":\\"sync/AlphaUser2GoogleApps\\",\\"consentRequired\\":false,\\"correlationQuery\\":[{\\"expressionTree\\":{\\"all\\":[\\"__NAME__\\"]},\\"file\\":\\"ui/correlateTreeToQueryFilter.js\\",\\"linkQualifier\\":\\"default\\",\\"mapping\\":\\"AlphaUser2GoogleApps\\",\\"type\\":\\"text/javascript\\"}],\\"displayName\\":\\"AlphaUser2GoogleApps\\",\\"enableSync\\":{\\"$bool\\":\\"&{esv.gac.enable.mapping}\\"},\\"icon\\":null,\\"name\\":\\"AlphaUser2GoogleApps\\",\\"onCreate\\":{\\"globals\\":{},\\"source\\":\\"target.orgUnitPath = \\\\\\"/NewAccounts\\\\\\";\\",\\"type\\":\\"text/javascript\\"},\\"onUpdate\\":{\\"globals\\":{},\\"source\\":\\"//testing1234\\\\ntarget.givenName = oldTarget.givenName;\\\\ntarget.familyName = oldTarget.familyName;\\\\ntarget.__NAME__ = oldTarget.__NAME__;\\",\\"type\\":\\"text/javascript\\"},\\"policies\\":[{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"AMBIGUOUS\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"SOURCE_MISSING\\"},{\\"action\\":{\\"globals\\":{},\\"source\\":\\"// Timing Constants\\\\nvar ATTEMPT = 6; // Number of attempts to find the Google user.\\\\nvar SLEEP_TIME = 500; // Milliseconds between retries.\\\\nvar SYSTEM_ENDPOINT = \\\\\\"system/GoogleApps/__ACCOUNT__\\\\\\";\\\\nvar MAPPING_NAME = \\\\\\"AlphaUser2GoogleApps\\\\\\";\\\\nvar GOOGLE_DOMAIN = identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\\\nvar googleEmail = source.userName + \\\\\\"@\\\\\\" + GOOGLE_DOMAIN;\\\\nvar frUserGUID = source._id;\\\\nvar resultingAction = \\\\\\"ASYNC\\\\\\";\\\\n\\\\n// Get the Google GUID\\\\nvar linkQueryParams = {'_queryFilter': 'firstId eq \\\\\\"' + frUserGUID + '\\\\\\" and linkType eq \\\\\\"' + MAPPING_NAME + '\\\\\\"'};\\\\nvar linkResults = openidm.query(\\\\\\"repo/link/\\\\\\", linkQueryParams, null);\\\\nvar googleGUID;\\\\n\\\\nif (linkResults.resultCount === 1) {\\\\n  googleGUID = linkResults.result[0].secondId;\\\\n}\\\\n\\\\nvar queryResults; // Resulting query from looking for the Google user.\\\\nvar params = {'_queryFilter': '__UID__ eq \\\\\\"' + googleGUID + '\\\\\\"'};\\\\n\\\\nfor (var i = 1; i <= ATTEMPT; i++) {\\\\n    queryResults = openidm.query(SYSTEM_ENDPOINT, params);\\\\n    if (queryResults.result && queryResults.result.length > 0) {\\\\n        logger.info(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in \\\\\\" + i + \\\\\\" attempts. Query result: \\\\\\" + JSON.stringify(queryResults));\\\\n        resultingAction = \\\\\\"UPDATE\\\\\\";\\\\n        break;\\\\n    }\\\\n    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.\\\\n}\\\\n\\\\nif (!queryResults.result || queryResults.resultCount === 0) {\\\\n    logger.warn(\\\\\\"idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - \\\\\\" + googleEmail + \\\\\\" not found after \\\\\\" + ATTEMPT + \\\\\\" attempts.\\\\\\");\\\\n    resultingAction = \\\\\\"UNLINK\\\\\\";\\\\n}\\\\nresultingAction;\\\\n\\",\\"type\\":\\"text/javascript\\"},\\"situation\\":\\"MISSING\\"},{\\"action\\":\\"EXCEPTION\\",\\"situation\\":\\"FOUND_ALREADY_LINKED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNQUALIFIED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"UNASSIGNED\\"},{\\"action\\":\\"UNLINK\\",\\"situation\\":\\"LINK_ONLY\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"TARGET_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"SOURCE_IGNORED\\"},{\\"action\\":\\"IGNORE\\",\\"situation\\":\\"ALL_GONE\\"},{\\"action\\":\\"UPDATE\\",\\"situation\\":\\"CONFIRMED\\"},{\\"action\\":\\"LINK\\",\\"situation\\":\\"FOUND\\"},{\\"action\\":\\"CREATE\\",\\"situation\\":\\"ABSENT\\"}],\\"properties\\":[{\\"condition\\":{\\"globals\\":{},\\"source\\":\\"object.custom_password_encrypted != null\\",\\"type\\":\\"text/javascript\\"},\\"source\\":\\"custom_password_encrypted\\",\\"target\\":\\"__PASSWORD__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"openidm.decrypt(source);\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"cn\\",\\"target\\":\\"__NAME__\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"source + \\\\\\"@\\\\\\" + identityServer.getProperty(\\\\\\"esv.gac.domain\\\\\\");\\",\\"type\\":\\"text/javascript\\"}},{\\"source\\":\\"givenName\\",\\"target\\":\\"givenName\\"},{\\"source\\":\\"\\",\\"target\\":\\"familyName\\",\\"transform\\":{\\"globals\\":{},\\"source\\":\\"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {\\\\n  source.sn + \\\\\\" (Student)\\\\\\"\\\\n} else {\\\\n  source.sn\\\\n}\\",\\"type\\":\\"text/javascript\\"}}],\\"queuedSync\\":{\\"enabled\\":true,\\"maxQueueSize\\":20000,\\"maxRetries\\":5,\\"pageSize\\":100,\\"pollingInterval\\":1000,\\"postRetryAction\\":\\"logged-ignore\\",\\"retryDelay\\":1000},\\"source\\":\\"managed/alpha_user\\",\\"syncAfter\\":[\\"managedBravo_user_managedBravo_user\\",\\"managedAlpha_user_managedBravo_user\\",\\"managedBravo_user_managedAlpha_user\\"],\\"target\\":\\"system/GoogleApps/__ACCOUNT__\\",\\"validSource\\":{\\"globals\\":{},\\"source\\":\\"var isGoogleEligible = true;\\\\n//var logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\" cn: \\\\\\" + source.cn + \\\\\\") -\\\\\\";\\\\nvar logMsg = \\\\\\"idmlog: ---AplhaUser2GAC (username: \\\\\\" + source.userName + \\\\\\" - userType: \\\\\\" + source.frIndexedInteger1 + \\\\\\") -\\\\\\";\\\\n\\\\n//Get Applicable userTypes (no Parent accounts)\\\\nif (source.frIndexedInteger1 !== 0 && source.frIndexedInteger1 !== 1 && source.frIndexedInteger1 !== 3 && source.frIndexedInteger1 !== 4 && source.frIndexedInteger1 !== 5) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" Account type not eligible.\\\\\\";\\\\n}\\\\n\\\\n//Make sure the account has a valid encrypted password.\\\\nif (source.custom_password_encrypted == undefined || source.custom_password_encrypted == null) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" No encrypted password yet.\\\\\\";\\\\n}\\\\n\\\\n//Check that CN exists and has no space.\\\\nif (source.cn && source.cn.includes(' ')) {\\\\n\\\\tisGoogleEligible = false;\\\\n\\\\tlogMsg = logMsg + \\\\\\" CN with a space is not allowed.\\\\\\";\\\\n}\\\\n\\\\nif (!isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Not sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n} \\\\n\\\\nif (isGoogleEligible) {\\\\n\\\\tlogMsg = logMsg + \\\\\\" Sent to Google.\\\\\\"\\\\n\\\\tlogger.info(logMsg);\\\\n}\\\\n\\\\nisGoogleEligible;\\\\n\\",\\"type\\":\\"text/javascript\\"}}]}",
+    "url": "/openidm/config/sync"
+  },
+  "config": {
+    "mode": "replay",
+    "adapters": [
+      "node-http"
+    ],
+    "logLevel": "warn",
+    "flushRequestsOnStop": true,
+    "recordIfMissing": false,
+    "recordFailedRequests": true,
+    "expiresIn": null,
+    "expiryStrategy": "warn",
+    "matchRequestsBy": {
+      "method": true,
+      "headers": false,
+      "body": true,
+      "order": false,
+      "url": {
+        "protocol": false,
+        "username": false,
+        "password": false,
+        "hostname": false,
+        "port": false,
+        "pathname": true,
+        "query": true,
+        "hash": true
+      }
+    }
+  }
+}
+Error updating alpha realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating config entity endpoint/testEndpoint2
-  HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 401
-    Reason: Unauthorized
-    Message: Access Denied
-Error updating script
-  HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating alpha realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving alpha realm dependencies
+✔ Resolved all alpha realm dependencies.
 Error Importing Services
   Error importing services
-  Error putting realm full service configs
-  Error putting realm full service config email
+  Error putting alpha realm full service configs
+  Error putting alpha realm full service config email
   HTTP client error
-    Code: ERR_BAD_REQUEST
-    Status: 400
-    Reason: Bad Request
-    Message: Data validation failed for the attribute, Transport Type
-Error updating script
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/realm-config/services/email
+    Status: 500
+    Code: ERR_BAD_RESPONSE
+    Reason: Internal Server Error
+    Message: Unable to update SMS config: Data validation failed for the attribute, Transport Type
+Error updating bravo realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/1f389a3d-21cf-417c-a6d3-42ea620071f0
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-Error updating script
+Error updating bravo realm script
   HTTP client error
-    Code: ERR_BAD_REQUEST
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/scripts/c234ba0b-58a1-4cfd-9567-09edde980745
     Status: 403
+    Code: ERR_BAD_REQUEST
     Reason: Forbidden
     Message: This operation is not available in PingOne Advanced Identity Cloud.
-- Resolving dependencies
-✔ Resolved all dependencies.
+- Resolving bravo realm dependencies
+✔ Resolved all bravo realm dependencies.
+Error Importing Services
+  Error importing services
+  Error putting bravo realm full service configs
+  Error putting bravo realm full service config email
+  HTTP client error
+    URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/bravo/realm-config/services/email
+    Status: 500
+    Code: ERR_BAD_RESPONSE
+    Reason: Internal Server Error
+    Message: Unable to update SMS config: Data validation failed for the attribute, Transport Type
 "
 `;
 
