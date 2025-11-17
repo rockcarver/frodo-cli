@@ -22774,6 +22774,13 @@ exports[`frodo idm schema object export "frodo idm schema object export -a": sho
 }
 `;
 
+exports[`frodo idm schema object export "frodo idm schema object export -a": should export all managed objects into a single file: my-script.idm.json 1`] = `
+{
+  "error": [Error: ENOENT: no such file or directory, open 'my-script.idm.json'],
+  "path": "my-script.idm.json",
+}
+`;
+
 exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5" 1`] = `0`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -i alpha_group -D testDir5": should export the alpha_group managed object into a file named "alpha_group.managed.json" in the directory "testDir5" 2`] = `""`;
