@@ -24,7 +24,6 @@ import {
   printError,
   printMessage,
   showSpinner,
-  spinSpinner,
   stopProgressIndicator,
   succeedSpinner,
   updateProgressIndicator,
@@ -279,13 +278,16 @@ export async function exportScriptToFile(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptToFile: start`);
   try {
-    showSpinner(`Exporting script '${scriptId}'...`);
+    const id = showSpinner(`Exporting script '${scriptId}'...`);
     let fileName = getTypedFilename(scriptId, 'script');
     if (file) {
       fileName = file;
     }
     const filePath = getFilePath(fileName, true);
-    spinSpinner(`Exporting script '${scriptId}' to '${filePath}'...`);
+    updateProgressIndicator(
+      id,
+      `Exporting script '${scriptId}' to '${filePath}'...`
+    );
     const scriptExport = await exportScript(scriptId, options);
     if (extract) {
       extractScriptsToFiles(scriptExport, undefined, undefined, false);
@@ -319,13 +321,16 @@ export async function exportScriptByNameToFile(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: start`);
   try {
-    showSpinner(`Exporting script '${name}'...`);
+    const id = showSpinner(`Exporting script '${name}'...`);
     let fileName = getTypedFilename(name, 'script');
     if (file) {
       fileName = file;
     }
     const filePath = getFilePath(fileName, true);
-    spinSpinner(`Exporting script '${name}' to '${filePath}'...`);
+    updateProgressIndicator(
+      id,
+      `Exporting script '${name}' to '${filePath}'...`
+    );
     const scriptExport = await exportScriptByName(name, options);
     if (extract) extractScriptsToFiles(scriptExport);
     saveJsonToFile(scriptExport, filePath, includeMeta);

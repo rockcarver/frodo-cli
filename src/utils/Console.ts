@@ -4,20 +4,21 @@ import {
   ProgressIndicatorStatusType,
   ProgressIndicatorType,
 } from '@rockcarver/frodo-lib/types/utils/Console';
-import { MultiBar, Presets } from 'cli-progress';
 import Table from 'cli-table3';
 import Color from 'colors';
-import { createSpinner } from 'nanospinner';
+import { stderr as logUpdateStderr } from 'log-update';
+import c from 'tinyrainbow';
 import { v4 as uuidv4 } from 'uuid';
 
 Color.enable();
+const arcSpinner = {
+  frames: ['◜', '◠', '◝', '◞', '◡', '◟'],
+};
 
 const { appendTextToFile } = frodo.utils;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const progressBars: { [k: string]: any } = {};
-let multiBarContainer = null;
-let spinner = null;
+const indicators = new Map<string, any>();
+let renderInterval: NodeJS.Timeout | null = null;
 
 /**
  * Output a message in default color to stdout or append to `state.getOutputFile()`
@@ -169,6 +170,10 @@ export function curlirizeMessage(message) {
  *
  */
 export function printMessage(message, type = 'text', newline = true) {
+  if (indicators.size > 0) {
+    logUpdateStderr.clear();
+  }
+
   switch (type) {
     case 'data':
       data(message, newline);
@@ -187,6 +192,11 @@ export function printMessage(message, type = 'text', newline = true) {
       break;
     default:
       text(message, newline);
+  }
+
+  // Render progress indicators after message
+  if (indicators.size > 0) {
+    renderProgressIndicators();
   }
 }
 
@@ -233,241 +243,206 @@ export function printError(error: Error, message?: string) {
 }
 
 /**
- * Creates a progress bar on stderr
- *
- * Example:
- * [========================================] 100% | 49/49 | Analyzing journey - transactional_auth
- *
- * @param {number} total The total number of entries to track progress for
- * @param {string} message optional progress bar message
- * @param {object} options progress bar configuration options
- * @returns {string} progress bar reference id. Save this id to manage (update, stop) the progress bar.
+ * Render progress indicators
  */
-function createProgressBar(
-  total: number,
-  message: string = null,
-  options: object = {
-    clearOnComplete: false,
-    hideCursor: true,
-    format: '[{bar}] {percentage}% | {value}/{total} | {data}',
-    noTTYOutput: true,
-    forceRedraw: true,
-    gracefulExit: true,
-    stopOnComplete: true,
+function renderProgressIndicators() {
+  if (process.env.FRODO_TEST === '1') return;
+  const lines: string[] = [];
+
+  for (const ind of indicators.values()) {
+    if (ind.type === 'determinate') {
+      const percent =
+        ind.total > 0 ? Math.floor((ind.current / ind.total) * 100) : 0;
+      const barWidth = 40;
+      const filledWidth = Math.floor((percent / 100) * barWidth);
+      const emptyWidth = barWidth - filledWidth;
+
+      const filledBar = '█'.repeat(filledWidth);
+      const emptyBar = '░'.repeat(emptyWidth);
+      const bar = c.cyan(`[${filledBar}${emptyBar}]`);
+
+      const stats = c.dim(`${percent}% | ${ind.current}/${ind.total}`);
+      const msg = ind.message ? ` ${ind.message}` : '';
+      lines.push(`${bar} ${stats}${msg}`);
+    } else {
+      const frame = ind.spinner.frames[ind.frame % ind.spinner.frames.length];
+      const spinnerIcon = c.cyan(frame);
+      const msg = ind.message ? ` ${ind.message}` : '';
+
+      lines.push(`${spinnerIcon}${msg}`);
+    }
   }
+
+  logUpdateStderr(lines.join('\n'));
+}
+
+/**
+ * Start the render loop for spinners
+ */
+function startRenderLoop() {
+  if (renderInterval) return;
+
+  renderInterval = setInterval(() => {
+    for (const ind of indicators.values()) {
+      if (ind.type === 'indeterminate') {
+        ind.frame++;
+      }
+    }
+    renderProgressIndicators();
+  }, 80);
+}
+
+/**
+ * Stop the render loop
+ */
+function stopRenderLoop() {
+  if (renderInterval) {
+    clearInterval(renderInterval);
+    renderInterval = null;
+  }
+}
+
+export function showSpinner(message: string) {
+  return createProgressIndicator('indeterminate', 0, message);
+}
+
+export function succeedSpinner(message: string) {
+  const id = createProgressIndicator('indeterminate', 0, message);
+  stopProgressIndicator(id, message, 'success');
+}
+
+export function failSpinner(message: string) {
+  const id = createProgressIndicator('indeterminate', 0, message);
+  stopProgressIndicator(id, message, 'fail');
+}
+
+/**
+ * Creates a progress indicator
+ * @param {ProgressIndicatorType} type type of progress indicator (determinate or indeterminate)
+ * @param {number} [total] total amount of work for determinate indicators
+ * @param {string} [message] message to display alongside the indicator
+ * @returns {string} unique ID associated with the created progress indicator
+ */
+
+export function createProgressIndicator(
+  type: ProgressIndicatorType,
+  total: number = 0,
+  message: string = ''
 ): string {
-  debugMessage(`cli.Console.createProgressBar: start`);
-  let opt = options;
-  if (message == null) {
-    opt = {
-      clearOnComplete: false,
-      hideCursor: true,
-      format: '[{bar}] {percentage}% | {value}/{total}',
-      noTTYOutput: true,
-      forceRedraw: true,
-      gracefulExit: true,
-      stopOnComplete: true,
-    };
-  }
-  if (!multiBarContainer) {
-    multiBarContainer = new MultiBar(opt, Presets.legacy);
-    debugMessage(
-      `cli.Console.createProgressBar: initialized multiBarContainer`
-    );
-  }
   const id = uuidv4();
-  progressBars[id] = multiBarContainer.create(total, 0, {
-    data: message,
+  debugMessage(`createProgressIndicator: start [${id}]`);
+  indicators.set(id, {
+    id,
+    type,
+    message,
+    spinner: arcSpinner,
+    frame: 0,
+    total,
+    current: 0,
   });
-  debugMessage(
-    `cli.Console.createProgressBar: end [${id}, ${
-      Object.keys(progressBars).length
-    } bars]`
-  );
+  startRenderLoop();
+  renderProgressIndicators();
+  debugMessage(`createProgressIndicator: end [${id}]`);
   return id;
 }
 
 /**
- * Updates the progress bar by 1
- * @param {string} message optional message to update the progress bar
- *
+ * Updates the progress indicator
+ * @param {string} id unique ID associated with the progress indicator
+ * @param {string} [message] message to display alongside the indicator
+ * @param {number} [current] current progress value for determinate indicators
+ * @param {number} [total] total amount of work for determinate indicators
  */
-function updateProgressBar(id: string, message: string = null) {
-  if (!progressBars[id]) {
-    warn(
-      `progressBar is undefined. Make sure to call 'createProgressBar' before calling 'updateProgressBar'.`
-    );
-  } else if (message) {
-    progressBars[id].increment({
-      data: message,
-    });
-  } else {
-    progressBars[id].increment();
+export function updateProgressIndicator(
+  id: string,
+  message?: string,
+  current?: number,
+  total?: number
+) {
+  const ind = indicators.get(id);
+  if (!ind) {
+    warn(`Progress indicator ${id} not found.`);
+    return;
   }
+  if (message !== undefined) ind.message = message;
+  if (total !== undefined) ind.total = total;
+  if (ind.type === 'determinate') {
+    if (current !== undefined) {
+      ind.current = current;
+    } else {
+      ind.current = Math.min(ind.current + 1, ind.total);
+    }
+  }
+  renderProgressIndicators();
 }
 
 /**
- * Stop and hide the progress bar
- * @param {*} message optional message to update the progress bar
+ * Stop and remove the progress indicator
+ * @param {string} id unique ID associated with the progress indicator
+ * @param {string} [message] message to display alongside the indicator
+ * @param {ProgressIndicatorStatusType} [status='none'] status type for indeterminate indicators
  */
-function stopProgressBar(id: string, message: string = null) {
-  debugMessage(`cli.Console.stopProgressBar: start [${id}]`);
-  if (!progressBars[id]) {
-    warn(
-      `progressBar is undefined. Make sure to call 'createProgressBar' before calling 'stopProgressBar'.`
-    );
-  } else if (message) {
-    progressBars[id].update({
-      data: message,
-    });
-  }
-  progressBars[id].stop();
-  // progressBars[id].render();
-  debugMessage(
-    `cli.Console.stopProgressBar: end [${
-      Object.keys(progressBars).length
-    } bars]`
-  );
-}
-
-/**
- * Clean-up progress bars
- */
-function cleanupProgressBars() {
-  debugMessage(`cli.Console.cleanupProgressBars: start`);
-  try {
-    debugMessage(
-      `cli.Console.cleanupProgressBars: stopping ${
-        Object.keys(progressBars).length
-      } bars`
-    );
-    multiBarContainer.stop();
-    multiBarContainer = null;
-  } catch {
-    // ignore
-  }
-  debugMessage(`cli.Console.cleanupProgressBars: end`);
-}
-
-/**
- * Create the spinner
- * @param {String} message optional spinner message
- */
-export function showSpinner(message) {
-  spinner = createSpinner(message).start();
-}
-
-/**
- * Stop the spinner
- * @param {String} message optional message to update the spinner
- */
-export function stopSpinner(message = null) {
-  if (spinner) {
-    let options = {};
-    if (message) options = { text: message };
-    spinner.stop(options);
-  }
-}
-
-/**
- * Succeed the spinner. Stop and render success checkmark with optional message.
- * @param {String} message optional message to update the spinner
- */
-export function succeedSpinner(message = null) {
-  if (spinner) {
-    let options = {};
-    if (message) options = { text: message };
-    spinner.success(options);
-  }
-}
-
-/**
- * Warn the spinner
- * @param {String} message optional message to update the spinner
- */
-export function warnSpinner(message = null) {
-  if (spinner) {
-    let options = {};
-    if (message) options = { text: message };
-    spinner.warn(options);
-  }
-}
-
-/**
- * Fail the spinner
- * @param {String} message optional message to update the spinner
- */
-export function failSpinner(message = null) {
-  if (spinner) {
-    let options = {};
-    if (message) options = { text: message };
-    spinner.error(options);
-  }
-}
-
-/**
- * Spin the spinner
- * @param {String} message optional message to update the spinner
- */
-export function spinSpinner(message = null) {
-  if (spinner) {
-    let options = {};
-    if (message) options = { text: message };
-    spinner.update(options);
-    spinner.spin();
-  }
-}
-
-export function createProgressIndicator(
-  type: ProgressIndicatorType = 'determinate',
-  total = 0,
-  message = null
-): string {
-  if (type === 'determinate') {
-    return createProgressBar(total, message);
-  } else {
-    showSpinner(message);
-  }
-}
-
-export function updateProgressIndicator(id: string, message: string) {
-  if (!progressBars[id]) {
-    spinSpinner(message);
-  } else {
-    updateProgressBar(id, message);
-  }
-}
-
 export function stopProgressIndicator(
   id: string,
-  message: string = null,
+  message?: string,
   status: ProgressIndicatorStatusType = 'none'
 ) {
-  if (!progressBars[id]) {
+  debugMessage(`stopProgressIndicator: start [${id}]`);
+
+  const ind = indicators.get(id);
+  if (!ind) {
+    warn(`Progress indicator ${id} not found.`);
+    return;
+  }
+
+  if (message || status !== 'none') {
+    logUpdateStderr.clear();
+    let statusIcon = '';
+    let colorFn = (s: string) => s;
+
     switch (status) {
-      case 'none':
-        stopSpinner(message);
-        break;
       case 'success':
-        succeedSpinner(message);
+        statusIcon = '✔';
+        colorFn = c.green;
         break;
       case 'warn':
-        warnSpinner(message);
+        statusIcon = '⚠';
+        colorFn = c.yellow;
         break;
       case 'fail':
-        failSpinner(message);
+        statusIcon = '✖';
+        colorFn = c.red;
         break;
       default:
-        stopSpinner(message);
-        break;
+        statusIcon = '•';
+        colorFn = c.white;
     }
-  } else {
-    stopProgressBar(id, message);
+    const finalMsg = message || ind.message;
+    if (finalMsg) {
+      console.error(colorFn(`${statusIcon} ${finalMsg}`));
+    }
   }
+  indicators.delete(id);
+  if (indicators.size === 0) {
+    stopRenderLoop();
+    logUpdateStderr.clear();
+    logUpdateStderr.done();
+  } else {
+    renderProgressIndicators();
+  }
+  debugMessage(`stopProgressIndicator end [${id}]`);
 }
 
+/**
+ * Clean up all progress indicators
+ */
 export function cleanupProgressIndicators() {
-  cleanupProgressBars();
+  debugMessage(`cleanupProgressIndicators: start`);
+  stopRenderLoop();
+  indicators.clear();
+  logUpdateStderr.clear();
+  logUpdateStderr.done();
+  debugMessage(`cleanupProgressIndicators end`);
 }
 
 /**

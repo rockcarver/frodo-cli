@@ -6053,7 +6053,6 @@ Exporting journey...
     - 73cecbfc-dad0-4395-be6a-6858ee3a80e5 (Microsoft Profile Normalization)
   - Themes:
     - 63e19668-909f-479e-83d7-be7a01cd8187 (NoAccess)
-- FrodoTest
 ✔ Exported FrodoTest to FrodoTest.journey.json.
 "
 `;
