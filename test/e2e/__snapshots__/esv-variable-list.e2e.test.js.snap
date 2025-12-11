@@ -60,8 +60,10 @@ esv-test-variable-light                     │299792458                      �
 
 exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Reading variables...
 ✔ Successfully read 12 variables.
+• Exported 22 am config entities.
+• 13 mappings exported.
+• Exported 17 email templates.
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
     Network error:
@@ -70,6 +72,43 @@ Error exporting idm config entity fidc/federation-EntraID
       Code: ERR_BAD_REQUEST
       Reason: Forbidden
       Message: Access denied
+✔ Exported 69 config entities.
+• Exported 7 internal roles
+• Exported 7 custom nodes.
+• Exported 2 realms.
+• Exported 22 scriptTypes.
+• Exported 13 secrets.
+• Exported 2 global services.
+• Exported 12 variables.
+• Exported 2 alpha realm SAML2 providers.
+• Exported 3 alpha realm circles of trust.
+• Exported 3 alpha realm agent groups.
+• Exported 11 alpha realm agents.
+• Exported 17 alpha realm OAuth2 clients.
+• 7 alpha realm providers exported.
+• Exported 21 alpha realm journeys.
+• Exported 3 alpha realm applications
+• Exported 6 alpha realm policies.
+• Exported 5 alpha realm policy sets.
+• Exported 8 alpha realm resource types.
+• Exported alpha realm 67 scripts.
+• Exported 1 secret stores.
+• Exported 10 alpha realm services.
+• Exported 7 alpha realm themes.
+• Exported 0 bravo realm SAML2 providers.
+• Exported 0 bravo realm agent groups.
+• Exported 0 bravo realm agents.
+• Exported 3 bravo realm OAuth2 clients.
+• 0 bravo realm providers exported.
+• Exported 10 bravo realm journeys.
+• Exported 0 bravo realm applications
+• Exported 0 bravo realm policies.
+• Exported 1 bravo realm policy sets.
+• Exported 2 bravo realm resource types.
+• Exported bravo realm 60 scripts.
+• Exported 1 secret stores.
+• Exported 9 bravo realm services.
+• Exported 5 bravo realm themes.
 "
 `;
 
@@ -99,8 +138,10 @@ esv-trinity-phone                │(312)-555-0690                          │l
 
 exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 1`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Reading variables...
 ✔ Successfully read 12 variables.
+• Exported 22 am config entities.
+• 13 mappings exported.
+• Exported 17 email templates.
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
     Network error:
@@ -109,6 +150,43 @@ Error exporting idm config entity fidc/federation-EntraID
       Code: ERR_BAD_REQUEST
       Reason: Forbidden
       Message: Access denied
+✔ Exported 69 config entities.
+• Exported 7 internal roles
+• Exported 7 custom nodes.
+• Exported 2 realms.
+• Exported 22 scriptTypes.
+• Exported 13 secrets.
+• Exported 2 global services.
+• Exported 12 variables.
+• Exported 2 alpha realm SAML2 providers.
+• Exported 3 alpha realm circles of trust.
+• Exported 3 alpha realm agent groups.
+• Exported 11 alpha realm agents.
+• Exported 17 alpha realm OAuth2 clients.
+• 7 alpha realm providers exported.
+• Exported 21 alpha realm journeys.
+• Exported 3 alpha realm applications
+• Exported 6 alpha realm policies.
+• Exported 5 alpha realm policy sets.
+• Exported 8 alpha realm resource types.
+• Exported alpha realm 67 scripts.
+• Exported 1 secret stores.
+• Exported 10 alpha realm services.
+• Exported 7 alpha realm themes.
+• Exported 0 bravo realm SAML2 providers.
+• Exported 0 bravo realm agent groups.
+• Exported 0 bravo realm agents.
+• Exported 3 bravo realm OAuth2 clients.
+• 0 bravo realm providers exported.
+• Exported 10 bravo realm journeys.
+• Exported 0 bravo realm applications
+• Exported 0 bravo realm policies.
+• Exported 1 bravo realm policy sets.
+• Exported 2 bravo realm resource types.
+• Exported bravo realm 60 scripts.
+• Exported 1 secret stores.
+• Exported 9 bravo realm services.
+• Exported 5 bravo realm themes.
 "
 `;
 
