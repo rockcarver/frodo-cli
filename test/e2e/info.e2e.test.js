@@ -74,7 +74,7 @@ import { rmSync, writeFileSync } from 'fs';
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
-const env = getEnv();
+const env = getEnv(c);
 
 const jwkFile = 'test/fs_tmp/info-jwk.json';
 
