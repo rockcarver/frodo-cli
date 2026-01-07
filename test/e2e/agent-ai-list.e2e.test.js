@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes, stageFixture, clearFixture } from './utils/TestUtils';
+import { getEnv,  stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -74,18 +74,18 @@ describe('frodo agent ai list', () => {
   test('"frodo agent ai list": should list the ids of AI agents', async () => {
     const CMD = 'frodo agent ai list';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent ai list -l": should list ids and statuses of AI agents', async () => {
     const CMD = 'frodo agent ai list -l';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent ai list --long": should list ids and statuses of AI agents', async () => {
     const CMD = 'frodo agent ai list --long';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 });

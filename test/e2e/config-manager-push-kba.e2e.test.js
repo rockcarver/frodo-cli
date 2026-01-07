@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -67,7 +67,7 @@ describe('frodo config-manager push kba', () => {
     test(`"frodo config-manager push kba -D ${allDirectory}-m forgeops": should import KBA into forgeops"`, async () => {
         const CMD = `frodo config-manager push kba -D ${allDirectory} -m forgeops`;
         const { stdout, stderr } = await exec(CMD, forgeopsEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot();
+        expect(stderr).toMatchSnapshot();
     });
 });

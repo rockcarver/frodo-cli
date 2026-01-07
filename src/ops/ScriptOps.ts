@@ -8,6 +8,7 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import chokidar from 'chokidar';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   extractDataToFile,
@@ -145,7 +146,7 @@ function filterTypedScriptExport(
  * @returns {string} a one-line description
  */
 export function getOneLineDescription(scriptObj: ScriptSkeleton): string {
-  const description = `[${scriptObj._id['brightCyan']}] ${scriptObj.context} - ${scriptObj.name}`;
+  const description = `[${c.cyanBright(scriptObj._id)}] ${scriptObj.context} - ${scriptObj.name}`;
   return description;
 }
 
@@ -247,8 +248,8 @@ export async function listScripts(
       );
       values.push(
         locations.length > 0
-          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
-          : 'no'['brightRed']
+          ? `${c.greenBright('yes')} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
+          : c.redBright('no')
       );
     }
     table.push(values);
@@ -301,29 +302,29 @@ export async function describeScript(
       printMessage(script, 'data');
     } else {
       const table = createKeyValueTable();
-      table.push(['Id'['brightCyan'], script._id]);
-      table.push(['Name'['brightCyan'], script.name]);
-      table.push(['Language'['brightCyan'], langMap[script.language]]);
+      table.push([c.cyanBright('Id'), script._id]);
+      table.push([c.cyanBright('Name'), script.name]);
+      table.push([c.cyanBright('Language'), langMap[script.language]]);
       table.push([
-        'Context'['brightCyan'],
+        c.cyanBright('Context'),
         titleCase(script.context.split('_').join(' ')),
       ]);
-      table.push(['Description'['brightCyan'], script.description]);
+      table.push([c.cyanBright('Description'), script.description]);
       table.push([
-        'Default'['brightCyan'],
-        script.default ? 'true'['brightGreen'] : 'false'['brightRed'],
+        c.cyanBright('Default'),
+        script.default ? c.greenBright('true') : c.redBright('false'),
       ]);
-      table.push(['Evaluator Version'['brightCyan'], script.evaluatorVersion]);
+      table.push([c.cyanBright('Evaluator Version'), script.evaluatorVersion]);
       const scriptWrapLength = 80;
       const wrapRegex = new RegExp(`.{1,${scriptWrapLength + 1}}`, 'g');
       const scriptParts = script.script.match(wrapRegex);
-      table.push(['Script (Base 64)'['brightCyan'], scriptParts[0]]);
+      table.push([c.cyanBright('Script (Base 64)'), scriptParts[0]]);
       for (let i = 1; i < scriptParts.length; i++) {
         table.push(['', scriptParts[i]]);
       }
       if (usage) {
         table.push([
-          `Usage Locations (${script.locations.length} total)`['brightCyan'],
+          c.cyanBright(`Usage Locations (${script.locations.length} total)`),
           script.locations.length > 0 ? script.locations[0] : '',
         ]);
         for (let i = 1; i < script.locations.length; i++) {

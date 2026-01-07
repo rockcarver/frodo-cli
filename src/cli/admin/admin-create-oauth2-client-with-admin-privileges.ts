@@ -1,6 +1,7 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import Table from 'cli-table3';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -106,8 +107,8 @@ export default function setup() {
               style: { 'padding-left': 0, 'padding-right': 0 },
               wordWrap: true,
             });
-            table.push(['Client ID'['brightCyan'], clientId]);
-            table.push(['Client Secret'['brightCyan'], clientSecret]);
+            table.push([c.cyanBright('Client ID'), clientId]);
+            table.push([c.cyanBright('Client Secret'), clientSecret]);
             if (options.llt) {
               try {
                 const response = await createLongLivedToken(
@@ -118,9 +119,9 @@ export default function setup() {
                   options.lltTtl
                 );
                 if (options.lltEsv)
-                  table.push(['Secret Name'['brightCyan'], response.secret]);
-                table.push(['Scope'['brightCyan'], response.scope]);
-                table.push(['Expires'['brightCyan'], response.expires_on]);
+                  table.push([c.cyanBright('Secret Name'), response.secret]);
+                table.push([c.cyanBright('Scope'), response.scope]);
+                table.push([c.cyanBright('Expires'), response.expires_on]);
                 printMessage(table.toString());
                 if (options.lltEsv === false) {
                   printMessage(`\nBearer token:`, 'info');

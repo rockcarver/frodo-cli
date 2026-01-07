@@ -6,6 +6,7 @@ import {
 } from '@rockcarver/frodo-lib/types/api/cloud/SecretsApi';
 import { SecretsExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/SecretsOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import { getFullExportConfig, getIdLocations } from '../../utils/Config';
 import {
@@ -85,15 +86,15 @@ export async function listSecrets(
   let fullExport = null;
   const headers = long
     ? [
-        'Id'['brightCyan'],
-        { hAlign: 'right', content: 'Active\nVersion'['brightCyan'] },
-        { hAlign: 'right', content: 'Loaded\nVersion'['brightCyan'] },
-        'Status'['brightCyan'],
-        'Description'['brightCyan'],
-        'Modifier'['brightCyan'],
-        'Modified (UTC)'['brightCyan'],
+        c.cyanBright('Id'),
+        { hAlign: 'right', content: c.cyanBright('Active\nVersion') },
+        { hAlign: 'right', content: c.cyanBright('Loaded\nVersion') },
+        c.cyanBright('Status'),
+        c.cyanBright('Description'),
+        c.cyanBright('Modifier'),
+        c.cyanBright('Modified (UTC)'),
       ]
-    : ['Id'['brightCyan']];
+    : [c.cyanBright('Id')];
   if (usage) {
     try {
       fullExport = await getFullExportConfig(file);
@@ -103,7 +104,7 @@ export async function listSecrets(
     }
     //Delete secrets from full export so they aren't mistakenly used for determining usage
     delete fullExport.global.secret;
-    headers.push('Used'['brightCyan']);
+    headers.push(c.cyanBright('Used'));
   }
   const table = createTable(headers);
   for (const secret of secrets) {
@@ -122,7 +123,9 @@ export async function listSecrets(
           secret._id,
           { hAlign: 'right', content: secret.activeVersion },
           { hAlign: 'right', content: secret.loadedVersion },
-          secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+          secret.loaded
+            ? (c.greenBright('loaded') as any)
+            : (c.redBright('unloaded') as any),
           wordwrap(secret.description, 40),
           lastChangedBy,
           new Date(secret.lastChangeDate).toUTCString(),
@@ -132,8 +135,8 @@ export async function listSecrets(
       const locations = getIdLocations(fullExport, secret._id, true);
       values.push(
         locations.length > 0
-          ? `${'yes'['brightGreen']} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
-          : 'no'['brightRed']
+          ? `${c.greenBright('yes')} (${locations.length === 1 ? `at` : `${locations.length} uses, including:`} ${locations[0]})`
+          : c.redBright('no')
       );
     }
     table.push(values);
@@ -344,21 +347,21 @@ export async function listSecretVersions(
       return true;
     }
     const table = createTable([
-      { hAlign: 'right', content: 'Version'['brightCyan'] },
-      'Status'['brightCyan'],
-      'Loaded'['brightCyan'],
-      'Created'['brightCyan'],
+      { hAlign: 'right', content: c.cyanBright('Version') },
+      c.cyanBright('Status'),
+      c.cyanBright('Loaded'),
+      c.cyanBright('Created'),
     ]);
     const statusMap = {
-      ENABLED: 'active'['brightGreen'],
-      DISABLED: 'inactive'['brightRed'],
-      DESTROYED: 'deleted'['brightRed'],
+      ENABLED: c.greenBright('active'),
+      DISABLED: c.redBright('inactive'),
+      DESTROYED: c.redBright('deleted'),
     };
     for (const version of versions) {
       table.push([
         { hAlign: 'right', content: version.version },
         statusMap[version.status],
-        version.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+        version.loaded ? c.greenBright('loaded') : c.redBright('unloaded'),
         new Date(version.createDate).toLocaleString(),
       ]);
     }
@@ -404,19 +407,19 @@ export async function describeSecret(
       printMessage(secret, 'data');
     } else {
       const table = createKeyValueTable();
-      table.push(['Name'['brightCyan'], secret._id]);
-      table.push(['Active Version'['brightCyan'], secret.activeVersion]);
-      table.push(['Loaded Version'['brightCyan'], secret.loadedVersion]);
+      table.push([c.cyanBright('Name'), secret._id]);
+      table.push([c.cyanBright('Active Version'), secret.activeVersion]);
+      table.push([c.cyanBright('Loaded Version'), secret.loadedVersion]);
       table.push([
-        'Status'['brightCyan'],
-        secret.loaded ? 'loaded'['brightGreen'] : 'unloaded'['brightRed'],
+        c.cyanBright('Status'),
+        secret.loaded ? c.greenBright('loaded') : c.redBright('unloaded'),
       ]);
       table.push([
-        'Description'['brightCyan'],
+        c.cyanBright('Description'),
         wordwrap(secret.description, 60),
       ]);
       table.push([
-        'Modified'['brightCyan'],
+        c.cyanBright('Modified'),
         new Date(secret.lastChangeDate).toLocaleString(),
       ]);
       let lastChangedBy = secret.lastChangedBy;
@@ -427,16 +430,16 @@ export async function describeSecret(
       } catch {
         // ignore
       }
-      table.push(['Modifier'['brightCyan'], lastChangedBy]);
-      table.push(['Modifier UUID'['brightCyan'], secret.lastChangedBy]);
-      table.push(['Encoding'['brightCyan'], secret.encoding]);
+      table.push([c.cyanBright('Modifier'), lastChangedBy]);
+      table.push([c.cyanBright('Modifier UUID'), secret.lastChangedBy]);
+      table.push([c.cyanBright('Encoding'), secret.encoding]);
       table.push([
-        'Use In Placeholders'['brightCyan'],
+        c.cyanBright('Use In Placeholders'),
         secret.useInPlaceholders,
       ]);
       if (usage) {
         table.push([
-          `Usage Locations (${secret.locations.length} total)`['brightCyan'],
+          c.cyanBright(`Usage Locations (${secret.locations.length} total)`),
           secret.locations.length > 0 ? secret.locations[0] : '',
         ]);
         for (let i = 1; i < secret.locations.length; i++) {
@@ -497,7 +500,7 @@ export async function exportSecretToFile(
     );
     stopProgressIndicator(
       spinnerId,
-      `Exported ${secretId['brightCyan']} to ${filePath['brightCyan']}.`,
+      `Exported ${c.cyanBright(secretId)} to ${c.cyanBright(filePath)}.`,
       'success'
     );
     debugMessage(

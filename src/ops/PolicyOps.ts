@@ -6,6 +6,7 @@ import type {
   PolicyImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/PolicyOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createObjectTable,
@@ -57,7 +58,7 @@ export async function listPolicies(long: boolean = false): Promise<boolean> {
         table.push([
           `${policy._id}`,
           `${policy.description}`,
-          policy.active ? 'active'['brightGreen'] : 'inactive'['brightRed'],
+          policy.active ? c.greenBright('active') : c.redBright('inactive'),
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -93,7 +94,7 @@ export async function listPoliciesByPolicySet(
         table.push([
           `${policy._id}`,
           `${policy.description}`,
-          policy.active ? 'active'['brightGreen'] : 'inactive'['brightRed'],
+          policy.active ? c.greenBright('active') : c.redBright('inactive'),
         ]);
       }
       printMessage(table.toString(), 'data');

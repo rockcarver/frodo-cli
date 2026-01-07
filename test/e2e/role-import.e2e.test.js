@@ -60,7 +60,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -77,54 +77,54 @@ describe('frodo role import', () => {
     test(`"frodo role import -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f ${allRolesExport}": should import the role with the id "ccb11ba1-333b-4197-95db-89bb08a2ab56" from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import -i ccb11ba1-333b-4197-95db-89bb08a2ab56 -f ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56 --file ${allRolesExport}": should import the role with the id "ccb11ba1-333b-4197-95db-89bb08a2ab56" from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import --role-id ccb11ba1-333b-4197-95db-89bb08a2ab56 --file ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import -n test-internal-role -f ${allRolesExport}": should import the role with the name "test-internal-role" from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import -n test-internal-role -f ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import --role-name test-internal-role --file ${allRolesExport}": should import the role with the name "test-internal-role" from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import --role-name test-internal-role --file ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import -f ${allRolesExport}": should import the first role from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import -f ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import -af ${allRolesExport}": should import all roles from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import -af ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import --all --file ${allRolesExport}": should import all roles from the file "${allRolesExport}"`, async () => {
         const CMD = `frodo role import --all --file ${allRolesExport}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import -AD ${allSeparateRolesDirectory}": should import all roles from the ${allSeparateRolesDirectory} directory"`, async () => {
         const CMD = `frodo role import -AD ${allSeparateRolesDirectory}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
     
     test(`"frodo role import --all-separate --directory ${allSeparateRolesDirectory}": should import all roles from the ${allSeparateRolesDirectory} directory"`, async () => {
         const CMD = `frodo role import --all-separate --directory ${allSeparateRolesDirectory}`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 });

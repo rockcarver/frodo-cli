@@ -4,6 +4,7 @@ import {
   type ThemeSkeleton,
 } from '@rockcarver/frodo-lib/types/ops/ThemeOps';
 import * as fs from 'fs';
+import c from 'tinyrainbow';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -42,9 +43,9 @@ const {
  * @returns {string} a one-line description
  */
 export function getOneLineDescription(themeObj: ThemeSkeleton): string {
-  const description = `[${themeObj._id['brightCyan']}] ${themeObj.name}${
+  const description = `[${c.cyanBright(themeObj._id)}] ${themeObj.name}${
     themeObj.linkedTrees
-      ? ' (' + themeObj.linkedTrees.join(', ')['brightCyan'] + ')'
+      ? ' (' + c.cyanBright(themeObj.linkedTrees.join(', ')) + ')'
       : ''
   }`;
   return description;
@@ -85,21 +86,21 @@ export async function listThemes(long: boolean = false): Promise<boolean> {
     if (!long) {
       themeList.forEach((theme) => {
         printMessage(
-          `${theme.isDefault ? theme.name['brightCyan'] : theme.name}`,
+          `${theme.isDefault ? c.cyanBright(theme.name) : theme.name}`,
           'data'
         );
       });
     } else {
       const table = createTable([
-        'Name'['brightCyan'],
-        'Id'['brightCyan'],
-        'Default'['brightCyan'],
+        c.cyanBright('Name'),
+        c.cyanBright('Id'),
+        c.cyanBright('Default'),
       ]);
       themeList.forEach((theme) => {
         table.push([
           `${theme.name}`,
           `${theme._id}`,
-          `${theme.isDefault ? 'Yes'['brightGreen'] : ''}`,
+          `${theme.isDefault ? c.greenBright('Yes') : ''}`,
         ]);
       });
       printMessage(table.toString(), 'data');

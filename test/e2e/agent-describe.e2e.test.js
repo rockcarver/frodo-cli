@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -66,18 +66,18 @@ describe('frodo agent describe', () => {
   test('"frodo agent describe": should describe all agents in table format', async () => {
     const CMD = 'frodo agent describe';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent describe --json": should describe all agents in JSON format', async () => {
     const CMD = 'frodo agent describe --json';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent describe -i banking-assistant --json": should describe one agent by ID in JSON format', async () => {
     const CMD = 'frodo agent describe -i banking-assistant --json';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 });

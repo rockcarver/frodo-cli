@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -67,7 +67,7 @@ describe('frodo config-manager push cookie-domains', () => {
     test(`"frodo config-manager push cookie-domains -D ${allDirectory} ": should import the cookie-domains into cloud"`, async () => {
         const CMD = `frodo config-manager push cookie-domains -D ${allDirectory}`;
         const { stdout, stderr } = await exec(CMD, cloudEnv);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot();
+        expect(stderr).toMatchSnapshot();
     });
 });

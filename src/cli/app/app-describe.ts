@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -27,14 +28,14 @@ export default function setup() {
     .addOption(new Option('-n, --app-name <name>', 'Application name.'))
     .addHelpText(
       'after',
-      `Important Note:\n`['brightYellow'] +
-        `  The ${'frodo app'['brightCyan']} command to manage OAuth2 clients in v1.x has been renamed to ${'frodo oauth client'['brightCyan']} in v2.x\n` +
-        `  The ${'frodo app'['brightCyan']} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${'frodo oauth client'['brightCyan']} command.\n\n` +
+      c.yellowBright(`Important Note:\n`) +
+        `  The ${c.cyanBright('frodo app')} command to manage OAuth2 clients in v1.x has been renamed to ${c.cyanBright('frodo oauth client')} in v2.x\n` +
+        `  The ${c.cyanBright('frodo app')} command in v2.x manages the new applications created using the new application templates in ForgeRock Identity Cloud. To manage oauth clients, use the ${c.cyanBright('frodo oauth client')} command.\n\n` +
         `Usage Examples:\n` +
         `  Describe application 'myApp':\n` +
-        `  $ frodo app describe -i myApp ${s.connId}\n`['brightCyan'] +
+        c.cyanBright(`  $ frodo app describe -i myApp ${s.connId}\n`) +
         `  Describe application 'myApp' in raw JSON:\n` +
-        `  $ frodo app describe -i myApp --json ${s.connId}\n`['brightCyan']
+        c.cyanBright(`  $ frodo app describe -i myApp --json ${s.connId}\n`)
     )
     .action(
       // implement command logic inside action handler

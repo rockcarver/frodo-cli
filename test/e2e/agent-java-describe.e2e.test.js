@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes, stageFixture, clearFixture } from './utils/TestUtils';
+import { getEnv,  stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -73,12 +73,12 @@ describe('frodo agent java describe', () => {
   test('"frodo agent java describe -i frodo-test-java-agent": should describe java agent in table format', async () => {
     const CMD = 'frodo agent java describe -i frodo-test-java-agent';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test('"frodo agent java describe -i frodo-test-java-agent --json": should describe java agent in JSON format', async () => {
     const CMD = 'frodo agent java describe -i frodo-test-java-agent --json';
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 });

@@ -2,6 +2,7 @@ import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type CircleOfTrustSkeleton } from '@rockcarver/frodo-lib/types/api/CirclesOfTrustApi';
 import { type CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -36,7 +37,7 @@ const {
  * @returns {string} a one-line description
  */
 export function getOneLineDescription(cotObj: CircleOfTrustSkeleton): string {
-  const description = `[${cotObj._id['brightCyan']}]`;
+  const description = `[${c.cyanBright(cotObj._id)}]`;
   return description;
 }
 
@@ -85,10 +86,10 @@ export async function listCirclesOfTrust(
       return true;
     } else {
       const table = createTable([
-        'Name'['brightCyan'],
-        'Description'['brightCyan'],
-        'Status'['brightCyan'],
-        'Trusted Providers'['brightCyan'],
+        c.cyanBright('Name'),
+        c.cyanBright('Description'),
+        c.cyanBright('Status'),
+        c.cyanBright('Trusted Providers'),
       ]);
       cotList.forEach((cot) => {
         table.push([
