@@ -21,6 +21,10 @@ on:
 env:
   NODE_VERSION: 22
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
     name: 'Build'
@@ -28,13 +32,13 @@ jobs:
     if: github.repository_owner == 'rockcarver'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Need to specify ref and repository for PRs from forked repos
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -83,7 +87,7 @@ jobs:
       - name: Security Audit
         run: npm audit --audit-level high
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: build
           path: |
@@ -117,20 +121,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Need to specify ref and repository for PRs from forked repos
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
@@ -188,34 +192,34 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
       - name: Download MacOS Intel Binary Release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: macos-intel-binary-release
 
       - name: Download MacOS ARM64 Binary Release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: macos-arm64-binary-release
 
       - name: Download Linux X64 Binary Release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: linux-x64-binary-release
 
       - name: Download Linux ARM64 Binary Release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: linux-arm64-binary-release
 
       - name: Download Windows X64 Binary Release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: windows-x64-binary-release
 
@@ -288,14 +292,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
@@ -304,7 +308,7 @@ jobs:
 
       - name: Pre-Release
         if: ${{ fromJSON(needs.build.outputs.preRelease) }}
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           access: public
           tag: 'next'
@@ -312,7 +316,7 @@ jobs:
 
       - name: Release
         if: ${{ ! fromJSON(needs.build.outputs.preRelease) }}
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           access: public
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -390,7 +394,7 @@ jobs:
         with:
           name: build
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -426,7 +430,7 @@ jobs:
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: macos-intel-binary-release
           path: frodo-macos-intel-${{ needs.build.outputs.newVersion }}.zip
@@ -464,11 +468,11 @@ jobs:
           #security import $INTERMEDIATE_CERTIFICATE_PATH -P "$DEVELOPMENT_CERTIFICATE_PASSPHRASE" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -504,7 +508,7 @@ jobs:
       - name: Notorize
         run: xcrun notarytool submit --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --team-id ${{ secrets.AC_TEAM_ID }} --wait frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: macos-arm64-binary-release
           path: frodo-macos-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -514,11 +518,11 @@ jobs:
     needs: [build, test]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -541,7 +545,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip frodo
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: linux-x64-binary-release
           path: frodo-linux-x64-${{ needs.build.outputs.newVersion }}.zip
@@ -552,11 +556,11 @@ jobs:
     needs: [build, test]
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           # runner currently only supports 16 due to GLIBC_2.28 dependency in node 18
           node-version: 16
@@ -580,7 +584,7 @@ jobs:
       - name: Archive distribution binary
         run: zip -Z bzip2 frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip frodo
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: linux-arm64-binary-release
           path: frodo-linux-arm64-${{ needs.build.outputs.newVersion }}.zip
@@ -591,11 +595,11 @@ jobs:
     needs: [build, test]
     runs-on: windows-2022
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -618,7 +622,7 @@ jobs:
       - name: Archive distribution binary
         run: 7z a -tzip frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip frodo.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: windows-x64-binary-release
           path: frodo-windows-x64-${{ needs.build.outputs.newVersion }}.zip
