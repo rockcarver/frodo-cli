@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.10-1] - 2026-01-20
+
 ### Changed
 
 - This release enables the CLI to support Proxy Connect in PingOne Advanced Identity Cloud through the use of custom authentication headers.
@@ -2114,7 +2116,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.10-0...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v3.0.10-1...HEAD
+[3.0.10-1]: https://github.com/rockcarver/frodo-cli/compare/v3.0.10-0...v3.0.10-1
 [3.0.10-0]: https://github.com/rockcarver/frodo-cli/compare/v3.0.9...v3.0.10-0
 [3.0.9]: https://github.com/rockcarver/frodo-cli/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/rockcarver/frodo-cli/compare/v3.0.7...v3.0.8
