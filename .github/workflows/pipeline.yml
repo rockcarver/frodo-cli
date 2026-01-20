@@ -361,7 +361,7 @@ jobs:
     # don't run on PRs, since secrets are not available
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: macos-13
+    runs-on: macos-15-intel
     timeout-minutes: 15
     steps:
       - name: Install the Apple certificate
@@ -439,7 +439,7 @@ jobs:
     # don't run on PRs, since secrets are not available
     if: github.event_name != 'pull_request'
     needs: [build, test]
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - name: Install the Apple certificate
