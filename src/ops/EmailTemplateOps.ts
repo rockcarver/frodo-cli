@@ -7,9 +7,12 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  failSpinner,
   printError,
   printMessage,
+  showSpinner,
   stopProgressIndicator,
+  succeedSpinner,
   updateProgressIndicator,
 } from '../utils/Console';
 import { cloneDeep } from './utils/OpsUtils';
@@ -29,6 +32,7 @@ const {
   exportEmailTemplates,
   updateEmailTemplate,
   importEmailTemplates,
+  deleteEmailTemplate,
 } = frodo.email.template;
 
 const EMAIL_TEMPLATE_FILE_TYPE = 'template.email';
@@ -522,4 +526,88 @@ export async function importFirstEmailTemplateFromFile(
     printError(error);
   }
   return false;
+}
+
+/**
+ * Delete email template by id
+ * @param {string} templateId email template id/name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteEmailTemplateById(
+  templateId: string
+): Promise<boolean> {
+  debugMessage(`cli.EmailTemplateOps.deleteEmailTemplateById: begin`);
+  showSpinner(`Deleting ${templateId}...`);
+  try {
+    debugMessage(`Deleting email template ${templateId}`);
+    await deleteEmailTemplate(templateId);
+    succeedSpinner(`Deleted ${templateId}.`);
+    debugMessage(`cli.EmailTemplateOps.deleteEmailTemplateById: end`);
+    return true;
+  } catch (error) {
+    failSpinner(`Error deleting email template ${templateId}`);
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all email templates
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteAllEmailTemplates(): Promise<boolean> {
+  debugMessage(`cli.EmailTemplateOps.deleteAllEmailTemplates: begin`);
+  const errors = [];
+  let templates: EmailTemplateSkeleton[] = [];
+  let indicatorId: string;
+  try {
+    showSpinner(`Retrieving all email templates...`);
+    try {
+      templates = await readEmailTemplates();
+      succeedSpinner(`Found ${templates.length} email templates.`);
+    } catch (error) {
+      failSpinner(`Error retrieving all email templates`);
+      throw new FrodoError(`Error retrieving all email templates`, error);
+    }
+    if (templates.length)
+      indicatorId = createProgressIndicator(
+        'determinate',
+        templates.length,
+        `Deleting ${templates.length} email templates...`
+      );
+    for (const template of templates) {
+      const templateId = template._id.split('/')[1];
+      try {
+        debugMessage(`Deleting email template ${templateId}`);
+        await deleteEmailTemplate(templateId);
+        updateProgressIndicator(indicatorId, `Deleted ${templateId}`);
+      } catch (error) {
+        errors.push(
+          new FrodoError(`Error deleting email template ${templateId}`, error)
+        );
+      }
+    }
+  } catch (error) {
+    errors.push(new FrodoError(`Error deleting all email templates`, error));
+  } finally {
+    if (errors.length > 0) {
+      if (templates.length)
+        stopProgressIndicator(
+          indicatorId,
+          `Error deleting all email templates`,
+          'fail'
+        );
+      for (const error of errors) {
+        printError(error);
+      }
+    } else {
+      if (templates.length)
+        stopProgressIndicator(
+          indicatorId,
+          `Deleted ${templates.length} email templates.`
+        );
+    }
+  }
+  debugMessage(`cli.EmailTemplateOps.deleteAllEmailTemplates: end`);
+  return errors.length === 0;
 }
