@@ -64,6 +64,14 @@ export default function setup() {
         `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
         `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
           'brightCyan'
+        ] +
+        `  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:\n` +
+        `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
+        `  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:\n` +
+        `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.connId}\n`[
+          'brightCyan'
         ]
     )
     .action(
