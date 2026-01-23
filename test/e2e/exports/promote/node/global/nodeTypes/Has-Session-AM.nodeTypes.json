@@ -1,0 +1,22 @@
+{
+  "nodeTypes": {
+    "session-1": {
+      "_id": "session-1",
+      "description": "Checks if the user has a current session.",
+      "displayName": "Has Session AM",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "True",
+        "False"
+      ],
+      "outputs": [],
+      "properties": {},
+      "script": "file://Has-Session-AM.nodeTypes.js",
+      "serviceName": "session",
+      "tags": [
+        "utilities"
+      ]
+    }
+  }
+}

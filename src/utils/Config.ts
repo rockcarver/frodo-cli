@@ -11,6 +11,7 @@ import os from 'os';
 import { readServersFromFiles } from '../ops/classic/ServerOps';
 import { getManagedObjectsFromFiles } from '../ops/IdmOps';
 import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
+import { getCustomNodeExportFromFile } from '../ops/NodeOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { errorHandler } from '../ops/utils/OpsUtils';
 import { printMessage } from './Console';
@@ -156,6 +157,9 @@ export async function getConfig(
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
   const samlFiles = jsonFiles.filter((f) => f.path.endsWith('.saml.json'));
   const scriptFiles = jsonFiles.filter((f) => f.path.endsWith('.script.json'));
+  const customNodefiles = jsonFiles.filter((f) =>
+    f.path.endsWith('.nodeTypes.json')
+  );
   const serverFiles = jsonFiles.filter(
     (f) =>
       f.path.endsWith('.server.json') &&
@@ -165,6 +169,7 @@ export async function getConfig(
     (f) =>
       !f.path.endsWith('.saml.json') &&
       !f.path.endsWith('.script.json') &&
+      !f.path.endsWith('.nodeTypes.json') &&
       !f.path.endsWith('.server.json') &&
       !f.path.endsWith('/sync.idm.json') &&
       !f.path.endsWith('sync.json') &&
@@ -247,6 +252,19 @@ export async function getConfig(
     const scriptExport = getScriptExportByScriptFile(f.path);
     Object.entries(scriptExport.script).forEach(([id, script]) => {
       (exportConfig as FullRealmExportInterface).script[id] = script;
+    });
+  }
+  // Handle extracted custom node scripts
+  if (
+    customNodefiles.length > 0 &&
+    !(exportConfig as FullGlobalExportInterface).nodeTypes
+  ) {
+    (exportConfig as FullGlobalExportInterface).nodeTypes = {};
+  }
+  for (const f of customNodefiles) {
+    const nodeExport = getCustomNodeExportFromFile(f.path);
+    Object.entries(nodeExport.nodeTypes).forEach(([id, node]) => {
+      (exportConfig as FullGlobalExportInterface).nodeTypes[id] = node;
     });
   }
 }

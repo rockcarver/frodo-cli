@@ -1,0 +1,526 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo node describe "frodo node describe --json --node-id c605506774a848f7877b4d17a453bd39-1": should describe the custom node with id "c605506774a848f7877b4d17a453bd39-1" with json output 1`] = `
+"{
+  _id: 'c605506774a848f7877b4d17a453bd39-1',
+  _rev: '1974329536',
+  serviceName: 'c605506774a848f7877b4d17a453bd39',
+  displayName: 'Has Session',
+  description: 'Checks if the user has a current session.',
+  outcomes: [ 'True', 'False' ],
+  outputs: [],
+  inputs: [],
+  script: 'var SCRIPT_OUTCOMES = {\\n' +
+    "    TRUE: 'True',\\n" +
+    "    FALSE: 'False'\\n" +
+    '}\\n' +
+    '\\n' +
+    'function main() {\\n' +
+    '    action.goTo(typeof existingSession === "undefined" ? SCRIPT_OUTCOMES.FALSE : SCRIPT_OUTCOMES.TRUE);\\n' +
+    '}\\n' +
+    '\\n' +
+    'main();\\n',
+  errorOutcome: false,
+  tags: [ 'utilities' ],
+  properties: {},
+  locations: {
+    '/alpha': {
+      PrestonTestJourney: [
+        'f7b532b3-b322-49d5-bb5d-e9ebe8ae0fb5',
+        '8919c0d5-b40f-43df-b8f3-0934ae79920f'
+      ]
+    },
+    '/bravo': {
+      PrestonTestJourney: [
+        'f7b532b3-b322-49d5-bb5d-e9ebe8ae0fb5',
+        '8919c0d5-b40f-43df-b8f3-0934ae79920f'
+      ]
+    }
+  }
+}
+"
+`;
+
+exports[`frodo node describe "frodo node describe --json --node-name 'Display Callback'": should describe the custom node with name "Display Callback" with json output 1`] = `
+"{
+  _id: 'ef81b1a52c914710b3388caebfe7233a-1',
+  _rev: '-1360543129',
+  serviceName: 'ef81b1a52c914710b3388caebfe7233a',
+  displayName: 'Display Callback',
+  description: 'Displays custom callback to the page',
+  outcomes: [ 'outcome' ],
+  outputs: [],
+  inputs: [],
+  script: 'var SCRIPT_OUTCOMES = {\\n' +
+    "    OUTCOME: 'outcome'\\n" +
+    '};\\n' +
+    '\\n' +
+    'var CALLBACKS = {\\n' +
+    '\\tBOOLEAN_ATTRIBUTE_INPUT_CALLBACK: "BOOLEAN_ATTRIBUTE_INPUT_CALLBACK",\\n' +
+    '\\tCHOICE_CALLBACK: "CHOICE_CALLBACK",\\n' +
+    '\\tCONFIRMATION_CALLBACK: "CONFIRMATION_CALLBACK",\\n' +
+    '\\tCONSENT_MAPPING_CALLBACK: "CONSENT_MAPPING_CALLBACK",\\n' +
+    '\\tDEVICE_PROFILE_CALLBACK: "DEVICE_PROFILE_CALLBACK",\\n' +
+    '\\tHIDDEN_VALUE_CALLBACK: "HIDDEN_VALUE_CALLBACK",\\n' +
+    '\\tHTTP_CALLBACK: "HTTP_CALLBACK",\\n' +
+    '\\tIDP_CALLBACK: "IDP_CALLBACK",\\n' +
+    '\\tKBA_CREATE_CALLBACK: "KBA_CREATE_CALLBACK",\\n' +
+    '\\tLANGUAGE_CALLBACK: "LANGUAGE_CALLBACK",\\n' +
+    '\\tMETADATA_CALLBACK: "METADATA_CALLBACK",\\n' +
+    '\\tNAME_CALLBACK: "NAME_CALLBACK",\\n' +
+    '\\tNUMBER_ATTRIBUTE_INPUT_CALLBACK: "NUMBER_ATTRIBUTE_INPUT_CALLBACK",\\n' +
+    '\\tPASSWORD_CALLBACK: "PASSWORD_CALLBACK",\\n' +
+    '\\tPOLLING_WAIT_CALLBACK: "POLLING_WAIT_CALLBACK",\\n' +
+    '    REDIRECT_CALLBACK: "REDIRECT_CALLBACK",\\n' +
+    '\\tSCRIPT_TEXT_OUTPUT_CALLBACK: "SCRIPT_TEXT_OUTPUT_CALLBACK",\\n' +
+    '\\tSELECT_IDP_CALLBACK: "SELECT_IDP_CALLBACK",\\n' +
+    '\\tSTRING_ATTRIBUTE_INPUT_CALLBACK: "STRING_ATTRIBUTE_INPUT_CALLBACK",\\n' +
+    '\\tSUSPENDED_TEXT_OUTPUT_CALLBACK: "SUSPENDED_TEXT_OUTPUT_CALLBACK",\\n' +
+    '\\tTERMS_AND_CONDITIONS_CALLBACK: "TERMS_AND_CONDITIONS_CALLBACK",\\n' +
+    '\\tTEXT_INPUT_CALLBACK: "TEXT_INPUT_CALLBACK",\\n' +
+    '\\tTEXT_OUTPUT_CALLBACK: "TEXT_OUTPUT_CALLBACK",\\n' +
+    '\\tVALIDATED_PASSWORD_CALLBACK: "VALIDATED_PASSWORD_CALLBACK",\\n' +
+    '\\tVALIDATED_USERNAME_CALLBACK: "VALIDATED_USERNAME_CALLBACK",\\n' +
+    '\\tX509_CERTIFICATE_CALLBACK: "X509_CERTIFICATE_CALLBACK"\\n' +
+    '}\\n' +
+    '\\n' +
+    'function isStringPresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getString(value) {\\n' +
+    "    return value || '';\\n" +
+    '}\\n' +
+    '\\n' +
+    'function isArrayPresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getArray(value) {\\n' +
+    '    return value ? JSON.parse(value) : [];\\n' +
+    '}\\n' +
+    '\\n' +
+    'function isObjectPresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getObject(value) {\\n' +
+    '    return value ? JSON.parse(value) : {};\\n' +
+    '}\\n' +
+    '\\n' +
+    'function isIntPresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getInt(value) {\\n' +
+    '    return value ? parseInt(value) : 0;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function isDoublePresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getDouble(value) {\\n' +
+    '    return value ? parseFloat(value) : 0.0;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function isBooleanPresent(value) {\\n' +
+    '    return value;\\n' +
+    '}\\n' +
+    '\\n' +
+    'function getBoolean(value) {\\n' +
+    "    return value ? value.toLowerCase() === 'true' : false;\\n" +
+    '}\\n' +
+    '\\n' +
+    'function setProperty(value) {\\n' +
+    '    if (properties.sharedProperty) nodeState.putShared(properties.sharedProperty, value);\\n' +
+    '    if (properties.transientProperty) nodeState.putTransient(properties.transientProperty, value);\\n' +
+    '    if (properties.objectSharedProperty) {\\n' +
+    '        var attributes = {};\\n' +
+    '        attributes[properties.objectSharedProperty] = value;\\n' +
+    '        nodeState.mergeShared({\\n' +
+    '            objectAttributes: attributes\\n' +
+    '        });\\n' +
+    '    }\\n' +
+    '    if (properties.objectTransientProperty) {\\n' +
+    '        var attributes = {};\\n' +
+    '        attributes[properties.objectTransientProperty] = value;\\n' +
+    '        nodeState.mergeTransient({\\n' +
+    '            objectAttributes: attributes\\n' +
+    '        });\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function booleanAttributeInputCallback() {\\n' +
+    '    var name = getString(properties.options.name);\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var value = getBoolean(properties.options.value);\\n' +
+    '    var required = getBoolean(properties.options.required);\\n' +
+    '    var policies = getObject(properties.options.policies);\\n' +
+    '    var validateOnly = getBoolean(properties.options.validateOnly);\\n' +
+    '    var failedPolicies = getArray(properties.options.failedPolicies);\\n' +
+    '    if (isBooleanPresent(properties.options.validateOnly) || isObjectPresent(properties.options.policies)) {\\n' +
+    '        if (isArrayPresent(failedPolicies)) {\\n' +
+    '            callbacksBuilder.booleanAttributeInputCallback(name, prompt, value, required, policies, validateOnly, failedPolicies);\\n' +
+    '        } else {\\n' +
+    '            callbacksBuilder.booleanAttributeInputCallback(name, prompt, value, required, policies, validateOnly);\\n' +
+    '        }\\n' +
+    '    } else if (isArrayPresent(failedPolicies)) {\\n' +
+    '        callbacksBuilder.booleanAttributeInputCallback(name, prompt, value, required, failedPolicies);\\n' +
+    '    } else {\\n' +
+    '        callbacksBuilder.booleanAttributeInputCallback(name, prompt, value, required);\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function choiceCallback() {\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var choices = getArray(properties.options.choices);\\n' +
+    '    var defaultChoice = getInt(properties.options.defaultChoice);\\n' +
+    '    var multipleSelectionsAllowed = getBoolean(properties.options.multipleSelectionsAllowed);\\n' +
+    '    callbacksBuilder.choiceCallback(prompt, choices, defaultChoice, multipleSelectionsAllowed);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function confirmationCallback() {\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var messageType = getInt(properties.options.messageType);\\n' +
+    '    var options = getArray(properties.options.options);\\n' +
+    '    var optionType = getInt(properties.options.optionType);\\n' +
+    '    var defaultOption = getInt(properties.options.defaultOption);\\n' +
+    '    if (isStringPresent(properties.options.prompt)) {\\n' +
+    '        if (isIntPresent(properties.options.optionType)) {\\n' +
+    '            callbacksBuilder.confirmationCallback(prompt, messageType, optionType, defaultOption);\\n' +
+    '        } else {\\n' +
+    '            callbacksBuilder.confirmationCallback(prompt, messageType, options, defaultOption);\\n' +
+    '        }\\n' +
+    '    } else {\\n' +
+    '        if (isIntPresent(properties.options.optionType)) {\\n' +
+    '            callbacksBuilder.confirmationCallback(messageType, optionType, defaultOption);\\n' +
+    '        } else {\\n' +
+    '            callbacksBuilder.confirmationCallback(messageType, options, defaultOption);\\n' +
+    '        }\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function consentMappingCallback() {\\n' +
+    '    var config = getObject(properties.options.config);\\n' +
+    '    var message = getString(properties.options.message);\\n' +
+    '    var isRequired = getBoolean(properties.options.isRequired);\\n' +
+    '    var name = getString(properties.options.name);\\n' +
+    '    var displayName = getString(properties.options.displayName);\\n' +
+    '    var icon = getString(properties.options.icon);\\n' +
+    '    var accessLevel = getString(properties.options.accessLevel);\\n' +
+    '    var titles = getArray(properties.options.titles);\\n' +
+    '    if (isObjectPresent(properties.options.prompt)) {\\n' +
+    '        callbacksBuilder.consentMappingCallback(config, message, isRequired);\\n' +
+    '    } else {\\n' +
+    '        callbacksBuilder.consentMappingCallback(name, displayName, icon, accessLevel, titles, message, isRequired);\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function deviceProfileCallback() {\\n' +
+    '    var metadata = getBoolean(properties.options.metadata);\\n' +
+    '    var location = getBoolean(properties.options.location);\\n' +
+    '    var message = getString(properties.options.message);\\n' +
+    '    callbacksBuilder.deviceProfileCallback(metadata, location, message);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function hiddenValueCallback() {\\n' +
+    '    var id = getString(properties.options.id);\\n' +
+    '    var value = getString(properties.options.value);\\n' +
+    '    callbacksBuilder.hiddenValueCallback(id, value);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function httpCallback() {\\n' +
+    '    var authorizationHeader = getString(properties.options.authorizationHeader);\\n' +
+    '    var negotiationHeader = getString(properties.options.negotiationHeader);\\n' +
+    '    var authRHeader = getString(properties.options.authRHeader);\\n' +
+    '    var negoName = getString(properties.options.negoName);\\n' +
+    '    var negoValue = getString(properties.options.negoValue);\\n' +
+    '    if (isStringPresent(properties.options.authorizationHeader) || isStringPresent(properties.options.negotiationHeader)) {\\n' +
+    '        var errorCode = getString(properties.options.errorCode);\\n' +
+    '        callbacksBuilder.httpCallback(authorizationHeader, negotiationHeader, errorCode);\\n' +
+    '    } else {\\n' +
+    '        var errorCode = getInt(properties.options.errorCode);\\n' +
+    '        callbacksBuilder.httpCallback(authRHeader, negoName, negoValue, errorCode);\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function idPCallback() {\\n' +
+    '    var provider = getString(properties.options.provider);\\n' +
+    '    var clientId = getString(properties.options.clientId);\\n' +
+    '    var redirectUri = getString(properties.options.redirectUri);\\n' +
+    '    var scope = getArray(properties.options.scope);\\n' +
+    '    var nonce = getString(properties.options.nonce);\\n' +
+    '    var request = getString(properties.options.request);\\n' +
+    '    var requestUri = getString(properties.options.requestUri);\\n' +
+    '    var acrValues = getArray(properties.options.acrValues);\\n' +
+    '    var requestNativeAppForUserInfo = getBoolean(properties.options.requestNativeAppForUserInfo);\\n' +
+    '    var token = getString(properties.options.token);\\n' +
+    '    var tokenType = getString(properties.options.tokenType);\\n' +
+    '    if (isStringPresent(properties.options.token) || isStringPresent(properties.options.tokenType)) {\\n' +
+    '        callbacksBuilder.idPCallback(provider, clientId, redirectUri, scope, nonce, request, requestUri, acrValues, requestNativeAppForUserInfo, token, tokenType);\\n' +
+    '    } else {\\n' +
+    '        callbacksBuilder.idPCallback(provider, clientId, redirectUri, scope, nonce, request, requestUri, acrValues, requestNativeAppForUserInfo);\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function kbaCreateCallback() {\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var predefinedQuestions = getArray(properties.options.predefinedQuestions);\\n' +
+    '    var allowUserDefinedQuestions = getBoolean(properties.options.allowUserDefinedQuestions);\\n' +
+    '    callbacksBuilder.kbaCreateCallback(prompt, predefinedQuestions, allowUserDefinedQuestions);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function languageCallback() {\\n' +
+    '    var language = getString(properties.options.language);\\n' +
+    '    var country = getString(properties.options.country);\\n' +
+    '    callbacksBuilder.languageCallback(language, country);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function metadataCallback() {\\n' +
+    '    var outputValue = getObject(properties.options.outputValue);\\n' +
+    '    callbacksBuilder.metadataCallback(outputValue);\\n' +
+    '}\\n' +
+    '\\n' +
+    'function nameCallback() {\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var defaultName = getString(properties.options.defaultName);\\n' +
+    '    if (isStringPresent(properties.options.defaultName)) {\\n' +
+    '        callbacksBuilder.nameCallback(prompt, defaultName);\\n' +
+    '    } else {\\n' +
+    '        callbacksBuilder.nameCallback(prompt);\\n' +
+    '    }\\n' +
+    '}\\n' +
+    '\\n' +
+    'function numberAttributeInputCallback() {\\n' +
+    '    var name = getString(properties.options.name);\\n' +
+    '    var prompt = getString(properties.options.prompt);\\n' +
+    '    var value = getDouble(properties.options.value);\\n' +
+    '    var required = getBoolean(properties.options.required);\\n' +
+    '    var policies = getObject(properties.options.policies);\\n' +
+    '    var validateOnly = getBoolean(properties.options.validateOnly);\\n' +
+    '    var failedPolicies = get'... 11323 more characters,
+  errorOutcome: false,
+  tags: [ 'callback', 'utilities' ],
+  properties: {
+    callback: {
+      title: 'Callback',
+      description: 'The callback to display',
+      type: 'STRING',
+      required: true,
+      options: {
+        METADATA_CALLBACK: 'metadataCallback',
+        TERMS_AND_CONDITIONS_CALLBACK: 'termsAndConditionsCallback',
+        NUMBER_ATTRIBUTE_INPUT_CALLBACK: 'numberAttributeInputCallback',
+        TEXT_OUTPUT_CALLBACK: 'textOutputCallback',
+        SCRIPT_TEXT_OUTPUT_CALLBACK: 'scriptTextOutputCallback',
+        CONSENT_MAPPING_CALLBACK: 'consentMappingCallback',
+        STRING_ATTRIBUTE_INPUT_CALLBACK: 'stringAttributeInputCallback',
+        IDP_CALLBACK: 'idPCallback',
+        VALIDATED_PASSWORD_CALLBACK: 'validatedPasswordCallback',
+        SELECT_IDP_CALLBACK: 'selectIdPCallback',
+        POLLING_WAIT_CALLBACK: 'pollingWaitCallback',
+        NAME_CALLBACK: 'nameCallback',
+        SUSPENDED_TEXT_OUTPUT_CALLBACK: 'suspendedTextOutputCallback',
+        REDIRECT_CALLBACK: 'redirectCallback',
+        X509_CERTIFICATE_CALLBACK: 'x509CertificateCallback',
+        PASSWORD_CALLBACK: 'passwordCallback',
+        TEXT_INPUT_CALLBACK: 'textInputCallback',
+        BOOLEAN_ATTRIBUTE_INPUT_CALLBACK: 'booleanAttributeInputCallback',
+        CONFIRMATION_CALLBACK: 'confirmationCallback',
+        CHOICE_CALLBACK: 'choiceCallback',
+        DEVICE_PROFILE_CALLBACK: 'deviceProfileCallback',
+        HIDDEN_VALUE_CALLBACK: 'hiddenValueCallback',
+        HTTP_CALLBACK: 'httpCallback',
+        VALIDATED_USERNAME_CALLBACK: 'validatedUsernameCallback',
+        KBA_CREATE_CALLBACK: 'kbaCreateCallback',
+        LANGUAGE_CALLBACK: 'languageCallback'
+      },
+      multivalued: false
+    },
+    objectSharedProperty: {
+      title: 'Object Attributes Shared Property',
+      description: 'The objectAttributes property on the shared state to put the callback input into (if applicable)',
+      type: 'STRING',
+      required: false,
+      multivalued: false
+    },
+    objectTransientProperty: {
+      title: 'Object Attributes Transient Property',
+      description: 'The objectAttributes property on the transient state to put the callback input into (if applicable)',
+      type: 'STRING',
+      required: false,
+      multivalued: false
+    },
+    options: {
+      title: 'Options',
+      description: 'The options containing the parameters for the callback (see documentation for possible parameters: https://docs.pingidentity.com/pingoneaic/latest/am-scripting/scripting-api-node.html#scripting-api-node-callbacks). \\n' +
+        '\\n' +
+        'For example, for textOutputCallback, the options could be: { messageType: 0, message: "Hello World!" }. \\n' +
+        '\\n' +
+        'Note that for required parameters that are not specified in the options will use default values based on the type of the parameter ("" for Strings, [] for Arrays, {} for Objects, 0 for Ints, 0.0 for Doubles, and false for Booleans).',
+      type: 'OBJECT',
+      required: true,
+      multivalued: false
+    },
+    sharedProperty: {
+      title: 'Shared State Property',
+      description: 'The shared state property to put the callback input into (if applicable)',
+      type: 'STRING',
+      required: false,
+      multivalued: false
+    },
+    transientProperty: {
+      title: 'Transient State Property',
+      description: 'The transient state property to put the callback input into (if applicable)',
+      type: 'STRING',
+      required: false,
+      multivalued: false
+    }
+  },
+  locations: {
+    '/bravo': {
+      FrodoTestJourney12: [
+        'd8bd62e2-a4e7-4e08-bb28-10570aa31fcf',
+        '18edd91b-5e15-49df-b3c3-764114a8ebb3',
+        'eaf91b8a-bb71-4037-97ec-cd2e54885668',
+        'ee549716-666c-4b9d-baab-defe1a93eb6c',
+        '03416cc6-588b-409a-919f-038bb8194c81',
+        '0a3d5de0-9426-4a9a-aae0-163eda075d43',
+        'f9155861-f7c8-4022-9bed-e4ef5b238824',
+        '65c2a8cd-e623-4c5d-b420-e55fc5105f43',
+        '1a002d5d-5ad5-4d0e-965f-a0f26278d08d'
+      ]
+    }
+  }
+}
+"
+`;
+
+exports[`frodo node describe "frodo node describe --node-name 'Unknown'": should fail to describe the non-existent custom node with name "Unknown" 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo TriVir [b672336b-41ef-428d-ae4a-e0c082875377]
+Error reading custom node Unknown
+  Custom node 'Unknown' not found
+"
+`;
+
+exports[`frodo node describe "frodo node describe -i c605506774a848f7877b4d17a453bd39": should describe the custom node with service name "c605506774a848f7877b4d17a453bd39" 1`] = `
+"Id          │c605506774a848f7877b4d17a453bd39-1          
+Service Name│c605506774a848f7877b4d17a453bd39            
+Display Name│Has Session                                 
+Description │Checks if the user has a current session.   
+Inputs      │                                            
+Outputs     │                                            
+Outcomes    │True                                        
+            │False                                       
+Tags        │utilities                                   
+Locations   │/alpha                                      
+            │└── PrestonTestJourney                      
+            │    ├── f7b532b3-b322-49d5-bb5d-e9ebe8ae0fb5
+            │    └── 8919c0d5-b40f-43df-b8f3-0934ae79920f
+            │/bravo                                      
+            │└── PrestonTestJourney                      
+            │    ├── f7b532b3-b322-49d5-bb5d-e9ebe8ae0fb5
+            │    └── 8919c0d5-b40f-43df-b8f3-0934ae79920f
+
+Properties
+"
+`;
+
+exports[`frodo node describe "frodo node describe -n 'Display Callback'": should describe the custom node with display name "Display Callback" 1`] = `
+"Id          │ef81b1a52c914710b3388caebfe7233a-1          
+Service Name│ef81b1a52c914710b3388caebfe7233a            
+Display Name│Display Callback                            
+Description │Displays custom callback to the page        
+Inputs      │                                            
+Outputs     │                                            
+Outcomes    │outcome                                     
+Tags        │callback                                    
+            │utilities                                   
+Locations   │/bravo                                      
+            │└── FrodoTestJourney12                      
+            │    ├── d8bd62e2-a4e7-4e08-bb28-10570aa31fcf
+            │    ├── 18edd91b-5e15-49df-b3c3-764114a8ebb3
+            │    ├── eaf91b8a-bb71-4037-97ec-cd2e54885668
+            │    ├── ee549716-666c-4b9d-baab-defe1a93eb6c
+            │    ├── 03416cc6-588b-409a-919f-038bb8194c81
+            │    ├── 0a3d5de0-9426-4a9a-aae0-163eda075d43
+            │    ├── f9155861-f7c8-4022-9bed-e4ef5b238824
+            │    ├── 65c2a8cd-e623-4c5d-b420-e55fc5105f43
+            │    └── 1a002d5d-5ad5-4d0e-965f-a0f26278d08d
+
+Properties
+
+Name       │callback                                                        
+Title      │Callback                                                        
+Description│The callback to display                                         
+Required   │true                                                            
+Type       │STRING                                                          
+Multivalued│false                                                           
+Options    │METADATA_CALLBACK (metadataCallback)                            
+           │TERMS_AND_CONDITIONS_CALLBACK (termsAndConditionsCallback)      
+           │NUMBER_ATTRIBUTE_INPUT_CALLBACK (numberAttributeInputCallback)  
+           │TEXT_OUTPUT_CALLBACK (textOutputCallback)                       
+           │SCRIPT_TEXT_OUTPUT_CALLBACK (scriptTextOutputCallback)          
+           │CONSENT_MAPPING_CALLBACK (consentMappingCallback)               
+           │STRING_ATTRIBUTE_INPUT_CALLBACK (stringAttributeInputCallback)  
+           │IDP_CALLBACK (idPCallback)                                      
+           │VALIDATED_PASSWORD_CALLBACK (validatedPasswordCallback)         
+           │SELECT_IDP_CALLBACK (selectIdPCallback)                         
+           │POLLING_WAIT_CALLBACK (pollingWaitCallback)                     
+           │NAME_CALLBACK (nameCallback)                                    
+           │SUSPENDED_TEXT_OUTPUT_CALLBACK (suspendedTextOutputCallback)    
+           │REDIRECT_CALLBACK (redirectCallback)                            
+           │X509_CERTIFICATE_CALLBACK (x509CertificateCallback)             
+           │PASSWORD_CALLBACK (passwordCallback)                            
+           │TEXT_INPUT_CALLBACK (textInputCallback)                         
+           │BOOLEAN_ATTRIBUTE_INPUT_CALLBACK (booleanAttributeInputCallback)
+           │CONFIRMATION_CALLBACK (confirmationCallback)                    
+           │CHOICE_CALLBACK (choiceCallback)                                
+           │DEVICE_PROFILE_CALLBACK (deviceProfileCallback)                 
+           │HIDDEN_VALUE_CALLBACK (hiddenValueCallback)                     
+           │HTTP_CALLBACK (httpCallback)                                    
+           │VALIDATED_USERNAME_CALLBACK (validatedUsernameCallback)         
+           │KBA_CREATE_CALLBACK (kbaCreateCallback)                         
+           │LANGUAGE_CALLBACK (languageCallback)                            
+
+Name       │objectSharedProperty                                                                            
+Title      │Object Attributes Shared Property                                                               
+Description│The objectAttributes property on the shared state to put the callback input into (if applicable)
+Required   │false                                                                                           
+Type       │STRING                                                                                          
+Multivalued│false                                                                                           
+
+Name       │objectTransientProperty                                                                            
+Title      │Object Attributes Transient Property                                                               
+Description│The objectAttributes property on the transient state to put the callback input into (if applicable)
+Required   │false                                                                                              
+Type       │STRING                                                                                             
+Multivalued│false                                                                                              
+
+Name       │options                                                                                                                                                                                                                                 
+Title      │Options                                                                                                                                                                                                                                 
+Description│The options containing the parameters for the callback (see documentation for possible parameters: https://docs.pingidentity.com/pingoneaic/latest/am-scripting/scripting-api-node.html#scripting-api-node-callbacks).                  
+           │                                                                                                                                                                                                                                        
+           │For example, for textOutputCallback, the options could be: { messageType: 0, message: "Hello World!" }.                                                                                                                                 
+           │                                                                                                                                                                                                                                        
+           │Note that for required parameters that are not specified in the options will use default values based on the type of the parameter ("" for Strings, [] for Arrays, {} for Objects, 0 for Ints, 0.0 for Doubles, and false for Booleans).
+Required   │true                                                                                                                                                                                                                                    
+Type       │OBJECT                                                                                                                                                                                                                                  
+Multivalued│false                                                                                                                                                                                                                                   
+
+Name       │sharedProperty                                                          
+Title      │Shared State Property                                                   
+Description│The shared state property to put the callback input into (if applicable)
+Required   │false                                                                   
+Type       │STRING                                                                  
+Multivalued│false                                                                   
+
+Name       │transientProperty                                                          
+Title      │Transient State Property                                                   
+Description│The transient state property to put the callback input into (if applicable)
+Required   │false                                                                      
+Type       │STRING                                                                     
+Multivalued│false                                                                      
+"
+`;

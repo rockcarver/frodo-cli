@@ -23,6 +23,7 @@ Commands:
   journey                                                 Manage journeys/trees.
   log|logs                                                List/View Identity Cloud logs
   mapping                                                 Manage IDM mappings.
+  node                                                    Manage custom nodes.
   oauth                                                   Manage OAuth2 clients and providers.
   promote [options] [host] [realm] [username] [password]  Prepares a tenant to be promoted
   realm                                                   Manage realms.

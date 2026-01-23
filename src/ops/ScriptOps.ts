@@ -467,7 +467,7 @@ export function extractScriptsToFiles(
   return false;
 }
 
-function isScriptExtracted(script: string | string[]): boolean {
+export function isScriptExtracted(script: string | string[]): boolean {
   debugMessage(`Cli.ScriptOps.isScriptExtracted: start`);
   let extracted = false;
   if (Array.isArray(script)) {

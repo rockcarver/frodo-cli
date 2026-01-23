@@ -7,6 +7,7 @@ import {
   FullRealmExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
 import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
+import { CustomNodeExportInterface } from '@rockcarver/frodo-lib/types/ops/NodeOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
 
@@ -19,6 +20,7 @@ import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
 import { ManagedSkeleton, writeManagedJsonToDirectory } from './IdmOps';
 import { writeSyncJsonToDirectory } from './MappingOps';
+import { extractCustomNodeScriptsToFiles } from './NodeOps';
 import { extractScriptsToFiles } from './ScriptOps';
 import { errorHandler } from './utils/OpsUtils';
 
@@ -303,6 +305,9 @@ export function exportItem(
             name = (value.parentPath.substring(1) + name).replaceAll('/', '-');
           }
         }
+        if (type === 'nodeTypes') {
+          name = value.displayName;
+        }
         const filename = getTypedFilename(
           // Server information has an id of *, which is not an allowed file name character in windows
           name ? name : id === '*' ? 'information' : id,
@@ -311,6 +316,12 @@ export function exportItem(
         if (extract && type === 'script') {
           extractScriptsToFiles(
             exportData as ScriptExportInterface,
+            id,
+            `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
+          );
+        } else if (extract && type === 'nodeTypes') {
+          extractCustomNodeScriptsToFiles(
+            exportData as CustomNodeExportInterface,
             id,
             `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
           );
@@ -343,6 +354,7 @@ export async function importEverythingFromFile(
   options: FullImportOptions = {
     reUuidJourneys: false,
     reUuidScripts: false,
+    reUuidCustomNodes: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
@@ -368,6 +380,7 @@ export async function importEverythingFromFiles(
   options: FullImportOptions = {
     reUuidJourneys: false,
     reUuidScripts: false,
+    reUuidCustomNodes: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
@@ -390,6 +403,7 @@ export async function importEntityfromFile(
   options: FullImportOptions = {
     reUuidJourneys: false,
     reUuidScripts: false,
+    reUuidCustomNodes: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,

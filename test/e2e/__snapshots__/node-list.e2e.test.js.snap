@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo node list "frodo node list --long": should list the ids, names, descriptions, and usages of the custom nodes. 1`] = `
+"Display Name    │Id (<Service Name>-1)             │Journeys│Instances│Error Outcome│Description                   
+Display Callback│ef81b1a52c914710b3388caebfe7233a-1│1       │9        │disabled     │Displays custom callback to   
+                │                                  │        │         │             │the page                      
+Generate JWT    │e5ad0110c8ee4dafaae983003cd05d4a-1│0       │0        │enabled      │Generate a signed JWT using   
+                │                                  │        │         │             │the HMAC SHA-256 algorithm.   
+Has Session AM  │session-1                         │1       │1        │disabled     │Checks if the user has a      
+                │                                  │        │         │             │current session.              
+Display State   │8ab9f1aad4b4460a9c45d15fb148e221-1│2       │2        │disabled     │Debug node that displays the  
+                │                                  │        │         │             │shared and transient state of 
+                │                                  │        │         │             │the journey for debugging     
+                │                                  │        │         │             │purposes.                     
+Vector ALU      │c15e2efb3deb4d4ea338c74a6440b69f-1│2       │2        │enabled      │Simple ALU that performs basic
+                │                                  │        │         │             │binary vector math operations.
+                │                                  │        │         │             │Outputs the result onto the   
+                │                                  │        │         │             │shared state with key "c".    
+Has Session     │c605506774a848f7877b4d17a453bd39-1│2       │4        │disabled     │Checks if the user has a      
+                │                                  │        │         │             │current session.              
+ALU             │c6063fb2f5dc42dd9772bedc93898bd8-1│2       │2        │enabled      │Simple ALU that performs basic
+                │                                  │        │         │             │binary math operations.       
+                │                                  │        │         │             │Expects an "x" and "y" value  
+                │                                  │        │         │             │on the shared state, and will 
+                │                                  │        │         │             │produce a new "z" value on the
+                │                                  │        │         │             │shared state as output.       
+"
+`;
+
+exports[`frodo node list "frodo node list -l": should list the ids, names, descriptions, and usages of the custom nodes. 1`] = `
+"Display Name    │Id (<Service Name>-1)             │Journeys│Instances│Error Outcome│Description                   
+Display Callback│ef81b1a52c914710b3388caebfe7233a-1│1       │9        │disabled     │Displays custom callback to   
+                │                                  │        │         │             │the page                      
+Generate JWT    │e5ad0110c8ee4dafaae983003cd05d4a-1│0       │0        │enabled      │Generate a signed JWT using   
+                │                                  │        │         │             │the HMAC SHA-256 algorithm.   
+Has Session AM  │session-1                         │1       │1        │disabled     │Checks if the user has a      
+                │                                  │        │         │             │current session.              
+Display State   │8ab9f1aad4b4460a9c45d15fb148e221-1│2       │2        │disabled     │Debug node that displays the  
+                │                                  │        │         │             │shared and transient state of 
+                │                                  │        │         │             │the journey for debugging     
+                │                                  │        │         │             │purposes.                     
+Vector ALU      │c15e2efb3deb4d4ea338c74a6440b69f-1│2       │2        │enabled      │Simple ALU that performs basic
+                │                                  │        │         │             │binary vector math operations.
+                │                                  │        │         │             │Outputs the result onto the   
+                │                                  │        │         │             │shared state with key "c".    
+Has Session     │c605506774a848f7877b4d17a453bd39-1│2       │4        │disabled     │Checks if the user has a      
+                │                                  │        │         │             │current session.              
+ALU             │c6063fb2f5dc42dd9772bedc93898bd8-1│2       │2        │enabled      │Simple ALU that performs basic
+                │                                  │        │         │             │binary math operations.       
+                │                                  │        │         │             │Expects an "x" and "y" value  
+                │                                  │        │         │             │on the shared state, and will 
+                │                                  │        │         │             │produce a new "z" value on the
+                │                                  │        │         │             │shared state as output.       
+"
+`;
+
+exports[`frodo node list "frodo node list": should list the names of the custom nodes 1`] = `
+"Display Callback
+Generate JWT
+Has Session AM
+Display State
+Vector ALU
+Has Session
+ALU
+"
+`;
