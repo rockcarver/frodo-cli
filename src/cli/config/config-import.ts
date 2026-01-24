@@ -123,6 +123,7 @@ export default function setup() {
           verboseMessage('Exporting everything from a single file...');
           const outcome = await importEverythingFromFile(options.file, {
             reUuidJourneys: options.reUuidJourneys,
+            reUuidCustomNodes: false,
             reUuidScripts: options.reUuidScripts,
             reUuidCustomNodes: options.reUuidCustomNodes,
             cleanServices: options.clean,
@@ -146,6 +147,7 @@ export default function setup() {
           verboseMessage('Importing everything from separate files...');
           const outcome = await importEverythingFromFiles({
             reUuidJourneys: options.reUuidJourneys,
+            reUuidCustomNodes: false,
             reUuidScripts: options.reUuidScripts,
             reUuidCustomNodes: options.reUuidCustomNodes,
             cleanServices: options.clean,
@@ -163,6 +165,7 @@ export default function setup() {
             options.global,
             {
               reUuidJourneys: options.reUuidJourneys,
+              reUuidCustomNodes: false,
               reUuidScripts: options.reUuidScripts,
               reUuidCustomNodes: options.reUuidCustomNodes,
               cleanServices: options.clean,
