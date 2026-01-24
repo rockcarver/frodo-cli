@@ -8,8 +8,8 @@ export default function setup() {
   const program = new FrodoStubCommand('frodo email template');
 
   program.description('Manage email templates.');
-  
-    program.addCommand(DeleteCmd().name('delete'));
+
+  program.addCommand(DeleteCmd().name('delete'));
 
   program.addCommand(
     ListCmd().name('list').description('List email templates.')
