@@ -626,7 +626,7 @@ export async function getIdmImportDataFromIdmDirectory(
  * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
  * @return {ConfigEntityExportOptions} the config export options
  */
-function getIdmImportExportOptions(
+export function getIdmImportExportOptions(
   entitiesFile?: string,
   envFile?: string
 ): {

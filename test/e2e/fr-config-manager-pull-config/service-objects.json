@@ -1,0 +1,40 @@
+{
+  "alpha_user": [
+    {
+      "searchField": "userName",
+      "searchValue": "kirk",
+      "fields": ["userName", "givenName", "sn", "mail", "authzRoles"],
+      "overrides": {
+	        "password": "${SERVICE_ACCOUNT_JOURNEY_PASSWORD}"
+      }
+    },
+    {
+      "searchField": "sn",
+      "searchValue": "seantest",
+      "fields": ["userName", "givenName", "sn", "mail", "authzRoles"],
+      "overrides": {
+	"userName": "seantest",
+	"givenName": "sean",
+	        "password": "${SERVICE_ACCOUNT_JOURNEY_PASSWORD}"
+
+      }
+    }
+  ],
+  "alpha_role": [
+    {
+      "searchField": "name",
+      "searchValue": "TestRole",
+      "fields": ["name", "description"],
+      "overrides": {}
+    }
+  ],
+  "bravo_user": [
+    {
+      "searchField": "userName",
+      "searchValue": "bravo_test_user",
+      "fields": ["userName", "givenName", "sn", "mail", "authzRoles"],
+      "overrides": {
+      }
+    }
+  ]
+}

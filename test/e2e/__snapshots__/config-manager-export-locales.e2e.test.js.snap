@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -D testDir15": should export the locales in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -D testDir15": should export the locales in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -D testDir15": should export the locales in fr-config-manager style": testDir15/locales/fr.json 1`] = `
+{
+  "_id": "uilocale/fr",
+  "admin": {
+    "overrides": {
+      "AppLogoURI": "URI du logo de l’application",
+      "EmailAddress": "Adresse e-mail",
+      "Name": "Nom",
+      "Owners": "Les propriétaires",
+    },
+    "sideMenu": {
+      "securityQuestions": "Questions de sécurité",
+    },
+  },
+  "enduser": {
+    "overrides": {
+      "FirstName": "Prénom",
+      "LastName": "Nom de famille",
+    },
+    "pages": {
+      "dashboard": {
+        "widgets": {
+          "welcome": {
+            "greeting": "Bonjour",
+          },
+        },
+      },
+    },
+  },
+  "login": {
+    "login": {
+      "next": "Suivant",
+    },
+    "overrides": {
+      "Password": "Mot de passe",
+      "UserName": "Nom d'utilisateur",
+    },
+  },
+  "shared": {
+    "sideMenu": {
+      "dashboard": "Tableau de bord",
+    },
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -n fr -D testDir16": should export the locale named: fr in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -n fr -D testDir16": should export the locale named: fr in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull locales -n fr -D testDir16": should export the locale named: fr in fr-config-manager style": testDir16/locales/fr.json 1`] = `
+{
+  "_id": "uilocale/fr",
+  "admin": {
+    "overrides": {
+      "AppLogoURI": "URI du logo de l’application",
+      "EmailAddress": "Adresse e-mail",
+      "Name": "Nom",
+      "Owners": "Les propriétaires",
+    },
+    "sideMenu": {
+      "securityQuestions": "Questions de sécurité",
+    },
+  },
+  "enduser": {
+    "overrides": {
+      "FirstName": "Prénom",
+      "LastName": "Nom de famille",
+    },
+    "pages": {
+      "dashboard": {
+        "widgets": {
+          "welcome": {
+            "greeting": "Bonjour",
+          },
+        },
+      },
+    },
+  },
+  "login": {
+    "login": {
+      "next": "Suivant",
+    },
+    "overrides": {
+      "Password": "Mot de passe",
+      "UserName": "Nom d'utilisateur",
+    },
+  },
+  "shared": {
+    "sideMenu": {
+      "dashboard": "Tableau de bord",
+    },
+  },
+}
+`;

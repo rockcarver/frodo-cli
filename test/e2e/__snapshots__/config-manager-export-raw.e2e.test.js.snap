@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 1`] = `0`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style. 2`] = `""`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/am/json/realms/root/realms/alpha/realm-config/webhooks/test-webhook.json 1`] = `
+{
+  "_id": "test-webhook",
+  "_pushApiVersion": {
+    "protocol": "2.0",
+    "resource": "1.0",
+  },
+  "_rev": "1360978789",
+  "_type": {
+    "_id": "webhooks",
+    "collection": true,
+    "name": "Webhook Service",
+  },
+  "headers": {
+    "accept": "*/*",
+  },
+  "url": "\${TEST_WEBHOOK_URL}",
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/environment/release.json 1`] = `
+{
+  "channel": "rapid",
+  "currentVersion": "18045.0",
+}
+`;
+
+exports[`frodo config-manager pull raw "frodo config-manager pull raw -D configManagerExportRawDir0 -f test/e2e/fr-config-manager-pull-config/raw.json": should export all the configs in the provided json file in fr-config manager style.: configManagerExportRawDir0/raw/openidm/config/authentication.json 1`] = `
+{
+  "_id": "authentication",
+  "rsFilter": {
+    "augmentSecurityContext": {
+      "source": "require('auth/orgPrivileges').assignPrivilegesToUser(resource, security, properties, subjectMapping, privileges, security.authorization.component.includes('/alpha_') ? 'alphaOrgPrivileges' : 'bravoOrgPrivileges', 'privilegeAssignments');",
+      "type": "text/javascript",
+    },
+    "cache": {
+      "maxTimeout": "300 seconds",
+    },
+    "scopes": [
+      "fr:idm:*",
+    ],
+    "staticUserMapping": [
+      {
+        "localUser": "internal/user/idm-provisioning",
+        "roles": [
+          "internal/role/openidm-admin",
+        ],
+        "subject": "autoid-resource-server",
+      },
+    ],
+    "subjectMapping": [
+      {
+        "additionalUserFields": [
+          "adminOfOrg",
+          "ownerOfOrg",
+        ],
+        "defaultRoles": [
+          "internal/role/openidm-authorized",
+        ],
+        "propertyMapping": {
+          "sub": "_id",
+        },
+        "queryOnResource": "managed/{{substring realm 1}}_user",
+        "userRoles": "authzRoles/*",
+      },
+    ],
+  },
+}
+`;

@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull ui-config -D uiconfigDir": should export the ui-config in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull ui-config -D uiconfigDir": should export the ui-config in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull ui-config -D uiconfigDir": should export the ui-config in fr-config-manager style": uiconfigDir/ui/ui-configuration.json 1`] = `
+{
+  "_id": "ui/configuration",
+  "configuration": {
+    "defaultNotificationType": "info",
+    "forgotUsername": false,
+    "lang": "en",
+    "notificationTypes": {
+      "error": {
+        "iconPath": "images/notifications/error.png",
+        "name": "common.notification.types.error",
+      },
+      "info": {
+        "iconPath": "images/notifications/info.png",
+        "name": "common.notification.types.info",
+      },
+      "warning": {
+        "iconPath": "images/notifications/warning.png",
+        "name": "common.notification.types.warning",
+      },
+    },
+    "passwordReset": true,
+    "passwordResetLink": "",
+    "platformSettings": {
+      "adminOauthClient": "idmAdminClient",
+      "adminOauthClientScopes": "fr:idm:*",
+      "amUrl": "/am",
+      "loginUrl": "",
+    },
+    "roles": {
+      "internal/role/openidm-admin": "ui-admin",
+      "internal/role/openidm-authorized": "ui-user",
+    },
+    "selfRegistration": true,
+  },
+}
+`;

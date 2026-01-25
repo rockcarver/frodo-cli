@@ -353,8 +353,8 @@ export async function importEverythingFromFile(
   file: string,
   options: FullImportOptions = {
     reUuidJourneys: false,
-    reUuidScripts: false,
     reUuidCustomNodes: false,
+    reUuidScripts: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
@@ -379,8 +379,8 @@ export async function importEverythingFromFile(
 export async function importEverythingFromFiles(
   options: FullImportOptions = {
     reUuidJourneys: false,
-    reUuidScripts: false,
     reUuidCustomNodes: false,
+    reUuidScripts: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
@@ -402,8 +402,8 @@ export async function importEntityfromFile(
   global = false,
   options: FullImportOptions = {
     reUuidJourneys: false,
-    reUuidScripts: false,
     reUuidCustomNodes: false,
+    reUuidScripts: false,
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,

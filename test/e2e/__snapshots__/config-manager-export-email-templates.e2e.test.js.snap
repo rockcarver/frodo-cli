@@ -1,0 +1,364 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/baselineDemoEmailVerification/baselineDemoEmailVerification.json 1`] = `
+{
+  "_id": "emailTemplate/baselineDemoEmailVerification",
+  "defaultLocale": "en",
+  "displayName": "Baseline Demo Email Verification",
+  "enabled": true,
+  "from": "security@example.com",
+  "html": {
+    "en": {
+      "file": "baselineDemoEmailVerification.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "baselineDemoEmailVerification.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "baselineDemoEmailVerification.css",
+  },
+  "subject": {
+    "en": "Please verify your email address",
+  },
+  "templateId": "baselineDemoEmailVerification",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/baselineDemoMagicLink/baselineDemoMagicLink.json 1`] = `
+{
+  "_id": "emailTemplate/baselineDemoMagicLink",
+  "defaultLocale": "en",
+  "displayName": "Baseline Demo Magic Link",
+  "enabled": true,
+  "from": "security@example.com",
+  "html": {
+    "en": {
+      "file": "baselineDemoMagicLink.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "baselineDemoMagicLink.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "baselineDemoMagicLink.css",
+  },
+  "subject": {
+    "en": "Your sign-in link",
+  },
+  "templateId": "baselineDemoMagicLink",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/deleteTemplate/deleteTemplate.json 1`] = `
+{
+  "_id": "emailTemplate/deleteTemplate",
+  "defaultLocale": "en",
+  "description": "",
+  "displayName": "deleteTemplate",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "deleteTemplate.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "deleteTemplate.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "deleteTemplate.css",
+  },
+  "subject": {
+    "en": "",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/forgottenUsername/forgottenUsername.json 1`] = `
+{
+  "_id": "emailTemplate/forgottenUsername",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "forgottenUsername.en.html",
+    },
+    "fr": {
+      "file": "forgottenUsername.fr.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "forgottenUsername.en.md",
+    },
+    "fr": {
+      "file": "forgottenUsername.fr.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "forgottenUsername.css",
+  },
+  "subject": {
+    "en": "Account Information - username",
+    "fr": "Informations sur le compte - nom d'utilisateur",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/idv/idv.json 1`] = `
+{
+  "_id": "emailTemplate/idv",
+  "defaultLocale": "en",
+  "description": "Identity Verification Invitation",
+  "displayName": "idv",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "idv.en.html",
+    },
+    "fr": {
+      "file": "idv.fr.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "idv.en.md",
+    },
+    "fr": {
+      "file": "idv.fr.md",
+    },
+  },
+  "mimeType": "text/html",
+  "name": "registration",
+  "styles": {
+    "file": "idv.css",
+  },
+  "subject": {
+    "en": "You have been invited to verify your identity",
+    "fr": "Créer un nouveau compte",
+  },
+  "templateId": "idv",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/joiner/joiner.json 1`] = `
+{
+  "_id": "emailTemplate/joiner",
+  "advancedEditor": true,
+  "defaultLocale": "en",
+  "description": "This email will be sent onCreate of user to the external eMail address provided during creation. An OTP will also be sent to Telephone Number provided during creation to validate the user.  The user will then be able to set their password and ForgeRock Push Authenticator",
+  "displayName": "Joiner",
+  "enabled": true,
+  "from": ""Encore HR" <no-reply@encore.com>",
+  "html": {
+    "en": {
+      "file": "joiner.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "joiner.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "joiner.css",
+  },
+  "subject": {
+    "en": "Welcome to Encore!",
+  },
+  "templateId": "joiner",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/registerPasswordlessDevice/registerPasswordlessDevice.json 1`] = `
+{
+  "_id": "emailTemplate/registerPasswordlessDevice",
+  "defaultLocale": "en",
+  "description": "",
+  "displayName": "Register Passwordless Device",
+  "enabled": true,
+  "from": ""ForgeRock Identity Cloud" <no-reply@forgerock.com>",
+  "html": {
+    "en": {
+      "file": "registerPasswordlessDevice.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "registerPasswordlessDevice.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "registerPasswordlessDevice.css",
+  },
+  "subject": {
+    "en": "Your magic link is here - register new WebAuthN device",
+  },
+  "templateId": "registerPasswordlessDevice",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/registration/registration.json 1`] = `
+{
+  "_id": "emailTemplate/registration",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "registration.en.html",
+    },
+    "fr": {
+      "file": "registration.fr.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "registration.en.md",
+    },
+    "fr": {
+      "file": "registration.fr.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "registration.css",
+  },
+  "subject": {
+    "en": "Register new account",
+    "fr": "Créer un nouveau compte",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/resetPassword/resetPassword.json 1`] = `
+{
+  "_id": "emailTemplate/resetPassword",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "message": {
+    "en": {
+      "file": "resetPassword.en.md",
+    },
+    "fr": {
+      "file": "resetPassword.fr.md",
+    },
+  },
+  "mimeType": "text/html",
+  "subject": {
+    "en": "Reset your password",
+    "fr": "Réinitialisez votre mot de passe",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/updatePassword/updatePassword.json 1`] = `
+{
+  "_id": "emailTemplate/updatePassword",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "updatePassword.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "updatePassword.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "updatePassword.css",
+  },
+  "subject": {
+    "en": "Update your password",
+  },
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -D testDir5": should export the email-templates in fr-config-manager style": testDir5/email-templates/welcome/welcome.json 1`] = `
+{
+  "_id": "emailTemplate/welcome",
+  "defaultLocale": "en",
+  "displayName": "Welcome",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "welcome.en.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "welcome.en.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "welcome.css",
+  },
+  "subject": {
+    "en": "Your account has been created",
+  },
+  "templateId": "welcome",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull email-templates -n registration -D testDir6": should export the email-template with name registration in fr-config-manager style": testDir6/email-templates/registration/registration.json 1`] = `
+{
+  "_id": "emailTemplate/registration",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "registration.en.html",
+    },
+    "fr": {
+      "file": "registration.fr.html",
+    },
+  },
+  "message": {
+    "en": {
+      "file": "registration.en.md",
+    },
+    "fr": {
+      "file": "registration.fr.md",
+    },
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "registration.css",
+  },
+  "subject": {
+    "en": "Register new account",
+    "fr": "Créer un nouveau compte",
+  },
+}
+`;

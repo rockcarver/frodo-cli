@@ -140,3 +140,6 @@ out
 
 test/fs_tmp/*
 !test/fs_tmp/.gitkeep
+
+temp
+.vscode/settings.json

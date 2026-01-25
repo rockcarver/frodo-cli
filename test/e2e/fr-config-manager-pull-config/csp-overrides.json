@@ -1,0 +1,12 @@
+{
+  "enforced": {
+    "active": {
+      "$bool": "${CSP_ENFORCED}"
+    }
+  },
+  "report-only": {
+    "active": {
+      "$bool": "${CSP_REPORT_ONLY}"
+    }
+  }
+}

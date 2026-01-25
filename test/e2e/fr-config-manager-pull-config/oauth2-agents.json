@@ -1,0 +1,29 @@
+{
+  "alpha": {
+    "2.2_Agent": [
+      {"id": "my-policy-agent"}
+    ],
+    "RemoteConsentAgent": [
+      {"id": "test"}
+    ],
+    "SoftwarePublisher": [
+      {"id": "test software publisher"}
+    ],
+    "IdentityGatewayAgent": [
+      {"id": "cdsso-ig-agent"},
+      {"id": "frodo-test-ig-agent"},
+      {"id": "frodo-test-ig-agent2"},
+      {"id": "ig-agent"}
+    ],
+    "J2EEAgent": [
+      {"id": "frodo-test-java-agent"},
+      {"id": "frodo-test-java-agent2"}
+    ],
+    "WebAgent": [
+      {"id": "frodo-test-web-agent"},
+      {"id": "frodo-test-web-agent2"}
+    ]
+  },
+  "bravo": {
+  }
+}
