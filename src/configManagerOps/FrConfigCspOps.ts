@@ -1,5 +1,5 @@
 import { frodo } from '@rockcarver/frodo-lib';
-import { ContentSecurityPolicy } from '@rockcarver/frodo-lib/src/api/cloud/EnvContentSecurityPolicyApi';
+import { ContentSecurityPolicy } from '@rockcarver/frodo-lib/types/api/cloud/EnvContentSecurityPolicyApi';
 import { applyDiff } from 'deep-diff';
 import { readFile } from 'fs/promises';
 
