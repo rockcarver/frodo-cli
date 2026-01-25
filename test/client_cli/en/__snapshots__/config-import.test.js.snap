@@ -96,6 +96,10 @@ Options:
                                        (choices: "classic", "cloud",
                                        "forgeops")
   --no-cache                           Disable token cache for this operation.
+  --re-uuid-custom-nodes               Create new UUIDs for the custom nodes
+                                       upon import. Use this to duplicate
+                                       custom nodes or create a new versions of
+                                       the same custom nodes. (default: off)
   --re-uuid-journeys                   Generate new UUIDs for all journey nodes
                                        during import. (default: off)
   --re-uuid-scripts                    Create new UUIDs for the scripts upon

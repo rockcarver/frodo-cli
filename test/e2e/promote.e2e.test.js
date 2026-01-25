@@ -66,6 +66,7 @@ FRODO_MOCK=record FRODO_TEST_NAME='sync' FRODO_NO_CACHE=1 FRODO_HOST=https://ope
 FRODO_MOCK=record FRODO_TEST_NAME='mapping' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 FRODO_MOCK=record FRODO_TEST_NAME='service' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 FRODO_MOCK=record FRODO_TEST_NAME='journeyPromoteNoPrompt' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote --prune-no-prompt -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
+FRODO_MOCK=record FRODO_TEST_NAME='node' FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo promote -M ./test/e2e/exports/full-export-separate -E [put dir where you have the export]
 */
 import { getEnv, testPromote } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -200,6 +201,14 @@ describe('frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-
         env.env.FRODO_TEST_NAME = name
         let modifiedDir = `./test/e2e/exports/promote/${name}`;
         let referenceSubDirs = ["./realm/root-bravo/service", "./realm/root-alpha/service"]
+        await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
+    });
+
+    test.skip('"node frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on node changes', async () => {
+        let name = "node";
+        env.env.FRODO_TEST_NAME = name
+        let modifiedDir = `./test/e2e/exports/promote/${name}`;
+        let referenceSubDirs = ["./global/nodeTypes"]
         await testPromote(sourceDir, modifiedDir, referenceSubDirs, env, name)
     });
 });

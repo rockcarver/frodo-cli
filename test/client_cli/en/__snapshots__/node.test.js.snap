@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'node' should be expected english 1`] = `
+"Usage: frodo node [options] [command]
+
+Manage custom nodes.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  delete      Delete custom nodes.
+  describe    Describe custom nodes.
+  export      Export custom nodes.
+  help        display help for command
+  import      Import custom nodes.
+  list        List custom nodes.
+"
+`;

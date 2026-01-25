@@ -1,0 +1,54 @@
+{
+  "nodeTypes": {
+    "e5ad0110c8ee4dafaae983003cd05d4a-1": {
+      "_id": "e5ad0110c8ee4dafaae983003cd05d4a-1",
+      "description": "Generate a signed JWT using the HMAC SHA-256 algorithm.",
+      "displayName": "Generate JWT",
+      "errorOutcome": true,
+      "inputs": [],
+      "outcomes": [
+        "True",
+        "False"
+      ],
+      "outputs": [],
+      "properties": {
+        "audience": {
+          "description": "The audience (aud) claim",
+          "multivalued": false,
+          "required": true,
+          "title": "Audience",
+          "type": "STRING"
+        },
+        "issuer": {
+          "description": "The issuer (iss) claim",
+          "multivalued": false,
+          "required": true,
+          "title": "Issuer",
+          "type": "STRING"
+        },
+        "signingkey": {
+          "defaultValue": "esv.signing.key",
+          "description": "The secret label for the HMAC signing key",
+          "multivalued": false,
+          "required": true,
+          "title": "HMAC Signing Key",
+          "type": "STRING"
+        },
+        "validity": {
+          "defaultValue": 5,
+          "description": "",
+          "multivalued": false,
+          "required": true,
+          "title": "Validity (minutes)",
+          "type": "NUMBER"
+        }
+      },
+      "script": "file://Generate-JWT.nodeTypes.js",
+      "serviceName": "e5ad0110c8ee4dafaae983003cd05d4a",
+      "tags": [
+        "Utilities",
+        "utilities"
+      ]
+    }
+  }
+}

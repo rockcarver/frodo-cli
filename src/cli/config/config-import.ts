@@ -51,6 +51,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '--re-uuid-custom-nodes',
+        'Create new UUIDs for the custom nodes upon import. Use this to duplicate custom nodes or create a new versions of the same custom nodes.'
+      ).default(false, 'off')
+    )
+    .addOption(
+      new Option(
         '-d, --default',
         'Import all scripts including the default scripts.'
       )
@@ -118,6 +124,7 @@ export default function setup() {
           const outcome = await importEverythingFromFile(options.file, {
             reUuidJourneys: options.reUuidJourneys,
             reUuidScripts: options.reUuidScripts,
+            reUuidCustomNodes: options.reUuidCustomNodes,
             cleanServices: options.clean,
             includeDefault: options.default,
             includeActiveValues: options.includeActiveValues,
@@ -140,6 +147,7 @@ export default function setup() {
           const outcome = await importEverythingFromFiles({
             reUuidJourneys: options.reUuidJourneys,
             reUuidScripts: options.reUuidScripts,
+            reUuidCustomNodes: options.reUuidCustomNodes,
             cleanServices: options.clean,
             includeDefault: options.default,
             includeActiveValues: options.includeActiveValues,
@@ -156,6 +164,7 @@ export default function setup() {
             {
               reUuidJourneys: options.reUuidJourneys,
               reUuidScripts: options.reUuidScripts,
+              reUuidCustomNodes: options.reUuidCustomNodes,
               cleanServices: options.clean,
               includeDefault: options.default,
               includeActiveValues: options.includeActiveValues,

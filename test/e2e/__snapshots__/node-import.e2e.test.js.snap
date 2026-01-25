@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo node import "frodo node import --all --file test/e2e/exports/all/allCustomNodes.nodeTypes.json": should import all custom nodes from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import --all-separate --directory test/e2e/exports/all-separate/cloud/global/nodeTypes": should import all custom nodes from the test/e2e/exports/all-separate/cloud/global/nodeTypes directory" 1`] = `""`;
+
+exports[`frodo node import "frodo node import --node-id c605506774a848f7877b4d17a453bd39-1 --file allCustomNodes.nodeTypes.json --directory test/e2e/exports/all": should import the custom node with the id "c605506774a848f7877b4d17a453bd39-1" from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import --node-name 'Display Callback' --file test/e2e/exports/all/allCustomNodes.nodeTypes.json": should import the custom node named "Display Callback" from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import -AD test/e2e/exports/all-separate/cloud/global/nodeTypes": should import all custom nodes from the test/e2e/exports/all-separate/cloud/global/nodeTypes directory" 1`] = `""`;
+
+exports[`frodo node import "frodo node import -af allCustomNodes.nodeTypes.json -D test/e2e/exports/all": should import all custom nodes from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import -f test/e2e/exports/all/allCustomNodes.nodeTypes.json": should import the first custom node from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import -i c605506774a848f7877b4d17a453bd39 -f test/e2e/exports/all/allCustomNodes.nodeTypes.json": should import the custom node with the service name "c605506774a848f7877b4d17a453bd39" from the file "test/e2e/exports/all/allCustomNodes.nodeTypes.json" 1`] = `""`;
+
+exports[`frodo node import "frodo node import -n 'Display Callback' -f allCustomNodes.nodeTypes.json -D test/e2e/exports/all": should import the custom node named "Display Callback" from the file test/e2e/exports/all/allCustomNodes.nodeTypes.json 1`] = `""`;

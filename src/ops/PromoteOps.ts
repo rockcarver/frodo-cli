@@ -31,6 +31,7 @@ import {
 } from './IdmOps';
 import { deleteJourney, importJourneyFromFile } from './JourneyOps';
 import { deleteMapping, importMappingFromFile } from './MappingOps';
+import { deleteCustomNode, importCustomNodeFromFile } from './NodeOps';
 import {
   deleteOauth2ClientById,
   importOAuth2ClientFromFile,
@@ -654,6 +655,38 @@ async function addSwitch(
       logmessages.push(' ');
       break;
     }
+    case 'nodeTypes': {
+      if (importFilePath.endsWith('.js')) {
+        verboseMessage(importFilePath);
+        verboseMessage(
+          'this is a script file, we will not import it as a custom node file,' +
+            'but will import the config and that should import the script as well\n'
+        );
+        logmessages.push(importFilePath);
+        logmessages.push(
+          'this is a script file, we will not import it as a custom node file,' +
+            'but will import the config and that should import the script as well\n'
+        );
+        logmessages.push(' ');
+        break;
+      }
+      const node = getJsonObjectTwoDown(importFilePath);
+      verboseMessage(`custom node display name: ${node.displayName}`);
+      verboseMessage(`custom node id: ${node._id}`);
+      const outcome = await importCustomNodeFromFile(
+        node._id,
+        node.displayName,
+        importFilePath,
+        {
+          reUuid: false,
+        }
+      );
+      logmessages.push(`add custom node ${importFilePath}`);
+      verboseMessage(`add custom node ${importFilePath}\n`);
+      logmessages.push(`outcome: ${outcome}`);
+      logmessages.push(' ');
+      break;
+    }
     // todo: need to determine how to get the compare to work properly
     case 'secret': {
       if (effectSecrets) {
@@ -982,6 +1015,32 @@ async function deleteSwitch(
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');
       verboseMessage(`delete idm ${deleteFilePath}\n`);
+      break;
+    }
+    case 'nodeTypes': {
+      if (deleteFilePath.endsWith('.js')) {
+        verboseMessage(deleteFilePath);
+        verboseMessage(
+          'this is a script file, we will not delete it as a custom node file,' +
+            'but will delete the config and that should delete the script as well\n'
+        );
+        logmessages.push(deleteFilePath);
+        logmessages.push(
+          'this is a script file, we will not delete it as a custom node file,' +
+            'but will delete the config and that should delete the script as well\n'
+        );
+        logmessages.push(' ');
+        break;
+      }
+      const node = getJsonObjectTwoDown(deleteFilePath);
+      verboseMessage(
+        `Deleting custom node ${node._id} in realm "${state.getRealm()}"...`
+      );
+      const outcome = await deleteCustomNode(node._id, node.displayName);
+      logmessages.push(`delete custom node ${deleteFilePath}`);
+      logmessages.push(`outcome: ${outcome}`);
+      logmessages.push(' ');
+      verboseMessage(`delete custom node ${deleteFilePath}\n`);
       break;
     }
     // todo: Currently secrets when exported are hashed so it needs to be thought of more
