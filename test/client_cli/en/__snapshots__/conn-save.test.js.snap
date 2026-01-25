@@ -33,6 +33,11 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --retry <strategy>                           Retry failed operations. Valid values for strategy: 
+  everything: Retry all failed operations. 
+  network:    Retry only network-related failed operations. 
+  nothing:    Do not retry failed operations. 
+  The selected retry strategy controls how the CLI handles failures. (choices: "nothing", "everything", "network", default: Do not retry failed operations.)
   --sa-id <sa-id>                              Service account id.
   --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
@@ -105,6 +110,11 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --retry <strategy>                           Retry failed operations. Valid values for strategy: 
+  everything: Retry all failed operations. 
+  network:    Retry only network-related failed operations. 
+  nothing:    Do not retry failed operations. 
+  The selected retry strategy controls how the CLI handles failures. (choices: "nothing", "everything", "network", default: Do not retry failed operations.)
   --sa-id <sa-id>                              Service account id.
   --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
@@ -177,6 +187,11 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --retry <strategy>                           Retry failed operations. Valid values for strategy: 
+  everything: Retry all failed operations. 
+  network:    Retry only network-related failed operations. 
+  nothing:    Do not retry failed operations. 
+  The selected retry strategy controls how the CLI handles failures. (choices: "nothing", "everything", "network", default: Do not retry failed operations.)
   --sa-id <sa-id>                              Service account id.
   --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.
@@ -249,6 +264,11 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --retry <strategy>                           Retry failed operations. Valid values for strategy: 
+  everything: Retry all failed operations. 
+  network:    Retry only network-related failed operations. 
+  nothing:    Do not retry failed operations. 
+  The selected retry strategy controls how the CLI handles failures. (choices: "nothing", "everything", "network", default: Do not retry failed operations.)
   --sa-id <sa-id>                              Service account id.
   --sa-jwk-file <file>                         File containing the JSON Web Key (JWK) associated with the the service account.
   --verbose                                    Verbose output during command execution. If specified, may or may not produce additional output.

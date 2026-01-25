@@ -84,6 +84,19 @@ Options:
                                        (default: false)
   --propmt-prune                       Will prompt for Frodo Journey Prune on
                                        all realms (default: false)
+  --retry <strategy>                   Retry failed operations. Valid values
+                                       for strategy:
+                                       everything: Retry all failed operations.
+  
+                                       network:    Retry only network-related
+                                       failed operations.
+                                       nothing:    Do not retry failed
+                                       operations.
+                                       The selected retry strategy controls how
+                                       the CLI handles failures. (choices:
+                                       "nothing", "everything", "network",
+                                       default: Do not retry failed
+                                       operations.)
   -S --effect-secrets                  Will effect the secrets, otherwise we
                                        will not change the secrets but will
                                        compare them (default: false)

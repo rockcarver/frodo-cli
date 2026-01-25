@@ -95,6 +95,19 @@ Options:
                                        (choices: "classic", "cloud",
                                        "forgeops")
   --no-cache                           Disable token cache for this operation.
+  --retry <strategy>                   Retry failed operations. Valid values
+                                       for strategy:
+                                       everything: Retry all failed operations.
+  
+                                       network:    Retry only network-related
+                                       failed operations.
+                                       nothing:    Do not retry failed
+                                       operations.
+                                       The selected retry strategy controls how
+                                       the CLI handles failures. (choices:
+                                       "nothing", "everything", "network",
+                                       default: Do not retry failed
+                                       operations.)
   -s, --search-string <ss>             Filter by a specific string (ANDed with
                                        transactionID filter)
   --sa-id <sa-id>                      Service account id.
@@ -223,6 +236,19 @@ Options:
                                        (choices: "classic", "cloud",
                                        "forgeops")
   --no-cache                           Disable token cache for this operation.
+  --retry <strategy>                   Retry failed operations. Valid values
+                                       for strategy:
+                                       everything: Retry all failed operations.
+  
+                                       network:    Retry only network-related
+                                       failed operations.
+                                       nothing:    Do not retry failed
+                                       operations.
+                                       The selected retry strategy controls how
+                                       the CLI handles failures. (choices:
+                                       "nothing", "everything", "network",
+                                       default: Do not retry failed
+                                       operations.)
   -s, --search-string <ss>             Filter by a specific string (ANDed with
                                        transactionID filter)
   --sa-id <sa-id>                      Service account id.

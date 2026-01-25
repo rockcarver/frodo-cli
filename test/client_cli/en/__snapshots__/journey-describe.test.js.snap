@@ -91,6 +91,19 @@ Options:
                                        environment (e.g. in preparation of
                                        migrating from on-prem to ForgeRock
                                        Identity Cloud.
+  --retry <strategy>                   Retry failed operations. Valid values
+                                       for strategy:
+                                       everything: Retry all failed operations.
+  
+                                       network:    Retry only network-related
+                                       failed operations.
+                                       nothing:    Do not retry failed
+                                       operations.
+                                       The selected retry strategy controls how
+                                       the CLI handles failures. (choices:
+                                       "nothing", "everything", "network",
+                                       default: Do not retry failed
+                                       operations.)
   --sa-id <sa-id>                      Service account id.
   --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
                                        associated with the the service account.

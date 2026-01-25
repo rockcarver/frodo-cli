@@ -1,4 +1,5 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import { RetryStrategy } from '@rockcarver/frodo-lib/types/api/BaseApi.js';
 import { Argument, Command, Help, Option } from 'commander';
 import fs from 'fs';
 
@@ -14,7 +15,12 @@ import {
   verboseMessage,
 } from '../utils/Console.js';
 
-const { DEFAULT_REALM_KEY, DEPLOYMENT_TYPES } = frodo.utils.constants;
+const {
+  DEFAULT_REALM_KEY,
+  DEPLOYMENT_TYPES,
+  RETRY_STRATEGIES,
+  RETRY_NOTHING_KEY,
+} = frodo.utils.constants;
 
 const hostArgument = new Argument(
   '[host]',
@@ -105,6 +111,17 @@ const noCacheOption = new Option(
 
 const flushCacheOption = new Option('--flush-cache', 'Flush token cache.');
 
+const retryOption = new Option(
+  '--retry <strategy>',
+  `Retry failed operations. Valid values for strategy: \n\
+everything: Retry all failed operations. \n\
+network:    Retry only network-related failed operations. \n\
+nothing:    Do not retry failed operations. \n\
+The selected retry strategy controls how the CLI handles failures.`
+)
+  .choices(RETRY_STRATEGIES)
+  .default(`${RETRY_NOTHING_KEY}`, `Do not retry failed operations.`);
+
 const defaultArgs = [
   hostArgument,
   realmArgument,
@@ -126,6 +143,7 @@ const defaultOpts = [
   curlirizeOption,
   noCacheOption,
   flushCacheOption,
+  retryOption,
 ];
 
 const stateMap = {
@@ -168,6 +186,9 @@ const stateMap = {
     state.setUseTokenCache(cache),
   [flushCacheOption.attributeName()]: (flush: boolean) => {
     if (flush) frodo.cache.flush();
+  },
+  [retryOption.attributeName()]: (strategy: RetryStrategy) => {
+    state.setAxiosRetryStrategy(strategy);
   },
 };
 
