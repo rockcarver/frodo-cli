@@ -1,6 +1,6 @@
 {
   "name": "@rockcarver/frodo-cli",
-  "version": "3.1.1-1",
+  "version": "4.0.0-0",
   "type": "module",
   "description": "A command line interface to manage ForgeRock Identity Cloud tenants, ForgeOps deployments, and classic deployments.",
   "keywords": [
@@ -21,7 +21,7 @@
     "devops"
   ],
   "engines": {
-    "node": ">=18.17.0"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
     "build": "npm run build:binary",
     "build:only": "npx tsup && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
-    "dist-pkg": "pkg -C Gzip -t node20 --config package.json -o frodo dist/app.cjs",
+    "dist-pkg": "pkg -C Gzip -t node22 --config package.json -o frodo dist/app.cjs",
     "link": "npm link ../frodo-lib",
     "dev": "npx tsup --watch src"
   },
@@ -59,32 +59,12 @@
       "email": "sandeep.chaturvedi@forgerock.com"
     },
     {
-      "name": "Adam Crockett",
-      "email": "adam.crockett@forgerock.com"
-    },
-    {
-      "name": "Mees van Dongen",
-      "email": "meesvandongen@gmail.com"
-    },
-    {
-      "name": "Ali Falahi",
-      "email": "ali@falahi.com"
-    },
-    {
       "name": "Huston Franklin",
       "email": "hfranklin@trivir.com"
     },
     {
       "name": "Preston Hales",
       "email": "phales@trivir.com"
-    },
-    {
-      "name": "Nick Hangartner",
-      "email": "nhangartner@gmail.com"
-    },
-    {
-      "name": "Marcel Maas",
-      "email": "maas.marcel@gmail.com"
     },
     {
       "name": "Joshua Sayers",
@@ -115,7 +95,7 @@
     ]
   },
   "devDependencies": {
-    "@rockcarver/frodo-lib": "3.3.6-1",
+    "@rockcarver/frodo-lib": "4.0.0-1",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",
@@ -156,10 +136,10 @@
     "tsup": "^8.1.0",
     "typescript": "^5.2.2",
     "uuid": "^11.1.0",
-    "yesno": "^0.4.0"
-  },
-  "dependencies": {
+    "yesno": "^0.4.0",
     "deep-diff": "^1.0.2",
     "tmp": "^0.2.3"
+  },
+  "dependencies": {
   }
 }

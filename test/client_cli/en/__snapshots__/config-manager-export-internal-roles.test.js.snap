@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull internal-roles [options] [host] [realm] [username] [password]
 
-Export internal roles in fr-config-manager style.
+Export internal roles.
 
 Arguments:
   host                                 AM base URL, e.g.:
@@ -76,6 +76,19 @@ Options:
   -n, --name <name>                    Internal role name, It only export the
                                        endpoint with the name
   --no-cache                           Disable token cache for this operation.
+  --retry <strategy>                   Retry failed operations. Valid values
+                                       for strategy:
+                                       everything: Retry all failed operations.
+  
+                                       network:    Retry only network-related
+                                       failed operations.
+                                       nothing:    Do not retry failed
+                                       operations.
+                                       The selected retry strategy controls how
+                                       the CLI handles failures. (choices:
+                                       "nothing", "everything", "network",
+                                       default: Do not retry failed
+                                       operations.)
   --sa-id <sa-id>                      Service account id.
   --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
                                        associated with the the service account.

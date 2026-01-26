@@ -15,7 +15,7 @@ export default function setup() {
   );
   // TO DO: Adding a realm option to export all config for a specific realm
   program
-    .description('Export audit objects.')
+    .description('Export all config.')
     .addOption(
       new Option(
         '-F, --config-folder <config-folder-path>',

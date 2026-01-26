@@ -16,7 +16,7 @@ export default function setup() {
 
   program
 
-    .description('Export internal roles in fr-config-manager style.')
+    .description('Export internal roles.')
     .addOption(
       new Option(
         '-n, --name <name>',

@@ -126,8 +126,9 @@ export async function testExport(
     }
   });
   if (!isCurrentDirectory && deleteExportDirectory)
-    fs.rmdirSync(directory, {
+    fs.rmSync(directory, {
       recursive: true,
+      force: true,
     });
 }
 
