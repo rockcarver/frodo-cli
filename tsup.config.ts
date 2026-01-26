@@ -10,7 +10,7 @@ export default defineConfig({
   bundle: true,
   shims: true, // this will properly transpile 'import.meta.url'
   external: [
-    // list all the dev dependencies, which do NOT need to be bundled as indicated in package.json (_devDependencies)
+    // list all the dev dependencies, which do NOT need to be bundled.
     '@types/colors',
     '@types/fs-extra',
     '@types/jest',
