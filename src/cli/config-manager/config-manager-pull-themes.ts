@@ -13,7 +13,7 @@ export default function setup() {
   );
 
   program
-    .description('Export themes in fr-config-manager format.')
+    .description('Export themes.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

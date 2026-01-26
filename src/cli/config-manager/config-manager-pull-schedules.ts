@@ -16,7 +16,7 @@ export default function setup() {
 
   program
 
-    .description('Export schedules in fr-config-manager style.')
+    .description('Export schedules.')
     .addOption(
       new Option(
         '-n, --name <name>',

@@ -13,7 +13,7 @@ export default function setup() {
   );
 
   program
-    .description('Get connector mappings.')
+    .description('Export connector mappings.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

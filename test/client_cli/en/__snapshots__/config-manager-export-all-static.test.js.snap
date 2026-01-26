@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull all-static [options] [host] [realm] [username] [password]
 
-Export audit objects.
+Export all static config.
 
 Arguments:
   host                                 AM base URL, e.g.:
