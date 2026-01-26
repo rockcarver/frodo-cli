@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull connector-mappings [options] [host] [realm] [username] [password]
 
-Get connector mappings.
+Export connector mappings.
 
 Arguments:
   host                                 AM base URL, e.g.:

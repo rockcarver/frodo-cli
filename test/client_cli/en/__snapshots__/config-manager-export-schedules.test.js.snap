@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull schedules [options] [host] [realm] [username] [password]
 
-Export schedules in fr-config-manager style.
+Export schedules.
 
 Arguments:
   host                                 AM base URL, e.g.:

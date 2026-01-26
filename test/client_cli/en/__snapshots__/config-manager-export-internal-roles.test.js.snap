@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull internal-roles [options] [host] [realm] [username] [password]
 
-Export internal roles in fr-config-manager style.
+Export internal roles.
 
 Arguments:
   host                                 AM base URL, e.g.:
