@@ -8,8 +8,7 @@
         "name": "Social Identity Provider Service"
       },
       "enabled": true,
-      "location": "/first",
-      "nextDescendents": []
+      "location": "/first"
     }
   }
 }

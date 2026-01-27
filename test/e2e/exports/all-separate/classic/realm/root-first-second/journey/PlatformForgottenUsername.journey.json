@@ -43,6 +43,7 @@
             "collection": true,
             "name": "Inner Tree Evaluator"
           },
+          "displayErrorOutcome": false,
           "tree": "PlatformLogin"
         },
         "9f61408e-3afb-333e-90cd-f1b20de6f466": {
@@ -111,6 +112,7 @@
             "collection": true,
             "name": "Identify Existing User"
           },
+          "identifier": "userName",
           "identityAttribute": "mail"
         }
       },
@@ -125,6 +127,8 @@
         "entryNodeId": "a684ecee-e76f-3522-b732-86a895bc8436",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "72b32a1f-754b-31c0-9b36-95e0cb6cde7f": {
             "connections": {

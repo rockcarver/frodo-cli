@@ -15,7 +15,7 @@
       "openam-auth-ldap-connection-mode": "LDAPS",
       "operationTimeout": 0,
       "primaryLdapServer": [
-        "localhost:50636"
+        "opendj-frodo-dev.classic.com:2636"
       ],
       "profileAttributeMappings": [],
       "returnUserDN": true,
@@ -23,14 +23,14 @@
       "secondaryLdapServer": [],
       "stopLdapbindAfterInmemoryLockedEnabled": false,
       "trustAllServerCertificates": false,
-      "userBindDN": "cn=Directory Manager",
+      "userBindDN": "uid=am-identity-bind-account,ou=admins,ou=identities",
       "userBindPassword": null,
       "userProfileRetrievalAttribute": "uid",
       "userSearchAttributes": [
         "uid"
       ],
       "userSearchStartDN": [
-        "dc=openam,dc=forgerock,dc=org"
+        "ou=identities"
       ]
     }
   }

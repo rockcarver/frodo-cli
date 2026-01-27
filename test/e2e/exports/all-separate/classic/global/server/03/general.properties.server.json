@@ -43,6 +43,6 @@
     }
   },
   "amconfig.header.site": {
-    "singleChoiceSite": "testsite"
+    "singleChoiceSite": "[Empty]"
   }
 }

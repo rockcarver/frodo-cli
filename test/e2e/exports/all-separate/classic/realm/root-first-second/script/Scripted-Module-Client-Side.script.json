@@ -3,14 +3,14 @@
     "c827d2b4-3608-4693-868e-bbcf86bd87c7": {
       "_id": "c827d2b4-3608-4693-868e-bbcf86bd87c7",
       "context": "AUTHENTICATION_CLIENT_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for client side Scripted Authentication Module",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937190,
       "name": "Scripted Module - Client Side",
       "script": "file://Scripted-Module-Client-Side.script.js"
     }

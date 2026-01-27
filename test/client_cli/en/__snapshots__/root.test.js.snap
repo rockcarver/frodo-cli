@@ -31,6 +31,7 @@ Commands:
   role                                                    Manage internal (authorization) roles.
   saml                                                    Manage SAML entity providers and circles of trust.
   script                                                  Manage scripts.
+  secretstore                                             Manage secret stores.
   server                                                  Manage servers.
   service                                                 Manage AM services.
   shell [options] [host] [realm] [username] [password]    Launch the frodo interactive shell.

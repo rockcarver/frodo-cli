@@ -46900,6 +46900,34 @@
         }
       },
       "secrets": {},
+      "secretstore": {
+        "ESV": {
+          "_id": "ESV",
+          "_type": {
+            "_id": "GoogleSecretManagerSecretStoreProvider",
+            "collection": true,
+            "name": "Google Secret Manager"
+          },
+          "expiryDurationSeconds": 600,
+          "mappings": [
+            {
+              "_id": "am.services.httpclient.mtls.clientcert.testClientCert.secret",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "esv-test-client-cert"
+              ],
+              "secretId": "am.services.httpclient.mtls.clientcert.testClientCert.secret"
+            }
+          ],
+          "project": "&{google.project.id}",
+          "secretFormat": "PEM",
+          "serviceAccount": "default"
+        }
+      },
       "service": {
         "SocialIdentityProviders": {
           "_id": "",
@@ -56698,6 +56726,46 @@
         }
       },
       "secrets": {},
+      "secretstore": {
+        "ESV": {
+          "_id": "ESV",
+          "_type": {
+            "_id": "GoogleSecretManagerSecretStoreProvider",
+            "collection": true,
+            "name": "Google Secret Manager"
+          },
+          "expiryDurationSeconds": 600,
+          "mappings": [
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES512",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "es512"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES512"
+            },
+            {
+              "_id": "am.applications.agents.remote.consent.request.signing.ES384",
+              "_type": {
+                "_id": "mappings",
+                "collection": true,
+                "name": "Mappings"
+              },
+              "aliases": [
+                "es384"
+              ],
+              "secretId": "am.applications.agents.remote.consent.request.signing.ES384"
+            }
+          ],
+          "project": "&{google.project.id}",
+          "secretFormat": "PEM",
+          "serviceAccount": "default"
+        }
+      },
       "service": {
         "SocialIdentityProviders": {
           "_id": "",

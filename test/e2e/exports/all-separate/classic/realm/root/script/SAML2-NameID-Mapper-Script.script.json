@@ -1,0 +1,18 @@
+{
+  "script": {
+    "4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5": {
+      "_id": "4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5",
+      "context": "SAML2_NAMEID_MAPPER",
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
+      "default": true,
+      "description": "Default global script for SAML2 NameID Mapper",
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "lastModifiedDate": 1433147666269,
+      "name": "SAML2 NameID Mapper Script",
+      "script": "file://SAML2-NameID-Mapper-Script.script.js"
+    }
+  }
+}

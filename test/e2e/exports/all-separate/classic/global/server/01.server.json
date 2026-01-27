@@ -22,7 +22,7 @@
         "uma": "file://01/uma.properties.server.json"
       },
       "siteName": null,
-      "url": "http://localhost:8080/am"
+      "url": "http://openam-frodo-dev.classic.com:8080/am"
     }
   }
 }

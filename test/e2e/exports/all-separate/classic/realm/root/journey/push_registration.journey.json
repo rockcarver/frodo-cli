@@ -163,6 +163,7 @@
           "accountName": "USERNAME",
           "bgColor": "032b75",
           "generateRecoveryCodes": true,
+          "imgUrl": "",
           "issuer": "ForgeRock",
           "scanQRCodeMessage": {},
           "timeout": 60
@@ -199,6 +200,8 @@
         "enabled": true,
         "entryNodeId": "07bc635b-5a3f-461b-87ee-e76c9fa22738",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "07bc635b-5a3f-461b-87ee-e76c9fa22738": {
             "connections": {},

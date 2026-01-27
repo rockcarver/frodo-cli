@@ -14,7 +14,7 @@ exports[`frodo server export "frodo server export --all": should export all serv
       "properties": {
         "advanced": {
           "_id": "01/properties/advanced",
-          "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+          "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
           "com.iplanet.am.lbcookie.value": "01",
           "com.iplanet.am.serverMode": true,
           "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -135,7 +135,7 @@ exports[`frodo server export "frodo server export --all": should export all serv
             },
             "com.iplanet.services.configpath": {
               "inherited": false,
-              "value": "/home/prestonhales/am",
+              "value": "/root/am",
             },
             "com.sun.identity.client.notification.url": {
               "inherited": true,
@@ -1756,7 +1756,7 @@ exports[`frodo server export "frodo server export --all-separate --directory ser
       "properties": {
         "advanced": {
           "_id": "01/properties/advanced",
-          "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+          "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
           "com.iplanet.am.lbcookie.value": "01",
           "com.iplanet.am.serverMode": true,
           "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -1877,7 +1877,7 @@ exports[`frodo server export "frodo server export --all-separate --directory ser
             },
             "com.iplanet.services.configpath": {
               "inherited": false,
-              "value": "/home/prestonhales/am",
+              "value": "/root/am",
             },
             "com.sun.identity.client.notification.url": {
               "inherited": true,
@@ -3516,7 +3516,7 @@ exports[`frodo server export "frodo server export --server-id 01": should export
       "properties": {
         "advanced": {
           "_id": "01/properties/advanced",
-          "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+          "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
           "com.iplanet.am.lbcookie.value": "01",
           "com.iplanet.am.serverMode": true,
           "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -3637,7 +3637,7 @@ exports[`frodo server export "frodo server export --server-id 01": should export
             },
             "com.iplanet.services.configpath": {
               "inherited": false,
-              "value": "/home/prestonhales/am",
+              "value": "/root/am",
             },
             "com.sun.identity.client.notification.url": {
               "inherited": true,
@@ -4754,7 +4754,7 @@ exports[`frodo server export "frodo server export -AxNdD serverExportTestDir4": 
 exports[`frodo server export "frodo server export -AxNdD serverExportTestDir4": should export all servers to separate files along with extracted and default properties: serverExportTestDir4/01/advanced.properties.server.json 1`] = `
 {
   "_id": "01/properties/advanced",
-  "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+  "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
   "com.iplanet.am.lbcookie.value": "01",
   "com.iplanet.am.serverMode": true,
   "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -4884,7 +4884,7 @@ exports[`frodo server export "frodo server export -AxNdD serverExportTestDir4": 
     },
     "com.iplanet.services.configpath": {
       "inherited": false,
-      "value": "/home/prestonhales/am",
+      "value": "/root/am",
     },
     "com.sun.identity.client.notification.url": {
       "inherited": true,
@@ -6963,7 +6963,7 @@ exports[`frodo server export "frodo server export -axNdf serverExportTestFile3.j
 exports[`frodo server export "frodo server export -axNdf serverExportTestFile3.json -D serverExportTestDir3": should export all servers to a single file in the directory serverExportTestDir3 along with extracted and default properties.: serverExportTestDir3/01/advanced.properties.server.json 1`] = `
 {
   "_id": "01/properties/advanced",
-  "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+  "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
   "com.iplanet.am.lbcookie.value": "01",
   "com.iplanet.am.serverMode": true,
   "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -7093,7 +7093,7 @@ exports[`frodo server export "frodo server export -axNdf serverExportTestFile3.j
     },
     "com.iplanet.services.configpath": {
       "inherited": false,
-      "value": "/home/prestonhales/am",
+      "value": "/root/am",
     },
     "com.sun.identity.client.notification.url": {
       "inherited": true,
@@ -9110,7 +9110,7 @@ exports[`frodo server export "frodo server export -i 01 -f serverExportTestFile1
 exports[`frodo server export "frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1": should export the server with server id "01" along with extracted properties and default properties.: serverExportTestDir1/01/advanced.properties.server.json 1`] = `
 {
   "_id": "01/properties/advanced",
-  "bootstrap.file": "/home/prestonhales/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
+  "bootstrap.file": "/root/.openamcfg/AMConfig_usr_local_tomcat_webapps_am_",
   "com.iplanet.am.lbcookie.value": "01",
   "com.iplanet.am.serverMode": true,
   "com.iplanet.security.SSLSocketFactoryImpl": "com.sun.identity.shared.ldap.factory.JSSESocketFactory",
@@ -9240,7 +9240,7 @@ exports[`frodo server export "frodo server export -i 01 -f serverExportTestFile1
     },
     "com.iplanet.services.configpath": {
       "inherited": false,
-      "value": "/home/prestonhales/am",
+      "value": "/root/am",
     },
     "com.sun.identity.client.notification.url": {
       "inherited": true,

@@ -32,7 +32,6 @@
             "collection": true,
             "name": "Set Persistent Cookie"
           },
-          "hmacSigningKey": null,
           "idleTimeout": 5,
           "maxLife": 5,
           "persistentCookieName": "session-jwt",
@@ -57,7 +56,6 @@
             "name": "Persistent Cookie Decision"
           },
           "enforceClientIp": false,
-          "hmacSigningKey": null,
           "idleTimeout": 5,
           "persistentCookieName": "session-jwt",
           "useHttpOnlyCookie": true,
@@ -107,6 +105,8 @@
         "entryNodeId": "aab32389-22bc-325a-af60-6eb525ffdc56",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "6512bd43-d9ca-36e0-ac99-0b0a82652dca": {
             "connections": {

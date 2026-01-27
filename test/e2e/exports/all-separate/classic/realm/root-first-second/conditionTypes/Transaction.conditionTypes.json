@@ -5,6 +5,13 @@
       "config": {
         "properties": {
           "authenticationStrategy": {
+            "enum": [
+              "AuthenticateToServiceConditionAdvice",
+              "AuthenticateToRealmConditionAdvice",
+              "AuthenticateToTreeConditionAdvice",
+              "AuthSchemeConditionAdvice",
+              "AuthLevelConditionAdvice"
+            ],
             "type": "string"
           },
           "strategySpecifier": {

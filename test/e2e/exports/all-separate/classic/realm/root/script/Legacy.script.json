@@ -3,14 +3,14 @@
     "1817cc25-fc84-4053-8f91-4ef130616e25": {
       "_id": "1817cc25-fc84-4053-8f91-4ef130616e25",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": 1752525913030,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752533573719,
       "name": "Legacy",
       "script": "file://Legacy.script.js"
     }

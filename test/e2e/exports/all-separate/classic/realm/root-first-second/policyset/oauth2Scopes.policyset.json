@@ -30,8 +30,8 @@
       "displayName": "Default OAuth2 Scopes Policy Set",
       "editable": true,
       "entitlementCombiner": "DenyOverride",
-      "lastModifiedBy": "id=amadmin,ou=user,dc=openam,dc=forgerock,dc=org",
-      "lastModifiedDate": 1728509790191,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752533575849,
       "name": "oauth2Scopes",
       "resourceComparator": null,
       "resourceTypeUuids": [

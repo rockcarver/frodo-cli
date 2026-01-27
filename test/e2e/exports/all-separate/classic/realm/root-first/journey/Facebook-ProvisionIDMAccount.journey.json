@@ -42,7 +42,7 @@
           },
           "cfgMixUpMitigation": false,
           "clientId": "aClientId",
-          "clientSecret": null,
+          "issuer": "",
           "provider": "facebook",
           "redirectURI": "http://localhost:8080/am",
           "saveUserAttributesToSession": true,
@@ -77,6 +77,8 @@
         "entryNodeId": "37693cfc-7480-39e4-9d87-b8c7d8b9aacd",
         "identityResource": "null",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "37693cfc-7480-39e4-9d87-b8c7d8b9aacd": {
             "connections": {

@@ -14,6 +14,8 @@
         "enabled": true,
         "entryNodeId": "d26176be-ea6f-4f2a-81cd-3d41dd6cee4d",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {},
         "staticNodes": {
           "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {

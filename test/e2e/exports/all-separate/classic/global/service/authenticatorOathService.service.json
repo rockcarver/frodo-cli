@@ -8,7 +8,7 @@
         "name": "ForgeRock Authenticator (OATH) Service"
       },
       "defaults": {
-        "authenticatorOATHDeviceSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+        "authenticatorOATHDeviceSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jks",
         "authenticatorOATHDeviceSettingsEncryptionKeystoreKeyPairAlias": "pushDeviceProfiles",
         "authenticatorOATHDeviceSettingsEncryptionKeystorePassword": null,
         "authenticatorOATHDeviceSettingsEncryptionKeystoreType": "JKS",

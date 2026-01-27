@@ -1,0 +1,18 @@
+{
+  "service": {
+    "webAuthnMetadataService": {
+      "_id": "",
+      "_type": {
+        "_id": "webAuthnMetadataService",
+        "collection": false,
+        "name": "WebAuthn Metadata Service"
+      },
+      "defaults": {
+        "enforceRevocationCheck": false,
+        "fidoMetadataServiceUris": []
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

@@ -9,6 +9,7 @@
       },
       "defaults": {
         "contextPath": "/am",
+        "fixedValue": "http://openam-frodo-dev.classic.com:8080/am",
         "source": "REQUEST_VALUES"
       },
       "location": "global",

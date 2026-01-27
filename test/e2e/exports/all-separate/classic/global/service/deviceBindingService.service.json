@@ -9,7 +9,7 @@
       },
       "defaults": {
         "deviceBindingAttrName": "boundDevices",
-        "deviceBindingSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+        "deviceBindingSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jks",
         "deviceBindingSettingsEncryptionKeystorePassword": null,
         "deviceBindingSettingsEncryptionKeystoreType": "JKS",
         "deviceBindingSettingsEncryptionScheme": "NONE"

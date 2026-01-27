@@ -3,14 +3,14 @@
     "c735de08-f8f2-4e69-aa4a-2d8d3d438323": {
       "_id": "c735de08-f8f2-4e69-aa4a-2d8d3d438323",
       "context": "OAUTH2_MAY_ACT",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for OAuth2 May Act",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525937176,
       "name": "OAuth2 May Act Script",
       "script": "file://OAuth2-May-Act-Script.script.groovy"
     }

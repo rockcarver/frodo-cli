@@ -72,6 +72,7 @@
           "authenticatorAttachment": "UNSPECIFIED",
           "enforceRevocationCheck": false,
           "excludeCredentials": false,
+          "fidoCertificationLevel": "OFF",
           "generateRecoveryCodes": true,
           "maxSavedDevices": 0,
           "origins": [],
@@ -81,7 +82,8 @@
           "storeAttestationDataInTransientState": false,
           "timeout": 60,
           "trustStoreAlias": "trustalias",
-          "userVerificationRequirement": "PREFERRED"
+          "userVerificationRequirement": "PREFERRED",
+          "validateFidoU2fAaguid": true
         },
         "807106ff-fb66-469e-93bb-4e0834f6c875": {
           "_id": "807106ff-fb66-469e-93bb-4e0834f6c875",
@@ -159,6 +161,7 @@
             "name": "WebAuthn Authentication Node"
           },
           "asScript": true,
+          "detectSignCountMismatch": false,
           "isRecoveryCodeAllowed": false,
           "origins": [],
           "requiresResidentKey": false,
@@ -175,6 +178,8 @@
         "enabled": true,
         "entryNodeId": "807106ff-fb66-469e-93bb-4e0834f6c875",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "72ef6e1d-930c-4bed-922a-850815d98ea1": {
             "connections": {

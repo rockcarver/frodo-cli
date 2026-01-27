@@ -8,7 +8,7 @@
         "name": "ForgeRock Amster"
       },
       "authenticationLevel": 0,
-      "authorizedKeys": "/home/prestonhales/am/security/keys/amster/authorized_keys",
+      "authorizedKeys": "/root/am/security/keys/amster/authorized_keys",
       "enabled": true
     }
   }

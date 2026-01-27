@@ -7,7 +7,7 @@
         "collection": false,
         "name": "ForgeRock Authenticator (Push) Service"
       },
-      "authenticatorPushDeviceSettingsEncryptionKeystore": "/home/prestonhales/am/security/keystores/keystore.jks",
+      "authenticatorPushDeviceSettingsEncryptionKeystore": "/root/am/security/keystores/keystore.jks",
       "authenticatorPushDeviceSettingsEncryptionKeystorePassword": null,
       "authenticatorPushDeviceSettingsEncryptionKeystoreType": "JKS",
       "authenticatorPushDeviceSettingsEncryptionScheme": "NONE",

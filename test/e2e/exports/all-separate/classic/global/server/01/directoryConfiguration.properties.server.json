@@ -1,7 +1,7 @@
 {
   "_id": "01/properties/directoryConfiguration",
   "directoryConfiguration": {
-    "bindDn": "cn=Directory Manager",
+    "bindDn": "uid=am-config,ou=admins,ou=am-config",
     "bindPassword": null,
     "maxConnectionPool": 10,
     "minConnectionPool": 1,
@@ -15,8 +15,8 @@
   "directoryServers": [
     {
       "connectionType": "SSL",
-      "hostName": "localhost",
-      "portNumber": "50636",
+      "hostName": "opendj-frodo-dev.classic.com",
+      "portNumber": "1636",
       "serverName": "Server1"
     }
   ]

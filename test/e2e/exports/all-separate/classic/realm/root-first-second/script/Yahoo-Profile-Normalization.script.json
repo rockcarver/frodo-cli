@@ -3,14 +3,14 @@
     "424da748-82cc-4b54-be6f-82bd64d82a74": {
       "_id": "424da748-82cc-4b54-be6f-82bd64d82a74",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from Yahoo",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525936920,
       "name": "Yahoo Profile Normalization",
       "script": "file://Yahoo-Profile-Normalization.script.groovy"
     }

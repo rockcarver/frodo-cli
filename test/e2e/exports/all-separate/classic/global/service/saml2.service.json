@@ -11,6 +11,7 @@
       "caCertValidation": false,
       "cacheCleanupInterval": 600,
       "encryptedKeyInKeyInfo": true,
+      "idpDiscoveryCookieDomain": "openam-frodo-dev.classic.com",
       "idpDiscoveryCookieType": "PERSISTENT",
       "idpDiscoveryUrlSchema": "HTTPS",
       "location": "global",

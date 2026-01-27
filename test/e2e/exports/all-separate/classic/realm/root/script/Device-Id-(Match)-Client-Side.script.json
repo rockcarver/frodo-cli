@@ -3,14 +3,14 @@
     "157298c0-7d31-4059-a95b-eeb08473b7e5": {
       "_id": "157298c0-7d31-4059-a95b-eeb08473b7e5",
       "context": "AUTHENTICATION_CLIENT_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for client side Device Id (Match) Authentication Module",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525936771,
       "name": "Device Id (Match) - Client Side",
       "script": "file://Device-Id-(Match)-Client-Side.script.js"
     }

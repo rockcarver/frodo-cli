@@ -3,14 +3,14 @@
     "1244e639-4a31-401d-ab61-d75133d8dc9e": {
       "_id": "1244e639-4a31-401d-ab61-d75133d8dc9e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
+      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
+      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from Instagram",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1752525936742,
       "name": "Instagram Profile Normalization",
       "script": "file://Instagram-Profile-Normalization.script.groovy"
     }

@@ -27,7 +27,8 @@
           "pendingRequestsEnabled": true,
           "permissionTicketLifetime": 120,
           "resharingMode": "IMPLICIT",
-          "userProfileLocaleAttribute": "inetOrgPerson"
+          "userProfileLocaleAttribute": "inetOrgPerson",
+          "warnIfConfusablesInUsername": false
         }
       },
       "location": "global",

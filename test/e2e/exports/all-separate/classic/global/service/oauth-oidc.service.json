@@ -36,6 +36,7 @@
             "urn:ietf:params:oauth:grant-type:jwt-bearer"
           ],
           "hashSalt": "changeme",
+          "includeClientIdClaimInStatelessTokens": true,
           "includeSubnameInTokenClaims": true,
           "macaroonTokenFormat": "V2",
           "maxAgeOfRequestObjectNbfClaim": 0,
@@ -59,7 +60,7 @@
           ],
           "tlsCertificateBoundAccessTokensEnabled": true,
           "tlsCertificateRevocationCheckingEnabled": false,
-          "tlsClientCertificateHeaderFormat": "URLENCODED_PEM",
+          "tlsClientCertificateHeaderFormat": "BASE64_ENCODED_CERT",
           "tokenCompressionEnabled": false,
           "tokenEncryptionEnabled": false,
           "tokenExchangeClasses": [
@@ -246,6 +247,7 @@
         "clientDynamicRegistrationConfig": {
           "allowDynamicRegistration": false,
           "dynamicClientRegistrationScope": "dynamic_client_registration",
+          "dynamicClientRegistrationScript": "[Empty]",
           "dynamicClientRegistrationSoftwareStatementRequired": false,
           "generateRegistrationAccessTokens": true,
           "requiredSoftwareStatementAttestedAttributes": [

@@ -19,8 +19,8 @@
             "first_name=givenName",
             "first_name=cn",
             "id=uid",
-            "last_name=sn",
-            "email=mail"
+            "email=mail",
+            "last_name=sn"
           ],
           "attributeMappingClasses": [
             "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper|uid|vkontakte-"
@@ -39,7 +39,7 @@
           "scope": [
             "email"
           ],
-          "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+          "ssoProxyUrl": "http://openam-frodo-dev.classic.com:8080/am/oauth2c/OAuthProxy.jsp",
           "subjectProperty": "id",
           "tokenEndpoint": "https://oauth.vk.com/access_token",
           "userInfoEndpoint": "https://api.vk.com/method/users.get"

@@ -8,7 +8,7 @@
         "name": "Monitoring"
       },
       "authfilePath": "%BASE_DIR%/security/openam_mon_auth",
-      "enabled": true,
+      "enabled": false,
       "httpEnabled": false,
       "httpPort": 8082,
       "location": "global",
@@ -38,9 +38,7 @@
       "policyHistoryWindowSize": 10000,
       "rmiEnabled": false,
       "rmiPort": 9999,
-      "sessionHistoryWindowSize": 10000,
-      "snmpEnabled": false,
-      "snmpPort": 8085
+      "sessionHistoryWindowSize": 10000
     }
   }
 }

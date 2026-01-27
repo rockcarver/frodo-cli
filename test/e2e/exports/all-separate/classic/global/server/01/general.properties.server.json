@@ -6,12 +6,12 @@
       "value": "%BASE_DIR%/var/debug"
     },
     "com.iplanet.services.debug.level": {
-      "inherited": true,
-      "value": "off"
+      "inherited": false,
+      "value": "error"
     },
     "com.sun.services.debug.mergeall": {
-      "inherited": true,
-      "value": "on"
+      "inherited": false,
+      "value": "off"
     }
   },
   "amconfig.header.installdir": {
@@ -25,7 +25,7 @@
     },
     "com.iplanet.services.configpath": {
       "inherited": false,
-      "value": "/home/prestonhales/am"
+      "value": "/root/am"
     },
     "com.sun.identity.client.notification.url": {
       "inherited": true,

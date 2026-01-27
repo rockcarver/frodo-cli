@@ -13,7 +13,7 @@
         "certificateAttributeProfileMappingExtension": "none",
         "certificateAttributeToProfileMapping": "subject CN",
         "certificateLdapServers": [
-          "localhost:50636"
+          "opendj-frodo-dev.classic.com:2636"
         ],
         "crlMatchingCertificateAttribute": "CN",
         "iplanet-am-auth-cert-gw-cert-preferred": false,
@@ -28,7 +28,7 @@
           "none"
         ],
         "updateCRLsFromDistributionPoint": true,
-        "userBindDN": "cn=Directory Manager"
+        "userBindDN": "uid=am-identity-bind-account,ou=admins,ou=identities"
       }
     }
   }

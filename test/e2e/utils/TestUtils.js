@@ -255,3 +255,45 @@ export function getEnv(connection = undefined) {
     },
   };
 }
+
+/**
+ * Method that runs a command and verifies that the command succeeds when run
+ * @param {string} command The command to run
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @returns {Promise<void>}
+ */
+export async function testSuccess(
+  command,
+  env,
+) {
+  const { stdout, stderr } = await exec(command, env);
+  // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+  // only workable solution I could find was to remove progress bar output altogether from such tests.
+  expect(removeProgressBarOutput(removeAnsiEscapeCodes(stdout))).toMatchSnapshot();
+  expect(removeProgressBarOutput(removeAnsiEscapeCodes(stderr))).toMatchSnapshot();
+}
+
+/**
+ * Method that runs a command and verifies that the command fails when run
+ * @param {string} command The command to run
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @returns {Promise<void>}
+ */
+export async function testFail(
+  command,
+  env,
+) {
+  let commandSucceeded = false;
+  try {
+    await exec(command, env);
+    commandSucceeded = true;
+  } catch (e) {
+    // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
+    // only workable solution I could find was to remove progress bar output altogether from such tests.
+    expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    expect(e.code).toMatchSnapshot();
+  }
+  if (commandSucceeded) {
+    throw new Error("Command should've failed")
+  }
+}

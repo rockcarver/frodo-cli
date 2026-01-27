@@ -1,0 +1,18 @@
+{
+  "script": {
+    "046d1344-8ef1-4e67-8d2a-28fd9266f44e": {
+      "_id": "046d1344-8ef1-4e67-8d2a-28fd9266f44e",
+      "context": "SAML2_NAMEID_MAPPER",
+      "createdBy": "id=amadmin,ou=user,ou=am-config",
+      "creationDate": 1748630811197,
+      "default": false,
+      "description": null,
+      "evaluatorVersion": "2.0",
+      "language": "JAVASCRIPT",
+      "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+      "lastModifiedDate": 1748630957225,
+      "name": "Element NameID Mapper",
+      "script": "file://Element-NameID-Mapper.script.js"
+    }
+  }
+}

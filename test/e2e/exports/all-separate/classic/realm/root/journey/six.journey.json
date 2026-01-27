@@ -111,6 +111,8 @@
         "enabled": true,
         "entryNodeId": "e301438c-0bd0-429c-ab0c-66126501069a",
         "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
         "nodes": {
           "295a70ba-2b67-4a48-bf13-237ce0a55450": {
             "connections": {},

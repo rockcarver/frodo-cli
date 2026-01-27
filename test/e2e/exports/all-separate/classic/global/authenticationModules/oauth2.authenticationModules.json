@@ -23,9 +23,9 @@
           "email=facebook-email",
           "last_name=facebook-lname",
           "first_name=facebook-fname",
-          "name=cn",
           "email=mail",
-          "last_name=sn"
+          "last_name=sn",
+          "name=cn"
         ],
         "attributeMappingClasses": [
           "org.forgerock.openam.authentication.modules.common.mapping.JsonAttributeMapper"
@@ -43,7 +43,7 @@
         "smtpFromAddress": "info@forgerock.com",
         "smtpHostName": "localhost",
         "smtpHostPort": "25",
-        "ssoProxyUrl": "http://localhost:8080/am/oauth2c/OAuthProxy.jsp",
+        "ssoProxyUrl": "http://openam-frodo-dev.classic.com:8080/am/oauth2c/OAuthProxy.jsp",
         "userProfileServiceUrl": "https://graph.facebook.com/me"
       }
     }

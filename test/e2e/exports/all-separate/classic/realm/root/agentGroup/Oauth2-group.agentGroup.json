@@ -42,6 +42,7 @@
         "tokenEndpointAuthMethod": "client_secret_basic",
         "tokenExchangeAuthLevel": 0,
         "tosURI": [],
+        "treeName": null,
         "updateAccessToken": null
       },
       "coreOAuth2ClientConfig": {

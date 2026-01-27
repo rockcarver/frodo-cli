@@ -11,6 +11,7 @@
       "forgotUsername": "false",
       "kbaEnabled": "false",
       "lang": "en-US",
+      "nodeDesignerXuiEnabled": true,
       "protectedUserAttributes": [
         "telephoneNumber",
         "mail"
@@ -21,7 +22,9 @@
       "selfRegistration": "false",
       "socialImplementations": [],
       "successfulUserRegistrationDestination": "default",
-      "userIdAttributes": [],
+      "userIdAttributes": [
+        "uid"
+      ],
       "xuiUserSessionValidationEnabled": true,
       "zeroPageLogin": {
         "allowedWithoutReferer": true,
