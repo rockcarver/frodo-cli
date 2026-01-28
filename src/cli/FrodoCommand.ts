@@ -21,6 +21,7 @@ const {
   RETRY_STRATEGIES,
   RETRY_NOTHING_KEY,
 } = frodo.utils.constants;
+const { convertPrivateKeyToPem } = frodo.utils.crypto;
 
 const hostArgument = new Argument(
   '[host]',
@@ -66,6 +67,16 @@ const serviceAccountIdOption = new Option(
 const serviceAccountJwkFileOption = new Option(
   '--sa-jwk-file <file>',
   'File containing the JSON Web Key (JWK) associated with the the service account.'
+);
+
+const amsterPrivateKeyPassphraseOption = new Option(
+  '--passphrase <passphrase>',
+  'The passphrase for the Amster private key if it is encrypted.'
+);
+
+const amsterPrivateKeyFileOption = new Option(
+  '--private-key <file>',
+  'File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.'
 );
 
 const deploymentOption = new Option(
@@ -135,6 +146,8 @@ const defaultOpts = [
   loginRedirectUri,
   serviceAccountIdOption,
   serviceAccountJwkFileOption,
+  amsterPrivateKeyPassphraseOption,
+  amsterPrivateKeyFileOption,
   deploymentOption,
   directoryOption,
   insecureOption,
@@ -167,6 +180,35 @@ const stateMap = {
     } catch (error) {
       printMessage(
         `Error parsing JWK from file ${file}: ${error.message}`,
+        'error'
+      );
+    }
+  },
+  [amsterPrivateKeyPassphraseOption.attributeName()]: (passphrase: string) => {
+    // This is needed in the case the passphrase is an option, but the private key is an environment variable.
+    process.env.FRODO_AMSTER_PASSPHRASE = passphrase;
+  },
+  [amsterPrivateKeyFileOption.attributeName()]: (
+    file: string,
+    options: Record<string, string | boolean>
+  ) => {
+    const passphrase =
+      (options[amsterPrivateKeyPassphraseOption.attributeName()] as string) ||
+      process.env.FRODO_AMSTER_PASSPHRASE;
+    try {
+      // Store as PEM format (PKCS#8 variant specifically) since Jose supports PEM and since PKCS#8 supports more algorithms than PKCS#1
+      state.setAmsterPrivateKey(
+        convertPrivateKeyToPem(
+          fs.readFileSync(file, 'utf8'),
+          passphrase,
+          file
+            .replaceAll('\\', '/')
+            .substring(file.replaceAll('\\', '/').lastIndexOf('/') + 1)
+        )
+      );
+    } catch (error) {
+      printMessage(
+        `Error parsing private key from file ${file}: ${error.message}`,
         'error'
       );
     }
@@ -298,6 +340,8 @@ export class FrodoCommand extends FrodoStubCommand {
         `  FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.\n` +
         `  FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.\n` +
         `  FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
+        `  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.\n` +
+        `  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.\n` +
         `  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.\n` +
         `  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.\n` +
         ('frodo conn save' === this.name()
@@ -309,7 +353,7 @@ export class FrodoCommand extends FrodoStubCommand {
             `  FRODO_LOG_SECRET: Log API secret. Overridden by 'password' argument.\n`
           : ``) +
         `  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.\n` +
-        `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.\n` +
+        `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.\n` +
         `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n` +
         `  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.\n` +
         `  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.\n`
@@ -359,7 +403,7 @@ export class FrodoCommand extends FrodoStubCommand {
         );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handler: any = stateMap[k];
-        handler(v);
+        handler(v, options);
       } else {
         debugMessage(
           `FrodoCommand.handleDefaultArgsAndOpts: Ignoring non-default option '${k}'.`

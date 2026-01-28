@@ -9,3 +9,8 @@ export const connId2 = 'zion';
 export const username2 = 'neo@nebuchadnezzar.zion.com';
 export const password2 = 'R3dP!ll3d';
 export const realm = '/alpha';
+export const amClassicBaseUrl = 'https://am.example.com:8443/am';
+export const classicConnId = 'am.example';
+export const amsterPrivateKey =
+  '/home/trinity/am/security/keys/amster/amster_rsa';
+export const customAmsterService = 'AmsterLogin';

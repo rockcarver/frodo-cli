@@ -33,6 +33,8 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --passphrase <passphrase>                    The passphrase for the Amster private key if it is encrypted.
+  --private-key <file>                         File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   --retry <strategy>                           Retry failed operations. Valid values for strategy: 
   everything: Retry all failed operations. 
   network:    Retry only network-related failed operations. 
@@ -52,12 +54,14 @@ Environment Variables:
   FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
   FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.
+  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
-  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
@@ -65,6 +69,8 @@ Environment Variables:
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
@@ -73,6 +79,8 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
 "
 `;
@@ -110,6 +118,8 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --passphrase <passphrase>                    The passphrase for the Amster private key if it is encrypted.
+  --private-key <file>                         File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   --retry <strategy>                           Retry failed operations. Valid values for strategy: 
   everything: Retry all failed operations. 
   network:    Retry only network-related failed operations. 
@@ -129,12 +139,14 @@ Environment Variables:
   FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
   FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.
+  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
-  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
@@ -142,6 +154,8 @@ Environment Variables:
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
@@ -150,6 +164,8 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
 "
 `;
@@ -187,6 +203,8 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --passphrase <passphrase>                    The passphrase for the Amster private key if it is encrypted.
+  --private-key <file>                         File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   --retry <strategy>                           Retry failed operations. Valid values for strategy: 
   everything: Retry all failed operations. 
   network:    Retry only network-related failed operations. 
@@ -206,12 +224,14 @@ Environment Variables:
   FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
   FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.
+  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
-  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
@@ -219,6 +239,8 @@ Environment Variables:
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
@@ -227,6 +249,8 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
 "
 `;
@@ -264,6 +288,8 @@ Options:
   --no-log-api                                 Do not create and add log API key and secret.
   --no-sa                                      Do not create and add service account.
   --no-validate                                Do not validate connection.
+  --passphrase <passphrase>                    The passphrase for the Amster private key if it is encrypted.
+  --private-key <file>                         File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   --retry <strategy>                           Retry failed operations. Valid values for strategy: 
   everything: Retry all failed operations. 
   network:    Retry only network-related failed operations. 
@@ -283,12 +309,14 @@ Environment Variables:
   FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
   FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.
+  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.
   FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
-  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.
@@ -296,6 +324,8 @@ Environment Variables:
 Usage Examples:
   Create a connection profile with a new log API key and secret and a new service account:
 [96m  $ frodo conn save https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Create a connection profile using Amster private key credentials (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa https://am.example.com:8443/am
 [39m  Save an existing service account to an existing or new connection profile:
 [96m  $ frodo conn save --sa-id b672336b-41ef-428d-ae4a-e0c082875377 --sa-jwk-file ./matrix-sa_privateKey.jwk https://openam-matrix.id.forgerock.io/am
 [39m  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):
@@ -304,6 +334,8 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
+[96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
 "
 `;
