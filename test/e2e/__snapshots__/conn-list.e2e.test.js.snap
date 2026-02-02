@@ -1,18 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo conn list "frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
-"Host                                       │Service Account       │Username                     │Log API Key                     
-https://openam-frodo-dev.forgeblocks.com/am│Frodo-SA-1687293271764│volker.scheuber@forgerock.com│2e3e7162c6861fdc50a10b6353ada65a
+"Host                                       │Service Account       │Username                     │Log API Key                     │Authentication Service
+https://openam-frodo-dev.forgeblocks.com/am│Frodo-SA-1687293271764│volker.scheuber@forgerock.com│2e3e7162c6861fdc50a10b6353ada65a│                      
+http://openam-frodo-dev.classic.com:8080/am│                      │amadmin                      │                                │MockAmsterService     
 "
 `;
 
 exports[`frodo conn list "frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
-"Host                                       │Service Account       │Username                     │Log API Key                     
-https://openam-frodo-dev.forgeblocks.com/am│Frodo-SA-1687293271764│volker.scheuber@forgerock.com│2e3e7162c6861fdc50a10b6353ada65a
+"Host                                       │Service Account       │Username                     │Log API Key                     │Authentication Service
+https://openam-frodo-dev.forgeblocks.com/am│Frodo-SA-1687293271764│volker.scheuber@forgerock.com│2e3e7162c6861fdc50a10b6353ada65a│                      
+http://openam-frodo-dev.classic.com:8080/am│                      │amadmin                      │                                │MockAmsterService     
 "
 `;
 
 exports[`frodo conn list "frodo conn list": should list the connection hosts 1`] = `
 "https://openam-frodo-dev.forgeblocks.com/am
+http://openam-frodo-dev.classic.com:8080/am
 "
 `;

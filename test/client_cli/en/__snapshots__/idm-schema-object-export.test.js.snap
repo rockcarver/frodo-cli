@@ -78,6 +78,13 @@ Options:
                                        (choices: "classic", "cloud",
                                        "forgeops")
   --no-cache                           Disable token cache for this operation.
+  --passphrase <passphrase>            The passphrase for the Amster private
+                                       key if it is encrypted.
+  --private-key <file>                 File containing the private key for
+                                       authenticating with Amster. Supported
+                                       formats include PEM (both PKCS#1 and
+                                       PKCS#8 variants), OpenSSH, DNSSEC, and
+                                       JWK.
   --retry <strategy>                   Retry failed operations. Valid values
                                        for strategy:
                                        everything: Retry all failed operations.
@@ -108,10 +115,12 @@ Environment Variables:
   FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
   FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.
   FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.
+  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.
+  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
   FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.
   FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.
   FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.
-  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use.
+  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.
   FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.
   FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.
   FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.

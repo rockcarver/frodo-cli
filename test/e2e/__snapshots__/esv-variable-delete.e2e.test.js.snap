@@ -5,7 +5,7 @@ exports[`frodo esv variable delete "frodo esv variable delete --variable-id esv-
 - Deleting variable esv-test-var-pi...
 ✖ Error deleting variable esv-test-var-pi
 Error deleting variable esv-test-var-pi
-  HTTP client error
+  Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi
     Status: 404
     Code: ERR_BAD_REQUEST

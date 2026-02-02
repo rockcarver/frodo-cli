@@ -57,6 +57,10 @@ export default function setup() {
         `  $ frodo conn save ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
           'brightCyan'
         ] +
+        `  Create a connection profile using Amster private key credentials (PingAM classic deployments only):\n` +
+        `  $ frodo conn save --private-key ${s.amsterPrivateKey} ${s.amClassicBaseUrl}\n`[
+          'brightCyan'
+        ] +
         `  Save an existing service account to an existing or new connection profile:\n` +
         `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
           'brightCyan'
@@ -71,6 +75,10 @@ export default function setup() {
         ] +
         `  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:\n` +
         `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.connId}\n`[
+          'brightCyan'
+        ] +
+        `  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):\n` +
+        `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`[
           'brightCyan'
         ]
     )
@@ -94,6 +102,7 @@ export default function setup() {
             JSON.parse(options.authenticationHeaderOverrides)
           );
         }
+        const needAmsterLogin = !!options.privateKey;
         const needSa =
           options.sa &&
           !state.getServiceAccountId() &&
@@ -103,7 +112,7 @@ export default function setup() {
           !state.getLogApiKey() &&
           !state.getLogApiSecret() &&
           needSa;
-        const forceLoginAsUser = needSa || needLogApiKey;
+        const forceLoginAsUser = !needAmsterLogin && (needSa || needLogApiKey);
         if (
           (options.validate && (await getTokens(forceLoginAsUser))) ||
           !options.validate

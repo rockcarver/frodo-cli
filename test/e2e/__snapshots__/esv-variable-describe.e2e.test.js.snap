@@ -73,12 +73,12 @@ exports[`frodo esv variable describe "frodo esv variable describe -ui esv-test-v
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
-    Status: 403
-    Code: ERR_BAD_REQUEST
-    Reason: Forbidden
-    Message: Access denied
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
+      Status: 403
+      Code: ERR_BAD_REQUEST
+      Reason: Forbidden
+      Message: Access denied
 "
 `;
 

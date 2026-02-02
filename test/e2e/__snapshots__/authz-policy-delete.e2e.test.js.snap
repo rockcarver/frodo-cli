@@ -14,7 +14,7 @@ exports[`frodo authz policy delete "frodo authz policy delete --policy-id 'Test 
 - Deleting Test Policy...
 ✖ Error deleting policy Test Policy
 Error deleting alpha realm policy Test Policy
-  HTTP client error
+  Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/policies/Test Policy
     Status: 404
     Code: ERR_BAD_REQUEST

@@ -48,7 +48,7 @@
 import cp from 'child_process';
 import { promisify } from 'util';
 import {getEnv, removeAnsiEscapeCodes, testif} from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, classic_connection as cc } from './utils/TestConfig';
 import { writeFileSync, rmSync } from 'fs';
 
 const exec = promisify(cp.exec);
@@ -86,6 +86,24 @@ describe('frodo conn save', () => {
     `"frodo conn save --no-validate --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}": save new connection profile with existing service account and without admin account.`,
     async () => {
       const CMD = `frodo conn save --no-validate --sa-id ${c.saId} --sa-jwk-file ${jwkFile} ${c.host}`;
+      const { stderr } = await exec(CMD, env);
+      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+    }
+  );
+
+  testif(process.env['FRODO_MASTER_KEY'])(
+    `"frodo conn save --no-validate ${cc.host} ${cc.user} ${cc.pass}": save new classic connection profile using an admin account.`,
+    async () => {
+      const CMD = `frodo conn save --no-validate ${cc.host} ${cc.user} ${cc.pass}`;
+      const { stderr } = await exec(CMD, env);
+      expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+    }
+  );
+
+  testif(process.env['FRODO_MASTER_KEY'])(
+    `"frodo conn save --no-validate --private-key ${cc.pk} --authentication-service ${cc.authService} ${cc.host}": save new classic connection profile with private key and custom authentication service.`,
+    async () => {
+      const CMD = `frodo conn save --no-validate --private-key ${cc.pk} --authentication-service ${cc.authService} ${cc.host}`;
       const { stderr } = await exec(CMD, env);
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     }

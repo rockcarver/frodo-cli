@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo conn describe "frodo conn describe http://openam-frodo-dev.classic.com:8080/am": should describe the classic connection 1`] = `
+"Host                  │http://openam-frodo-dev.classic.com:8080/am
+Deployment Type       │classic                                    
+Username              │amadmin                                    
+Password              │                                           
+Authentication Service│MockAmsterService                          
+Amster Private Key    │[present]                                  
+"
+`;
+
 exports[`frodo conn describe "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
 "Host                │https://openam-frodo-dev.forgeblocks.com/am
 Deployment Type     │cloud                                      

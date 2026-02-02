@@ -6,22 +6,22 @@ exports[`frodo service import "frodo service import --clean --global --all --fil
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1720799681233 [b672336b-41ef-428d-ae4a-e0c082875377]
 Error importing services
   Error putting global full service configs
-  Error putting global full service config CorsService
-  Error deleting service 'CorsService' before import
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
-    Status: 400
-    Code: ERR_BAD_REQUEST
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
-  Error putting global full service config dashboard
-  Error deleting service 'dashboard' before import
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
-    Status: 400
-    Code: ERR_BAD_REQUEST
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
+    Error putting global full service config CorsService
+      Error deleting service 'CorsService' before import
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: The singleton resource cannot be deleted
+    Error putting global full service config dashboard
+      Error deleting service 'dashboard' before import
+        Network error:
+          URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
+          Status: 400
+          Code: ERR_BAD_REQUEST
+          Reason: Bad Request
+          Message: The singleton resource cannot be deleted
 "
 `;
 
@@ -33,13 +33,13 @@ exports[`frodo service import "frodo service import --clean --global --file test
 ✖ Error importing first service
 Error importing service CorsService
   Error putting global full service config CorsService
-  Error deleting service 'CorsService' before import
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
-    Status: 400
-    Code: ERR_BAD_REQUEST
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
+    Error deleting service 'CorsService' before import
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/CorsService
+        Status: 400
+        Code: ERR_BAD_REQUEST
+        Reason: Bad Request
+        Message: The singleton resource cannot be deleted
 "
 `;
 
@@ -49,13 +49,13 @@ exports[`frodo service import "frodo service import --clean -g --service-id dash
 ✖ Error importing dashboard.
 Error importing service dashboard
   Error putting global full service config dashboard
-  Error deleting service 'dashboard' before import
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
-    Status: 400
-    Code: ERR_BAD_REQUEST
-    Reason: Bad Request
-    Message: The singleton resource cannot be deleted
+    Error deleting service 'dashboard' before import
+      Network error:
+        URL: https://openam-frodo-dev.forgeblocks.com/am/json/global-config/services/dashboard
+        Status: 400
+        Code: ERR_BAD_REQUEST
+        Reason: Bad Request
+        Message: The singleton resource cannot be deleted
 "
 `;
 
