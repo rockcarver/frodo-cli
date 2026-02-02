@@ -64,12 +64,12 @@ exports[`frodo esv variable list "frodo esv variable list -lu": should list the 
 ✔ Successfully read 12 variables.
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
-    Status: 403
-    Code: ERR_BAD_REQUEST
-    Reason: Forbidden
-    Message: Access denied
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
+      Status: 403
+      Code: ERR_BAD_REQUEST
+      Reason: Forbidden
+      Message: Access denied
 "
 `;
 
@@ -103,12 +103,12 @@ exports[`frodo esv variable list "frodo esv variable list -u": should list the u
 ✔ Successfully read 12 variables.
 Error exporting idm config entity fidc/federation-EntraID
   Error reading config entity fidc/federation-EntraID
-  HTTP client error
-    URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
-    Status: 403
-    Code: ERR_BAD_REQUEST
-    Reason: Forbidden
-    Message: Access denied
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
+      Status: 403
+      Code: ERR_BAD_REQUEST
+      Reason: Forbidden
+      Message: Access denied
 "
 `;
 

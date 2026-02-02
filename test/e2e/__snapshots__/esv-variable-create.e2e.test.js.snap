@@ -6,13 +6,13 @@ exports[`frodo esv variable create "frodo esv variable create --variable-id esv-
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
 - Creating variable esv-test-var-pi-unknown...
 ✖ Error updating variable esv-test-var-pi-unknown
-  HTTP client error
+  Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
     Code: ERR_BAD_REQUEST
     Message: request body has an error: doesn't match schema #/components/schemas/esvVariableCreateUpdateRequest: Error at "/expressionType": value is not one of the allowed values ["string","list","array","object","bool","int","number","base64encodedinlined","keyvaluelist"]
 Error updating variable esv-test-var-pi-unknown
-  HTTP client error
+  Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/environment/variables/esv-test-var-pi-unknown
     Status: 400
     Code: ERR_BAD_REQUEST

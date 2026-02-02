@@ -5,7 +5,7 @@ exports[`frodo authz type delete "frodo authz type delete --type-id 0aa5ed25-0c6
 - Deleting 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76...
 ✖ Error deleting resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
 Error deleting alpha realm resource type 0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
-  HTTP client error
+  Network error:
     URL: https://openam-frodo-dev.forgeblocks.com/am/json/realms/root/realms/alpha/resourcetypes/0aa5ed25-0c62-4ff5-9a42-3bda8c5cbb76
     Status: 404
     Code: ERR_BAD_REQUEST
@@ -20,7 +20,7 @@ exports[`frodo authz type delete "frodo authz type delete --type-name FrodoTestR
 ✖ Error deleting resource type FrodoTestResourceType13
 Error deleting alpha realm resource type FrodoTestResourceType13
   Error reading alpha realm resource type FrodoTestResourceType13
-  Resource Type with name FrodoTestResourceType13 does not exist in realm alpha
+    Resource Type with name FrodoTestResourceType13 does not exist in realm alpha
 "
 `;
 
