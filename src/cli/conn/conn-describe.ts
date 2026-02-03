@@ -2,6 +2,7 @@ import { Option } from 'commander';
 
 import { describeConnectionProfile } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
+import { printMessage } from '../../utils/Console';
 
 export default function setup() {
   const program = new FrodoCommand('frodo conn describe', [
@@ -20,7 +21,7 @@ export default function setup() {
       // implement command logic inside action handler
       async (host, options, command) => {
         command.handleDefaultArgsAndOpts(host, options, command);
-        describeConnectionProfile(host, options.showSecrets);
+        await describeConnectionProfile(host, options.showSecrets);
       }
       // end command logic inside action handler
     );

@@ -5,7 +5,7 @@
  *    In mock mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=1 FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
+ *    $ FRODO_MOCK=1 FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  *    If your command completes without errors and with the expected results,
  *    all the required mocks already exist and you are good to write your
@@ -20,7 +20,7 @@
  *    In mock record mode, run the command you want to test with the same arguments
  *    and parameters exactly as you want to test it, for example:
  *
- *    $ FRODO_MOCK=record FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
+ *    $ FRODO_MOCK=record FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  *    Wait until you see all the Polly instances (mock recording adapters) have
  *    shutdown before you try to run step #1 again.
@@ -38,7 +38,7 @@
  * 3. Validate your freshly recorded mock responses are complete and working.
  *    Re-run the exact command you want to test in mock mode (see step #1).
  * 
- *    $ FRODO_MOCK=1 FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
+ *    $ FRODO_MOCK=1 FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key frodo conn describe https://openam-frodo-dev.forgeblocks.com/am
  *
  * 4. Write your test.
  *    Make sure to use the exact command including number of arguments and params.
@@ -46,12 +46,12 @@
  * 5. Create snapshots.
  *    To create snapshots for your tests, run the tests in update snapshot mode:
  * 
- *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' npm run test:update conn-describe
+ *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key npm run test:update conn-describe
  * 
  * 6. Test you tests and recordings and snapshots.
  *    To test the whole package of tests, recordings, and snapshots, run the tests:
  * 
- *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY='<master key>' npm run test conn-describe
+ *    $ FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key npm run test conn-describe
  * 
  * 7. Commit your test, your recordings, and snapshots to the repository.
  */
@@ -68,7 +68,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv();
 
 describe('frodo conn describe', () => {
-    testif(process.env['FRODO_MASTER_KEY'])(
+    testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
         `"frodo conn describe ${c.host}": should describe the connection`,
         async () => {
             const CMD = `frodo conn describe ${c.host}`;
@@ -77,7 +77,7 @@ describe('frodo conn describe', () => {
         }
     );
 
-    testif(process.env['FRODO_MASTER_KEY'])(
+    testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
         `"frodo conn describe ${cc.host}": should describe the classic connection`,
         async () => {
             const CMD = `frodo conn describe ${cc.host}`;
@@ -86,7 +86,7 @@ describe('frodo conn describe', () => {
         }
     );
 
-    testif(process.env['FRODO_MASTER_KEY'])(
+    testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
         `"frodo conn describe --show-secrets ${c.host}": should describe the connection and show the associated secrets`,
         async () => {
             const CMD = `frodo conn describe --show-secrets ${c.host}`;
@@ -96,7 +96,7 @@ describe('frodo conn describe', () => {
         }
     );
 
-    testif(process.env['FRODO_MASTER_KEY'])(
+    testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
         `"frodo conn describe --show-secrets ${cc.host}": should describe the classic connection and show the associated secrets`,
         async () => {
             const CMD = `frodo conn describe --show-secrets ${cc.host}`;
