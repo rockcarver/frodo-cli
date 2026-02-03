@@ -11,14 +11,22 @@ Amster Private Key    │[present]
 `;
 
 exports[`frodo conn describe "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
-"Host                │https://openam-frodo-dev.forgeblocks.com/am
-Deployment Type     │cloud                                      
-Username            │volker.scheuber@forgerock.com              
-Password            │[present]                                  
-Log API Key         │2e3e7162c6861fdc50a10b6353ada65a           
-Log API Secret      │[present]                                  
-Service Account Name│Frodo-SA-1687293271764                     
-Service Account Id  │b672336b-41ef-428d-ae4a-e0c082875377       
-Service Account JWK │[present]                                  
+"Host                 │https://openam-frodo-dev.forgeblocks.com/am
+Deployment Type      │cloud                                      
+Service Account Name │Frodo-SA-1758728043147                     
+Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be       
+Service Account JWK  │[present]                                  
+Service Account Scope│fr:am:*                                    
+                     │fr:autoaccess:*                            
+                     │fr:idc:analytics:*                         
+                     │fr:idc:certificate:*                       
+                     │fr:idc:content-security-policy:*           
+                     │fr:idc:cookie-domain:*                     
+                     │fr:idc:custom-domain:*                     
+                     │fr:idc:esv:*                               
+                     │fr:idc:promotion:*                         
+                     │fr:idc:release:*                           
+                     │fr:idc:sso-cookie:*                        
+                     │fr:idm:*                                   
 "
 `;
