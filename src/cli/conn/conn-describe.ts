@@ -2,7 +2,6 @@ import { Option } from 'commander';
 
 import { describeConnectionProfile } from '../../ops/ConnectionProfileOps';
 import { FrodoCommand } from '../FrodoCommand';
-import { printMessage } from '../../utils/Console';
 
 export default function setup() {
   const program = new FrodoCommand('frodo conn describe', [
