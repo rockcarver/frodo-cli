@@ -1,9 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo conn save "frodo conn save --no-validate --private-key /home/user/am/security/keys/amster/amster_rsa --authentication-service MockAmsterService http://openam-frodo-dev.classic.com:8080/am": save new classic connection profile with private key and custom authentication service. 1`] = `
-"Error parsing private key from file /home/user/am/security/keys/amster/amster_rsa: ENOENT: no such file or directory, open '/home/user/am/security/keys/amster/amster_rsa'
-Advanced setting: Authentication Service: MockAmsterService
-Saved connection profile http://openam-frodo-dev.classic.com:8080/am
+exports[`frodo conn save "frodo conn save --no-validate --private-key test/fs_tmp/conn-save-pk --authentication-service MockAmsterService http://openam-frodo-dev.amster.com:8080/am": save new classic connection profile with private key and custom authentication service. 1`] = `
+"Advanced setting: Authentication Service: MockAmsterService
+Saved connection profile http://openam-frodo-dev.amster.com:8080/am
 "
 `;
 
@@ -12,8 +11,9 @@ exports[`frodo conn save "frodo conn save --no-validate --sa-id b672336b-41ef-42
 "
 `;
 
-exports[`frodo conn save "frodo conn save --no-validate http://openam-frodo-dev.classic.com:8080/am amAdmin Sup3rS3cr3t!": save new classic connection profile using an admin account. 1`] = `
-"Saved connection profile http://openam-frodo-dev.classic.com:8080/am
+exports[`frodo conn save "frodo conn save --no-validate http://openam-frodo-dev.amster.com:8080/am amAdmin undefined": save new classic connection profile using an admin account. 1`] = `
+"Advanced setting: Authentication Service: MockAmsterService
+Saved connection profile http://openam-frodo-dev.amster.com:8080/am
 "
 `;
 

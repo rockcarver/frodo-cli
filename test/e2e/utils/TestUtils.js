@@ -252,6 +252,8 @@ export function getEnv(connection = undefined) {
       ...(connection?.saJwk && { FRODO_SA_JWK: connection.saJwk }),
       ...(connection?.user && { FRODO_USERNAME: connection.user }),
       ...(connection?.pass && { FRODO_PASSWORD: connection.pass }),
+      ...(connection?.pk && { FRODO_AMSTER_PRIVATE_KEY: connection.pk }),
+      ...(connection?.authService && { FRODO_AUTHENTICATION_SERVICE: connection.authService }),
     },
   };
 }
