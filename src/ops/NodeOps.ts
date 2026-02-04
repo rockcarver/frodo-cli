@@ -438,6 +438,7 @@ export async function importCustomNodeFromFile(
   file: string,
   options: CustomNodeImportOptions = {
     reUuid: false,
+    wait: false,
   }
 ): Promise<boolean> {
   let indicatorId: string;
@@ -483,6 +484,7 @@ export async function importCustomNodesFromFile(
   file: string,
   options: CustomNodeImportOptions = {
     reUuid: false,
+    wait: false,
   }
 ): Promise<boolean> {
   try {
@@ -512,6 +514,7 @@ export async function importCustomNodesFromFile(
 export async function importCustomNodesFromFiles(
   options: CustomNodeImportOptions = {
     reUuid: false,
+    wait: false,
   }
 ): Promise<boolean> {
   const errors: Error[] = [];
@@ -549,6 +552,7 @@ export async function importFirstCustomNodeFromFile(
   file: string,
   options: CustomNodeImportOptions = {
     reUuid: false,
+    wait: false,
   }
 ): Promise<boolean> {
   let indicatorId: string;

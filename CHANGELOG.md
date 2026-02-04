@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated to Frodo Lib 4.0.0
+- Updated binary release to run on Node v24
+- Updated dependencies
+
+### Added
+
+- Added `frodo config-manager` (`fr-config-manager`) commands.
+- Added support for Node Designer Nodes through several API and Ops functions to allow for doing exports, imports, deletes, etc. with custom node configurations.
+  - Just like with journeys, custom nodes get exported and imported in the same way as they do from AIC/AM, so you can import Frodo exported custom nodes into AIC/AM and vice versa.
+  - Additionally, journeys were updated to include custom node dependencies during exports. Even if a journey is exported with Frodo and contains these dependencies in the export JSON, they can still be imported into AIC/AM using the admin UI as it should ignore the custom node dependencies (since AIC/AM doesn't support exporting them yet).
+- Added `--retry <strategy>` option to all commands.
+- Added the ability to authenticate to an AM classic deployment using Amster credentials (i.e. a public/private key pair). The private key can be in a variety of formats such as PKCS, JWK, and OpenSSH, but is ultimately stored in PKCS#8 format. You can also use encrypted private keys by providing the passphrase when creating the connection profile.
+
+### Fixed
+
+- \#XXX: 
+
 ## [4.0.0-3] - 2026-02-04
 
 ### Changed

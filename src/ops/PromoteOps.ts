@@ -679,6 +679,7 @@ async function addSwitch(
         importFilePath,
         {
           reUuid: false,
+          wait: false,
         }
       );
       logmessages.push(`add custom node ${importFilePath}`);

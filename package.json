@@ -42,7 +42,7 @@
     "build": "npm run build:binary",
     "build:only": "npx tsup && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
-    "dist-pkg": "pkg -C Gzip -t node22 --config package.json -o frodo dist/app.cjs",
+    "dist-pkg": "pkg -C Gzip -t node24 --config package.json -o frodo dist/app.cjs",
     "link": "npm link ../frodo-lib",
     "dev": "npx tsup --watch src"
   },
@@ -95,14 +95,14 @@
     ]
   },
   "devDependencies": {
-    "@rockcarver/frodo-lib": "4.0.0-4",
+    "@rockcarver/frodo-lib": "4.0.0-5",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",
     "@types/node": "^22.13.10",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "@yao-pkg/pkg": "^5.11.0",
+    "@yao-pkg/pkg": "^6.12.0",
     "chokidar": "^4.0.3",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
@@ -110,6 +110,7 @@
     "commander": "^11.0.0",
     "compare-versions": "^6.1.0",
     "copyfiles": "^2.4.1",
+    "deep-diff": "^1.0.2",
     "del": "^8.0.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^10.1.1",
@@ -132,13 +133,11 @@
     "rimraf": "^6.0.1",
     "sanitize-filename": "^1.6.3",
     "slugify": "^1.6.5",
+    "tmp": "^0.2.3",
     "ts-jest": "^29.1.4",
     "tsup": "^8.1.0",
     "typescript": "^5.2.2",
     "uuid": "^11.1.0",
-    "yesno": "^0.4.0",
-    "deep-diff": "^1.0.2",
-    "tmp": "^0.2.3"
-  },
-  "dependencies": {}
+    "yesno": "^0.4.0"
+  }
 }
