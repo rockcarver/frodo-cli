@@ -69,6 +69,7 @@ export default function setup() {
           options.file,
           {
             reUuid: options.reUuid,
+            wait: false,
           }
         );
         if (!outcome) process.exitCode = 1;
@@ -80,6 +81,7 @@ export default function setup() {
         );
         const outcome = await importCustomNodesFromFile(options.file, {
           reUuid: options.reUuid,
+          wait: false,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -88,6 +90,7 @@ export default function setup() {
         verboseMessage('Importing all custom nodes from separate files...');
         const outcome = await importCustomNodesFromFiles({
           reUuid: options.reUuid,
+          wait: false,
         });
         if (!outcome) process.exitCode = 1;
       }
@@ -96,6 +99,7 @@ export default function setup() {
         verboseMessage('Importing first custom node in file...');
         const outcome = await importFirstCustomNodeFromFile(options.file, {
           reUuid: options.reUuid,
+          wait: false,
         });
         if (!outcome) process.exitCode = 1;
       }
