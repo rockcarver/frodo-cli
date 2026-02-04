@@ -47,6 +47,9 @@
  */
 
 /*
+FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key npm run test:update conn-list
+FRODO_CONNECTION_PROFILES_PATH=./test/e2e/env/Connections.json FRODO_MASTER_KEY_PATH=./test/e2e/env/masterkey.key npm run test conn-list
+
 FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list
 FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list -l
 FRODO_CONNECTION_PROFILES_PATH=~/temp/frodo/Connections.json FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo conn list --long
@@ -64,7 +67,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 
 describe('frodo conn list', () => {
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     '"frodo conn list": should list the connection hosts',
     async () => {
       const CMD = `frodo conn list`;
@@ -73,7 +76,7 @@ describe('frodo conn list', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     '"frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys.',
     async () => {
       const CMD = `frodo conn list -l`;
@@ -82,7 +85,7 @@ describe('frodo conn list', () => {
     }
   );
 
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     '"frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys.',
     async () => {
       const CMD = `frodo conn list --long`;
