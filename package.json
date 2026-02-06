@@ -37,8 +37,8 @@
     "test:serial": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent --runInBand",
     "test:debug": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent=false --json --outputFile=./testResults.json",
     "test:update": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest --silent=false --updateSnapshot",
-    "lint": "eslint --ext .ts --ignore-path .gitignore .",
-    "lint:fix": "eslint --fix --ext .ts --ignore-path .gitignore .",
+    "lint": "eslint --cache --cache-location .eslintcache --ext .ts --ignore-path .gitignore .",
+    "lint:fix": "eslint --cache --cache-location .eslintcache --fix --ext .ts --ignore-path .gitignore .",
     "build": "npm run build:binary",
     "build:only": "npx tsup && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
@@ -95,7 +95,7 @@
     ]
   },
   "devDependencies": {
-    "@rockcarver/frodo-lib": "4.0.0-5",
+    "@rockcarver/frodo-lib": "4.0.0-6",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",
