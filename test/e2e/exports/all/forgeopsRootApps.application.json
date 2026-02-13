@@ -1,0 +1,22 @@
+{
+  "application": {},
+  "managedApplication": {
+    "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
+      "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
+      "description": "Root bookmark app",
+      "name": "root-bookmark",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://google.com"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-02-13T16:18:29.979Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.0-6 [v24.13.0]",
+    "exportedBy": "amadmin",
+    "origin": "https://platform.dev.trivir.com/am",
+    "originAmVersion": "8.0.1"
+  }
+}

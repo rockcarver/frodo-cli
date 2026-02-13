@@ -2,6 +2,12 @@
 
 exports[`frodo app import "frodo app import --all --file test/e2e/exports/all/allAlphaApplications.application.json": should import all applications from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
 
+exports[`frodo app import "frodo app import --all --file test/e2e/exports/all/forgeopsAlphaApps.application.json --use-realm-prefix-on-managed-objects --type forgeops": should import the 'alpha_application' apps into forgeops" 1`] = `""`;
+
+exports[`frodo app import "frodo app import --all --file test/e2e/exports/all/forgeopsBravoApps.application.json --use-realm-prefix-on-managed-objects --type forgeops": should import the 'bravo_application' apps into forgeops" 1`] = `""`;
+
+exports[`frodo app import "frodo app import --all --file test/e2e/exports/all/forgeopsRootApps.application.json --use-realm-prefix-on-managed-objects --type forgeops": should import the 'application' apps into forgeops" 1`] = `""`;
+
 exports[`frodo app import "frodo app import --all-separate --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/application": should import all applications from the directory "test/e2e/exports/all-separate/cloud/realm/root-alpha/application" 1`] = `""`;
 
 exports[`frodo app import "frodo app import --app-id testLDAP --file test/e2e/exports/all/allAlphaApplications.application.json": should import the application with the id "testLDAP" from the file "test/e2e/exports/all/allAlphaApplications.application.json" 1`] = `""`;
@@ -15,3 +21,9 @@ exports[`frodo app import "frodo app import --no-deps -af test/e2e/exports/all/a
 exports[`frodo app import "frodo app import --no-deps -f test/e2e/exports/all/allAlphaApplications.application.json": should import the first application from the file "test/e2e/exports/all/allAlphaApplications.application.json" with no dependencies 1`] = `""`;
 
 exports[`frodo app import "frodo app import --no-deps -i testLDAP -f test/e2e/exports/all/allAlphaApplications.application.json": should import the application with the id "testLDAP" from the file "test/e2e/exports/all/allAlphaApplications.application.json" with no dependencies 1`] = `""`;
+
+exports[`frodo app import "frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops": should import the 'application' apps into forgeops" 1`] = `""`;
+
+exports[`frodo app import "frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops": should import the 'application' apps into forgeops" 2`] = `""`;
+
+exports[`frodo app import "frodo app import -af test/e2e/exports/all/forgeopsRootApps.application.json -m forgeops": should import the 'application' apps into forgeops" 3`] = `""`;

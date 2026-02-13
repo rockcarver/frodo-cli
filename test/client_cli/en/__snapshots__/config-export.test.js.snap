@@ -14,148 +14,54 @@ flag to export only global config, and many other flags to customize the
 export. Use the -h or --help to see them all and to also see usage examples.
 
 Arguments:
-  host                                 AM base URL, e.g.:
-                                       https://cdk.iam.example.com/am. To use a
-                                       connection profile, just specify a
-                                       unique substring.
-  realm                                Realm. Specify realm as '/' for the root
-                                       realm or 'realm' or '/parent/child'
-                                       otherwise. (default: "alpha" for
-                                       Identity Cloud tenants, "/" otherwise.)
-  username                             Username to login with. Must be an admin
-                                       user with appropriate rights to manage
-                                       authentication journeys/trees.
-  password                             Password.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  realm                                  Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
+  username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
+  password                               Password.
 
 Options:
-  -a, --all                            Export everything to a single file.
-  -A, --all-separate                   Export everything to separate files in
-                                       the -D directory. Ignored with -a.
-  --curlirize                          Output all network calls in curl format.
-  -d, --default                        Export all scripts including the default
-                                       scripts.
-  -D, --directory <directory>          Set the working directory.
-  --debug                              Debug output during command execution.
-                                       If specified, may or may not produce
-                                       additional output helpful for
-                                       troubleshooting.
-  -f, --file <file>                    Name of the export file.
-  --flush-cache                        Flush token cache.
-  -g, --global-only                    Export only the global config. If -r,
-                                       --realm-only is also active, then the
-                                       corresponding active realm config will
-                                       also be exported.
-  -h, --help                           Help
-  --idm-host <idm-host>                IDM base URL, e.g.:
-                                       https://cdk.idm.example.com/myidm. Use
-                                       only if your IDM installation resides in
-                                       a different domain and/or if the base
-                                       path differs from the default
-                                       "/openidm".
-  --include-active-values              Include the currently active (and
-                                       loaded) secret value in the export. By
-                                       default, secret values are encrypted
-                                       server-side in the environment they are
-                                       exported from. Use --target <host url>
-                                       to have another environment perform the
-                                       encryption.
-  -k, --insecure                       Allow insecure connections when using
-                                       SSL/TLS. Has no effect when using a
-                                       network proxy for https
-                                       (HTTPS_PROXY=http://<host>:<port>), in
-                                       that case the proxy must provide this
-                                       capability. (default: Don't allow
-                                       insecure connections)
-  --login-client-id <client-id>        Specify a custom OAuth2 client id to use
-                                       a your own oauth2 client for IDM API
-                                       calls in deployments of type "cloud" or
-                                       "forgeops". Your custom client must be
-                                       configured as a public client and allow
-                                       the authorization code grant using the
-                                       "openid fr:idm:*" scope. Use the
-                                       "--redirect-uri" parameter if you have
-                                       configured a custom redirect uri
-                                       (default:
-                                       "<host>/platform/appAuthHelperRedirect.html").
-  --login-redirect-uri <redirect-uri>  Specify a custom redirect URI to use
-                                       with your custom OAuth2 client (efault:
-                                       "<host>/platform/appAuthHelperRedirect.html").
-  -m, --type <type>                    Override auto-detected deployment type.
-                                       Valid values for type:
-                                       classic:  A classic Access
-                                       Management-only deployment with custom
-                                       layout and configuration.
-                                       cloud:    A ForgeRock Identity Cloud
-                                       environment.
-                                       forgeops: A ForgeOps CDK or CDM
-                                       deployment.
-                                       The detected or provided deployment type
-                                       controls certain behavior like obtaining
-                                       an Identity Management admin token or
-                                       not and whether to export/import
-                                       referenced email templates or how to
-                                       walk through the tenant admin login flow
-                                       of Identity Cloud and handle MFA
-                                       (choices: "classic", "cloud",
-                                       "forgeops")
-  -N, --no-metadata                    Does not include metadata in the export
-                                       file.
-  --no-cache                           Disable token cache for this operation.
-  --no-coords                          Do not include the x and y coordinate
-                                       positions of the journey/tree nodes.
-  --no-decode                          Do not include decoded variable value in
-                                       variable export
-  -o, --separate-objects               Export managed.idm.json objects
-                                       separately in their own directory.
-                                       Ignored with -a.
-  --passphrase <passphrase>            The passphrase for the Amster private
-                                       key if it is encrypted.
-  --private-key <file>                 File containing the private key for
-                                       authenticating with Amster. Supported
-                                       formats include PEM (both PKCS#1 and
-                                       PKCS#8 variants), OpenSSH, DNSSEC, and
-                                       JWK.
-  -r, --realm-only                     Export only the config for the active
-                                       realm. If -g, --global-only is also
-                                       active, then the global config will also
-                                       be exported.
-  -R, --read-only                      Export read-only config (with the
-                                       exception of default scripts) in
-                                       addition to the importable config.
-  --retry <strategy>                   Retry failed operations. Valid values
-                                       for strategy:
-                                       everything: Retry all failed operations.
-  
-                                       network:    Retry only network-related
-                                       failed operations.
-                                       nothing:    Do not retry failed
-                                       operations.
-                                       The selected retry strategy controls how
-                                       the CLI handles failures. (choices:
-                                       "nothing", "everything", "network",
-                                       default: Do not retry failed
-                                       operations.)
-  -s, --separate-mappings              Export sync.idm.json mappings separately
-                                       in their own directory. Ignored with -a.
-  --sa-id <sa-id>                      Service account id.
-  --sa-jwk-file <file>                 File containing the JSON Web Key (JWK)
-                                       associated with the the service account.
-  --target <host url>                  Host URL of the environment to perform
-                                       secret value encryption. The URL must
-                                       resolve to an existing connection
-                                       profile. Use this option to generate an
-                                       export that can be imported into the
-                                       target environment without requiring
-                                       admin access to the source environment.
-  --use-string-arrays                  Where applicable, use string arrays to
-                                       store multi-line text (e.g. scripts).
-                                       (default: off)
-  --verbose                            Verbose output during command execution.
-                                       If specified, may or may not produce
-                                       additional output.
-  -x, --extract                        Extract scripts and server properties
-                                       from the exported file, and save it to a
-                                       separate file. Ignored with -a.
+  -a, --all                              Export everything to a single file.
+  -A, --all-separate                     Export everything to separate files in the -D directory. Ignored with -a.
+  --curlirize                            Output all network calls in curl format.
+  -d, --default                          Export all scripts including the default scripts.
+  -D, --directory <directory>            Set the working directory.
+  --debug                                Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
+  -f, --file <file>                      Name of the export file.
+  --flush-cache                          Flush token cache.
+  -g, --global-only                      Export only the global config. If -r, --realm-only is also active, then the corresponding active realm config will also be exported.
+  -h, --help                             Help
+  --idm-host <idm-host>                  IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
+  --include-active-values                Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use --target <host url> to have another environment perform the encryption.
+  -k, --insecure                         Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
+  --login-client-id <client-id>          Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").
+  --login-redirect-uri <redirect-uri>    Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").
+  -m, --type <type>                      Override auto-detected deployment type. Valid values for type: 
+  classic:  A classic Access Management-only deployment with custom layout and configuration. 
+  cloud:    A ForgeRock Identity Cloud environment. 
+  forgeops: A ForgeOps CDK or CDM deployment. 
+  The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  -N, --no-metadata                      Does not include metadata in the export file.
+  --no-cache                             Disable token cache for this operation.
+  --no-coords                            Do not include the x and y coordinate positions of the journey/tree nodes.
+  --no-decode                            Do not include decoded variable value in variable export
+  -o, --separate-objects                 Export managed.idm.json objects separately in their own directory. Ignored with -a.
+  --passphrase <passphrase>              The passphrase for the Amster private key if it is encrypted.
+  --private-key <file>                   File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.
+  -r, --realm-only                       Export only the config for the active realm. If -g, --global-only is also active, then the global config will also be exported.
+  -R, --read-only                        Export read-only config (with the exception of default scripts) in addition to the importable config.
+  --retry <strategy>                     Retry failed operations. Valid values for strategy: 
+  everything: Retry all failed operations. 
+  network:    Retry only network-related failed operations. 
+  nothing:    Do not retry failed operations. 
+  The selected retry strategy controls how the CLI handles failures. (choices: "nothing", "everything", "network", default: Do not retry failed operations.)
+  -s, --separate-mappings                Export sync.idm.json mappings separately in their own directory. Ignored with -a.
+  --sa-id <sa-id>                        Service account id.
+  --sa-jwk-file <file>                   File containing the JSON Web Key (JWK) associated with the the service account.
+  --target <host url>                    Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.
+  --use-realm-prefix-on-managed-objects  Set to true if you want to use the realm name as a prefix on managed object configuration, e.g. managed/alpha_user,  managed/alpha_application or managed/bravo_organization. When false, the default behaviour of using managed/user   etc. is retained.   This option is ignored when the deployment type is "cloud".
+  --use-string-arrays                    Where applicable, use string arrays to store multi-line text (e.g. scripts). (default: off)
+  --verbose                              Verbose output during command execution. If specified, may or may not produce additional output.
+  -x, --extract                          Extract scripts and server properties from the exported file, and save it to a separate file. Ignored with -a.
 
 Environment Variables:
   FRODO_HOST: AM base URL. Overridden by 'host' argument.

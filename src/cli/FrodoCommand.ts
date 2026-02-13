@@ -121,7 +121,7 @@ const noCacheOption = new Option(
 );
 
 const useRealmPrefixOnManagedObjects = new Option(
-  '--use-realm-prefix-on-managed-objects', 
+  '--use-realm-prefix-on-managed-objects',
   'Set to true if you want to use the realm name as a prefix on managed object configuration, e.g. managed/alpha_user,\
   managed/alpha_application or managed/bravo_organization. When false, the default behaviour of using managed/user \
   etc. is retained. \

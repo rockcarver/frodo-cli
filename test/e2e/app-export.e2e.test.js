@@ -47,6 +47,7 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --app-id EncoreADv2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -i HRLite -f my-HRLite.application.json
@@ -59,12 +60,20 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgebl
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -NaD appExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-volker-demo.forgeblocks.com/am frodo app export --all-separate --no-metadata --no-deps --directory appExportTestDir3
+// ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='rootNoPrefix' frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='rootPrefix' frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaNoPrefix' FRODO_REALM=alpha frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaPrefix' FRODO_REALM=alpha frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoNoPrefix' FRODO_REALM=alpha/bravo frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am FRODO_TEST_NAME='alphaBravoPrefix' FRODO_REALM=alpha/bravo frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const type = 'application';
 
@@ -141,5 +150,75 @@ describe('frodo app export', () => {
     const exportDirectory = 'appExportTestDir3';
     const CMD = `frodo app export --all-separate --no-metadata --no-deps --directory ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
+  });
+
+  test('"frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file', async () => {
+    const exportFile = 'forgeopsRootNoPrefixApps.application.json';
+    const CMD = `frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_TEST_NAME: 'rootNoPrefix',
+      }
+    }, type, exportFile);
+  });
+
+  test('"frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "application" apps to a single file', async () => {
+    const exportFile = 'forgeopsRootPrefixApps.application.json';
+    const CMD = `frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_TEST_NAME: 'rootPrefix',
+      }
+    }, type, exportFile);
+  });
+
+  test('"frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file', async () => {
+    const exportFile = 'forgeopsAlphaNoPrefixApps.application.json';
+    const CMD = `frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_REALM: 'alpha',
+          FRODO_TEST_NAME: 'alphaNoPrefix',
+      }
+    }, type, exportFile);
+  });
+
+  test('"frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "alpha_application" apps to a single file', async () => {
+    const exportFile = 'forgeopsAlphaPrefixApps.application.json';
+    const CMD = `frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_REALM: 'alpha',
+          FRODO_TEST_NAME: 'alphaPrefix',
+      }
+    }, type, exportFile);
+  });
+
+  test('"frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file', async () => {
+    const exportFile = 'forgeopsAlphaBravoNoPrefixApps.application.json';
+    const CMD = `frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_REALM: 'alpha/bravo',
+          FRODO_TEST_NAME: 'alphaBravoNoPrefix',
+      }
+    }, type, exportFile);
+  });
+
+  test('"frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "bravo_application" apps to a single file', async () => {
+    const exportFile = 'forgeopsAlphaBravoPrefixApps.application.json';
+    const CMD = `frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops`;
+    await testExport(CMD, {
+      env: {
+          ...forgeopsEnv.env,
+          FRODO_REALM: 'alpha/bravo',
+          FRODO_TEST_NAME: 'alphaBravoPrefix',
+      }
+    }, type, exportFile);
   });
 });

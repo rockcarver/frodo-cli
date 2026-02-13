@@ -1,0 +1,20 @@
+{
+  "application": {},
+  "managedApplication": {
+    "5f84d0f4-427b-43de-91bf-faa9692f7f2b": {
+      "_id": "5f84d0f4-427b-43de-91bf-faa9692f7f2b",
+      "description": "Bravo bookmark application",
+      "mappingNames": [],
+      "name": "bravo-bookmark",
+      "url": "https://google.com"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-02-13T16:19:38.954Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.0-6 [v24.13.0]",
+    "exportedBy": "amadmin",
+    "origin": "https://platform.dev.trivir.com/am",
+    "originAmVersion": "8.0.1"
+  }
+}
