@@ -120,6 +120,14 @@ const noCacheOption = new Option(
   'Disable token cache for this operation.'
 );
 
+const useRealmPrefixOnManagedObjects = new Option(
+  '--use-realm-prefix-on-managed-objects',
+  'Set to true if you want to use the realm name as a prefix on managed object configuration, e.g. managed/alpha_user,\
+  managed/alpha_application or managed/bravo_organization. When false, the default behaviour of using managed/user \
+  etc. is retained. \
+  This option is ignored when the deployment type is "cloud".'
+);
+
 const flushCacheOption = new Option('--flush-cache', 'Flush token cache.');
 
 const retryOption = new Option(
@@ -157,6 +165,7 @@ const defaultOpts = [
   noCacheOption,
   flushCacheOption,
   retryOption,
+  useRealmPrefixOnManagedObjects,
 ];
 
 const stateMap = {
@@ -226,6 +235,8 @@ const stateMap = {
     state.setCurlirize(curlirize),
   [noCacheOption.attributeName()]: (cache: boolean) =>
     state.setUseTokenCache(cache),
+  [useRealmPrefixOnManagedObjects.attributeName()]: () =>
+    state.setUseRealmPrefixOnManagedObjects(true),
   [flushCacheOption.attributeName()]: (flush: boolean) => {
     if (flush) frodo.cache.flush();
   },

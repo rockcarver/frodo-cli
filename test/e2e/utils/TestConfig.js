@@ -15,6 +15,13 @@ export const classic_connection = {
   realm: '/',
 }
 
+export const forgeops_connection = {
+  host: 'https://nightly.gcp.forgeops.com/am',
+  user: 'amAdmin',
+  pass: 'Sup3rS3cr3t!',
+  realm: '/',
+}
+
 export const amster_connection = {
   host: 'http://openam-frodo-dev.amster.com:8080/am',
   user: 'amAdmin',

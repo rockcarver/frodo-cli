@@ -4489,6 +4489,68 @@ if (!idFound) {
 }
 `;
 
+exports[`frodo app export "frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "bravo_application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "bravo_application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "bravo_application" apps to a single file: forgeopsAlphaBravoPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "5f84d0f4-427b-43de-91bf-faa9692f7f2b": {
+      "_id": "5f84d0f4-427b-43de-91bf-faa9692f7f2b",
+      "description": "Bravo bookmark application",
+      "mappingNames": [],
+      "name": "bravo-bookmark",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo app export "frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "alpha_application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "alpha_application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "alpha_application" apps to a single file: forgeopsAlphaPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "08ee500b-0d11-495d-87d6-8ba13953fbe7": {
+      "_id": "08ee500b-0d11-495d-87d6-8ba13953fbe7",
+      "description": "Alpha bookmark application",
+      "mappingNames": [],
+      "name": "alpha-bookmark",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo app export "frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "application" apps to a single file: forgeopsRootPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
+      "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
+      "description": "Root bookmark app",
+      "name": "root-bookmark",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo app export "frodo app export -A": should export all apps to separate files 1`] = `0`;
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files 2`] = `""`;
@@ -14590,6 +14652,72 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
     },
   },
   "script": {},
+}
+`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsAlphaBravoNoPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
+      "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
+      "description": "Root bookmark app",
+      "name": "root-bookmark",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsAlphaNoPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
+      "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
+      "description": "Root bookmark app",
+      "name": "root-bookmark",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo app export "frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 1`] = `0`;
+
+exports[`frodo app export "frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file 2`] = `""`;
+
+exports[`frodo app export "frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsRootNoPrefixApps.application.json 1`] = `
+{
+  "application": {},
+  "managedApplication": {
+    "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
+      "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
+      "description": "Root bookmark app",
+      "name": "root-bookmark",
+      "ssoEntities": {},
+      "templateName": "bookmark",
+      "templateVersion": "1.0",
+      "url": "https://google.com",
+    },
+  },
+  "meta": Any<Object>,
 }
 `;
 

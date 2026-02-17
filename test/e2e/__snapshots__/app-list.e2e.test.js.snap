@@ -1,13 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo app list "frodo app list --long": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of the apps 1`] = `
-"Name       │Id                                  │Template        │Version│Authoritative│Description        
-benefits   │bc48b94e-83d0-4f3a-b37a-d6f19c608a33│saml            │  1.0.0│        false│Deployed via Encore
-company    │234ae748-fcd5-459d-96a6-dd8d67f16080│saml            │  1.0.0│        false│Deployed via Encore
-EncoreADv2 │26968c01-3c25-42c4-803c-3c9c0571cae6│active.directory│    2.0│        false│Encore Workforce AD
-engineering│55bb522b-7348-4ab6-b0b3-5d3936359ce6│saml            │  1.0.0│        false│Deployed via Encore
-HRLite     │c7932f33-a3ac-4192-8dee-11fb96df0874│scripted.sql    │  1.0.0│         true│Example            
-sales      │d1488dc0-11c0-49ab-bc4c-3f45876917dc│saml            │  1.0.0│        false│Deployed via Encore
+exports[`frodo app list "frodo app list --long --use-realm-prefix-on-managed-objects --type forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "alpha_application" managed objects 1`] = `
+"Name          │Id                                  │Template│Version│Authoritative│Description               
+alpha-bookmark│08ee500b-0d11-495d-87d6-8ba13953fbe7│        │       │             │Alpha bookmark application
+"
+`;
+
+exports[`frodo app list "frodo app list --long --use-realm-prefix-on-managed-objects --type forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "application" managed objects 1`] = `
+"Name         │Id                                  │Template│Version│Authoritative│Description      
+root-bookmark│a025007c-dd49-4542-a87f-c1e09bbbdc35│bookmark│    1.0│             │Root bookmark app
+"
+`;
+
+exports[`frodo app list "frodo app list --long --use-realm-prefix-on-managed-objects --type forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "bravo_application" managed objects 1`] = `
+"Name          │Id                                  │Template│Version│Authoritative│Description               
+bravo-bookmark│5f84d0f4-427b-43de-91bf-faa9692f7f2b│        │       │             │Bravo bookmark application
 "
 `;
 
@@ -19,6 +26,24 @@ EncoreADv2 │26968c01-3c25-42c4-803c-3c9c0571cae6│active.directory│    2.0�
 engineering│55bb522b-7348-4ab6-b0b3-5d3936359ce6│saml            │  1.0.0│        false│Deployed via Encore
 HRLite     │c7932f33-a3ac-4192-8dee-11fb96df0874│scripted.sql    │  1.0.0│         true│Example            
 sales      │d1488dc0-11c0-49ab-bc4c-3f45876917dc│saml            │  1.0.0│        false│Deployed via Encore
+"
+`;
+
+exports[`frodo app list "frodo app list -lm forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "application" managed objects 1`] = `
+"Name         │Id                                  │Template│Version│Authoritative│Description      
+root-bookmark│a025007c-dd49-4542-a87f-c1e09bbbdc35│bookmark│    1.0│             │Root bookmark app
+"
+`;
+
+exports[`frodo app list "frodo app list -lm forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "application" managed objects 2`] = `
+"Name         │Id                                  │Template│Version│Authoritative│Description      
+root-bookmark│a025007c-dd49-4542-a87f-c1e09bbbdc35│bookmark│    1.0│             │Root bookmark app
+"
+`;
+
+exports[`frodo app list "frodo app list -lm forgeops": should list the ids, statuses, client types, grant types, scopes, and redirect URIs of "application" managed objects 3`] = `
+"Name         │Id                                  │Template│Version│Authoritative│Description      
+root-bookmark│a025007c-dd49-4542-a87f-c1e09bbbdc35│bookmark│    1.0│             │Root bookmark app
 "
 `;
 
