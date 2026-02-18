@@ -19,7 +19,13 @@ export default function setup() {
     .description('Export applications.')
     .addOption(
       new Option(
-        '-i, --app-id <app-id>',
+        '-i, --app-id <id>',
+        'Application id. If specified, -n, -a, and -A are ignored.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-n, --app-name <name>',
         'Application name. If specified, -a and -A are ignored.'
       )
     )
@@ -27,13 +33,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Export all applications to a single file. Ignored with -i.'
+        'Export all applications to a single file. Ignored with -i or -n.'
       )
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all applications to separate files (*.application.json) in the current directory. Ignored with -i or -a.'
+        'Export all applications to separate files (*.application.json) in the current directory. Ignored with -i, -n, or -a.'
       )
     )
     .addOption(
@@ -75,11 +81,15 @@ export default function setup() {
           options,
           command
         );
-        // export
-        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
+        // -i/--app-id or -n/--app-name
+        if (
+          (options.appId || options.appName) &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Exporting application...');
           const outcome = await exportApplicationToFile(
             options.appId,
+            options.appName,
             options.file,
             options.metadata,
             {

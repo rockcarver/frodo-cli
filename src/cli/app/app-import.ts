@@ -21,6 +21,12 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
+        'Application id. If specified, only one application is imported and the options -n, -a, and -A are ignored.'
+      )
+    )
+    .addOption(
+      new Option(
+        '-n, --app-name <name>',
         'Application name. If specified, only one application is imported and the options -a and -A are ignored.'
       )
     )
@@ -28,13 +34,13 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all applications from single file. Ignored with -i.'
+        'Import all applications from single file. Ignored with -i or -n.'
       )
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all applications from separate files (*.app.json) in the current directory. Ignored with -i or -a.'
+        'Import all applications from separate files (*.app.json) in the current directory. Ignored with -i, -n, or -a.'
       )
     )
     .addOption(
@@ -76,15 +82,18 @@ export default function setup() {
           options,
           command
         );
-        // import by id
+        // -i/--app-id or -n/--app-name
         if (
           options.file &&
-          options.appId &&
+          (options.appId || options.appName) &&
           (await getTokens(false, true, deploymentTypes))
         ) {
-          verboseMessage(`Importing application "${options.appId}"...`);
+          verboseMessage(
+            `Importing application "${options.appName ?? options.appId}"...`
+          );
           const outcome = await importApplicationFromFile(
             options.appId,
+            options.appName,
             options.file,
             {
               deps: options.deps,

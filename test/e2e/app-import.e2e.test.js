@@ -48,8 +48,10 @@
 
 /*
 // Cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -i testLDAP -f test/e2e/exports/all/allAlphaApplications.application.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --app-id testLDAP --file test/e2e/exports/all/allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -i e124e6f6-e25a-4180-a6c3-ff8b782a422c -f test/e2e/exports/all/allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --app-id e124e6f6-e25a-4180-a6c3-ff8b782a422c --file test/e2e/exports/all/allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -n testLDAP -f test/e2e/exports/all/allAlphaApplications.application.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --app-name testLDAP --file test/e2e/exports/all/allAlphaApplications.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -f test/e2e/exports/all/allAlphaApplications.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --file test/e2e/exports/all/allAlphaApplications.application.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo app import --no-deps -af test/e2e/exports/all/allAlphaApplications.application.json
@@ -85,14 +87,27 @@ const forgeopsBravoApplicationsExport = `${allDirectory}/forgeopsBravoApps.appli
 
 describe('frodo app import', () => {
 
-    test(`"frodo app import --no-deps -i testLDAP -f ${allAlphaApplicationsExport}": should import the application with the id "testLDAP" from the file "${allAlphaApplicationsExport}" with no dependencies`, async () => {
-        const CMD = `frodo app import --no-deps -i testLDAP -f ${allAlphaApplicationsExport}`;
+    test(`"frodo app import --no-deps -i e124e6f6-e25a-4180-a6c3-ff8b782a422c -f ${allAlphaApplicationsExport}": should import the application with the id "e124e6f6-e25a-4180-a6c3-ff8b782a422c" from the file "${allAlphaApplicationsExport}" with no dependencies`, async () => {
+        const CMD = `frodo app import --no-deps -i e124e6f6-e25a-4180-a6c3-ff8b782a422c -f ${allAlphaApplicationsExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo app import --app-id testLDAP --file ${allAlphaApplicationsExport}": should import the application with the id "testLDAP" from the file "${allAlphaApplicationsExport}"`, async () => {
-        const CMD = `frodo app import --app-id testLDAP --file ${allAlphaApplicationsExport}`;
+    test(`"frodo app import --app-id e124e6f6-e25a-4180-a6c3-ff8b782a422c --file ${allAlphaApplicationsExport}": should import the application with the id "e124e6f6-e25a-4180-a6c3-ff8b782a422c" from the file "${allAlphaApplicationsExport}"`, async () => {
+        const CMD = `frodo app import --app-id e124e6f6-e25a-4180-a6c3-ff8b782a422c --file ${allAlphaApplicationsExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+
+    test(`"frodo app import --no-deps -n testLDAP -f ${allAlphaApplicationsExport}": should import the application with the name "testLDAP" from the file "${allAlphaApplicationsExport}" with no dependencies`, async () => {
+        const CMD = `frodo app import --no-deps -n testLDAP -f ${allAlphaApplicationsExport}`;
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo app import --app-name testLDAP --file ${allAlphaApplicationsExport}": should import the application with the name "testLDAP" from the file "${allAlphaApplicationsExport}"`, async () => {
+        const CMD = `frodo app import --app-name testLDAP --file ${allAlphaApplicationsExport}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
