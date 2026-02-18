@@ -11,7 +11,13 @@ export default function setup() {
 
   program
     .description('Describe application.')
-    .addOption(new Option('-i, --app-id <id>', 'Application name.'))
+    .addOption(
+      new Option(
+        '-i, --app-id <id>',
+        'Application id. If specified, -n is ignored.'
+      )
+    )
+    .addOption(new Option('-n, --app-name <name>', 'Application name.'))
     .addHelpText(
       'after',
       `Important Note:\n`['brightYellow'] +
