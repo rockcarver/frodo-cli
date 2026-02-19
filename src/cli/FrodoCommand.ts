@@ -366,6 +366,7 @@ export class FrodoCommand extends FrodoStubCommand {
         `  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.\n` +
         `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.\n` +
         `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n` +
+        `  FRODO_IGA: Set to "true" to enable IGA (Identity Governance) endpoints for cloud deployments, or "false" to disable them, overriding auto-detected value.\n` +
         `  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.\n` +
         `  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.\n`
     );

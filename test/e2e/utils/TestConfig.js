@@ -2,6 +2,7 @@ export const connection = {
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
   user: 'volker.scheuber@forgerock.com',
   pass: 'Sup3rS3cr3t!',
+  isIGA: 'false',
   realm: 'alpha',
   saId: 'b672336b-41ef-428d-ae4a-e0c082875377',
   saJwk:
