@@ -127,7 +127,7 @@ export async function getVersions(checkOnly: boolean) {
   }
   try {
     await getRemoteVersionData();
-  } catch (e) {
+  } catch {
     // Do not report error if remote version can not be obtained.
     // Just silently report installed version
     versionObject = {

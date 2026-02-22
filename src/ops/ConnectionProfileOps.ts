@@ -125,7 +125,7 @@ export async function describeConnectionProfile(
           .split(' ')
           .sort((a, b) => a.localeCompare(b))
           .join('\n');
-      } catch (error) {
+      } catch {
         // do nothing
       }
     }

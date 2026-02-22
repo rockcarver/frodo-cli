@@ -22,7 +22,6 @@ export default defineConfig({
     'del',
     'eslint',
     'eslint-config-prettier',
-    'eslint-plugin-deprecation',
     'eslint-plugin-import',
     'eslint-plugin-jest',
     'eslint-plugin-jsx-a11y',

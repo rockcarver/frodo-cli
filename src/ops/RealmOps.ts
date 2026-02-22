@@ -350,7 +350,7 @@ export async function describeRealm(realm: string) {
     table.push(['Parent'['brightCyan'], realmConfig.parentPath]);
     table.push(['Id'['brightCyan'], realmConfig._id]);
     printMessage(table.toString(), 'data');
-  } catch (error) {
+  } catch {
     printMessage(`Realm ${realm} not found!`, 'error');
   }
 }

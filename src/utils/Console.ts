@@ -343,7 +343,7 @@ function cleanupProgressBars() {
     );
     multiBarContainer.stop();
     multiBarContainer = null;
-  } catch (error) {
+  } catch {
     // ignore
   }
   debugMessage(`cli.Console.cleanupProgressBars: end`);

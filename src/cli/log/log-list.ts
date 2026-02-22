@@ -29,7 +29,7 @@ export default function setup() {
       let conn: ConnectionProfileInterface;
       try {
         conn = await getConnectionProfile();
-      } catch (error) {
+      } catch {
         // ignore
       }
       if (conn) state.setHost(conn.tenant);

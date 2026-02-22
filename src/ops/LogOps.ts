@@ -1,5 +1,8 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { type LogEventPayloadSkeleton } from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
+import {
+  type LogApiKey,
+  type LogEventPayloadSkeleton,
+} from '@rockcarver/frodo-lib/types/api/cloud/LogApi';
 
 import {
   createTable,
@@ -57,7 +60,7 @@ export async function provisionCreds() {
         }
       }
       try {
-        const resp = await createLogApiKey(keyName);
+        const resp: LogApiKey = await createLogApiKey(keyName);
         verboseMessage(
           `Created a new log API key [${keyName}] in ${state.getHost()}`
         );

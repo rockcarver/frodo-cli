@@ -330,7 +330,7 @@ export async function exportResourceTypesToFile(
     succeedSpinner(`Exported all resource types to ${filePath}.`);
     debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: end`);
     return true;
-  } catch (error) {
+  } catch {
     failSpinner(`Error exporting resource types`);
   }
   return false;
