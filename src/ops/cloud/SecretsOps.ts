@@ -113,7 +113,7 @@ export async function listSecrets(
         lastChangedBy = state.getUseBearerTokenForAmApis()
           ? secret.lastChangedBy
           : await resolveUserName('teammember', secret.lastChangedBy);
-      } catch (error) {
+      } catch {
         // ignore
       }
     }
@@ -424,7 +424,7 @@ export async function describeSecret(
         lastChangedBy = state.getUseBearerTokenForAmApis()
           ? secret.lastChangedBy
           : await resolveUserName('teammember', secret.lastChangedBy);
-      } catch (error) {
+      } catch {
         // ignore
       }
       table.push(['Modifier'['brightCyan'], lastChangedBy]);

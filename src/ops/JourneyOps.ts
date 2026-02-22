@@ -280,7 +280,7 @@ export async function exportJourneysToFiles(
           includeMeta
         );
         stopProgressIndicator(indicatorId, `${treeId} saved to ${file}`);
-      } catch (error) {
+      } catch {
         stopProgressIndicator(indicatorId, `Error saving ${treeId} to ${file}`);
       }
     }
@@ -1147,7 +1147,7 @@ export async function disableJourney(journeyId: string): Promise<boolean> {
       'success'
     );
     return true;
-  } catch (error) {
+  } catch {
     stopProgressIndicator(
       indicatorId,
       `Error disabling journey ${journeyId}`,

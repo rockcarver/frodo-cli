@@ -105,7 +105,7 @@ export default function setup() {
               },
               true
             );
-          } catch (error) {
+          } catch {
             process.exitCode = 1;
           }
         }

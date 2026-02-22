@@ -369,7 +369,7 @@ export async function describeVariable(
       let modifierName: string;
       try {
         modifierName = await resolvePerpetratorUuid(variable.lastChangedBy);
-      } catch (error) {
+      } catch {
         // ignore
       }
       if (modifierName && modifierName !== variable.lastChangedBy) {
@@ -477,7 +477,7 @@ export async function exportVariablesToFile(
       'success'
     );
     return true;
-  } catch (error) {
+  } catch {
     stopProgressIndicator(
       spinnerId,
       `Error exporting variables to ${getFilePath(file)['brightCyan']}`,

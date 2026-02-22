@@ -57,7 +57,7 @@ export function getNoiseFilters(defaults: boolean): Array<string> {
         `The default filters were saved in ${filename}. You can change the filters as needed.`,
         'info'
       );
-    } catch (e) {
+    } catch {
       printMessage(
         `Error creating noise filter configuration with default values.`,
         'error'

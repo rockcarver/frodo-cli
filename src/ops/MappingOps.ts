@@ -427,7 +427,7 @@ export async function renameMappings(
       try {
         oldMapping = await readMapping(oldId);
         oldMapping.syncAfter = mapping.syncAfter;
-      } catch (error) {
+      } catch {
         // Old mapping doesn't exist, meaning the mapping is already new, so just update it with the new syncAfter property
         await updateMapping(newId, mapping);
         continue;

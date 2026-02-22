@@ -108,7 +108,6 @@ export async function configManagerExportAllWithConfigFolder(
         'Error exporting service objects, Please make sure the config file name is service-objects.json in the config folder.'
       );
     }
-    options.configFolder;
 
     await configManagerExportServices();
     await configManagerExportThemes();

@@ -94,6 +94,9 @@ export async function describeConnectionProfile(
     if (!profile.deploymentType) {
       delete profile.deploymentType;
     }
+    if (profile.isIGA === undefined) {
+      delete profile.isIGA;
+    }
     if (!profile.adminClientId) {
       delete profile.adminClientId;
     }
@@ -122,7 +125,7 @@ export async function describeConnectionProfile(
           .split(' ')
           .sort((a, b) => a.localeCompare(b))
           .join('\n');
-      } catch (error) {
+      } catch {
         // do nothing
       }
     }

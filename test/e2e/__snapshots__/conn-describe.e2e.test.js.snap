@@ -13,6 +13,7 @@ Amster Private Key    │[present]
 exports[`frodo conn describe "frodo conn describe https://openam-frodo-dev.forgeblocks.com/am": should describe the connection 1`] = `
 "Host                 │https://openam-frodo-dev.forgeblocks.com/am
 Deployment Type      │cloud                                      
+isIGA                │false                                      
 Service Account Name │Frodo-SA-1758728043147                     
 Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be       
 Service Account JWK  │[present]                                  

@@ -6,7 +6,6 @@ exports[`frodo app export "frodo app export --all -f my-allAlphaApplications.app
 
 exports[`frodo app export "frodo app export --all -f my-allAlphaApplications.application.json": should export all apps to a single file named my-allAlphaApplications.application.json: my-allAlphaApplications.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "EncoreADv2": {
       "_id": "provisioner.openicf/EncoreADv2",
@@ -3199,7 +3198,6 @@ exports[`frodo app export "frodo app export --app-id EncoreADv2": should export 
 
 exports[`frodo app export "frodo app export --app-id EncoreADv2": should export the app with app id "EncoreADv2": EncoreADv2.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "EncoreADv2": {
       "_id": "provisioner.openicf/EncoreADv2",
@@ -4495,7 +4493,6 @@ exports[`frodo app export "frodo app export --file forgeopsAlphaBravoPrefixApps.
 
 exports[`frodo app export "frodo app export --file forgeopsAlphaBravoPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "bravo_application" apps to a single file: forgeopsAlphaBravoPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "5f84d0f4-427b-43de-91bf-faa9692f7f2b": {
       "_id": "5f84d0f4-427b-43de-91bf-faa9692f7f2b",
@@ -4515,7 +4512,6 @@ exports[`frodo app export "frodo app export --file forgeopsAlphaPrefixApps.appli
 
 exports[`frodo app export "frodo app export --file forgeopsAlphaPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "alpha_application" apps to a single file: forgeopsAlphaPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "08ee500b-0d11-495d-87d6-8ba13953fbe7": {
       "_id": "08ee500b-0d11-495d-87d6-8ba13953fbe7",
@@ -4535,7 +4531,6 @@ exports[`frodo app export "frodo app export --file forgeopsRootPrefixApps.applic
 
 exports[`frodo app export "frodo app export --file forgeopsRootPrefixApps.application.json --all --use-realm-prefix-on-managed-objects --type forgeops": should export all "application" apps to a single file: forgeopsRootPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
       "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
@@ -4557,7 +4552,6 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: EncoreADv2.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "EncoreADv2": {
       "_id": "provisioner.openicf/EncoreADv2",
@@ -5849,7 +5843,6 @@ if (!idFound) {
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: HRLite.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "HRLite": {
       "_id": "provisioner.openicf/HRLite",
@@ -6449,7 +6442,6 @@ target.manager = {"_ref":"managed/alpha_user/"+queryResult.result[0]._id,"_refPr
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: benefits.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "bc48b94e-83d0-4f3a-b37a-d6f19c608a33": {
       "_id": "bc48b94e-83d0-4f3a-b37a-d6f19c608a33",
@@ -6808,7 +6800,6 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: company.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "234ae748-fcd5-459d-96a6-dd8d67f16080": {
       "_id": "234ae748-fcd5-459d-96a6-dd8d67f16080",
@@ -7167,7 +7158,6 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: engineering.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "55bb522b-7348-4ab6-b0b3-5d3936359ce6": {
       "_id": "55bb522b-7348-4ab6-b0b3-5d3936359ce6",
@@ -7526,7 +7516,6 @@ exports[`frodo app export "frodo app export -A": should export all apps to separ
 
 exports[`frodo app export "frodo app export -A": should export all apps to separate files: sales.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "d1488dc0-11c0-49ab-bc4c-3f45876917dc": {
       "_id": "d1488dc0-11c0-49ab-bc4c-3f45876917dc",
@@ -7889,7 +7878,6 @@ exports[`frodo app export "frodo app export -a --file my-other-allAlphaApplicati
 
 exports[`frodo app export "frodo app export -a --file my-other-allAlphaApplications.application.json": should export all apps to a single file named my-other-allAlphaApplications.application.json: my-other-allAlphaApplications.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "EncoreADv2": {
       "_id": "provisioner.openicf/EncoreADv2",
@@ -11082,7 +11070,6 @@ exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAl
 
 exports[`frodo app export "frodo app export -a --no-deps -f my-yet-another-allAlphaApplications.application.json": should export all apps to a single file with no dependencies into a file named my-yet-another-allAlphaApplications.application.json: my-yet-another-allAlphaApplications.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "234ae748-fcd5-459d-96a6-dd8d67f16080": {
       "_id": "234ae748-fcd5-459d-96a6-dd8d67f16080",
@@ -11468,7 +11455,6 @@ exports[`frodo app export "frodo app export -a": should export all apps to a sin
 
 exports[`frodo app export "frodo app export -a": should export all apps to a single file: allAlphaApplications.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "EncoreADv2": {
       "_id": "provisioner.openicf/EncoreADv2",
@@ -14661,7 +14647,6 @@ exports[`frodo app export "frodo app export -f forgeopsAlphaBravoNoPrefixApps.ap
 
 exports[`frodo app export "frodo app export -f forgeopsAlphaBravoNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsAlphaBravoNoPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
       "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
@@ -14683,7 +14668,6 @@ exports[`frodo app export "frodo app export -f forgeopsAlphaNoPrefixApps.applica
 
 exports[`frodo app export "frodo app export -f forgeopsAlphaNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsAlphaNoPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
       "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
@@ -14705,7 +14689,6 @@ exports[`frodo app export "frodo app export -f forgeopsRootNoPrefixApps.applicat
 
 exports[`frodo app export "frodo app export -f forgeopsRootNoPrefixApps.application.json -am forgeops": should export all "application" apps to a single file: forgeopsRootNoPrefixApps.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "a025007c-dd49-4542-a87f-c1e09bbbdc35": {
       "_id": "a025007c-dd49-4542-a87f-c1e09bbbdc35",
@@ -14727,7 +14710,6 @@ exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRL
 
 exports[`frodo app export "frodo app export -i HRLite --no-deps -f my-nodeps-HRLite.application.json": should export the app with app id "HRLite" with no dependencies into a file named my-nodeps-HRLite.application.json: my-nodeps-HRLite.application.json 1`] = `
 {
-  "application": {},
   "managedApplication": {
     "c7932f33-a3ac-4192-8dee-11fb96df0874": {
       "_id": "c7932f33-a3ac-4192-8dee-11fb96df0874",
@@ -14787,7 +14769,6 @@ exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.j
 
 exports[`frodo app export "frodo app export -i HRLite -f my-HRLite.application.json": should export the app with app id "HRLite" into file named my-HRLite.application.json: my-HRLite.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "HRLite": {
       "_id": "provisioner.openicf/HRLite",
@@ -15391,7 +15372,6 @@ exports[`frodo app export "frodo app export -i HRLite": should export the app wi
 
 exports[`frodo app export "frodo app export -i HRLite": should export the app with app id "HRLite": HRLite.application.json 1`] = `
 {
-  "application": {},
   "connector": {
     "HRLite": {
       "_id": "provisioner.openicf/HRLite",
