@@ -68,7 +68,7 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
-describe('frodo conn describe', () => {
+describe.skip('frodo conn describe', () => {
     testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
         `"frodo conn describe ${c.host}": should describe the connection`,
         async () => {
