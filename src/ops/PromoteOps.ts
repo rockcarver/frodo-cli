@@ -937,7 +937,11 @@ async function deleteSwitch(
       verboseMessage(
         `Deleting Managed Application with name ${managedApplication.name}`
       );
-      const outcome = await deleteApplication(managedApplication.name, true);
+      const outcome = await deleteApplication(
+        managedApplication._id,
+        managedApplication.name,
+        true
+      );
       logmessages.push(`delete managedApplication ${deleteFilePath}`);
       logmessages.push(`outcome: ${outcome}`);
       logmessages.push(' ');

@@ -19,11 +19,17 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'Application name. If specified, -a and -A are ignored.'
+        'Application id. If specified, -n and -a are ignored.'
       )
     )
     .addOption(
-      new Option('-a, --all', 'Delete all applications. Ignored with -i.')
+      new Option(
+        '-n, --app-name <name>',
+        'Application name. If specified, -a is ignored.'
+      )
+    )
+    .addOption(
+      new Option('-a, --all', 'Delete all applications. Ignored with -i or -n.')
     )
     .addOption(
       new Option(
@@ -53,10 +59,17 @@ export default function setup() {
           options,
           command
         );
-        // delete app by name
-        if (options.appId && (await getTokens(false, true, deploymentTypes))) {
+        // -i/--app-id or -n/--app-name
+        if (
+          (options.appId || options.appName) &&
+          (await getTokens(false, true, deploymentTypes))
+        ) {
           verboseMessage('Deleting application...');
-          const outcome = await deleteApplication(options.appId, options.deep);
+          const outcome = await deleteApplication(
+            options.appId,
+            options.appName,
+            options.deep
+          );
           if (!outcome) process.exitCode = 1;
         }
         // -a/--all

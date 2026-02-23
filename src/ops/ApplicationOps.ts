@@ -26,11 +26,13 @@ const {
 } = frodo.utils;
 const {
   readApplications: _readApplications,
+  deleteApplication: _deleteApplication,
   deleteApplicationByName: _deleteApplicationByName,
   deleteApplications: _deleteApplications,
   exportApplication: _exportApplication,
   exportApplicationByName: _exportApplicationByName,
   exportApplications: _exportApplications,
+  importApplication: _importApplication,
   importApplicationByName: _importApplicationByName,
   importFirstApplication: _importFirstApplication,
   importApplications: _importApplications,
@@ -89,32 +91,35 @@ export async function listApplications(long = false): Promise<boolean> {
 
 /**
  * Delete application
- * @param {string} applicationName application name
+ * @param {string | undefined} applicationId application id
+ * @param {string | undefined} applicationName application name
  * @param {boolean} deep deep delete (include dependencies)
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function deleteApplication(
-  applicationName: string,
+  applicationId: string | undefined,
+  applicationName: string | undefined,
   deep: boolean
 ): Promise<boolean> {
+  const name = applicationName ?? applicationId;
   let spinnerId: string;
   try {
     debugMessage(`cli.ApplicationOps.deleteApplication: begin`);
     spinnerId = createProgressIndicator(
       'indeterminate',
       0,
-      `Deleting ${applicationName}...`
+      `Deleting ${name}...`
     );
-    await _deleteApplicationByName(applicationName, deep);
-    stopProgressIndicator(spinnerId, `Deleted ${applicationName}`, 'success');
+    if (applicationId) {
+      await _deleteApplication(applicationId, deep);
+    } else {
+      await _deleteApplicationByName(applicationName, deep);
+    }
+    stopProgressIndicator(spinnerId, `Deleted ${name}`, 'success');
     debugMessage(`cli.ApplicationOps.deleteApplication: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error deleting ${applicationName}`,
-      'fail'
-    );
+    stopProgressIndicator(spinnerId, `Error deleting ${name}`, 'fail');
     printError(error);
   }
   return false;
@@ -151,46 +156,47 @@ export async function deleteApplications(deep: boolean): Promise<boolean> {
 
 /**
  * Export application to file
- * @param {string} applicationName application name
+ * @param {string | undefined} applicationId application id
+ * @param {string | undefined} applicationName application name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportApplicationToFile(
-  applicationName: string,
+  applicationId: string | undefined,
+  applicationName: string | undefined,
   file: string,
   includeMeta: boolean,
   options: ApplicationExportOptions = { useStringArrays: true, deps: true }
 ) {
+  const name = applicationName ?? applicationId;
   let spinnerId: string;
   try {
     debugMessage(`cli.ApplicationOps.exportApplicationToFile: begin`);
     spinnerId = createProgressIndicator(
       'indeterminate',
       0,
-      `Exporting ${applicationName}...`
+      `Exporting ${name}...`
     );
-    let fileName = getTypedFilename(applicationName, 'application');
+    let fileName = getTypedFilename(name, 'application');
     if (file) {
       fileName = file;
     }
     const filePath = getFilePath(fileName, true);
-    const exportData = await _exportApplicationByName(applicationName, options);
+    const exportData = applicationId
+      ? await _exportApplication(applicationId, options)
+      : await _exportApplicationByName(applicationName, options);
     saveJsonToFile(exportData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
-      `Exported ${applicationName} to ${filePath}.`,
+      `Exported ${name} to ${filePath}.`,
       'success'
     );
     debugMessage(`cli.ApplicationOps.exportApplicationToFile: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error exporting ${applicationName}`,
-      'fail'
-    );
+    stopProgressIndicator(spinnerId, `Error exporting ${name}`, 'fail');
     printError(error);
   }
   return false;
@@ -317,17 +323,20 @@ export async function exportApplicationsToFiles(
 
 /**
  * Import application from file
- * @param {string} applicationName client id
+ * @param {string | undefined} applicationId application id
+ * @param {string | undefined} applicationName application name
  * @param {string} file file name
  * @param {ApplicationImportOptions} options import options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function importApplicationFromFile(
-  applicationName: string,
+  applicationId: string | undefined,
+  applicationName: string | undefined,
   file: string,
   options: ApplicationImportOptions = { deps: true }
 ): Promise<boolean> {
   let spinnerId: string;
+  const name = applicationName ?? applicationId;
   try {
     debugMessage(`cli.ApplicationOps.importApplicationFromFile: begin`);
     spinnerId = createProgressIndicator(
@@ -337,16 +346,16 @@ export async function importApplicationFromFile(
     );
     const data = fs.readFileSync(getFilePath(file), 'utf8');
     const fileData = JSON.parse(data);
-    await _importApplicationByName(applicationName, fileData, options);
-    stopProgressIndicator(spinnerId, `Imported ${applicationName}`, 'success');
+    if (applicationId) {
+      await _importApplication(applicationId, fileData, options);
+    } else {
+      await _importApplicationByName(applicationName, fileData, options);
+    }
+    stopProgressIndicator(spinnerId, `Imported ${name}`, 'success');
     debugMessage(`cli.ApplicationOps.importApplicationFromFile: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(
-      spinnerId,
-      `Error importing ${applicationName}`,
-      'fail'
-    );
+    stopProgressIndicator(spinnerId, `Error importing ${name}`, 'fail');
     printError(error);
   }
   return false;
