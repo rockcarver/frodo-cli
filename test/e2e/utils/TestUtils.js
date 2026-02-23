@@ -20,21 +20,6 @@ export function removeAnsiEscapeCodes(text) {
   return text ? text.replace(ansiEscapeCodes, '') : text;
 }
 
-const progressBarOutput =
-  // eslint-disable-next-line no-control-regex
-  /\[[-=]+].+\n+/g;
-
-/**
- * Remove progress bar output, e.g.:
- * [========================================] 100% | 16/16 | Finished Importing Everything!
- * [========================================] 100% | 22/22 | Finished importing journeys
- * @param {string} text Text containing ANSI escape codes
- * @returns {string} Text without ANSI escape codes
- */
-export function removeProgressBarOutput(text) {
-  return text ? text.replace(progressBarOutput, '') : text;
-}
-
 /**
  * Method that runs an export command and tests that it was executed correctly.
  * @param {string} command The export command to run
@@ -270,10 +255,8 @@ export async function testSuccess(
   env,
 ) {
   const { stdout, stderr } = await exec(command, env);
-  // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
-  // only workable solution I could find was to remove progress bar output altogether from such tests.
-  expect(removeProgressBarOutput(removeAnsiEscapeCodes(stdout))).toMatchSnapshot();
-  expect(removeProgressBarOutput(removeAnsiEscapeCodes(stderr))).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
 }
 
 /**
@@ -291,9 +274,7 @@ export async function testFail(
     await exec(command, env);
     commandSucceeded = true;
   } catch (e) {
-    // parallel test execution alters the progress bar output causing the snapshot to mismatch. 
-    // only workable solution I could find was to remove progress bar output altogether from such tests.
-    expect(removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))).toMatchSnapshot();
+    expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
     expect(e.code).toMatchSnapshot();
   }
   if (commandSucceeded) {

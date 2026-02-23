@@ -85,8 +85,7 @@ import cp from 'child_process';
 import { promisify } from 'util';
 import {
   getEnv,
-  removeAnsiEscapeCodes,
-  removeProgressBarOutput,
+  removeAnsiEscapeCodes
 } from './utils/TestUtils';
 import { connection as c, classic_connection as cc } from './utils/TestConfig';
 
@@ -114,7 +113,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -135,7 +134,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -149,7 +148,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -170,7 +169,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -184,7 +183,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -198,7 +197,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });
@@ -226,7 +225,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   }, 300000);
@@ -247,7 +246,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   }, 300000);
@@ -274,7 +273,7 @@ describe.skip('frodo config import', () => {
       // parallel test execution alters the progress bar output causing the snapshot to mismatch.
       // only workable solution I could find was to remove progress bar output altogether from such tests.
       expect(
-        removeProgressBarOutput(removeAnsiEscapeCodes(e.stderr))
+        removeAnsiEscapeCodes(e.stderr)
       ).toMatchSnapshot();
     }
   });

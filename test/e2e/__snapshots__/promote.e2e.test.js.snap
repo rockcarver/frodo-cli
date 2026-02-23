@@ -4,9 +4,7 @@ exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes 2`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
-- Importing authentication settings...
 ✔ Imported alpha realm authentication settings.
-- Importing authentication settings...
 ✔ Imported bravo realm authentication settings.
 "
 `;
@@ -22,12 +20,12 @@ exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes 2`] = `
 "Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
+✖ Error importing mapping undefined
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
+✖ Error importing mapping undefined
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
 Error deleting mapping undefined
   Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
-[----------------------------------------] 0% | 0/1 | Error importing mapping undefined
-[----------------------------------------] 0% | 0/1 | Error importing mapping undefined
 "
 `;
 
