@@ -69,7 +69,7 @@ afterAll(() => {
 });
 
 describe('frodo conn alias add', () => {
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     `"frodo conn alias add ${alias} ${c.host}": should add an alias 'testname' to the connection profile`,
     async () => {
       const CMD = `frodo conn alias add ${alias} ${c.host}`;
@@ -78,7 +78,7 @@ describe('frodo conn alias add', () => {
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     }
   );
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     `"frodo conn alias add ${alias} ${c.host}": should fail to add alias and warn user the alias is already in use`,
     async () => {
       const profiles = JSON.parse(readFileSync(connectionsAliasFile, 'utf-8'));

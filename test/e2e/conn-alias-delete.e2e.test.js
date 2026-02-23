@@ -76,7 +76,7 @@ afterAll(() => {
 });
 
 describe('frodo conn alias delete', () => {
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     `"frodo conn alias delete ${c.host}": should delete the alias of the connection profile`,
     async () => {
       const CMD = `frodo conn alias delete ${c.host}`;
@@ -85,7 +85,7 @@ describe('frodo conn alias delete', () => {
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     }
   );
-  testif(process.env['FRODO_MASTER_KEY'])(
+  testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(
     `"frodo conn alias delete ${c.host}": should fail to delete the nonexistent alias of the connection profile`,
     async () => {
       const profiles = JSON.parse(readFileSync(connectionsAliasFile, 'utf-8'));
