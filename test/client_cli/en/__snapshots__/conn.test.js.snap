@@ -9,6 +9,7 @@ Options:
   -h, --help  Help
 
 Commands:
+  alias       Manage connection aliases.
   delete      Delete connection profiles.
   describe    Describe connection profile.
   help        display help for command

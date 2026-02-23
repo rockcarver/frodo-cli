@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo conn alias add "frodo conn alias add testname https://openam-frodo-dev.forgeblocks.com/am": should add an alias 'testname' to the connection profile 1`] = `""`;
+
+exports[`frodo conn alias add "frodo conn alias add testname https://openam-frodo-dev.forgeblocks.com/am": should add an alias 'testname' to the connection profile 2`] = `
+"Alias 'testname' has been set for connection profile 'https://openam-frodo-dev.forgeblocks.com/am'
+"
+`;
+
+exports[`frodo conn alias add "frodo conn alias add testname https://openam-frodo-dev.forgeblocks.com/am": should fail to add alias and warn user the alias is already in use 1`] = `
+"Alias 'testname' is already in use by connection profile 'example.com'. Please use a unique alias.
+"
+`;
+
+exports[`frodo conn alias add "frodo conn alias add testname https://openam-frodo-dev.forgeblocks.com/am": should fail to add alias and warn user the alias is already in use 2`] = `""`;

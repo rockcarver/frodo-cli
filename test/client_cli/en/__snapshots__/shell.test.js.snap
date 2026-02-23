@@ -6,7 +6,7 @@ exports[`CLI help interface for 'shell' should be expected english 1`] = `
 Launch the frodo interactive shell.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
   realm                                  Realm. Specify realm as '/' for the root realm or 'realm' or '/parent/child' otherwise. (default: "alpha" for Identity Cloud tenants, "/" otherwise.)
   username                               Username to login with. Must be an admin user with appropriate rights to manage authentication journeys/trees.
   password                               Password.
@@ -66,7 +66,7 @@ Usage Examples:
 [96m  $ frodo shell https://openam-matrix.id.forgerock.io/am /alpha thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Launch a frodo shell using a connection profile (identified by the full AM base URL):
 [96m  $ frodo shell https://openam-matrix.id.forgerock.io/am
-[39m  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL):
+[39m  Launch a frodo shell using a connection profile (identified by a unique substring of the AM base URL or a saved alias):
 [96m  $ frodo shell matrix
 [39m
 "

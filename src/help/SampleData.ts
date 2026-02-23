@@ -1,4 +1,5 @@
 export const amBaseUrl = 'https://openam-matrix.id.forgerock.io/am';
+export const alias = 'MyConnection';
 export const connId = 'matrix';
 export const username = 'thomas.anderson@metacortex.com';
 export const password = 'Blu3P!ll3d';

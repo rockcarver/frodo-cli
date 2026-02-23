@@ -6,7 +6,7 @@ exports[`CLI help interface for 'conn delete' should be expected english 1`] = `
 Delete connection profiles.
 
 Arguments:
-  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring.
+  host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
 
 Options:
   -D, --directory <directory>            Set the working directory.

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo conn alias delete "frodo conn alias delete https://openam-frodo-dev.forgeblocks.com/am": should delete the alias of the connection profile 1`] = `""`;
+
+exports[`frodo conn alias delete "frodo conn alias delete https://openam-frodo-dev.forgeblocks.com/am": should delete the alias of the connection profile 2`] = `
+"Alias 'testname' has been deleted for connection profile 'https://openam-frodo-dev.forgeblocks.com/am'.
+"
+`;
+
+exports[`frodo conn alias delete "frodo conn alias delete https://openam-frodo-dev.forgeblocks.com/am": should fail to delete the nonexistent alias of the connection profile 1`] = `
+"No alias is set for connection profile 'https://openam-frodo-dev.forgeblocks.com/am'
+"
+`;
+
+exports[`frodo conn alias delete "frodo conn alias delete https://openam-frodo-dev.forgeblocks.com/am": should fail to delete the nonexistent alias of the connection profile 2`] = `""`;
