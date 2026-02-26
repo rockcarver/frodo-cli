@@ -11,5 +11,6 @@ Options:
 Commands:
   help        display help for command
   pull        Export cloud configuration using fr-config-manager.
+  push        Import cloud configuration using fr-config-manager.
 "
 `;
