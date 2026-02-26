@@ -15618,8 +15618,6 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --n
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OIDC Claims Script",
       "script": [
         "/*",
@@ -16254,8 +16252,6 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --n
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OAuth2 Access Token Modification Script",
       "script": [
         "/*",
@@ -29906,8 +29902,6 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OIDC Claims Script",
       "script": [
         "/*",
@@ -30542,8 +30536,6 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OAuth2 Access Token Modification Script",
       "script": [
         "/*",
@@ -41454,8 +41446,6 @@ exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientEx
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OIDC Claims Script",
       "script": [
         "/*",
@@ -42090,8 +42080,6 @@ exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientEx
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OAuth2 Access Token Modification Script",
       "script": [
         "/*",
@@ -52296,8 +52284,6 @@ exports[`frodo oauth client export "frodo oauth client export -a": should export
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OIDC Claims Script",
       "script": [
         "/*",
@@ -52932,8 +52918,6 @@ exports[`frodo oauth client export "frodo oauth client export -a": should export
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "OAuth2 Access Token Modification Script",
       "script": [
         "/*",

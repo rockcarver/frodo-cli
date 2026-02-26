@@ -245,12 +245,14 @@ export async function deleteResourceTypes(): Promise<
  * @param {string} resourceTypeUuid resource type uuid
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeToFile(
   resourceTypeUuid: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: begin`);
   showSpinner(`Exporting ${resourceTypeUuid}...`);
@@ -261,7 +263,13 @@ export async function exportResourceTypeToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceType(resourceTypeUuid);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported ${resourceTypeUuid} to ${filePath}.`);
     debugMessage(`cli.ResourceTypeOps.exportResourceTypeToFile: end`);
     return true;
@@ -277,12 +285,14 @@ export async function exportResourceTypeToFile(
  * @param {string} resourceTypeName resource type name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypeByNameToFile(
   resourceTypeName: string,
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: begin`);
   showSpinner(`Exporting ${resourceTypeName}...`);
@@ -293,7 +303,13 @@ export async function exportResourceTypeByNameToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypeByName(resourceTypeName);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported ${resourceTypeName} to ${filePath}.`);
     debugMessage(`cli.ResourceTypeOps.exportResourceTypeByNameToFile: end`);
     return true;
@@ -308,11 +324,13 @@ export async function exportResourceTypeByNameToFile(
  * Export resource types to file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFile(
   file: string,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: begin`);
   showSpinner(`Exporting all resource types...`);
@@ -326,7 +344,13 @@ export async function exportResourceTypesToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportResourceTypes();
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported all resource types to ${filePath}.`);
     debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFile: end`);
     return true;
@@ -339,10 +363,12 @@ export async function exportResourceTypesToFile(
 /**
  * Export all resource types to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportResourceTypesToFiles(
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(`cli.ResourceTypeOps.exportResourceTypesToFiles: begin`);
   const errors = [];
@@ -359,7 +385,13 @@ export async function exportResourceTypesToFiles(
       try {
         const exportData: ResourceTypeExportInterface =
           await exportResourceType(resourceType.uuid);
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+        saveJsonToFile(
+          exportData,
+          getFilePath(file, true),
+          includeMeta,
+          false,
+          keepModifiedProperties
+        );
         updateProgressIndicator(indicatorId, `Exported ${resourceType.name}.`);
       } catch (error) {
         errors.push(error);

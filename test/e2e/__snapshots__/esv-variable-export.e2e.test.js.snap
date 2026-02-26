@@ -12,8 +12,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
     },
@@ -21,8 +19,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
@@ -30,8 +26,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
     },
@@ -39,8 +33,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
     },
@@ -48,8 +40,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
     },
@@ -57,8 +47,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-number",
       "description": "test number",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
-      "lastChangedBy": "volker.scheuber@forgerock.com",
       "loaded": true,
       "value": "1.134",
     },
@@ -66,8 +54,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-test-var",
       "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
     },
@@ -75,8 +61,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -84,8 +68,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -93,8 +75,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
       "expressionType": "int",
-      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
-      "lastChangedBy": "phales@trivir.com",
       "loaded": true,
       "value": "299792458",
     },
@@ -102,8 +82,6 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
     },
@@ -111,11 +89,11 @@ exports[`frodo esv variable export "frodo esv variable export --all": should exp
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `0`;
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 1`] = `0`;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 2`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3 2`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-blue-piller.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-blue-piller.variable.json 1`] = `
 {
   "variable": {
     "esv-blue-piller": {
@@ -131,7 +109,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-ipv4-cidr-access-rules.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-ipv4-cidr-access-rules.variable.json 1`] = `
 {
   "variable": {
     "esv-ipv4-cidr-access-rules": {
@@ -147,7 +125,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew.variable.json 1`] = `
 {
   "variable": {
     "esv-nebuchadnezzar-crew": {
@@ -163,7 +141,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-nebuchadnezzar-crew-structure.variable.json 1`] = `
 {
   "variable": {
     "esv-nebuchadnezzar-crew-structure": {
@@ -179,7 +157,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-neo-age.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-neo-age.variable.json 1`] = `
 {
   "variable": {
     "esv-neo-age": {
@@ -195,7 +173,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-number.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-number.variable.json 1`] = `
 {
   "variable": {
     "esv-number": {
@@ -211,7 +189,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var.variable.json 1`] = `
 {
   "variable": {
     "esv-test-var": {
@@ -227,7 +205,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi.variable.json 1`] = `
 {
   "variable": {
     "esv-test-var-pi": {
@@ -243,7 +221,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi-string.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-var-pi-string.variable.json 1`] = `
 {
   "variable": {
     "esv-test-var-pi-string": {
@@ -259,7 +237,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-variable-light.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-test-variable-light.variable.json 1`] = `
 {
   "variable": {
     "esv-test-variable-light": {
@@ -275,7 +253,7 @@ exports[`frodo esv variable export "frodo esv variable export --all-separate --n
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-trinity-phone.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3: variableExportTestDir3/esv-trinity-phone.variable.json 1`] = `
 {
   "variable": {
     "esv-trinity-phone": {
@@ -303,8 +281,6 @@ exports[`frodo esv variable export "frodo esv variable export --variable-id esv-
       "_id": "esv-test-var",
       "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
     },
@@ -324,8 +300,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
     },
@@ -341,8 +315,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
@@ -358,8 +330,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
     },
@@ -375,8 +345,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
     },
@@ -392,8 +360,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
     },
@@ -409,8 +375,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-number",
       "description": "test number",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
-      "lastChangedBy": "volker.scheuber@forgerock.com",
       "loaded": true,
       "value": "1.134",
     },
@@ -426,8 +390,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-test-var",
       "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
     },
@@ -443,8 +405,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -460,8 +420,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -477,8 +435,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
       "expressionType": "int",
-      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
-      "lastChangedBy": "phales@trivir.com",
       "loaded": true,
       "value": "299792458",
     },
@@ -494,8 +450,6 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
     },
@@ -503,11 +457,11 @@ exports[`frodo esv variable export "frodo esv variable export -A": should export
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `0`;
+exports[`frodo esv variable export "frodo esv variable export -MNaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 1`] = `0`;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 2`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -MNaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2 2`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allVariables.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -MNaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2: variableExportTestDir2/allVariables.variable.json 1`] = `
 {
   "variable": {
     "esv-blue-piller": {
@@ -613,11 +567,11 @@ exports[`frodo esv variable export "frodo esv variable export -NaD variableExpor
 }
 `;
 
-exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `0`;
+exports[`frodo esv variable export "frodo esv variable export -MNi esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 1`] = `0`;
 
-exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 2`] = `""`;
+exports[`frodo esv variable export "frodo esv variable export -MNi esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1 2`] = `""`;
 
-exports[`frodo esv variable export "frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1: variableExportTestDir1/esv-test-var.variable.json 1`] = `
+exports[`frodo esv variable export "frodo esv variable export -MNi esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1: variableExportTestDir1/esv-test-var.variable.json 1`] = `
 {
   "variable": {
     "esv-test-var": {
@@ -645,8 +599,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-blue-piller",
       "description": "Zion membership criteria.",
       "expressionType": "bool",
-      "lastChangeDate": "2024-07-05T20:01:11.78347Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "false",
     },
@@ -654,8 +606,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-ipv4-cidr-access-rules",
       "description": "IPv4 CIDR access rules: { "allow": [ "address/mask" ] }",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:13.987057Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{ "allow": [ "145.118.0.0/16", "132.35.0.0/16", "101.226.0.0/16", "99.72.28.182/32" ] }",
     },
@@ -663,8 +613,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-nebuchadnezzar-crew",
       "description": "The crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "array",
-      "lastChangeDate": "2024-07-05T20:01:05.216699Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "["Morpheus","Trinity","Link","Tank","Dozer","Apoc","Cypher","Mouse","Neo","Switch"]",
     },
@@ -672,8 +620,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-nebuchadnezzar-crew-structure",
       "description": "The structure of the crew of the Nebuchadnezzar hovercraft.",
       "expressionType": "object",
-      "lastChangeDate": "2024-07-05T20:01:07.343325Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "{"Captain":"Morpheus","FirstMate":"Trinity","Operator":["Link","Tank"],"Medic":"Dozer","Crewmen":["Apoc","Cypher","Mouse","Neo","Switch"]}",
     },
@@ -681,8 +627,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-neo-age",
       "description": "Neo's age in the matrix.",
       "expressionType": "int",
-      "lastChangeDate": "2024-07-05T20:01:09.53586Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "28",
     },
@@ -690,8 +634,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-number",
       "description": "test number",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T19:42:20.943131Z",
-      "lastChangedBy": "volker.scheuber@forgerock.com",
       "loaded": true,
       "value": "1.134",
     },
@@ -699,8 +641,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-test-var",
       "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
     },
@@ -708,8 +648,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-test-var-pi",
       "description": "This is another test variable.",
       "expressionType": "number",
-      "lastChangeDate": "2024-07-05T20:00:43.340528Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -717,8 +655,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-test-var-pi-string",
       "description": "This is another test variable.",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:16.11117Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "3.1415926",
     },
@@ -726,8 +662,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-test-variable-light",
       "description": "Test variable containing the speed of light in meters per second (as an int).",
       "expressionType": "int",
-      "lastChangeDate": "2023-12-14T15:34:13.446903Z",
-      "lastChangedBy": "phales@trivir.com",
       "loaded": true,
       "value": "299792458",
     },
@@ -735,8 +669,6 @@ exports[`frodo esv variable export "frodo esv variable export -a --file my-allVa
       "_id": "esv-trinity-phone",
       "description": "In the opening of The Matrix (1999), the phone number Trinity is calling from is traced to (312)-555-0690",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T20:01:03.141204Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "(312)-555-0690",
     },
@@ -756,8 +688,6 @@ exports[`frodo esv variable export "frodo esv variable export -i esv-test-var -f
       "_id": "esv-test-var",
       "description": "this is a test description",
       "expressionType": "string",
-      "lastChangeDate": "2024-07-05T22:37:25.846244Z",
-      "lastChangedBy": "Frodo-SA-1701393386423",
       "loaded": true,
       "value": "this is a test variable",
     },

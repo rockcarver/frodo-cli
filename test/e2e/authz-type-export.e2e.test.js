@@ -49,15 +49,15 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -n URL
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --type-name URL -f my-URL.resourcetype.authz.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -Nn URL -D authzTypeExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -MNn URL -D authzTypeExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --type-id 76656a38-5f8e-401b-83aa-4ccb74ce88d2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -i 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -f my-76656a38-5f8e-401b-83aa-4ccb74ce88d2.resourcetype.authz.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -Ni 76656a38-5f8e-401b-83aa-4ccb74ce88d2 -D authzTypeExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -a --file test.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -NaD authzTypeExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -MNaD authzTypeExportTestDir3
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo authz type export --modified-properties --all-separate --no-metadata --directory authzTypeExportTestDir4
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -80,9 +80,9 @@ describe('frodo authz type export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo authz type export -Nn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1', async () => {
+  test('"frodo authz type export -MNn URL -D authzTypeExportTestDir1": should export the resource type named "URL" to the directory authzTypeExportTestDir1', async () => {
     const exportDirectory = 'authzTypeExportTestDir1';
-    const CMD = `frodo authz type export -Nn URL -D ${exportDirectory}`;
+    const CMD = `frodo authz type export -MNn URL -D ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
@@ -118,9 +118,9 @@ describe('frodo authz type export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo authz type export -NaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3', async () => {
+  test('"frodo authz type export -MNaD authzTypeExportTestDir3": should export all resource types to a single file in the directory authzTypeExportTestDir3', async () => {
     const exportDirectory = 'authzTypeExportTestDir3';
-    const CMD = `frodo authz type export -NaD ${exportDirectory}`;
+    const CMD = `frodo authz type export -MNaD ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
@@ -129,9 +129,9 @@ describe('frodo authz type export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo authz type export --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4', async () => {
+  test('"frodo authz type export --modified-properties --all-separate --no-metadata --directory authzTypeExportTestDir4": should export all resource types to separate files in the directory authzTypeExportTestDir4', async () => {
     const exportDirectory = "authzTypeExportTestDir4";
-    const CMD = `frodo authz type export --all-separate --no-metadata --directory ${exportDirectory}`;
+    const CMD = `frodo authz type export --modified-properties --all-separate --no-metadata --directory ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });

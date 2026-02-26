@@ -63,12 +63,12 @@ To record, run these:
 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --variable-id esv-test-var
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -i esv-test-var -f my-esv-test-var.variable.json --no-decode
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -Ni esv-test-var -D variableExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -MNi esv-test-var -D variableExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -a --file my-allVariables.variable.json --no-decode
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -NaD variableExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -MNaD variableExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -91,9 +91,9 @@ describe('frodo esv variable export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo esv variable export -Ni esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1', async () => {
+    test('"frodo esv variable export -MNi esv-test-var -D variableExportTestDir1": should export the variable with variable id "esv-test-var" into the directory named variableExportTestDir1', async () => {
         const exportDirectory = "variableExportTestDir1";
-        const CMD = `frodo esv variable export -Ni esv-test-var -D ${exportDirectory}`;
+        const CMD = `frodo esv variable export -MNi esv-test-var -D ${exportDirectory}`;
         await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
@@ -109,9 +109,9 @@ describe('frodo esv variable export', () => {
         await testExport(CMD, env, type, exportFile);
     });
 
-    test('"frodo esv variable export -NaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2', async () => {
+    test('"frodo esv variable export -MNaD variableExportTestDir2": should export all variables to a single file in the directory variableExportTestDir2', async () => {
         const exportDirectory = "variableExportTestDir2";
-        const CMD = `frodo esv variable export -NaD ${exportDirectory}`;
+        const CMD = `frodo esv variable export -MNaD ${exportDirectory}`;
         await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 
@@ -120,9 +120,9 @@ describe('frodo esv variable export', () => {
         await testExport(CMD, env, type);
     });
 
-    test('"frodo esv variable export --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3', async () => {
+    test('"frodo esv variable export --modified-properties --all-separate --no-metadata --directory variableExportTestDir3 --no-decode": should export all variables to separate files in the directory variableExportTestDir3', async () => {
         const exportDirectory = "variableExportTestDir3";
-        const CMD = `frodo esv variable export --all-separate --no-metadata --directory ${exportDirectory} --no-decode`;
+        const CMD = `frodo esv variable export --modified-properties --all-separate --no-metadata --directory ${exportDirectory} --no-decode`;
         await testExport(CMD, env, type, undefined, exportDirectory, false);
     });
 });

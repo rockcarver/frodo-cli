@@ -41,6 +41,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option(
         '--no-deps',
         'Do not include any dependencies (policies, scripts).'
       )
@@ -66,6 +72,7 @@ export default function setup() {
             options.setId,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               useStringArrays: true,
               deps: options.deps,
@@ -80,6 +87,7 @@ export default function setup() {
           const outcome = await exportPolicySetsToFile(
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               useStringArrays: true,
               deps: options.deps,
@@ -93,11 +101,15 @@ export default function setup() {
           verboseMessage(
             'Exporting all authorization policy sets to separate files...'
           );
-          const outcome = await exportPolicySetsToFiles(options.metadata, {
-            useStringArrays: true,
-            deps: options.deps,
-            prereqs: options.prereqs,
-          });
+          const outcome = await exportPolicySetsToFiles(
+            options.metadata,
+            options.modifiedProperties,
+            {
+              useStringArrays: true,
+              deps: options.deps,
+              prereqs: options.prereqs,
+            }
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

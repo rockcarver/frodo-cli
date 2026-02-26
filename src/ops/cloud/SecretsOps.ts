@@ -459,6 +459,7 @@ export async function describeSecret(
  * @param {String} secretId Secret id
  * @param {String} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} includeActiveValue include active value of secret (default: false)
  * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -467,6 +468,7 @@ export async function exportSecretToFile(
   secretId: string,
   file: string | null,
   includeMeta: boolean,
+  keepModifiedProperties: boolean = false,
   includeActiveValue?: boolean,
   target?: string
 ): Promise<boolean> {
@@ -486,7 +488,13 @@ export async function exportSecretToFile(
       `Exporting secret ${secretId}`
     );
     const fileData = await exportSecret(secretId, includeActiveValue, target);
-    saveJsonToFile(fileData, filePath, includeMeta);
+    saveJsonToFile(
+      fileData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     stopProgressIndicator(
       spinnerId,
       `Exported ${secretId['brightCyan']} to ${filePath['brightCyan']}.`,
@@ -511,6 +519,7 @@ export async function exportSecretToFile(
  * Export all secrets to single file
  * @param {string} file Optional filename
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} includeActiveValue include active value of secret (default: false)
  * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -518,6 +527,7 @@ export async function exportSecretToFile(
 export async function exportSecretsToFile(
   file: string,
   includeMeta: boolean,
+  keepModifiedProperties: boolean = false,
   includeActiveValue?: boolean,
   target?: string
 ): Promise<boolean> {
@@ -528,7 +538,13 @@ export async function exportSecretsToFile(
       fileName = getTypedFilename(`allSecrets`, 'secret');
     }
     const secretsExport = await exportSecrets(includeActiveValue, target);
-    saveJsonToFile(secretsExport, getFilePath(fileName, true), includeMeta);
+    saveJsonToFile(
+      secretsExport,
+      getFilePath(fileName, true),
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     debugMessage(`Cli.SecretsOps.exportSecretsToFile: end [file=${file}]`);
     return true;
   } catch (error) {
@@ -540,12 +556,14 @@ export async function exportSecretsToFile(
 /**
  * Export all secrets to individual files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} includeActiveValues include active value of secret (default: false)
  * @param {string} target Host URL of target environment to encrypt secret value for
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportSecretsToFiles(
   includeMeta: boolean,
+  keepModifiedProperties: boolean = false,
   includeActiveValues?: boolean,
   target?: string
 ): Promise<boolean> {
@@ -575,7 +593,13 @@ export async function exportSecretsToFiles(
         includeActiveValues,
         target
       );
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      saveJsonToFile(
+        exportData,
+        getFilePath(fileName, true),
+        includeMeta,
+        false,
+        keepModifiedProperties
+      );
       updateProgressIndicator(indicatorId, `Exported secret ${secret._id}`);
     }
     stopProgressIndicator(indicatorId, `${secrets.length} secrets exported.`);

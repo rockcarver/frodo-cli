@@ -39,12 +39,14 @@ const { exportFullConfiguration, importFullConfiguration } = frodo.config;
  * Export everything to separate files
  * @param {String} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {FullExportOptions} options export options
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function exportEverythingToFile(
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -63,7 +65,13 @@ export async function exportEverythingToFile(
     if (file) {
       fileName = file;
     }
-    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    saveJsonToFile(
+      exportData,
+      getFilePath(fileName, true),
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     return true;
   } catch (error) {
     printError(error);
@@ -77,6 +85,7 @@ export async function exportEverythingToFile(
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {FullExportOptions} options export options
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
@@ -85,6 +94,7 @@ export async function exportEverythingToFiles(
   separateMappings: boolean = false,
   separateObjects: boolean = false,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: FullExportOptions = {
     useStringArrays: true,
     noDecode: false,
@@ -113,6 +123,7 @@ export async function exportEverythingToFiles(
         obj,
         `${baseDirectory}/global`,
         includeMeta,
+        keepModifiedProperties,
         extract,
         separateMappings,
         separateObjects
@@ -126,6 +137,7 @@ export async function exportEverythingToFiles(
           obj,
           `${baseDirectory}/realm/${realm}`,
           includeMeta,
+          keepModifiedProperties,
           extract,
           separateMappings,
           separateObjects
@@ -149,6 +161,7 @@ export async function exportEverythingToFiles(
  * @param {any} obj the export data for the given item
  * @param {string} baseDirectory the baseDirectory to export to
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
  * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
@@ -159,6 +172,7 @@ export function exportItem(
   obj,
   baseDirectory,
   includeMeta,
+  keepModifiedProperties,
   extract,
   separateMappings = false,
   separateObjects = false
@@ -200,7 +214,9 @@ export function exportItem(
         saveJsonToFile(
           samlData,
           `${baseDirectory}/cot/${getTypedFilename(id, 'cot.saml')}`,
-          includeMeta
+          includeMeta,
+          false,
+          keepModifiedProperties
         );
       });
       samlData.saml.cot = {};
@@ -221,7 +237,9 @@ export function exportItem(
         saveJsonToFile(
           samlData,
           `${baseDirectory}/${fileType}/${filename}`,
-          includeMeta
+          includeMeta,
+          false,
+          keepModifiedProperties
         );
         samlData.saml[samlType] = {};
       });
@@ -238,7 +256,9 @@ export function exportItem(
         authentication: obj,
       },
       `${baseDirectory}/${fileType}/${fileName}`,
-      includeMeta
+      includeMeta,
+      false,
+      keepModifiedProperties
     );
   } else if (type === 'sync') {
     writeSyncJsonToDirectory(
@@ -289,7 +309,8 @@ export function exportItem(
               value,
               '_id',
               `${baseDirectory}/${fileType}/${filename}`,
-              includeMeta
+              includeMeta,
+              keepModifiedProperties
             );
           }
         }
@@ -336,7 +357,9 @@ export function exportItem(
             },
           },
           `${baseDirectory}/${fileType}/${filename}`,
-          includeMeta
+          includeMeta,
+          false,
+          keepModifiedProperties
         );
       }
     });
