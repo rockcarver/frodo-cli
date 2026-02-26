@@ -46,6 +46,12 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .addOption(
+      new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
     // deprecated option
     .addOption(
       new Option(
@@ -89,6 +95,7 @@ export default function setup() {
             options.scriptId,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             options.extract,
             {
               deps: options.deps,
@@ -108,6 +115,7 @@ export default function setup() {
             options.scriptName || options.script,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             options.extract,
             {
               deps: options.deps,
@@ -123,6 +131,7 @@ export default function setup() {
           const outcome = await exportScriptsToFile(
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               includeDefault: options.default,
@@ -137,6 +146,7 @@ export default function setup() {
           const outcome = await exportScriptsToFiles(
             options.extract,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               includeDefault: options.default,

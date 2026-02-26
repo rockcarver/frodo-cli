@@ -52,6 +52,12 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .addOption(
+      new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
     .action(
       // implement command logic inside action handler
       async (host, user, password, options, command) => {
@@ -75,7 +81,8 @@ export default function setup() {
             options.variableId,
             options.file,
             options.decode,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         } else if (
@@ -86,7 +93,8 @@ export default function setup() {
           const outcome = await exportVariablesToFile(
             options.file,
             options.decode,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         } else if (
@@ -96,7 +104,8 @@ export default function setup() {
           verboseMessage('Exporting all variables to separate files...');
           const outcome = await exportVariablesToFiles(
             options.decode,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         } else {

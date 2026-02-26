@@ -48,6 +48,12 @@ export default function setup() {
       )
     )
     .addOption(
+      new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
+    .addOption(
       new Option('--no-deps', 'Do not include dependencies (scripts).')
     )
     .addOption(
@@ -74,6 +80,7 @@ export default function setup() {
             options.policyId,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               prereqs: options.prereqs,
@@ -91,6 +98,7 @@ export default function setup() {
             options.setId,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               prereqs: options.prereqs,
@@ -105,6 +113,7 @@ export default function setup() {
           const outcome = await exportPoliciesToFile(
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               prereqs: options.prereqs,
@@ -121,6 +130,7 @@ export default function setup() {
           const outcome = await exportPoliciesByPolicySetToFiles(
             options.setId,
             options.metadata,
+            options.modifiedProperties,
             {
               deps: options.deps,
               prereqs: options.prereqs,
@@ -134,11 +144,15 @@ export default function setup() {
           verboseMessage(
             'Exporting all authorization policies to separate files...'
           );
-          const outcome = await exportPoliciesToFiles(options.metadata, {
-            deps: options.deps,
-            prereqs: options.prereqs,
-            useStringArrays: true,
-          });
+          const outcome = await exportPoliciesToFiles(
+            options.metadata,
+            options.modifiedProperties,
+            {
+              deps: options.deps,
+              prereqs: options.prereqs,
+              useStringArrays: true,
+            }
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

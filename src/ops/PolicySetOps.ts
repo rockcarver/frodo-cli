@@ -229,6 +229,7 @@ export async function deletePolicySets(): Promise<boolean> {
  * @param {string} policySetId policy set id/name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicySetExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -236,6 +237,7 @@ export async function exportPolicySetToFile(
   policySetId: string,
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
@@ -255,7 +257,13 @@ export async function exportPolicySetToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySet(policySetId, options);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     stopProgressIndicator(
       indicatorId,
       `Exported ${policySetId} to ${filePath}.`,
@@ -278,12 +286,14 @@ export async function exportPolicySetToFile(
  * Export policy sets to file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicySetExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicySetsToFile(
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
@@ -306,7 +316,13 @@ export async function exportPolicySetsToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicySets(options);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     stopProgressIndicator(
       indicatorId,
       `Exported all policy sets to ${filePath}.`,
@@ -324,11 +340,13 @@ export async function exportPolicySetsToFile(
 /**
  * Export all policy sets to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicySetExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPolicySetsToFiles(
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicySetExportOptions = {
     deps: true,
     prereqs: false,
@@ -352,7 +370,13 @@ export async function exportPolicySetsToFiles(
           policySet.name,
           options
         );
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+        saveJsonToFile(
+          exportData,
+          getFilePath(file, true),
+          includeMeta,
+          false,
+          keepModifiedProperties
+        );
         updateProgressIndicator(indicatorId, `Exported ${policySet.name}.`);
       } catch (error) {
         errors.push(error);

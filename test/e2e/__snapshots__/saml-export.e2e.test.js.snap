@@ -1689,8 +1689,6 @@ exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -1931,8 +1929,6 @@ exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
       "script": [
         "/*",
@@ -2096,8 +2092,6 @@ exports[`frodo saml export "frodo saml export --all --file my-allAlphaProviders.
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
       "script": [
         "/*",
@@ -2748,8 +2742,6 @@ exports[`frodo saml export "frodo saml export --all-separate --no-metadata --dir
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -3267,8 +3259,6 @@ exports[`frodo saml export "frodo saml export --all-separate --no-metadata --dir
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
       "script": [
         "/*",
@@ -3681,8 +3671,6 @@ exports[`frodo saml export "frodo saml export --all-separate --no-metadata --dir
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
       "script": [
         "/*",
@@ -4879,8 +4867,6 @@ exports[`frodo saml export "frodo saml export --entity-id iSPAzure": should expo
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -5603,8 +5589,6 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -6123,8 +6107,6 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
       "script": [
         "/*",
@@ -6538,8 +6520,6 @@ exports[`frodo saml export "frodo saml export -A": should export all saml provid
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
       "script": [
         "/*",
@@ -9180,8 +9160,6 @@ exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should e
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -9422,8 +9400,6 @@ exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should e
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
       "script": [
         "/*",
@@ -9587,8 +9563,6 @@ exports[`frodo saml export "frodo saml export -NaD samlExportTestDir2": should e
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
       "script": [
         "/*",
@@ -11443,8 +11417,6 @@ exports[`frodo saml export "frodo saml export -a": should export all saml provid
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -11685,8 +11657,6 @@ exports[`frodo saml export "frodo saml export -a": should export all saml provid
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "SAML2 IDP Adapter Script",
       "script": [
         "/*",
@@ -11850,8 +11820,6 @@ exports[`frodo saml export "frodo saml export -a": should export all saml provid
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Saml2 IDP Adapter Always Auth",
       "script": [
         "/*",
@@ -12266,8 +12234,6 @@ exports[`frodo saml export "frodo saml export -i iSPAzure -f my-iSPAzure.saml.js
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -12752,8 +12718,6 @@ exports[`frodo saml export "frodo saml export -i iSPAzure": should export the sa
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
@@ -13237,8 +13201,6 @@ exports[`frodo saml export "frodo saml export Ni iSPAzure -D samlExportTestDir1"
       "description": "null",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "FrodoSPAdapter",
       "script": [
         "/*",
