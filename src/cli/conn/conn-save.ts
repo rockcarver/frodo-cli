@@ -47,7 +47,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--authentication-header-overrides [headers]',
-        'Map of headers: {"host":"am.example.com:8081"}.'
+        'Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--configuration-header-overrides [headers]',
+        'Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.'
       )
     )
     .addOption(
@@ -88,6 +94,14 @@ export default function setup() {
         `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.connId}\n`[
           'brightCyan'
         ] +
+        `  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:\n` +
+        `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
+          'brightCyan'
+        ] +
+        `  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:\n` +
+        `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.connId}\n`[
+          'brightCyan'
+        ] +
         `  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):\n` +
         `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`[
           'brightCyan'
@@ -111,6 +125,11 @@ export default function setup() {
         if (options.authenticationHeaderOverrides) {
           state.setAuthenticationHeaderOverrides(
             JSON.parse(options.authenticationHeaderOverrides)
+          );
+        }
+        if (options.configurationHeaderOverrides) {
+          state.setConfigurationHeaderOverrides(
+            JSON.parse(options.configurationHeaderOverrides)
           );
         }
         const needAmsterLogin = !!options.privateKey;
