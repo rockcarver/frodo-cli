@@ -12,8 +12,9 @@ Arguments:
 
 Options:
   --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
+  --configuration-header-overrides [headers]   Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
@@ -86,6 +87,10 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' matrix
 [39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
@@ -104,8 +109,9 @@ Arguments:
 
 Options:
   --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
+  --configuration-header-overrides [headers]   Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
@@ -178,6 +184,10 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' matrix
 [39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
@@ -196,8 +206,9 @@ Arguments:
 
 Options:
   --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
+  --configuration-header-overrides [headers]   Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
@@ -270,6 +281,10 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' matrix
 [39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
@@ -288,8 +303,9 @@ Arguments:
 
 Options:
   --alias [name]                               Alias name for this connection profile.
-  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}.
+  --authentication-header-overrides [headers]  Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
+  --configuration-header-overrides [headers]   Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
   --curlirize                                  Output all network calls in curl format.
   -D, --directory <directory>                  Set the working directory.
   --debug                                      Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.
@@ -362,6 +378,10 @@ Usage Examples:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
 [39m  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:
 [96m  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' matrix
+[39m  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' https://openam-matrix.id.forgerock.io/am thomas.anderson@metacortex.com 'Blu3P!ll3d'
+[39m  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:
+[96m  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' matrix
 [39m  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):
 [96m  $ frodo conn save --private-key /home/trinity/am/security/keys/amster/amster_rsa --authentication-service AmsterLogin am.example
 [39m
