@@ -1,8 +1,11 @@
+import { is } from "../../../../../../Library/Caches/typescript/5.9/node_modules/@babel/types/lib/index";
+
 export const connection = {
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
   user: 'volker.scheuber@forgerock.com',
   pass: 'Sup3rS3cr3t!',
   isIGA: 'false',
+  isPingFed: 'false',
   realm: 'alpha',
   saId: 'b672336b-41ef-428d-ae4a-e0c082875377',
   saJwk:
