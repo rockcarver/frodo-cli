@@ -3,6 +3,7 @@ export const connection = {
   user: 'volker.scheuber@forgerock.com',
   pass: 'Sup3rS3cr3t!',
   isIGA: 'false',
+  isPingFed: 'false',
   realm: 'alpha',
   saId: 'b672336b-41ef-428d-ae4a-e0c082875377',
   saJwk:

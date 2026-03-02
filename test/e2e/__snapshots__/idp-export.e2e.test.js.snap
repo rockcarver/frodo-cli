@@ -390,8 +390,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
       "script": [
         "/*",
@@ -426,8 +424,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Apple Profile Normalization",
       "script": [
         "/*",
@@ -489,8 +485,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -524,8 +518,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Okta Profile Normalization",
       "script": [
         "/*",
@@ -560,8 +552,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Microsoft Profile Normalization",
       "script": [
         "/*",
@@ -616,8 +606,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Facebook Profile Normalization",
       "script": [
         "/*",
@@ -650,8 +638,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
       "script": [
         "/*",
@@ -817,8 +803,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
       "script": [
         "/*",
@@ -968,8 +952,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
       "script": [
         "/*",
@@ -1064,8 +1046,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -1164,8 +1144,6 @@ exports[`frodo idp export "frodo idp export --idp-id google": should export the 
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -1264,8 +1242,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
       "script": [
         "/*",
@@ -1429,8 +1405,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Apple Profile Normalization",
       "script": [
         "/*",
@@ -1554,8 +1528,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Apple Profile Normalization",
       "script": [
         "/*",
@@ -1669,8 +1641,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Microsoft Profile Normalization",
       "script": [
         "/*",
@@ -1776,8 +1746,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Facebook Profile Normalization",
       "script": [
         "/*",
@@ -1859,8 +1827,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
       "script": [
         "/*",
@@ -1956,8 +1922,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -2045,8 +2009,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Okta Profile Normalization",
       "script": [
         "/*",
@@ -2233,8 +2195,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
       "script": [
         "/*",
@@ -2270,8 +2230,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -2306,8 +2264,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
       "script": [
         "/*",
@@ -2473,8 +2429,6 @@ exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": sh
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -2894,8 +2848,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "GitHub Profile Normalization (VS)",
       "script": [
         "/*",
@@ -2930,8 +2882,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Apple Profile Normalization",
       "script": [
         "/*",
@@ -2993,8 +2943,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -3028,8 +2976,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Okta Profile Normalization",
       "script": [
         "/*",
@@ -3064,8 +3010,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Microsoft Profile Normalization",
       "script": [
         "/*",
@@ -3120,8 +3064,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Facebook Profile Normalization",
       "script": [
         "/*",
@@ -3154,8 +3096,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "ADFS Profile Normalization (JS)",
       "script": [
         "/*",
@@ -3322,8 +3262,6 @@ exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": sh
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",

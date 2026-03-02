@@ -62,7 +62,8 @@ export async function configManagerExportScript(
           true
         ),
         false,
-        false
+        false,
+        true
       );
     }
 

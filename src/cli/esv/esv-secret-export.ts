@@ -49,6 +49,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option(
         '--include-active-values',
         'Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use --target <host url> to have another environment perform the encryption.'
       )
@@ -105,6 +111,7 @@ export default function setup() {
             options.secretId,
             options.file,
             options.metadata,
+            options.modifiedProperties,
             options.includeActiveValues,
             options.target
           );
@@ -117,6 +124,7 @@ export default function setup() {
           const outcome = await exportSecretsToFile(
             options.file,
             options.metadata,
+            options.modifiedProperties,
             options.includeActiveValues,
             options.target
           );
@@ -128,6 +136,7 @@ export default function setup() {
           verboseMessage('Exporting all secrets to separate files...');
           const outcome = await exportSecretsToFiles(
             options.metadata,
+            options.modifiedProperties,
             options.includeActiveValues,
             options.target
           );

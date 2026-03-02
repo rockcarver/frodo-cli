@@ -46,6 +46,12 @@ export default function setup() {
         'Does not include metadata in the export file.'
       )
     )
+    .addOption(
+      new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -63,7 +69,8 @@ export default function setup() {
           const outcome = await exportResourceTypeToFile(
             options.typeId,
             options.file,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -73,7 +80,8 @@ export default function setup() {
           const outcome = await exportResourceTypeByNameToFile(
             options.typeName,
             options.file,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -84,7 +92,8 @@ export default function setup() {
           );
           const outcome = await exportResourceTypesToFile(
             options.file,
-            options.metadata
+            options.metadata,
+            options.modifiedProperties
           );
           if (!outcome) process.exitCode = 1;
         }
@@ -93,7 +102,10 @@ export default function setup() {
           verboseMessage(
             'Exporting all authorization resource types to separate files...'
           );
-          const outcome = await exportResourceTypesToFiles(options.metadata);
+          const outcome = await exportResourceTypesToFiles(
+            options.metadata,
+            options.modifiedProperties
+          );
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

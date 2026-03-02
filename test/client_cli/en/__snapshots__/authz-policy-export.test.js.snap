@@ -30,6 +30,7 @@ Options:
   cloud:    A ForgeRock Identity Cloud environment. 
   forgeops: A ForgeOps CDK or CDM deployment. 
   The detected or provided deployment type controls certain behavior like obtaining an Identity Management admin token or not and whether to export/import referenced email templates or how to walk through the tenant admin login flow of Identity Cloud and handle MFA (choices: "classic", "cloud", "forgeops")
+  -M, --modified-properties              Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.) (default: false)
   -N, --no-metadata                      Does not include metadata in the export file.
   --no-cache                             Disable token cache for this operation.
   --no-deps                              Do not include dependencies (scripts).

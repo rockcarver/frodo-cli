@@ -53,6 +53,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-M, --modified-properties',
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+      ).default(false, 'false')
+    )
+    .addOption(
+      new Option(
         '--no-coords',
         'Do not include the x and y coordinate positions of the journey/tree nodes.'
       )
@@ -153,6 +159,7 @@ export default function setup() {
           const outcome = await exportEverythingToFile(
             options.file,
             options.metadata,
+            options.modifiedProperties,
             {
               useStringArrays: options.useStringArrays,
               noDecode: options.decode,
@@ -184,6 +191,7 @@ export default function setup() {
             options.separateMappings,
             options.separateObjects,
             options.metadata,
+            options.modifiedProperties,
             {
               useStringArrays: options.useStringArrays,
               noDecode: options.decode,

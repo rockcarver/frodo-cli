@@ -400,13 +400,15 @@ export async function describeVariable(
  * @param {String} file Optional filename
  * @param {boolean} noDecode Do not decode variable value. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariableToFile(
   variableId: string,
   file: string | null,
   noDecode: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(
     `Cli.VariablesOps.exportVariableToFile: start [variableId=${variableId}, file=${file}, noDecode=${noDecode}]`
@@ -424,7 +426,13 @@ export async function exportVariableToFile(
       `Exporting variable ${variableId}`
     );
     const fileData = await exportVariable(variableId, noDecode);
-    saveJsonToFile(fileData, filePath, includeMeta);
+    saveJsonToFile(
+      fileData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     updateProgressIndicator(indicatorId, `Exported variable ${variableId}`);
     stopProgressIndicator(
       indicatorId,
@@ -450,12 +458,14 @@ export async function exportVariableToFile(
  * @param {string} file Optional filename
  * @param {boolean} noDecode Do not decode variable values. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFile(
   file: string | null,
   noDecode: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   debugMessage(
     `Cli.VariablesOps.exportVariablesToFile: start [file=${file}, noDecode=${noDecode}]`
@@ -470,7 +480,13 @@ export async function exportVariablesToFile(
   }
   try {
     const variablesExport = await exportVariables(noDecode);
-    saveJsonToFile(variablesExport, getFilePath(file, true), includeMeta);
+    saveJsonToFile(
+      variablesExport,
+      getFilePath(file, true),
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     stopProgressIndicator(
       spinnerId,
       `Exported variables to ${file}`,
@@ -492,11 +508,13 @@ export async function exportVariablesToFile(
  * Export all variables to seperate files
  * @param {boolean} noDecode Do not decode variable values. Default: false
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportVariablesToFiles(
   noDecode: boolean = false,
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false
 ): Promise<boolean> {
   let spinnerId: string;
   let indicatorId: string;
@@ -530,7 +548,13 @@ export async function exportVariablesToFiles(
         variable._id,
         noDecode
       );
-      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      saveJsonToFile(
+        exportData,
+        getFilePath(fileName, true),
+        includeMeta,
+        false,
+        keepModifiedProperties
+      );
       updateProgressIndicator(indicatorId, `Writing variable ${variable._id}`);
     }
     stopProgressIndicator(

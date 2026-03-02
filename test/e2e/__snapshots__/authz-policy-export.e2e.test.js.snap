@@ -16,8 +16,6 @@ exports[`frodo authz policy export "frodo authz policy export --all --file my-al
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.459Z",
       "description": "FeatureStorePolicy",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
       "name": "FeatureStorePolicy",
       "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
       "resources": [
@@ -57,8 +55,6 @@ exports[`frodo authz policy export "frodo authz policy export --all --file my-al
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -110,8 +106,6 @@ exports[`frodo authz policy export "frodo authz policy export --all --file my-al
       "displayName": "Test Policy Set",
       "editable": true,
       "entitlementCombiner": "DenyOverride",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1697571878359,
       "name": "test-policy-set",
       "resourceComparator": null,
       "resourceTypeUuids": [
@@ -145,8 +139,6 @@ exports[`frodo authz policy export "frodo authz policy export --all --file my-al
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1697573378358,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -159,11 +151,11 @@ exports[`frodo authz policy export "frodo authz policy export --all --file my-al
 }
 `;
 
-exports[`frodo authz policy export "frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs 1`] = `0`;
+exports[`frodo authz policy export "frodo authz policy export --modified-properties --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs 1`] = `0`;
 
-exports[`frodo authz policy export "frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs 2`] = `""`;
+exports[`frodo authz policy export "frodo authz policy export --modified-properties --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs 2`] = `""`;
 
-exports[`frodo authz policy export "frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/FeatureStorePolicy.policy.authz.json 1`] = `
+exports[`frodo authz policy export "frodo authz policy export --modified-properties --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/FeatureStorePolicy.policy.authz.json 1`] = `
 {
   "policy": {
     "FeatureStorePolicy": {
@@ -267,7 +259,7 @@ exports[`frodo authz policy export "frodo authz policy export --all-separate --n
 }
 `;
 
-exports[`frodo authz policy export "frodo authz policy export --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/Test-Policy.policy.authz.json 1`] = `
+exports[`frodo authz policy export "frodo authz policy export --modified-properties --all-separate --no-metadata --directory authzPolicyExportTestDir3 --set-id test-policy-set --no-deps --prereqs": should export all policies from the test-policy-set to separate files in the directory authzPolicyExportTestDir3 with no dependencies and with prereqs: authzPolicyExportTestDir3/Test-Policy.policy.authz.json 1`] = `
 {
   "policy": {
     "Test Policy": {
@@ -440,8 +432,6 @@ exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test 
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -493,8 +483,6 @@ exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test 
       "displayName": "Test Policy Set",
       "editable": true,
       "entitlementCombiner": "DenyOverride",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1697571878359,
       "name": "test-policy-set",
       "resourceComparator": null,
       "resourceTypeUuids": [
@@ -528,8 +516,6 @@ exports[`frodo authz policy export "frodo authz policy export --policy-id 'Test 
       "createdBy": "id=dsameuser,ou=user,ou=am-config",
       "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": 1697573378358,
       "name": "URL",
       "patterns": [
         "*://*:*/*",
@@ -558,8 +544,6 @@ exports[`frodo authz policy export "frodo authz policy export -A": should export
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.459Z",
       "description": "FeatureStorePolicy",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
       "name": "FeatureStorePolicy",
       "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
       "resources": [
@@ -610,8 +594,6 @@ exports[`frodo authz policy export "frodo authz policy export -A": should export
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -642,8 +624,6 @@ exports[`frodo authz policy export "frodo authz policy export -A": should export
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -673,11 +653,11 @@ exports[`frodo authz policy export "frodo authz policy export -A": should export
 }
 `;
 
-exports[`frodo authz policy export "frodo authz policy export -NaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2 1`] = `0`;
+exports[`frodo authz policy export "frodo authz policy export -MNaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2 1`] = `0`;
 
-exports[`frodo authz policy export "frodo authz policy export -NaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2 2`] = `""`;
+exports[`frodo authz policy export "frodo authz policy export -MNaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2 2`] = `""`;
 
-exports[`frodo authz policy export "frodo authz policy export -NaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2: authzPolicyExportTestDir2/allAlphaPolicies.policy.authz.json 1`] = `
+exports[`frodo authz policy export "frodo authz policy export -MNaD authzPolicyExportTestDir2": should export all policies to a single file in the directory authzPolicyExportTestDir2: authzPolicyExportTestDir2/allAlphaPolicies.policy.authz.json 1`] = `
 {
   "policy": {
     "FeatureStorePolicy": {
@@ -778,11 +758,11 @@ exports[`frodo authz policy export "frodo authz policy export -NaD authzPolicyEx
 }
 `;
 
-exports[`frodo authz policy export "frodo authz policy export -Ni 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1 1`] = `0`;
+exports[`frodo authz policy export "frodo authz policy export -MNi 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1 1`] = `0`;
 
-exports[`frodo authz policy export "frodo authz policy export -Ni 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1 2`] = `""`;
+exports[`frodo authz policy export "frodo authz policy export -MNi 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1 2`] = `""`;
 
-exports[`frodo authz policy export "frodo authz policy export -Ni 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1: authzPolicyExportTestDir1/Test-Policy.policy.authz.json 1`] = `
+exports[`frodo authz policy export "frodo authz policy export -MNi 'Test Policy' -D authzPolicyExportTestDir1": should export the policy with id "Test Policy" into the directory authzPolicyExportTestDir1: authzPolicyExportTestDir1/Test-Policy.policy.authz.json 1`] = `
 {
   "policy": {
     "Test Policy": {
@@ -880,8 +860,6 @@ exports[`frodo authz policy export "frodo authz policy export -a": should export
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.459Z",
       "description": "FeatureStorePolicy",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T19:44:38.459Z",
       "name": "FeatureStorePolicy",
       "resourceTypeUuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
       "resources": [
@@ -921,8 +899,6 @@ exports[`frodo authz policy export "frodo authz policy export -a": should export
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -953,8 +929,6 @@ exports[`frodo authz policy export "frodo authz policy export -a": should export
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",
@@ -1022,8 +996,6 @@ exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'":
       "createdBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
       "creationDate": "2023-10-17T19:44:38.545Z",
       "description": "Test Policy Description",
-      "lastModifiedBy": "id=b672336b-41ef-428d-ae4a-e0c082875377,ou=user,ou=am-config",
-      "lastModifiedDate": "2023-10-17T20:54:53.239Z",
       "name": "Test Policy",
       "resourceAttributes": [
         {
@@ -1054,8 +1026,6 @@ exports[`frodo authz policy export "frodo authz policy export -i 'Test Policy'":
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
       "name": "Google Profile Normalization",
       "script": [
         "/*",

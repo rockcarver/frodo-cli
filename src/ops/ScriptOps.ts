@@ -265,6 +265,7 @@ export async function describeScript(
  * @param {string} scriptId script uuid
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -273,6 +274,7 @@ export async function exportScriptToFile(
   scriptId: string,
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   extract: boolean = false,
   options: ScriptExportOptions
 ): Promise<boolean> {
@@ -292,7 +294,13 @@ export async function exportScriptToFile(
     if (extract) {
       extractScriptsToFiles(scriptExport, undefined, undefined, false);
     }
-    saveJsonToFile(scriptExport, filePath, includeMeta);
+    saveJsonToFile(
+      scriptExport,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported script '${scriptId}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptToFile: end`);
     return true;
@@ -308,6 +316,7 @@ export async function exportScriptToFile(
  * @param {string} name script name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
@@ -316,6 +325,7 @@ export async function exportScriptByNameToFile(
   name: string,
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   extract: boolean = false,
   options: ScriptExportOptions
 ): Promise<boolean> {
@@ -333,7 +343,13 @@ export async function exportScriptByNameToFile(
     );
     const scriptExport = await exportScriptByName(name, options);
     if (extract) extractScriptsToFiles(scriptExport);
-    saveJsonToFile(scriptExport, filePath, includeMeta);
+    saveJsonToFile(
+      scriptExport,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported script '${name}' to '${filePath}'.`);
     debugMessage(`Cli.ScriptOps.exportScriptByNameToFile: end`);
     return true;
@@ -348,12 +364,14 @@ export async function exportScriptByNameToFile(
  * Export all scripts to single file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFile(
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
@@ -366,7 +384,13 @@ export async function exportScriptsToFile(
       fileName = file;
     }
     const scriptExport = await exportScripts(options, errorHandler);
-    saveJsonToFile(scriptExport, getFilePath(fileName, true), includeMeta);
+    saveJsonToFile(
+      scriptExport,
+      getFilePath(fileName, true),
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     debugMessage(`Cli.ScriptOps.exportScriptsToFile: end`);
     return true;
   } catch (error) {
@@ -379,12 +403,14 @@ export async function exportScriptsToFile(
  * Export all scripts to individual files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {ScriptExportOptions} options Export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportScriptsToFiles(
   extract: boolean = false,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: ScriptExportOptions
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
@@ -411,7 +437,14 @@ export async function exportScriptsToFiles(
           },
         });
       }
-      saveToFile('script', script, '_id', file, includeMeta);
+      saveToFile(
+        'script',
+        script,
+        '_id',
+        file,
+        includeMeta,
+        keepModifiedProperties
+      );
       updateProgressIndicator(fileBarId, `Saving ${script.name} to ${file}.`);
       stopProgressIndicator(fileBarId, `${script.name} saved to ${file}.`);
     } catch (error) {

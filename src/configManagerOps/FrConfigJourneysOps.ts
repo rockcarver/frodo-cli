@@ -91,6 +91,7 @@ async function processJourneys(
               subNodeSpec,
               getFilePath(subNodeFilename, true),
               false,
+              true,
               true
             );
             if (
@@ -116,6 +117,7 @@ async function processJourneys(
                 script,
                 getFilePath(`${scriptJsonDir}/${script._id}.json`, true),
                 false,
+                true,
                 true
               );
             }
@@ -146,6 +148,7 @@ async function processJourneys(
             script,
             getFilePath(`${scriptJsonDir}/${script._id}.json`, true),
             false,
+            true,
             true
           );
         } else if (
@@ -166,6 +169,7 @@ async function processJourneys(
           node,
           getFilePath(`${nodeFileNameRoot}.json`, true),
           false,
+          true,
           true
         );
       }
@@ -175,6 +179,7 @@ async function processJourneys(
         journey.tree,
         getFilePath(`${fileName}`, true),
         false,
+        true,
         true
       );
     }

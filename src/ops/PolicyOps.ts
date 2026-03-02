@@ -298,6 +298,7 @@ export async function deletePoliciesByPolicySet(
  * @param {string} policyId policy id/name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {ApplicationExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -305,6 +306,7 @@ export async function exportPolicyToFile(
   policyId: string,
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -320,7 +322,13 @@ export async function exportPolicyToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicy(policyId, options);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported ${policyId} to ${filePath}.`);
     debugMessage(`cli.PolicyOps.exportPolicyToFile: end`);
     return true;
@@ -335,12 +343,14 @@ export async function exportPolicyToFile(
  * Export policies to file
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesToFile(
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -359,7 +369,13 @@ export async function exportPoliciesToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPolicies(options);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported all policies to ${filePath}.`);
     debugMessage(`cli.PolicyOps.exportPoliciesToFile: end`);
     return true;
@@ -375,6 +391,7 @@ export async function exportPoliciesToFile(
  * @param {string} policySetId policy set id/name
  * @param {string} file file name
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
@@ -382,6 +399,7 @@ export async function exportPoliciesByPolicySetToFile(
   policySetId: string,
   file: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -402,7 +420,13 @@ export async function exportPoliciesByPolicySetToFile(
     }
     const filePath = getFilePath(fileName, true);
     const exportData = await exportPoliciesByPolicySet(policySetId, options);
-    saveJsonToFile(exportData, filePath, includeMeta);
+    saveJsonToFile(
+      exportData,
+      filePath,
+      includeMeta,
+      false,
+      keepModifiedProperties
+    );
     succeedSpinner(`Exported all policies to ${filePath}.`);
     debugMessage(`cli.PolicyOps.exportPoliciesToFile: end`);
     return true;
@@ -416,11 +440,13 @@ export async function exportPoliciesByPolicySetToFile(
 /**
  * Export all policies to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesToFiles(
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -444,7 +470,13 @@ export async function exportPoliciesToFiles(
           policy._id,
           options
         );
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+        saveJsonToFile(
+          exportData,
+          getFilePath(file, true),
+          includeMeta,
+          false,
+          keepModifiedProperties
+        );
         updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);
@@ -466,12 +498,14 @@ export async function exportPoliciesToFiles(
 /**
  * Export all policies to separate files
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {PolicyExportOptions} options export options
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 export async function exportPoliciesByPolicySetToFiles(
   policySetId: string,
   includeMeta: boolean = true,
+  keepModifiedProperties: boolean = false,
   options: PolicyExportOptions = {
     deps: true,
     prereqs: false,
@@ -496,7 +530,13 @@ export async function exportPoliciesByPolicySetToFiles(
           policy._id,
           options
         );
-        saveJsonToFile(exportData, getFilePath(file, true), includeMeta);
+        saveJsonToFile(
+          exportData,
+          getFilePath(file, true),
+          includeMeta,
+          false,
+          keepModifiedProperties
+        );
         updateProgressIndicator(indicatorId, `Exported ${policy._id}.`);
       } catch (error) {
         errors.push(error);

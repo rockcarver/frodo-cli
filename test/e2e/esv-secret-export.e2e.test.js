@@ -57,14 +57,14 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret_value-frodo-dev.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -i esv-test-secret -f my-esv-test-secret.secret.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -Ni esv-test-secret -D secretExportTestDir1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -MNi esv-test-secret -D secretExportTestDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a -f myAllSecrets_values.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a -f myAllSecrets_values-frodo-dev.secret.json --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -a --file my-allSecrets.secret.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -NaD secretExportTestDir2
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -MNaD secretExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -A
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --all-separate --no-metadata --directory secretExportTestDir3
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export --modified-properties --all-separate --no-metadata --directory secretExportTestDir3
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -AD secretExportTestDir4 --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret export -AD secretExportTestDir5 --include-active-values
 */
@@ -101,9 +101,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo esv secret export -Ni esv-test-secret -D secretExportTestDir1": should export the secret with secret id "esv-test-secret" into the directory named secretExportTestDir1', async () => {
+  test('"frodo esv secret export -MNi esv-test-secret -D secretExportTestDir1": should export the secret with secret id "esv-test-secret" into the directory named secretExportTestDir1', async () => {
     const exportDirectory = 'secretExportTestDir1';
-    const CMD = `frodo esv secret export -Ni esv-test-secret -D ${exportDirectory}`;
+    const CMD = `frodo esv secret export -MNi esv-test-secret -D ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
@@ -131,9 +131,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type, exportFile);
   });
 
-  test('"frodo esv secret export -NaD secretExportTestDir2": should export all secrets to a single file in the directory secretExportTestDir2', async () => {
+  test('"frodo esv secret export -MNaD secretExportTestDir2": should export all secrets to a single file in the directory secretExportTestDir2', async () => {
     const exportDirectory = 'secretExportTestDir2';
-    const CMD = `frodo esv secret export -NaD ${exportDirectory}`;
+    const CMD = `frodo esv secret export -MNaD ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
@@ -142,9 +142,9 @@ describe('frodo esv secret export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo esv secret export --all-separate --no-metadata --directory secretExportTestDir3": should export all secrets to separate files in the directory secretExportTestDir3', async () => {
+  test('"frodo esv secret export --modified-properties --all-separate --no-metadata --directory secretExportTestDir3": should export all secrets to separate files in the directory secretExportTestDir3', async () => {
     const exportDirectory = 'secretExportTestDir3';
-    const CMD = `frodo esv secret export --all-separate --no-metadata --directory ${exportDirectory}`;
+    const CMD = `frodo esv secret export --modified-properties --all-separate --no-metadata --directory ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 

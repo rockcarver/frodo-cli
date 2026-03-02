@@ -28,6 +28,7 @@ async function exportPolicy(p: PolicySkeleton) {
       true
     ),
     false,
+    true,
     true
   );
 
@@ -48,6 +49,7 @@ async function exportPolicy(p: PolicySkeleton) {
       true
     ),
     false,
+    true,
     true
   );
 }
@@ -111,6 +113,7 @@ export async function configManagerExportAuthzPolicySet(
         true
       ),
       false,
+      true,
       true
     );
 
