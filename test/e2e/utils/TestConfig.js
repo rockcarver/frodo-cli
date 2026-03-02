@@ -1,5 +1,3 @@
-import { is } from "../../../../../../Library/Caches/typescript/5.9/node_modules/@babel/types/lib/index";
-
 export const connection = {
   host: 'https://openam-frodo-dev.forgeblocks.com/am',
   user: 'volker.scheuber@forgerock.com',
