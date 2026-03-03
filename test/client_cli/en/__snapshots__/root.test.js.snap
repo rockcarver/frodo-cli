@@ -16,6 +16,7 @@ Commands:
   config                                                  Manage full cloud configuration.
   config-manager                                          Manage cloud configuration using fr-config-manager.
   conn|connection                                         Manage connection profiles.
+  direct-config-session                                   Manage direct configuration sessions.
   email                                                   Manage email templates and configuration.
   esv                                                     Manage environment secrets and variables (ESVs).
   idm                                                     Manage IDM configuration.
