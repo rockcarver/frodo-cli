@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo direct-config-session state "frodo direct-config-session state --json": should return the current state of the direct configuration session in JSON format 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo direct-config-session state "frodo direct-config-session state": should return the current state of the direct configuration session 1`] = `""`;
