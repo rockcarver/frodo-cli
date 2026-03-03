@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo direct-config-session init "frodo direct-config-session init --json": should initialize a new direct configuration session in JSON format 1`] = `
+"{ editable: true }
+"
+`;
+
+exports[`frodo direct-config-session init "frodo direct-config-session init": should initialize a new direct configuration session 1`] = `""`;

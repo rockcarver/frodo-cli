@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo direct-config-session abort "frodo direct-config-session abort --json": should abort the current direct configuration session in JSON format 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo direct-config-session abort "frodo direct-config-session abort": should abort the current direct configuration session 1`] = `""`;

@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'direct-config-session' should be expected english 1`] = `
+"Usage: frodo direct-config-session [options] [command]
+
+Manage direct configuration sessions.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  abort       Abort a direct configuration session.
+  apply       Apply configuration and end a direct configuration session.
+  help        display help for command
+  init        Initialize a direct configuration session.
+  state       Retrieve the state of the direct configuration session.
+"
+`;

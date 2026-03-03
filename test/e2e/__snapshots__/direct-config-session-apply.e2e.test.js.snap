@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo direct-config-session apply "frodo direct-config-session apply --json": should apply the configuration and end the current direct configuration session in JSON format 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1772209972215 [b672336b-41ef-428d-ae4a-e0c082875377]
+"
+`;
+
+exports[`frodo direct-config-session apply "frodo direct-config-session apply": should apply the configuration and end the current direct configuration session 1`] = `
+"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1772209972215 [b672336b-41ef-428d-ae4a-e0c082875377]
+Error applying direct configuration session
+  Network error:
+    URL: https://openam-frodo-dev.forgeblocks.com/environment/ccc/apply
+    Status: 404
+    Code: ERR_BAD_REQUEST
+    Message: path /environment/ccc/apply was not found
+"
+`;
