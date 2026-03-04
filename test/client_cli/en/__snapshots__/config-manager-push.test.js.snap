@@ -17,6 +17,7 @@ Commands:
   internal-roles        Import internal roles.
   kba                   Import kba configuration.
   locales               Import custom locales objects.
+  org-privileges        Import organization privileges config.
   password-policy       Import password-policy objects.
   schedules             Import schedules.
   terms-and-conditions  Import terms and conditions.

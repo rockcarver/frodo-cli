@@ -2,9 +2,8 @@ import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import {
-  configManagerExportOrgPrivileges,
-  configManagerExportOrgPrivilegesAllRealms,
-  configManagerExportOrgPrivilegesRealm,
+  configManagerImportOrgPrivilegesAllRealms,
+  configManagerImportOrgPrivilegesByName,
 } from '../../../configManagerOps/FrConfigOrgPrivilegesOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage } from '../../../utils/Console';
@@ -18,21 +17,19 @@ const deploymentTypes = [
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
 ];
 
-const { constants } = frodo.utils;
-
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull org-privileges',
+    'frodo config-manager push org-privileges',
     [],
     deploymentTypes
   );
 
   program
-    .description('Export organization privileges config.')
+    .description('Import organization privileges config.')
     .addOption(
       new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the entity object from this realm will be exported.'
+        '-n, --name <name>',
+        'Organization Privileges name; only imports the privileges with the specified name.'
       )
     )
     .action(async (host, realm, user, password, options, command) => {
@@ -45,27 +42,19 @@ export default function setup() {
         command
       );
 
-      // -r flag has precedence
-      if (options.realm) {
-        realm = options.realm;
-      }
-
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;
-        if (realm !== constants.DEFAULT_REALM_KEY) {
+        if (options.name) {
           printMessage(
-            `Exporting organization privileges config from the realm: "${realm}"`
+            `Importing organization privileges config for "${options.name}"`
           );
-          outcome =
-            (await configManagerExportOrgPrivileges()) &&
-            (await configManagerExportOrgPrivilegesRealm(realm));
+          outcome = await configManagerImportOrgPrivilegesByName(options.name);
         } else {
           printMessage(
-            'Exporting oranization privileges config from all realms'
+            'Importing organization privileges config to all realms'
           );
-          outcome = await configManagerExportOrgPrivilegesAllRealms();
+          outcome = await configManagerImportOrgPrivilegesAllRealms();
         }
-
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options
