@@ -58,6 +58,8 @@ const connectionsSaveFile = './test/e2e/env/ConnectionsSave.json';
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/ConnectionsSave.json';
+process.env['FRODO_MASTER_KEY_PATH'] =
+  './test/e2e/env/masterkey.key';
 const env = getEnv(c);
 const classicEnv = getEnv(cc);
 

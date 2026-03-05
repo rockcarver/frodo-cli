@@ -57,6 +57,8 @@ const connectionsAliasFile = './test/e2e/env/ConnectionsDeleteAlias.json';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = connectionsAliasFile;
+process.env['FRODO_MASTER_KEY_PATH'] =
+  './test/e2e/env/masterkey.key';
 const env = getEnv();
 
 beforeAll(() => {
