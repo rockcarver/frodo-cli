@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'config-manager push' should be expected english 1`] = `
+"Usage: frodo config-manager push [options] [command]
+
+Import configuration optimized for CI/CD pipelines (format compatible with
+fr-config-manager).
+
+Options:
+  -h, --help            Help
+
+Commands:
+  help                  display help for command
+  locales               Import custom locales objects.
+  password-policy       Import password-policy objects.
+  terms-and-conditions  Import terms and conditions.
+  themes                Import themes.
+"
+`;

@@ -1,0 +1,90 @@
+{
+  "_id": "00203891-dde0-4114-b27a-219ae0b43a61",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": true,
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "favicon": "",
+  "isDefault": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": true,
+  "journeyJustifiedContent": "",
+  "journeyJustifiedContentEnabled": false,
+  "journeyLayout": "card",
+  "journeyTheaterMode": false,
+  "linkActiveColor": "#C60819",
+  "linkColor": "#EB0A1E",
+  "linkedTrees": [],
+  "logo": "",
+  "logoAltText": "",
+  "logoEnabled": true,
+  "logoHeight": "40",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-full.svg",
+  "logoProfileAltText": "Highlander",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
+  "logoProfileCollapsedAltText": "Highlander",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "28",
+  "name": "Highlander",
+  "pageTitle": "#23282e",
+  "primaryColor": "#EB0A1E",
+  "primaryOffColor": "#C60819",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#EB0A1E",
+  "secondaryColor": "#69788b",
+  "textColor": "#ffffff"
+}

@@ -1,0 +1,25 @@
+{
+  "_id": "selfservice.terms",
+  "active": "0.0",
+  "versions": [
+    {
+      "createDate": "2019-10-28T04:20:11.320Z",
+      "termsTranslations": {
+        "en": {
+          "file": "0.0/en.html"
+        }
+      },
+      "version": "0.0"
+    },
+    {
+      "createDate": "2026-02-13T20:14:54.017Z",
+      "isDraft": false,
+      "termsTranslations": {
+        "en": {
+          "file": "0.1/en.html"
+        }
+      },
+      "version": "0.1"
+    }
+  ]
+}

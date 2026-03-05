@@ -1,0 +1,44 @@
+{
+  "_id": "uilocale/ko",
+  "admin": {
+    "overrides": {
+      "AppLogoURI": "앱 로고 URI",
+      "EmailAddress": "이메일 주소",
+      "Name": "이름",
+      "Owners": "소유자"
+    },
+    "sideMenu": {
+      "securityQuestions": "보안 질문"
+    }
+  },
+  "enduser": {
+    "overrides": {
+      "FirstName": "이름",
+      "LastName": "성"
+    },
+    "pages": {
+      "dashboard": {
+        "widgets": {
+          "welcome": {
+            "greeting": "안녕하세요"
+          }
+        }
+      }
+    }
+  },
+  "login": {
+    "login": {
+      "next": "다음"
+    },
+    "overrides": {
+      "Password": "비밀번호",
+      "UnabletoresumesessionItmayhaveexpired": "세션을 재개할 수 없습니다. 세션이 만료되었을 수 있습니다.",
+      "UserName": "사용자 이름"
+    }
+  },
+  "shared": {
+    "sideMenu": {
+      "dashboard": "대시보드"
+    }
+  }
+}

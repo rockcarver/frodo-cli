@@ -1,0 +1,92 @@
+{
+  "_id": "8ee2e08a-db04-4a16-b3d9-6f52c9aee5cb",
+  "accountFooter": {
+    "file": "accountFooter.html"
+  },
+  "accountFooterEnabled": true,
+  "accountPageSections": {
+    "accountControls": {
+      "enabled": false
+    },
+    "accountSecurity": {
+      "enabled": true,
+      "subsections": {
+        "password": {
+          "enabled": true
+        },
+        "securityQuestions": {
+          "enabled": false
+        },
+        "twoStepVerification": {
+          "enabled": true
+        },
+        "username": {
+          "enabled": true
+        }
+      }
+    },
+    "consent": {
+      "enabled": false
+    },
+    "oauthApplications": {
+      "enabled": false
+    },
+    "personalInformation": {
+      "enabled": true
+    },
+    "preferences": {
+      "enabled": false
+    },
+    "social": {
+      "enabled": false
+    },
+    "trustedDevices": {
+      "enabled": true
+    }
+  },
+  "backgroundColor": "#FFFFFF",
+  "backgroundImage": "",
+  "bodyText": "#5E6D82",
+  "buttonRounded": "50",
+  "dangerColor": "#f7685b",
+  "favicon": "",
+  "isDefault": false,
+  "journeyFooter": {
+    "file": "journeyFooter.html"
+  },
+  "journeyFooterEnabled": true,
+  "journeyHeader": {
+    "file": "journeyHeader.html"
+  },
+  "journeyHeaderEnabled": false,
+  "journeyJustifiedContent": {
+    "file": "journeyJustifiedContent.html"
+  },
+  "journeyJustifiedContentEnabled": true,
+  "journeyLayout": "justified-right",
+  "journeyTheaterMode": true,
+  "linkActiveColor": "#007661",
+  "linkColor": "#009C80",
+  "linkedTrees": [],
+  "logo": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoAltText": "Zardoz Logo",
+  "logoEnabled": true,
+  "logoHeight": "47",
+  "logoProfile": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileAltText": "Zardaz Logo",
+  "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/zardoz/logo-zardoz.svg",
+  "logoProfileCollapsedAltText": "Zardaz Logo",
+  "logoProfileCollapsedHeight": "28",
+  "logoProfileHeight": "40",
+  "name": "Zardoz",
+  "pageTitle": "#23282e",
+  "primaryColor": "#009C80",
+  "primaryOffColor": "#007661",
+  "profileBackgroundColor": "#FFFFFF",
+  "profileMenuHighlightColor": "#FFFFFF",
+  "profileMenuHoverColor": "#FFFFFF",
+  "profileMenuHoverTextColor": "#455469",
+  "profileMenuTextHighlightColor": "#009C80",
+  "secondaryColor": "#69788b",
+  "textColor": "#ffffff"
+}
