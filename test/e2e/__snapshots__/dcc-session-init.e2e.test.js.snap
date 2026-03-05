@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo dcc session init "frodo dcc session init --json": should initialize a new direct configuration session in JSON format 1`] = `
+"{ editable: true }
+"
+`;
+
+exports[`frodo dcc session init "frodo dcc session init": should initialize a new direct configuration session 1`] = `""`;

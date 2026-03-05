@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'frodo dcc' should be expected english 1`] = `
+"Usage: frodo dcc|direct-configuration-control [options] [command]
+
+Direct Configuration Control (DCC) commands.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  help        display help for command
+  session     Manage direct configuration sessions.
+"
+`;
+
+exports[`CLI help interface for 'frodo direct-configuration-control' should be expected english 1`] = `
+"Usage: frodo dcc|direct-configuration-control [options] [command]
+
+Direct Configuration Control (DCC) commands.
+
+Options:
+  -h, --help  Help
+
+Commands:
+  help        display help for command
+  session     Manage direct configuration sessions.
+"
+`;

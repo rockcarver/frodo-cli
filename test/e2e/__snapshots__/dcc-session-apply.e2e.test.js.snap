@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo dcc session apply "frodo dcc session apply --json": should apply the configuration and end the current direct configuration session in JSON format 1`] = `
+"{ editable: false }
+"
+`;
+
+exports[`frodo dcc session apply "frodo dcc session apply": should apply the configuration and end the current direct configuration session 1`] = `""`;

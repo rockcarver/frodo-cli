@@ -10,7 +10,7 @@ import authz from './cli/authz/authz';
 import config from './cli/config/config';
 import configManager from './cli/config-manager/config-manager';
 import conn from './cli/conn/conn';
-import directConfigSession from './cli/direct-config-session/direct-config-session';
+import directConfigSession from './cli/dcc/dcc';
 import email from './cli/email/email';
 import esv from './cli/esv/esv';
 import idm from './cli/idm/idm';
