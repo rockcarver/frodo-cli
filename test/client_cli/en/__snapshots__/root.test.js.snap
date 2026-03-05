@@ -16,7 +16,7 @@ Commands:
   config                                                  Manage full cloud configuration.
   config-manager                                          Manage configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).
   conn|connection                                         Manage connection profiles.
-  direct-config-session                                   Manage direct configuration sessions.
+  dcc|direct-configuration-control                        Direct Configuration Control (DCC) commands.
   email                                                   Manage email templates and configuration.
   esv                                                     Manage environment secrets and variables (ESVs).
   idm                                                     Manage IDM configuration.

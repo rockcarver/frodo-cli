@@ -91,8 +91,7 @@ exports[`frodo info Authenticate as service account using cli args frodo info <h
 `;
 
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-
+"
 Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
 AM Version            │7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)
 Subject (Type)        │Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   
@@ -213,8 +212,7 @@ exports[`frodo info Authenticate as service account using env vars frodo info -s
 `;
 
 exports[`frodo info Authenticate as service account using env vars frodo info 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377]
-
+"
 Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
 AM Version            │7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)
 Subject (Type)        │Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   

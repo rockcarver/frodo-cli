@@ -5,7 +5,7 @@ import {
 } from '@rockcarver/frodo-lib/types/ops/CallbackOps';
 import readlineSync from 'readline-sync';
 
-import { printError, printMessage } from '../utils/Console';
+import { printError, printMessage, verboseMessage } from '../utils/Console';
 
 const { getTokens: _getTokens } = frodo.login;
 const { DEPLOYMENT_TYPES } = frodo.utils.constants;
@@ -42,11 +42,10 @@ export async function getTokens(
       types,
       otpCallbackHandler
     );
-    printMessage(
+    verboseMessage(
       `Connected to ${state.getHost()} [${
         state.getRealm() ? state.getRealm() : 'root'
-      }] as ${tokens.subject}`,
-      'info'
+      }] as ${tokens.subject}`
     );
     return true;
   } catch (error) {
