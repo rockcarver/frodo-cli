@@ -6,7 +6,7 @@ import Themes from './config-manager-push-themes';
 
 export default function setup() {
   const program = new FrodoStubCommand('push').description(
-    'Import cloud configuration using fr-config-manager.'
+    'Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
 
   program.addCommand(Themes().name('themes'));

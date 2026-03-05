@@ -38,7 +38,7 @@ import Variables from './config-manager-pull-variables';
 
 export default function setup() {
   const program = new FrodoStubCommand('frodo config-manager pull').description(
-    'Export cloud configuration using fr-config-manager.'
+    'Export configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
 
   program.addCommand(All().name('all'));

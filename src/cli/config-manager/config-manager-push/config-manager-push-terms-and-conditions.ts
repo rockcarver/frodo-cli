@@ -21,7 +21,7 @@ export default function setup() {
   );
 
   program
-    .description('Import ui-configuration objects.')
+    .description('Import terms and conditions.')
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,

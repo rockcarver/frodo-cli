@@ -3,7 +3,7 @@
 exports[`CLI help interface for 'config-manager push terms-and-conditions' should be expected english 1`] = `
 "Usage: frodo config-manager push terms-and-conditions [options] [host] [realm] [username] [password]
 
-Import ui-configuration objects.
+Import terms and conditions.
 
 Arguments:
   host                                   AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.
