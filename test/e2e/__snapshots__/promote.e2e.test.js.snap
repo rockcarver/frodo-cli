@@ -3,24 +3,19 @@
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes 1`] = `""`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
-✔ Imported alpha realm authentication settings.
+"✔ Imported alpha realm authentication settings.
 ✔ Imported bravo realm authentication settings.
 "
 `;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
-"
-`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `""`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes 1`] = `""`;
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
-✖ Error importing mapping undefined
+"✖ Error importing mapping undefined
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
 ✖ Error importing mapping undefined
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
@@ -31,7 +26,4 @@ Error deleting mapping undefined
 
 exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes 2`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as service account Frodo-SA-1730238488278 [b672336b-41ef-428d-ae4a-e0c082875377]
-"
-`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes 2`] = `""`;
