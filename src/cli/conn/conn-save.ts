@@ -47,13 +47,13 @@ export default function setup() {
     .addOption(
       new Option(
         '--authentication-header-overrides [headers]',
-        'Map of headers: {"host":"am.example.com:8081"}. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.'
+        `Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.`
       )
     )
     .addOption(
       new Option(
         '--configuration-header-overrides [headers]',
-        'Map of headers: {"X-Custom-Configuration":"critical"}. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.'
+        `Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.`
       )
     )
     .addOption(
