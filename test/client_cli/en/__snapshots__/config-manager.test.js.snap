@@ -3,17 +3,13 @@
 exports[`CLI help interface for 'config' should be expected english 1`] = `
 "Usage: frodo config-manager [options] [command]
 
-Manage configuration optimized for CI/CD pipelines (format compatible with
-fr-config-manager).
+Manage cloud configuration using fr-config-manager.
 
 Options:
   -h, --help  Help
 
 Commands:
   help        display help for command
-  pull        Export configuration optimized for CI/CD pipelines (format
-              compatible with fr-config-manager).
-  push        Import configuration optimized for CI/CD pipelines (format
-              compatible with fr-config-manager).
+  pull        Export cloud configuration using fr-config-manager.
 "
 `;
