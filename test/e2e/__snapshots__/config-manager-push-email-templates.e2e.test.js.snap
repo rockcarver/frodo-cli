@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push email-templates "frodo config-manager push email-templates -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the email-templates into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push email-templates "frodo config-manager push email-templates -n forgottenUsername -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific email-template by name into forgeops" 1`] = `""`;

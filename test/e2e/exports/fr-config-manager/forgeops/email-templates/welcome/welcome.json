@@ -1,0 +1,23 @@
+{
+  "_id": "emailTemplate/welcome",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "welcome.en.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "welcome.en.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "welcome.css"
+  },
+  "subject": {
+    "en": "Your account has been created"
+  }
+}
