@@ -1,0 +1,6 @@
+{
+  "_id": "endpoint/groovy",
+  "description": "test",
+  "file": "groovy.groovy",
+  "type": "groovy"
+}
