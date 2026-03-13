@@ -14,11 +14,11 @@ export async function readDirectConfigurationSessionState(
     } else {
       if (response.editable) {
         printMessage(
-          `Direct configuration session is active and editable. Changes can be applied or aborted.`
+          `Direct configuration session is active and editable${response.status ? ` (Status: ${response.status})` : ''}. Changes can be applied or aborted.`
         );
       } else {
         printMessage(
-          `No active direct configuration session is present. Use 'frodo dcc session init' to start a new session.`
+          `No active direct configuration session is present${response.status ? ` (Status: ${response.status})` : ''}. Use 'frodo dcc session init' to start a new session.`
         );
       }
     }
@@ -40,7 +40,7 @@ export async function initDirectConfigurationSession(
     } else {
       if (response.editable) {
         printMessage(
-          `Direct configuration session initialized. Changes can be applied or aborted.`
+          `Direct configuration session initialized. Changes can be applied or aborted${response.status ? ` (${response.status})` : ''}.`
         );
       } else {
         printMessage(
