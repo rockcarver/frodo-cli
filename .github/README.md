@@ -8,6 +8,7 @@ A command line interface to manage PingOne Advanced Identity Cloud environments,
 
 - [Quick start](#quick-start)
 - [New in 4.x](#new-in-4x)
+- [About](#about)
 - [Considerations](#considerations)
 - [Installing](#installing)
 - [Usage](#usage)
@@ -43,7 +44,28 @@ Detailed [Installation](#installing) instructions below.
 
 [Frodo Library 4.x](https://github.com/rockcarver/frodo-lib?tab=readme-ov-file#frodo-library-4x---rockcarverfrodo-lib) continually improves with more stabilty, more modules, token caching, automatic token refresh, better error handling, and more.
 
-### New and updated commands
+### New commands
+
+#### `frodo config-manager`
+
+A set of commands and export/import format optimized for CI/CD pipelines and compatible with `fr-config-manager`.
+
+#### `frodo direct-configuration-control`
+
+A set of commands to manage AIC envs supporting `Direct Configuration Control`.
+
+#### `frodo node`
+
+A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Identity Cloud.
+
+### Node.js Versions
+
+- Added support for Node.js 24 and 25/26.
+- Dropped support for Node.js 18 and 20.
+
+## About
+
+### Commands
 
 | Command                                          |  Since  | Description                                                            |
 | ------------------------------------------------ | :-----: | ---------------------------------------------------------------------- |
@@ -114,7 +136,7 @@ Detailed [Installation](#installing) instructions below.
 | &emsp;&emsp;import                               |  1.0.0  | Import authorization resource types.                                   |
 | &emsp;&emsp;list                                 |  1.0.0  | List authorization resource types.                                     |
 |                                                  |         |                                                                        |
-| frodo app / application                          |  2.0.0  | Old `app` renamed to `oauth`! Manage applications.                     |
+| frodo app / application                          |  2.0.0  | Manage applications. Old `app` command was renamed to `oauth`.         |
 | &emsp;delete                                     |  2.0.0  | Delete applications.                                                   |
 | &emsp;export                                     |  2.0.0  | Export applications.                                                   |
 | &emsp;import                                     |  2.0.0  | Import applications.                                                   |
@@ -132,7 +154,7 @@ Detailed [Installation](#installing) instructions below.
 | &emsp;&emsp;authentication                       | `4.0.0` | Export authentication objects.                                         |
 | &emsp;&emsp;authz-policies                       | `4.0.0` | Export authorization policies from realm.                              |
 | &emsp;&emsp;connector-definitions                | `4.0.0` | Export aconnector definitions.                                         |
-| &emsp;&emsp;connector-mappings                   | `4.0.0` | Export connector mappings.                                                |
+| &emsp;&emsp;connector-mappings                   | `4.0.0` | Export connector mappings.                                             |
 | &emsp;&emsp;cookie-domains                       | `4.0.0` | Export cookie-domains objects.                                         |
 | &emsp;&emsp;cors                                 | `4.0.0` | Export CORS configuration.                                             |
 | &emsp;&emsp;csp                                  | `4.0.0` | Export content security policy.                                        |
@@ -167,6 +189,13 @@ Detailed [Installation](#installing) instructions below.
 | &emsp;describe                                   |  1.0.0  | Describe connection profile.                                           |
 | &emsp;list                                       |  1.0.0  | List connection profiles.                                              |
 | &emsp;save / add                                 |  1.0.0  | Save connection profiles.                                              |
+|                                                  |         |                                                                        |
+| frodo dcc / direct-configuration-control         | `4.0.0` | Direct Configuration Control (DCC) commands.                           |
+| &emsp;session                                    | `4.0.0` | Manage direct configuration sessions.                                  |
+| &emsp;&emsp;abort                                | `4.0.0` | Abort a direct configuration session.                                  |
+| &emsp;&emsp;apply.                               | `4.0.0` | Apply configuration and end a direct configuration session.            |
+| &emsp;&emsp;init                                 | `4.0.0` | Initialize a direct configuration session.                             |
+| &emsp;&emsp;state.                               | `4.0.0` | Retrieve the state of the direct configuration session.                |
 |                                                  |         |                                                                        |
 | frodo email                                      |  1.0.0  | Manage email templates and configuration.                              |
 | &emsp;template                                   |  1.0.0  | Manage email templates.                                                |
@@ -284,6 +313,19 @@ Detailed [Installation](#installing) instructions below.
 | &emsp;list                                       |  1.0.0  | List themes.                                                           |
 |                                                  |         |                                                                        |
 | frodo help                                       |  1.0.0  | display help for command                                               |
+
+### Node.js Versions
+
+| Node.js |          1.x       |          2.x       |          3.x.      |.      ***4.x***    |          5.x       |
+| :-----: | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
+|   14    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   16    | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   18    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   20    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: | :heavy_minus_sign: |
+|   22    | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :heavy_minus_sign: |
+|   24    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
+|   26    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
+|   28    | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: |
 
 ### Global support for `-D`, `--directory` to set the working directory
 
