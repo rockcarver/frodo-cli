@@ -12,7 +12,7 @@ import {
   succeedSpinner,
 } from '../utils/Console';
 
-const { getAccessTokenForServiceAccount } = frodo.login;
+const { validateServiceAccount } = frodo.cloud.serviceAccount;
 const { getConnectionProfilesPath, getConnectionProfileByHost } = frodo.conn;
 
 /**
@@ -186,10 +186,7 @@ export async function addExistingServiceAccount(
     const jwk = JSON.parse(data.toString());
     if (validate) {
       showSpinner(`Validating service account ${serviceAccountId}...`);
-      const token = await getAccessTokenForServiceAccount(
-        serviceAccountId,
-        jwk
-      );
+      const token = await validateServiceAccount(serviceAccountId, jwk);
       if (token === null) {
         failSpinner(`Failed to validate service account ${serviceAccountId}.`);
         return false;
