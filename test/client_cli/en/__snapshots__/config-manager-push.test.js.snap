@@ -10,6 +10,7 @@ Options:
   -h, --help            Help
 
 Commands:
+  email-provider        Import email provider configuration.
   help                  display help for command
   locales               Import custom locales objects.
   password-policy       Import password-policy objects.

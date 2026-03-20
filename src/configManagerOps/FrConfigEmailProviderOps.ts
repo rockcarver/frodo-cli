@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import fs from 'fs';
 
 import { printError } from '../utils/Console';
 
@@ -26,4 +27,21 @@ export async function configManagerExportEmailProviderConfiguration(): Promise<b
     printError(error);
     return false;
   }
+}
+
+export async function configManagerImportEmailProvider(): Promise<boolean> {
+  try {
+    const filePath = getFilePath('email-provider');
+    const fileData = fs.readFileSync(
+      `${filePath}/external.email.json`,
+      'utf-8'
+    );
+    let importData = JSON.parse(fileData);
+    importData = { idm: { [importData._id]: importData } };
+    await config.importConfigEntities(importData);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
 }

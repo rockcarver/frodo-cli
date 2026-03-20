@@ -1,0 +1,35 @@
+{
+  "_id": "external.email",
+  "auth": {
+    "enable": true,
+    "password": {
+      "$crypto": {
+        "type": "x-simple-encryption",
+        "value": {
+          "cipher": "AES/CBC/PKCS5Padding",
+          "data": "qcDwBztfGus1VQ3UjmLmCQ==",
+          "iv": "dh1xL4olkahHfUzg1cM/ig==",
+          "keySize": 16,
+          "mac": "QQZZ0CaZ7J7bfM+r72oKXg==",
+          "purpose": "idm.config.encryption",
+          "salt": "jjLFVYra5scm+UdVgM2Ncw==",
+          "stableId": "openidm-sym-default"
+        }
+      }
+    },
+    "username": "dallinsevy"
+  },
+  "connectiontimeout": 30000,
+  "from": "\"Example\" <superextra@example.com>",
+  "host": "example.com",
+  "port": 22,
+  "smtpProperties": [],
+  "ssl": {
+    "enable": false
+  },
+  "starttls": {
+    "enable": false
+  },
+  "timeout": 30000,
+  "writetimeout": 30000
+}
