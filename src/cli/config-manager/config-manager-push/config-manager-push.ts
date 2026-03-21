@@ -1,5 +1,6 @@
 import { FrodoStubCommand } from '../../FrodoCommand';
 import EmailProvider from './config-manager-push-email-provider';
+import Endpoints from './config-manager-push-endpoints';
 import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import PasswordPolicy from './config-manager-push-password-policy';
@@ -16,6 +17,7 @@ export default function setup() {
   program.addCommand(PasswordPolicy().name('password-policy'));
   program.addCommand(Locales().name('locales'));
   program.addCommand(EmailProvider().name('email-provider'));
+  program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Kba().name('kba'));
 
   return program;
