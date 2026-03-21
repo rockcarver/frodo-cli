@@ -13,6 +13,7 @@ Commands:
   email-provider        Import email provider configuration.
   endpoints             Import custom endpoints objects.
   help                  display help for command
+  kba                   Import kba configuration.
   locales               Import custom locales objects.
   password-policy       Import password-policy objects.
   terms-and-conditions  Import terms and conditions.
