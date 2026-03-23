@@ -43,6 +43,7 @@ async function startRepl(allowAwait = false, host?: string) {
 
   // Forward reference: _replServer is assigned below, but the hint callback
   // fires via setImmediate so it is always defined by the time it runs.
+  // eslint-disable-next-line prefer-const
   let _replServer: repl.REPLServer | undefined;
   const completer = createFrodoCompleter(rootBindings, docsByMethod, (hint) => {
     printHintAbovePrompt(_replServer, hint);
