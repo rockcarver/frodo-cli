@@ -1,3 +1,7 @@
+const CYAN = '\x1b[36m';
+const DIM = '\x1b[2m';
+const RESET = '\x1b[0m';
+
 export type MethodHelpDoc = {
   typeName: string;
   methodName: string;
@@ -87,7 +91,7 @@ export function buildHintLine(fullPath: string, doc: MethodHelpDoc): string {
     })
     .filter((s) => s.length > 0)
     .join(', ');
-  return `// ${fullPath}(${params})`;
+  return `\u25b8 ${CYAN}${fullPath}${RESET}(${DIM}${params}${RESET})`;
 }
 
 export function createFrodoCompleter(
@@ -96,8 +100,35 @@ export function createFrodoCompleter(
   onMethodHint?: (hint: string) => void
 ): (line: string) => [string[], string] {
   return (line: string): [string[], string] => {
+    const invocationMatch = line.match(
+      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+)\(\s*$/
+    );
+    if (invocationMatch) {
+      const fullPath = invocationMatch[1];
+      const parts = fullPath.split('.');
+      const rootName = parts[0];
+      const root = rootBindings[rootName];
+      if (!root) return [[], line];
+
+      const methodName = parts[parts.length - 1];
+      const parentSegments = parts.slice(1, -1);
+      const completion = `${fullPath}${buildMethodScaffold(
+        parentSegments,
+        methodName,
+        docsByMethod
+      )}`;
+
+      if (onMethodHint) {
+        const doc = findBestDoc(methodName, parentSegments, docsByMethod);
+        if (doc) {
+          setImmediate(() => onMethodHint(buildHintLine(fullPath, doc)));
+        }
+      }
+      return [[completion], `${fullPath}(`];
+    }
+
     const tokenMatch = line.match(
-      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\.?$)/
+      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\.?)$/
     );
     const token = tokenMatch?.[1] ?? '';
     if (!token) return [[], line];
@@ -184,12 +215,14 @@ export function registerOpenParenHint(
   onHint: (hint: string) => void
 ): void {
   process.stdin.on('keypress', (_char: unknown, key: { sequence?: string }) => {
-    if (key?.sequence !== '(') return;
+    const char = typeof _char === 'string' ? _char : '';
+    const sequence = key?.sequence ?? '';
+    if (sequence !== '(' && char !== '(') return;
     // replServer.line holds the buffer *before* '(' is processed by readline.
     const currentLine =
       ((replServer as Record<string, unknown>)['line'] as string) ?? '';
     const match = currentLine.match(
-      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+)$/
+      /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+)\s*$/
     );
     if (!match) return;
     const parts = match[1].split('.');
@@ -197,6 +230,8 @@ export function registerOpenParenHint(
     const methodName = parts[parts.length - 1];
     const parentSegments = parts.slice(1, -1);
     const doc = findBestDoc(methodName, parentSegments, docsByMethod);
-    if (doc) onHint(buildHintLine(match[1], doc));
+    if (doc) {
+      setImmediate(() => onHint(buildHintLine(match[1], doc)));
+    }
   });
 }

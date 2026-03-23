@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import readline from 'node:readline';
 import repl from 'node:repl';
 
 import { frodo } from '@rockcarver/frodo-lib';
@@ -24,13 +23,22 @@ function printHintAbovePrompt(
   hint: string
 ): void {
   if (!replServer) return;
-  if (process.stdout.isTTY) {
-    // Move away from the active input line before writing the hint.
-    readline.clearLine(process.stdout, 0);
-    readline.cursorTo(process.stdout, 0);
-  }
-  process.stdout.write(`\n${hint}\n`);
-  replServer.displayPrompt(true);
+  setImmediate(() => {
+    process.stdout.write(`\n${hint}\n`);
+
+    const refreshLine = (
+      replServer as repl.REPLServer & {
+        _refreshLine?: () => void;
+      }
+    )._refreshLine;
+
+    if (typeof refreshLine === 'function') {
+      refreshLine.call(replServer);
+      return;
+    }
+
+    replServer.displayPrompt(true);
+  });
 }
 
 async function startRepl(allowAwait = false, host?: string) {
@@ -194,6 +202,50 @@ async function startRepl(allowAwait = false, host?: string) {
 
       this.displayPrompt();
     },
+  });
+
+  // Down-to-stash: when Down is pressed on a fresh, unexecuted draft at the
+  // current-input position, save the draft to history and clear it. While the
+  // user is actively traversing history with Up/Down, preserve readline's
+  // native history behavior and do not stash.
+  let historyNavigationActive = false;
+  process.stdin.on('keypress', (_char, key) => {
+    const rl = replServer as unknown as Record<string, unknown>;
+    const currentHistIdx = (rl['_historyIndex'] as number) ?? -1;
+
+    if (
+      key?.name === 'down' &&
+      !historyNavigationActive &&
+      currentHistIdx === -1
+    ) {
+      const currentLine = replServer.line ?? '';
+      if (currentLine.trim().length > 0) {
+        const replHistory = (rl['history'] as string[]) ?? [];
+        if (replHistory[0] !== currentLine) {
+          replHistory.unshift(currentLine);
+          shellHistory.addLine(currentLine);
+        }
+
+        // Move to end-of-line then kill to start, ensuring a full clear
+        // regardless of where the cursor currently sits.
+        replServer.write(null, { ctrl: true, name: 'e' });
+        replServer.write(null, { ctrl: true, name: 'u' });
+      }
+    }
+
+    if (key?.name === 'up' || key?.name === 'down') {
+      historyNavigationActive = true;
+      return;
+    }
+
+    if (key?.name === 'return' || key?.name === 'enter') {
+      historyNavigationActive = false;
+      return;
+    }
+
+    if (key?.ctrl || key?.meta || typeof key?.name === 'string') {
+      historyNavigationActive = false;
+    }
   });
 
   // Listen for new commands and persist them to history
