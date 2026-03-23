@@ -34,9 +34,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # Need to specify ref and repository for PRs from forked repos
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          # Use PR head repo/ref for forked PRs; default to current repo/ref for push/workflow_dispatch.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
 
       - uses: actions/setup-node@v6
         with:
@@ -123,9 +123,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # Need to specify ref and repository for PRs from forked repos
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          # Use PR head repo/ref for forked PRs; default to current repo/ref for push/workflow_dispatch.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
@@ -133,6 +133,14 @@ jobs:
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+
+      - name: Use Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Verify Python runtime for PTY shell tests
+        run: python3 --version
 
       - uses: actions/download-artifact@v7
         with:
