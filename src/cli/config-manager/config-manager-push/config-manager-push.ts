@@ -2,6 +2,7 @@ import { FrodoStubCommand } from '../../FrodoCommand';
 import AccessConfig from './config-manager-push-access-config';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
+import AuthzPolicies from './config-manager-push-authz-policies';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
 import CookieDomains from './config-manager-push-cookie-domain';
@@ -72,6 +73,7 @@ export default function setup() {
   program.addCommand(Raw().name('raw'));
   program.addCommand(Secrets().name('secrets'));
   program.addCommand(Services().name('services'));
+  program.addCommand(AuthzPolicies().name('authz-policies'));
 
   return program;
 }

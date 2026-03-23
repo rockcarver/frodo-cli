@@ -1,13 +1,5 @@
 {
-    "alpha": [
-        "oauth2Scopes",
-        "EdgePolicySet",
-        "FeatureStorePolicySet",
-        "data",
-        "test-policy-set"
-    ],
-    "bravo": [
-        "oauth2Scopes",
-        "murphyTestPolicySet"
-    ]
+  "/": ["iPlanetAMWebAgentService", "oauth2Scopes", "test-policy-set"],
+  "alpha": ["oauth2Scopes"],
+  "bravo": ["oauth2Scopes"]
 }
