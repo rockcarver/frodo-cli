@@ -5,6 +5,7 @@ import Authentication from './config-manager-push-authentication';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
 import CookieDomains from './config-manager-push-cookie-domain';
+import CSP from './config-manager-push-csp';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
@@ -46,5 +47,6 @@ export default function setup() {
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
 
+  program.addCommand(CSP().name('csp'));
   return program;
 }
