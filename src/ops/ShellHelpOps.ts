@@ -93,6 +93,43 @@ export function createHelpContext(frodoInstance: object): {
     );
   }
 
+  function getSubModuleNames(obj: object): string[] {
+    return Object.keys(obj).filter((k) => {
+      const value = (obj as Record<string, unknown>)[k];
+      return typeof value === 'object' && value !== null;
+    });
+  }
+
+  function getCountParts(
+    methodCount: number,
+    subModuleCount: number
+  ): string[] {
+    const parts: string[] = [];
+    if (methodCount > 0)
+      parts.push(`${methodCount} ${methodCount === 1 ? 'method' : 'methods'}`);
+    if (subModuleCount > 0)
+      parts.push(
+        `${subModuleCount} ${subModuleCount === 1 ? 'module' : 'modules'}`
+      );
+    return parts;
+  }
+
+  function formatCountSuffix(
+    methodCount: number,
+    subModuleCount: number
+  ): string {
+    const parts = getCountParts(methodCount, subModuleCount);
+    return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+  }
+
+  function formatCountLabel(
+    methodCount: number,
+    subModuleCount: number
+  ): string {
+    const parts = getCountParts(methodCount, subModuleCount);
+    return parts.length > 0 ? ` - ${parts.join(', ')}` : '';
+  }
+
   function help(target?: unknown): void {
     const idx = getMethodIndex(metadata);
 
@@ -111,31 +148,31 @@ export function createHelpContext(frodoInstance: object): {
 
       console.log(`${BOLD}${CYAN}Frodo Shell - Help System${RESET}`);
       console.log('');
+      console.log(`  ${GREEN}help()${RESET}  ${DIM}this overview${RESET}`);
       console.log(
-        `  ${GREEN}help()${RESET}                                 -> this overview`
+        `  ${GREEN}help(frodo.<module>)${RESET}  ${DIM}list all methods and modules in <module>${RESET}`
       );
       console.log(
-        `  ${GREEN}help(frodo.<sub-module>)${RESET}               -> list all methods in <sub-module>`
+        `  ${GREEN}help(frodo.<module>.<method>)${RESET}  ${DIM}full signature + docs for a method${RESET}`
       );
       console.log(
-        `  ${GREEN}help(frodo.<sub-module>.<method name>)${RESET} -> full signature + docs for a method`
-      );
-      console.log(
-        `  ${GREEN}help("methodName")${RESET}                     -> search for a method across all modules`
+        `  ${GREEN}help("methodName")${RESET}  ${DIM}search for a method across all modules${RESET}`
       );
       console.log('');
-      console.log(`${BOLD}Modules:${RESET}`);
+      const modulesCountLabel =
+        sortedMods.length > 0
+          ? ` (${sortedMods.length} ${sortedMods.length === 1 ? 'module' : 'modules'})`
+          : '';
+      console.log(`${BOLD}Modules${modulesCountLabel}:${RESET}`);
       for (const k of sortedMods) {
         const val = (frodoInstance as Record<string, unknown>)[k];
         if (typeof val === 'object' && val !== null) {
-          const count = getMethodNames(val as object).length;
-          if (count > 0) {
-            console.log(
-              `  frodo.${GREEN}${k}${RESET}  ${DIM}(${count} methods)${RESET}`
-            );
-          } else {
-            console.log(`  frodo.${GREEN}${k}${RESET}`);
-          }
+          const methodCount = getMethodNames(val as object).length;
+          const subModuleCount = getSubModuleNames(val as object).length;
+          const countSuffix = formatCountSuffix(methodCount, subModuleCount);
+          console.log(
+            `  frodo.${GREEN}${k}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
+          );
         }
       }
       if (sortedFns.length > 0) {
@@ -199,23 +236,47 @@ export function createHelpContext(frodoInstance: object): {
 
     if (typeof target === 'object' && target !== null) {
       const methods = getMethodNames(target as object);
-      const subMods = Object.keys(target as object).filter((k) => {
-        const v = (target as Record<string, unknown>)[k];
-        return typeof v === 'object' && v !== null;
-      });
+      const subMods = getSubModuleNames(target as object);
       const sortedMethods = [...methods].sort(alphaSort);
       const sortedSubMods = [...subMods].sort(alphaSort);
+      const methodCount = sortedMethods.length;
+      const subModuleCount = sortedSubMods.length;
+
+      const moduleType =
+        findModulePath(frodoInstance, target as object)?.replace(
+          /^frodo\./,
+          ''
+        ) || 'Module';
+
+      console.log(
+        `${BOLD}${CYAN}${moduleType}${formatCountLabel(methodCount, subModuleCount)}${RESET}`
+      );
+      console.log('');
 
       if (sortedMethods.length === 0) {
         if (sortedSubMods.length > 0) {
-          console.log(`${BOLD}Sub-modules:${RESET}`);
+          console.log(
+            `${BOLD}Modules (${subModuleCount} ${subModuleCount === 1 ? 'module' : 'modules'}):${RESET}`
+          );
           for (const subModule of sortedSubMods) {
-            console.log(`  ${GREEN}${subModule}${RESET}`);
+            const subModuleObj = (target as Record<string, unknown>)[subModule];
+            const subMethods =
+              typeof subModuleObj === 'object' && subModuleObj !== null
+                ? getMethodNames(subModuleObj as object).length
+                : 0;
+            const nestedSubMods =
+              typeof subModuleObj === 'object' && subModuleObj !== null
+                ? getSubModuleNames(subModuleObj as object).length
+                : 0;
+            const countSuffix = formatCountSuffix(subMethods, nestedSubMods);
+            console.log(
+              `  ${GREEN}${subModule}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
+            );
           }
           const subModPath =
             findModulePath(frodoInstance, target as object) ?? 'frodo.X';
           console.log(
-            `Use ${GREEN}help(${subModPath}.<sub-module>)${RESET} to explore further.`
+            `Use ${GREEN}help(${subModPath}.<module>)${RESET} to explore further.`
           );
         } else {
           console.log(`${YELLOW}No methods found on this object.${RESET}`);
@@ -239,14 +300,28 @@ export function createHelpContext(frodoInstance: object): {
       }
 
       if (sortedSubMods.length > 0) {
-        console.log(`${BOLD}Sub-modules:${RESET}`);
+        console.log(
+          `${BOLD}Modules (${subModuleCount} ${subModuleCount === 1 ? 'module' : 'modules'}):${RESET}`
+        );
         for (const subModule of sortedSubMods) {
-          console.log(`  ${GREEN}${subModule}${RESET}`);
+          const subModuleObj = (target as Record<string, unknown>)[subModule];
+          const subMethods =
+            typeof subModuleObj === 'object' && subModuleObj !== null
+              ? getMethodNames(subModuleObj as object).length
+              : 0;
+          const nestedSubMods =
+            typeof subModuleObj === 'object' && subModuleObj !== null
+              ? getSubModuleNames(subModuleObj as object).length
+              : 0;
+          const countSuffix = formatCountSuffix(subMethods, nestedSubMods);
+          console.log(
+            `  ${GREEN}${subModule}${RESET}${countSuffix ? `  ${DIM}${countSuffix}${RESET}` : ''}`
+          );
         }
         console.log('');
       }
       console.log(
-        `${BOLD}${CYAN}${bestType || 'Module'} - ${sortedMethods.length} method(s):${RESET}`
+        `${BOLD}${CYAN}${bestType || moduleType}${formatCountLabel(methodCount, subModuleCount)}:${RESET}`
       );
       console.log('');
       for (const methodName of sortedMethods) {
@@ -279,7 +354,7 @@ export function createHelpContext(frodoInstance: object): {
     }
 
     console.log(
-      `${YELLOW}Usage: help() | help(frodo.<sub-module>) | help(frodo.<sub-module>.<method name>) | help("methodName")${RESET}`
+      `${YELLOW}Usage: help() | help(frodo.<module>) | help(frodo.<module>.<method name>) | help("methodName")${RESET}`
     );
   }
 

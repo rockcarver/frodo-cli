@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import readline from 'node:readline';
 import repl from 'node:repl';
 
 import { frodo } from '@rockcarver/frodo-lib';
@@ -8,17 +9,52 @@ import vm from 'vm';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
+import {
+  buildDocsByMethod,
+  createFrodoCompleter,
+  registerOpenParenHint,
+} from '../../ops/ShellAutoCompleteOps';
 import { createHelpContext } from '../../ops/ShellHelpOps';
 import { ShellHistory } from '../../ops/ShellHistoryOps';
 import { printMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
+function printHintAbovePrompt(
+  replServer: repl.REPLServer | undefined,
+  hint: string
+): void {
+  if (!replServer) return;
+  if (process.stdout.isTTY) {
+    // Move away from the active input line before writing the hint.
+    readline.clearLine(process.stdout, 0);
+    readline.cursorTo(process.stdout, 0);
+  }
+  process.stdout.write(`\n${hint}\n`);
+  replServer.displayPrompt(true);
+}
+
 async function startRepl(allowAwait = false, host?: string) {
+  const docsByMethod = buildDocsByMethod(frodo);
+
+  const rootBindings: Record<string, object> = {
+    frodo,
+    frodoLib: frodo,
+  };
+
+  // Forward reference: _replServer is assigned below, but the hint callback
+  // fires via setImmediate so it is always defined by the time it runs.
+  // eslint-disable-next-line prefer-const
+  let _replServer: repl.REPLServer | undefined;
+  const completer = createFrodoCompleter(rootBindings, docsByMethod, (hint) => {
+    printHintAbovePrompt(_replServer, hint);
+  });
+
   const baseConfig = {
     prompt: '> ',
     ignoreUndefined: true,
     useGlobal: true,
     useColors: true,
+    completer,
     writer: function (output) {
       // Check if the output is an object
       if (typeof output === 'object' && output !== null) {
@@ -41,7 +77,8 @@ async function startRepl(allowAwait = false, host?: string) {
     },
   };
 
-  const replServer = repl.start(allowAwait ? baseConfig : configWithoutAwait);
+  _replServer = repl.start(allowAwait ? baseConfig : configWithoutAwait);
+  const replServer = _replServer;
 
   replServer.context.frodoLib = frodo;
   replServer.context.frodo = frodo;
@@ -51,6 +88,12 @@ async function startRepl(allowAwait = false, host?: string) {
   // the shell.
   const { help } = createHelpContext(frodo);
   replServer.context.help = help;
+
+  // Register keypress hint: prints a typed-signature comment above the prompt
+  // when '(' is typed after a known frodo method path.
+  registerOpenParenHint(replServer, rootBindings, docsByMethod, (hint) => {
+    printHintAbovePrompt(replServer, hint);
+  });
 
   // Set up persistent shell history per connection profile/host
   const shellHistory = new ShellHistory(host);
@@ -116,27 +159,27 @@ async function startRepl(allowAwait = false, host?: string) {
       console.log('');
       console.log(`${BOLD}Explore the Frodo API:${RESET}`);
       console.log(
-        `  ${GREEN}help()${RESET}                          ${DIM}browse all modules and methods${RESET}`
+        `  ${GREEN}help()${RESET}  ${DIM}browse all modules and methods${RESET}`
       );
       console.log(
-        `  ${GREEN}help(frodo.X)${RESET}                   ${DIM}list all methods in module X${RESET}`
+        `  ${GREEN}help(frodo.<module>)${RESET}  ${DIM}list all methods in module X${RESET}`
       );
       console.log(
-        `  ${GREEN}help(frodo.X.method)${RESET}            ${DIM}show full signature and docs${RESET}`
+        `  ${GREEN}help(frodo.<module>.<method>)${RESET}  ${DIM}show full signature and docs${RESET}`
       );
       console.log(
-        `  ${GREEN}help("methodName")${RESET}              ${DIM}search for a method across all modules${RESET}`
+        `  ${GREEN}help("methodName")${RESET}  ${DIM}search for a method across all modules${RESET}`
       );
       console.log('');
       console.log(`${BOLD}Sample commands:${RESET}`);
       console.log(
-        `  ${GREEN}frodo.info.getInfo()${RESET}            ${DIM}print info about the connected environment${RESET}`
+        `  ${GREEN}frodo.info.getInfo()${RESET}  ${DIM}print info about the connected environment${RESET}`
       );
       console.log(
-        `  ${GREEN}frodo.login.getTokens()${RESET}         ${DIM}get fresh or cached tokens${RESET}`
+        `  ${GREEN}frodo.login.getTokens()${RESET}  ${DIM}get fresh or cached tokens${RESET}`
       );
       console.log(
-        `  ${GREEN}frodo${RESET}                           ${DIM}show a hierarchy of all Frodo Library commands${RESET}`
+        `  ${GREEN}frodo${RESET}  ${DIM}show a hierarchy of all Frodo Library commands${RESET}`
       );
       console.log('');
       console.log(`${BOLD}Shell dot-commands:${RESET}`);
