@@ -27501,6 +27501,22 @@ exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": 
 "
 `;
 
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/secret-mappings/am.services.httpclient.mtls.clientcert.testClientCert.secret.json 1`] = `
+{
+  "_id": "am.services.httpclient.mtls.clientcert.testClientCert.secret",
+  "_rev": "243715290",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings",
+  },
+  "aliases": [
+    "esv-test-client-cert",
+  ],
+  "secretId": "am.services.httpclient.mtls.clientcert.testClientCert.secret",
+}
+`;
+
 exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/alpha/services/SocialIdentityProviders.json 1`] = `
 {
   "_id": "",
@@ -37951,6 +37967,38 @@ function preSingleLogoutProcess() {
 function postSingleLogoutSuccess() {
 }
 "
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/bravo/secret-mappings/am.applications.agents.remote.consent.request.signing.ES384.json 1`] = `
+{
+  "_id": "am.applications.agents.remote.consent.request.signing.ES384",
+  "_rev": "132500719",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings",
+  },
+  "aliases": [
+    "es384",
+  ],
+  "secretId": "am.applications.agents.remote.consent.request.signing.ES384",
+}
+`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/bravo/secret-mappings/am.applications.agents.remote.consent.request.signing.ES512.json 1`] = `
+{
+  "_id": "am.applications.agents.remote.consent.request.signing.ES512",
+  "_rev": "132496622",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings",
+  },
+  "aliases": [
+    "es512",
+  ],
+  "secretId": "am.applications.agents.remote.consent.request.signing.ES512",
+}
 `;
 
 exports[`frodo config-manager pulls "frodo config-manager pull all -D allDir1": should export all config in fr-config-manager style": allDir1/realms/bravo/services/SocialIdentityProviders.json 1`] = `

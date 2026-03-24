@@ -1,0 +1,13 @@
+{
+  "_id": "am.services.iot.cert.verification",
+  "_rev": "-297472146",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Atest3"
+  ],
+  "secretId": "am.services.iot.cert.verification"
+}

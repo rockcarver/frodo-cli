@@ -34,5 +34,8 @@ Commands:
   terms-and-conditions   [Experimental] Import terms and conditions.
   themes                 [Experimental] Import themes.
   ui-config              [Experimental] Import UI configuration.
+
+  (Cloud-only):
+  secret-mappings        [Experimental] Import secret mappings.
 "
 `;
