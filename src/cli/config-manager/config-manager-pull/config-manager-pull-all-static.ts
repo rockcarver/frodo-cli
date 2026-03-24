@@ -1,6 +1,5 @@
 import { configManagerExportAllStatic } from '../../../configManagerOps/FrConfigAllOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
 const deploymentTypes = ['cloud', 'forgeops'];
@@ -24,7 +23,7 @@ export default function setup() {
         command
       );
 
-      if (!await getTokens(false, true, deploymentTypes)) {
+      if (!(await getTokens(false, true, deploymentTypes))) {
         process.exitCode = 1;
         return;
       }
