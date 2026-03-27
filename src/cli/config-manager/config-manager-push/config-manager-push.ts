@@ -5,6 +5,7 @@ import InternalRoles from './config-manager-push-internal-roles';
 import Kba from './config-manager-push-kba';
 import Locales from './config-manager-push-locales';
 import PasswordPolicy from './config-manager-push-password-policy';
+import Schedules from './config-manager-push-schedules';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
 import Themes from './config-manager-push-themes';
 
@@ -21,5 +22,7 @@ export default function setup() {
   program.addCommand(Endpoints().name('endpoints'));
   program.addCommand(Kba().name('kba'));
   program.addCommand(InternalRoles().name('internal-roles'));
+  program.addCommand(Schedules().name('schedules'));
+
   return program;
 }

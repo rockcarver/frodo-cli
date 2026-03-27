@@ -1,12 +1,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
 
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
-const { readConfigEntitiesByType } = frodo.idm.config;
+const { readConfigEntitiesByType, importConfigEntities } = frodo.idm.config;
 const { getFilePath, saveJsonToFile } = frodo.utils;
 /**
- * Export an internal roles in fr-config-manager format.
+ * Export schedules in fr-config-manager format.
  * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
  */
 export async function configManagerExportSchedules(
@@ -66,4 +67,47 @@ function processSchedules(schedules, fileDir, name?) {
   } catch (err) {
     printError(err);
   }
+}
+
+/**
+ * Import schedules in fr-config-manager format.
+ * @param {string} schedulesName Optional name of the schedule to import. If not provided, imports all schedules.
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function configManagerImportSchedules(
+  schedulesName?: string
+): Promise<boolean> {
+  try {
+    const schedulesPath = getFilePath('schedules');
+    const schedulesFiles = fs.readdirSync(schedulesPath);
+    const importScheduleData = { idm: {} };
+    for (const schedulesFile of schedulesFiles) {
+      const jsonFilePath = getFilePath(
+        `schedules/${schedulesFile}/${schedulesFile}.json`
+      );
+      if (!fs.existsSync(jsonFilePath)) continue;
+      const readJsonSchedules = fs.readFileSync(jsonFilePath, 'utf8');
+      const importData = JSON.parse(readJsonSchedules);
+      const id = importData._id;
+      if (schedulesName && id !== `schedule/${schedulesName}`) {
+        continue;
+      }
+      if (importData.invokeContext?.task?.script?.file) {
+        const scriptPath = getFilePath(
+          `schedules/${schedulesFile}/${importData.invokeContext.task.script.file}`
+        );
+        importData.invokeContext.task.script.source = fs.readFileSync(
+          scriptPath,
+          'utf8'
+        );
+        delete importData.invokeContext.task.script.file;
+      }
+      importScheduleData.idm[id] = importData;
+    }
+    await importConfigEntities(importScheduleData);
+    return true;
+  } catch (error) {
+    printError(error, `Error importing internal schedules`);
+  }
+  return false;
 }
