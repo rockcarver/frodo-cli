@@ -19,7 +19,7 @@ Options:
   --flush-cache                          Flush token cache.
   -h, --help                             Help
   --idm-host <idm-host>                  IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
-  -k, --insecure                         Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
+  -k, --insecure                         Allow insecure connections when using SSL/TLS, including expired certificates. (default: Don't allow insecure connections)
   -l, --level <level>                    Set log level filter. You can specify the level as a number or a string.   Following values are possible (values on the same line are equivalent):   
   0, SEVERE, FATAL, or ERROR
   1, WARNING, WARN or CONFIG  
@@ -94,7 +94,7 @@ Options:
   --flush-cache                          Flush token cache.
   -h, --help                             Help
   --idm-host <idm-host>                  IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
-  -k, --insecure                         Allow insecure connections when using SSL/TLS. Has no effect when using a network proxy for https (HTTPS_PROXY=http://<host>:<port>), in that case the proxy must provide this capability. (default: Don't allow insecure connections)
+  -k, --insecure                         Allow insecure connections when using SSL/TLS, including expired certificates. (default: Don't allow insecure connections)
   -l, --level <level>                    Set log level filter. You can specify the level as a number or a string.   Following values are possible (values on the same line are equivalent):   
   0, SEVERE, FATAL, or ERROR
   1, WARNING, WARN or CONFIG  
