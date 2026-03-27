@@ -44,6 +44,9 @@ import { getVersions } from './utils/Version';
 const { initConnectionProfiles } = frodo.conn;
 const { initTokenCache } = frodo.cache;
 
+// Temporary mitigation: silence runtime deprecation warnings from transitive deps.
+process.noDeprecation = true;
+
 (async () => {
   try {
     // override default library output handlers with our own
