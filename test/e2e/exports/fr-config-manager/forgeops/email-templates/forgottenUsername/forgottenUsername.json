@@ -1,0 +1,30 @@
+{
+  "_id": "emailTemplate/forgottenUsername",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "forgottenUsername.en.html"
+    },
+    "fr": {
+      "file": "forgottenUsername.fr.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "forgottenUsername.en.md"
+    },
+    "fr": {
+      "file": "forgottenUsername.fr.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "forgottenUsername.css"
+  },
+  "subject": {
+    "en": "Account Information - username",
+    "fr": "Informations sur le compte - nom d'utilisateur"
+  }
+}

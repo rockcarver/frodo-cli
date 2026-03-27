@@ -1,0 +1,1 @@
+<html><head></head><body style="background-color: #324054; color: #5e6d82; padding: 60px; text-align: center;"><div class="content" style="background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;"><p>Welcome to OpenIDM. Your username is '{{object.userName}}'.</p></div></body></html>

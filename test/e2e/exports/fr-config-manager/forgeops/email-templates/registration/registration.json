@@ -1,0 +1,30 @@
+{
+  "_id": "emailTemplate/registration",
+  "defaultLocale": "en",
+  "enabled": true,
+  "from": "",
+  "html": {
+    "en": {
+      "file": "registration.en.html"
+    },
+    "fr": {
+      "file": "registration.fr.html"
+    }
+  },
+  "message": {
+    "en": {
+      "file": "registration.en.md"
+    },
+    "fr": {
+      "file": "registration.fr.md"
+    }
+  },
+  "mimeType": "text/html",
+  "styles": {
+    "file": "registration.css"
+  },
+  "subject": {
+    "en": "Register new account",
+    "fr": "Créer un nouveau compte"
+  }
+}
