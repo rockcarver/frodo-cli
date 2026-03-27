@@ -26,43 +26,45 @@ export async function configManagerExportSchedules(
 function processSchedules(schedules, fileDir, name?) {
   try {
     schedules.forEach((schedule) => {
-      const scheduleName = schedule._id.split('/')[1];
-      if (name && name !== scheduleName) {
-        return;
-      }
-      const scheduleDir = `${fileDir}/${scheduleName}`;
-      const scriptFilename = `${scheduleName}.js`;
-      if (
-        schedule.invokeService === 'script' &&
-        schedule.invokeContext.script.source
-      ) {
-        extractFrConfigDataToFile(
-          schedule.invokeContext.script.source,
-          scriptFilename,
-          scheduleDir
-        );
-        delete schedule.invokeContext.script.source;
-        schedule.invokeContext.script.file = `${scriptFilename}`;
-      } else if (
-        schedule.invokeService === 'taskscanner' &&
-        schedule.invokeContext.task.script.source
-      ) {
-        extractFrConfigDataToFile(
-          schedule.invokeContext.task.script.source,
-          scriptFilename,
-          scheduleDir
-        );
-        delete schedule.invokeContext.task.script.source;
-        schedule.invokeContext.task.script.file = `${scriptFilename}`;
-      }
+      if (schedule._id !== 'scheduler') {
+        const scheduleName = schedule._id.split('/')[1];
+        if (name && name !== scheduleName) {
+          return;
+        }
+        const scheduleDir = `${fileDir}/${scheduleName}`;
+        const scriptFilename = `${scheduleName}.js`;
+        if (
+          schedule.invokeService === 'script' &&
+          schedule.invokeContext.script.source
+        ) {
+          extractFrConfigDataToFile(
+            schedule.invokeContext.script.source,
+            scriptFilename,
+            scheduleDir
+          );
+          delete schedule.invokeContext.script.source;
+          schedule.invokeContext.script.file = `${scriptFilename}`;
+        } else if (
+          schedule.invokeService === 'taskscanner' &&
+          schedule.invokeContext.task.script.source
+        ) {
+          extractFrConfigDataToFile(
+            schedule.invokeContext.task.script.source,
+            scriptFilename,
+            scheduleDir
+          );
+          delete schedule.invokeContext.task.script.source;
+          schedule.invokeContext.task.script.file = `${scriptFilename}`;
+        }
 
-      const scheduleFilename = `${scheduleDir}/${scheduleName}.json`;
-      saveJsonToFile(
-        schedule,
-        getFilePath(scheduleFilename, true),
-        false,
-        true
-      );
+        const scheduleFilename = `${scheduleDir}/${scheduleName}.json`;
+        saveJsonToFile(
+          schedule,
+          getFilePath(scheduleFilename, true),
+          false,
+          true
+        );
+      }
     });
   } catch (err) {
     printError(err);
