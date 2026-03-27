@@ -1,0 +1,48 @@
+{
+  "_id": "35ddf95a-42f8-4ba1-8dd4-370d9a4c2c61",
+  "_rev": "721f6d39-2996-4790-bc93-5df2012facff-2627",
+  "condition": null,
+  "description": "This is a test role",
+  "name": "test-internal-role",
+  "privileges": [
+    {
+      "accessFlags": [
+        {
+          "attribute": "name",
+          "readOnly": true
+        },
+        {
+          "attribute": "description",
+          "readOnly": true
+        },
+        {
+          "attribute": "privileges",
+          "readOnly": true
+        },
+        {
+          "attribute": "authzMembers",
+          "readOnly": true
+        },
+        {
+          "attribute": "temporalConstraints",
+          "readOnly": true
+        },
+        {
+          "attribute": "condition",
+          "readOnly": true
+        },
+        {
+          "attribute": "_id",
+          "readOnly": true
+        }
+      ],
+      "actions": [],
+      "name": "Internal Roles",
+      "path": "internal/role",
+      "permissions": [
+        "VIEW"
+      ]
+    }
+  ],
+  "temporalConstraints": []
+}
