@@ -23,6 +23,57 @@ const {
 } = frodo.utils.constants;
 const { convertPrivateKeyToPem } = frodo.utils.crypto;
 
+const COMMANDS_HEADING = 'Commands:';
+const COMMAND_OPTIONS_HEADING = 'Options:';
+const CONNECTION_OPTIONS_HEADING = 'Connection Options:';
+const AUTHENTICATION_OPTIONS_HEADING = 'Authentication Options:';
+const RUNTIME_OPTIONS_HEADING = 'Runtime Options:';
+const OUTPUT_OPTIONS_HEADING = 'Output Options:';
+const SUPPORT_OPTIONS_HEADING = 'Options:';
+const EXPANDED_HELP_FLAG = '-hh';
+const HELP_ALL_FLAG = '--help-all';
+
+type EnvironmentVariableDescriptor = {
+  name: string;
+  description: string;
+  commandNames?: string[];
+  include?: (command: FrodoCommand) => boolean;
+};
+
+function withHelpGroup(option: Option, group: string): Option {
+  option.helpGroup(group);
+  return option;
+}
+
+function cloneOption(option: Option): Option {
+  return Object.assign(new Option(option.flags, option.description), {
+    defaultValue: option.defaultValue,
+    defaultValueDescription: option.defaultValueDescription,
+    presetArg: option.presetArg,
+    envVar: option.envVar,
+    parseArg: option.parseArg,
+    hidden: option.hidden,
+    mandatory: option.mandatory,
+    argChoices: option.argChoices ? [...option.argChoices] : option.argChoices,
+    helpGroupHeading: option.helpGroupHeading,
+  });
+}
+
+function cloneArgument(argument: Argument): Argument {
+  const bracketOpen = argument.required ? '<' : '[';
+  const bracketClose = argument.required ? '>' : ']';
+  const spec = `${bracketOpen}${argument.name()}${argument.variadic ? '...' : ''}${bracketClose}`;
+
+  return Object.assign(new Argument(spec, argument.description), {
+    defaultValue: argument.defaultValue,
+    defaultValueDescription: argument.defaultValueDescription,
+    parseArg: argument.parseArg,
+    argChoices: argument.argChoices
+      ? [...argument.argChoices]
+      : argument.argChoices,
+  });
+}
+
 export const hostArgument = new Argument(
   '[host]',
   'AM base URL, e.g.: https://cdk.iam.example.com/am. To use a connection profile, just specify a unique substring or alias.'
@@ -44,102 +95,144 @@ const usernameArgument = new Argument(
 
 const passwordArgument = new Argument('[password]', 'Password.');
 
-const idmHostOption = new Option(
-  '--idm-host <idm-host>',
-  'IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".'
+const idmHostOption = withHelpGroup(
+  new Option(
+    '--idm-host <idm-host>',
+    'IDM base URL, e.g.: https://cdk.idm.example.com/myidm. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".'
+  ),
+  CONNECTION_OPTIONS_HEADING
 );
 
-const loginClientId = new Option(
-  '--login-client-id <client-id>',
-  'Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").'
+const loginClientId = withHelpGroup(
+  new Option(
+    '--login-client-id <client-id>',
+    'Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const loginRedirectUri = new Option(
-  '--login-redirect-uri <redirect-uri>',
-  'Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").'
+const loginRedirectUri = withHelpGroup(
+  new Option(
+    '--login-redirect-uri <redirect-uri>',
+    'Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const serviceAccountIdOption = new Option(
-  '--sa-id <sa-id>',
-  'Service account id.'
+const serviceAccountIdOption = withHelpGroup(
+  new Option('--sa-id <sa-id>', 'Service account id.'),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const serviceAccountJwkFileOption = new Option(
-  '--sa-jwk-file <file>',
-  'File containing the JSON Web Key (JWK) associated with the the service account.'
+const serviceAccountJwkFileOption = withHelpGroup(
+  new Option(
+    '--sa-jwk-file <file>',
+    'File containing the JSON Web Key (JWK) associated with the the service account.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const amsterPrivateKeyPassphraseOption = new Option(
-  '--passphrase <passphrase>',
-  'The passphrase for the Amster private key if it is encrypted.'
+const amsterPrivateKeyPassphraseOption = withHelpGroup(
+  new Option(
+    '--passphrase <passphrase>',
+    'The passphrase for the Amster private key if it is encrypted.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const amsterPrivateKeyFileOption = new Option(
-  '--private-key <file>',
-  'File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.'
+const amsterPrivateKeyFileOption = withHelpGroup(
+  new Option(
+    '--private-key <file>',
+    'File containing the private key for authenticating with Amster. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.'
+  ),
+  AUTHENTICATION_OPTIONS_HEADING
 );
 
-const deploymentOption = new Option(
-  '-m, --type <type>',
-  'Override auto-detected deployment type. Valid values for type: \n\
+const deploymentOption = withHelpGroup(
+  new Option(
+    '-m, --type <type>',
+    'Override auto-detected deployment type. Valid values for type: \n\
 classic:  A classic Access Management-only deployment with custom layout and configuration. \n\
 cloud:    A ForgeRock Identity Cloud environment. \n\
 forgeops: A ForgeOps CDK or CDM deployment. \n\
 The detected or provided deployment type controls certain behavior like obtaining an Identity \
 Management admin token or not and whether to export/import referenced email templates or how \
 to walk through the tenant admin login flow of Identity Cloud and handle MFA'
-).choices(DEPLOYMENT_TYPES);
-
-const directoryOption = new Option(
-  '-D, --directory <directory>',
-  'Set the working directory.'
-).default(undefined, 'undefined');
-
-const insecureOption = new Option(
-  '-k, --insecure',
-  'Allow insecure connections when using SSL/TLS, including expired certificates.'
-).default(false, "Don't allow insecure connections");
-
-const verboseOption = new Option(
-  '--verbose',
-  'Verbose output during command execution. If specified, may or may not produce additional output.'
+  ).choices(DEPLOYMENT_TYPES),
+  CONNECTION_OPTIONS_HEADING
 );
 
-const debugOption = new Option(
-  '--debug',
-  'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
+const directoryOption = withHelpGroup(
+  new Option(
+    '-D, --directory <directory>',
+    'Set the working directory.'
+  ).default(undefined, 'undefined'),
+  RUNTIME_OPTIONS_HEADING
 );
 
-const curlirizeOption = new Option(
-  '--curlirize',
-  'Output all network calls in curl format.'
+const insecureOption = withHelpGroup(
+  new Option(
+    '-k, --insecure',
+    'Allow insecure connections when using SSL/TLS, including expired certificates.'
+  ).default(false, "Don't allow insecure connections"),
+  CONNECTION_OPTIONS_HEADING
 );
 
-const noCacheOption = new Option(
-  '--no-cache',
-  'Disable token cache for this operation.'
+const verboseOption = withHelpGroup(
+  new Option(
+    '--verbose',
+    'Verbose output during command execution. If specified, may or may not produce additional output.'
+  ),
+  OUTPUT_OPTIONS_HEADING
 );
 
-const useRealmPrefixOnManagedObjects = new Option(
-  '--use-realm-prefix-on-managed-objects',
-  'Set to true if you want to use the realm name as a prefix on managed object configuration, e.g. managed/alpha_user,\
+const debugOption = withHelpGroup(
+  new Option(
+    '--debug',
+    'Debug output during command execution. If specified, may or may not produce additional output helpful for troubleshooting.'
+  ),
+  OUTPUT_OPTIONS_HEADING
+);
+
+const curlirizeOption = withHelpGroup(
+  new Option('--curlirize', 'Output all network calls in curl format.'),
+  OUTPUT_OPTIONS_HEADING
+);
+
+const noCacheOption = withHelpGroup(
+  new Option('--no-cache', 'Disable token cache for this operation.'),
+  RUNTIME_OPTIONS_HEADING
+);
+
+const useRealmPrefixOnManagedObjects = withHelpGroup(
+  new Option(
+    '--use-realm-prefix-on-managed-objects',
+    'Set to true if you want to use the realm name as a prefix on managed object configuration, e.g. managed/alpha_user,\
   managed/alpha_application or managed/bravo_organization. When false, the default behaviour of using managed/user \
   etc. is retained. \
   This option is ignored when the deployment type is "cloud".'
+  ),
+  CONNECTION_OPTIONS_HEADING
 );
 
-const flushCacheOption = new Option('--flush-cache', 'Flush token cache.');
+const flushCacheOption = withHelpGroup(
+  new Option('--flush-cache', 'Flush token cache.'),
+  RUNTIME_OPTIONS_HEADING
+);
 
-const retryOption = new Option(
-  '--retry <strategy>',
-  `Retry failed operations. Valid values for strategy: \n\
+const retryOption = withHelpGroup(
+  new Option(
+    '--retry <strategy>',
+    `Retry failed operations. Valid values for strategy: \n\
 everything: Retry all failed operations. \n\
 network:    Retry only network-related failed operations. \n\
 nothing:    Do not retry failed operations. \n\
 The selected retry strategy controls how the CLI handles failures.`
-)
-  .choices(RETRY_STRATEGIES)
-  .default(`${RETRY_NOTHING_KEY}`, `Do not retry failed operations.`);
+  )
+    .choices(RETRY_STRATEGIES)
+    .default(`${RETRY_NOTHING_KEY}`, `Do not retry failed operations.`),
+  RUNTIME_OPTIONS_HEADING
+);
 
 const defaultArgs = [
   hostArgument,
@@ -245,6 +338,198 @@ const stateMap = {
   },
 };
 
+const environmentVariables: EnvironmentVariableDescriptor[] = [
+  {
+    name: 'FRODO_HOST',
+    description: "AM base URL. Overridden by 'host' argument.",
+    include: (command) => command.hasDefaultArgument('host'),
+  },
+  {
+    name: 'FRODO_IDM_HOST',
+    description: "IDM base URL. Overridden by '--idm-host' option.",
+    include: (command) =>
+      command.hasDefaultOption(idmHostOption.attributeName()),
+  },
+  {
+    name: 'FRODO_REALM',
+    description: "Realm. Overridden by 'realm' argument.",
+    include: (command) => command.hasDefaultArgument('realm'),
+  },
+  {
+    name: 'FRODO_USERNAME',
+    description: "Username. Overridden by 'username' argument.",
+    include: (command) => command.hasDefaultArgument('username'),
+  },
+  {
+    name: 'FRODO_PASSWORD',
+    description: "Password. Overridden by 'password' argument.",
+    include: (command) => command.hasDefaultArgument('password'),
+  },
+  {
+    name: 'FRODO_LOGIN_CLIENT_ID',
+    description:
+      "OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.",
+    include: (command) =>
+      command.hasDefaultOption(loginClientId.attributeName()),
+  },
+  {
+    name: 'FRODO_LOGIN_REDIRECT_URI',
+    description:
+      "Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.",
+    include: (command) =>
+      command.hasDefaultOption(loginRedirectUri.attributeName()),
+  },
+  {
+    name: 'FRODO_SA_ID',
+    description: "Service account uuid. Overridden by '--sa-id' option.",
+    include: (command) =>
+      command.hasDefaultOption(serviceAccountIdOption.attributeName()),
+  },
+  {
+    name: 'FRODO_SA_JWK',
+    description:
+      "Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.",
+    include: (command) =>
+      command.hasDefaultOption(serviceAccountJwkFileOption.attributeName()),
+  },
+  {
+    name: 'FRODO_AMSTER_PASSPHRASE',
+    description:
+      "Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.",
+    include: (command) =>
+      command.hasDefaultOption(
+        amsterPrivateKeyPassphraseOption.attributeName()
+      ),
+  },
+  {
+    name: 'FRODO_AMSTER_PRIVATE_KEY',
+    description:
+      "Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.",
+    include: (command) =>
+      command.hasDefaultOption(amsterPrivateKeyFileOption.attributeName()),
+  },
+  {
+    name: 'FRODO_NO_CACHE',
+    description: "Disable token cache. Same as '--no-cache' option.",
+    include: (command) =>
+      command.hasDefaultOption(noCacheOption.attributeName()),
+  },
+  {
+    name: 'FRODO_TOKEN_CACHE_PATH',
+    description:
+      "Use this token cache file instead of '~/.frodo/TokenCache.json'.",
+  },
+  {
+    name: 'FRODO_CONNECTION_PROFILES_PATH',
+    description:
+      "Use this connection profiles file instead of '~/.frodo/Connections.json'.",
+  },
+  {
+    name: 'FRODO_AUTHENTICATION_SERVICE',
+    description:
+      "Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.",
+  },
+  {
+    name: 'FRODO_AUTHENTICATION_HEADER_OVERRIDES',
+    description:
+      'Map of headers: \'{"host":"am.example.com:8081"}\'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.',
+  },
+  {
+    name: 'FRODO_CONFIGURATION_HEADER_OVERRIDES',
+    description:
+      'Map of headers: \'{"X-Configuration-Type":"mutable"}\'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.',
+  },
+  {
+    name: 'FRODO_DEBUG',
+    description: "Set to any value to enable debug output. Same as '--debug'.",
+    include: (command) => command.hasDefaultOption(debugOption.attributeName()),
+  },
+  {
+    name: 'FRODO_IGA',
+    description:
+      'Set to "true" to enable IGA (Identity Governance) endpoints for cloud deployments, or "false" to disable them, overriding auto-detected value.',
+  },
+  {
+    name: 'FRODO_MASTER_KEY_PATH',
+    description:
+      "Use this master key file instead of '~/.frodo/masterkey.key' file.",
+  },
+  {
+    name: 'FRODO_MASTER_KEY',
+    description:
+      "Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.",
+  },
+  {
+    name: 'FRODO_LOG_KEY',
+    description: "Log API key. Overridden by '--log-api-key' option.",
+    commandNames: ['frodo conn save'],
+  },
+  {
+    name: 'FRODO_LOG_SECRET',
+    description: "Log API secret. Overridden by '--log-api-secret' option.",
+    commandNames: ['frodo conn save'],
+  },
+  {
+    name: 'FRODO_LOG_KEY',
+    description: "Log API key. Overridden by 'username' argument.",
+    include: (command) => command.name().startsWith('frodo log'),
+  },
+  {
+    name: 'FRODO_LOG_SECRET',
+    description: "Log API secret. Overridden by 'password' argument.",
+    include: (command) => command.name().startsWith('frodo log'),
+  },
+];
+
+function formatEnvironmentVariables(command: FrodoCommand, includeAll = false) {
+  const entries = environmentVariables.filter((entry) => {
+    if (includeAll) return true;
+    if (entry.commandNames && !entry.commandNames.includes(command.name())) {
+      return false;
+    }
+    if (entry.include) {
+      return entry.include(command);
+    }
+    return true;
+  });
+
+  if (!entries.length) {
+    return '';
+  }
+
+  const formattedEntries = entries.map(
+    (entry) => `  ${entry.name}: ${entry.description}`
+  );
+
+  return `\nEnvironment Variables:\n${formattedEntries.join('\n')}\n`;
+}
+
+export function formatGlobalEnvironmentVariables() {
+  const entries = environmentVariables.map(
+    (entry) => `  ${entry.name}: ${entry.description}`
+  );
+
+  return `\nEnvironment Variables:\n${entries.join('\n')}\n`;
+}
+
+export function isExpandedHelpRequested(argv: string[] = process.argv) {
+  return argv.includes(EXPANDED_HELP_FLAG) || argv.includes(HELP_ALL_FLAG);
+}
+
+export function normalizeExpandedHelpArgv(argv: string[] = process.argv) {
+  const normalizedArgv: string[] = [];
+
+  for (const token of argv) {
+    if (token === EXPANDED_HELP_FLAG) {
+      normalizedArgv.push(HELP_ALL_FLAG, '--help');
+    } else {
+      normalizedArgv.push(token);
+    }
+  }
+
+  return normalizedArgv;
+}
+
 /**
  * Command with default options
  */
@@ -271,10 +556,36 @@ export class FrodoStubCommand extends Command {
 
     // other default settings
     this.helpOption('-h, --help', 'Help');
+    this.addOption(
+      withHelpGroup(
+        new Option(HELP_ALL_FLAG, 'Help plus environment variables reference.'),
+        SUPPORT_OPTIONS_HEADING
+      )
+    );
     this.showHelpAfterError();
     this.configureHelp({
       sortSubcommands: true,
       sortOptions: true,
+    });
+    this.options
+      .find((option) => option.name() === 'help')
+      ?.helpGroup(SUPPORT_OPTIONS_HEADING);
+    this.addHelpText('after', () => {
+      if (!isExpandedHelpRequested()) {
+        return '';
+      }
+
+      // FrodoCommand appends its own scoped env reference.
+      if (this instanceof FrodoCommand) {
+        return '';
+      }
+
+      // Root help wiring in app.ts already handles its own expanded env section.
+      if (this.name() === 'frodo') {
+        return '';
+      }
+
+      return formatGlobalEnvironmentVariables();
     });
 
     // register default handlers
@@ -296,14 +607,34 @@ export class FrodoStubCommand extends Command {
     });
   }
 
+  override addCommand(
+    command: Command,
+    opts?: Parameters<Command['addCommand']>[1]
+  ) {
+    if (!command.helpGroup()) {
+      command.helpGroup(COMMANDS_HEADING);
+    }
+
+    return super.addCommand(command, opts);
+  }
+
   createHelp() {
     return Object.assign(new FrodoStubHelp(), this.configureHelp());
   }
 }
 
 class FrodoStubHelp extends Help {
-  subcommandTerm(cmd) {
-    return cmd._name + (cmd._aliases[0] ? '|' + cmd._aliases[0] : '');
+  override optionTerm(option: Option) {
+    if (option.long === HELP_ALL_FLAG) {
+      return `${EXPANDED_HELP_FLAG}, ${HELP_ALL_FLAG}`;
+    }
+
+    return super.optionTerm(option);
+  }
+
+  subcommandTerm(cmd: Command) {
+    const aliases = cmd.aliases();
+    return cmd.name() + (aliases[0] ? '|' + aliases[0] : '');
   }
 }
 
@@ -327,6 +658,7 @@ export class FrodoCommand extends FrodoStubCommand {
     super(name);
 
     this.types = types;
+    this.allowExcessArguments();
 
     // register default arguments
     for (const arg of defaultArgs) {
@@ -338,39 +670,40 @@ export class FrodoCommand extends FrodoStubCommand {
       if (!omits.includes(opt.name())) this.addOption(opt);
     }
 
+    this.options
+      .find((option) => option.name() === 'help')
+      ?.helpGroup(SUPPORT_OPTIONS_HEADING);
+
     // additional help
-    this.addHelpText(
-      'after',
-      `\nEnvironment Variables:\n` +
-        `  FRODO_HOST: AM base URL. Overridden by 'host' argument.\n` +
-        `  FRODO_IDM_HOST: IDM base URL. Overridden by '--idm-host' option.\n` +
-        `  FRODO_REALM: Realm. Overridden by 'realm' argument.\n` +
-        `  FRODO_USERNAME: Username. Overridden by 'username' argument.\n` +
-        `  FRODO_PASSWORD: Password. Overridden by 'password' argument.\n` +
-        `  FRODO_LOGIN_CLIENT_ID: OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.\n` +
-        `  FRODO_LOGIN_REDIRECT_URI: Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.\n` +
-        `  FRODO_SA_ID: Service account uuid. Overridden by '--sa-id' option.\n` +
-        `  FRODO_SA_JWK: Service account JWK. Overridden by '--sa-jwk-file' option but takes the actual JWK as a value, not a file name.\n` +
-        `  FRODO_AMSTER_PASSPHRASE: Passphrase for the Amster private key if it is encrypted. Overridden by '--passphrase' option.\n` +
-        `  FRODO_AMSTER_PRIVATE_KEY: Amster private key. Overridden by '--private-key' option but takes the actual private key as a value (i.e. the file contents), not a file name. Supported formats include PEM (both PKCS#1 and PKCS#8 variants), OpenSSH, DNSSEC, and JWK.\n` +
-        `  FRODO_NO_CACHE: Disable token cache. Same as '--no-cache' option.\n` +
-        `  FRODO_TOKEN_CACHE_PATH: Use this token cache file instead of '~/.frodo/TokenCache.json'.\n` +
-        ('frodo conn save' === this.name()
-          ? `  FRODO_LOG_KEY: Log API key. Overridden by '--log-api-key' option.\n` +
-            `  FRODO_LOG_SECRET: Log API secret. Overridden by '--log-api-secret' option.\n`
-          : ``) +
-        (this.name().startsWith('frodo log')
-          ? `  FRODO_LOG_KEY: Log API key. Overridden by 'username' argument.\n` +
-            `  FRODO_LOG_SECRET: Log API secret. Overridden by 'password' argument.\n`
-          : ``) +
-        `  FRODO_CONNECTION_PROFILES_PATH: Use this connection profiles file instead of '~/.frodo/Connections.json'.\n` +
-        `  FRODO_AUTHENTICATION_SERVICE: Name of a login journey to use. When using an Amster private key, specifies which journey to use for Amster authentication as opposed to the default 'amsterService' journey.\n` +
-        `  FRODO_AUTHENTICATION_HEADER_OVERRIDES: Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.\n` +
-        `  FRODO_CONFIGURATION_HEADER_OVERRIDES: Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.\n` +
-        `  FRODO_DEBUG: Set to any value to enable debug output. Same as '--debug'.\n` +
-        `  FRODO_IGA: Set to "true" to enable IGA (Identity Governance) endpoints for cloud deployments, or "false" to disable them, overriding auto-detected value.\n` +
-        `  FRODO_MASTER_KEY_PATH: Use this master key file instead of '~/.frodo/masterkey.key' file.\n` +
-        `  FRODO_MASTER_KEY: Use this master key instead of what's in '~/.frodo/masterkey.key'. Takes precedence over FRODO_MASTER_KEY_PATH.\n`
+    this.addHelpText('after', () =>
+      isExpandedHelpRequested() ? formatEnvironmentVariables(this) : ''
+    );
+  }
+
+  override addOption(option: Option) {
+    const commandOption = cloneOption(option);
+
+    if (!commandOption.helpGroupHeading) {
+      commandOption.helpGroup(COMMAND_OPTIONS_HEADING);
+    }
+
+    return super.addOption(commandOption);
+  }
+
+  override addArgument(argument: Argument) {
+    return super.addArgument(cloneArgument(argument));
+  }
+
+  hasDefaultArgument(argumentName: string) {
+    return this.registeredArguments.some(
+      (argument) => argument.name() === argumentName
+    );
+  }
+
+  hasDefaultOption(optionName: string) {
+    return this.options.some(
+      (option) =>
+        option.attributeName() === optionName || option.name() === optionName
     );
   }
 

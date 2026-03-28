@@ -1,5 +1,4 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { Command } from 'commander';
 
 // commands
 import admin from './cli/admin/admin';
@@ -13,6 +12,14 @@ import conn from './cli/conn/conn';
 import directConfigSession from './cli/dcc/dcc';
 import email from './cli/email/email';
 import esv from './cli/esv/esv';
+// enable sample command template.
+// import something from './cli/_template/something';
+import {
+  formatGlobalEnvironmentVariables,
+  FrodoStubCommand,
+  isExpandedHelpRequested,
+  normalizeExpandedHelpArgv,
+} from './cli/FrodoCommand';
 import idm from './cli/idm/idm';
 import idp from './cli/idp/idp';
 import info from './cli/info/info';
@@ -30,8 +37,6 @@ import secretstore from './cli/secretstore/secretstore';
 import server from './cli/server/server';
 import service from './cli/service/service';
 import shell from './cli/shell/shell';
-// enable sample command template.
-// import something from './cli/_template/something';
 import theme from './cli/theme/theme';
 import {
   debugMessage,
@@ -46,6 +51,7 @@ const { initTokenCache } = frodo.cache;
 
 // Temporary mitigation: silence runtime deprecation warnings from transitive deps.
 process.noDeprecation = true;
+process.argv = normalizeExpandedHelpArgv(process.argv);
 
 (async () => {
   try {
@@ -55,9 +61,15 @@ process.noDeprecation = true;
     state.setDebugHandler(debugMessage);
     state.setVerboseHandler(verboseMessage);
 
-    const program = new Command('frodo').version(
+    const program = new FrodoStubCommand('frodo').version(
       await getVersions(false),
       '-v, --version'
+    );
+    const cloudOnlyCommandsHeading = 'Cloud-Only:';
+    const utilitiesCommandsHeading = 'Utilities:';
+
+    program.addHelpText('after', () =>
+      isExpandedHelpRequested() ? formatGlobalEnvironmentVariables() : ''
     );
 
     printMessage(await getVersions(true), 'text', false);
@@ -71,20 +83,22 @@ process.noDeprecation = true;
     program.addCommand(authz());
     program.addCommand(app());
     program.addCommand(config());
-    program.addCommand(configManager());
-    program.addCommand(conn());
-    program.addCommand(directConfigSession());
+    program.addCommand(configManager().helpGroup(cloudOnlyCommandsHeading));
+    program.addCommand(conn().helpGroup(utilitiesCommandsHeading));
+    program.addCommand(
+      directConfigSession().helpGroup(cloudOnlyCommandsHeading)
+    );
     program.addCommand(email());
-    program.addCommand(esv());
+    program.addCommand(esv().helpGroup(cloudOnlyCommandsHeading));
     program.addCommand(idm());
     program.addCommand(idp());
     program.addCommand(info());
     program.addCommand(journey());
-    program.addCommand(log());
+    program.addCommand(log().helpGroup(cloudOnlyCommandsHeading));
     program.addCommand(mapping());
     program.addCommand(node());
     program.addCommand(oauth());
-    program.addCommand(promote());
+    program.addCommand(promote().helpGroup(cloudOnlyCommandsHeading));
     program.addCommand(realm());
     program.addCommand(role());
     program.addCommand(saml());
@@ -92,7 +106,7 @@ process.noDeprecation = true;
     program.addCommand(secretstore());
     program.addCommand(server());
     program.addCommand(service());
-    program.addCommand(shell());
+    program.addCommand(shell().helpGroup(utilitiesCommandsHeading));
     program.addCommand(theme());
     // enable sample command template.
     // program.addCommand(something());
