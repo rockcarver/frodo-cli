@@ -17,7 +17,7 @@ import esv from './cli/esv/esv';
 import {
   formatGlobalEnvironmentVariables,
   FrodoStubCommand,
-  isExpandedHelpRequested,
+  isFullHelpRequested,
   normalizeExpandedHelpArgv,
 } from './cli/FrodoCommand';
 import idm from './cli/idm/idm';
@@ -65,11 +65,10 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
       await getVersions(false),
       '-v, --version'
     );
-    const cloudOnlyCommandsHeading = 'Cloud-Only:';
     const utilitiesCommandsHeading = 'Utilities:';
 
     program.addHelpText('after', () =>
-      isExpandedHelpRequested() ? formatGlobalEnvironmentVariables() : ''
+      isFullHelpRequested() ? formatGlobalEnvironmentVariables() : ''
     );
 
     printMessage(await getVersions(true), 'text', false);
@@ -83,22 +82,20 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     program.addCommand(authz());
     program.addCommand(app());
     program.addCommand(config());
-    program.addCommand(configManager().helpGroup(cloudOnlyCommandsHeading));
+    program.addCommand(configManager());
     program.addCommand(conn().helpGroup(utilitiesCommandsHeading));
-    program.addCommand(
-      directConfigSession().helpGroup(cloudOnlyCommandsHeading)
-    );
+    program.addCommand(directConfigSession());
     program.addCommand(email());
-    program.addCommand(esv().helpGroup(cloudOnlyCommandsHeading));
+    program.addCommand(esv());
     program.addCommand(idm());
     program.addCommand(idp());
     program.addCommand(info());
     program.addCommand(journey());
-    program.addCommand(log().helpGroup(cloudOnlyCommandsHeading));
+    program.addCommand(log());
     program.addCommand(mapping());
     program.addCommand(node());
     program.addCommand(oauth());
-    program.addCommand(promote().helpGroup(cloudOnlyCommandsHeading));
+    program.addCommand(promote());
     program.addCommand(realm());
     program.addCommand(role());
     program.addCommand(saml());

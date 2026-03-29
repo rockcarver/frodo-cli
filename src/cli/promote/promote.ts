@@ -6,10 +6,10 @@ import { compareExportToDirectory } from '../../ops/PromoteOps';
 import { verboseMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
-const deploymentTypes = ['cloud', 'forgeops'];
+const deploymentTypes = ['cloud'];
 
 export default function setup() {
-  const program = new FrodoCommand('promote');
+  const program = new FrodoCommand('promote', [], deploymentTypes);
 
   program
     .description('Prepares a tenant to be promoted')
