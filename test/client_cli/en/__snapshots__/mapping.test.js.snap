@@ -6,17 +6,20 @@ exports[`CLI help interface for 'mapping' should be expected english 1`] = `
 Manage IDM mappings.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete IDM mappings.
-  export      Export IDM mappings.
-  help        display help for command
-  import      Import IDM mappings.
-  list        List IDM mappings.
-  rename      Renames mappings from the combined/default/legacy naming scheme
-              (sync/<name>) to the separate/new naming scheme (mapping/<name>).
-              To rename mappings from new back to legacy, use the -l, --legacy
-              flag.
+  delete            Delete IDM mappings.
+  export            Export IDM mappings.
+  help              display help for command
+  import            Import IDM mappings.
+  list              List IDM mappings.
+  rename            Renames mappings from the combined/default/legacy naming
+                    scheme (sync/<name>) to the separate/new naming scheme
+                    (mapping/<name>). To rename mappings from new back to
+                    legacy, use the -l, --legacy flag.
 "
 `;

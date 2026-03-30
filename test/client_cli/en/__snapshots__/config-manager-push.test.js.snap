@@ -3,23 +3,26 @@
 exports[`CLI help interface for 'config-manager push' should be expected english 1`] = `
 "Usage: frodo config-manager push [options] [command]
 
-Import configuration optimized for CI/CD pipelines (format compatible with
-fr-config-manager).
+[Experimental] Import configuration optimized for CI/CD pipelines (format
+compatible with fr-config-manager).
 
 Options:
   -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 
 Commands:
-  email-provider        Import email provider configuration.
-  email-templates       Import email template objects.
-  endpoints             Import custom endpoints objects.
+  email-provider        [Experimental] Import email provider configuration.
+  email-templates       [Experimental] Import email template objects.
+  endpoints             [Experimental] Import custom endpoints objects.
   help                  display help for command
-  internal-roles        Import internal roles.
-  kba                   Import kba configuration.
-  locales               Import custom locales objects.
-  password-policy       Import password-policy objects.
-  schedules             Import schedules.
-  terms-and-conditions  Import terms and conditions.
-  themes                Import themes.
+  internal-roles        [Experimental] Import internal roles.
+  kba                   [Experimental] Import kba configuration.
+  locales               [Experimental] Import custom locales objects.
+  password-policy       [Experimental] Import password-policy objects.
+  schedules             [Experimental] Import schedules.
+  terms-and-conditions  [Experimental] Import terms and conditions.
+  themes                [Experimental] Import themes.
 "
 `;

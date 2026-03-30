@@ -6,14 +6,17 @@ exports[`CLI help interface for 'agent web' should be expected english 1`] = `
 Manage web agents.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete web agents.
-  describe    Describe web agents.
-  export      Export web agents.
-  help        display help for command
-  import      Import web agents.
-  list        List web agents.
+  delete            Delete web agents.
+  describe          Describe web agents.
+  export            Export web agents.
+  help              display help for command
+  import            Import web agents.
+  list              List web agents.
 "
 `;

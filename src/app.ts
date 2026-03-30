@@ -1,5 +1,4 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
-import { Command } from 'commander';
 
 // commands
 import admin from './cli/admin/admin';
@@ -13,6 +12,14 @@ import conn from './cli/conn/conn';
 import directConfigSession from './cli/dcc/dcc';
 import email from './cli/email/email';
 import esv from './cli/esv/esv';
+// enable sample command template.
+// import something from './cli/_template/something';
+import {
+  formatGlobalEnvironmentVariables,
+  FrodoStubCommand,
+  isFullHelpRequested,
+  normalizeExpandedHelpArgv,
+} from './cli/FrodoCommand';
 import idm from './cli/idm/idm';
 import idp from './cli/idp/idp';
 import info from './cli/info/info';
@@ -30,8 +37,6 @@ import secretstore from './cli/secretstore/secretstore';
 import server from './cli/server/server';
 import service from './cli/service/service';
 import shell from './cli/shell/shell';
-// enable sample command template.
-// import something from './cli/_template/something';
 import theme from './cli/theme/theme';
 import {
   debugMessage,
@@ -46,6 +51,7 @@ const { initTokenCache } = frodo.cache;
 
 // Temporary mitigation: silence runtime deprecation warnings from transitive deps.
 process.noDeprecation = true;
+process.argv = normalizeExpandedHelpArgv(process.argv);
 
 (async () => {
   try {
@@ -55,9 +61,14 @@ process.noDeprecation = true;
     state.setDebugHandler(debugMessage);
     state.setVerboseHandler(verboseMessage);
 
-    const program = new Command('frodo').version(
+    const program = new FrodoStubCommand('frodo').version(
       await getVersions(false),
       '-v, --version'
+    );
+    const utilitiesCommandsHeading = 'Utilities:';
+
+    program.addHelpText('after', () =>
+      isFullHelpRequested() ? formatGlobalEnvironmentVariables() : ''
     );
 
     printMessage(await getVersions(true), 'text', false);
@@ -72,7 +83,7 @@ process.noDeprecation = true;
     program.addCommand(app());
     program.addCommand(config());
     program.addCommand(configManager());
-    program.addCommand(conn());
+    program.addCommand(conn().helpGroup(utilitiesCommandsHeading));
     program.addCommand(directConfigSession());
     program.addCommand(email());
     program.addCommand(esv());
@@ -92,7 +103,7 @@ process.noDeprecation = true;
     program.addCommand(secretstore());
     program.addCommand(server());
     program.addCommand(service());
-    program.addCommand(shell());
+    program.addCommand(shell().helpGroup(utilitiesCommandsHeading));
     program.addCommand(theme());
     // enable sample command template.
     // program.addCommand(something());

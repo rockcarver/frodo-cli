@@ -6,12 +6,15 @@ exports[`CLI help interface for 'authn' should be expected english 1`] = `
 Manage authentication settings.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  describe    Describe authentication settings.
-  export      Export authentication settings.
-  help        display help for command
-  import      Import authentication settings.
+  describe          Describe authentication settings.
+  export            Export authentication settings.
+  help              display help for command
+  import            Import authentication settings.
 "
 `;

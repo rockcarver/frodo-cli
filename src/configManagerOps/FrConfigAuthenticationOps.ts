@@ -22,8 +22,12 @@ export async function configManagerExportAuthentication(
       saveJsonToFile(exportData, getFilePath(`${fileName}`, true), false, true);
     } else {
       for (const realmName of await realmList()) {
-        if (realmName === '/' &&
-	    state.getDeploymentType() === frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY) continue;
+        if (
+          realmName === '/' &&
+          state.getDeploymentType() ===
+            frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+        )
+          continue;
 
         state.setRealm(realmName);
         const exportData = await _readAuthenticationSettings(false);

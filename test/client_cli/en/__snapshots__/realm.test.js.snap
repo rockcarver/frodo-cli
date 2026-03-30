@@ -7,6 +7,9 @@ Manage realms.
 
 Options:
   -h, --help            Help
+  -hh, --help-more      Help with all options.
+  -hhh, --help-all      Help with all options, environment variables, and usage
+                        examples.
 
 Commands:
   add-custom-domain     Add custom domain (realm DNS alias).

@@ -29,12 +29,6 @@ export default function setup() {
         'No deep delete. This leaves orphaned configuration artifacts behind.'
       )
     )
-    .addOption(
-      new Option(
-        '--verbose',
-        'Verbose output during command execution. If specified, may or may not produce additional output.'
-      ).default(false, 'off')
-    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {

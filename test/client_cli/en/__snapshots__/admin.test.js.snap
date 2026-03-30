@@ -7,23 +7,27 @@ Platform admin tasks.
 
 Options:
   -h, --help                                  Help
+  -hh, --help-more                            Help with all options.
+  -hhh, --help-all                            Help with all options, environment variables, and usage examples.
 
 Commands:
-  add-autoid-static-user-mapping              Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.
   create-oauth2-client-with-admin-privileges  Create an oauth2 client with admin privileges.
   execute-rfc7523-authz-grant-flow            Execute RFC7523 authorization grant flow.
-  federation                                  Manages admin federation configuration.
   generate-rfc7523-authz-grant-artefacts      Generate RFC7523 authorization grant artefacts.
   get-access-token                            Get an access token using client credentials grant type.
   grant-oauth2-client-admin-privileges        Grant an oauth2 client admin privileges.
   help                                        display help for command
-  hide-generic-extension-attributes           Hide generic extension attributes.
   list-oauth2-clients-with-admin-privileges   List oauth2 clients with admin privileges.
   list-oauth2-clients-with-custom-privileges  List oauth2 clients with custom privileges.
   list-static-user-mappings                   List all subjects of static user mappings that are not oauth2 clients.
   remove-static-user-mapping                  Remove a subject's static user mapping.
   repair-org-model                            Repair org model.
   revoke-oauth2-client-admin-privileges       Revoke admin privileges from an oauth2 client.
+
+  (Cloud-only):
+  add-autoid-static-user-mapping              Add AutoId static user mapping to enable dashboards and other AutoId-based functionality.
+  federation                                  Manages admin federation configuration.
+  hide-generic-extension-attributes           Hide generic extension attributes.
   show-generic-extension-attributes           Show generic extension attributes.
 "
 `;

@@ -6,12 +6,15 @@ exports[`CLI help interface for 'role' should be expected english 1`] = `
 Manage internal (authorization) roles.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  export      Export internal roles.
-  help        display help for command
-  import      Import internal roles.
-  list        List roles.
+  export            Export internal roles.
+  help              display help for command
+  import            Import internal roles.
+  list              List roles.
 "
 `;

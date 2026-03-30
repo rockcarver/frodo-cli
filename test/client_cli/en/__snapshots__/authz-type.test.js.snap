@@ -6,14 +6,17 @@ exports[`CLI help interface for 'authz type' should be expected english 1`] = `
 Manage authorization resource types.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete authorization resource types.
-  describe    Describe authorization resource types.
-  export      Export authorization resource types.
-  help        display help for command
-  import      Import authorization resource types.
-  list        List authorization resource types.
+  delete            Delete authorization resource types.
+  describe          Describe authorization resource types.
+  export            Export authorization resource types.
+  help              display help for command
+  import            Import authorization resource types.
+  list              List authorization resource types.
 "
 `;

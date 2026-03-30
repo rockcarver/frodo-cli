@@ -6,11 +6,14 @@ exports[`CLI help interface for 'conn alias' should be expected english 1`] = `
 Manage connection aliases.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  add         Add connection profile alias.
-  delete      Delete connection profile alias.
-  help        display help for command
+  add               Add connection profile alias.
+  delete            Delete connection profile alias.
+  help              display help for command
 "
 `;

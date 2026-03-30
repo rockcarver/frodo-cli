@@ -6,13 +6,16 @@ exports[`CLI help interface for 'theme' should be expected english 1`] = `
 Manage themes.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete themes.
-  export      Export themes.
-  help        display help for command
-  import      Import themes.
-  list        List themes.
+  delete            Delete themes.
+  export            Export themes.
+  help              display help for command
+  import            Import themes.
+  list              List themes.
 "
 `;

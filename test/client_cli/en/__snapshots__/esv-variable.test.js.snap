@@ -5,17 +5,24 @@ exports[`CLI help interface for 'esv variable' should be expected english 1`] = 
 
 Manage variables.
 
+Deployment: Cloud-only
+
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  create      Create variables.
-  delete      Delete variables.
-  describe    Describe variables.
-  export      Export variables.
-  help        display help for command
-  import      Import variables.
-  list        List variables.
-  set         Set variable description.
+  help              display help for command
+
+  (Cloud-only):
+  create            Create variables.
+  delete            Delete variables.
+  describe          Describe variables.
+  export            Export variables.
+  import            Import variables.
+  list              List variables.
+  set               Set variable description.
 "
 `;

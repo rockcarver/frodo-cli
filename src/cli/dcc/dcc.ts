@@ -2,9 +2,9 @@ import { FrodoStubCommand } from '../FrodoCommand';
 import SessionCmd from './dcc-session.js';
 
 export default function setup() {
-  const program = new FrodoStubCommand('dcc').description(
-    'Direct Configuration Control (DCC) commands.'
-  );
+  const program = new FrodoStubCommand('dcc')
+    .withStability('preview')
+    .description('Direct Configuration Control (DCC) commands.');
 
   program.alias('direct-configuration-control');
 

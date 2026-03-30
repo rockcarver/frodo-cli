@@ -31,8 +31,12 @@ export async function configManagerExportJourneys(
       processJourneys(exportData.trees, realm, name, pullDependency, 'realms');
     } else {
       for (const realm of await realmList()) {
-        if (realm === '/' &&
-           state.getDeploymentType() === frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY) continue;
+        if (
+          realm === '/' &&
+          state.getDeploymentType() ===
+            frodo.utils.constants.CLOUD_DEPLOYMENT_TYPE_KEY
+        )
+          continue;
 
         state.setRealm(realm);
         const exportData = (await exportJourneys(

@@ -6,10 +6,13 @@ exports[`CLI help interface for 'idm' should be expected english 1`] = `
 Manage IDM schema.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  help        display help for command
-  object      Manage IDM configuration objects.
+  help              display help for command
+  object            Manage IDM configuration objects.
 "
 `;
