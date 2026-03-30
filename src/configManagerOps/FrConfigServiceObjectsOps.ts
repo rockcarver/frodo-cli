@@ -4,7 +4,7 @@ import fs from 'fs';
 import { printError } from '../utils/Console';
 
 const { getFilePath, saveJsonToFile } = frodo.utils;
-const { queryManagedObjects } = frodo.idm.managed;
+const { queryManagedObjects, updateManagedObject } = frodo.idm.managed;
 /**
  * Export an IDM configuration object in the fr-config-manager format.
  * @param {string} envFile File that defines environment specific variables for replacement during configuration export/import
@@ -116,4 +116,35 @@ export async function configManagerExportServiceObject(
   } catch (err) {
     printError(err, `Error exporting object`);
   }
+}
+
+/**
+ * Import service objects exported in fr-config-manager format.
+ * @returns {Promise<boolean>} true if succesful, false otherwise
+ */
+export async function configManagerImportServiceObjects(): Promise<boolean> {
+  try {
+    const objectsDir = getFilePath('service-objects/');
+    const objectTypes = fs.readdirSync(objectsDir);
+
+    for (const objectType of objectTypes) {
+      const objectPath = `${objectsDir}/${objectType}`;
+      const objectFiles = fs.readdirSync(objectPath);
+
+      for (const objectFile of objectFiles) {
+        const fullPath = `${objectPath}/${objectFile}`;
+        const readFiles = fs.readFileSync(fullPath, 'utf8');
+        const importData = JSON.parse(readFiles);
+        delete importData._rev;
+        delete importData._refProperties;
+
+        await updateManagedObject(objectType, importData._id, importData);
+      }
+    }
+
+    return true;
+  } catch (err) {
+    printError(err, `Error importing service-objects`);
+  }
+  return false;
 }
