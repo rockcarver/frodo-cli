@@ -9,7 +9,7 @@ const deploymentTypes = ['cloud'];
 
 export default function setup() {
   const program = new FrodoCommand(
-    'frodo config-manager pull cps',
+    'frodo config-manager pull csp',
     [],
     deploymentTypes
   );
