@@ -3,39 +3,53 @@
 exports[`CLI help interface for 'log' should be expected english 1`] = `
 "Usage: frodo log|logs [options] [command]
 
-View Identity Cloud logs. If valid tenant admin credentials are specified, a
-log API key and secret are automatically created for that admin user.
+View Identity Cloud logs. If valid tenant admin credentials are specified, a log
+API key and secret are automatically created for that admin user.
+
+Deployment: Cloud-only
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  fetch       Fetch Identity Cloud logs between a specified begin and end time
-              period.  WARNING: depending on filters and time period specified,
-              this could take substantial time to complete.
-  help        display help for command
-  key         Manage Identity Cloud log API keys.
-  list        List available ID Cloud log sources.
-  tail        Tail Identity Cloud logs.
+  help              display help for command
+
+  (Cloud-only):
+  fetch             Fetch Identity Cloud logs between a specified begin and end
+                    time period.  WARNING: depending on filters and time period
+                    specified, this could take substantial time to complete.
+  key               Manage Identity Cloud log API keys.
+  list              List available ID Cloud log sources.
+  tail              Tail Identity Cloud logs.
 "
 `;
 
 exports[`CLI help interface for 'logs' should be expected english 1`] = `
 "Usage: frodo log|logs [options] [command]
 
-View Identity Cloud logs. If valid tenant admin credentials are specified, a
-log API key and secret are automatically created for that admin user.
+View Identity Cloud logs. If valid tenant admin credentials are specified, a log
+API key and secret are automatically created for that admin user.
+
+Deployment: Cloud-only
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  fetch       Fetch Identity Cloud logs between a specified begin and end time
-              period.  WARNING: depending on filters and time period specified,
-              this could take substantial time to complete.
-  help        display help for command
-  key         Manage Identity Cloud log API keys.
-  list        List available ID Cloud log sources.
-  tail        Tail Identity Cloud logs.
+  help              display help for command
+
+  (Cloud-only):
+  fetch             Fetch Identity Cloud logs between a specified begin and end
+                    time period.  WARNING: depending on filters and time period
+                    specified, this could take substantial time to complete.
+  key               Manage Identity Cloud log API keys.
+  list              List available ID Cloud log sources.
+  tail              Tail Identity Cloud logs.
 "
 `;

@@ -6,13 +6,16 @@ exports[`CLI help interface for 'idp' should be expected english 1`] = `
 Manage (social) identity providers.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete (social) identity providers.
-  export      Export (social) identity providers.
-  help        display help for command
-  import      Import (social) identity providers.
-  list        List (social) identity providers.
+  delete            Delete (social) identity providers.
+  export            Export (social) identity providers.
+  help              display help for command
+  import            Import (social) identity providers.
+  list              List (social) identity providers.
 "
 `;

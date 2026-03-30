@@ -4,39 +4,55 @@ exports[`CLI help interface for 'frodo' root command should be expected english 
 "Usage: frodo [options] [command]
 
 Options:
-  -v, --version                                           output the version number
-  -h, --help                                              display help for command
+  -v, --version                     output the version number
+  -h, --help                        Help
+  -hh, --help-more                  Help with all options.
+  -hhh, --help-all                  Help with all options, environment
+                                    variables, and usage examples.
 
 Commands:
-  admin                                                   Platform admin tasks.
-  agent                                                   Manage agents.
-  authn                                                   Manage authentication settings.
-  authz                                                   Manage authorization policies, policy sets, and resource types.
-  app                                                     Manage applications.
-  config                                                  Manage full cloud configuration.
-  config-manager                                          Manage configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).
-  conn|connection                                         Manage connection profiles.
-  dcc|direct-configuration-control                        Direct Configuration Control (DCC) commands.
-  email                                                   Manage email templates and configuration.
-  esv                                                     Manage environment secrets and variables (ESVs).
-  idm                                                     Manage IDM configuration.
-  idp                                                     Manage (social) identity providers.
-  info [options] [host] [username] [password]             Print versions and tokens.
-  journey                                                 Manage journeys/trees.
-  log|logs                                                List/View Identity Cloud logs
-  mapping                                                 Manage IDM mappings.
-  node                                                    Manage custom nodes.
-  oauth                                                   Manage OAuth2 clients and providers.
-  promote [options] [host] [realm] [username] [password]  Prepares a tenant to be promoted
-  realm                                                   Manage realms.
-  role                                                    Manage internal (authorization) roles.
-  saml                                                    Manage SAML entity providers and circles of trust.
-  script                                                  Manage scripts.
-  secretstore                                             Manage secret stores.
-  server                                                  Manage servers.
-  service                                                 Manage AM services.
-  shell [options] [host] [realm] [username] [password]    Launch the frodo interactive shell.
-  theme                                                   Manage themes.
-  help [command]                                          display help for command
+  admin                             Platform admin tasks.
+  agent                             Manage agents.
+  app                               Manage applications.
+  authn                             Manage authentication settings.
+  authz                             Manage authorization policies, policy sets,
+                                    and resource types.
+  config                            Manage full cloud configuration.
+  config-manager                    [Experimental] Manage configuration
+                                    optimized for CI/CD pipelines (format
+                                    compatible with fr-config-manager).
+  email                             Manage email templates and configuration.
+  help                              display help for command
+  idm                               Manage IDM configuration.
+  idp                               Manage (social) identity providers.
+  info                              Print versions and tokens.
+  journey                           Manage journeys/trees.
+  mapping                           Manage IDM mappings.
+  node                              Manage custom nodes.
+  oauth                             Manage OAuth2 clients and providers.
+  realm                             Manage realms.
+  role                              Manage internal (authorization) roles.
+  saml                              Manage SAML entity providers and circles of
+                                    trust.
+  script                            Manage scripts.
+  secretstore                       Manage secret stores.
+  service                           Manage AM services.
+  theme                             Manage themes.
+
+  (Classic-only):
+  server                            Manage servers.
+
+  (Cloud-only):
+  dcc|direct-configuration-control  [Preview] Direct Configuration Control (DCC)
+                                    commands.
+  esv                               Manage environment secrets and variables
+                                    (ESVs).
+  log|logs                          List/View Identity Cloud logs
+  promote                           Prepares a tenant to be promoted
+
+Utilities:
+  conn|connection                   Manage connection profiles.
+  shell                             [Experimental] Launch the frodo interactive
+                                    shell.
 "
 `;

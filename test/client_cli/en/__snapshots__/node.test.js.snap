@@ -6,14 +6,17 @@ exports[`CLI help interface for 'node' should be expected english 1`] = `
 Manage custom nodes.
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  delete      Delete custom nodes.
-  describe    Describe custom nodes.
-  export      Export custom nodes.
-  help        display help for command
-  import      Import custom nodes.
-  list        List custom nodes.
+  delete            Delete custom nodes.
+  describe          Describe custom nodes.
+  export            Export custom nodes.
+  help              display help for command
+  import            Import custom nodes.
+  list              List custom nodes.
 "
 `;

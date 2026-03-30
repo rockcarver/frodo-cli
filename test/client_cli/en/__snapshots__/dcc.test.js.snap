@@ -3,27 +3,41 @@
 exports[`CLI help interface for 'frodo dcc' should be expected english 1`] = `
 "Usage: frodo dcc|direct-configuration-control [options] [command]
 
-Direct Configuration Control (DCC) commands.
+[Preview] Direct Configuration Control (DCC) commands.
+
+Deployment: Cloud-only
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  help        display help for command
-  session     Manage direct configuration sessions.
+  help              display help for command
+
+  (Cloud-only):
+  session           [Preview] Manage direct configuration sessions.
 "
 `;
 
 exports[`CLI help interface for 'frodo direct-configuration-control' should be expected english 1`] = `
 "Usage: frodo dcc|direct-configuration-control [options] [command]
 
-Direct Configuration Control (DCC) commands.
+[Preview] Direct Configuration Control (DCC) commands.
+
+Deployment: Cloud-only
 
 Options:
-  -h, --help  Help
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
 
 Commands:
-  help        display help for command
-  session     Manage direct configuration sessions.
+  help              display help for command
+
+  (Cloud-only):
+  session           [Preview] Manage direct configuration sessions.
 "
 `;
