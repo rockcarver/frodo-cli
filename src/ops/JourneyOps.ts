@@ -3,7 +3,6 @@ import { type NodeSkeleton } from '@rockcarver/frodo-lib/types/api/NodeApi';
 import { type TreeSkeleton } from '@rockcarver/frodo-lib/types/api/TreeApi';
 import {
   DeleteJourneysStatus,
-  type JourneyClassificationType,
   type MultiTreeExportInterface,
   type SingleTreeExportInterface,
   type TreeDependencyMapInterface,
@@ -49,7 +48,6 @@ const {
   getTreeDescendents,
   getNodeRef,
   onlineTreeExportResolver,
-  getJourneyClassification: _getJourneyClassification,
   disableJourney: _disableJourney,
   enableJourney: _enableJourney,
   deleteJourney: _deleteJourney,
@@ -59,33 +57,74 @@ const {
 /**
  * List all the journeys/trees
  * @param {boolean} long Long version, all the fields
- * @param {boolean} analyze Analyze journeys/trees for custom nodes (expensive)
  * @returns {Promise<boolean>} a promise resolving to true if successful, false otherwise
  */
-export async function listJourneys(
-  long: boolean = false,
-  analyze: boolean = false
-): Promise<boolean> {
+export async function listJourneys(long: boolean = false): Promise<boolean> {
   let journeys = [];
   try {
     journeys = await readJourneys();
-    if (!long && !analyze) {
+    if (!long) {
       for (const journeyStub of journeys) {
         printMessage(`${journeyStub['_id']}`, 'data');
       }
       return true;
     } else {
-      if (!analyze) {
-        const table = createTable(['Name', 'Status', 'Tags']);
+      const spinnerId = createProgressIndicator(
+        'indeterminate',
+        0,
+        `Retrieving details of all journeys...`
+      );
+      const exportPromises: Promise<SingleTreeExportInterface>[] = [];
+      try {
         for (const journeyStub of journeys) {
+          exportPromises.push(
+            exportJourney(journeyStub['_id'], {
+              useStringArrays: false,
+              deps: false,
+              coords: true,
+            })
+          );
+        }
+        const journeyExports = await Promise.all(exportPromises);
+        stopProgressIndicator(
+          spinnerId,
+          'Retrieved details of all journeys.',
+          'success'
+        );
+        const table = createTable([
+          'Name',
+          'Status',
+          'Inner Only',
+          'Must Run',
+          'No Session',
+          'Tx Only',
+          'Resource',
+          'Tags',
+        ]);
+        for (const journeyExport of journeyExports) {
           table.push([
-            `${journeyStub._id}`,
-            journeyStub.enabled === false
+            `${journeyExport.tree._id}`,
+            journeyExport.tree.enabled === false
               ? 'disabled'['brightRed']
               : 'enabled'['brightGreen'],
-            journeyStub.uiConfig?.categories
+            journeyExport.tree.innerTreeOnly
+              ? 'yes'['brightYellow']
+              : 'no'['brightGreen'],
+            journeyExport.tree.mustRun
+              ? 'yes'['brightYellow']
+              : 'no'['brightGreen'],
+            journeyExport.tree.noSession
+              ? 'yes'['brightYellow']
+              : 'no'['brightGreen'],
+            journeyExport.tree.transactionalOnly
+              ? 'yes'['brightYellow']
+              : 'no'['brightGreen'],
+            journeyExport.tree.identityResource
+              ? journeyExport.tree.identityResource
+              : '',
+            journeyExport.tree.uiConfig?.categories
               ? wordwrap(
-                  JSON.parse(journeyStub.uiConfig.categories).join(', '),
+                  JSON.parse(journeyExport.tree.uiConfig.categories).join(', '),
                   60
                 )
               : '',
@@ -93,62 +132,13 @@ export async function listJourneys(
         }
         printMessage(table.toString(), 'data');
         return true;
-      } else {
-        const spinnerId = createProgressIndicator(
-          'indeterminate',
-          0,
-          `Retrieving details of all journeys...`
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          'Error retrieving details of all journeys.',
+          'fail'
         );
-        const exportPromises = [];
-        try {
-          for (const journeyStub of journeys) {
-            exportPromises.push(
-              exportJourney(journeyStub['_id'], {
-                useStringArrays: false,
-                deps: false,
-                coords: true,
-              })
-            );
-          }
-          const journeyExports = await Promise.all(exportPromises);
-          stopProgressIndicator(
-            spinnerId,
-            'Retrieved details of all journeys.',
-            'success'
-          );
-          const table = createTable([
-            'Name',
-            'Status',
-            'Classification',
-            'Tags',
-          ]);
-          for (const journeyExport of journeyExports) {
-            table.push([
-              `${journeyExport.tree._id}`,
-              journeyExport.tree.enabled === false
-                ? 'disabled'['brightRed']
-                : 'enabled'['brightGreen'],
-              getJourneyClassification(journeyExport).join(', '),
-              journeyExport.tree.uiConfig?.categories
-                ? wordwrap(
-                    JSON.parse(journeyExport.tree.uiConfig.categories).join(
-                      ', '
-                    ),
-                    60
-                  )
-                : '',
-            ]);
-          }
-          printMessage(table.toString(), 'data');
-          return true;
-        } catch (error) {
-          stopProgressIndicator(
-            spinnerId,
-            'Error retrieving details of all journeys.',
-            'fail'
-          );
-          printError(error);
-        }
+        printError(error);
       }
     }
   } catch (error) {
@@ -559,56 +549,6 @@ export async function importJourneysFromFiles(
 }
 
 /**
- * Get journey classification
- * @param {SingleTreeExportInterface} journey journey export
- * @returns {string[]} Colored string array of classifications
- */
-export function getJourneyClassification(
-  journey: SingleTreeExportInterface
-): JourneyClassificationType[] {
-  return _getJourneyClassification(journey).map((it) => {
-    switch (it) {
-      case 'standard':
-        return it['brightGreen'];
-
-      case 'cloud':
-        return it['brightMagenta'];
-
-      case 'custom':
-        return it['brightRed'];
-
-      case 'premium':
-        return it['brightYellow'];
-    }
-  });
-}
-
-/**
- * Get journey classification in markdown
- * @param {SingleTreeExportInterface} journey journey export
- * @returns {string[]} Colored string array of classifications
- */
-export function getJourneyClassificationMd(
-  journey: SingleTreeExportInterface
-): string[] {
-  return _getJourneyClassification(journey).map((it) => {
-    switch (it) {
-      case 'standard':
-        return `:green_circle: \`${it}\``;
-
-      case 'cloud':
-        return `:purple_circle: \`${it}\``;
-
-      case 'custom':
-        return `:red_circle: \`${it}\``;
-
-      case 'premium':
-        return `:yellow_circle: \`${it}\``;
-    }
-  });
-}
-
-/**
  * Get a one-line description of the tree object
  * @param {TreeSkeleton} treeObj circle of trust object to describe
  * @returns {string} a one-line description
@@ -746,14 +686,6 @@ export async function describeJourney(
           : 'enabled'['brightGreen']
       }`
     );
-
-    // Classification
-    if (state.getAmVersion()) {
-      printMessage(
-        `\nClassification\n${getJourneyClassification(journeyData).join(', ')}`,
-        'data'
-      );
-    }
 
     // Categories/Tags
     if (
@@ -948,7 +880,27 @@ export async function describeJourneyMd(
         journeyData.tree.enabled === false
           ? ':o: `disabled`'
           : ':white_check_mark: `enabled`'
-      }, ${getJourneyClassificationMd(journeyData).join(', ')}`,
+      }, ${
+        journeyData.tree.innerTreeOnly
+          ? ':o: `innerTreeOnly`'
+          : ':white_check_mark: `not innerTreeOnly`'
+      }, ${
+        journeyData.tree.mustRun
+          ? ':o: `mustRun`'
+          : ':white_check_mark: `not mustRun`'
+      }, ${
+        journeyData.tree.noSession
+          ? ':o: `noSession`'
+          : ':white_check_mark: `sessionAllowed`'
+      }, ${
+        journeyData.tree.transactionalOnly
+          ? ':o: `transactionalOnly`'
+          : ':white_check_mark: `not transactionalOnly`'
+      }${
+        journeyData.tree.identityResource
+          ? `, identity resource: \`${journeyData.tree.identityResource}\``
+          : ''
+      }`,
       'data'
     );
 

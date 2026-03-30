@@ -14,9 +14,6 @@ export default function setup() {
     .addOption(
       new Option('-l, --long', 'Long with all fields.').default(false, 'false')
     )
-    .addOption(
-      new Option('-a, --analyze', 'Analyze journeys for custom nodes.')
-    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -30,7 +27,7 @@ export default function setup() {
         );
         if (await getTokens()) {
           verboseMessage(`Listing journeys in realm "${state.getRealm()}"...`);
-          const outcome = await listJourneys(options.long, options.analyze);
+          const outcome = await listJourneys(options.long);
           if (!outcome) process.exitCode = 1;
         } else {
           process.exitCode = 1;
