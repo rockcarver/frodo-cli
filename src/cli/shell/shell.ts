@@ -260,7 +260,7 @@ async function startRepl(allowAwait = false, host?: string) {
 }
 
 export default function setup() {
-  const program = new FrodoCommand('shell');
+  const program = new FrodoCommand('shell').withStability('experimental');
   program
     .description('Launch the frodo interactive shell.')
     .addHelpText(
