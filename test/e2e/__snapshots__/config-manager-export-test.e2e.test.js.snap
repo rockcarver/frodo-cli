@@ -3,6 +3,7 @@
 exports[`frodo config-manager pulls "frodo config-manager pull test": should receive access tokens" 1`] = `""`;
 
 exports[`frodo config-manager pulls "frodo config-manager pull test": should receive access tokens" 2`] = `
-"Authenticated successfully
+"[33mExperimental feature in use: 'frodo config-manager pull test'. This feature may change without notice.[39m
+Authenticated successfully
 "
 `;
