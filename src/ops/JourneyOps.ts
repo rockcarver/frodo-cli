@@ -687,6 +687,25 @@ export async function describeJourney(
       }`
     );
 
+    // Journey flags
+    printMessage(
+      `\nFlags\n- Inner Tree Only: ${
+        journeyData.tree.innerTreeOnly
+          ? 'true'['brightGreen']
+          : 'false'['brightRed']
+      }\n- Must Run: ${
+        journeyData.tree.mustRun ? 'true'['brightGreen'] : 'false'['brightRed']
+      }\n- No Session: ${
+        journeyData.tree.noSession
+          ? 'true'['brightGreen']
+          : 'false'['brightRed']
+      }\n- Transactional Only: ${
+        journeyData.tree.transactionalOnly
+          ? 'true'['brightGreen']
+          : 'false'['brightRed']
+      }`
+    );
+
     // Categories/Tags
     if (
       journeyData.tree.uiConfig?.categories &&
