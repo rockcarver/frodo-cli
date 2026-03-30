@@ -46,6 +46,39 @@ const DEFAULT_HELP_WIDTH = 100;
 const MINIMUM_HELP_WIDTH = 60;
 const ENVIRONMENT_VARIABLE_NAME_INDENT = 4;
 const ENVIRONMENT_VARIABLE_DESCRIPTION_PADDING = 2;
+const STABILITY_METADATA_KEY = '__frodoStabilityMetadata' as const;
+
+export type StabilityIndicator =
+  | 'stable'
+  | 'preview'
+  | 'experimental'
+  | 'deprecated';
+
+export type StabilityGateMode = 'option-or-env' | 'option-only' | 'env-only';
+
+export type StabilityGateConfig = {
+  requiredOptIn?: boolean;
+  optionName?: string;
+  envVarName?: string;
+  helpText?: string;
+  mode?: StabilityGateMode;
+};
+
+type StabilityMetadata = {
+  level: StabilityIndicator;
+  gate?: StabilityGateConfig;
+};
+
+const stabilityLevelPriority: Record<StabilityIndicator, number> = {
+  stable: 0,
+  preview: 1,
+  experimental: 2,
+  deprecated: 3,
+};
+
+type StabilityAnnotated = {
+  [STABILITY_METADATA_KEY]?: StabilityMetadata;
+};
 
 /**
  * Logical scope used for deployment-constrained help sub-sections.
@@ -119,13 +152,218 @@ function withHelpGroup(option: Option, group: string): Option {
 }
 
 /**
+ * Annotates an option with stability metadata for help rendering.
+ * @param option Option to annotate.
+ * @param level Stability level to apply.
+ * @returns Same option for chaining.
+ */
+export function withOptionStability(
+  option: Option,
+  level: StabilityIndicator,
+  gate?: StabilityGateConfig
+): Option {
+  const metadata = getStabilityMetadata(option);
+  setStabilityMetadata(option, {
+    ...metadata,
+    level,
+    gate: gate || metadata.gate,
+  });
+  return option;
+}
+
+/**
+ * Annotates an argument with stability metadata for help rendering.
+ * @param argument Argument to annotate.
+ * @param level Stability level to apply.
+ * @returns Same argument for chaining.
+ */
+export function withArgumentStability(
+  argument: Argument,
+  level: StabilityIndicator,
+  gate?: StabilityGateConfig
+): Argument {
+  const metadata = getStabilityMetadata(argument);
+  setStabilityMetadata(argument, {
+    ...metadata,
+    level,
+    gate: gate || metadata.gate,
+  });
+  return argument;
+}
+
+/**
+ * Stores stability metadata on Commander objects.
+ * @param target Annotated command, option, or argument.
+ * @param metadata Stability metadata to persist.
+ */
+function setStabilityMetadata(
+  target: Command | Option | Argument,
+  metadata: StabilityMetadata
+) {
+  (target as unknown as StabilityAnnotated)[STABILITY_METADATA_KEY] = metadata;
+}
+
+/**
+ * Reads raw stability metadata as explicitly configured on the target.
+ * @param target Annotated command, option, or argument.
+ * @returns Explicit metadata if present, otherwise undefined.
+ */
+function getRawStabilityMetadata(
+  target: Command | Option | Argument
+): StabilityMetadata | undefined {
+  return (target as unknown as StabilityAnnotated)[STABILITY_METADATA_KEY];
+}
+
+/**
+ * Reads stability metadata from Commander objects.
+ * @param target Annotated command, option, or argument.
+ * @returns Stability metadata, defaulting to stable.
+ */
+function getStabilityMetadata(
+  target: Command | Option | Argument
+): StabilityMetadata {
+  const metadata = getRawStabilityMetadata(target);
+  return metadata || { level: 'stable' };
+}
+
+/**
+ * Resolves effective stability for a command by walking up parent commands.
+ *
+ * Behavior:
+ * - level: strongest level found in the command ancestry
+ * - gate: nearest required opt-in gate found in the ancestry
+ *
+ * This allows declaring stability once at a stub command (command tree root)
+ * and having it apply to all descendants.
+ * @param command Command to evaluate.
+ * @returns Effective stability metadata for runtime and help rendering.
+ */
+function getEffectiveCommandStabilityMetadata(
+  command: Command
+): StabilityMetadata {
+  let level: StabilityIndicator = 'stable';
+  let gate: StabilityGateConfig | undefined;
+
+  let current: Command | null = command;
+  while (current) {
+    const metadata = getRawStabilityMetadata(current);
+    if (metadata) {
+      if (
+        stabilityLevelPriority[metadata.level] > stabilityLevelPriority[level]
+      ) {
+        level = metadata.level;
+      }
+
+      if (!gate && metadata.gate?.requiredOptIn) {
+        gate = metadata.gate;
+      }
+    }
+    current = current.parent || null;
+  }
+
+  return gate ? { level, gate } : { level };
+}
+
+/**
+ * Formats stability level labels for display in help text and warnings.
+ * @param level Stability level.
+ * @returns Human-readable label.
+ */
+function formatStabilityLevel(level: StabilityIndicator): string {
+  switch (level) {
+    case 'preview':
+      return 'Preview';
+    case 'experimental':
+      return 'Experimental';
+    case 'deprecated':
+      return 'Deprecated';
+    default:
+      return 'Stable';
+  }
+}
+
+/**
+ * Determines whether colored stability badges should be emitted.
+ * @returns True when color output is supported and not explicitly disabled.
+ */
+function shouldUseStabilityColors(): boolean {
+  return !!process.stdout.isTTY && !process.env.NO_COLOR;
+}
+
+/**
+ * Applies ANSI color to stability and opt-in badges.
+ * @param text Badge text to colorize.
+ * @param level Stability level used for color selection.
+ * @param isOptInBadge True for opt-in badge coloring.
+ * @returns Colored or plain badge text.
+ */
+function colorizeStabilityBadge(
+  text: string,
+  level: StabilityIndicator,
+  isOptInBadge = false
+): string {
+  if (!shouldUseStabilityColors()) {
+    return text;
+  }
+
+  const reset = '\x1b[0m';
+  if (isOptInBadge) {
+    return `\x1b[36m${text}${reset}`;
+  }
+
+  switch (level) {
+    case 'preview':
+      return `\x1b[1;93m${text}${reset}`;
+    case 'experimental':
+      return `\x1b[1;31m${text}${reset}`;
+    case 'deprecated':
+      return `\x1b[1;90m${text}${reset}`;
+    default:
+      return `\x1b[32m${text}${reset}`;
+  }
+}
+
+/**
+ * Appends stability and optional opt-in badges to a description.
+ * @param description Existing description text.
+ * @param target Annotated command, option, or argument.
+ * @returns Decorated description.
+ */
+function decorateDescriptionWithStability(
+  description: string,
+  target: Command | Option | Argument
+): string {
+  const metadata =
+    target instanceof Command
+      ? getEffectiveCommandStabilityMetadata(target)
+      : getStabilityMetadata(target);
+  if (metadata.level === 'stable') {
+    return description;
+  }
+
+  const badges = [
+    colorizeStabilityBadge(
+      `[${formatStabilityLevel(metadata.level)}]`,
+      metadata.level
+    ),
+  ];
+  if (metadata.gate?.requiredOptIn) {
+    badges.push(
+      colorizeStabilityBadge('[Opt-in required]', metadata.level, true)
+    );
+  }
+
+  return description ? `${badges.join(' ')} ${description}` : badges.join(' ');
+}
+
+/**
  * Creates a detached copy of an option so command-level mutations do not
  * affect shared defaults.
  * @param option Source option definition.
  * @returns Cloned option instance.
  */
 function cloneOption(option: Option): Option {
-  return Object.assign(new Option(option.flags, option.description), {
+  const cloned = Object.assign(new Option(option.flags, option.description), {
     defaultValue: option.defaultValue,
     defaultValueDescription: option.defaultValueDescription,
     presetArg: option.presetArg,
@@ -136,6 +374,9 @@ function cloneOption(option: Option): Option {
     argChoices: option.argChoices ? [...option.argChoices] : option.argChoices,
     helpGroupHeading: option.helpGroupHeading,
   });
+
+  setStabilityMetadata(cloned, getStabilityMetadata(option));
+  return cloned;
 }
 
 /**
@@ -149,7 +390,7 @@ function cloneArgument(argument: Argument): Argument {
   const bracketClose = argument.required ? '>' : ']';
   const spec = `${bracketOpen}${argument.name()}${argument.variadic ? '...' : ''}${bracketClose}`;
 
-  return Object.assign(new Argument(spec, argument.description), {
+  const cloned = Object.assign(new Argument(spec, argument.description), {
     defaultValue: argument.defaultValue,
     defaultValueDescription: argument.defaultValueDescription,
     parseArg: argument.parseArg,
@@ -157,6 +398,9 @@ function cloneArgument(argument: Argument): Argument {
       ? [...argument.argChoices]
       : argument.argChoices,
   });
+
+  setStabilityMetadata(cloned, getStabilityMetadata(argument));
+  return cloned;
 }
 
 export const hostArgument = new Argument(
@@ -1310,10 +1554,210 @@ export function normalizeExpandedHelpArgv(argv: string[] = process.argv) {
   return normalizedArgv;
 }
 
+const warnedStabilityCommands = new Set<string>();
+const warnedStabilityOptions = new Set<string>();
+
+/**
+ * Builds a user-facing command path for warnings/errors.
+ * @param command Command instance.
+ * @returns Command path, e.g. `frodo shell`.
+ */
+function getCommandPath(command: Command): string {
+  const names: string[] = [];
+  let current: Command | null = command;
+  while (current) {
+    if (current.name()) {
+      names.unshift(current.name());
+    }
+    current = current.parent || null;
+  }
+  return names.join(' ');
+}
+
+/**
+ * Returns a user-facing identifier for an option.
+ * @param option Option metadata.
+ * @returns Preferred long flag or raw flags string.
+ */
+function getOptionLabel(option: Option): string {
+  return option.long || option.flags;
+}
+
+/**
+ * Converts option name (`enable-preview`) into Commander attribute name.
+ * @param optionName Dashed option name.
+ * @returns CamelCase attribute key.
+ */
+function toOptionAttributeName(optionName: string): string {
+  return optionName.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
+}
+
+/**
+ * Returns true if value is treated as enabled for opt-in checks.
+ * @param value Value to evaluate.
+ * @returns Truthy opt-in interpretation.
+ */
+function isTruthyOptInValue(value: unknown): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return ['1', 'true', 'yes', 'on'].includes(value.toLowerCase());
+  }
+  return false;
+}
+
+/**
+ * Checks whether an opt-in gate has been satisfied.
+ * @param command Command being executed.
+ * @param gate Gate configuration.
+ * @returns True when execution is allowed.
+ */
+function isStabilityGateSatisfied(
+  command: Command,
+  gate: StabilityGateConfig
+): boolean {
+  const mode = gate.mode || 'option-or-env';
+  const optionName = gate.optionName || 'enable-preview';
+  const envVarName = gate.envVarName || 'FRODO_ENABLE_PREVIEW';
+
+  const options = command.optsWithGlobals<Record<string, unknown>>();
+  const optionKey = toOptionAttributeName(optionName);
+  const optionEnabled = isTruthyOptInValue(options?.[optionKey]);
+  const envEnabled = isTruthyOptInValue(process.env[envVarName]);
+
+  switch (mode) {
+    case 'option-only':
+      return optionEnabled;
+    case 'env-only':
+      return envEnabled;
+    default:
+      return optionEnabled || envEnabled;
+  }
+}
+
+/**
+ * Returns whether an option was explicitly supplied or otherwise set from a
+ * non-default source.
+ * @param command Command being executed.
+ * @param option Option to inspect.
+ * @returns True when option value source is non-default.
+ */
+function isOptionUsed(command: Command, option: Option): boolean {
+  const source = command.getOptionValueSourceWithGlobals(
+    option.attributeName()
+  );
+  return !!source && source !== 'default';
+}
+
+/**
+ * Enforces stability gate and prints warnings for non-stable options that were
+ * actually used.
+ * @param actionCommand Concrete command being executed.
+ */
+function enforceOptionStabilityAndWarn(actionCommand: Command): void {
+  for (const option of actionCommand.options) {
+    const metadata = getStabilityMetadata(option);
+    if (metadata.level === 'stable' || !isOptionUsed(actionCommand, option)) {
+      continue;
+    }
+
+    const commandPath = getCommandPath(actionCommand);
+    const optionLabel = getOptionLabel(option);
+    const warningKey = `${commandPath}::${optionLabel}`;
+
+    if (metadata.gate?.requiredOptIn) {
+      const gate = metadata.gate;
+      if (!isStabilityGateSatisfied(actionCommand, gate)) {
+        const optionName = gate.optionName || 'enable-preview';
+        const envVarName = gate.envVarName || 'FRODO_ENABLE_PREVIEW';
+        const mode = gate.mode || 'option-or-env';
+        const guidance =
+          mode === 'option-only'
+            ? `Use '--${optionName}'.`
+            : mode === 'env-only'
+              ? `Set '${envVarName}=true'.`
+              : `Use '--${optionName}' or set '${envVarName}=true'.`;
+        throw new FrodoError(
+          `${formatStabilityLevel(metadata.level)} option '${optionLabel}' on command '${commandPath}' requires explicit opt-in. ${guidance}`
+        );
+      }
+    }
+
+    if (!warnedStabilityOptions.has(warningKey)) {
+      const suffix = metadata.gate?.requiredOptIn
+        ? metadata.level === 'deprecated'
+          ? ' This option is opt-in, deprecated, and may be removed in a future release.'
+          : ' This option is opt-in and may change without notice.'
+        : metadata.level === 'deprecated'
+          ? ' This option is deprecated and may be removed in a future release.'
+          : ' This option may change without notice.';
+      printMessage(
+        `${formatStabilityLevel(metadata.level)} option in use: '${optionLabel}' on command '${commandPath}'.${suffix}`,
+        'warn'
+      );
+      warnedStabilityOptions.add(warningKey);
+    }
+  }
+}
+
+/**
+ * Enforces stability gate and prints warnings for non-stable commands.
+ * @param actionCommand Concrete command being executed.
+ */
+function enforceStabilityAndWarn(actionCommand: Command): void {
+  const metadata = getEffectiveCommandStabilityMetadata(actionCommand);
+  if (metadata.level === 'stable') {
+    return;
+  }
+
+  const commandPath = getCommandPath(actionCommand);
+
+  if (metadata.gate?.requiredOptIn) {
+    const gate = metadata.gate;
+    if (!isStabilityGateSatisfied(actionCommand, gate)) {
+      const optionName = gate.optionName || 'enable-preview';
+      const envVarName = gate.envVarName || 'FRODO_ENABLE_PREVIEW';
+      const mode = gate.mode || 'option-or-env';
+      const guidance =
+        mode === 'option-only'
+          ? `Use '--${optionName}'.`
+          : mode === 'env-only'
+            ? `Set '${envVarName}=true'.`
+            : `Use '--${optionName}' or set '${envVarName}=true'.`;
+      throw new FrodoError(
+        `${formatStabilityLevel(metadata.level)} command '${commandPath}' requires explicit opt-in. ${guidance}`
+      );
+    }
+  }
+
+  if (!warnedStabilityCommands.has(commandPath)) {
+    const gateSuffix = metadata.gate?.requiredOptIn
+      ? metadata.level === 'deprecated'
+        ? ' This command is opt-in, deprecated, and may be removed in a future release.'
+        : ' This feature is opt-in and may change without notice.'
+      : metadata.level === 'deprecated'
+        ? ' This command is deprecated and may be removed in a future release.'
+        : ' This feature may change without notice.';
+    printMessage(
+      `${formatStabilityLevel(metadata.level)} feature in use: '${commandPath}'.${gateSuffix}`,
+      'warn'
+    );
+    warnedStabilityCommands.add(commandPath);
+  }
+
+  enforceOptionStabilityAndWarn(actionCommand);
+}
+
 /**
  * Command with default options
  */
 export class FrodoStubCommand extends Command {
+  /**
+   * Command stability metadata. Defaults to stable.
+   */
+  [STABILITY_METADATA_KEY]?: StabilityMetadata;
+
   types?: string[];
 
   /**
@@ -1396,6 +1840,54 @@ export class FrodoStubCommand extends Command {
       );
       cleanupProgressIndicators();
     });
+
+    this.hook('preAction', (_thisCommand, actionCommand) => {
+      enforceStabilityAndWarn(actionCommand);
+    });
+  }
+
+  /**
+   * Marks a command stability level and optionally requires explicit opt-in.
+   * Stable is the default and requires no call sites.
+   * @param level Stability indicator.
+   * @param gate Optional gate configuration for high-risk features.
+   * @returns This command for chaining.
+   */
+  withStability(level: StabilityIndicator, gate?: StabilityGateConfig): this {
+    const normalizedGate = gate?.requiredOptIn
+      ? {
+          requiredOptIn: true,
+          optionName: gate.optionName || 'enable-preview',
+          envVarName: gate.envVarName || 'FRODO_ENABLE_PREVIEW',
+          helpText: gate.helpText,
+          mode: gate.mode || 'option-or-env',
+        }
+      : gate;
+
+    setStabilityMetadata(this, { level, gate: normalizedGate });
+
+    if (normalizedGate?.requiredOptIn) {
+      const optionName = normalizedGate.optionName || 'enable-preview';
+      const optionExists = this.options.some(
+        (option) =>
+          option.name() === optionName || option.attributeName() === optionName
+      );
+
+      if (!optionExists) {
+        const envVarName = normalizedGate.envVarName || 'FRODO_ENABLE_PREVIEW';
+        const helpText =
+          normalizedGate.helpText ||
+          `Opt in to ${level} feature execution. You can also set ${envVarName}=true.`;
+        this.addOption(
+          withHelpGroup(
+            new Option(`--${optionName}`, helpText),
+            SUPPORT_OPTIONS_HEADING
+          )
+        );
+      }
+    }
+
+    return this;
   }
 
   override addCommand(
@@ -1499,7 +1991,23 @@ class FrodoStubHelp extends Help {
       [...helper.visibleOptions(cmd)],
       (option) => option.helpGroupHeading ?? 'Options:'
     );
-    optionGroups.forEach((options, group) => {
+    const orderedOptionGroups = [...optionGroups.entries()].sort(
+      ([leftGroup], [rightGroup]) => {
+        if (leftGroup === COMMAND_OPTIONS_HEADING) {
+          return -1;
+        }
+
+        if (rightGroup === COMMAND_OPTIONS_HEADING) {
+          return 1;
+        }
+
+        return leftGroup.localeCompare(rightGroup, undefined, {
+          sensitivity: 'base',
+        });
+      }
+    );
+
+    orderedOptionGroups.forEach(([group, options]) => {
       const scopedGroups = collectOptionGroupsByScope(options, typedCmd.types);
       const optionLines = scopedGroups.unscoped.map((option) => {
         return callFormatItem(
@@ -1583,6 +2091,51 @@ class FrodoStubHelp extends Help {
     });
 
     return output.join('\n');
+  }
+
+  /**
+   * Decorates command description with stability badges.
+   * @param cmd Command being rendered.
+   * @returns Possibly decorated description.
+   */
+  override commandDescription(cmd: Command): string {
+    return decorateDescriptionWithStability(super.commandDescription(cmd), cmd);
+  }
+
+  /**
+   * Decorates subcommand description with stability badges.
+   * @param cmd Subcommand being rendered.
+   * @returns Possibly decorated description.
+   */
+  override subcommandDescription(cmd: Command): string {
+    return decorateDescriptionWithStability(
+      super.subcommandDescription(cmd),
+      cmd
+    );
+  }
+
+  /**
+   * Decorates argument description with stability badges.
+   * @param argument Argument being rendered.
+   * @returns Possibly decorated description.
+   */
+  override argumentDescription(argument: Argument): string {
+    return decorateDescriptionWithStability(
+      super.argumentDescription(argument),
+      argument
+    );
+  }
+
+  /**
+   * Decorates option description with stability badges.
+   * @param option Option being rendered.
+   * @returns Possibly decorated description.
+   */
+  override optionDescription(option: Option): string {
+    return decorateDescriptionWithStability(
+      super.optionDescription(option),
+      option
+    );
   }
 
   /**
