@@ -15,37 +15,61 @@ import {
   verboseMessage,
 } from '../utils/Console.js';
 
+// Frodo constants
+const constants = frodo.utils.constants;
 const {
   DEFAULT_REALM_KEY,
   DEPLOYMENT_TYPES,
   RETRY_STRATEGIES,
   RETRY_NOTHING_KEY,
-} = frodo.utils.constants;
+} = constants;
 const { convertPrivateKeyToPem } = frodo.utils.crypto;
 
+// Default heading for grouped subcommands.
 const COMMANDS_HEADING = 'Commands:';
+// Heading for command-specific options that do not declare a group.
 const COMMAND_OPTIONS_HEADING = 'Options:';
+// Group for connection and deployment endpoint settings.
 const CONNECTION_OPTIONS_HEADING = 'Connection Options:';
+// Group for login and credential-related settings.
 const AUTHENTICATION_OPTIONS_HEADING = 'Authentication Options:';
+// Group for runtime behavior controls.
 const RUNTIME_OPTIONS_HEADING = 'Runtime Options:';
+// Group for output and diagnostics controls.
 const OUTPUT_OPTIONS_HEADING = 'Output Options:';
-const SUPPORT_OPTIONS_HEADING = 'Options:';
+// Help flags intentionally use the same visible label as command options to keep a single
+// "Options:" section in help output while still preserving a separate semantic bucket.
+const HELP_OPTIONS_HEADING = 'Options:';
+// Top-level env var section for host/realm/endpoint values.
 const CONNECTION_ENVIRONMENT_VARIABLES_HEADING = 'Connection:';
+// Top-level env var section for auth and credentials.
 const AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING = 'Authentication:';
+// Top-level env var section for runtime behavior.
 const RUNTIME_ENVIRONMENT_VARIABLES_HEADING = 'Runtime:';
+// Top-level env var section for output and debug toggles.
 const OUTPUT_ENVIRONMENT_VARIABLES_HEADING = 'Output:';
-// Canonical deployment type keys used by command metadata and help scoping.
-const CLASSIC_DEPLOYMENT_TYPE = 'classic';
-const CLOUD_DEPLOYMENT_TYPE = 'cloud';
-const FORGEOPS_DEPLOYMENT_TYPE = 'forgeops';
+// Short flag alias for --help-more; triggers level-2 help showing all option groups.
 const HELP_MORE_SHORT_FLAG = '-hh';
+// Level-2 help flag: shows all option groups (Connection, Authentication, Runtime, Output)
+// that are hidden from basic -h output, including stability badges. Does not include env vars.
 const HELP_MORE_FLAG = '--help-more';
+// Short flag alias for --help-all; triggers level-3 help showing everything.
 const HELP_ALL_SHORT_FLAG = '-hhh';
+// Level-3 help flag: shows all option groups plus environment variable sections.
+// Superset of --help-more output. Stability badges appear at all levels.
 const HELP_ALL_FLAG = '--help-all';
+// Fallback help text width used when the terminal width cannot be determined.
 const DEFAULT_HELP_WIDTH = 100;
+// Absolute minimum help text width; applied at all help levels regardless of terminal width.
 const MINIMUM_HELP_WIDTH = 60;
+// Padding between option flags and their descriptions in help output.
 const ENVIRONMENT_VARIABLE_NAME_INDENT = 4;
+// Padding between environment variable descriptions and their group headings in help output.
 const ENVIRONMENT_VARIABLE_DESCRIPTION_PADDING = 2;
+// Property key used to attach stability metadata to Commander objects (commands, options,
+// arguments). The double-underscore prefix avoids collision with Commander's own property
+// namespace. Typed `as const` so TypeScript treats it as a literal type for type-safe
+// indexed access via the `StabilityAnnotated` interface.
 const STABILITY_METADATA_KEY = '__frodoStabilityMetadata' as const;
 
 export type StabilityIndicator =
@@ -737,7 +761,10 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     description:
       "OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
-    appliesToTypes: [CLOUD_DEPLOYMENT_TYPE, FORGEOPS_DEPLOYMENT_TYPE],
+    appliesToTypes: [
+      constants.CLOUD_DEPLOYMENT_TYPE_KEY,
+      constants.FORGEOPS_DEPLOYMENT_TYPE_KEY,
+    ],
     include: (command) =>
       command.hasDefaultOption(loginClientId.attributeName()),
   },
@@ -746,7 +773,10 @@ const environmentVariables: EnvironmentVariableDescriptor[] = [
     description:
       "Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.",
     group: AUTHENTICATION_ENVIRONMENT_VARIABLES_HEADING,
-    appliesToTypes: [CLOUD_DEPLOYMENT_TYPE, FORGEOPS_DEPLOYMENT_TYPE],
+    appliesToTypes: [
+      constants.CLOUD_DEPLOYMENT_TYPE_KEY,
+      constants.FORGEOPS_DEPLOYMENT_TYPE_KEY,
+    ],
     include: (command) =>
       command.hasDefaultOption(loginRedirectUri.attributeName()),
   },
@@ -1075,11 +1105,11 @@ type CommandWithTypes = Command & { types?: string[] };
 function getDeploymentTypeForScope(scope: DeploymentScope): string {
   switch (scope) {
     case 'classic-only':
-      return CLASSIC_DEPLOYMENT_TYPE;
+      return constants.CLASSIC_DEPLOYMENT_TYPE_KEY;
     case 'cloud-only':
-      return CLOUD_DEPLOYMENT_TYPE;
+      return constants.CLOUD_DEPLOYMENT_TYPE_KEY;
     case 'forgeops-only':
-      return FORGEOPS_DEPLOYMENT_TYPE;
+      return constants.FORGEOPS_DEPLOYMENT_TYPE_KEY;
   }
 }
 
@@ -1318,11 +1348,11 @@ function getDeploymentTypeLabel(command?: CommandWithTypes): string {
  */
 function getDeploymentTypeDisplayLabel(type: string): string {
   switch (type) {
-    case CLASSIC_DEPLOYMENT_TYPE:
+    case constants.CLASSIC_DEPLOYMENT_TYPE_KEY:
       return 'Classic';
-    case CLOUD_DEPLOYMENT_TYPE:
+    case constants.CLOUD_DEPLOYMENT_TYPE_KEY:
       return 'Cloud';
-    case FORGEOPS_DEPLOYMENT_TYPE:
+    case constants.FORGEOPS_DEPLOYMENT_TYPE_KEY:
       return 'ForgeOps';
     default:
       // Preserve existing camelCase/PascalCase beyond the first character.
@@ -1347,11 +1377,11 @@ function toDeploymentOnlyLabel(type: string): string {
  */
 function getScopeForDeploymentType(type: string): DeploymentScope | undefined {
   switch (type) {
-    case CLASSIC_DEPLOYMENT_TYPE:
+    case constants.CLASSIC_DEPLOYMENT_TYPE_KEY:
       return 'classic-only';
-    case CLOUD_DEPLOYMENT_TYPE:
+    case constants.CLOUD_DEPLOYMENT_TYPE_KEY:
       return 'cloud-only';
-    case FORGEOPS_DEPLOYMENT_TYPE:
+    case constants.FORGEOPS_DEPLOYMENT_TYPE_KEY:
       return 'forgeops-only';
     default:
       return undefined;
@@ -1475,13 +1505,16 @@ function getOptionAppliesToTypes(option: Option): string[] | undefined {
   switch (option.name()) {
     case loginClientId.name():
     case loginRedirectUri.name():
-      return [CLOUD_DEPLOYMENT_TYPE, FORGEOPS_DEPLOYMENT_TYPE];
+      return [
+        constants.CLOUD_DEPLOYMENT_TYPE_KEY,
+        constants.FORGEOPS_DEPLOYMENT_TYPE_KEY,
+      ];
     case serviceAccountIdOption.name():
     case serviceAccountJwkFileOption.name():
-      return [CLOUD_DEPLOYMENT_TYPE];
+      return [constants.CLOUD_DEPLOYMENT_TYPE_KEY];
     case amsterPrivateKeyPassphraseOption.name():
     case amsterPrivateKeyFileOption.name():
-      return [CLASSIC_DEPLOYMENT_TYPE];
+      return [constants.CLASSIC_DEPLOYMENT_TYPE_KEY];
     default:
       return undefined;
   }
@@ -1785,7 +1818,7 @@ export class FrodoStubCommand extends Command {
     this.addOption(
       withHelpGroup(
         new Option(HELP_MORE_FLAG, 'Help with all options.'),
-        SUPPORT_OPTIONS_HEADING
+        HELP_OPTIONS_HEADING
       )
     );
     this.addOption(
@@ -1794,7 +1827,7 @@ export class FrodoStubCommand extends Command {
           HELP_ALL_FLAG,
           'Help with all options, environment variables, and usage examples.'
         ),
-        SUPPORT_OPTIONS_HEADING
+        HELP_OPTIONS_HEADING
       )
     );
     this.showHelpAfterError();
@@ -1804,7 +1837,7 @@ export class FrodoStubCommand extends Command {
     });
     this.options
       .find((option) => option.name() === 'help')
-      ?.helpGroup(SUPPORT_OPTIONS_HEADING);
+      ?.helpGroup(HELP_OPTIONS_HEADING);
     this.addHelpText('after', () => {
       if (!isFullHelpRequested()) {
         return '';
@@ -1881,7 +1914,7 @@ export class FrodoStubCommand extends Command {
         this.addOption(
           withHelpGroup(
             new Option(`--${optionName}`, helpText),
-            SUPPORT_OPTIONS_HEADING
+            HELP_OPTIONS_HEADING
           )
         );
       }
@@ -2265,11 +2298,16 @@ export class FrodoCommand extends FrodoStubCommand {
     this.types = types;
     this.allowExcessArguments();
     const commandOmits = new Set(omits);
-    const supportsCloud = types.includes(CLOUD_DEPLOYMENT_TYPE);
-    const supportsForgeops = types.includes(FORGEOPS_DEPLOYMENT_TYPE);
+    const supportsCloud = types.includes(constants.CLOUD_DEPLOYMENT_TYPE_KEY);
+    const supportsForgeops = types.includes(
+      constants.FORGEOPS_DEPLOYMENT_TYPE_KEY
+    );
 
     // Cloud-only commands do not need Amster private key defaults.
-    if (types.length === 1 && types[0] === CLOUD_DEPLOYMENT_TYPE) {
+    if (
+      types.length === 1 &&
+      types[0] === constants.CLOUD_DEPLOYMENT_TYPE_KEY
+    ) {
       commandOmits.add(amsterPrivateKeyPassphraseOption.name());
       commandOmits.add(amsterPrivateKeyFileOption.name());
     }
@@ -2300,7 +2338,7 @@ export class FrodoCommand extends FrodoStubCommand {
 
     this.options
       .find((option) => option.name() === 'help')
-      ?.helpGroup(SUPPORT_OPTIONS_HEADING);
+      ?.helpGroup(HELP_OPTIONS_HEADING);
 
     // additional help
     this.addHelpText('after', () =>
