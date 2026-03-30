@@ -717,12 +717,7 @@ export async function describeJourney(
         'data'
       );
       for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
-        printMessage(
-          `- ${String(count)} [${
-            nodeType['brightCyan']
-          }] (${Node.getNodeClassification(nodeType).join(', ')})`,
-          'data'
-        );
+        printMessage(`- ${String(count)} [${nodeType['brightCyan']}]`, 'data');
       }
     }
 
@@ -936,15 +931,10 @@ export async function describeJourneyMd(
         `## Node Types (${Object.entries(nodeTypeMap).length})`,
         'data'
       );
-      printMessage('| Count | Type | Classification |', 'data');
-      printMessage('| -----:| ---- | -------------- |', 'data');
+      printMessage('| Count | Type |', 'data');
+      printMessage('| -----:| ---- |', 'data');
       for (const [nodeType, count] of Object.entries(nodeTypeMap)) {
-        printMessage(
-          `| ${String(count)} | ${nodeType} | ${Node.getNodeClassificationMd(
-            nodeType
-          ).join('<br>')} |`,
-          'data'
-        );
+        printMessage(`| ${String(count)} | ${nodeType} |`, 'data');
       }
     }
 
