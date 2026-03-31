@@ -96,16 +96,6 @@ export default function setup() {
         command
       );
 
-      // Pre-authenticate the frodo singleton before starting the MCP server.
-      // This ensures subsequent tool calls can access APIs without hitting 401 errors.
-      try {
-        await frodo.login.getTokens();
-      } catch (error) {
-        throw new Error(
-          `Failed to authenticate MCP server: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
-
       const opts = options as McpStartOptions;
       const service = createMcpService({
         policyPreset: opts.policy,
@@ -113,6 +103,11 @@ export default function setup() {
           includeTopLevelDomains: opts.includeDomains,
           excludeTopLevelDomains: opts.excludeDomains,
           includeUtils: !!opts.includeUtils,
+        },
+        // Reuse the preconfigured frodo singleton; the CLI has already
+        // applied connection credentials via handleDefaultArgsAndOpts.
+        runtimeOptions: {
+          resolveFrodoForRequest: async () => frodo,
         },
       });
 
@@ -147,7 +142,7 @@ export default function setup() {
         );
         if (opts.transport === 'http') {
           printMessage(
-            `  HTTP endpoint: http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
+            `  HTTP endpoint (planned): http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
           );
         }
       }

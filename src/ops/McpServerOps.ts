@@ -14,9 +14,10 @@
  *                    The same McpServer instance is reused across sessions.
  *
  * @remarks
- * Both transports derive request-scoped auth context from the active shared
- * state configured by `handleDefaultArgsAndOpts` before startup. Generic tool
- * calls may additionally override realm per request.
+ * Both transports recycle the frodo singleton that was configured by
+ * `handleDefaultArgsAndOpts` before the transport starts.  A custom
+ * `resolveFrodoForRequest` passed to {@link createMcpService} bypasses the
+ * default per-request Frodo instantiation and returns the singleton directly.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -32,10 +33,8 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import {
-  type McpGenericExecutionArguments,
   type McpRuntimeRequestContext,
   type McpService,
-  state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
 
@@ -45,9 +44,17 @@ import { printMessage } from '../utils/Console.js';
 // Internal constants
 // ---------------------------------------------------------------------------
 
-// Zod v4 schema shapes reused for generic and special tools.
-const MAX_INLINE_RESULT_BYTES = 256 * 1024;
+/**
+ * Dummy request context used when the transport ignores per-request auth.
+ * The custom `resolveFrodoForRequest` registered by the `start` command
+ * returns the preconfigured frodo singleton instead, so the context fields
+ * are never read by the runtime.
+ */
+const CLI_REQUEST_CONTEXT: McpRuntimeRequestContext = {
+  auth: { mode: 'state-config', config: {} },
+};
 
+// Zod v4 schema shapes reused for generic and special tools.
 const GENERIC_SHAPE = {
   domain: z.string().describe('Top-level capability domain key (e.g. "authn")'),
   objectType: z
@@ -55,38 +62,6 @@ const GENERIC_SHAPE = {
     .describe(
       'Object type within the domain (e.g. "Journey"). Use frodo_discover to enumerate available types.'
     ),
-  scope: z
-    .string()
-    .optional()
-    .describe(
-      'Optional scope selector for ambiguous generic operations (for example "single" or "bulk"). Use frodo_discover for supported values.'
-    ),
-  realm: z
-    .string()
-    .optional()
-    .describe(
-      'Optional realm override for request-scoped execution context (e.g. "/alpha").'
-    ),
-  pageSize: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .describe('Optional page size hint for paginated operations.'),
-  pageOffset: z
-    .number()
-    .int()
-    .nonnegative()
-    .optional()
-    .describe('Optional page offset hint for paginated operations.'),
-  pageToken: z
-    .string()
-    .optional()
-    .describe('Optional page token/cursor hint for paginated operations.'),
-  includeTotal: z
-    .boolean()
-    .optional()
-    .describe('Optional request for exact total counts when supported.'),
   positionalArgs: z
     .array(z.unknown())
     .optional()
@@ -146,9 +121,16 @@ function buildMcpServer(service: McpService): McpServer {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
-              context: buildRequestContext(),
+              context: CLI_REQUEST_CONTEXT,
             });
-            return buildSuccessResult(result);
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text: JSON.stringify(result.data, null, 2),
+                },
+              ],
+            };
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -164,13 +146,19 @@ function buildMcpServer(service: McpService): McpServer {
         },
         async (args) => {
           try {
-            const genericArgs = args as McpGenericExecutionArguments;
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(genericArgs.realm),
+              context: CLI_REQUEST_CONTEXT,
             });
-            return buildSuccessResult(result);
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text: JSON.stringify(result.data, null, 2),
+                },
+              ],
+            };
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -189,9 +177,16 @@ function buildMcpServer(service: McpService): McpServer {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: buildRequestContext(),
+              context: CLI_REQUEST_CONTEXT,
             });
-            return buildSuccessResult(result);
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text: JSON.stringify(result.data, null, 2),
+                },
+              ],
+            };
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -389,192 +384,18 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
 
 /**
  * Builds a standardized error result for tool execution failures.
- * Extracts full error context from FrodoError chains and HTTP error details.
  */
-function buildSuccessResult(result: unknown): {
-  content: { type: 'text'; text: string }[];
-} {
-  const serialized = safeJsonStringify(result);
-  const payloadSizeBytes = Buffer.byteLength(serialized, 'utf8');
-  if (payloadSizeBytes <= MAX_INLINE_RESULT_BYTES) {
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: serialized,
-        },
-      ],
-    };
-  }
-
-  const truncatedPayload = buildTruncatedSuccessPayload(
-    result,
-    payloadSizeBytes
-  );
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: safeJsonStringify(truncatedPayload),
-      },
-    ],
-  };
-}
-
-/**
- * Replaces oversized inline payloads with a summary/truncation envelope.
- */
-function buildTruncatedSuccessPayload(
-  result: unknown,
-  payloadSizeBytes: number
-): unknown {
-  const warning =
-    'Result exceeded the inline response limit. Narrow the request using scope, deps=false, paging, or a more specific read/export.';
-  const resultObject =
-    result && typeof result === 'object'
-      ? (result as Record<string, unknown>)
-      : { data: result };
-  const metadataObject =
-    resultObject.metadata && typeof resultObject.metadata === 'object'
-      ? (resultObject.metadata as Record<string, unknown>)
-      : {};
-  const existingResultMetadata =
-    metadataObject.result && typeof metadataObject.result === 'object'
-      ? (metadataObject.result as Record<string, unknown>)
-      : {};
-
-  return {
-    ...resultObject,
-    data: {
-      _truncated: true,
-      message: warning,
-    },
-    metadata: {
-      ...metadataObject,
-      result: {
-        ...existingResultMetadata,
-        payloadSizeBytes,
-        payloadSizeHuman: formatByteSize(payloadSizeBytes),
-        isLarge: true,
-        isTruncated: true,
-        warning,
-      },
-    },
-  };
-}
-
-/**
- * Safely stringifies a payload for MCP transport output.
- */
-function safeJsonStringify(payload: unknown): string {
-  try {
-    return JSON.stringify(payload, null, 2) ?? 'null';
-  } catch {
-    return JSON.stringify(String(payload), null, 2);
-  }
-}
-
-/**
- * Formats byte counts for human-readable MCP payload metadata.
- */
-function formatByteSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KiB`;
-  }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
-}
-
 function buildErrorResult(err: unknown): {
   content: { type: 'text'; text: string }[];
   isError: true;
 } {
-  let errorText = 'Error: ';
-
-  if (err instanceof Error) {
-    // If it's a FrodoError with nested originalErrors, get combined message
-    if (typeof (err as any).getCombinedMessage === 'function') {
-      errorText += (err as any).getCombinedMessage();
-    } else if (
-      (err as any).originalErrors &&
-      Array.isArray((err as any).originalErrors)
-    ) {
-      // Fallback: manually build chain for non-getCombinedMessage errors
-      errorText += err.message;
-      const originalErrors = (err as any).originalErrors as Error[];
-      for (const nested of originalErrors) {
-        errorText += `\n  → ${nested.name || 'Error'}: ${nested.message}`;
-      }
-    } else {
-      errorText += err.message;
-    }
-  } else {
-    errorText += String(err);
-  }
-
   return {
     content: [
       {
         type: 'text' as const,
-        text: errorText,
+        text: `Error: ${err instanceof Error ? err.message : String(err)}`,
       },
     ],
     isError: true as const,
-  };
-}
-
-/**
- * Builds request-scoped runtime auth context from active frodo state.
- */
-function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
-  const host = state.getHost();
-  const realm = realmOverride ?? state.getRealm();
-
-  const serviceAccountId = state.getServiceAccountId();
-  const serviceAccountJwk = state.getServiceAccountJwk();
-  if (host && serviceAccountId && serviceAccountJwk) {
-    return {
-      auth: {
-        mode: 'service-account',
-        host,
-        serviceAccountId,
-        serviceAccountJwk: JSON.stringify(serviceAccountJwk),
-        realm,
-        deploymentType: state.getDeploymentType(),
-        allowInsecureConnection: state.getAllowInsecureConnection(),
-        debug: state.getDebug(),
-        curlirize: state.getCurlirize(),
-      },
-    };
-  }
-
-  const username = state.getUsername();
-  const password = state.getPassword();
-  if (host && username && password) {
-    return {
-      auth: {
-        mode: 'admin-account',
-        host,
-        username,
-        password,
-        realm,
-        deploymentType: state.getDeploymentType(),
-        allowInsecureConnection: state.getAllowInsecureConnection(),
-        debug: state.getDebug(),
-        curlirize: state.getCurlirize(),
-      },
-    };
-  }
-
-  return {
-    auth: {
-      mode: 'state-config',
-      config: {
-        ...state.getState(),
-        realm,
-      },
-    },
   };
 }
