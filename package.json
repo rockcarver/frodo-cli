@@ -95,7 +95,8 @@
     ]
   },
   "devDependencies": {
-    "@rockcarver/frodo-lib": "4.0.0-34",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@rockcarver/frodo-lib": "4.0.0-35",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",
@@ -138,6 +139,7 @@
     "tsup": "^8.1.0",
     "typescript": "^5.2.2",
     "uuid": "^11.1.0",
-    "yesno": "^0.4.0"
+    "yesno": "^0.4.0",
+    "zod": "^4.3.6"
   }
 }
