@@ -16,8 +16,6 @@ Arguments:
                     appropriate rights to manage authentication journeys/trees.
   password          Password.
 
-Deployment: Cloud-only
-
 Options:
   -h, --help        Help
   -hh, --help-more  Help with all options.
