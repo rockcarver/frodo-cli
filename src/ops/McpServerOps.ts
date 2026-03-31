@@ -384,16 +384,40 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
 
 /**
  * Builds a standardized error result for tool execution failures.
+ * Extracts full error context from FrodoError chains and HTTP error details.
  */
 function buildErrorResult(err: unknown): {
   content: { type: 'text'; text: string }[];
   isError: true;
 } {
+  let errorText = 'Error: ';
+
+  if (err instanceof Error) {
+    // If it's a FrodoError with nested originalErrors, get combined message
+    if (typeof (err as any).getCombinedMessage === 'function') {
+      errorText += (err as any).getCombinedMessage();
+    } else if (
+      (err as any).originalErrors &&
+      Array.isArray((err as any).originalErrors)
+    ) {
+      // Fallback: manually build chain for non-getCombinedMessage errors
+      errorText += err.message;
+      const originalErrors = (err as any).originalErrors as Error[];
+      for (const nested of originalErrors) {
+        errorText += `\n  → ${nested.name || 'Error'}: ${nested.message}`;
+      }
+    } else {
+      errorText += err.message;
+    }
+  } else {
+    errorText += String(err);
+  }
+
   return {
     content: [
       {
         type: 'text' as const,
-        text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        text: errorText,
       },
     ],
     isError: true as const,
