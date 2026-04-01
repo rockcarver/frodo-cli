@@ -114,11 +114,6 @@ export default function setup() {
           excludeTopLevelDomains: opts.excludeDomains,
           includeUtils: !!opts.includeUtils,
         },
-        // Reuse the preconfigured frodo singleton; the CLI has already
-        // applied connection credentials via handleDefaultArgsAndOpts.
-        runtimeOptions: {
-          resolveFrodoForRequest: async () => frodo,
-        },
       });
 
       const startupSummary = {
@@ -152,7 +147,7 @@ export default function setup() {
         );
         if (opts.transport === 'http') {
           printMessage(
-            `  HTTP endpoint (planned): http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
+            `  HTTP endpoint: http://${startupSummary.http.bindHost}:${startupSummary.http.port}/mcp`
           );
         }
       }

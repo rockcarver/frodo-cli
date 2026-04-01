@@ -14,10 +14,9 @@
  *                    The same McpServer instance is reused across sessions.
  *
  * @remarks
- * Both transports recycle the frodo singleton that was configured by
- * `handleDefaultArgsAndOpts` before the transport starts.  A custom
- * `resolveFrodoForRequest` passed to {@link createMcpService} bypasses the
- * default per-request Frodo instantiation and returns the singleton directly.
+ * Both transports derive request-scoped auth context from the active shared
+ * state configured by `handleDefaultArgsAndOpts` before startup. Generic tool
+ * calls may additionally override realm per request.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -33,8 +32,10 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import {
+  type McpGenericExecutionArguments,
   type McpRuntimeRequestContext,
   type McpService,
+  state,
 } from '@rockcarver/frodo-lib';
 import { z } from 'zod';
 
@@ -44,16 +45,6 @@ import { printMessage } from '../utils/Console.js';
 // Internal constants
 // ---------------------------------------------------------------------------
 
-/**
- * Dummy request context used when the transport ignores per-request auth.
- * The custom `resolveFrodoForRequest` registered by the `start` command
- * returns the preconfigured frodo singleton instead, so the context fields
- * are never read by the runtime.
- */
-const CLI_REQUEST_CONTEXT: McpRuntimeRequestContext = {
-  auth: { mode: 'state-config', config: {} },
-};
-
 // Zod v4 schema shapes reused for generic and special tools.
 const GENERIC_SHAPE = {
   domain: z.string().describe('Top-level capability domain key (e.g. "authn")'),
@@ -62,6 +53,32 @@ const GENERIC_SHAPE = {
     .describe(
       'Object type within the domain (e.g. "Journey"). Use frodo_discover to enumerate available types.'
     ),
+  realm: z
+    .string()
+    .optional()
+    .describe(
+      'Optional realm override for request-scoped execution context (e.g. "/alpha").'
+    ),
+  pageSize: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Optional page size hint for paginated operations.'),
+  pageOffset: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('Optional page offset hint for paginated operations.'),
+  pageToken: z
+    .string()
+    .optional()
+    .describe('Optional page token/cursor hint for paginated operations.'),
+  includeTotal: z
+    .boolean()
+    .optional()
+    .describe('Optional request for exact total counts when supported.'),
   positionalArgs: z
     .array(z.unknown())
     .optional()
@@ -121,13 +138,13 @@ function buildMcpServer(service: McpService): McpServer {
           try {
             const result = await service.executeTool({
               toolName: tool.name,
-              context: CLI_REQUEST_CONTEXT,
+              context: buildRequestContext(),
             });
             return {
               content: [
                 {
                   type: 'text' as const,
-                  text: JSON.stringify(result.data, null, 2),
+                  text: JSON.stringify(result, null, 2),
                 },
               ],
             };
@@ -146,16 +163,17 @@ function buildMcpServer(service: McpService): McpServer {
         },
         async (args) => {
           try {
+            const genericArgs = args as McpGenericExecutionArguments;
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: CLI_REQUEST_CONTEXT,
+              context: buildRequestContext(genericArgs.realm),
             });
             return {
               content: [
                 {
                   type: 'text' as const,
-                  text: JSON.stringify(result.data, null, 2),
+                  text: JSON.stringify(result, null, 2),
                 },
               ],
             };
@@ -177,13 +195,13 @@ function buildMcpServer(service: McpService): McpServer {
             const result = await service.executeTool({
               toolName: tool.name,
               arguments: args,
-              context: CLI_REQUEST_CONTEXT,
+              context: buildRequestContext(),
             });
             return {
               content: [
                 {
                   type: 'text' as const,
-                  text: JSON.stringify(result.data, null, 2),
+                  text: JSON.stringify(result, null, 2),
                 },
               ],
             };
@@ -421,5 +439,59 @@ function buildErrorResult(err: unknown): {
       },
     ],
     isError: true as const,
+  };
+}
+
+/**
+ * Builds request-scoped runtime auth context from active frodo state.
+ */
+function buildRequestContext(realmOverride?: string): McpRuntimeRequestContext {
+  const host = state.getHost();
+  const realm = realmOverride ?? state.getRealm();
+
+  const serviceAccountId = state.getServiceAccountId();
+  const serviceAccountJwk = state.getServiceAccountJwk();
+  if (host && serviceAccountId && serviceAccountJwk) {
+    return {
+      auth: {
+        mode: 'service-account',
+        host,
+        serviceAccountId,
+        serviceAccountJwk: JSON.stringify(serviceAccountJwk),
+        realm,
+        deploymentType: state.getDeploymentType(),
+        allowInsecureConnection: state.getAllowInsecureConnection(),
+        debug: state.getDebug(),
+        curlirize: state.getCurlirize(),
+      },
+    };
+  }
+
+  const username = state.getUsername();
+  const password = state.getPassword();
+  if (host && username && password) {
+    return {
+      auth: {
+        mode: 'admin-account',
+        host,
+        username,
+        password,
+        realm,
+        deploymentType: state.getDeploymentType(),
+        allowInsecureConnection: state.getAllowInsecureConnection(),
+        debug: state.getDebug(),
+        curlirize: state.getCurlirize(),
+      },
+    };
+  }
+
+  return {
+    auth: {
+      mode: 'state-config',
+      config: {
+        ...state.getState(),
+        realm,
+      },
+    },
   };
 }
