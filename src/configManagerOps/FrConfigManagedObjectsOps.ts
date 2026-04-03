@@ -1,10 +1,13 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import fs from 'fs';
+import path from 'path';
 
 import { extractFrConfigDataToFile } from '../utils/Config';
 import { printError } from '../utils/Console';
 
-const { readConfigEntity } = frodo.idm.config;
+const { readConfigEntity, importConfigEntities, importSubConfigEntity } =
+  frodo.idm.config;
 const { getFilePath, saveTextToFile } = frodo.utils;
 const { stringify } = frodo.utils.json;
 
@@ -109,4 +112,75 @@ function processManagedObjects(managedObjects, targetDir, name) {
   } catch (err) {
     printError(err);
   }
+}
+
+/**
+ * Helper that recursively reads in extracted files and stores them back in the managed object
+ * @param obj The managed object configuration
+ * @param managedObjectDirectory The directory where the managed object resides
+ */
+function getExtractedFiles(obj: any, managedObjectDirectory: string): void {
+  if (!obj || typeof obj !== 'object') return;
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    if (value?.type === 'text/javascript' && value.file) {
+      const scriptPath = path.join(managedObjectDirectory, value.file);
+      if (fs.existsSync(scriptPath)) {
+        value.source = fs.readFileSync(scriptPath, { encoding: 'utf-8' });
+        delete value.file;
+      }
+    } else if (typeof value === 'object') {
+      getExtractedFiles(value, managedObjectDirectory);
+    }
+  }
+}
+
+/**
+ * Helper that returns the import data for a managed object given the file where it is saved
+ * @param file The file where the managed object is saved
+ * @returns The managed object data from the file, including data from any extracted files
+ */
+function getManagedObjectImportData(file: string): object {
+  const readManagedObject = fs.readFileSync(file, 'utf-8');
+  const importData = JSON.parse(readManagedObject);
+  const managedObjectDirectory = path.dirname(file);
+  getExtractedFiles(importData, managedObjectDirectory);
+  return importData;
+}
+
+/**
+ * Import an IDM managed object in the fr-config-manager format.
+ * @param {string} objectName Optional managed object name. If not specified, imports all the managed objects.
+ * @return {Promise<boolean>} a promise that resolves to true if successful, false otherwise
+ */
+export async function configManagerImportManagedObjects(
+  objectName?: string
+): Promise<boolean> {
+  try {
+    if (objectName) {
+      const filePath = getFilePath(
+        `managed-objects/${objectName}/${objectName}.json`
+      );
+      const importData = getManagedObjectImportData(filePath) as any;
+      await importSubConfigEntity('managed', importData);
+    } else {
+      const managedObjectsPath = getFilePath('managed-objects');
+      const managedObjectsFiles = fs.readdirSync(managedObjectsPath, 'utf-8');
+      const importManagedObjectData = {
+        idm: { managed: { _id: 'managed', objects: [] } },
+      };
+      for (const managedObjectsFile of managedObjectsFiles) {
+        const filePath = getFilePath(
+          `managed-objects/${managedObjectsFile}/${managedObjectsFile}.json`
+        );
+        const importData = getManagedObjectImportData(filePath);
+        importManagedObjectData.idm.managed.objects.push(importData);
+      }
+      await importConfigEntities(importManagedObjectData);
+    }
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting config entity endpoints`);
+  }
+  return false;
 }
