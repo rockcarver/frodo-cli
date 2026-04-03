@@ -17,7 +17,6 @@ const deploymentTypes = [
   CLOUD_DEPLOYMENT_TYPE_KEY,
   FORGEOPS_DEPLOYMENT_TYPE_KEY,
 ];
-
 const { constants } = frodo.utils;
 
 export default function setup() {

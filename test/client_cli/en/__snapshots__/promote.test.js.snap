@@ -19,8 +19,6 @@ Arguments:
                                       authentication journeys/trees.
   password                            Password.
 
-Deployment: Cloud-only
-
 Options:
   -E, --frodo-export-dir <directory>  The directory where the frodo export is
                                       located.

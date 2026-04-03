@@ -30,6 +30,7 @@ Commands:
   mapping                           Manage IDM mappings.
   node                              Manage custom nodes.
   oauth                             Manage OAuth2 clients and providers.
+  promote                           Prepares a tenant to be promoted
   realm                             Manage realms.
   role                              Manage internal (authorization) roles.
   saml                              Manage SAML entity providers and circles of
@@ -48,7 +49,6 @@ Commands:
   esv                               Manage environment secrets and variables
                                     (ESVs).
   log|logs                          List/View Identity Cloud logs
-  promote                           Prepares a tenant to be promoted
 
 Utilities:
   conn|connection                   Manage connection profiles.
