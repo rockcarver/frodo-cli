@@ -46,12 +46,20 @@ import { printMessage } from '../utils/Console.js';
 // ---------------------------------------------------------------------------
 
 // Zod v4 schema shapes reused for generic and special tools.
+const MAX_INLINE_RESULT_BYTES = 256 * 1024;
+
 const GENERIC_SHAPE = {
   domain: z.string().describe('Top-level capability domain key (e.g. "authn")'),
   objectType: z
     .string()
     .describe(
       'Object type within the domain (e.g. "Journey"). Use frodo_discover to enumerate available types.'
+    ),
+  scope: z
+    .string()
+    .optional()
+    .describe(
+      'Optional scope selector for ambiguous generic operations (for example "single" or "bulk"). Use frodo_discover for supported values.'
     ),
   realm: z
     .string()
@@ -140,14 +148,7 @@ function buildMcpServer(service: McpService): McpServer {
               toolName: tool.name,
               context: buildRequestContext(),
             });
-            return {
-              content: [
-                {
-                  type: 'text' as const,
-                  text: JSON.stringify(result, null, 2),
-                },
-              ],
-            };
+            return buildSuccessResult(result);
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -169,14 +170,7 @@ function buildMcpServer(service: McpService): McpServer {
               arguments: args,
               context: buildRequestContext(genericArgs.realm),
             });
-            return {
-              content: [
-                {
-                  type: 'text' as const,
-                  text: JSON.stringify(result, null, 2),
-                },
-              ],
-            };
+            return buildSuccessResult(result);
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -197,14 +191,7 @@ function buildMcpServer(service: McpService): McpServer {
               arguments: args,
               context: buildRequestContext(),
             });
-            return {
-              content: [
-                {
-                  type: 'text' as const,
-                  text: JSON.stringify(result, null, 2),
-                },
-              ],
-            };
+            return buildSuccessResult(result);
           } catch (err) {
             return buildErrorResult(err);
           }
@@ -404,6 +391,102 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
  * Builds a standardized error result for tool execution failures.
  * Extracts full error context from FrodoError chains and HTTP error details.
  */
+function buildSuccessResult(result: unknown): {
+  content: { type: 'text'; text: string }[];
+} {
+  const serialized = safeJsonStringify(result);
+  const payloadSizeBytes = Buffer.byteLength(serialized, 'utf8');
+  if (payloadSizeBytes <= MAX_INLINE_RESULT_BYTES) {
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: serialized,
+        },
+      ],
+    };
+  }
+
+  const truncatedPayload = buildTruncatedSuccessPayload(
+    result,
+    payloadSizeBytes
+  );
+  return {
+    content: [
+      {
+        type: 'text' as const,
+        text: safeJsonStringify(truncatedPayload),
+      },
+    ],
+  };
+}
+
+/**
+ * Replaces oversized inline payloads with a summary/truncation envelope.
+ */
+function buildTruncatedSuccessPayload(
+  result: unknown,
+  payloadSizeBytes: number
+): unknown {
+  const warning =
+    'Result exceeded the inline response limit. Narrow the request using scope, deps=false, paging, or a more specific read/export.';
+  const resultObject =
+    result && typeof result === 'object'
+      ? (result as Record<string, unknown>)
+      : { data: result };
+  const metadataObject =
+    resultObject.metadata && typeof resultObject.metadata === 'object'
+      ? (resultObject.metadata as Record<string, unknown>)
+      : {};
+  const existingResultMetadata =
+    metadataObject.result && typeof metadataObject.result === 'object'
+      ? (metadataObject.result as Record<string, unknown>)
+      : {};
+
+  return {
+    ...resultObject,
+    data: {
+      _truncated: true,
+      message: warning,
+    },
+    metadata: {
+      ...metadataObject,
+      result: {
+        ...existingResultMetadata,
+        payloadSizeBytes,
+        payloadSizeHuman: formatByteSize(payloadSizeBytes),
+        isLarge: true,
+        isTruncated: true,
+        warning,
+      },
+    },
+  };
+}
+
+/**
+ * Safely stringifies a payload for MCP transport output.
+ */
+function safeJsonStringify(payload: unknown): string {
+  try {
+    return JSON.stringify(payload, null, 2) ?? 'null';
+  } catch {
+    return JSON.stringify(String(payload), null, 2);
+  }
+}
+
+/**
+ * Formats byte counts for human-readable MCP payload metadata.
+ */
+function formatByteSize(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KiB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
+}
+
 function buildErrorResult(err: unknown): {
   content: { type: 'text'; text: string }[];
   isError: true;
