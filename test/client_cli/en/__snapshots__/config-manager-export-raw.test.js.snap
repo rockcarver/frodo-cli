@@ -17,8 +17,6 @@ Arguments:
                             journeys/trees.
   password                  Password.
 
-Deployment: Cloud-only
-
 Options:
   -f, --config-file <file>  The file path of the service object config file.
   -h, --help                Help

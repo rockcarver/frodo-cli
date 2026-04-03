@@ -19,8 +19,6 @@ Arguments:
                                journeys/trees.
   password                     Password.
 
-Deployment: Cloud-only
-
 Options:
   -n, --name <connector-name>  Get connector-definition from specified name/id,
                                without the type prefix.

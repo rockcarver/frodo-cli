@@ -16,8 +16,6 @@ Arguments:
                      appropriate rights to manage authentication journeys/trees.
   password           Password.
 
-Deployment: Cloud-only
-
 Options:
   -f, --file <file>  The CSP_OVERRIDES json file. ex:
                      "/home/trivir/Documents/csp-overrides.json", or
