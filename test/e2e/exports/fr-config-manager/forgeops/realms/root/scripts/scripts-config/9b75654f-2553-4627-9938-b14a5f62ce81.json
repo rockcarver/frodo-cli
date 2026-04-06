@@ -1,0 +1,16 @@
+{
+  "_id": "9b75654f-2553-4627-9938-b14a5f62ce81",
+  "context": "AUTHENTICATION_TREE_DECISION_NODE",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1784906960447,
+  "default": false,
+  "description": "Debug script that prints the shared state",
+  "evaluatorVersion": "1.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1784906960447,
+  "name": "Debug",
+  "script": {
+    "file": "scripts-content/AUTHENTICATION_TREE_DECISION_NODE/Debug.js"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_id": "3d27b6d3-0f41-410a-9975-2e9df43d885e",
+  "context": "SCRIPTED_DECISION_NODE",
+  "createdBy": "id=amadmin,ou=user,ou=am-config",
+  "creationDate": 1784906961115,
+  "default": false,
+  "description": "null",
+  "evaluatorVersion": "2.0",
+  "language": "JAVASCRIPT",
+  "lastModifiedBy": "id=amadmin,ou=user,ou=am-config",
+  "lastModifiedDate": 1784906961115,
+  "name": "Test Next Gen",
+  "script": {
+    "file": "scripts-content/SCRIPTED_DECISION_NODE/Test Next Gen.js"
+  }
+}

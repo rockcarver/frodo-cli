@@ -26,6 +26,7 @@ Commands:
   endpoints              [Experimental] Import custom endpoints objects.
   help                   display help for command
   internal-roles         [Experimental] Import internal roles.
+  journeys               [Experimental] Import journeys.
   kba                    [Experimental] Import kba configuration.
   locales                [Experimental] Import custom locales objects.
   managed-objects        [Experimental] Import managed objects.
