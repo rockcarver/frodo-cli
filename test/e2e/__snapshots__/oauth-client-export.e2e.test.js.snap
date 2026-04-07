@@ -15612,8 +15612,6 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --n
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -16246,8 +16244,6 @@ exports[`frodo oauth client export "frodo oauth client export --all-separate --n
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -29896,8 +29892,6 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -30530,8 +30524,6 @@ exports[`frodo oauth client export "frodo oauth client export -A": should export
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -41440,8 +41432,6 @@ exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientEx
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -42074,8 +42064,6 @@ exports[`frodo oauth client export "frodo oauth client export -NaD oauthClientEx
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -52278,8 +52266,6 @@ exports[`frodo oauth client export "frodo oauth client export -a": should export
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -52912,8 +52898,6 @@ exports[`frodo oauth client export "frodo oauth client export -a": should export
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
