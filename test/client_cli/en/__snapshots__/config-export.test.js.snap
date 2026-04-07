@@ -40,8 +40,8 @@ Options:
                              exported from. Use --target <host url> to have
                              another environment perform the encryption.
   -M, --modified-properties  Include modified properties in export (e.g.
-                             lastModifiedDate, lastModifiedBy, etc.) (default:
-                             false)
+                             lastModifiedDate, lastModifiedBy, createdBy,
+                             creationDate, etc.) (default: false)
   -N, --no-metadata          Does not include metadata in the export file.
   --no-coords                Do not include the x and y coordinate positions of
                              the journey/tree nodes.

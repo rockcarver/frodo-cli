@@ -29,8 +29,8 @@ Options:
   -i, --type-id <type-uuid>    Resource type uuid. If specified, -a and -A are
                                ignored.
   -M, --modified-properties    Include modified properties in export (e.g.
-                               lastModifiedDate, lastModifiedBy, etc.) (default:
-                               false)
+                               lastModifiedDate, lastModifiedBy, createdBy,
+                               creationDate, etc.) (default: false)
   -n, --type-name <type-name>  Resource type name. If specified, -a and -A are
                                ignored.
   -N, --no-metadata            Does not include metadata in the export file.

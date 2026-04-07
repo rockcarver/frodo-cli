@@ -385,8 +385,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -419,8 +417,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "484e6246-dbc6-4288-97e6-54e55431402e": {
       "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
@@ -480,8 +476,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
@@ -513,8 +507,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -547,8 +539,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
       "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
@@ -601,8 +591,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
       "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
@@ -633,8 +621,6 @@ exports[`frodo idp export "frodo idp export --all": should export all idp provid
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
@@ -797,8 +783,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -946,8 +930,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -1040,8 +1022,6 @@ exports[`frodo idp export "frodo idp export --all-separate --no-metadata --direc
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
@@ -1139,8 +1119,6 @@ exports[`frodo idp export "frodo idp export --idp-id google": should export the 
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
@@ -1237,8 +1215,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
@@ -1400,8 +1376,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "484e6246-dbc6-4288-97e6-54e55431402e": {
       "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
@@ -1523,8 +1497,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "484e6246-dbc6-4288-97e6-54e55431402e": {
       "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
@@ -1636,8 +1608,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
       "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
@@ -1741,8 +1711,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
       "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
@@ -1822,8 +1790,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -1917,8 +1883,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
@@ -2004,8 +1968,6 @@ exports[`frodo idp export "frodo idp export -A": should export all idp providers
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -2189,8 +2151,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -2224,8 +2184,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
@@ -2258,8 +2216,6 @@ exports[`frodo idp export "frodo idp export -NaD idpExportTestDir2": should expo
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -2423,8 +2379,6 @@ exports[`frodo idp export "frodo idp export -Ni google -D idpExportTestDir1": sh
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
@@ -2843,8 +2797,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -2877,8 +2829,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "484e6246-dbc6-4288-97e6-54e55431402e": {
       "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "language": "GROOVY",
@@ -2938,8 +2888,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",
@@ -2971,8 +2919,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "language": "GROOVY",
@@ -3005,8 +2951,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
       "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "language": "GROOVY",
@@ -3059,8 +3003,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
       "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "language": "GROOVY",
@@ -3091,8 +3033,6 @@ exports[`frodo idp export "frodo idp export -a --file my-allAlphaProviders.idp.j
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "language": "JAVASCRIPT",
@@ -3257,8 +3197,6 @@ exports[`frodo idp export "frodo idp export -i google -f my-google.idp.json": sh
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "language": "GROOVY",

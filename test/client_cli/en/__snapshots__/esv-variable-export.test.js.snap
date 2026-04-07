@@ -27,8 +27,8 @@ Options:
   -i, --variable-id <variable-id>  Variable id. If specified, -a and -A are
                                    ignored.
   -M, --modified-properties        Include modified properties in export (e.g.
-                                   lastModifiedDate, lastModifiedBy, etc.)
-                                   (default: false)
+                                   lastModifiedDate, lastModifiedBy, createdBy,
+                                   creationDate, etc.) (default: false)
   -N, --no-metadata                Does not include metadata in the export file.
   --no-decode                      Do not include decoded variable value in
                                    export
