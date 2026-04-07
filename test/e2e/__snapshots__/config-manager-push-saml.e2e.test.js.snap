@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push saml "frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the saml into forgeops" 1`] = `""`;

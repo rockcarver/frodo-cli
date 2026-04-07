@@ -1,0 +1,295 @@
+{
+  "config": {
+    "_id": "dGVzdC1JRFA",
+    "_rev": "-553083492",
+    "entityId": "test-IDP",
+    "identityProvider": {
+      "advanced": {
+        "ecpConfiguration": {
+          "idpSessionMapper": "com.sun.identity.saml2.plugins.DefaultIDPECPSessionMapper"
+        },
+        "idpAdapter": {
+          "idpAdapterScript": "[Empty]"
+        },
+        "idpFinderImplementation": {},
+        "relayStateUrlList": {},
+        "saeConfiguration": {
+          "idpUrl": "https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/test"
+        },
+        "sessionSynchronization": {}
+      },
+      "assertionContent": {
+        "assertionCache": {},
+        "assertionTime": {
+          "effectiveTime": 600,
+          "notBeforeTimeSkew": 600
+        },
+        "authenticationContext": {
+          "authContextItems": [
+            {
+              "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+              "level": 0
+            }
+          ],
+          "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultIDPAuthnContextMapper"
+        },
+        "basicAuthentication": {},
+        "nameIdFormat": {
+          "nameIdFormatList": [
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+          ],
+          "nameIdValueMap": [
+            {
+              "binary": false,
+              "key": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+              "value": "mail"
+            },
+            {
+              "binary": false,
+              "key": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified ",
+              "value": "mail"
+            }
+          ]
+        },
+        "signingAndEncryption": {
+          "encryption": {
+            "nameIdEncryption": false
+          },
+          "requestResponseSigning": {
+            "artifactResolve": true,
+            "authenticationRequest": true,
+            "logoutRequest": false,
+            "logoutResponse": false,
+            "manageNameIdRequest": false,
+            "manageNameIdResponse": false
+          },
+          "secretIdAndAlgorithms": {
+            "digestAlgorithm": [
+              "http://www.w3.org/2001/04/xmlenc#sha256"
+            ],
+            "encryptionAlgorithm": [
+              "http://www.w3.org/2009/xmlenc11#rsa-oaep"
+            ],
+            "signingAlgorithm": []
+          }
+        }
+      },
+      "assertionProcessing": {
+        "accountMapper": {
+          "accountMapper": "com.sun.identity.saml2.plugins.DefaultIDPAccountMapper"
+        },
+        "attributeMapper": {
+          "attributeMap": [
+            {
+              "binary": false,
+              "localAttribute": "mail",
+              "samlAttribute": "SSOID"
+            },
+            {
+              "binary": false,
+              "localAttribute": "mail",
+              "samlAttribute": "User.Email"
+            },
+            {
+              "binary": false,
+              "localAttribute": "\"Standard User\"",
+              "samlAttribute": "User.ProfileID"
+            },
+            {
+              "binary": false,
+              "localAttribute": "sn",
+              "samlAttribute": "User.LastName"
+            },
+            {
+              "binary": false,
+              "localAttribute": "mail",
+              "samlAttribute": "User.Username"
+            }
+          ],
+          "attributeMapper": "com.sun.identity.saml2.plugins.DefaultIDPAttributeMapper",
+          "attributeMapperScript": "[Empty]"
+        },
+        "localConfiguration": {}
+      },
+      "services": {
+        "assertionIdRequest": [
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+            "location": "https://platform.dev.trivir.com/am/AIDReqSoap/IDPRole/metaAlias/test"
+          },
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:URI",
+            "location": "https://platform.dev.trivir.com/am/AIDReqUri/IDPRole/metaAlias/test"
+          }
+        ],
+        "metaAlias": "/test",
+        "nameIdMapping": [
+          {
+            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+            "location": "https://platform.dev.trivir.com/am/NIMSoap/metaAlias/test"
+          }
+        ],
+        "serviceAttributes": {
+          "artifactResolutionService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/ArtifactResolver/metaAlias/test"
+            }
+          ],
+          "nameIdService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test"
+            }
+          ],
+          "singleLogoutService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test",
+              "responseLocation": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test"
+            }
+          ],
+          "singleSignOnService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/SSOPOST/metaAlias/test"
+            }
+          ]
+        }
+      }
+    },
+    "serviceProvider": {
+      "advanced": {
+        "ecpConfiguration": {
+          "ecpRequestIdpListFinderImpl": "com.sun.identity.saml2.plugins.ECPIDPFinder"
+        },
+        "idpProxy": {},
+        "relayStateUrlList": {},
+        "saeConfiguration": {
+          "spUrl": "https://platform.dev.trivir.com/am/spsaehandler/metaAlias/sp"
+        }
+      },
+      "assertionContent": {
+        "assertionTimeSkew": 300,
+        "authenticationContext": {
+          "authContextItems": [
+            {
+              "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+              "defaultItem": true,
+              "level": 0
+            }
+          ],
+          "authenticationComparisonType": "Exact",
+          "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultSPAuthnContextMapper",
+          "includeRequestedAuthenticationContext": true
+        },
+        "basicAuthentication": {},
+        "clientAuthentication": {},
+        "nameIdFormat": {
+          "nameIdFormatList": [
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+            "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+            "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+          ]
+        },
+        "signingAndEncryption": {
+          "encryption": {},
+          "requestResponseSigning": {},
+          "secretIdAndAlgorithms": {}
+        }
+      },
+      "assertionProcessing": {
+        "accountMapping": {
+          "spAccountMapper": "com.sun.identity.saml2.plugins.DefaultSPAccountMapper"
+        },
+        "adapter": {
+          "spAdapterScript": "[Empty]"
+        },
+        "attributeMapper": {
+          "attributeMap": [
+            {
+              "key": "*",
+              "value": "*"
+            }
+          ],
+          "attributeMapper": "com.sun.identity.saml2.plugins.DefaultSPAttributeMapper"
+        },
+        "autoFederation": {},
+        "responseArtifactMessageEncoding": {
+          "encoding": "URI"
+        },
+        "url": {}
+      },
+      "services": {
+        "metaAlias": "/sp",
+        "serviceAttributes": {
+          "assertionConsumerService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
+              "index": 0,
+              "isDefault": true,
+              "location": "https://platform.dev.trivir.com/am/Consumer/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "index": 1,
+              "isDefault": false,
+              "location": "https://platform.dev.trivir.com/am/Consumer/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:PAOS",
+              "index": 2,
+              "isDefault": false,
+              "location": "https://platform.dev.trivir.com/am/Consumer/ECP/metaAlias/sp"
+            }
+          ],
+          "nameIdService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://platform.dev.trivir.com/am/SPMniRedirect/metaAlias/sp",
+              "responseLocation": "https://platform.dev.trivir.com/am/SPMniRedirect/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/SPMniPOST/metaAlias/sp",
+              "responseLocation": "https://platform.dev.trivir.com/am/SPMniPOST/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/SPMniSoap/metaAlias/sp",
+              "responseLocation": "https://platform.dev.trivir.com/am/SPMniSoap/metaAlias/sp"
+            }
+          ],
+          "singleLogoutService": [
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+              "location": "https://platform.dev.trivir.com/am/SPSloRedirect/metaAlias/sp",
+              "responseLocation": "https://platform.dev.trivir.com/am/SPSloRedirect/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+              "location": "https://platform.dev.trivir.com/am/SPSloPOST/metaAlias/sp",
+              "responseLocation": "https://platform.dev.trivir.com/am/SPSloPOST/metaAlias/sp"
+            },
+            {
+              "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+              "location": "https://platform.dev.trivir.com/am/SPSloSoap/metaAlias/sp"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<EntityDescriptor entityID=\"test-IDP\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n    <IDPSSODescriptor WantAuthnRequestsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">\n        <Extensions>\n            <alg:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>\n        </Extensions>\n        <KeyDescriptor use=\"signing\">\n            <ds:KeyInfo>\n                <ds:X509Data>\n                    <ds:X509Certificate>\nMIIDYzCCAkugAwIBAgIILQnyOU1PHIEwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVUsxEDAO\nBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazEZMBcG\nA1UEAxMQcnNhand0c2lnbmluZ2tleTAeFw0yNjAyMDYxNDMzMzdaFw0zNjAyMDQxNDMzMzdaMGAx\nCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQK\nEwlGb3JnZVJvY2sxGTAXBgNVBAMTEHJzYWp3dHNpZ25pbmdrZXkwggEiMA0GCSqGSIb3DQEBAQUA\nA4IBDwAwggEKAoIBAQCrX9/hFscSTuI0g2tZ1jlqPM8vrYtqG0hauiewNmE0MNSSEIoskZaENiRU\nUNkUlXHKQCWUflagqT0DkCyozCEB7XF/2Q8j4fPaSWA4Mefj0eecRVUaulCy1E8tJ0CzWZrqYTdn\nlcB+gN5c2kJiSCRjJ38gzT4AQU9oJGLanKFpHvk+SMuqpnZiFUN3vTwWqMNhGxMDkYFmPtBzO71C\n2mZrN+INd0DyrZzRNn8Qh5qo2tgVOJWzcbxtxtgh1ZAt/Q8oIQXmd6yoKguiQD+FGHV8tZRkFDIW\nl0VCwH5PD0wY18E4SO+gsARMudN+rQ34y2O12Mirfl56GlgnRDYSbPRbAgMBAAGjITAfMB0GA1Ud\nDgQWBBSklqDq7HRCjutHDVPh5XrRu5pfzTANBgkqhkiG9w0BAQsFAAOCAQEAOC5pivjGDgkQ/OFo\nK4vl3iaQzewogHyTPcQj79Knj/Rg/GBwgEnMMRZiYIgksMrsdnmihotW4AniB1wpFi9mBBG6bF/s\ne3VWST4VnpXs3Ex+uLPjegOW+NYYJWSbOwRRnS9ysHAcx/3jQKrXpn9/ZfMpuHqHkytniKsBwwrL\nU6bT/0hH5L1sJRcS2utbvt3DO15jTMOhamJuvAoelSmdMlnudO8y0kR7AlgA2x50tvwAMlEEHPxo\nN4+dZU1npbI/ao7KDS6AtQXaqXx2kXmovm2wMCHake9jOOVsphgiviGevSwGHhjet5D40+7URF1W\nFaALI74mSNuSqqnloSB2YQ==\n                    </ds:X509Certificate>\n                </ds:X509Data>\n            </ds:KeyInfo>\n        </KeyDescriptor>\n        <KeyDescriptor use=\"encryption\">\n            <ds:KeyInfo>\n                <ds:X509Data>\n                    <ds:X509Certificate>\nMIIDSzCCAjOgAwIBAgIIOsZo5CJTcc0wDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUsxEDAO\nBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG\nA1UEAxMEdGVzdDAeFw0yNjAyMDYxNDMzMzlaFw0zNjAyMDQxNDMzMzlaMFQxCzAJBgNVBAYTAlVL\nMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQKEwlGb3JnZVJvY2sx\nDTALBgNVBAMTBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDTBNilrFnQVprn\n31AK9n1HOnFzTIQIu/ZzukYcYxMPTZV8rq4D2HHhwCGPK5VYyu9KC4zq/xOm71mpr4XiH9+ovubl\n15pHek/2iwpbZzgdAHOCUuMT1WkKHz5jXFBI3JmSWyZLpQSbrnRzDoZgEMpn64K11It491dZ3En2\n9QsRrcQQ7O3T7J25lQV4KpYHov8+gP4yvDZkALHNyBOxkuWvcFrjyx4jUrsEuDUi8vb8hZpEtcHQ\nZPllJzVsVu3obcEfLnlPu25VQn9xiL01DzeF8VEK/qtboRabNH6wfk19nNAmZu1UUW8TmBBe1AgD\nG+uFxnv9W3Lm2ztUkH/Ltg+bAgMBAAGjITAfMB0GA1UdDgQWBBQarfWE+OACGmbhARDZtZNfDKiz\n+zANBgkqhkiG9w0BAQsFAAOCAQEAxUvSU3HH90dPRryZ3V5wnkvGGvv3MTPr0NvrG2SiSFmXaG8o\n08zUNYhhQkhpJst8Dxf4akZDmQ7vlpUXFcBCEKBWry0Ft16HthAV43+9R4m/goYMoPnCt6sesiz/\nX8bt3VrSz2skkgt3c/G1ZnmGdTIaUIS+zmV9KJtvV14NGD0F5E/LdHh6Y8Z6tCfPCyXPq2E5HsOl\nq3eA03YAMCTKOfjuR8AEj3UJnjnS1cD4csqoIzs2iauP48P/D43WjbhyhBuky8/NXP6pVKwPbp1m\nNG958CoDkA9noVkolGk8pHAF+1iS76Pl4MIRFevGilNV5TphpKvxT8appm783Rk5ig==\n                    </ds:X509Certificate>\n                </ds:X509Data>\n            </ds:KeyInfo>\n            <EncryptionMethod Algorithm=\"http://www.w3.org/2009/xmlenc11#rsa-oaep\">\n                <ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>\n                <xenc11:MGF Algorithm=\"http://www.w3.org/2009/xmlenc11#mgf1sha256\"/>\n            </EncryptionMethod>\n            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes128-cbc\">\n                <xenc:KeySize>128</xenc:KeySize>\n            </EncryptionMethod>\n        </KeyDescriptor>\n        <ArtifactResolutionService index=\"0\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/ArtifactResolver/metaAlias/test\"/>\n        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test\"/>\n        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test\"/>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>\n        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/SSOPOST/metaAlias/test\"/>\n        <NameIDMappingService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/NIMSoap/metaAlias/test\"/>\n        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/AIDReqSoap/IDPRole/metaAlias/test\"/>\n        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:URI\" Location=\"https://platform.dev.trivir.com/am/AIDReqUri/IDPRole/metaAlias/test\"/>\n    </IDPSSODescriptor>\n    <SPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">\n        <KeyDescriptor use=\"signing\">\n            <ds:KeyInfo>\n                <ds:X509Data>\n                    <ds:X509Certificate>\nMIIDYzCCAkugAwIBAgIILQnyOU1PHIEwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVUsxEDAO\nBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazEZMBcG\nA1UEAxMQcnNhand0c2lnbmluZ2tleTAeFw0yNjAyMDYxNDMzMzdaFw0zNjAyMDQxNDMzMzdaMGAx\nCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQK\nEwlGb3JnZVJvY2sxGTAXBgNVBAMTEHJzYWp3dHNpZ25pbmdrZXkwggEiMA0GCSqGSIb3DQEBAQUA\nA4IBDwAwggEKAoIBAQCrX9/hFscSTuI0g2tZ1jlqPM8vrYtqG0hauiewNmE0MNSSEIoskZaENiRU\nUNkUlXHKQCWUflagqT0DkCyozCEB7XF/2Q8j4fPaSWA4Mefj0eecRVUaulCy1E8tJ0CzWZrqYTdn\nlcB+gN5c2kJiSCRjJ38gzT4AQU9oJGLanKFpHvk+SMuqpnZiFUN3vTwWqMNhGxMDkYFmPtBzO71C\n2mZrN+INd0DyrZzRNn8Qh5qo2tgVOJWzcbxtxtgh1ZAt/Q8oIQXmd6yoKguiQD+FGHV8tZRkFDIW\nl0VCwH5PD0wY18E4SO+gsARMudN+rQ34y2O12Mirfl56GlgnRDYSbPRbAgMBAAGjITAfMB0GA1Ud\nDgQWBBSklqDq7HRCjutHDVPh5XrRu5pfzTANBgkqhkiG9w0BAQsFAAOCAQEAOC5pivjGDgkQ/OFo\nK4vl3iaQzewogHyTPcQj79Knj/Rg/GBwgEnMMRZiYIgksMrsdnmihotW4AniB1wpFi9mBBG6bF/s\ne3VWST4VnpXs3Ex+uLPjegOW+NYYJWSbOwRRnS9ysHAcx/3jQKrXpn9/ZfMpuHqHkytniKsBwwrL\nU6bT/0hH5L1sJRcS2utbvt3DO15jTMOhamJuvAoelSmdMlnudO8y0kR7AlgA2x50tvwAMlEEHPxo\nN4+dZU1npbI/ao7KDS6AtQXaqXx2kXmovm2wMCHake9jOOVsphgiviGevSwGHhjet5D40+7URF1W\nFaALI74mSNuSqqnloSB2YQ==\n                    </ds:X509Certificate>\n                </ds:X509Data>\n            </ds:KeyInfo>\n        </KeyDescriptor>\n        <KeyDescriptor use=\"encryption\">\n            <ds:KeyInfo>\n                <ds:X509Data>\n                    <ds:X509Certificate>\nMIIDSzCCAjOgAwIBAgIIOsZo5CJTcc0wDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUsxEDAO\nBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG\nA1UEAxMEdGVzdDAeFw0yNjAyMDYxNDMzMzlaFw0zNjAyMDQxNDMzMzlaMFQxCzAJBgNVBAYTAlVL\nMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQKEwlGb3JnZVJvY2sx\nDTALBgNVBAMTBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDTBNilrFnQVprn\n31AK9n1HOnFzTIQIu/ZzukYcYxMPTZV8rq4D2HHhwCGPK5VYyu9KC4zq/xOm71mpr4XiH9+ovubl\n15pHek/2iwpbZzgdAHOCUuMT1WkKHz5jXFBI3JmSWyZLpQSbrnRzDoZgEMpn64K11It491dZ3En2\n9QsRrcQQ7O3T7J25lQV4KpYHov8+gP4yvDZkALHNyBOxkuWvcFrjyx4jUrsEuDUi8vb8hZpEtcHQ\nZPllJzVsVu3obcEfLnlPu25VQn9xiL01DzeF8VEK/qtboRabNH6wfk19nNAmZu1UUW8TmBBe1AgD\nG+uFxnv9W3Lm2ztUkH/Ltg+bAgMBAAGjITAfMB0GA1UdDgQWBBQarfWE+OACGmbhARDZtZNfDKiz\n+zANBgkqhkiG9w0BAQsFAAOCAQEAxUvSU3HH90dPRryZ3V5wnkvGGvv3MTPr0NvrG2SiSFmXaG8o\n08zUNYhhQkhpJst8Dxf4akZDmQ7vlpUXFcBCEKBWry0Ft16HthAV43+9R4m/goYMoPnCt6sesiz/\nX8bt3VrSz2skkgt3c/G1ZnmGdTIaUIS+zmV9KJtvV14NGD0F5E/LdHh6Y8Z6tCfPCyXPq2E5HsOl\nq3eA03YAMCTKOfjuR8AEj3UJnjnS1cD4csqoIzs2iauP48P/D43WjbhyhBuky8/NXP6pVKwPbp1m\nNG958CoDkA9noVkolGk8pHAF+1iS76Pl4MIRFevGilNV5TphpKvxT8appm783Rk5ig==\n                    </ds:X509Certificate>\n                </ds:X509Data>\n            </ds:KeyInfo>\n            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p\">\n                <ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>\n            </EncryptionMethod>\n            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes128-cbc\">\n                <xenc:KeySize>128</xenc:KeySize>\n            </EncryptionMethod>\n        </KeyDescriptor>\n        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://platform.dev.trivir.com/am/SPSloRedirect/metaAlias/sp\" ResponseLocation=\"https://platform.dev.trivir.com/am/SPSloRedirect/metaAlias/sp\"/>\n        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/SPSloPOST/metaAlias/sp\" ResponseLocation=\"https://platform.dev.trivir.com/am/SPSloPOST/metaAlias/sp\"/>\n        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/SPSloSoap/metaAlias/sp\"/>\n        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://platform.dev.trivir.com/am/SPMniRedirect/metaAlias/sp\" ResponseLocation=\"https://platform.dev.trivir.com/am/SPMniRedirect/metaAlias/sp\"/>\n        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/SPMniPOST/metaAlias/sp\" ResponseLocation=\"https://platform.dev.trivir.com/am/SPMniPOST/metaAlias/sp\"/>\n        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/SPMniSoap/metaAlias/sp\" ResponseLocation=\"https://platform.dev.trivir.com/am/SPMniSoap/metaAlias/sp\"/>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>\n        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>\n        <AssertionConsumerService index=\"0\" isDefault=\"true\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact\" Location=\"https://platform.dev.trivir.com/am/Consumer/metaAlias/sp\"/>\n        <AssertionConsumerService index=\"1\" isDefault=\"false\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/Consumer/metaAlias/sp\"/>\n        <AssertionConsumerService index=\"2\" isDefault=\"false\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:PAOS\" Location=\"https://platform.dev.trivir.com/am/Consumer/ECP/metaAlias/sp\"/>\n    </SPSSODescriptor>\n</EntityDescriptor>\n\n"
+}
