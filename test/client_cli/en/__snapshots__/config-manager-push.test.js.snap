@@ -30,5 +30,6 @@ Commands:
   service-objects       [Experimental] Import service objects.
   terms-and-conditions  [Experimental] Import terms and conditions.
   themes                [Experimental] Import themes.
+  ui-config             [Experimental] Import UI configuration.
 "
 `;
