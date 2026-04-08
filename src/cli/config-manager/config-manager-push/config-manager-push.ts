@@ -12,6 +12,7 @@ import ManagedObjects from './config-manager-push-managed-objects';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import Schedules from './config-manager-push-schedules';
+import ServiceObjects from './config-manager-push-service-objects';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
 import Themes from './config-manager-push-themes';
 
@@ -35,6 +36,7 @@ export default function setup() {
   program.addCommand(AccessConfig().name('access-config'));
   program.addCommand(Audit().name('audit'));
   program.addCommand(CookieDomains().name('cookie-domains'));
+  program.addCommand(ServiceObjects().name('service-objects'));
 
   return program;
 }
