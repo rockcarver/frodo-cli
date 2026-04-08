@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push cookie-domains "frodo config-manager push cookie-domains -D test/e2e/exports/fr-config-manager/cloud ": should import the cookie-domains into cloud" 1`] = `""`;
+
+exports[`frodo config-manager push cookie-domains "frodo config-manager push cookie-domains -D test/e2e/exports/fr-config-manager/cloud ": should import the cookie-domains into cloud" 2`] = `
+"Experimental feature in use: 'frodo config-manager push cookie-domains'. This feature may change without notice.
+"
+`;
