@@ -8,14 +8,6 @@ exports[`frodo config export "frodo config export --all --modified-properties --
 
 exports[`frodo config export "frodo config export --all --modified-properties --read-only --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything to a single file named testExportAll2.json with no decoding variables, no journey coordinates, and using string arrays 2`] = `""`;
 
-exports[`frodo config export "frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything, including default scripts, into separate files in the directory exportAllTestDir8 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays 1`] = `0`;
-
-exports[`frodo config export "frodo config export --all-separate --no-metadata --default --directory exportAllTestDir8 --include-active-values --use-string-arrays --no-decode --no-coords --type classic": should export everything, including default scripts, into separate files in the directory exportAllTestDir8 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays 2`] = `""`;
-
-exports[`frodo config export "frodo config export --all-separate --read-only --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract --separate-mappings": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays 1`] = `0`;
-
-exports[`frodo config export "frodo config export --all-separate --read-only --no-metadata --default --directory exportAllTestDir3 --use-string-arrays --no-decode --no-coords --extract --separate-mappings": should export everything, including default scripts, into separate files in the directory exportAllTestDir3 with scripts extracted, no decoding variables, no journey coordinates, separate mappings, and using string arrays 2`] = `""`;
-
 exports[`frodo config export "frodo config export --global-only -af testExportAllGlobal.json -m classic": should export all global config to a single file named testExportAllGlobal.json. 1`] = `0`;
 
 exports[`frodo config export "frodo config export --global-only -af testExportAllGlobal.json -m classic": should export all global config to a single file named testExportAllGlobal.json. 2`] = `""`;
@@ -28,17 +20,9 @@ exports[`frodo config export "frodo config export -AD exportAllTestDir1": should
 
 exports[`frodo config export "frodo config export -AD exportAllTestDir1": should export everything into separate files in the directory exportAllTestDir1 2`] = `""`;
 
-exports[`frodo config export "frodo config export -MAsxD exportAllTestDir2": should export everything into separate files in the directory exportAllTestDir2 with scripts extracted and mappings separate 1`] = `0`;
-
-exports[`frodo config export "frodo config export -MAsxD exportAllTestDir2": should export everything into separate files in the directory exportAllTestDir2 with scripts extracted and mappings separate 2`] = `""`;
-
 exports[`frodo config export "frodo config export -RAD exportAllTestDir5 --include-active-values": should export everything including secret values into separate files in the directory exportAllTestDir5 1`] = `0`;
 
 exports[`frodo config export "frodo config export -RAD exportAllTestDir5 --include-active-values": should export everything including secret values into separate files in the directory exportAllTestDir5 2`] = `""`;
-
-exports[`frodo config export "frodo config export -RMAsxD exportAllTestDir7 -m classic": should export everything into separate files in the directory exportAllTestDir7 with scripts extracted and mappings separate 1`] = `0`;
-
-exports[`frodo config export "frodo config export -RMAsxD exportAllTestDir7 -m classic": should export everything into separate files in the directory exportAllTestDir7 with scripts extracted and mappings separate 2`] = `""`;
 
 exports[`frodo config export "frodo config export -adND exportAllTestDir4": should export everything, including default scripts, to a single file 1`] = `0`;
 

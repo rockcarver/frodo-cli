@@ -48,13 +48,13 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export -Nxi c605506774a848f7877b4d17a453bd39 -D customNodeExportDir1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --node-id c605506774a848f7877b4d17a453bd39-1
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --node-id c605506774a848f7877b4d17a453bd39-1 -D customNodeExportDir6
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export -xn 'Display Callback' -D customNodeExportDir2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --node-name 'Display Callback' --use-string-arrays
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --node-name 'Display Callback' --use-string-arrays --no-extract
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --all --no-metadata --file customNodeTest1.json --directory customNodeExportDir3 --use-string-arrays
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export -AND customNodeExportDir4
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --all-separate --extract --directory customNodeExportDir5 --use-string-arrays
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo node export --all-separate --no-extract --directory customNodeExportDir5 --use-string-arrays
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -72,10 +72,11 @@ describe('frodo node export', () => {
     await testExport(CMD, env, type, exportFile, exportDirectory, false);
   });
 
-  test('"frodo node export --node-id c605506774a848f7877b4d17a453bd39-1": should export the custom node with id "c605506774a848f7877b4d17a453bd39-1"', async () => {
+  test('"frodo node export --node-id c605506774a848f7877b4d17a453bd39-1 -D customNodeExportDir6": should export the custom node with id "c605506774a848f7877b4d17a453bd39-1"', async () => {
     const exportFile = 'c605506774a848f7877b4d17a453bd39-1.nodeTypes.json';
-    const CMD = `frodo node export --node-id c605506774a848f7877b4d17a453bd39-1`;
-    await testExport(CMD, env, type, exportFile);
+    const exportDirectory = 'customNodeExportDir6'
+    const CMD = `frodo node export --node-id c605506774a848f7877b4d17a453bd39-1 -D ${exportDirectory}`;
+    await testExport(CMD, env, type, exportFile, exportDirectory);
   });
 
   test('"frodo node export -xn \'Display Callback\' -D customNodeExportDir2": should export the custom node with display name "Display Callback" to the directory customNodeExportDir2 with extracted script', async () => {
@@ -85,9 +86,9 @@ describe('frodo node export', () => {
     await testExport(CMD, env, type, exportFile, exportDirectory);
   });
 
-  test('"frodo node export --node-name \'Display Callback\' --use-string-arrays": should export the custom node with display name "DisplayCallback"', async () => {
+  test('"frodo node export --node-name \'Display Callback\' --use-string-arrays --no-extract": should export the custom node with display name "DisplayCallback"', async () => {
     const exportFile = 'Display-Callback.nodeTypes.json';
-    const CMD = `frodo node export --node-name 'Display Callback' --use-string-arrays`;
+    const CMD = `frodo node export --node-name 'Display Callback' --use-string-arrays --no-extract`;
     await testExport(CMD, env, type, exportFile);
   });
 
@@ -110,9 +111,9 @@ describe('frodo node export', () => {
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
-  test('"frodo node export --all-separate --extract --directory customNodeExportDir5 --use-string-arrays": should export all nodes with extracted scripts into separate files in the directory customNodeExportDir5', async () => {
+  test('"frodo node export --all-separate --no-extract --directory customNodeExportDir5 --use-string-arrays": should export all nodes into separate files in the directory customNodeExportDir5', async () => {
     const exportDirectory = 'customNodeExportDir5';
-    const CMD = `frodo node export --all-separate --extract --directory ${exportDirectory} --use-string-arrays`;
+    const CMD = `frodo node export --all-separate --no-extract --directory ${exportDirectory} --use-string-arrays`;
     await testExport(CMD, env, type, undefined, exportDirectory);
   });
 });

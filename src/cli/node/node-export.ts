@@ -47,9 +47,9 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-x, --extract',
-        'Extract the script from the exported file, and save it to a separate file. Ignored with -a.'
-      )
+        '-x, --no-extract',
+        'Do not extract the script from the exported file to a separate file.'
+      ).default(true, 'true')
     )
     .addOption(
       new Option(

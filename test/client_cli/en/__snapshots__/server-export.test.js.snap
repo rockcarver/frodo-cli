@@ -38,9 +38,8 @@ Options:
                                  full url (if not unique, it will error out). If
                                  specified, only one server is exported and the
                                  options -a and -A are ignored.
-  -x, --extract                  Extract scripts and server properties from the
-                                 exported file, and save it to a separate file.
-                                 Ignored with -a.
+  -x, --no-extract               Do not extract the server properties from the
+                                 exported file to a separate file.
   -h, --help                     Help
   -hh, --help-more               Help with all options.
   -hhh, --help-all               Help with all options, environment variables,

@@ -35,8 +35,8 @@ Options:
   -N, --no-metadata            Does not include metadata in the export file.
   --use-string-arrays          Where applicable, use string arrays to store
                                scripts. (default: off)
-  -x, --extract                Extract the script from the exported file, and
-                               save it to a separate file. Ignored with -a.
+  -x, --no-extract             Do not extract the script from the exported file
+                               to a separate file.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and
