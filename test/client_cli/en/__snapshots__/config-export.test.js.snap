@@ -65,9 +65,8 @@ Options:
                              source environment.
   --use-string-arrays        Where applicable, use string arrays to store
                              multi-line text (e.g. scripts). (default: off)
-  -x, --extract              Extract scripts and server properties from the
-                             exported file, and save it to a separate file.
-                             Ignored with -a.
+  -x, --no-extract           Do not extract scripts and server properties from
+                             the exported file to a separate file.
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and
