@@ -55,6 +55,22 @@ const agentTypeToFileIdMap = {
   WebAgent: 'web.agent',
 };
 
+type AgentImportData = Partial<AgentExportInterface> & {
+  agents?: AgentExportInterface['agent'];
+};
+
+function normalizeAgentImportData(
+  importData: AgentImportData
+): AgentExportInterface {
+  if (!importData.agent && importData.agents) {
+    importData.agent = importData.agents;
+  }
+  if (!importData.agent) {
+    importData.agent = {};
+  }
+  return importData as AgentExportInterface;
+}
+
 /**
  * List agents
  * @param {boolean} [long=false] detailed list
@@ -549,7 +565,9 @@ export async function importAgentFromFile(
   try {
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     // check if this is a file with multiple agents and get agent by id
     if (importData.agent && importData.agent[agentId]) {
       const agent = importData.agent[agentId];
@@ -619,7 +637,9 @@ export async function importIdentityGatewayAgentFromFile(
     debugMessage(`cli.AgentOps.importIdentityGatewayAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     // check if this is a file with multiple agents and get agent by id
     if (importData.agent && importData.agent[agentId]) {
       const agent = importData.agent[agentId];
@@ -687,7 +707,9 @@ export async function importJavaAgentFromFile(
     debugMessage(`cli.AgentOps.importJavaAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     // check if this is a file with multiple agents and get agent by id
     if (importData.agent && importData.agent[agentId]) {
       const agent = importData.agent[agentId];
@@ -752,7 +774,9 @@ export async function importWebAgentFromFile(
     debugMessage(`cli.AgentOps.importWebAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     // check if this is a file with multiple agents and get agent by id
     if (importData.agent && importData.agent[agentId]) {
       const agent = importData.agent[agentId];
@@ -814,9 +838,12 @@ export async function importFirstAgentFromFile(
   global: boolean = false
 ): Promise<boolean> {
   try {
+    debugMessage(`cli.AgentOps.importFirstAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     let spinnerId: string;
     if (Object.keys(importData.agent).length > 0) {
       for (const agent of Object.values(importData.agent)) {
@@ -839,6 +866,7 @@ export async function importFirstAgentFromFile(
             `Imported ${agent['_id']}.`,
             'success'
           );
+          debugMessage(`cli.AgentOps.importFirstAgentFromFile: end`);
           return true;
         } catch (error) {
           if (verbose)
@@ -874,7 +902,9 @@ export async function importFirstIdentityGatewayAgentFromFile(
     debugMessage(`cli.AgentOps.importFirstIdentityGatewayAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     let spinnerId: string;
     if (Object.keys(importData.agent).length > 0) {
       for (const agent of Object.values(importData.agent)) {
@@ -929,7 +959,9 @@ export async function importFirstJavaAgentFromFile(
     debugMessage(`cli.AgentOps.importFirstJavaAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     let spinnerId: string;
     if (Object.keys(importData.agent).length > 0) {
       for (const agent of Object.values(importData.agent)) {
@@ -981,7 +1013,9 @@ export async function importFirstWebAgentFromFile(
     debugMessage(`cli.AgentOps.importFirstWebAgentFromFile: start`);
     const verbose = state.getVerbose();
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const importData = JSON.parse(data);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     let spinnerId: string;
     if (Object.keys(importData.agent).length > 0) {
       for (const agent of Object.values(importData.agent)) {
@@ -1040,7 +1074,9 @@ export async function importAgentsFromFile(
     const filePath = getFilePath(file);
     const data = fs.readFileSync(filePath, 'utf8');
     debugMessage(`importAgentsFromFile: importing ${filePath}`);
-    const importData = JSON.parse(data) as AgentExportInterface;
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     await importAgents(importData, global);
     debugMessage(`importAgentsFromFile: end`);
     return true;
@@ -1065,7 +1101,9 @@ export async function importIdentityGatewayAgentsFromFile(
     debugMessage(
       `cli.AgentOps.importIdentityGatewayAgentsFromFile: importing ${filePath}`
     );
-    const importData = JSON.parse(data) as AgentExportInterface;
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     await importIdentityGatewayAgents(importData);
     debugMessage(`cli.AgentOps.importIdentityGatewayAgentsFromFile: end`);
     return true;
@@ -1088,7 +1126,9 @@ export async function importJavaAgentsFromFile(file: string): Promise<boolean> {
     debugMessage(
       `cli.AgentOps.importJavaAgentsFromFile: importing ${filePath}`
     );
-    const importData = JSON.parse(data) as AgentExportInterface;
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     await importJavaAgents(importData);
     debugMessage(`cli.AgentOps.importJavaAgentsFromFile: end`);
     return true;
@@ -1109,7 +1149,9 @@ export async function importWebAgentsFromFile(file: string): Promise<boolean> {
     const filePath = getFilePath(file);
     const data = fs.readFileSync(filePath, 'utf8');
     debugMessage(`cli.AgentOps.importWebAgentsFromFile: importing ${filePath}`);
-    const importData = JSON.parse(data) as AgentExportInterface;
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
     await importWebAgents(importData);
     debugMessage(`cli.AgentOps.importWebAgentsFromFile: end`);
     return true;
