@@ -10,6 +10,7 @@ import ConnectorMappings from './config-manager-pull-connector-mappings';
 import CookieDomains from './config-manager-pull-cookie-domains';
 import CORS from './config-manager-pull-cors';
 import CSP from './config-manager-pull-csp';
+import CustomNodes from './config-manager-pull-custom-nodes';
 import EmailProvider from './config-manager-pull-email-provider';
 import EmailTemplates from './config-manager-pull-email-templates';
 import Endpoints from './config-manager-pull-endpoints';
@@ -52,6 +53,7 @@ export default function setup() {
   program.addCommand(CookieDomains().name('cookie-domains'));
   program.addCommand(CORS().name('cors'));
   program.addCommand(CSP().name('csp'));
+  program.addCommand(CustomNodes().name('custom-nodes'));
   program.addCommand(EmailProvider().name('email-provider'));
   program.addCommand(EmailTemplates().name('email-templates'));
   program.addCommand(Endpoints().name('endpoints'));
