@@ -15,8 +15,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "name": "FrodoTestResourceType13",
       "patterns": [
@@ -30,8 +28,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "name": "FrodoTestResourceType14",
       "patterns": [
@@ -45,8 +41,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "name": "FrodoTestResourceType15",
       "patterns": [
@@ -60,8 +54,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "name": "FrodoTestResourceType12",
       "patterns": [
@@ -80,8 +72,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -95,8 +85,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "name": "FrodoTestResourceType11",
       "patterns": [
@@ -109,8 +97,6 @@ exports[`frodo authz type export "frodo authz type export --all": should export 
       "actions": {
         "GRANT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
       "name": "OAuth2 Scope",
       "patterns": [
@@ -208,8 +194,6 @@ exports[`frodo authz type export "frodo authz type export --type-id 76656a38-5f8
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -243,8 +227,6 @@ exports[`frodo authz type export "frodo authz type export --type-name URL -f tes
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -273,8 +255,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "name": "FrodoTestResourceType11",
       "patterns": [
@@ -299,8 +279,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "name": "FrodoTestResourceType12",
       "patterns": [
@@ -325,8 +303,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "name": "FrodoTestResourceType13",
       "patterns": [
@@ -351,8 +327,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "name": "FrodoTestResourceType14",
       "patterns": [
@@ -377,8 +351,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "name": "FrodoTestResourceType15",
       "patterns": [
@@ -402,8 +374,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
       "actions": {
         "GRANT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
       "name": "OAuth2 Scope",
       "patterns": [
@@ -434,8 +404,6 @@ exports[`frodo authz type export "frodo authz type export -A": should export all
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -557,8 +525,6 @@ exports[`frodo authz type export "frodo authz type export -Ni 76656a38-5f8e-401b
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -587,8 +553,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147346,
       "description": "Frodo Test Resource Type Thirteen",
       "name": "FrodoTestResourceType13",
       "patterns": [
@@ -602,8 +566,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147437,
       "description": "Frodo Test Resource Type Fourteen",
       "name": "FrodoTestResourceType14",
       "patterns": [
@@ -617,8 +579,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684545571229,
       "description": "Frodo Test Resource Type Fifteen",
       "name": "FrodoTestResourceType15",
       "patterns": [
@@ -632,8 +592,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147204,
       "description": "Frodo Test Resource Type Twelve",
       "name": "FrodoTestResourceType12",
       "patterns": [
@@ -652,8 +610,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -667,8 +623,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
         "action1": true,
         "action2": true,
       },
-      "createdBy": "id=8d9723a9-a439-4cbf-beb4-30e52811789d,ou=user,ou=am-config",
-      "creationDate": 1684544147077,
       "description": "Frodo Test Resource Type Eleven",
       "name": "FrodoTestResourceType11",
       "patterns": [
@@ -681,8 +635,6 @@ exports[`frodo authz type export "frodo authz type export -a --file my-allAlphaR
       "actions": {
         "GRANT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030586,
       "description": "The built-in OAuth2 Scope Resource Type for OAuth2policy-provided scope.",
       "name": "OAuth2 Scope",
       "patterns": [
@@ -717,8 +669,6 @@ exports[`frodo authz type export "frodo authz type export -i 76656a38-5f8e-401b-
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [
@@ -752,8 +702,6 @@ exports[`frodo authz type export "frodo authz type export -n URL": should export
         "POST": true,
         "PUT": true,
       },
-      "createdBy": "id=dsameuser,ou=user,ou=am-config",
-      "creationDate": 1595479030487,
       "description": "The built-in URL Resource Type available to OpenAMPolicies.",
       "name": "URL",
       "patterns": [

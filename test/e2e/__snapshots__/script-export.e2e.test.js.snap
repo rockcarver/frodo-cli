@@ -11,8 +11,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "07ee6240-d106-4e25-a781-5fcabc477d22": {
       "_id": "07ee6240-d106-4e25-a781-5fcabc477d22",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -251,8 +249,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "1b52a7e0-4019-40fa-958a-15a49870e901": {
       "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set the same shared state variable",
       "evaluatorVersion": "1.0",
@@ -269,8 +265,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "207f172f-ffb5-439d-b7df-e8e80408830b": {
       "_id": "207f172f-ffb5-439d-b7df-e8e80408830b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -304,8 +298,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "223739f3-9c54-43b7-9572-3c5338786145": {
       "_id": "223739f3-9c54-43b7-9572-3c5338786145",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -321,8 +313,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -356,8 +346,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
       "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Library",
       "evaluatorVersion": "2.0",
@@ -404,8 +392,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "39c08084-1238-43e8-857f-2e11005eac49": {
       "_id": "39c08084-1238-43e8-857f-2e11005eac49",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -553,8 +539,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "3bd13a46-61c4-4974-8efb-1700c80c64e3": {
       "_id": "3bd13a46-61c4-4974-8efb-1700c80c64e3",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Inactive Device Match Script",
       "evaluatorVersion": "1.0",
@@ -571,8 +555,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "3cb43516-ae69-433a-8787-501d45db14e9": {
       "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Display sharedState, transientState, and headers.",
       "evaluatorVersion": "1.0",
@@ -645,8 +627,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
       "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set per level shared state variable",
       "evaluatorVersion": "1.0",
@@ -663,8 +643,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "4c963bb3-7084-43d0-bcdc-a47482cf1825": {
       "_id": "4c963bb3-7084-43d0-bcdc-a47482cf1825",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Dummy",
       "evaluatorVersion": "2.0",
@@ -679,8 +657,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "4e053815-adde-46ac-9fe2-d3ae93517c14": {
       "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
@@ -694,8 +670,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
       "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if mode has already been set.",
       "evaluatorVersion": "1.0",
@@ -749,8 +723,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "5ce0d38a-154c-4be5-bd22-f9879c77e895": {
       "_id": "5ce0d38a-154c-4be5-bd22-f9879c77e895",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -989,8 +961,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "6002c349-f1d0-4317-baa2-a18590fc3cff": {
       "_id": "6002c349-f1d0-4317-baa2-a18590fc3cff",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -1024,8 +994,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -1059,8 +1027,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "647f2a33-9211-4315-a83f-a521d8b77d7b": {
       "_id": "647f2a33-9211-4315-a83f-a521d8b77d7b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -1094,8 +1060,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "739bdc48-fd24-4c52-b353-88706d75558a": {
       "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
       "evaluatorVersion": "1.0",
@@ -1128,8 +1092,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "85523e71-2d77-4577-b078-6f9674cc54e2": {
       "_id": "85523e71-2d77-4577-b078-6f9674cc54e2",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -1298,8 +1260,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "9535446c-0ff6-4a76-8576-616599119d64": {
       "_id": "9535446c-0ff6-4a76-8576-616599119d64",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Remove button from page.",
       "evaluatorVersion": "1.0",
@@ -1340,8 +1300,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "994a4e8f-2741-424a-83e7-3c5f78da01f5": {
       "_id": "994a4e8f-2741-424a-83e7-3c5f78da01f5",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -1510,8 +1468,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -1535,8 +1491,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "cf3515f0-8278-4ee3-a530-1bad7424c416": {
       "_id": "cf3515f0-8278-4ee3-a530-1bad7424c416",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -2169,8 +2123,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1": {
       "_id": "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -2339,8 +2291,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "d58977ed-0542-4147-8197-973ef7300191": {
       "_id": "d58977ed-0542-4147-8197-973ef7300191",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Custom Device Match Script",
       "evaluatorVersion": "1.0",
@@ -2357,8 +2307,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "da7a96a8-7969-4dab-9c6e-a812938cc76d": {
       "_id": "da7a96a8-7969-4dab-9c6e-a812938cc76d",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Script that uses secrets and variables",
       "evaluatorVersion": "2.0",
@@ -2378,8 +2326,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -2480,8 +2426,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {
       "_id": "e1db8a0a-0329-4962-a5bf-ecffaca376ae",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -3114,8 +3058,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "e232cff3-2460-47cd-80b2-36c86c0d0f06": {
       "_id": "e232cff3-2460-47cd-80b2-36c86c0d0f06",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -3140,8 +3082,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "e5c302c8-f838-4698-87cc-d7225fc82454": {
       "_id": "e5c302c8-f838-4698-87cc-d7225fc82454",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -3169,8 +3109,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd": {
       "_id": "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -3409,8 +3347,6 @@ exports[`frodo script export "frodo script export --all": should export all scri
     "fdb60c75-d58b-409f-bef2-ce4ebb04c77c": {
       "_id": "fdb60c75-d58b-409f-bef2-ce4ebb04c77c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -3527,8 +3463,6 @@ exports[`frodo script export "frodo script export --extract --script-id 'bb393d0
     "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
       "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Library",
       "evaluatorVersion": "2.0",
@@ -3560,8 +3494,6 @@ exports[`frodo script export "frodo script export --extract --script-id 'bb393d0
     "6c49bebe-3a62-11ed-a261-0242ac120002": {
       "_id": "6c49bebe-3a62-11ed-a261-0242ac120002",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global library script to be referenced from other scripts",
       "evaluatorVersion": "2.0",
@@ -3594,8 +3526,6 @@ exports[`frodo script export "frodo script export --extract --script-id 'bb393d0
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -12671,8 +12601,6 @@ exports[`frodo script export "frodo script export --no-deps -i 'bb393d07-a121-47
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -12709,8 +12637,6 @@ exports[`frodo script export "frodo script export --script-name 'GitHub Profile 
     "a7a78773-445b-4eca-bb93-409e86bced81": {
       "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -12750,8 +12676,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -12860,8 +12784,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "39c08084-1238-43e8-857f-2e11005eac49": {
       "_id": "39c08084-1238-43e8-857f-2e11005eac49",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -13017,8 +12939,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "cf3515f0-8278-4ee3-a530-1bad7424c416": {
       "_id": "cf3515f0-8278-4ee3-a530-1bad7424c416",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -13659,8 +13579,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "e232cff3-2460-47cd-80b2-36c86c0d0f06": {
       "_id": "e232cff3-2460-47cd-80b2-36c86c0d0f06",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -13693,8 +13611,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {
       "_id": "e1db8a0a-0329-4962-a5bf-ecffaca376ae",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -14335,8 +14251,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "739bdc48-fd24-4c52-b353-88706d75558a": {
       "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
       "evaluatorVersion": "1.0",
@@ -14377,8 +14291,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "d58977ed-0542-4147-8197-973ef7300191": {
       "_id": "d58977ed-0542-4147-8197-973ef7300191",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Custom Device Match Script",
       "evaluatorVersion": "1.0",
@@ -14403,8 +14315,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "4c963bb3-7084-43d0-bcdc-a47482cf1825": {
       "_id": "4c963bb3-7084-43d0-bcdc-a47482cf1825",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Dummy",
       "evaluatorVersion": "2.0",
@@ -14427,8 +14337,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "e5c302c8-f838-4698-87cc-d7225fc82454": {
       "_id": "e5c302c8-f838-4698-87cc-d7225fc82454",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -14464,8 +14372,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "223739f3-9c54-43b7-9572-3c5338786145": {
       "_id": "223739f3-9c54-43b7-9572-3c5338786145",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -14489,8 +14395,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "07ee6240-d106-4e25-a781-5fcabc477d22": {
       "_id": "07ee6240-d106-4e25-a781-5fcabc477d22",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -14737,8 +14641,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "5ce0d38a-154c-4be5-bd22-f9879c77e895": {
       "_id": "5ce0d38a-154c-4be5-bd22-f9879c77e895",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -14985,8 +14887,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd": {
       "_id": "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -15233,8 +15133,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15276,8 +15174,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "207f172f-ffb5-439d-b7df-e8e80408830b": {
       "_id": "207f172f-ffb5-439d-b7df-e8e80408830b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15319,8 +15215,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "fdb60c75-d58b-409f-bef2-ce4ebb04c77c": {
       "_id": "fdb60c75-d58b-409f-bef2-ce4ebb04c77c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15362,8 +15256,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "3bd13a46-61c4-4974-8efb-1700c80c64e3": {
       "_id": "3bd13a46-61c4-4974-8efb-1700c80c64e3",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Inactive Device Match Script",
       "evaluatorVersion": "1.0",
@@ -15388,8 +15280,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
       "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Library",
       "evaluatorVersion": "2.0",
@@ -15444,8 +15334,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -15477,8 +15365,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "4e053815-adde-46ac-9fe2-d3ae93517c14": {
       "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
@@ -15500,8 +15386,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15543,8 +15427,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "6002c349-f1d0-4317-baa2-a18590fc3cff": {
       "_id": "6002c349-f1d0-4317-baa2-a18590fc3cff",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15586,8 +15468,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "647f2a33-9211-4315-a83f-a521d8b77d7b": {
       "_id": "647f2a33-9211-4315-a83f-a521d8b77d7b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -15629,8 +15509,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "9535446c-0ff6-4a76-8576-616599119d64": {
       "_id": "9535446c-0ff6-4a76-8576-616599119d64",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Remove button from page.",
       "evaluatorVersion": "1.0",
@@ -15679,8 +15557,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "85523e71-2d77-4577-b078-6f9674cc54e2": {
       "_id": "85523e71-2d77-4577-b078-6f9674cc54e2",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -15857,8 +15733,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1": {
       "_id": "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -16035,8 +15909,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "994a4e8f-2741-424a-83e7-3c5f78da01f5": {
       "_id": "994a4e8f-2741-424a-83e7-3c5f78da01f5",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -16213,8 +16085,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "3cb43516-ae69-433a-8787-501d45db14e9": {
       "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Display sharedState, transientState, and headers.",
       "evaluatorVersion": "1.0",
@@ -16295,8 +16165,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
       "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set per level shared state variable",
       "evaluatorVersion": "1.0",
@@ -16321,8 +16189,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
       "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if mode has already been set.",
       "evaluatorVersion": "1.0",
@@ -16384,8 +16250,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "1b52a7e0-4019-40fa-958a-15a49870e901": {
       "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set the same shared state variable",
       "evaluatorVersion": "1.0",
@@ -16410,8 +16274,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
     "da7a96a8-7969-4dab-9c6e-a812938cc76d": {
       "_id": "da7a96a8-7969-4dab-9c6e-a812938cc76d",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Script that uses secrets and variables",
       "evaluatorVersion": "2.0",
@@ -20088,8 +19950,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -20246,8 +20106,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "39c08084-1238-43e8-857f-2e11005eac49": {
       "_id": "39c08084-1238-43e8-857f-2e11005eac49",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -20889,8 +20747,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "cf3515f0-8278-4ee3-a530-1bad7424c416": {
       "_id": "cf3515f0-8278-4ee3-a530-1bad7424c416",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -20924,8 +20780,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "e232cff3-2460-47cd-80b2-36c86c0d0f06": {
       "_id": "e232cff3-2460-47cd-80b2-36c86c0d0f06",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -21567,8 +21421,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {
       "_id": "e1db8a0a-0329-4962-a5bf-ecffaca376ae",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -21611,8 +21463,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "739bdc48-fd24-4c52-b353-88706d75558a": {
       "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
       "evaluatorVersion": "1.0",
@@ -21639,8 +21489,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "d58977ed-0542-4147-8197-973ef7300191": {
       "_id": "d58977ed-0542-4147-8197-973ef7300191",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Custom Device Match Script",
       "evaluatorVersion": "1.0",
@@ -21664,8 +21512,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "4c963bb3-7084-43d0-bcdc-a47482cf1825": {
       "_id": "4c963bb3-7084-43d0-bcdc-a47482cf1825",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Dummy",
       "evaluatorVersion": "2.0",
@@ -21703,8 +21549,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "e5c302c8-f838-4698-87cc-d7225fc82454": {
       "_id": "e5c302c8-f838-4698-87cc-d7225fc82454",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -21730,8 +21574,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "223739f3-9c54-43b7-9572-3c5338786145": {
       "_id": "223739f3-9c54-43b7-9572-3c5338786145",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -21980,8 +21822,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "07ee6240-d106-4e25-a781-5fcabc477d22": {
       "_id": "07ee6240-d106-4e25-a781-5fcabc477d22",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -22230,8 +22070,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "5ce0d38a-154c-4be5-bd22-f9879c77e895": {
       "_id": "5ce0d38a-154c-4be5-bd22-f9879c77e895",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -22480,8 +22318,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd": {
       "_id": "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -22525,8 +22361,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22570,8 +22404,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "207f172f-ffb5-439d-b7df-e8e80408830b": {
       "_id": "207f172f-ffb5-439d-b7df-e8e80408830b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22615,8 +22447,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "fdb60c75-d58b-409f-bef2-ce4ebb04c77c": {
       "_id": "fdb60c75-d58b-409f-bef2-ce4ebb04c77c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22643,8 +22473,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "3bd13a46-61c4-4974-8efb-1700c80c64e3": {
       "_id": "3bd13a46-61c4-4974-8efb-1700c80c64e3",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Inactive Device Match Script",
       "evaluatorVersion": "1.0",
@@ -22680,8 +22508,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
       "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Library",
       "evaluatorVersion": "2.0",
@@ -22736,8 +22562,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -22760,8 +22584,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "4e053815-adde-46ac-9fe2-d3ae93517c14": {
       "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
@@ -22806,8 +22628,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22851,8 +22671,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "6002c349-f1d0-4317-baa2-a18590fc3cff": {
       "_id": "6002c349-f1d0-4317-baa2-a18590fc3cff",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22896,8 +22714,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "647f2a33-9211-4315-a83f-a521d8b77d7b": {
       "_id": "647f2a33-9211-4315-a83f-a521d8b77d7b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -22948,8 +22764,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "9535446c-0ff6-4a76-8576-616599119d64": {
       "_id": "9535446c-0ff6-4a76-8576-616599119d64",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Remove button from page.",
       "evaluatorVersion": "1.0",
@@ -23128,8 +22942,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "85523e71-2d77-4577-b078-6f9674cc54e2": {
       "_id": "85523e71-2d77-4577-b078-6f9674cc54e2",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -23308,8 +23120,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1": {
       "_id": "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -23488,8 +23298,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "994a4e8f-2741-424a-83e7-3c5f78da01f5": {
       "_id": "994a4e8f-2741-424a-83e7-3c5f78da01f5",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -23572,8 +23380,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "3cb43516-ae69-433a-8787-501d45db14e9": {
       "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Display sharedState, transientState, and headers.",
       "evaluatorVersion": "1.0",
@@ -23600,8 +23406,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
       "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set per level shared state variable",
       "evaluatorVersion": "1.0",
@@ -23665,8 +23469,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
       "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if mode has already been set.",
       "evaluatorVersion": "1.0",
@@ -23693,8 +23495,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "1b52a7e0-4019-40fa-958a-15a49870e901": {
       "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set the same shared state variable",
       "evaluatorVersion": "1.0",
@@ -23722,8 +23522,6 @@ exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": s
     "da7a96a8-7969-4dab-9c6e-a812938cc76d": {
       "_id": "da7a96a8-7969-4dab-9c6e-a812938cc76d",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Script that uses secrets and variables",
       "evaluatorVersion": "2.0",
@@ -23747,8 +23545,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "01e1a3c0-038b-4c16-956a-6c9d89328cff": {
       "_id": "01e1a3c0-038b-4c16-956a-6c9d89328cff",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for a scripted decision node",
       "evaluatorVersion": "1.0",
@@ -23767,8 +23563,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "07ee6240-d106-4e25-a781-5fcabc477d22": {
       "_id": "07ee6240-d106-4e25-a781-5fcabc477d22",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -24007,8 +23801,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "1244e639-4a31-401d-ab61-d75133d8dc9e": {
       "_id": "1244e639-4a31-401d-ab61-d75133d8dc9e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Instagram",
       "evaluatorVersion": "1.0",
@@ -24035,8 +23827,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "13e3f263-9cd3-4844-8d1c-040fd0dd02eb": {
       "_id": "13e3f263-9cd3-4844-8d1c-040fd0dd02eb",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script template for Device Profile Match decision node script for Authentication Tree",
       "evaluatorVersion": "1.0",
@@ -24129,8 +23919,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "157298c0-7d31-4059-a95b-eeb08473b7e5": {
       "_id": "157298c0-7d31-4059-a95b-eeb08473b7e5",
       "context": "AUTHENTICATION_CLIENT_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for client side Device Id (Match) Authentication Module",
       "evaluatorVersion": "1.0",
@@ -24396,8 +24184,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "1b52a7e0-4019-40fa-958a-15a49870e901": {
       "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set the same shared state variable",
       "evaluatorVersion": "1.0",
@@ -24414,8 +24200,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "1d475815-72cb-42eb-aafd-4026989d28a7": {
       "_id": "1d475815-72cb-42eb-aafd-4026989d28a7",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for Social Identity Provider Profile Transformation",
       "evaluatorVersion": "1.0",
@@ -24436,8 +24220,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "1f389a3d-21cf-417c-a6d3-42ea620071f0": {
       "_id": "1f389a3d-21cf-417c-a6d3-42ea620071f0",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Internal OIDC Claims script",
       "evaluatorVersion": "1.0",
@@ -25070,8 +24852,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "207f172f-ffb5-439d-b7df-e8e80408830b": {
       "_id": "207f172f-ffb5-439d-b7df-e8e80408830b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -25105,8 +24885,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "223739f3-9c54-43b7-9572-3c5338786145": {
       "_id": "223739f3-9c54-43b7-9572-3c5338786145",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -25122,8 +24900,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "23143919-6b78-40c3-b25e-beca19b229e0": {
       "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -25157,8 +24933,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "248b8a56-df81-4b1b-b4ba-45d994f6504c": {
       "_id": "248b8a56-df81-4b1b-b4ba-45d994f6504c",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for SAML2 IDP Adapter",
       "evaluatorVersion": "1.0",
@@ -25320,8 +25094,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "25e6c06d-cf70-473b-bd28-26931edc476b": {
       "_id": "25e6c06d-cf70-473b-bd28-26931edc476b",
       "context": "OAUTH2_VALIDATE_SCOPE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Scope Validation",
       "evaluatorVersion": "1.0",
@@ -25418,8 +25190,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "2c38c998-aec0-4e56-8d46-bff6e24a704e": {
       "_id": "2c38c998-aec0-4e56-8d46-bff6e24a704e",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Library",
       "evaluatorVersion": "2.0",
@@ -25466,8 +25236,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "312e951f-70c5-49d2-a9ae-93aef909d5df": {
       "_id": "312e951f-70c5-49d2-a9ae-93aef909d5df",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Salesforce",
       "evaluatorVersion": "1.0",
@@ -25500,8 +25268,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "36863ffb-40ec-48b9-94b1-9a99f71cc3b5": {
       "_id": "36863ffb-40ec-48b9-94b1-9a99f71cc3b5",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -26134,8 +25900,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "39c08084-1238-43e8-857f-2e11005eac49": {
       "_id": "39c08084-1238-43e8-857f-2e11005eac49",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -26283,8 +26047,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "3bd13a46-61c4-4974-8efb-1700c80c64e3": {
       "_id": "3bd13a46-61c4-4974-8efb-1700c80c64e3",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Inactive Device Match Script",
       "evaluatorVersion": "1.0",
@@ -26301,8 +26063,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "3cb43516-ae69-433a-8787-501d45db14e9": {
       "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Display sharedState, transientState, and headers.",
       "evaluatorVersion": "1.0",
@@ -26375,8 +26135,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "3d97c436-42c0-4dd0-a571-ea6f34f752b3": {
       "_id": "3d97c436-42c0-4dd0-a571-ea6f34f752b3",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Itsme",
       "evaluatorVersion": "1.0",
@@ -26410,8 +26168,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "3f93ef6e-e54a-4393-aba1-f322656db28a": {
       "_id": "3f93ef6e-e54a-4393-aba1-f322656db28a",
       "context": "OAUTH2_AUTHORIZE_ENDPOINT_DATA_PROVIDER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Authorize Endpoint Data Provider",
       "evaluatorVersion": "1.0",
@@ -26513,8 +26269,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "400e48ba-3f13-4144-ac7b-f824ea8e98c5": {
       "_id": "400e48ba-3f13-4144-ac7b-f824ea8e98c5",
       "context": "OAUTH2_SCRIPTED_JWT_ISSUER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for scripted JWT Issuers",
       "evaluatorVersion": "1.0",
@@ -26601,8 +26355,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "403cf226-6051-4368-8b72-9ba14f9a5140": {
       "_id": "403cf226-6051-4368-8b72-9ba14f9a5140",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from VKontakte",
       "evaluatorVersion": "1.0",
@@ -26634,8 +26386,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
       "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "set per level shared state variable",
       "evaluatorVersion": "1.0",
@@ -26652,8 +26402,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "424da748-82cc-4b54-be6f-82bd64d82a74": {
       "_id": "424da748-82cc-4b54-be6f-82bd64d82a74",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Yahoo",
       "evaluatorVersion": "1.0",
@@ -26686,8 +26434,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "472534ec-a25f-468d-a606-3fb1935190df": {
       "_id": "472534ec-a25f-468d-a606-3fb1935190df",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from WeChat",
       "evaluatorVersion": "1.0",
@@ -26716,8 +26462,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "484e6246-dbc6-4288-97e6-54e55431402e": {
       "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Apple",
       "evaluatorVersion": "1.0",
@@ -26778,8 +26522,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5": {
       "_id": "4a171d3a-056b-4ab7-a19f-d7e93ddf7ae5",
       "context": "SAML2_NAMEID_MAPPER",
-      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
-      "creationDate": 1433147666269,
       "default": true,
       "description": "Default global script for SAML2 NameID Mapper",
       "evaluatorVersion": "2.0",
@@ -26805,8 +26547,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "4c963bb3-7084-43d0-bcdc-a47482cf1825": {
       "_id": "4c963bb3-7084-43d0-bcdc-a47482cf1825",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Dummy",
       "evaluatorVersion": "2.0",
@@ -26821,8 +26561,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "4e053815-adde-46ac-9fe2-d3ae93517c14": {
       "_id": "4e053815-adde-46ac-9fe2-d3ae93517c14",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "2.0",
@@ -26836,8 +26574,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "58c824ae-84ed-4724-82cd-db128fc3f6c": {
       "_id": "58c824ae-84ed-4724-82cd-db128fc3f6c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Converts a normalized social profile into a managed user",
       "evaluatorVersion": "1.0",
@@ -26850,8 +26586,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "58d29080-4563-480b-89bb-1e7719776a21": {
       "_id": "58d29080-4563-480b-89bb-1e7719776a21",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Google",
       "evaluatorVersion": "1.0",
@@ -26884,8 +26618,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
       "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if mode has already been set.",
       "evaluatorVersion": "1.0",
@@ -26939,8 +26671,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "5ce0d38a-154c-4be5-bd22-f9879c77e895": {
       "_id": "5ce0d38a-154c-4be5-bd22-f9879c77e895",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -27179,8 +26909,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "5e854779-6ec1-4c39-aeba-0477e0986646": {
       "_id": "5e854779-6ec1-4c39-aeba-0477e0986646",
       "context": "CONFIG_PROVIDER_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Script to provide values for a config provider node",
       "evaluatorVersion": "1.0",
@@ -27258,8 +26986,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "6002c349-f1d0-4317-baa2-a18590fc3cff": {
       "_id": "6002c349-f1d0-4317-baa2-a18590fc3cff",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -27293,8 +27019,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "60609c1a-4cef-4729-a417-354aafdebf3f": {
       "_id": "60609c1a-4cef-4729-a417-354aafdebf3f",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
-      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from LINE",
       "evaluatorVersion": "1.0",
@@ -27345,8 +27069,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
       "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -27380,8 +27102,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "647f2a33-9211-4315-a83f-a521d8b77d7b": {
       "_id": "647f2a33-9211-4315-a83f-a521d8b77d7b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -27415,8 +27135,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "69f06e63-128c-4e2f-af52-079a8a6f448b": {
       "_id": "69f06e63-128c-4e2f-af52-079a8a6f448b",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for SAML2 SP Adapter",
       "evaluatorVersion": "1.0",
@@ -27655,8 +27373,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30": {
       "_id": "6b3cfd48-62d3-48ff-a96f-fe8f3a22ab30",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Amazon",
       "evaluatorVersion": "1.0",
@@ -27685,8 +27401,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "6c49bebe-3a62-11ed-a261-0242ac120002": {
       "_id": "6c49bebe-3a62-11ed-a261-0242ac120002",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global library script to be referenced from other scripts",
       "evaluatorVersion": "2.0",
@@ -27754,8 +27468,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "703dab1a-1921-4981-98dd-b8e5349d8548": {
       "_id": "703dab1a-1921-4981-98dd-b8e5349d8548",
       "context": "AUTHENTICATION_SERVER_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for server side Device Id (Match) Authentication Module",
       "evaluatorVersion": "1.0",
@@ -28599,8 +28311,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "739bdc48-fd24-4c52-b353-88706d75558a": {
       "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Check if username has already been collected.",
       "evaluatorVersion": "1.0",
@@ -28633,8 +28343,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
       "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Microsoft",
       "evaluatorVersion": "1.0",
@@ -28688,8 +28396,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "7e3d7067-d50f-4674-8c76-a3e13a810c33": {
       "_id": "7e3d7067-d50f-4674-8c76-a3e13a810c33",
       "context": "AUTHENTICATION_SERVER_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for server side Scripted Authentication Module",
       "evaluatorVersion": "1.0",
@@ -28787,8 +28493,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "85523e71-2d77-4577-b078-6f9674cc54e2": {
       "_id": "85523e71-2d77-4577-b078-6f9674cc54e2",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -28957,8 +28661,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "8862ca8f-7770-4af5-a888-ac0df0947f36": {
       "_id": "8862ca8f-7770-4af5-a888-ac0df0947f36",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from LinkedIn",
       "evaluatorVersion": "1.0",
@@ -28989,8 +28691,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "8e298710-b55e-4085-a464-88a375a4004b": {
       "_id": "8e298710-b55e-4085-a464-88a375a4004b",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Twitter",
       "evaluatorVersion": "1.0",
@@ -29020,8 +28720,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "91d197de-5916-4dca-83b5-9a4df26e7159": {
       "_id": "91d197de-5916-4dca-83b5-9a4df26e7159",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from WordPress",
       "evaluatorVersion": "1.0",
@@ -29051,8 +28749,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "9535446c-0ff6-4a76-8576-616599119d64": {
       "_id": "9535446c-0ff6-4a76-8576-616599119d64",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Remove button from page.",
       "evaluatorVersion": "1.0",
@@ -29093,8 +28789,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "994a4e8f-2741-424a-83e7-3c5f78da01f5": {
       "_id": "994a4e8f-2741-424a-83e7-3c5f78da01f5",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -29263,8 +28957,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "9de3eb62-f131-4fac-a294-7bd170fd4acb": {
       "_id": "9de3eb62-f131-4fac-a294-7bd170fd4acb",
       "context": "POLICY_CONDITION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for Scripted Policy Conditions",
       "evaluatorVersion": "1.0",
@@ -29419,8 +29111,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "a7a78773-445b-4eca-bb93-409e86bced81": {
       "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -29448,8 +29138,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "b4f3facb-c754-4e7f-b1c0-f4d46f592126": {
       "_id": "b4f3facb-c754-4e7f-b1c0-f4d46f592126",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "id=dsameuser,ou=user,dc=openam,dc=forgerock,dc=org",
-      "creationDate": 1433147666269,
       "default": true,
       "description": "Normalizes raw profile data from LinkedIn",
       "evaluatorVersion": "1.0",
@@ -29483,8 +29171,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
       "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from Facebook",
       "evaluatorVersion": "1.0",
@@ -29516,8 +29202,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "bb393d07-a121-47e2-9d24-1a1066f39ec0": {
       "_id": "bb393d07-a121-47e2-9d24-1a1066f39ec0",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "My Example Script Using Libraries",
       "evaluatorVersion": "2.0",
@@ -29541,8 +29225,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "c234ba0b-58a1-4cfd-9567-09edde980745": {
       "_id": "c234ba0b-58a1-4cfd-9567-09edde980745",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 1433147666269,
       "default": true,
       "description": "Internal token modification script",
       "evaluatorVersion": "1.0",
@@ -29563,8 +29245,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "c4f22465-2368-4e27-8013-e6399974fd48": {
       "_id": "c4f22465-2368-4e27-8013-e6399974fd48",
       "context": "SAML2_IDP_ATTRIBUTE_MAPPER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for SAML2 IDP Attribute Mapper",
       "evaluatorVersion": "1.0",
@@ -29736,8 +29416,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "c735de08-f8f2-4e69-aa4a-2d8d3d438323": {
       "_id": "c735de08-f8f2-4e69-aa4a-2d8d3d438323",
       "context": "OAUTH2_MAY_ACT",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 May Act",
       "evaluatorVersion": "1.0",
@@ -29791,8 +29469,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "c827d2b4-3608-4693-868e-bbcf86bd87c7": {
       "_id": "c827d2b4-3608-4693-868e-bbcf86bd87c7",
       "context": "AUTHENTICATION_CLIENT_SIDE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for client side Scripted Authentication Module",
       "evaluatorVersion": "1.0",
@@ -29813,8 +29489,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "cf3515f0-8278-4ee3-a530-1bad7424c416": {
       "_id": "cf3515f0-8278-4ee3-a530-1bad7424c416",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Default alpha realm script for OIDC claims",
       "evaluatorVersion": "1.0",
@@ -30447,8 +30121,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "d22f9a0c-426a-4466-b95e-d0f125b0d5fa": {
       "_id": "d22f9a0c-426a-4466-b95e-d0f125b0d5fa",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Access Token Modification",
       "evaluatorVersion": "1.0",
@@ -30596,8 +30268,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1": {
       "_id": "d2dc1ae7-ca1b-4ce4-81b8-5d58dfba73b1",
       "context": "SAML2_IDP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Always redirect browser pre-auth",
       "evaluatorVersion": "1.0",
@@ -30766,8 +30436,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "d58977ed-0542-4147-8197-973ef7300191": {
       "_id": "d58977ed-0542-4147-8197-973ef7300191",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Custom Device Match Script",
       "evaluatorVersion": "1.0",
@@ -30784,8 +30452,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "da56fe60-8b38-4c46-a405-d6b306d4b336": {
       "_id": "da56fe60-8b38-4c46-a405-d6b306d4b336",
       "context": "OAUTH2_EVALUATE_SCOPE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Default global script for OAuth2 Scope Evaluation",
       "evaluatorVersion": "1.0",
@@ -30849,8 +30515,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "da7a96a8-7969-4dab-9c6e-a812938cc76d": {
       "_id": "da7a96a8-7969-4dab-9c6e-a812938cc76d",
       "context": "LIBRARY",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Script that uses secrets and variables",
       "evaluatorVersion": "2.0",
@@ -30870,8 +30534,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
       "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from ADFS",
       "evaluatorVersion": "1.0",
@@ -30972,8 +30634,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "e1db8a0a-0329-4962-a5bf-ecffaca376ae": {
       "_id": "e1db8a0a-0329-4962-a5bf-ecffaca376ae",
       "context": "OIDC_CLAIMS",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -31606,8 +31266,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "e232cff3-2460-47cd-80b2-36c86c0d0f06": {
       "_id": "e232cff3-2460-47cd-80b2-36c86c0d0f06",
       "context": "OAUTH2_ACCESS_TOKEN_MODIFICATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Used by endUserUIClient",
       "evaluatorVersion": "1.0",
@@ -31632,8 +31290,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "e5c302c8-f838-4698-87cc-d7225fc82454": {
       "_id": "e5c302c8-f838-4698-87cc-d7225fc82454",
       "context": "AUTHENTICATION_TREE_DECISION_NODE",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -31661,8 +31317,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "ed685f9f-5909-4726-86e8-22bd38b47663": {
       "_id": "ed685f9f-5909-4726-86e8-22bd38b47663",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Converts a normalized social profile into an Identity",
       "evaluatorVersion": "1.0",
@@ -31697,8 +31351,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd": {
       "_id": "fb09ba1b-e9b9-4517-8f11-a7cfe8b65dfd",
       "context": "SAML2_SP_ADAPTER",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "null",
       "evaluatorVersion": "1.0",
@@ -31937,8 +31589,6 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
     "fdb60c75-d58b-409f-bef2-ce4ebb04c77c": {
       "_id": "fdb60c75-d58b-409f-bef2-ce4ebb04c77c",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": false,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",
@@ -31984,8 +31634,6 @@ exports[`frodo script export "frodo script export -n 'GitHub Profile Normalizati
     "a7a78773-445b-4eca-bb93-409e86bced81": {
       "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
       "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
       "default": true,
       "description": "Normalizes raw profile data from GitHub",
       "evaluatorVersion": "1.0",

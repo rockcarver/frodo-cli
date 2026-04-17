@@ -182,8 +182,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -193,8 +191,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "3cb43516-ae69-433a-8787-501d45db14e9": {
           "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Display sharedState, transientState, and headers.",
           "language": "JAVASCRIPT",
@@ -204,8 +200,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -215,8 +209,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -480,8 +472,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -491,8 +481,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -502,8 +490,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -768,8 +754,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -779,8 +763,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -790,8 +772,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -1056,8 +1036,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -1067,8 +1045,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -1078,8 +1054,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -1344,8 +1318,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -1355,8 +1327,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -1366,8 +1336,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -1632,8 +1600,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -1643,8 +1609,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -1654,8 +1618,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -1920,8 +1882,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -1931,8 +1891,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -1942,8 +1900,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -2208,8 +2164,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -2219,8 +2173,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -2230,8 +2182,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -2496,8 +2446,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -2507,8 +2455,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -2518,8 +2464,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -2784,8 +2728,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -2795,8 +2737,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -2806,8 +2746,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -3072,8 +3010,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -3083,8 +3019,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -3094,8 +3028,6 @@ exports[`frodo journey export "frodo journey export --all --file my-allAlphaJour
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -6513,8 +6445,6 @@ a{
         "23143919-6b78-40c3-b25e-beca19b229e0": {
           "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -6525,8 +6455,6 @@ a{
         "484e6246-dbc6-4288-97e6-54e55431402e": {
           "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Apple",
           "evaluatorVersion": "1.0",
@@ -6537,8 +6465,6 @@ a{
         "58c824ae-84ed-4724-82cd-db128fc3f6c": {
           "_id": "58c824ae-84ed-4724-82cd-db128fc3f6c",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Converts a normalized social profile into a managed user",
           "evaluatorVersion": "1.0",
@@ -6549,8 +6475,6 @@ a{
         "58d29080-4563-480b-89bb-1e7719776a21": {
           "_id": "58d29080-4563-480b-89bb-1e7719776a21",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Google",
           "evaluatorVersion": "1.0",
@@ -6561,8 +6485,6 @@ a{
         "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
           "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -6573,8 +6495,6 @@ a{
         "739bdc48-fd24-4c52-b353-88706d75558a": {
           "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if username has already been collected.",
           "evaluatorVersion": "1.0",
@@ -6585,8 +6505,6 @@ a{
         "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
           "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Microsoft",
           "evaluatorVersion": "1.0",
@@ -7924,8 +7842,6 @@ a{
         "23143919-6b78-40c3-b25e-beca19b229e0": {
           "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -7936,8 +7852,6 @@ a{
         "484e6246-dbc6-4288-97e6-54e55431402e": {
           "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Apple",
           "evaluatorVersion": "1.0",
@@ -7948,8 +7862,6 @@ a{
         "58c824ae-84ed-4724-82cd-db128fc3f6c": {
           "_id": "58c824ae-84ed-4724-82cd-db128fc3f6c",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Converts a normalized social profile into a managed user",
           "evaluatorVersion": "1.0",
@@ -7960,8 +7872,6 @@ a{
         "58d29080-4563-480b-89bb-1e7719776a21": {
           "_id": "58d29080-4563-480b-89bb-1e7719776a21",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Google",
           "evaluatorVersion": "1.0",
@@ -7972,8 +7882,6 @@ a{
         "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
           "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -7984,8 +7892,6 @@ a{
         "739bdc48-fd24-4c52-b353-88706d75558a": {
           "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if username has already been collected.",
           "evaluatorVersion": "1.0",
@@ -7996,8 +7902,6 @@ a{
         "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
           "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Microsoft",
           "evaluatorVersion": "1.0",
@@ -8008,8 +7912,6 @@ a{
         "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
           "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Facebook",
           "evaluatorVersion": "1.0",
@@ -8020,8 +7922,6 @@ a{
         "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
           "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from ADFS",
           "evaluatorVersion": "1.0",
@@ -10145,8 +10045,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "evaluatorVersion": "1.0",
@@ -10157,8 +10055,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "3cb43516-ae69-433a-8787-501d45db14e9": {
           "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Display sharedState, transientState, and headers.",
           "evaluatorVersion": "1.0",
@@ -10169,8 +10065,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "evaluatorVersion": "1.0",
@@ -10181,8 +10075,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "evaluatorVersion": "1.0",
@@ -10454,8 +10346,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "evaluatorVersion": "1.0",
@@ -10466,8 +10356,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "evaluatorVersion": "1.0",
@@ -10478,8 +10366,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "evaluatorVersion": "1.0",
@@ -10752,8 +10638,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "evaluatorVersion": "1.0",
@@ -10764,8 +10648,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "evaluatorVersion": "1.0",
@@ -10776,8 +10658,6 @@ exports[`frodo journey export "frodo journey export -NAD journeyTestDirectory3":
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "evaluatorVersion": "1.0",
@@ -13483,8 +13363,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -13494,8 +13372,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "3cb43516-ae69-433a-8787-501d45db14e9": {
           "_id": "3cb43516-ae69-433a-8787-501d45db14e9",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Display sharedState, transientState, and headers.",
           "language": "JAVASCRIPT",
@@ -13505,8 +13381,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -13516,8 +13390,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -13781,8 +13653,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -13792,8 +13662,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -13803,8 +13671,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -14069,8 +13935,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -14080,8 +13944,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -14091,8 +13953,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -14357,8 +14217,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -14368,8 +14226,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -14379,8 +14235,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -14645,8 +14499,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -14656,8 +14508,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -14667,8 +14517,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -14933,8 +14781,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -14944,8 +14790,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -14955,8 +14799,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -15221,8 +15063,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -15232,8 +15072,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -15243,8 +15081,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -15509,8 +15345,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -15520,8 +15354,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -15531,8 +15363,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -15797,8 +15627,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -15808,8 +15636,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -15819,8 +15645,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -16085,8 +15909,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -16096,8 +15918,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -16107,8 +15927,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -16373,8 +16191,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -16384,8 +16200,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -16395,8 +16209,6 @@ exports[`frodo journey export "frodo journey export -a": should export all journ
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
@@ -17062,8 +16874,6 @@ a{
         "23143919-6b78-40c3-b25e-beca19b229e0": {
           "_id": "23143919-6b78-40c3-b25e-beca19b229e0",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -17074,8 +16884,6 @@ a{
         "484e6246-dbc6-4288-97e6-54e55431402e": {
           "_id": "484e6246-dbc6-4288-97e6-54e55431402e",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Apple",
           "evaluatorVersion": "1.0",
@@ -17086,8 +16894,6 @@ a{
         "58c824ae-84ed-4724-82cd-db128fc3f6c": {
           "_id": "58c824ae-84ed-4724-82cd-db128fc3f6c",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Converts a normalized social profile into a managed user",
           "evaluatorVersion": "1.0",
@@ -17098,8 +16904,6 @@ a{
         "58d29080-4563-480b-89bb-1e7719776a21": {
           "_id": "58d29080-4563-480b-89bb-1e7719776a21",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Google",
           "evaluatorVersion": "1.0",
@@ -17110,8 +16914,6 @@ a{
         "6325cf19-a49b-471e-8d26-7e4df76df0e2": {
           "_id": "6325cf19-a49b-471e-8d26-7e4df76df0e2",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from GitHub",
           "evaluatorVersion": "1.0",
@@ -17122,8 +16924,6 @@ a{
         "739bdc48-fd24-4c52-b353-88706d75558a": {
           "_id": "739bdc48-fd24-4c52-b353-88706d75558a",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if username has already been collected.",
           "evaluatorVersion": "1.0",
@@ -17134,8 +16934,6 @@ a{
         "73cecbfc-dad0-4395-be6a-6858ee3a80e5": {
           "_id": "73cecbfc-dad0-4395-be6a-6858ee3a80e5",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Microsoft",
           "evaluatorVersion": "1.0",
@@ -17146,8 +16944,6 @@ a{
         "bae1d54a-e97d-4997-aa5d-c027f21af82c": {
           "_id": "bae1d54a-e97d-4997-aa5d-c027f21af82c",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": true,
           "description": "Normalizes raw profile data from Facebook",
           "evaluatorVersion": "1.0",
@@ -17158,8 +16954,6 @@ a{
         "dbe0bf9a-72aa-49d5-8483-9db147985a47": {
           "_id": "dbe0bf9a-72aa-49d5-8483-9db147985a47",
           "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Normalizes raw profile data from ADFS",
           "evaluatorVersion": "1.0",
@@ -17949,8 +17743,6 @@ exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": shou
         "1b52a7e0-4019-40fa-958a-15a49870e901": {
           "_id": "1b52a7e0-4019-40fa-958a-15a49870e901",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set the same shared state variable",
           "language": "JAVASCRIPT",
@@ -17960,8 +17752,6 @@ exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": shou
         "41c24257-d7fc-4654-8b46-c2666dc5b56d": {
           "_id": "41c24257-d7fc-4654-8b46-c2666dc5b56d",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "set per level shared state variable",
           "language": "JAVASCRIPT",
@@ -17971,8 +17761,6 @@ exports[`frodo journey export "frodo journey export -i j01 -f my-j01.json": shou
         "5bbdaeff-ddee-44b9-b608-8d413d7d65a6": {
           "_id": "5bbdaeff-ddee-44b9-b608-8d413d7d65a6",
           "context": "AUTHENTICATION_TREE_DECISION_NODE",
-          "createdBy": "null",
-          "creationDate": 0,
           "default": false,
           "description": "Check if mode has already been set.",
           "language": "JAVASCRIPT",
