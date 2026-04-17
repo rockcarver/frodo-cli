@@ -47,7 +47,7 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --no-extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --no-deps -i 'bb393d07-a121-47e2-9d24-1a1066f39ec0'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --script-name 'GitHub Profile Normalization'
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json
@@ -57,7 +57,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -MNaD scriptExportTestDir2
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export -NAxD scriptExportTestDir3
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --modified-properties --all-separate --no-metadata --default --extract --directory scriptExportTestDir4
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo script export --modified-properties --all-separate --no-metadata --default --no-extract --directory scriptExportTestDir4
 */
 import { getEnv, testExport } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
@@ -69,9 +69,9 @@ const type = 'script';
 
 describe('frodo script export', () => {
   // The first two tests use the 'My Example Script Using Libraries' (with id 'bb393d07-a121-47e2-9d24-1a1066f39ec0') script to test that libraries are exported correctly, including recursively.
-  test('"frodo script export --extract --script-id \'bb393d07-a121-47e2-9d24-1a1066f39ec0\' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries', async () => {
+  test('"frodo script export --no-extract --script-id \'bb393d07-a121-47e2-9d24-1a1066f39ec0\' --directory scriptExportTestDir5": should export the script with id "bb393d07-a121-47e2-9d24-1a1066f39ec0" along with libraries', async () => {
     const exportDirectory = 'scriptExportTestDir5';
-    const CMD = `frodo script export --extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5`;
+    const CMD = `frodo script export --no-extract --script-id 'bb393d07-a121-47e2-9d24-1a1066f39ec0' --directory scriptExportTestDir5`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
@@ -122,15 +122,15 @@ describe('frodo script export', () => {
     await testExport(CMD, env, type);
   });
 
-  test('"frodo script export -NAxD scriptExportTestDir3": should export all extracted scripts to separate files in the directory scriptExportTestDir3', async () => {
+  test('"frodo script export -NAxD scriptExportTestDir3": should export all scripts to separate files in the directory scriptExportTestDir3', async () => {
     const exportDirectory = 'scriptExportTestDir3';
     const CMD = `frodo script export -NAxD ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 
-  test('"frodo script export --modified-properties --all-separate --no-metadata --default --extract --directory scriptExportTestDir4": should export all extracted scripts, including default ones, to separate files in the directory scriptExportTestDir4', async () => {
+  test('"frodo script export --modified-properties --all-separate --no-metadata --default --no-extract --directory scriptExportTestDir4": should export all scripts, including default ones, to separate files in the directory scriptExportTestDir4', async () => {
     const exportDirectory = 'scriptExportTestDir4';
-    const CMD = `frodo script export --modified-properties --all-separate --no-metadata --default --extract --directory ${exportDirectory}`;
+    const CMD = `frodo script export --modified-properties --all-separate --no-metadata --default --no-extract --directory ${exportDirectory}`;
     await testExport(CMD, env, type, undefined, exportDirectory, false);
   });
 });
