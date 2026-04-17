@@ -49,7 +49,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-M, --modified-properties',
-        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, etc.)'
+        'Include modified properties in export (e.g. lastModifiedDate, lastModifiedBy, createdBy, creationDate, etc.)'
       ).default(false, 'false')
     )
     // deprecated option
