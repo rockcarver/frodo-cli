@@ -46,9 +46,9 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '-x, --extract',
-        'Extract scripts and server properties from the exported file, and save it to a separate file. Ignored with -a.'
-      )
+        '-x, --no-extract',
+        'Do not extract the server properties from the exported file to a separate file.'
+      ).default(true, 'true')
     )
     .addOption(
       new Option(
@@ -101,7 +101,7 @@ export default function setup() {
           verboseMessage(`Exporting all servers to a single file...`);
           const outcome = await exportServersToFile(
             options.file,
-            options.extract,
+            false,
             options.metadata,
             {
               includeDefault: options.default,
