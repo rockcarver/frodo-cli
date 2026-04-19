@@ -170,8 +170,15 @@ regenerate_lockfile() {
   lockfile_regeneration_attempted='true'
 
   if ! npm i --package-lock-only; then
-    echo "Failed to regenerate package-lock.json after merge conflict for PR #$pr. See npm output above for details." >&2
-    exit 1
+    echo "Failed to regenerate package-lock.json after merge conflict for PR #$pr. Rolling back merge and marking PR as skipped. See npm output above for details." >&2
+    lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$updated_bool" '. + [{"number":$n,"title":$t,"updated":$u}]')"
+    skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"lockfile_regeneration_failed"}]')"
+    if git rev-parse --verify ORIG_HEAD >/dev/null 2>&1; then
+      git reset --hard ORIG_HEAD >/dev/null
+    else
+      git reset --hard HEAD^ >/dev/null
+    fi
+    return 0
   fi
 
   if ! git diff --quiet -- package-lock.json; then
