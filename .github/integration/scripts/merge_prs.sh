@@ -159,6 +159,7 @@ for pr in $(echo "$SELECTED_JSON" | jq -r '.[].number'); do
     continue
   fi
 
+  auto_resolution_failed='false'
   for file in "${conflicted_files[@]}"; do
     if [ "$file" = "package-lock.json" ]; then
       if git cat-file -e ":2:$file" >/dev/null 2>&1; then
@@ -193,16 +194,27 @@ for pr in $(echo "$SELECTED_JSON" | jq -r '.[].number'); do
       git show ":2:$file" > "$ours" 2>/dev/null || true
       git show ":3:$file" > "$theirs" 2>/dev/null || true
       if [ -s "$base" ] && [ -s "$ours" ] && [ -s "$theirs" ]; then
-        git merge-file -p --union "$ours" "$base" "$theirs" > "$file" || true
+        if ! git merge-file -p --union "$ours" "$base" "$theirs" > "$file"; then
+          auto_resolution_failed='true'
+        fi
       elif [ -s "$theirs" ]; then
         cp "$theirs" "$file"
       elif [ -s "$ours" ]; then
         cp "$ours" "$file"
       fi
+      if grep -q '<<<<<<<\|=======\|>>>>>>>' "$file"; then
+        auto_resolution_failed='true'
+      fi
       rm -f "$base" "$ours" "$theirs"
       git add "$file"
     fi
   done
+
+  if [ "$auto_resolution_failed" = 'true' ]; then
+    git merge --abort || true
+    skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"merge conflict (auto-resolution incomplete)"}]')"
+    continue
+  fi
 
   if git diff --name-only --diff-filter=U | grep -q .; then
     git merge --abort || true

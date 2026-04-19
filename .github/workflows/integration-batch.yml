@@ -227,4 +227,4 @@ jobs:
           echo '${{ steps.merge.outputs.snapshot_files_changed }}' | jq -r '.[] | "- \(.)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
-          echo "**package-lock regenerated:** ${{ steps.merge.outputs.lockfile_regenerated }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**package-lock.json regenerated:** ${{ steps.merge.outputs.lockfile_regenerated }}" >> "$GITHUB_STEP_SUMMARY"
