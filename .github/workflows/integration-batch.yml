@@ -50,7 +50,7 @@ jobs:
             )
             | sort_by(.number)
           ')"
-          echo "prs_json=$prs_json" >> "$GITHUB_OUTPUT"
+          echo "prs_json=$(echo "$prs_json" | jq -c .)" >> "$GITHUB_OUTPUT"
           echo "candidate_count=$(echo "$prs_json" | jq 'length')" >> "$GITHUB_OUTPUT"
 
       - name: Filter to successful combined status
@@ -76,8 +76,8 @@ jobs:
             fi
           done
 
-          echo "selected=$selected" >> "$GITHUB_OUTPUT"
-          echo "skipped=$skipped" >> "$GITHUB_OUTPUT"
+          echo "selected=$(echo "$selected" | jq -c .)" >> "$GITHUB_OUTPUT"
+          echo "skipped=$(echo "$skipped" | jq -c .)" >> "$GITHUB_OUTPUT"
 
       - name: Reset integration branch to main
         run: |
@@ -128,8 +128,8 @@ jobs:
             echo "::endgroup::"
           done
 
-          echo "merged=$merged" >> "$GITHUB_OUTPUT"
-          echo "merge_skipped=$merge_skipped" >> "$GITHUB_OUTPUT"
+          echo "merged=$(echo "$merged" | jq -c .)" >> "$GITHUB_OUTPUT"
+          echo "merge_skipped=$(echo "$merge_skipped" | jq -c .)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@v6
