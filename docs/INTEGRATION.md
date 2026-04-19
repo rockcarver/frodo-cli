@@ -30,10 +30,17 @@ Each run rebuilds `integration` from `main`, then attempts merge commits (`git m
   - add `integrated`
   - add a comment including the run URL
 - On merge conflict:
-  - abort merge
-  - remove `integration-batch`
-  - add `integration-failed`
-  - add a comment asking the author to rebase and re-add `integration-batch`
+  - if all conflicted files are in the auto-generated union allowlist, conflicts are auto-resolved by union merge
+  - if conflicts are snapshot-only (`*.snap` / `__snapshots__`, optionally with `package-lock.json`), merge is completed and targeted `npm run test:update <pattern>` commands are executed, then updated snapshots are committed to `integration`
+  - otherwise merge is aborted, `integration-failed` is applied, and the author is asked to rebase and re-add `integration-batch`
+
+Union allowlist generation runs on every workflow execution:
+
+- includes `src/cli/**` files containing `const program = new FrodoStubCommand(`
+- excludes any file containing `const program = new FrodoCommand(`
+- applies manual overrides from:
+  - `.github/integration/union-allowlist-extra.txt`
+  - `.github/integration/union-blocklist.txt`
 
 After merges, the workflow updates `@rockcarver/frodo-lib` to `@next`, commits lockfile changes when needed, pushes `integration`, and creates or updates an `integration -> main` PR titled `integration`.
 
