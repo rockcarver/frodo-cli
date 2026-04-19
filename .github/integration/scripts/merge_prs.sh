@@ -4,6 +4,8 @@ set -euo pipefail
 
 SELECTED_JSON='[]'
 DRY_RUN='false'
+FRODO_STUB_PATTERN='const program = new FrodoStubCommand('
+FRODO_COMMAND_PATTERN='const program = new FrodoCommand('
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -61,7 +63,7 @@ normalize_list_file() {
 
 while IFS= read -r file; do
   [ -z "$file" ] && continue
-  if grep -q 'const program = new FrodoStubCommand(' "$file" && ! grep -q 'const program = new FrodoCommand(' "$file"; then
+  if grep -q "$FRODO_STUB_PATTERN" "$file" && ! grep -q "$FRODO_COMMAND_PATTERN" "$file"; then
     echo "$file" >> "$AUTO_ALLOWLIST_FILE"
   fi
 done < <(git ls-files 'src/cli/**')
@@ -238,7 +240,12 @@ if [ -s "$snapshot_patterns_file" ]; then
     snapshot_patterns="$(echo "$snapshot_patterns" | jq --arg p "$pattern" '. + [$p]')"
   done
 
-  mapfile -t snapshot_files_changed_arr < <(git status --porcelain | awk '{print $2}' | grep -E '(^|/)(__snapshots__/|.*\.snap$)' || true)
+  mapfile -t snapshot_files_changed_arr < <(
+    {
+      git diff --name-only
+      git diff --name-only --cached
+    } | sort -u | grep -E '(^|/)(__snapshots__/|.*\.snap$)' || true
+  )
   if [ "${#snapshot_files_changed_arr[@]}" -gt 0 ]; then
     git add -- "${snapshot_files_changed_arr[@]}"
     git commit -m "test: update integration snapshots"
