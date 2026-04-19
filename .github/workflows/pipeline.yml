@@ -44,7 +44,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Update package-log.json before version bump
+      - name: Update package-lock.json before version bump
         run: npm i --package-lock-only
 
       - name: Install dependencies
@@ -125,7 +125,7 @@ jobs:
             echo "preRelease=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Update package-log.json after version bump
+      - name: Update package-lock.json after version bump
         run: npm i --package-lock-only
 
       - name: Build frodo-cli

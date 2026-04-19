@@ -42,7 +42,7 @@ Pre-releases are a great way to publish the latest and greatest functionality bu
 
 ### Triggering Patch, Minor, and Major Releases
 
-Maintainers must validate PRs contain an updated `Unreleased` section in the[changelog](../CHANGELOG.md) before merging any PR. Changelog entries must adhere to the [keep a changelog](https://keepachangelog.com/en/1.0.0/) format.
+Maintainers must validate PRs contain an updated `Unreleased` section in the [changelog](../CHANGELOG.md) before merging any PR. Changelog entries must adhere to the [keep a changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 Maintainers must add an appropriate release label (see: [Every Push Triggers A Release](#Every-Push-Triggers-A-Release)) to the PR before merge to trigger the automated version bump and release.
 
