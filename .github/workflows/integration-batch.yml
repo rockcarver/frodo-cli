@@ -53,7 +53,7 @@ jobs:
           echo "prs_json=$(echo "$prs_json" | jq -c .)" >> "$GITHUB_OUTPUT"
           echo "candidate_count=$(echo "$prs_json" | jq 'length')" >> "$GITHUB_OUTPUT"
 
-      - name: Filter to successful combined status
+      - name: Filter to successful check runs
         id: selected
         env:
           GH_TOKEN: ${{ github.token }}
@@ -66,13 +66,21 @@ jobs:
 
           for pr in $(echo "$prs_json" | jq -r '.[].number'); do
             head_sha="$(gh pr view "$pr" --repo "$REPO" --json headRefOid --jq .headRefOid)"
-            state="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$head_sha/status" | jq -r '.state')"
+            checks_json="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$head_sha/check-runs")"
             title="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | .title")"
 
-            if [ "$state" = "success" ]; then
-              selected="$(echo "$selected" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+            total_count="$(echo "$checks_json" | jq -r '.total_count')"
+            pending_count="$(echo "$checks_json" | jq '[.check_runs[] | select(.status != "completed")] | length')"
+            bad_conclusion_count="$(echo "$checks_json" | jq '[.check_runs[] | select(.status == "completed") | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')"
+
+            if [ "$total_count" -eq 0 ]; then
+              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"no check runs found"}]')"
+            elif [ "$pending_count" -gt 0 ]; then
+              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"checks pending"}]')"
+            elif [ "$bad_conclusion_count" -gt 0 ]; then
+              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"checks not successful"}]')"
             else
-              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" --arg s "$state" '. + [{"number":$n,"title":$t,"reason":"checks not successful","state":$s}]')"
+              selected="$(echo "$selected" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
             fi
           done
 
@@ -165,13 +173,13 @@ jobs:
           skipped_merge='${{ steps.merge.outputs.merge_skipped }}'
 
           included_list="$(echo "$merged" | jq -r '.[] | "- #\(.number): \(.title)"')"
-          skipped_checks_list="$(echo "$skipped_checks" | jq -r '.[] | "- #\(.number): \(.title) (state: \(.state))"')"
+          skipped_checks_list="$(echo "$skipped_checks" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
           skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title)"')"
 
           body=$'This PR is auto-generated from PRs labeled `integration-batch`.\n\n'
           body+=$'## Included\n'
           body+="${included_list:-"- (none)"}"
-          body+=$'\n\n## Skipped (checks not successful)\n'
+          body+=$'\n\n## Skipped (checks)\n'
           body+="${skipped_checks_list:-"- (none)"}"
           body+=$'\n\n## Skipped (merge conflicts)\n'
           body+="${skipped_merge_list:-"- (none)"}"
@@ -196,8 +204,8 @@ jobs:
           echo '${{ steps.merge.outputs.merged }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
-          echo "**Skipped (checks not successful):**" >> "$GITHUB_STEP_SUMMARY"
-          echo '${{ steps.selected.outputs.skipped }}' | jq -r '.[] | "- #\(.number): \(.title) (state: \(.state))"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "**Skipped (checks):**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.selected.outputs.skipped }}' | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Skipped (merge conflicts):**" >> "$GITHUB_STEP_SUMMARY"
