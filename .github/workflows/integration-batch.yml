@@ -111,10 +111,17 @@ jobs:
             --prs-json "$selected" \
             --dry-run "$dry_run" \
             --repo "$REPO" > "$output_file"
-          summary="$(cat "$output_file")"
+          summary="$(awk 'NF { line = $0 } END { print line }' "$output_file")"
           rm -f "$output_file"
 
-          echo "summary=$(echo "$summary" | jq -c .)" >> "$GITHUB_OUTPUT"
+          if [ -z "$summary" ]; then
+            echo "merge_prs.sh did not emit a JSON summary on stdout" >&2
+            exit 1
+          fi
+
+          summary="$(echo "$summary" | jq -c .)"
+
+          echo "summary=$summary" >> "$GITHUB_OUTPUT"
           echo "merged=$(echo "$summary" | jq -c '.merged')" >> "$GITHUB_OUTPUT"
           echo "merge_skipped=$(echo "$summary" | jq -c '.skipped')" >> "$GITHUB_OUTPUT"
           echo "auto_resolved_conflicts=$(echo "$summary" | jq -c '.auto_resolved_conflicts')" >> "$GITHUB_OUTPUT"
