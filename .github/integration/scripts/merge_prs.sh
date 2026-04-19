@@ -165,23 +165,23 @@ lockfile_regeneration_prs='[]'
 regenerate_lockfile() {
   local pr="$1"
   local title="$2"
-  local updated='false'
+  local updated_bool='false'
 
   lockfile_regeneration_attempted='true'
 
   if ! npm i --package-lock-only; then
-    echo "Failed to regenerate package-lock.json after merge conflict for PR #$pr." >&2
+    echo "Failed to regenerate package-lock.json after merge conflict for PR #$pr. See npm output above for details." >&2
     exit 1
   fi
 
   if ! git diff --quiet -- package-lock.json; then
     git add package-lock.json
     git commit -m "chore: regenerate package-lock.json after merge conflict"
-    updated='true'
+    updated_bool='true'
     lockfile_regeneration_updated='true'
   fi
 
-  lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$([ "$updated" = 'true' ] && echo true || echo false)" '. + [{"number":$n,"title":$t,"updated":$u}]')"
+  lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$updated_bool" '. + [{"number":$n,"title":$t,"updated":$u}]')"
 }
 
 for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
@@ -244,7 +244,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
     fi
   done
 
-  # Keep lockfile-only conflicts on the dedicated lockfile recovery path below.
+  # Keep lockfile-only conflicts for the [ "$has_lockfile_conflict" = 'true' ] && [ "${#non_lock_conflicts[@]}" -eq 0 ] block below.
   if [ "$all_union" = 'true' ] && [ "${#non_lock_conflicts[@]}" -gt 0 ]; then
     has_marker='false'
     for file in "${non_lock_conflicts[@]}"; do
