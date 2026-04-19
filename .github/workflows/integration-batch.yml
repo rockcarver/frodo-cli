@@ -106,12 +106,13 @@ jobs:
         run: |
           selected='${{ steps.selected.outputs.selected }}'
           dry_run='${{ steps.dryrun.outputs.dry_run }}'
-          summary="$(
-            ./.github/integration/scripts/merge_prs.sh \
-              --prs-json "$selected" \
-              --dry-run "$dry_run" \
-              --repo "$REPO"
-          )"
+          output_file="$(mktemp)"
+          ./.github/integration/scripts/merge_prs.sh \
+            --prs-json "$selected" \
+            --dry-run "$dry_run" \
+            --repo "$REPO" > "$output_file"
+          summary="$(cat "$output_file")"
+          rm -f "$output_file"
 
           echo "summary=$(echo "$summary" | jq -c .)" >> "$GITHUB_OUTPUT"
           echo "merged=$(echo "$summary" | jq -c '.merged')" >> "$GITHUB_OUTPUT"
