@@ -1,0 +1,204 @@
+name: Integration Batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "If true, do not push integration branch, edit PR labels/comments, or create/update integration PR."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: integration-batch
+  cancel-in-progress: false
+
+jobs:
+  build-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Resolve dry-run flag
+        id: dryrun
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "Dry run: $DRY_RUN"
+
+      - name: Select open integration-batch PRs
+        id: candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prs_json="$(gh pr list --state open --label integration-batch --json number,isDraft,title,labels --jq '
+            map(
+              select(.isDraft == false)
+              | select((.labels | map(.name) | index("integrated")) | not)
+            )
+            | sort_by(.number)
+          ')"
+          echo "prs_json=$prs_json" >> "$GITHUB_OUTPUT"
+          echo "candidate_count=$(echo "$prs_json" | jq 'length')" >> "$GITHUB_OUTPUT"
+
+      - name: Filter to successful combined status
+        id: selected
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          prs_json='${{ steps.candidates.outputs.prs_json }}'
+
+          selected='[]'
+          skipped='[]'
+
+          for pr in $(echo "$prs_json" | jq -r '.[].number'); do
+            head_sha="$(gh pr view "$pr" --repo "$REPO" --json headRefOid --jq .headRefOid)"
+            state="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$head_sha/status" | jq -r '.state')"
+            title="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | .title")"
+
+            if [ "$state" = "success" ]; then
+              selected="$(echo "$selected" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+            else
+              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" --arg s "$state" '. + [{"number":$n,"title":$t,"reason":"checks not successful","state":$s}]')"
+            fi
+          done
+
+          echo "selected=$selected" >> "$GITHUB_OUTPUT"
+          echo "skipped=$skipped" >> "$GITHUB_OUTPUT"
+
+      - name: Reset integration branch to main
+        run: |
+          git fetch origin main
+          git checkout -B integration origin/main
+
+      - name: Merge selected PRs
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          selected='${{ steps.selected.outputs.selected }}'
+          dry_run='${{ steps.dryrun.outputs.dry_run }}'
+
+          merged='[]'
+          merge_skipped='[]'
+
+          for pr in $(echo "$selected" | jq -r '.[].number'); do
+            title="$(echo "$selected" | jq -r ".[] | select(.number==$pr) | .title")"
+
+            echo "::group::Attempt merge PR #$pr - $title"
+            git fetch origin "pull/$pr/head:pr-$pr"
+
+            if git merge --no-ff "pr-$pr" -m "Merge PR #$pr: $title"; then
+              merged="$(echo "$merged" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+
+              if [ "$dry_run" != "true" ]; then
+                gh pr edit "$pr" --repo "$REPO" \
+                  --remove-label integration-batch \
+                  --remove-label integration-failed \
+                  --add-label integrated || true
+                gh pr comment "$pr" --repo "$REPO" --body "Included in \`integration\` branch by automation.\n\nRun: $RUN_URL" || true
+              fi
+            else
+              git merge --abort || true
+              merge_skipped="$(echo "$merge_skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"merge conflict"}]')"
+
+              if [ "$dry_run" != "true" ]; then
+                gh pr edit "$pr" --repo "$REPO" \
+                  --remove-label integration-batch \
+                  --add-label integration-failed || true
+                gh pr comment "$pr" --repo "$REPO" --body "Skipped from automated \`integration\` batch due to a merge conflict. Please rebase against \`main\`, resolve conflicts, and re-add label \`integration-batch\`.\n\nRun: $RUN_URL" || true
+              fi
+            fi
+
+            echo "::endgroup::"
+          done
+
+          echo "merged=$merged" >> "$GITHUB_OUTPUT"
+          echo "merge_skipped=$merge_skipped" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Bump @rockcarver/frodo-lib to @next
+        run: |
+          npm install @rockcarver/frodo-lib@next --save-exact
+          npm ci
+
+          if ! git diff --quiet; then
+            git add package.json package-lock.json
+            git commit -m "chore: bump @rockcarver/frodo-lib to @next"
+          else
+            echo "No dependency changes detected."
+          fi
+
+      - name: Push integration branch
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        run: |
+          git push origin integration --force-with-lease
+
+      - name: Create or update PR integration -> main
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          merged='${{ steps.merge.outputs.merged }}'
+          skipped_checks='${{ steps.selected.outputs.skipped }}'
+          skipped_merge='${{ steps.merge.outputs.merge_skipped }}'
+
+          included_list="$(echo "$merged" | jq -r '.[] | "- #\(.number): \(.title)"')"
+          skipped_checks_list="$(echo "$skipped_checks" | jq -r '.[] | "- #\(.number): \(.title) (state: \(.state))"')"
+          skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title)"')"
+
+          body=$'This PR is auto-generated from PRs labeled `integration-batch`.\n\n'
+          body+=$'## Included\n'
+          body+="${included_list:-"- (none)"}"
+          body+=$'\n\n## Skipped (checks not successful)\n'
+          body+="${skipped_checks_list:-"- (none)"}"
+          body+=$'\n\n## Skipped (merge conflicts)\n'
+          body+="${skipped_merge_list:-"- (none)"}"
+          body+=$'\n\nAlso bumps `@rockcarver/frodo-lib` to `@next`.\n'
+
+          existing="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --repo "$REPO" --title "integration" --body "$body"
+          else
+            gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body"
+          fi
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "### Integration batch results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Dry run:** ${{ steps.dryrun.outputs.dry_run }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Merged into integration:**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.merged }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Skipped (checks not successful):**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.selected.outputs.skipped }}' | jq -r '.[] | "- #\(.number): \(.title) (state: \(.state))"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Skipped (merge conflicts):**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.merge_skipped }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
