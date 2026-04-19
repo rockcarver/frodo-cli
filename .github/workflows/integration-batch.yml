@@ -255,7 +255,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Auto-resolved conflicts (package-lock.json):**" >> "$GITHUB_STEP_SUMMARY"
-          echo '${{ steps.merge.outputs.auto_resolved_conflicts }}' | jq -r '.[] | select(.type=="lockfile") | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo '${{ steps.merge.outputs.lockfile_regeneration }}' | jq -r '.prs[]? | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Snapshot update patterns run:**" >> "$GITHUB_STEP_SUMMARY"
