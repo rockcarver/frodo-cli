@@ -24,12 +24,18 @@ The workflow selects PRs that are:
 
 Each run rebuilds `integration` from `main`, then attempts merge commits (`git merge --no-ff`) for selected PRs.
 
+- Merge conflict auto-recovery is handled by [`.github/integration/scripts/merge_prs.sh`](../.github/integration/scripts/merge_prs.sh):
+  - union auto-resolution is applied only to an allowlist of `src/cli/**` command files that instantiate `FrodoStubCommand` (excluding files that instantiate `FrodoCommand`), plus manual overrides from:
+    - `.github/integration/union-allowlist-extra.txt`
+    - `.github/integration/union-blocklist.txt`
+  - snapshot conflicts (`*.snap` and `__snapshots__/`) are auto-resolved enough to complete the merge, then targeted snapshot refresh runs via `npm run test:update <pattern>` where `<pattern>` is derived from conflicted snapshot filenames
+  - `package-lock.json` conflicts are always auto-recovered by regenerating lockfile content with `npm i --package-lock-only`
 - On successful merge:
   - remove `integration-batch`
   - remove `integration-failed` (if present)
   - add `integrated`
   - add a comment including the run URL
-- On merge conflict:
+- On merge conflict that is not auto-resolvable by the script:
   - abort merge
   - remove `integration-batch`
   - add `integration-failed`

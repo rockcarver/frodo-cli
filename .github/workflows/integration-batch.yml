@@ -92,58 +92,51 @@ jobs:
           git fetch origin main
           git checkout -B integration origin/main
 
-      - name: Merge selected PRs
-        id: merge
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          selected='${{ steps.selected.outputs.selected }}'
-          dry_run='${{ steps.dryrun.outputs.dry_run }}'
-
-          merged='[]'
-          merge_skipped='[]'
-
-          for pr in $(echo "$selected" | jq -r '.[].number'); do
-            title="$(echo "$selected" | jq -r ".[] | select(.number==$pr) | .title")"
-
-            echo "::group::Attempt merge PR #$pr - $title"
-            git fetch origin "pull/$pr/head:pr-$pr"
-
-            if git merge --no-ff "pr-$pr" -m "Merge PR #$pr: $title"; then
-              merged="$(echo "$merged" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
-
-              if [ "$dry_run" != "true" ]; then
-                gh pr edit "$pr" --repo "$REPO" \
-                  --remove-label integration-batch \
-                  --remove-label integration-failed \
-                  --add-label integrated || true
-                gh pr comment "$pr" --repo "$REPO" --body "Included in \`integration\` branch by automation.\n\nRun: $RUN_URL" || true
-              fi
-            else
-              git merge --abort || true
-              merge_skipped="$(echo "$merge_skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"merge conflict"}]')"
-
-              if [ "$dry_run" != "true" ]; then
-                gh pr edit "$pr" --repo "$REPO" \
-                  --remove-label integration-batch \
-                  --add-label integration-failed || true
-                gh pr comment "$pr" --repo "$REPO" --body "Skipped from automated \`integration\` batch due to a merge conflict. Please rebase against \`main\`, resolve conflicts, and re-add label \`integration-batch\`.\n\nRun: $RUN_URL" || true
-              fi
-            fi
-
-            echo "::endgroup::"
-          done
-
-          echo "merged=$(echo "$merged" | jq -c .)" >> "$GITHUB_OUTPUT"
-          echo "merge_skipped=$(echo "$merge_skipped" | jq -c .)" >> "$GITHUB_OUTPUT"
-
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
+
+      - name: Merge selected PRs
+        id: merge
+        run: |
+          selected='${{ steps.selected.outputs.selected }}'
+          dry_run='${{ steps.dryrun.outputs.dry_run }}'
+          summary="$(bash .github/integration/scripts/merge_prs.sh --selected-json "$selected" --dry-run "$dry_run")"
+          summary="$(echo "$summary" | jq -c .)"
+          echo "summary=$summary" >> "$GITHUB_OUTPUT"
+          echo "merged=$(echo "$summary" | jq -c '.merged')" >> "$GITHUB_OUTPUT"
+          echo "merge_skipped=$(echo "$summary" | jq -c '.skipped')" >> "$GITHUB_OUTPUT"
+          echo "snapshot_patterns_run=$(echo "$summary" | jq -c '.snapshot_patterns_run')" >> "$GITHUB_OUTPUT"
+          echo "snapshot_files_changed=$(echo "$summary" | jq -c '.snapshot_files_changed')" >> "$GITHUB_OUTPUT"
+          echo "lockfile_regenerated=$(echo "$summary" | jq -r '.lockfile_regenerated')" >> "$GITHUB_OUTPUT"
+
+      - name: Update labels/comments for merged and skipped PRs
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          merged='${{ steps.merge.outputs.merged }}'
+          skipped='${{ steps.merge.outputs.merge_skipped }}'
+
+          for pr in $(echo "$merged" | jq -r '.[].number'); do
+            gh pr edit "$pr" --repo "$REPO" \
+              --remove-label integration-batch \
+              --remove-label integration-failed \
+              --add-label integrated || true
+            gh pr comment "$pr" --repo "$REPO" --body "Included in \`integration\` branch by automation.\n\nRun: $RUN_URL" || true
+          done
+
+          for pr in $(echo "$skipped" | jq -r '.[].number'); do
+            reason="$(echo "$skipped" | jq -r ".[] | select(.number==$pr) | .reason")"
+            gh pr edit "$pr" --repo "$REPO" \
+              --remove-label integration-batch \
+              --add-label integration-failed || true
+            gh pr comment "$pr" --repo "$REPO" --body "Skipped from automated \`integration\` batch due to: $reason. Please rebase against \`main\`, resolve conflicts, and re-add label \`integration-batch\`.\n\nRun: $RUN_URL" || true
+          done
 
       - name: Bump @rockcarver/frodo-lib to @next
         run: |
@@ -171,10 +164,15 @@ jobs:
           merged='${{ steps.merge.outputs.merged }}'
           skipped_checks='${{ steps.selected.outputs.skipped }}'
           skipped_merge='${{ steps.merge.outputs.merge_skipped }}'
+          snapshot_patterns='${{ steps.merge.outputs.snapshot_patterns_run }}'
+          snapshot_files='${{ steps.merge.outputs.snapshot_files_changed }}'
+          lockfile_regenerated='${{ steps.merge.outputs.lockfile_regenerated }}'
 
           included_list="$(echo "$merged" | jq -r '.[] | "- #\(.number): \(.title)"')"
           skipped_checks_list="$(echo "$skipped_checks" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
-          skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title)"')"
+          skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
+          snapshot_patterns_list="$(echo "$snapshot_patterns" | jq -r '.[] | "- \(.)"')"
+          snapshot_files_list="$(echo "$snapshot_files" | jq -r '.[] | "- \(.)"')"
 
           body=$'This PR is auto-generated from PRs labeled `integration-batch`.\n\n'
           body+=$'## Included\n'
@@ -183,6 +181,15 @@ jobs:
           body+="${skipped_checks_list:-"- (none)"}"
           body+=$'\n\n## Skipped (merge conflicts)\n'
           body+="${skipped_merge_list:-"- (none)"}"
+          body+=$'\n\n## Snapshot updates (auto-generated)\n'
+          body+=$'Patterns run:\n'
+          body+="${snapshot_patterns_list:-"- (none)"}"
+          body+=$'\n\nChanged snapshot files:\n'
+          body+="${snapshot_files_list:-"- (none)"}"
+          body+=$'\n\n'
+          if [ "$lockfile_regenerated" = "true" ]; then
+            body+=$'`package-lock.json` was auto-regenerated after merge conflicts.\n\n'
+          fi
           body+=$'\n\nAlso bumps `@rockcarver/frodo-lib` to `@next`.\n'
 
           existing="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
@@ -209,4 +216,15 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Skipped (merge conflicts):**" >> "$GITHUB_STEP_SUMMARY"
-          echo '${{ steps.merge.outputs.merge_skipped }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo '${{ steps.merge.outputs.merge_skipped }}' | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Snapshot update patterns run:**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.snapshot_patterns_run }}' | jq -r '.[] | "- \(.)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Snapshot files changed:**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.snapshot_files_changed }}' | jq -r '.[] | "- \(.)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**package-lock regenerated:** ${{ steps.merge.outputs.lockfile_regenerated }}" >> "$GITHUB_STEP_SUMMARY"
