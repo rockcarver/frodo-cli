@@ -189,7 +189,7 @@ jobs:
           skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
           auto_union_list="$(echo "$auto_resolved" | jq -r '.[] | select(.type=="union") | "- #\(.number): \(.title)"')"
           auto_snapshot_list="$(echo "$auto_resolved" | jq -r '.[] | select(.type=="snapshot") | "- #\(.number): \(.title)"')"
-          auto_lockfile_list="$(echo "$auto_resolved" | jq -r '.[] | select(.type=="lockfile") | "- #\(.number): \(.title)"')"
+          auto_lockfile_list="$(echo "$lockfile_regeneration" | jq -r '.prs[]? | "- #\(.number): \(.title)"')"
           snapshot_patterns_list="$(echo "$snapshot_updates" | jq -r '.patterns[]? | "- \(.)"')"
           snapshot_files_list="$(echo "$snapshot_updates" | jq -r '.files[]? | "- \(.)"')"
           lockfile_regen_list="$(echo "$lockfile_regeneration" | jq -r '.prs[]? | "- #\(.number): \(.title)\(if .updated then " (updated package-lock.json)" else " (no lockfile diff)" end)"')"
