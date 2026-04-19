@@ -130,11 +130,6 @@ is_snapshot_path() {
   [[ "$path" == *.snap ]] || [[ "$path" == *"/__snapshots__/"* ]]
 }
 
-is_snapshot_or_allowed_extra_conflict() {
-  local path="$1"
-  is_snapshot_path "$path" || [ "$path" = "package-lock.json" ]
-}
-
 contains_conflict_markers() {
   local file="$1"
   grep -nE '^(<{7}|={7}|>{7})' "$file" >/dev/null 2>&1
@@ -163,6 +158,38 @@ auto_resolved_conflicts='[]'
 snapshot_patterns_global='[]'
 snapshot_files_global='[]'
 npm_ci_done='false'
+lockfile_regeneration_attempted='false'
+lockfile_regeneration_updated='false'
+lockfile_regeneration_prs='[]'
+
+regenerate_lockfile() {
+  local pr="$1"
+  local title="$2"
+  local updated_bool='false'
+
+  lockfile_regeneration_attempted='true'
+
+  if ! npm i --package-lock-only; then
+    echo "Failed to regenerate package-lock.json after merge conflict for PR #$pr. Rolling back merge and marking PR as skipped. See npm output above for details." >&2
+    lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$updated_bool" '. + [{"number":$n,"title":$t,"updated":$u}]')"
+    skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"lockfile_regeneration_failed"}]')"
+    if git rev-parse --verify ORIG_HEAD >/dev/null 2>&1; then
+      git reset --hard ORIG_HEAD >/dev/null
+    else
+      git reset --hard HEAD^ >/dev/null
+    fi
+    return 0
+  fi
+
+  if ! git diff --quiet -- package-lock.json; then
+    git add package-lock.json
+    git commit -m "chore: regenerate package-lock.json after merge conflict"
+    updated_bool='true'
+    lockfile_regeneration_updated='true'
+  fi
+
+  lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$updated_bool" '. + [{"number":$n,"title":$t,"updated":$u}]')"
+}
 
 for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
   unset union_allowlist
@@ -201,25 +228,33 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
 
   all_union='true'
   all_snapshot='true'
+  has_lockfile_conflict='false'
+  non_lock_conflicts=()
   snapshot_conflicts=()
 
   for file in "${conflicted_files[@]}"; do
+    if [ "$file" = "package-lock.json" ]; then
+      has_lockfile_conflict='true'
+      continue
+    fi
+
+    non_lock_conflicts+=("$file")
+
     if [ -z "${union_allowlist[$file]+x}" ]; then
       all_union='false'
     fi
 
-    if is_snapshot_or_allowed_extra_conflict "$file"; then
-      if is_snapshot_path "$file"; then
-        snapshot_conflicts+=("$file")
-      fi
+    if is_snapshot_path "$file"; then
+      snapshot_conflicts+=("$file")
     else
       all_snapshot='false'
     fi
   done
 
-  if [ "$all_union" = 'true' ]; then
+  # Keep lockfile-only conflicts for the [ "$has_lockfile_conflict" = 'true' ] && [ "${#non_lock_conflicts[@]}" -eq 0 ] block below.
+  if [ "$all_union" = 'true' ] && [ "${#non_lock_conflicts[@]}" -gt 0 ]; then
     has_marker='false'
-    for file in "${conflicted_files[@]}"; do
+    for file in "${non_lock_conflicts[@]}"; do
       if [ -f "$file" ] && contains_conflict_markers "$file"; then
         has_marker='true'
         break
@@ -233,23 +268,38 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
       continue
     fi
 
+    if [ "$has_lockfile_conflict" = 'true' ]; then
+      git checkout --ours -- package-lock.json || true
+      git add package-lock.json
+    fi
+
     git commit --no-edit
+
+    if [ "$has_lockfile_conflict" = 'true' ]; then
+      regenerate_lockfile "$pr" "$title"
+    fi
+
     merged="$(echo "$merged" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"auto_resolved":"union"}]')"
     auto_resolved_conflicts="$(echo "$auto_resolved_conflicts" | jq --argjson n "$pr" --arg t "$title" --argjson f "$(to_json_array "${conflicted_files[@]}")" '. + [{"number":$n,"title":$t,"type":"union","files":$f}]')"
     continue
   fi
 
   if [ "$all_snapshot" = 'true' ] && [ "${#snapshot_conflicts[@]}" -gt 0 ]; then
-    for file in "${conflicted_files[@]}"; do
-      if is_snapshot_path "$file"; then
-        git checkout --theirs -- "$file" || true
-      elif [ "$file" = "package-lock.json" ]; then
-        git checkout --ours -- "$file" || true
-      fi
+    for file in "${snapshot_conflicts[@]}"; do
+      git checkout --theirs -- "$file" || true
       git add -A -- "$file"
     done
 
+    if [ "$has_lockfile_conflict" = 'true' ]; then
+      git checkout --ours -- package-lock.json || true
+      git add package-lock.json
+    fi
+
     git commit --no-edit
+
+    if [ "$has_lockfile_conflict" = 'true' ]; then
+      regenerate_lockfile "$pr" "$title"
+    fi
 
     patterns='[]'
     for file in "${snapshot_conflicts[@]}"; do
@@ -287,6 +337,17 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
     continue
   fi
 
+  if [ "$has_lockfile_conflict" = 'true' ] && [ "${#non_lock_conflicts[@]}" -eq 0 ]; then
+    git checkout --ours -- package-lock.json || true
+    git add package-lock.json
+    git commit --no-edit
+    regenerate_lockfile "$pr" "$title"
+
+    merged="$(echo "$merged" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"auto_resolved":"lockfile"}]')"
+    auto_resolved_conflicts="$(echo "$auto_resolved_conflicts" | jq --argjson n "$pr" --arg t "$title" --argjson f "$(to_json_array "${conflicted_files[@]}")" '. + [{"number":$n,"title":$t,"type":"lockfile","files":$f}]')"
+    continue
+  fi
+
   git merge --abort || true
   skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"merge conflict (non-auto-resolvable)"}]')"
 done
@@ -301,6 +362,9 @@ jq -cn \
   --argjson auto_resolved_conflicts "$(echo "$auto_resolved_conflicts" | jq -c .)" \
   --argjson snapshot_patterns "$snapshot_patterns_global" \
   --argjson snapshot_files "$snapshot_files_global" \
+  --arg lockfile_attempted "$lockfile_regeneration_attempted" \
+  --arg lockfile_updated "$lockfile_regeneration_updated" \
+  --argjson lockfile_prs "$(echo "$lockfile_regeneration_prs" | jq -c .)" \
   '{
     dry_run: ($dry_run == "true"),
     merged: $merged,
@@ -309,5 +373,10 @@ jq -cn \
     snapshot_updates: {
       patterns: $snapshot_patterns,
       files: $snapshot_files
+    },
+    lockfile_regeneration: {
+      attempted: ($lockfile_attempted == "true"),
+      updated: ($lockfile_updated == "true"),
+      prs: $lockfile_prs
     }
   }' >&3

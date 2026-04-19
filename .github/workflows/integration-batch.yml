@@ -126,6 +126,7 @@ jobs:
           echo "merge_skipped=$(echo "$summary" | jq -c '.skipped')" >> "$GITHUB_OUTPUT"
           echo "auto_resolved_conflicts=$(echo "$summary" | jq -c '.auto_resolved_conflicts')" >> "$GITHUB_OUTPUT"
           echo "snapshot_updates=$(echo "$summary" | jq -c '.snapshot_updates')" >> "$GITHUB_OUTPUT"
+          echo "lockfile_regeneration=$(echo "$summary" | jq -c '.lockfile_regeneration')" >> "$GITHUB_OUTPUT"
 
       - name: Apply labels and comments
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
@@ -181,14 +182,17 @@ jobs:
           skipped_merge='${{ steps.merge.outputs.merge_skipped }}'
           auto_resolved='${{ steps.merge.outputs.auto_resolved_conflicts }}'
           snapshot_updates='${{ steps.merge.outputs.snapshot_updates }}'
+          lockfile_regeneration='${{ steps.merge.outputs.lockfile_regeneration }}'
 
           included_list="$(echo "$merged" | jq -r '.[] | "- #\(.number): \(.title)"')"
           skipped_checks_list="$(echo "$skipped_checks" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
           skipped_merge_list="$(echo "$skipped_merge" | jq -r '.[] | "- #\(.number): \(.title) (\(.reason))"')"
           auto_union_list="$(echo "$auto_resolved" | jq -r '.[] | select(.type=="union") | "- #\(.number): \(.title)"')"
           auto_snapshot_list="$(echo "$auto_resolved" | jq -r '.[] | select(.type=="snapshot") | "- #\(.number): \(.title)"')"
+          auto_lockfile_list="$(echo "$lockfile_regeneration" | jq -r '.prs[]? | "- #\(.number): \(.title)"')"
           snapshot_patterns_list="$(echo "$snapshot_updates" | jq -r '.patterns[]? | "- \(.)"')"
           snapshot_files_list="$(echo "$snapshot_updates" | jq -r '.files[]? | "- \(.)"')"
+          lockfile_regen_list="$(echo "$lockfile_regeneration" | jq -r '.prs[]? | "- #\(.number): \(.title)\(if .updated then " (updated package-lock.json)" else " (no lockfile diff)" end)"')"
 
           body=$'This PR is auto-generated from PRs labeled `integration-batch`.\n\n'
           body+=$'## Included\n'
@@ -201,10 +205,18 @@ jobs:
           body+="${auto_union_list:-"- (none)"}"
           body+=$'\n\n## Auto-resolved conflicts (snapshots)\n'
           body+="${auto_snapshot_list:-"- (none)"}"
+          body+=$'\n\n## Auto-resolved conflicts (package-lock.json)\n'
+          body+="${auto_lockfile_list:-"- (none)"}"
           body+=$'\n\n## Snapshot update patterns run\n'
           body+="${snapshot_patterns_list:-"- (none)"}"
           body+=$'\n\n## Snapshot files updated\n'
           body+="${snapshot_files_list:-"- (none)"}"
+          body+=$'\n\n## package-lock.json regeneration\n'
+          body+="Attempted: $(echo "$lockfile_regeneration" | jq -r '.attempted')"
+          body+=$'\n'
+          body+="Updated: $(echo "$lockfile_regeneration" | jq -r '.updated')"
+          body+=$'\n'
+          body+="${lockfile_regen_list:-"- (none)"}"
           body+=$'\n\nAlso bumps `@rockcarver/frodo-lib` to `@next`.\n'
 
           existing="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
@@ -242,9 +254,19 @@ jobs:
           echo '${{ steps.merge.outputs.auto_resolved_conflicts }}' | jq -r '.[] | select(.type=="snapshot") | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
+          echo "**Auto-resolved conflicts (package-lock.json):**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.lockfile_regeneration }}' | jq -r '.prs[]? | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
           echo "**Snapshot update patterns run:**" >> "$GITHUB_STEP_SUMMARY"
           echo '${{ steps.merge.outputs.snapshot_updates }}' | jq -r '.patterns[]? | "- \(.)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Snapshot files updated:**" >> "$GITHUB_STEP_SUMMARY"
           echo '${{ steps.merge.outputs.snapshot_updates }}' | jq -r '.files[]? | "- \(.)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**package-lock.json regeneration:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "Attempted: $(echo '${{ steps.merge.outputs.lockfile_regeneration }}' | jq -r '.attempted')" >> "$GITHUB_STEP_SUMMARY"
+          echo "Updated: $(echo '${{ steps.merge.outputs.lockfile_regeneration }}' | jq -r '.updated')" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.merge.outputs.lockfile_regeneration }}' | jq -r '.prs[]? | "- #\(.number): \(.title)\(if .updated then " (updated package-lock.json)" else " (no lockfile diff)" end)"' >> "$GITHUB_STEP_SUMMARY" || true

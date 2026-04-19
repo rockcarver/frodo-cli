@@ -32,6 +32,7 @@ Each run rebuilds `integration` from `main`, then attempts merge commits (`git m
 - On merge conflict:
   - if all conflicted files are in the auto-generated union allowlist, conflicts are auto-resolved by union merge
   - if conflicts are snapshot-only (`*.snap` / `__snapshots__`, optionally with `package-lock.json`), merge is completed and targeted `npm run test:update <pattern>` commands are executed, then updated snapshots are committed to `integration`
+  - if `package-lock.json` is conflicted (including lockfile-only conflicts), automation checks out one side to complete the merge, runs `npm i --package-lock-only`, and commits the regenerated lockfile to `integration`
   - otherwise merge is aborted, `integration-failed` is applied, and the author is asked to rebase and re-add `integration-batch`
 
 Union allowlist generation runs on every workflow execution:
