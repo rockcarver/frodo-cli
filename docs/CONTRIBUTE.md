@@ -17,7 +17,7 @@ OR
 
 ### Prerequisites
 
-- Node.js 18 or later, 20 or 22 recommended
+- Node.js 20 or later (Node.js 24 recommended)
 - npm (included with Node.js)
 - A GUI editor is highly recommended. The current developers use [VSCode](https://code.visualstudio.com/), but you are welcome to others, like [Atom](https://atom.io/) or [Sublime](https://www.sublimetext.com/) too. The repository contains configuration files for VSCode's [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [prettier](https://prettier.io/) add-ons, which will automatically lint the code and apply coding styles when using VSCode. The same files may work for other editors with similar add-ons, but this has not been tested.
 
@@ -98,6 +98,10 @@ Before you submit a PR, make sure your code follows the frodo code formatting co
 npm run lint
 npm test
 ```
+
+## Integration batching
+
+Maintainers can batch eligible PRs into the `integration` branch using the [`integration-batch` workflow](../.github/workflows/integration-batch.yml). See [INTEGRATION.md](./INTEGRATION.md) for label semantics and workflow behavior.
 
 ### Code structure and conventions
 
