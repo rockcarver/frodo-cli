@@ -253,6 +253,10 @@ if [ -s "$snapshot_patterns_file" ]; then
 fi
 
 if [ "$lockfile_regen_commit_needed" = 'true' ]; then
+  if [ "$npm_ci_done" = 'false' ]; then
+    npm ci
+    npm_ci_done='true'
+  fi
   npm i --package-lock-only
   if ! git diff --quiet -- package-lock.json; then
     git add package-lock.json
@@ -264,7 +268,7 @@ fi
 if git rev-parse --verify origin/main >/dev/null 2>&1; then
   snapshot_files_json="$(
     {
-      git diff --name-only origin/main...HEAD \
+      git diff --name-only origin/main..HEAD \
         | grep -E '(^|/)(__snapshots__/|.*\.snap$)' || true
     } \
       | sort -u \
