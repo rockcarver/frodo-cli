@@ -54,6 +54,8 @@ fi
 # Validate JSON shape.
 PRS_JSON="$(echo "$PRS_JSON" | jq -c 'if type=="array" then . else error("prs-json must be an array") end')"
 DRY_RUN="$(echo "$DRY_RUN" | tr '[:upper:]' '[:lower:]')"
+exec 3>&1
+exec 1>&2
 
 if [ -z "$REPO" ]; then
   if git remote get-url origin >/dev/null 2>&1; then
@@ -91,15 +93,36 @@ apply_exception_file() {
 
 configure_union_attributes() {
   local attributes_file=".git/info/attributes"
+  local begin_marker="# integration-batch union allowlist"
+  local end_marker="# end integration-batch union allowlist"
+  local preserved_file
+  local new_file
+  mkdir -p "$(dirname "$attributes_file")"
+  preserved_file="$(mktemp)"
+  new_file="$(mktemp)"
+
+  if [ -f "$attributes_file" ]; then
+    awk -v begin="$begin_marker" -v end="$end_marker" '
+      $0 == begin { skip=1; next }
+      $0 == end { skip=0; next }
+      !skip { print }
+    ' "$attributes_file" > "$preserved_file"
+  fi
+
   {
-    echo "# integration-batch union allowlist"
+    if [ -s "$preserved_file" ]; then
+      cat "$preserved_file"
+      printf '\n'
+    fi
+    echo "$begin_marker"
     for file in "${!union_allowlist[@]}"; do
       echo "$file merge=union"
     done | sort
-    echo "# end integration-batch union allowlist"
-  } > "$attributes_file"
+    echo "$end_marker"
+  } > "$new_file"
 
-  git config merge.union.driver true
+  mv "$new_file" "$attributes_file"
+  rm -f "$preserved_file"
 }
 
 is_snapshot_path() {
@@ -201,7 +224,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
         has_marker='true'
         break
       fi
-      git add "$file"
+      git add -A -- "$file"
     done
 
     if [ "$has_marker" = 'true' ]; then
@@ -223,7 +246,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
       elif [ "$file" = "package-lock.json" ]; then
         git checkout --ours -- "$file" || true
       fi
-      git add "$file"
+      git add -A -- "$file"
     done
 
     git commit --no-edit
@@ -245,7 +268,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
 
       while IFS= read -r pattern; do
         [ -n "$pattern" ] || continue
-        npm run test:update "$pattern"
+        npm run test:update -- "$pattern"
       done < <(echo "$patterns" | jq -r '.[]')
     fi
 
@@ -287,4 +310,4 @@ jq -cn \
       patterns: $snapshot_patterns,
       files: $snapshot_files
     }
-  }'
+  }' >&3
