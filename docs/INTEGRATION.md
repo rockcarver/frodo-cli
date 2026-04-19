@@ -16,7 +16,9 @@ The workflow selects PRs that are:
 - non-draft
 - labeled `integration-batch`
 - not labeled `integrated`
-- in a `success` combined status state for the PR head SHA
+- with check runs present for the PR head SHA
+- with all check runs in `completed` status
+- with all completed check runs concluded as `success`, `skipped`, or `neutral`
 
 ## Merge behavior
 
