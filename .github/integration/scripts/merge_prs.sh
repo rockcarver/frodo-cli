@@ -273,7 +273,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
     continue
   fi
 
-  if [ "$all_snapshot" = 'true' ] && [ "${#snapshot_conflicts[@]}" -gt 0 ] && [ "${#snapshot_conflicts[@]}" -eq "${#non_lock_conflicts[@]}" ]; then
+  if [ "$all_snapshot" = 'true' ] && [ "${#snapshot_conflicts[@]}" -gt 0 ]; then
     for file in "${snapshot_conflicts[@]}"; do
       git checkout --theirs -- "$file" || true
       git add -A -- "$file"
