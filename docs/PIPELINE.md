@@ -12,13 +12,18 @@ This information is only actionable if you are an active contributor or maintain
 
 Frodo CLI adopted the principle of continuous integration. Therefore every push to the main branch in the [rockcarver/frodo-cli] repository triggers the automated release pipeline.
 
-The pipeline determines the type of release - `prerelease`, `patch`, `minor`, `major` - for the push:
+The pipeline determines the type of release - `prerelease`, `patch`, `minor`, `major` - for the push by looking up the pull request associated with the merged commit on `main`:
 
-- Scans the commit and PR comments for trigger phrases:
-  - `PATCH RELEASE` triggers a `patch` release
-  - `MINOR RELEASE` triggers a `minor` release
-  - `MAJOR RELEASE` triggers a `major` release
-  - Everything else triggers a `prerelease`
+- Uses exactly one merged PR associated with the pushed commit SHA.
+- Uses PR labels:
+  - `release:patch` triggers a `patch` release
+  - `release:minor` triggers a `minor` release
+  - `release:major` triggers a `major` release
+  - No release label triggers a `prerelease`
+- Fails if:
+  - no PR (direct push to `main`) is associated with the commit
+  - more than one PR is associated with the commit
+  - more than one `release:*` label is present on the merged PR
 - Bumps the version accordingly:<br>
   `<major>`.`<minor>`.`<patch>`-`<prerelease>`
 - Updates the [changelog](../CHANGELOG.md) file in [keep a changelog](https://keepachangelog.com/en/1.0.0/) format:
@@ -27,19 +32,19 @@ The pipeline determines the type of release - `prerelease`, `patch`, `minor`, `m
   - Adds release details links
 
 ❗❗❗ IMPORTANT ❗❗❗<br>
-Contributors are instructed to submit pull requests. Maintainers must make sure none of the commit comments nor the PR comment contain trigger phrases that would cause the pipeline to perform an undesired version bump and release.
+Contributors are instructed to submit pull requests. Direct pushes to `main` are not supported by the automated release version-selection logic and will fail.
 
 ### Automatic Pre-Releases During Iterative Development
 
-The default release type (if no specific and exact trigger phrases are used) results in a pre-release. Pre-releases are flagged with the label `Pre-release` on the [release page](../releases) indicating to users that these releases are not considered final or complete.
+The default release type (if no specific release label is present) results in a pre-release. Pre-releases are flagged with the label `Pre-release` on the [release page](../releases) indicating to users that these releases are not considered final or complete.
 
 Pre-releases are a great way to publish the latest and greatest functionality but they are not fully polished, readme and changelog might not be updated and test coverage might not be complete.
 
 ### Triggering Patch, Minor, and Major Releases
 
-Maintainers must validate PRs contain an updated `Unreleased` section in the[changelog](../CHANGELOG.md) before merging any PR. Changelog entries must adhere to the [keep a changelog](https://keepachangelog.com/en/1.0.0/) format.
+Maintainers must validate PRs contain an updated `Unreleased` section in the [changelog](../CHANGELOG.md) before merging any PR. Changelog entries must adhere to the [keep a changelog](https://keepachangelog.com/en/1.0.0/) format.
 
-Maintainers must use an appropriate trigger phrase (see: [Every Push Triggers A Release](#Every-Push-Triggers-A-Release)) in the PR title to trigger the appropriate automated version bump and release.
+Maintainers must add an appropriate release label (see: [Every Push Triggers A Release](#Every-Push-Triggers-A-Release)) to the PR before merge to trigger the automated version bump and release.
 
 ❗❗❗ IMPORTANT ❗❗❗<br>
 Maintainers must adhere to the [guidelines set forth by the npm project](https://docs.npmjs.com/about-semantic-versioning#incrementing-semantic-versions-in-published-packages) to determine the appropriate release type:
@@ -112,7 +117,7 @@ So to recover from that, the following needs to happen:
     -   [package-lock.json](../package-lock.json)
         -   Find the 2 occurances of the faulty version in package-lock.json and reset them to the `previous version` from before the faulty version bump
 3.  Commit your changes and create a new pull request
-4.  In the frodo repository, merge the PR and provide the appropriate comment to trigger the intended version bump
+4.  In the frodo repository, merge the PR and provide the appropriate release label (`release:patch`, `release:minor`, or `release:major`) to trigger the intended version bump
 5.  Remove the faulty release from npmjs.com
     This is important as without this step the faulty release will remain published on [npmjs.com](https://www.npmjs.com/package/@rockcarver/frodo-cli) (npm registry).
     - You must be a maintainer of the package on npmjs.com.

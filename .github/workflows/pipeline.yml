@@ -44,36 +44,89 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Update package-log.json before version bump
+      - name: Update package-lock.json before version bump
         run: npm i --package-lock-only
 
       - name: Install dependencies
         run: npm ci
 
-      - name: 'Prepare Version Bump'
-        id: version-bump
-        uses: 'phips28/gh-action-bump-version@master'
-        with:
-          major-wording: 'MAJOR RELEASE'
-          minor-wording: 'MINOR RELEASE'
-          patch-wording: 'PATCH RELEASE'
-          rc-wording: ''
-          tag-prefix: 'v'
-          default: prerelease
-          preid: ''
-          bump-policy: 'ignore'
-          skip-commit: 'true'
-          skip-tag: 'true'
-          skip-push: 'true'
+      - name: 'Determine Release Bump Type'
+        id: release-bump
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "${{ github.event_name }}" != "push" ] || [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "bumpType=prerelease" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-      - name: Update package-log.json after version bump
+          prs="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$SHA/pulls")"
+          pr_count="$(echo "$prs" | jq 'length')"
+          if [ "$pr_count" -ne 1 ]; then
+            echo "::error::Expected exactly one associated PR for commit $SHA on main, found $pr_count."
+            exit 1
+          fi
+
+          release_labels="$(echo "$prs" | jq -r '.[0].labels[].name | select(. == "release:patch" or . == "release:minor" or . == "release:major")')"
+          label_count="$(echo "$release_labels" | sed '/^$/d' | wc -l | tr -d ' ')"
+          if [ "$label_count" -gt 1 ]; then
+            echo "::error::PR has multiple release labels. Use exactly one of release:patch, release:minor, release:major."
+            exit 1
+          fi
+          if [ "$label_count" -eq 0 ]; then
+            echo "bumpType=prerelease" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          label="$(echo "$release_labels" | head -n 1)"
+          case "$label" in
+            "release:patch") echo "bumpType=patch" >> "$GITHUB_OUTPUT" ;;
+            "release:minor") echo "bumpType=minor" >> "$GITHUB_OUTPUT" ;;
+            "release:major") echo "bumpType=major" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::Unsupported release label: $label"; exit 1 ;;
+          esac
+
+      - name: 'Apply Version Bump'
+        id: version-bump
+        run: |
+          current_version="$(node -p "require('./package.json').version")"
+          bump_type="${{ steps.release-bump.outputs.bumpType }}"
+          if [ -z "$bump_type" ]; then
+            echo "::error::Missing bump type."
+            exit 1
+          fi
+
+          case "$bump_type" in
+            prerelease)
+              new_version="$(node -p "require('semver').inc('$current_version','prerelease')")"
+              ;;
+            patch|minor|major)
+              new_version="$(node -p "require('semver').inc('$current_version','$bump_type')")"
+              ;;
+            *)
+              echo "::error::Unsupported bump type: $bump_type"
+              exit 1
+              ;;
+          esac
+
+          if [ -z "$new_version" ] || [ "$new_version" = "null" ]; then
+            echo "::error::Failed to compute new version from $current_version using bump type $bump_type."
+            exit 1
+          fi
+
+          npm version "$new_version" --no-git-tag-version --allow-same-version
+          echo "newTag=v$new_version" >> "$GITHUB_OUTPUT"
+          echo "newVersion=$new_version" >> "$GITHUB_OUTPUT"
+          if echo "$new_version" | grep -q '-'; then
+            echo "preRelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "preRelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update package-lock.json after version bump
         run: npm i --package-lock-only
-
-      - name: 'Version From Tag'
-        id: version-from-tag
-        run: echo "version=$(echo '${{ steps.version-bump.outputs.newTag }}' | sed 's/v//')" >> "$GITHUB_OUTPUT"
 
       - name: Build frodo-cli
         run: |
@@ -98,8 +151,8 @@ jobs:
 
     outputs:
       newTag: ${{ steps.version-bump.outputs.newTag }}
-      newVersion: ${{ steps.version-from-tag.outputs.version }}
-      preRelease: ${{ contains(steps.version-bump.outputs.newTag, '-') }}
+      newVersion: ${{ steps.version-bump.outputs.newVersion }}
+      preRelease: ${{ steps.version-bump.outputs.preRelease }}
 
   test:
     name: 'Test'
