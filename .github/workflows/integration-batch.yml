@@ -70,8 +70,8 @@ jobs:
             title="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | .title")"
 
             total_count="$(echo "$checks_json" | jq -r '.total_count')"
-            pending_count="$(echo "$checks_json" | jq '[.check_runs[] | select(.status != "completed")] | length')"
-            bad_conclusion_count="$(echo "$checks_json" | jq '[.check_runs[] | select(.status == "completed") | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')"
+            pending_count="$(echo "$checks_json" | jq '[.check_runs // [] | .[] | select(.status != "completed")] | length')"
+            bad_conclusion_count="$(echo "$checks_json" | jq '[.check_runs // [] | .[] | select(.status == "completed" and .conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')"
 
             if [ "$total_count" -eq 0 ]; then
               skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"no check runs found"}]')"
