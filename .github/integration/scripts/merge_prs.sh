@@ -91,15 +91,13 @@ apply_exception_file() {
 
 configure_union_attributes() {
   local attributes_file=".git/info/attributes"
-  touch "$attributes_file"
   {
-    echo ""
     echo "# integration-batch union allowlist"
     for file in "${!union_allowlist[@]}"; do
       echo "$file merge=union"
     done | sort
     echo "# end integration-batch union allowlist"
-  } >> "$attributes_file"
+  } > "$attributes_file"
 
   git config merge.union.driver true
 }
@@ -116,7 +114,7 @@ is_snapshot_or_allowed_extra_conflict() {
 
 contains_conflict_markers() {
   local file="$1"
-  grep -nE '<<<<<<<|=======|>>>>>>>' "$file" >/dev/null 2>&1
+  grep -nE '^(<{7}|={7}|>{7})' "$file" >/dev/null 2>&1
 }
 
 to_json_array() {
@@ -132,14 +130,9 @@ derive_snapshot_pattern() {
   local name
   name="$(basename "$path")"
   name="${name%.snap}"
-  name="$(echo "$name" | sed -E 's/\.(e2e\.)?(test|spec)\.js$//')"
+  name="$(echo "$name" | sed -E 's/\.(e2e\.)?(test|spec)\.(js|ts)$//')"
   echo "$name"
 }
-
-auto_detect_union_allowlist
-apply_exception_file "$ALLOWLIST_EXTRA_FILE" add
-apply_exception_file "$BLOCKLIST_FILE" remove
-configure_union_attributes
 
 merged='[]'
 skipped='[]'
@@ -149,6 +142,13 @@ snapshot_files_global='[]'
 npm_ci_done='false'
 
 for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
+  unset union_allowlist
+  declare -A union_allowlist=()
+  auto_detect_union_allowlist
+  apply_exception_file "$ALLOWLIST_EXTRA_FILE" add
+  apply_exception_file "$BLOCKLIST_FILE" remove
+  configure_union_attributes
+
   title="$(echo "$PRS_JSON" | jq -r ".[] | select(.number==$pr) | .title // \"\"")"
   branch="$(echo "$PRS_JSON" | jq -r ".[] | select(.number==$pr) | .branch // \"\"")"
 
@@ -249,7 +249,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
       done < <(echo "$patterns" | jq -r '.[]')
     fi
 
-    mapfile -t changed_snapshot_files < <(git status --porcelain | awk '{print $2}' | grep -E '(^|/)(__snapshots__/|.*\.snap$)' || true)
+    mapfile -t changed_snapshot_files < <(git diff --name-only | grep -E '(^|/)(__snapshots__/|.*\.snap$)' || true)
 
     if [ "${#changed_snapshot_files[@]}" -gt 0 ]; then
       git add -- "${changed_snapshot_files[@]}"
