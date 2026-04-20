@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'config-manager push connector-definitions' should be expected english 1`] = `
+"Usage: frodo config-manager push connector-definitions [options] [host] [realm] [username] [password]
+
+[Experimental] Import connector definitions.
+
+Arguments:
+  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
+                     connection profile, just specify a unique substring or
+                     alias.
+  realm              Realm. Specify realm as '/' for the root realm or 'realm'
+                     or '/parent/child' otherwise. (default: "alpha" for
+                     Identity Cloud tenants, "/" otherwise.)
+  username           Username to login with. Must be an admin user with
+                     appropriate rights to manage authentication journeys/trees.
+  password           Password.
+
+Options:
+  -n, --name <name>  Connector definition name; imports only the specified
+                     connector definition.
+  -h, --help         Help
+  -hh, --help-more   Help with all options.
+  -hhh, --help-all   Help with all options, environment variables, and usage
+                     examples.
+"
+`;
