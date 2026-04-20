@@ -158,7 +158,6 @@ auto_resolved_conflicts='[]'
 snapshot_patterns_global='[]'
 snapshot_files_global='[]'
 npm_ci_done='false'
-snapshot_test_env_ready='false'
 lockfile_regeneration_attempted='false'
 lockfile_regeneration_updated='false'
 lockfile_regeneration_prs='[]'
@@ -193,10 +192,6 @@ regenerate_lockfile() {
 }
 
 prepare_snapshot_test_environment() {
-  if [ "$snapshot_test_env_ready" = 'true' ]; then
-    return 0
-  fi
-
   if [ "$npm_ci_done" != 'true' ]; then
     npm ci
     npm_ci_done='true'
@@ -205,16 +200,11 @@ prepare_snapshot_test_environment() {
   npm run build:only
   npm i -g
 
-  npm_global_bin="$(npm bin -g 2>/dev/null || true)"
-  if [ -z "$npm_global_bin" ]; then
-    npm_global_bin="$(npm prefix -g)/bin"
-  fi
+  npm_global_bin="$(npm prefix -g)/bin"
   export PATH="$npm_global_bin:$PATH"
-  if [ -n "${GITHUB_PATH:-}" ] && [ -n "$npm_global_bin" ]; then
+  if [ -n "${GITHUB_PATH:-}" ]; then
     echo "$npm_global_bin" >> "$GITHUB_PATH"
   fi
-
-  snapshot_test_env_ready='true'
 }
 
 for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
