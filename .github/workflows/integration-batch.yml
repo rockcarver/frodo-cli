@@ -244,10 +244,18 @@ jobs:
             gh pr edit "$existing" --repo "$REPO" --title "integration" --body "$body"
             integration_pr_number="$existing"
           else
-            created_pr_url="$(gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body")"
-            integration_pr_number="$(echo "$created_pr_url" | sed -E 's#^https://github.com/[^/]+/[^/]+/pull/([0-9]+)([?#].*)?$#\1#')"
-            if ! [[ "$integration_pr_number" =~ ^[0-9]+$ ]]; then
+            gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body"
+            integration_pr_number=""
+            for _ in 1 2 3 4 5; do
               integration_pr_number="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
+              if [[ "$integration_pr_number" =~ ^[0-9]+$ ]]; then
+                break
+              fi
+              sleep 2
+            done
+            if ! [[ "$integration_pr_number" =~ ^[0-9]+$ ]]; then
+              echo "Unable to resolve integration PR number after creation" >&2
+              exit 1
             fi
           fi
 
