@@ -167,9 +167,25 @@ jobs:
           fi
 
       - name: Push integration branch
+        id: push_integration
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
         run: |
           git push origin integration --force-with-lease
+
+      - name: Full test suite on integration branch
+        id: integration_full_tests
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        run: |
+          npm ci
+          npm run build:only
+          npm i -g
+          npm_global_bin="$(npm bin -g 2>/dev/null || true)"
+          if [ -z "$npm_global_bin" ]; then
+            npm_global_bin="$(npm prefix -g)/bin"
+          fi
+          echo "$npm_global_bin" >> "$GITHUB_PATH"
+          export PATH="$npm_global_bin:$PATH"
+          npm test
 
       - name: Create or update PR integration -> main
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
@@ -232,6 +248,27 @@ jobs:
           echo "### Integration batch results" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Dry run:** ${{ steps.dryrun.outputs.dry_run }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ '${{ steps.dryrun.outputs.dry_run }}' = 'true' ]; then
+            echo "**Integration branch push:** skipped (dry run)" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Full test suite on integration:** skipped (dry run)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            case '${{ steps.push_integration.outcome }}' in
+              success) push_status='pushed' ;;
+              failure) push_status='failed' ;;
+              skipped) push_status='skipped' ;;
+              *) push_status='unknown' ;;
+            esac
+            case '${{ steps.integration_full_tests.outcome }}' in
+              success) test_status='passed' ;;
+              failure) test_status='failed' ;;
+              skipped) test_status='skipped' ;;
+              *) test_status='unknown' ;;
+            esac
+            echo "**Integration branch push:** $push_status" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Full test suite on integration:** $test_status" >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Merged into integration:**" >> "$GITHUB_STEP_SUMMARY"
