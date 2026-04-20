@@ -166,6 +166,16 @@ jobs:
             echo "No dependency changes detected."
           fi
 
+      - name: Run full test suite on integration branch
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        run: |
+          npm ci
+          npm run build:only
+          npm i -g .
+          echo "$(npm bin -g)" >> "$GITHUB_PATH"
+          export PATH="$(npm bin -g):$PATH"
+          npm test
+
       - name: Push integration branch
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
         run: |
