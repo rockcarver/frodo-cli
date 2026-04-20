@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager pulls authentication "frodo config-manager push authentication -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the authentication into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager pulls authentication "frodo config-manager push authentication -r alpha -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import an authentication config by realm into forgeops" 1`] = `""`;
