@@ -192,6 +192,7 @@ jobs:
           npm test
 
       - name: Create or update PR integration -> main
+        id: integration_pr
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
@@ -242,8 +243,30 @@ jobs:
           existing="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
           if [ -n "$existing" ]; then
             gh pr edit "$existing" --repo "$REPO" --title "integration" --body "$body"
+            integration_pr_number="$existing"
           else
             gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body"
+            integration_pr_number="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
+          fi
+
+          if [ -z "$integration_pr_number" ]; then
+            echo "Failed to determine integration PR number" >&2
+            exit 1
+          fi
+          echo "number=$integration_pr_number" >> "$GITHUB_OUTPUT"
+
+      - name: Label integration PR for snapshot review
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          snapshot_updates='${{ steps.merge.outputs.snapshot_updates }}'
+          integration_pr_number='${{ steps.integration_pr.outputs.number }}'
+          snapshot_file_count="$(echo "$snapshot_updates" | jq '.files | length')"
+
+          if [ "$snapshot_file_count" -gt 0 ]; then
+            gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review
           fi
 
       - name: Job summary
