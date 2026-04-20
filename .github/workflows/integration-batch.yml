@@ -245,8 +245,8 @@ jobs:
             gh pr edit "$existing" --repo "$REPO" --title "integration" --body "$body"
             integration_pr_number="$existing"
           else
-            gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body"
-            integration_pr_number="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
+            created_pr_url="$(gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body")"
+            integration_pr_number="$(gh pr view "$created_pr_url" --repo "$REPO" --json number --jq '.number')"
           fi
 
           if [ -z "$integration_pr_number" ]; then
@@ -263,7 +263,7 @@ jobs:
         run: |
           snapshot_updates='${{ steps.merge.outputs.snapshot_updates }}'
           integration_pr_number='${{ steps.integration_pr.outputs.number }}'
-          snapshot_file_count="$(echo "$snapshot_updates" | jq '.files | length')"
+          snapshot_file_count="$(echo "$snapshot_updates" | jq -r '(.files // []) | length' 2>/dev/null || echo 0)"
 
           if [ "$snapshot_file_count" -gt 0 ]; then
             gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review
