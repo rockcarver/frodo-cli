@@ -183,6 +183,10 @@ jobs:
           if [ -z "$npm_global_bin" ]; then
             npm_global_bin="$(npm prefix -g)/bin"
           fi
+          if [ -z "$npm_global_bin" ]; then
+            echo "Unable to resolve npm global bin path" >&2
+            exit 1
+          fi
           echo "$npm_global_bin" >> "$GITHUB_PATH"
           export PATH="$npm_global_bin:$PATH"
           npm test
