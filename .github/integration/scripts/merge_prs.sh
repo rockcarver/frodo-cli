@@ -200,10 +200,18 @@ prepare_snapshot_test_environment() {
   npm run build:only
   npm i -g
 
-  npm_global_bin="$(npm prefix -g)/bin"
-  export PATH="$npm_global_bin:$PATH"
-  if [ -n "${GITHUB_PATH:-}" ]; then
-    echo "$npm_global_bin" >> "$GITHUB_PATH"
+  npm_global_prefix="$(npm prefix -g 2>/dev/null || true)"
+  if [ -n "$npm_global_prefix" ]; then
+    npm_global_bin="$npm_global_prefix/bin"
+    export PATH="$npm_global_bin:$PATH"
+    if [ -n "${GITHUB_PATH:-}" ] && [ -n "$npm_global_bin" ]; then
+      echo "$npm_global_bin" >> "$GITHUB_PATH"
+    fi
+  fi
+
+  if ! command -v frodo >/dev/null 2>&1; then
+    echo "frodo CLI not found on PATH after npm i -g" >&2
+    return 1
   fi
 }
 
