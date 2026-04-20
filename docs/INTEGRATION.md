@@ -43,7 +43,9 @@ Union allowlist generation runs on every workflow execution:
   - `.github/integration/union-allowlist-extra.txt`
   - `.github/integration/union-blocklist.txt`
 
-After merges, the workflow updates `@rockcarver/frodo-lib` to `@next`, commits lockfile changes when needed, pushes `integration`, and creates or updates an `integration -> main` PR titled `integration`.
+After merges, the workflow updates `@rockcarver/frodo-lib` to `@next`, commits lockfile changes when needed, pushes `integration`, runs the full test suite on `integration`, and then creates or updates an `integration -> main` PR titled `integration`.
+
+Because `integration` is pushed before the full test suite runs, the branch can be temporarily red until the test stage finishes.
 
 ## Dry run mode
 
@@ -52,5 +54,6 @@ When manually triggered, set `dry_run=true` to simulate batching without side ef
 - does not push `integration`
 - does not create/update the integration PR
 - does not edit labels or post PR comments
+- does not run the post-push full test suite on `integration`
 
 The workflow still computes candidate PRs and attempts merges locally so maintainers can validate batchability before a real run.
