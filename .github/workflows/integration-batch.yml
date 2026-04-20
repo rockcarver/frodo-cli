@@ -172,7 +172,6 @@ jobs:
           npm ci
           npm run build:only
           npm i -g .
-          echo "$(npm bin -g)" >> "$GITHUB_PATH"
           export PATH="$(npm bin -g):$PATH"
           npm test
 
