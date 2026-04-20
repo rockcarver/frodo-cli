@@ -1,0 +1,66 @@
+{
+  "_id": "",
+  "_rev": "1552144906",
+  "_type": {
+    "_id": "EMPTY",
+    "collection": false,
+    "name": "Core"
+  },
+  "accountlockout": {
+    "lockoutDuration": 0,
+    "lockoutDurationMultiplier": 1,
+    "lockoutWarnUserCount": 0,
+    "loginFailureCount": 5,
+    "loginFailureDuration": 300,
+    "loginFailureLockoutMode": false,
+    "storeInvalidAttemptsInDataStore": true
+  },
+  "core": {
+    "adminAuthModule": "ldapService",
+    "orgConfig": "ldapService"
+  },
+  "general": {
+    "defaultAuthLevel": 0,
+    "identityType": [
+      "agent",
+      "user"
+    ],
+    "locale": "en_US",
+    "statelessSessionsEnabled": false,
+    "twoFactorRequired": false,
+    "userStatusCallbackPlugins": []
+  },
+  "postauthprocess": {
+    "loginFailureUrl": [],
+    "loginPostProcessClass": [],
+    "loginSuccessUrl": [
+      "/am/console"
+    ],
+    "userAttributeSessionMapping": [],
+    "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
+    "usernameGeneratorEnabled": true
+  },
+  "security": {
+    "addClearSiteDataHeader": true,
+    "keyAlias": "test",
+    "moduleBasedAuthEnabled": true,
+    "sharedSecret": null,
+    "zeroPageLoginAllowedWithoutReferrer": true,
+    "zeroPageLoginEnabled": false,
+    "zeroPageLoginReferrerWhiteList": []
+  },
+  "trees": {
+    "authenticationSessionsMaxDuration": 5,
+    "authenticationSessionsStateManagement": "JWT",
+    "authenticationSessionsWhitelist": false,
+    "authenticationTreeCookieHttpOnly": true,
+    "suspendedAuthenticationTimeout": 5
+  },
+  "userprofile": {
+    "aliasAttributeName": [
+      "uid"
+    ],
+    "defaultRole": [],
+    "dynamicProfileCreation": "false"
+  }
+}
