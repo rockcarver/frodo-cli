@@ -242,8 +242,14 @@ jobs:
           existing="$(gh pr list --repo "$REPO" --state open --head integration --base main --json number --jq '.[0].number // empty')"
           if [ -n "$existing" ]; then
             gh pr edit "$existing" --repo "$REPO" --title "integration" --body "$body"
+            integration_pr_number="$existing"
           else
-            gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body"
+            created_pr_url="$(gh pr create --repo "$REPO" --head integration --base main --title "integration" --body "$body")"
+            integration_pr_number="${created_pr_url##*/}"
+          fi
+
+          if echo "$snapshot_updates" | jq -e '.files | length > 0' >/dev/null; then
+            gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review
           fi
 
       - name: Job summary

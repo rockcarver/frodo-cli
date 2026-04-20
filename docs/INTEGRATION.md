@@ -7,6 +7,7 @@ The [`integration-batch` workflow](../.github/workflows/integration-batch.yml) a
 - `integration-batch`: PR is queued for integration batching.
 - `integrated`: PR was successfully merged into the `integration` branch by automation.
 - `integration-failed`: automation attempted integration but hit a merge conflict.
+- `integration-needs-snapshot-review`: generated `integration -> main` PR where snapshot auto-recovery updated snapshot files.
 
 ## Selection rules
 
