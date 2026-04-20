@@ -13,9 +13,9 @@ Options:
                          examples.
 
 Commands:
-  access-config         [Experimental] Import access configuration.
-  audit                 [Experimental] Import audit configuration.
-  authentication        [Experimental] Import authentication objects.
+  access-config          [Experimental] Import access configuration.
+  audit                  [Experimental] Import audit configuration.
+  authentication         [Experimental] Import authentication objects.
   connector-definitions  [Experimental] Import connector definitions.
   cookie-domains        [Experimental] Import cookie domains.
   email-provider        [Experimental] Import email provider configuration.
