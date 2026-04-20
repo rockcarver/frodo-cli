@@ -191,6 +191,30 @@ regenerate_lockfile() {
   lockfile_regeneration_prs="$(echo "$lockfile_regeneration_prs" | jq --argjson n "$pr" --arg t "$title" --argjson u "$updated_bool" '. + [{"number":$n,"title":$t,"updated":$u}]')"
 }
 
+prepare_snapshot_test_environment() {
+  if [ "$npm_ci_done" != 'true' ]; then
+    npm ci
+    npm_ci_done='true'
+  fi
+
+  npm run build:only
+  npm i -g
+
+  npm_global_prefix="$(npm prefix -g 2>/dev/null || true)"
+  if [ -n "$npm_global_prefix" ]; then
+    npm_global_bin="$npm_global_prefix/bin"
+    export PATH="$npm_global_bin:$PATH"
+    if [ -n "${GITHUB_PATH:-}" ] && [ -n "$npm_global_bin" ]; then
+      echo "$npm_global_bin" >> "$GITHUB_PATH"
+    fi
+  fi
+
+  if ! command -v frodo >/dev/null 2>&1; then
+    echo "frodo CLI not found on PATH after npm i -g" >&2
+    return 1
+  fi
+}
+
 for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
   unset union_allowlist
   declare -A union_allowlist=()
@@ -311,10 +335,7 @@ for pr in $(echo "$PRS_JSON" | jq -r '.[].number'); do
     patterns="$(echo "$patterns" | jq -c 'unique')"
 
     if [ "$(echo "$patterns" | jq 'length')" -gt 0 ]; then
-      if [ "$npm_ci_done" != 'true' ]; then
-        npm ci
-        npm_ci_done='true'
-      fi
+      prepare_snapshot_test_environment
 
       while IFS= read -r pattern; do
         [ -n "$pattern" ] || continue
