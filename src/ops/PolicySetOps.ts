@@ -44,20 +44,63 @@ function shouldRetryPolicySetImportAfterPrereqFailure(
   fileData: PolicySetExportInterface,
   options: PolicySetImportOptions
 ): boolean {
-  let serializedError = '';
-  try {
-    serializedError = JSON.stringify(error);
-  } catch {
-    serializedError = `${error}`;
+  if (
+    !options.prereqs ||
+    !fileData.resourcetype ||
+    Object.keys(fileData.resourcetype).length === 0
+  ) {
+    return false;
   }
-  return (
-    options.prereqs &&
-    !!fileData.resourcetype &&
-    Object.keys(fileData.resourcetype).length > 0 &&
-    serializedError.includes('"status":404') &&
-    serializedError.includes('Resource Type') &&
-    serializedError.includes('does not exist')
-  );
+
+  const visited = new WeakSet<object>();
+  const stack: unknown[] = [error];
+  let hasNotFoundStatus = false;
+  let hasMissingResourceTypeMessage = false;
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) continue;
+
+    if (typeof current === 'string') {
+      if (
+        current.includes('Resource Type') &&
+        current.includes('does not exist')
+      ) {
+        hasMissingResourceTypeMessage = true;
+      }
+      continue;
+    }
+
+    if (typeof current !== 'object') {
+      continue;
+    }
+
+    if (visited.has(current)) {
+      continue;
+    }
+    visited.add(current);
+
+    const value = current as Record<string, unknown>;
+    if (value.status === 404 || value.statusCode === 404) {
+      hasNotFoundStatus = true;
+    }
+
+    for (const key of [
+      'message',
+      'reason',
+      'error',
+      'errors',
+      'cause',
+      'response',
+      'data',
+    ]) {
+      if (key in value) {
+        stack.push(value[key]);
+      }
+    }
+  }
+
+  return hasNotFoundStatus && hasMissingResourceTypeMessage;
 }
 
 async function importPolicySetWithPrereqFallback<T>(
