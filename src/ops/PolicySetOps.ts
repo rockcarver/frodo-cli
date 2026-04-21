@@ -27,7 +27,6 @@ const {
   getWorkingDirectory,
 } = frodo.utils;
 const { readPoliciesByPolicySet, deletePolicy } = frodo.authz.policy;
-const { importResourceTypes } = frodo.authz.resourceType;
 const {
   readPolicySets,
   readPolicySet,
@@ -38,88 +37,6 @@ const {
   importPolicySets,
   deletePolicySet,
 } = frodo.authz.policySet;
-
-function shouldRetryPolicySetImportAfterPrereqFailure(
-  error: unknown,
-  fileData: PolicySetExportInterface,
-  options: PolicySetImportOptions
-): boolean {
-  if (
-    !options.prereqs ||
-    !fileData.resourcetype ||
-    Object.keys(fileData.resourcetype).length === 0
-  ) {
-    return false;
-  }
-
-  const visited = new WeakSet<object>();
-  const stack: unknown[] = [error];
-  let hasNotFoundStatus = false;
-  let hasMissingResourceTypeMessage = false;
-
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current) continue;
-
-    if (typeof current === 'string') {
-      if (
-        current.includes('Resource Type') &&
-        current.includes('does not exist')
-      ) {
-        hasMissingResourceTypeMessage = true;
-      }
-      continue;
-    }
-
-    if (typeof current !== 'object') {
-      continue;
-    }
-
-    if (visited.has(current)) {
-      continue;
-    }
-    visited.add(current);
-
-    const value = current as Record<string, unknown>;
-    if (value.status === 404 || value.statusCode === 404) {
-      hasNotFoundStatus = true;
-    }
-
-    for (const key of [
-      'message',
-      'reason',
-      'error',
-      'errors',
-      'cause',
-      'response',
-      'data',
-    ]) {
-      if (key in value) {
-        stack.push(value[key]);
-      }
-    }
-  }
-
-  return hasNotFoundStatus && hasMissingResourceTypeMessage;
-}
-
-async function importPolicySetWithPrereqFallback<T>(
-  importAction: (importOptions: PolicySetImportOptions) => Promise<T>,
-  fileData: PolicySetExportInterface,
-  options: PolicySetImportOptions
-): Promise<T> {
-  try {
-    return await importAction(options);
-  } catch (error) {
-    if (
-      shouldRetryPolicySetImportAfterPrereqFailure(error, fileData, options)
-    ) {
-      await importResourceTypes(fileData);
-      return await importAction({ ...options, prereqs: false });
-    }
-    throw error;
-  }
-}
 
 /**
  * List policy sets
@@ -502,12 +419,8 @@ export async function importPolicySetFromFile(
   );
   try {
     const data = fs.readFileSync(getFilePath(file), 'utf8');
-    const fileData: PolicySetExportInterface = JSON.parse(data);
-    await importPolicySetWithPrereqFallback(
-      (importOptions) => importPolicySet(policySetId, fileData, importOptions),
-      fileData,
-      options
-    );
+    const fileData = JSON.parse(data);
+    await importPolicySet(policySetId, fileData, options);
     stopProgressIndicator(indicatorId, `Imported ${policySetId}.`, 'success');
     debugMessage(`cli.PolicySetOps.importPolicySetFromFile: end`);
     return true;
@@ -541,12 +454,8 @@ export async function importFirstPolicySetFromFile(
   );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    const fileData: PolicySetExportInterface = JSON.parse(data);
-    const policySet = await importPolicySetWithPrereqFallback(
-      (importOptions) => importFirstPolicySet(fileData, importOptions),
-      fileData,
-      options
-    );
+    const fileData = JSON.parse(data);
+    const policySet = await importFirstPolicySet(fileData, options);
     stopProgressIndicator(
       indicatorId,
       `Imported first policy set '${policySet.name}'`,
@@ -584,12 +493,8 @@ export async function importPolicySetsFromFile(
   );
   try {
     const data = fs.readFileSync(filePath, 'utf8');
-    const fileData: PolicySetExportInterface = JSON.parse(data);
-    await importPolicySetWithPrereqFallback(
-      (importOptions) => importPolicySets(fileData, importOptions),
-      fileData,
-      options
-    );
+    const fileData = JSON.parse(data);
+    await importPolicySets(fileData, options);
     stopProgressIndicator(indicatorId, `Imported ${filePath}.`, 'success');
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFile: end`);
     return true;
@@ -628,11 +533,7 @@ export async function importPolicySetsFromFiles(
         const fileData: PolicySetExportInterface = JSON.parse(data);
         const count = Object.keys(fileData.policyset).length;
         total += count;
-        await importPolicySetWithPrereqFallback(
-          (importOptions) => importPolicySets(fileData, importOptions),
-          fileData,
-          options
-        );
+        await importPolicySets(fileData, options);
         updateProgressIndicator(
           indicatorId,
           `Imported ${count} policy sets from ${file}`
