@@ -266,7 +266,7 @@ jobs:
           snapshot_file_count="$(echo "$snapshot_updates" | jq -r '(.files // []) | length' 2>/dev/null || echo 0)"
 
           if [ "$snapshot_file_count" -gt 0 ]; then
-            gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review
+            gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review || true
           fi
 
       - name: Job summary
