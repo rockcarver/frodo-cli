@@ -52,6 +52,8 @@ Commands:
 
 Utilities:
   conn|connection                   Manage connection profiles.
+  mcp                               [Experimental] Manage Model Context Protocol
+                                    (MCP) integrations.
   shell                             [Experimental] Launch the frodo interactive
                                     shell.
 "
