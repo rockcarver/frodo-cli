@@ -158,6 +158,7 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;&emsp;cookie-domains                       | `4.0.0` | Export cookie-domains objects.                                         |
 | &emsp;&emsp;cors                                 | `4.0.0` | Export CORS configuration.                                             |
 | &emsp;&emsp;csp                                  | `4.0.0` | Export content security policy.                                        |
+| &emsp;&emsp;custom-nodes                         | `4.0.0` | Export custom nodes.                                                   |
 | &emsp;&emsp;email-provider                       | `4.0.0` | Export email provider configuration.                                   |
 | &emsp;&emsp;email-templates                      | `4.0.0` | Export email-templates objects.                                        |
 | &emsp;&emsp;endpoints                            | `4.0.0` | Export custom endpoints objects.                                       |
@@ -183,6 +184,26 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;&emsp;themes                               | `4.0.0` | Export themes.                                                         |
 | &emsp;&emsp;ui-config                            | `4.0.0` | Export ui-configuration objects.                                       |
 | &emsp;&emsp;variables                            | `4.0.0` | Export variables objects.                                              |
+| &emsp;push                                       | `4.0.0` | Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager). |
+| &emsp;&emsp;access-config                        | `4.0.0` | Import access configuration.                                           |
+| &emsp;&emsp;audit                                | `4.0.0` | Import audit configuration.                                            |
+| &emsp;&emsp;authentication                       | `4.0.0` | Import authentication objects.                                         |
+| &emsp;&emsp;connector-definitions                | `4.0.0` | Import connector definitions.                                          |
+| &emsp;&emsp;cookie-domains                       | `4.0.0` | Import cookie domains.                                                 |
+| &emsp;&emsp;email-provider                       | `4.0.0` | Import email provider configuration.                                   |
+| &emsp;&emsp;email-templates                      | `4.0.0` | Import email template objects.                                         |
+| &emsp;&emsp;endpoints                            | `4.0.0` | Import custom endpoints objects.                                       |
+| &emsp;&emsp;internal-roles                       | `4.0.0` | Import internal roles.                                                 |
+| &emsp;&emsp;kba                                  | `4.0.0` | Import kba configuration.                                              |
+| &emsp;&emsp;locales                              | `4.0.0` | Import custom locales objects.                                         |
+| &emsp;&emsp;managed-objects                      | `4.0.0` | Import managed objects.                                                |
+| &emsp;&emsp;org-privileges                       | `4.0.0` | Import organization privileges config.                                 |
+| &emsp;&emsp;password-policy                      | `4.0.0` | Import password-policy objects.                                        |
+| &emsp;&emsp;schedules                            | `4.0.0` | Import schedules.                                                      |
+| &emsp;&emsp;service-objects                      | `4.0.0` | Import service objects.                                                |
+| &emsp;&emsp;terms-and-conditions                 | `4.0.0` | Import terms and conditions.                                           |
+| &emsp;&emsp;themes                               | `4.0.0` | Import themes.                                                         |
+| &emsp;&emsp;ui-config                            | `4.0.0` | Import UI configuration.                                               |
 |                                                  |         |                                                                        |
 | frodo conn / connection                          |  1.0.0  | Manage connection profiles.                                            |
 | &emsp;delete                                     |  1.0.0  | Delete connection profiles.                                            |
@@ -259,6 +280,11 @@ A set of commands supporting `Custom Nodes` in PingAM and PingOne Advanced Ident
 | &emsp;import                                     |  2.0.0  | Import IDM mappings.                                                   |
 | &emsp;list                                       |  2.0.0  | List IDM mappings.                                                     |
 | &emsp;rename                                     |  2.0.0  | Renames mappings from legacy to new naming scheme.                     |
+|                                                  |         |                                                                        |
+| frodo mcp                                        | `4.0.0` | Manage Model Context Protocol (MCP) integrations.                      |
+| &emsp;server                                     | `4.0.0` | Manage Frodo MCP server lifecycle and metadata.                        |
+| &emsp;&emsp;start                                | `4.0.0` | Start an MCP server session from frodo-lib capabilities.               |
+| &emsp;&emsp;tools                                | `4.0.0` | List MCP tools exposed under the current policy/profile.               |
 |                                                  |         |                                                                        |
 | frodo node                                       | `4.0.0` | Manage custom nodes.                                                   |
 | &emsp;delete                                     | `4.0.0` | Delete custom nodes.                                                   |
