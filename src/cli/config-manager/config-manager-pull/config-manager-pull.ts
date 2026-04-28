@@ -14,6 +14,7 @@ import CustomNodes from './config-manager-pull-custom-nodes';
 import EmailProvider from './config-manager-pull-email-provider';
 import EmailTemplates from './config-manager-pull-email-templates';
 import Endpoints from './config-manager-pull-endpoints';
+import IgaWorkflows from './config-manager-pull-iga-workflows';
 import InternalRoles from './config-manager-pull-internal-roles';
 import Journeys from './config-manager-pull-journeys';
 import Kba from './config-manager-pull-kba';
@@ -79,6 +80,7 @@ export default function setup() {
   program.addCommand(Test().name('test'));
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(Variables().name('variables'));
+  program.addCommand(IgaWorkflows().name('iga-workflows'));
 
   return program;
 }
