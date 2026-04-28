@@ -1,0 +1,84 @@
+{
+  "_rev": 8,
+  "childType": false,
+  "description": "test-BasicEntitlementRemove",
+  "displayName": "test-BasicEntitlementRemove",
+  "id": "testBasicEntitlementRemove",
+  "mutable": true,
+  "name": "test-BasicEntitlementRemove",
+  "staticNodes": {
+    "endNode": {
+      "connections": null,
+      "id": "endNode",
+      "x": 1883,
+      "y": 97
+    },
+    "startNode": {
+      "connections": {
+        "start": "scriptTask-ca9504ae90d8"
+      },
+      "id": "startNode",
+      "x": 12,
+      "y": 110
+    },
+    "uiConfig": {
+      "approvalTask-74cf85c35437": {
+        "actors": [
+          {
+            "id": {
+              "isExpression": true,
+              "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+            },
+            "type": "entitlementOwner"
+          }
+        ],
+        "events": {
+          "expirationDate": 7,
+          "expirationDateType": "duration",
+          "expirationDateVariable": "",
+          "expirationTimeSpan": "day(s)",
+          "reminderDate": 3,
+          "reminderTimeSpan": "day(s)"
+        },
+        "x": 725,
+        "y": 59
+      },
+      "exclusiveGateway-abbb089758c8": {
+        "x": 433,
+        "y": 89.015625
+      },
+      "inclusiveGateway-8803458e3a77": {
+        "x": 1039,
+        "y": 54.015625
+      },
+      "scriptTask-0359a9d77ee2": {
+        "x": 1556,
+        "y": 85.015625
+      },
+      "scriptTask-aec6c36b3a45": {
+        "x": 1561,
+        "y": 205.015625
+      },
+      "scriptTask-ca9504ae90d8": {
+        "x": 136,
+        "y": 111.015625
+      },
+      "scriptTask-e8842de66fbb": {
+        "x": 901,
+        "y": 243.015625
+      },
+      "waitTask-b6e654628b18": {
+        "events": {
+          "resumeDateNumber": 1,
+          "resumeDateRequestProperty": "request.common.endDate",
+          "resumeDateTimeSpan": "day(s)",
+          "resumeDateType": "requestProp"
+        },
+        "x": 1279,
+        "y": 94.015625
+      }
+    }
+  },
+  "status": "draft",
+  "type": "provisioning"
+}

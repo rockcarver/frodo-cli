@@ -1,0 +1,18 @@
+{
+  "displayName": "Request Approved",
+  "name": "scriptTask-0e5b6187ea62",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": "inclusiveGateway-a71e67faaad1"
+      }
+    ],
+    "script": {
+      "file": "Request Approved - scriptTask-0e5b6187ea62.js"
+    }
+  },
+  "type": "scriptTask"
+}

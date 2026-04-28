@@ -1,0 +1,19 @@
+{
+  "displayName": "Wait Task",
+  "name": "waitTask-13cf96ebeb37",
+  "type": "waitTask",
+  "waitTask": {
+    "events": null,
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "COMPLETE",
+        "step": "scriptTask-626899b6e99a"
+      }
+    ],
+    "resumeDate": {
+      "isExpression": true,
+      "value": "requestIndex.request.common.startDate"
+    }
+  }
+}
