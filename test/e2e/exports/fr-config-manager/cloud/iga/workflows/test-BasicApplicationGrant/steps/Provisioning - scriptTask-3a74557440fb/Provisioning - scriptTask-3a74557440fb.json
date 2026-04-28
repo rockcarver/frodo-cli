@@ -1,0 +1,18 @@
+{
+  "displayName": "Provisioning",
+  "name": "scriptTask-3a74557440fb",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": "inclusiveGateway-7d248125a9bd"
+      }
+    ],
+    "script": {
+      "file": "Provisioning - scriptTask-3a74557440fb.js"
+    }
+  },
+  "type": "scriptTask"
+}

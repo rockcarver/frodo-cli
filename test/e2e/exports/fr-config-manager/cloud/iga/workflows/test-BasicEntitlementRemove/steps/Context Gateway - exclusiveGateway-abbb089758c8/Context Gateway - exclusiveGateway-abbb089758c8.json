@@ -1,0 +1,23 @@
+{
+  "displayName": "Context Gateway",
+  "name": "exclusiveGateway-abbb089758c8",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "skipApproval == true",
+        "outcome": "AutoApprove",
+        "step": "scriptTask-e8842de66fbb"
+      },
+      {
+        "condition": "skipApproval == false",
+        "outcome": "Approval",
+        "step": "approvalTask-74cf85c35437"
+      }
+    ],
+    "script": {
+      "file": "Context Gateway - exclusiveGateway-abbb089758c8.js"
+    }
+  },
+  "type": "scriptTask"
+}

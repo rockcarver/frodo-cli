@@ -1,0 +1,24 @@
+{
+  "displayName": "Has Start Date",
+  "name": "inclusiveGateway-a71e67faaad1",
+  "scriptTask": {
+    "gatewayType": "inclusive",
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "enableWait == true",
+        "outcome": "hasStartDate",
+        "step": "waitTask-13cf96ebeb37"
+      },
+      {
+        "condition": "enableWait == false",
+        "outcome": "noStartDate",
+        "step": "scriptTask-626899b6e99a"
+      }
+    ],
+    "script": {
+      "file": "Has Start Date - inclusiveGateway-a71e67faaad1.js"
+    }
+  },
+  "type": "scriptTask"
+}

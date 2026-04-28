@@ -1,0 +1,23 @@
+{
+  "displayName": "Validation Gateway",
+  "name": "exclusiveGateway-5167870154a9",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "failureReason == null",
+        "outcome": "validationSuccess",
+        "step": "scriptTask-3a74557440fb"
+      },
+      {
+        "condition": "failureReason != null",
+        "outcome": "validationFailure",
+        "step": "scriptTask-744ef6a8b9a2"
+      }
+    ],
+    "script": {
+      "file": "Validation Gateway - exclusiveGateway-5167870154a9.js"
+    }
+  },
+  "type": "scriptTask"
+}

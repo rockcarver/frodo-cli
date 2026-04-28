@@ -1,0 +1,18 @@
+{
+  "displayName": "Application Grant Validation",
+  "name": "scriptTask-626899b6e99a",
+  "scriptTask": {
+    "language": "javascript",
+    "nextStep": [
+      {
+        "condition": "true",
+        "outcome": "done",
+        "step": "exclusiveGateway-5167870154a9"
+      }
+    ],
+    "script": {
+      "file": "Application Grant Validation - scriptTask-626899b6e99a.js"
+    }
+  },
+  "type": "scriptTask"
+}

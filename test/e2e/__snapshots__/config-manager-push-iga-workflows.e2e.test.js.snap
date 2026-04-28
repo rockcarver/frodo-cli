@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows --draft -D test/e2e/exports/fr-config-manager/cloud ": should import the iga workflows into cloud tenant as draft workflows" 1`] = `""`;
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows --draft -D test/e2e/exports/fr-config-manager/cloud ": should import the iga workflows into cloud tenant as draft workflows" 2`] = `
+"Experimental feature in use: 'frodo config-manager push iga-workflows'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows -D test/e2e/exports/fr-config-manager/cloud ": should import the iga workflows into cloud tenant" 1`] = `""`;
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows -D test/e2e/exports/fr-config-manager/cloud ": should import the iga workflows into cloud tenant" 2`] = `
+"Experimental feature in use: 'frodo config-manager push iga-workflows'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows -n test-BasicApplicationGrant -D test/e2e/exports/fr-config-manager/cloud ": should import a specific iga workflows by name into cloud tenant" 1`] = `""`;
+
+exports[`frodo config-manager push iga-workflows "frodo config-manager push iga-workflows -n test-BasicApplicationGrant -D test/e2e/exports/fr-config-manager/cloud ": should import a specific iga workflows by name into cloud tenant" 2`] = `
+"Experimental feature in use: 'frodo config-manager push iga-workflows'. This feature may change without notice.
+"
+`;

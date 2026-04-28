@@ -1,0 +1,105 @@
+{
+  "_rev": 7,
+  "childType": false,
+  "description": "test-BasicApplicationGrant",
+  "displayName": "test-BasicApplicationGrant",
+  "id": "testBasicApplicationGrant",
+  "mutable": true,
+  "name": "test-BasicApplicationGrant",
+  "staticNodes": {
+    "endNode": {
+      "connections": null,
+      "id": "endNode",
+      "x": 2822,
+      "y": 352
+    },
+    "startNode": {
+      "connections": {
+        "start": "scriptTask-4e9121fe850a"
+      },
+      "id": "startNode",
+      "x": 70,
+      "y": 140
+    },
+    "uiConfig": {
+      "approvalTask-74cf85c35437": {
+        "actors": [
+          {
+            "id": {
+              "isExpression": true,
+              "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+            },
+            "type": "applicationOwner"
+          }
+        ],
+        "events": {
+          "expirationDate": 7,
+          "expirationDateType": "duration",
+          "expirationDateVariable": "",
+          "expirationTimeSpan": "day(s)",
+          "reminderDate": 3,
+          "reminderTimeSpan": "day(s)"
+        },
+        "x": 682,
+        "y": 155
+      },
+      "exclusiveGateway-5167870154a9": {
+        "x": 1855,
+        "y": 84
+      },
+      "exclusiveGateway-621c9996676a": {
+        "x": 433,
+        "y": 117.015625
+      },
+      "inclusiveGateway-7d248125a9bd": {
+        "x": 2417,
+        "y": 43.015625
+      },
+      "inclusiveGateway-a71e67faaad1": {
+        "x": 1124,
+        "y": 93.015625
+      },
+      "scriptTask-0e5b6187ea62": {
+        "x": 889,
+        "y": 116.015625
+      },
+      "scriptTask-14acc58c28dd": {
+        "x": 2650,
+        "y": 85.015625
+      },
+      "scriptTask-3a74557440fb": {
+        "x": 2144,
+        "y": 62
+      },
+      "scriptTask-4e9121fe850a": {
+        "x": 168,
+        "y": 140.015625
+      },
+      "scriptTask-626899b6e99a": {
+        "x": 1549,
+        "y": 108
+      },
+      "scriptTask-744ef6a8b9a2": {
+        "x": 2151,
+        "y": 207.015625
+      },
+      "scriptTask-c58309b8c470": {
+        "x": 1554,
+        "y": 242
+      },
+      "waitTask-13cf96ebeb37": {
+        "events": {
+          "resumeDateNumber": 1,
+          "resumeDateRequestProperty": "request.common.startDate",
+          "resumeDateTimeSpan": "day(s)",
+          "resumeDateType": "requestProp",
+          "resumeDateVariable": "startDate"
+        },
+        "x": 1339,
+        "y": 85.015625
+      }
+    }
+  },
+  "status": "published",
+  "type": "provisioning"
+}
