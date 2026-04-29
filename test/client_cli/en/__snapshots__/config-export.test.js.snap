@@ -30,13 +30,14 @@ Arguments:
   password                   Password.
 
 Options:
-  -a, --all                  Export everything to a single file.
+  -a, --all                  Export everything to a single file. Cannot be used
+                             with -A.
   -A, --all-separate         Export everything to separate files in the -D
-                             directory. Ignored with -a.
+                             directory. Cannot be used with -f or -a.
   -c, --only-custom          Only export custom request types (IGA cloud
                              deployments only).
   -d, --default              Export all scripts including the default scripts.
-  -f, --file <file>          Name of the export file.
+  -f, --file <file>          Name of the export file. Cannot be used with -A.
   -g, --global-only          Export only the global config. If -r, --realm-only
                              is also active, then the corresponding active realm
                              config will also be exported.
@@ -53,6 +54,8 @@ Options:
                              the journey/tree nodes.
   --no-decode                Do not include decoded variable value in variable
                              export
+  -o, --separate-objects     Export managed.idm.json objects separately in their
+                             own directory. Cannot be used with -a.
   -r, --realm-only           Export only the config for the active realm (on
                              Identity Cloud alpha, unless you name another realm
                              after the host). If -g, --global-only is also
@@ -62,6 +65,8 @@ Options:
                              default scripts) in addition to the importable
                              config. On Identity Cloud this adds a root realm,
                              which holds read-only authorization config.
+  -s, --separate-mappings    Export sync.idm.json mappings separately in their
+                             own directory. Cannot be used with -a.
   --target <host url>        Host URL of the environment to perform secret value
                              encryption. The URL must resolve to an existing
                              connection profile. Use this option to generate an

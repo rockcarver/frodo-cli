@@ -25,15 +25,15 @@ Arguments:
 
 Options:
   -a, --all                    Export all the providers in a realm to a single
-                               file. Ignored with -t and -i.
+                               file. Cannot be used with -i or -A.
   -A, --all-separate           Export all the providers in a realm as separate
-                               files <provider name>.saml.json. Ignored with -t,
-                               -i, and -a.
+                               files <provider name>.saml.json. Cannot be used
+                               with -i or -a.
   -f, --file [file]            Name of the file to write the exported
-                               provider(s) to. Ignored with -A. If not
+                               provider(s) to. Cannot be used with -A. If not
                                specified, the export file is named
                                <id>.saml.json.
-  -i, --entity-id <entity-id>  Entity id. If specified, -a and -A are ignored.
+  -i, --entity-id <entity-id>  Entity id. If specified, -a or -A cannot be used.
   -N, --no-metadata            Does not include metadata in the export file.
   --no-deps                    Do not include any dependencies (scripts).
   -h, --help                   Help

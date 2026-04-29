@@ -25,11 +25,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'OAuth2 client id/name. If specified, -a and -A are ignored.'
-      )
+        'OAuth2 client id/name. If specified, -a cannot be used.'
+      ).conflicts(['all'])
     )
     .addOption(
-      new Option('-a, --all', 'Delete all cmds in a realm. Ignored with -i.')
+      new Option(
+        '-a, --all',
+        'Delete all cmds in a realm. Cannot be used with -i.'
+      ).conflicts(['appId'])
     )
     .addOption(
       new Option(

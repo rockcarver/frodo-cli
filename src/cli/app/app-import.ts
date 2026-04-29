@@ -28,27 +28,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'Application id. If specified, only one application is imported and the options -n, -a, and -A are ignored.'
-      )
+        'Application id. Cannot be used with -n, -a or -A.'
+      ).conflicts(['appName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --app-name <name>',
-        'Application name. If specified, only one application is imported and the options -a and -A are ignored.'
-      )
+        'Application name. Cannot be used with -i, -a or -A.'
+      ).conflicts(['appId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the file to import.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the file to import. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all applications from single file. Ignored with -i or -n.'
-      )
+        'Import all applications from single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['appId', 'appName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all applications from separate files (*.app.json) in the current directory. Ignored with -i, -n, or -a.'
-      )
+        'Import all applications from separate files (*.app.json) in the current directory. Cannot be used with -i, -n, -f or -a.'
+      ).conflicts(['appId', 'appName', 'file', 'all'])
     )
     .addOption(
       new Option('--no-deps', 'Do not include any dependencies (scripts).')

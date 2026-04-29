@@ -15,11 +15,11 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
+  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.
+  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
-  --no-sa                                      Do not create and add service account.
+  --no-sa                                      Do not create and add service account. Cannot be used with --sa-id or --sa-jwk-file.
   --no-validate                                Do not validate connection.
   --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help
@@ -43,11 +43,11 @@ Options:
   --authentication-header-overrides [headers]  Map of headers: '{"host":"am.example.com:8081"}'. These headers are sent with all requests and can be used to override default behavior, for example to set a custom host header for Proxy Connect-protected PingOne Advanced Identity Cloud environments.
   --authentication-service [service]           Name of the authentication service/tree to use.
   --configuration-header-overrides [headers]   Map of headers: '{"X-Configuration-Type":"mutable"}'. These headers are sent with all configuration requests and can be used to override default behavior, for example to set a custom configuration header for mutable PingOne Advanced Identity Cloud environments.
-  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.
-  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.
+  --log-api-key [key]                          Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.
+  --log-api-secret [secret]                    Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.
   --no-log-api                                 Do not create and add log API key and secret.
   --no-preferred-device-flow                   Explicitly persist a preference against device flow (loopback-redirect instead). Omit both flags to leave any existing preference untouched.
-  --no-sa                                      Do not create and add service account.
+  --no-sa                                      Do not create and add service account. Cannot be used with --sa-id or --sa-jwk-file.
   --no-validate                                Do not validate connection.
   --preferred-device-flow                      Only meaningful with --preferred-credential browser: persist a preference for the OAuth2 Device Authorization Grant over the default loopback-redirect flow, so later implicit commands against this host use it without repeating --device.
   -h, --help                                   Help

@@ -22,8 +22,9 @@ Arguments:
   password               Password.
 
 Options:
-  -a, --all              Delete all policy sets in a realm. Ignored with -i.
-  -i, --set-id <set-id>  Policy set id/name.
+  -a, --all              Delete all policy sets in a realm. Cannot be used with
+                         -i.
+  -i, --set-id <set-id>  Policy set id/name. Cannot be used with -a.
   -h, --help             Help
   -hh, --help-more       Help with all options.
   -hhh, --help-all       Help with all options, environment variables, and usage

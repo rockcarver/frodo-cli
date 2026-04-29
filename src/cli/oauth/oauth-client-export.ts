@@ -16,21 +16,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <app-id>',
-        'App id. If specified, -a and -A are ignored.'
-      )
+        'App id. If specified, -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the export file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all OAuth2 apps to a single file. Ignored with -i.'
-      )
+        'Export all OAuth2 apps to a single file. Cannot be used with -i or -A.'
+      ).conflicts(['appId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all OAuth2 apps to separate files (*.oauth2.app.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Export all OAuth2 apps to separate files (*.oauth2.app.json) in the current directory. Cannot be used with -i or -a.'
+      ).conflicts(['appId', 'all'])
     )
     .addOption(
       new Option(

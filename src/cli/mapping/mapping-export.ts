@@ -25,33 +25,38 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --mapping-id <mapping-id>',
-        'Mapping id. If specified, -a is ignored.'
-      )
+        'Mapping id. Cannot be used with -c, -t, -a or -A.'
+      ).conflicts(['connectorId', 'managedObjectType', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-c, --connector-id <connector-id>',
-        'Connector id. If specified, limits mappings to that particular connector; Ignored with -i.'
-      )
+        'Connector id. If specified, limits mappings to that particular connector; Cannot be used with -i.'
+      ).conflicts(['mappingId'])
     )
     .addOption(
       new Option(
         '-t, --managed-object-type <managed-object-type>',
-        'Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.'
-      )
+        'Managed object type. If specified, limits mappings to that particular managed object type. Cannot be used with -i.'
+      ).conflicts(['mappingId'])
+    )
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Export all mappings. Cannot be used with -i or -A.'
+      ).conflicts(['mappingId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file <file>',
-        'Export file if -x or -a is provided. Ignored with -A.'
-      )
+        'Export file if -x or -a is provided. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
-    .addOption(new Option('-a, --all', 'Export all mappings. Ignored with -i.'))
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all mappings into separate JSON files in directory -D. Ignored with -i and -a.'
-      )
+        'Export all mappings into separate JSON files in directory -D. Cannot be used with -i, -f or -a.'
+      ).conflicts(['mappingId', 'file', 'all'])
     )
     .addOption(
       new Option(
@@ -71,7 +76,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-x, --no-extract',
-        'Do not extract and save idm scripts to separate files. Ignored with -a.'
+        'Do not extract and save idm scripts to separate files. Cannot be used with -a.'
       ).default(true, 'true')
     )
     .requireOneOf({

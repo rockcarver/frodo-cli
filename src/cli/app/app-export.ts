@@ -27,27 +27,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --app-id <id>',
-        'Application id. If specified, -n, -a, and -A are ignored.'
-      )
+        'Application id. Cannot be used with -n, -a or -A.'
+      ).conflicts(['appName', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-n, --app-name <name>',
-        'Application name. If specified, -a and -A are ignored.'
-      )
+        'Application name. Cannot be used with -i, -a or -A.'
+      ).conflicts(['appId', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file <file>', 'Name of the export file.'))
+    .addOption(
+      new Option(
+        '-f, --file <file>',
+        'Name of the export file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all applications to a single file. Ignored with -i or -n.'
-      )
+        'Export all applications to a single file. Cannot be used with -i, -n or -A.'
+      ).conflicts(['appId', 'appName', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all applications to separate files (*.application.json) in the current directory. Ignored with -i, -n, or -a.'
-      )
+        'Export all applications to separate files (*.application.json) in the current directory. Cannot be used with -i, -n, -f or -a.'
+      ).conflicts(['appId', 'appName', 'file', 'all'])
     )
     .addOption(
       new Option(

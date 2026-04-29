@@ -22,12 +22,13 @@ Arguments:
   password            Password.
 
 Options:
-  -a, --all           Import all clients from single file. Ignored with -i.
+  -a, --all           Import all clients from single file. Cannot be used with
+                      -i.
   -A, --all-separate  Import all clients from separate files (*.app.json) in the
-                      current directory. Ignored with -i or -a.
+                      current directory. Cannot be used with -i or -a.
   -f, --file <file>   Name of the file to import.
   -i, --app-id <id>   Client id. If specified, only one client is imported and
-                      the options -a and -A are ignored.
+                      the options -a or -A cannot be used.
   --no-deps           Do not include any dependencies (scripts).
   -h, --help          Help
   -hh, --help-more    Help with all options.

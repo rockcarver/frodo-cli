@@ -19,26 +19,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --journey-id <journey>',
-        'Name of a journey/tree. If specified, -a and -A are ignored.'
-      )
+        'Name of a journey/tree. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file <file>',
-        'Name of the file to import the journey(s) from. Ignored with -A.'
-      )
+        'Name of the file to import the journey(s) from. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all the journeys/trees from single file. Ignored with -i.'
-      )
+        'Import all the journeys/trees from single file. Cannot be used with -i or -A.'
+      ).conflicts(['journeyId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all the journeys/trees from separate files (*.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all the journeys/trees from separate files (*.json) in the current directory. Cannot be used with -i, -f or -a.'
+      ).conflicts(['journeyId', 'file', 'all'])
     )
     .addOption(
       new Option(

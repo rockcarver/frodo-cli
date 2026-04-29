@@ -26,16 +26,17 @@ Arguments:
 
 Options:
   -a, --all                            Import all IDM configuration objects from
-                                       a single file in directory -D. Ignored
-                                       with -i.
+                                       a single file in directory -D. Cannot be
+                                       used with -i or -A.
   -A, --all-separate                   Import all IDM configuration objects from
-                                       separate files in directory -D. Ignored
-                                       with -i, and -a.
-  -e, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
-  -f, --file [file]                    Import file. Ignored with -A.
+                                       separate files in directory -D. Cannot be
+                                       used with -i, -f or -a.
+  -e, --entities-file [entities-file]  Name of the entity file. Cannot be used
+                                       with -i.
+  -f, --file [file]                    Import file. Cannot be used with -A.
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
                                        "sync", "provisioner-<connector-name>",
-                                       etc. If specified, -a and -A are ignored.
+                                       etc. Cannot be used with -e, -a or -A.
   -h, --help                           Help
   -hh, --help-more                     Help with all options.
   -hhh, --help-all                     Help with all options, environment

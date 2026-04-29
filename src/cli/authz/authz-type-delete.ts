@@ -16,20 +16,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --type-id <type-id>',
-        'Variable id. If specified, -a is ignored.'
-      )
+        'Variable id. Cannot be used with -n or -a.'
+      ).conflicts(['typeName', 'all'])
     )
     .addOption(
       new Option(
         '-n, --type-name <type-name>',
-        'Resource type name. If specified, -a is ignored.'
-      )
+        'Resource type name. Cannot be used with -i or -a.'
+      ).conflicts(['typeId', 'all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all resource types in a realm. Ignored with -i and -n.'
-      )
+        'Delete all resource types in a realm. Cannot be used with -i or -n.'
+      ).conflicts(['typeId', 'typeName'])
     )
     .requireOneOf({
       options: ['all', 'typeId', 'typeName'],

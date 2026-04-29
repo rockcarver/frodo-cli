@@ -13,11 +13,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --agent-id <agent-id>',
-        'Agent id. If specified, -a is ignored.'
-      )
+        'Agent id. Cannot be used with -a.'
+      ).conflicts(['all'])
     )
     .addOption(
-      new Option('-a, --all', 'Delete all java agents. Ignored with -i.')
+      new Option(
+        '-a, --all',
+        'Delete all java agents. Cannot be used with -i.'
+      ).conflicts(['agentId'])
     )
     .requireOneOf({ options: ['agentId', 'all'], purpose: 'what to delete' })
     .action(

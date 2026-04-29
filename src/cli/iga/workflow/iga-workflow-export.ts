@@ -25,26 +25,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --workflow-id <workflow-id>',
-        'Workflow id. If specified, -a and -A are ignored.'
-      )
+        'Workflow id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the export file. Ignored with -A. Defaults to <workflow-id>.workflow.json.'
-      )
+        'Name of the export file. Cannot be used with -A. Defaults to <workflow-id>.workflow.json.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all workflows to a single file. Ignored with -i.'
-      )
+        'Export all workflows to a single file. Cannot be used with -i or -A.'
+      ).conflicts(['workflowId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all workflows as separate files <workflow-id>.workflow.json. Ignored with -i, and -a.'
-      )
+        'Export all workflows as separate files <workflow-id>.workflow.json. Cannot be used with -i, -f or -a.'
+      ).conflicts(['workflowId', 'file', 'all'])
     )
     .addOption(
       new Option(
@@ -61,8 +61,10 @@ export default function setup() {
     .addOption(
       new Option(
         '-x, --no-extract',
-        'Do not extract the scripts from the exported file and save them to separate files. Ignored with -a.'
-      ).default(true, 'true')
+        'Do not extract the scripts from the exported file and save them to separate files. Cannot be used with -a.'
+      )
+        .default(true, 'true')
+        .conflicts(['all'])
     )
     .addOption(
       new Option(

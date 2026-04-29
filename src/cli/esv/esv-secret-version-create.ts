@@ -27,12 +27,17 @@ export default function setup() {
   program
     .description('Create new version of secret.')
     .addOption(new Option('-i, --secret-id <secret-id>', 'Secret id.'))
-    .addOption(new Option('--value <value>', 'Secret value.'))
+    .addOption(
+      new Option(
+        '--value <value>',
+        'Secret value. Cannot be used with -f.'
+      ).conflicts(['file'])
+    )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the file to read pem or base64hmac encoded secret from. Ignored if --value is specified'
-      )
+        'Name of the file to read pem or base64hmac encoded secret from. Cannot be used with --value.'
+      ).conflicts(['value'])
     )
     .action(
       // implement command logic inside action handler

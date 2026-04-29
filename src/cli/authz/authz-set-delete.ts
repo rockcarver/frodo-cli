@@ -9,12 +9,17 @@ export default function setup() {
 
   program
     .description('Delete authorization policy sets.')
-    .addOption(new Option('-i, --set-id <set-id>', 'Policy set id/name.'))
+    .addOption(
+      new Option(
+        '-i, --set-id <set-id>',
+        'Policy set id/name. Cannot be used with -a.'
+      ).conflicts(['all'])
+    )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all policy sets in a realm. Ignored with -i.'
-      )
+        'Delete all policy sets in a realm. Cannot be used with -i.'
+      ).conflicts(['setId'])
     )
     .requireOneOf({ options: ['all', 'setId'], purpose: 'what to delete' })
     .action(

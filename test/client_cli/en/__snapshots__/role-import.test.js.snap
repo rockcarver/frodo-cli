@@ -25,17 +25,17 @@ Arguments:
 
 Options:
   -a, --all                    Import all internal roles from single file.
-                               Ignored with -i.
+                               Cannot be used with -i, -n or -A.
   -A, --all-separate           Import all internal roles from separate files
                                (*.internalRole.json) in the current directory.
-                               Ignored with -i or -a.
+                               Cannot be used with -i, -n or -a.
   -f, --file <file>            Name of the file to import.
   -i, --role-id <role-id>      Internal role id. If specified, only one internal
-                               role is imported and the options -n, -a and -A
-                               are ignored.
+                               role is imported and the options -n, -a or -A
+                               cannot be used.
   -n, --role-name <role-name>  Internal role name. If specified, only one
-                               internal role is imported and the options -a and
-                               -A are ignored.
+                               internal role is imported and the options -i, -a
+                               or -A cannot be used.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

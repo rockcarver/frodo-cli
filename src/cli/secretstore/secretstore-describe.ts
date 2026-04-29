@@ -32,7 +32,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-t, --secretstore-type <secretstore-type>',
-        'Secret store type id of the secret store. Only necessary if there are multiple secret stores with the same secret store id. Ignored if -i is not specified.'
+        'Secret store type id of the secret store. Only necessary if there are multiple secret stores with the same secret store id.'
       )
     )
     .addOption(

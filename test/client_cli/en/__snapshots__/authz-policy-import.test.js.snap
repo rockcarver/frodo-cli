@@ -24,19 +24,22 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Import all policies from single file. Ignored
-                               with -i.
+  -a, --all                    Import all policies from single file. Cannot be
+                               used with -i or -A.
   -A, --all-separate           Import all policies from separate files
                                (*.policy.authz.json or *.policy.json) in the
-                               current directory. Ignored with -i or -a.
-  -f, --file <file>            Name of the file to import.
-  -i, --policy-id <policy-id>  Policy id. If specified, only one policy is
-                               imported and the options -a and -A are ignored.
+                               current directory. Cannot be used with -i, -f or
+                               -a.
+  -f, --file <file>            Name of the file to import. Cannot be used with
+                               -A.
+  -i, --policy-id <policy-id>  Policy id. Cannot be used with --set-id, -a or
+                               -A.
   --no-deps                    Do not import dependencies (scripts) even if they
                                are available in the import file.
   --prereqs                    Import prerequisites (policy sets, resource
                                types) if they are available in the import file.
-  --set-id <set-id>            Import policies into this policy set.
+  --set-id <set-id>            Import policies into this policy set. Cannot be
+                               used with -i.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

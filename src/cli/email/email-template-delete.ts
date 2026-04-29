@@ -29,14 +29,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --template-id <template-id>',
-        'Email template id/name. If specified, -a and -A are ignored.'
-      )
+        'Email template id/name. Cannot be used with -a'
+      ).conflicts(['all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all policies in a realm. Ignored with -i.'
-      )
+        'Delete all policies in a realm. Cannot be used with -i.'
+      ).conflicts(['templateId'])
     )
     .requireOneOf({ options: ['all', 'templateId'], purpose: 'what to delete' })
     .action(

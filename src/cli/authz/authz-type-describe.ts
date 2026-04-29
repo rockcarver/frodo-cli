@@ -12,8 +12,18 @@ export default function setup() {
 
   program
     .description('Describe authorization resource types.')
-    .addOption(new Option('-i, --type-id <type-uuid>', 'Resource type uuid.'))
-    .addOption(new Option('-n, --type-name <type-name>', 'Resource type name.'))
+    .addOption(
+      new Option(
+        '-i, --type-id <type-uuid>',
+        'Resource type uuid. Cannot be used with -n.'
+      ).conflicts(['typeName'])
+    )
+    .addOption(
+      new Option(
+        '-n, --type-name <type-name>',
+        'Resource type name. Cannot be used with -i.'
+      ).conflicts(['typeId'])
+    )
     .addOption(new Option('--json', 'Output in JSON format.'))
     .requireOneOf({
       options: ['typeId', 'typeName'],

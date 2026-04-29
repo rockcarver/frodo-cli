@@ -17,26 +17,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --entity-id <entity-id>',
-        'Entity id. If specified, -a and -A are ignored.'
-      )
+        'Entity id. If specified, -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Name of the file to write the exported provider(s) to. Ignored with -A. If not specified, the export file is named <id>.saml.json.'
-      )
+        'Name of the file to write the exported provider(s) to. Cannot be used with -A. If not specified, the export file is named <id>.saml.json.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all the providers in a realm to a single file. Ignored with -t and -i.'
-      )
+        'Export all the providers in a realm to a single file. Cannot be used with -i or -A.'
+      ).conflicts(['entityId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all the providers in a realm as separate files <provider name>.saml.json. Ignored with -t, -i, and -a.'
-      )
+        'Export all the providers in a realm as separate files <provider name>.saml.json. Cannot be used with -i or -a.'
+      ).conflicts(['entityId', 'all'])
     )
     .addOption(
       new Option(

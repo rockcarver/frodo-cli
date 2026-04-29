@@ -29,13 +29,13 @@ Deployment: Cloud-only
 Options:
   -a, --all                        Delete all workflows. By default, deletes
                                    both draft and published unless -d or -p are
-                                   used exclusively. Ignored with -i.
+                                   used exclusively. Cannot be used with -i.
   -d, --draft-only                 Delete only the draft workflow(s).
   -f, --force                      Force delete workflow(s), even if they are
                                    associated with request types.
-  -i, --workflow-id <workflow-id>  Workflow id. If specified, -a is ignored. By
-                                   default, deletes both draft and published
-                                   unless -d or -p are used exclusively.
+  -i, --workflow-id <workflow-id>  Workflow id. By default, deletes both draft
+                                   and published unless -d or -p are used
+                                   exclusively. Cannot be used with -a.
   -p, --published-only             Delete only the published workflow(s).
   -h, --help                       Help
   -hh, --help-more                 Help with all options.

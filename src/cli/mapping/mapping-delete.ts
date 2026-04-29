@@ -34,22 +34,27 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --mapping-id <mapping-id>',
-        'Mapping id. If specified, -a is ignored.'
-      )
+        'Mapping id. Cannot be used with -a.'
+      ).conflicts(['connectorId', 'managedObjectType', 'all'])
     )
     .addOption(
       new Option(
         '-c, --connector-id <connector-id>',
-        'Connector id. If specified, limits mappings to that particular connector; Ignored with -i.'
-      )
+        'Connector id. If specified, limits mappings to that particular connector; Cannot be used with -i.'
+      ).conflicts(['mappingId'])
     )
     .addOption(
       new Option(
         '-t, --managed-object-type <managed-object-type>',
-        'Managed object type. If specified, limits mappings to that particular managed object type. Ignored with -i.'
-      )
+        'Managed object type. If specified, limits mappings to that particular managed object type. Cannot be used with -i.'
+      ).conflicts(['mappingId'])
     )
-    .addOption(new Option('-a, --all', 'Delete all mappings. Ignored with -i.'))
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Delete all mappings. Cannot be used with -i.'
+      ).conflicts(['mappingId'])
+    )
     .requireOneOf({ options: ['all', 'mappingId'], purpose: 'what to delete' })
     .action(
       // implement command logic inside action handler

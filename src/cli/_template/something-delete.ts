@@ -21,11 +21,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --something-id <something-id>',
-        '[Something] id. If specified, -a and -A are ignored.'
-      )
+        '[Something] id. Cannot be used with -a.'
+      ).conflicts(['all'])
     )
     .addOption(
-      new Option('-a, --all', 'Delete all [somethings]. Ignored with -i.')
+      new Option(
+        '-a, --all',
+        'Delete all [somethings]. Cannot be used with -i.'
+      ).conflicts(['somethingId'])
     )
     .addOption(
       new Option(

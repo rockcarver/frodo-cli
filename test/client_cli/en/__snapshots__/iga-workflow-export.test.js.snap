@@ -27,15 +27,14 @@ Arguments:
 Deployment: Cloud-only
 
 Options:
-  -a, --all                        Export all workflows to a single file.
-                                   Ignored with -i.
+  -a, --all                        Export all workflows to a single file. Cannot
+                                   be used with -i or -A.
   -A, --all-separate               Export all workflows as separate files
-                                   <workflow-id>.workflow.json. Ignored with -i,
-                                   and -a.
-  -f, --file [file]                Name of the export file. Ignored with -A.
-                                   Defaults to <workflow-id>.workflow.json.
-  -i, --workflow-id <workflow-id>  Workflow id. If specified, -a and -A are
-                                   ignored.
+                                   <workflow-id>.workflow.json. Cannot be used
+                                   with -i, -f or -a.
+  -f, --file [file]                Name of the export file. Cannot be used with
+                                   -A. Defaults to <workflow-id>.workflow.json.
+  -i, --workflow-id <workflow-id>  Workflow id. Cannot be used with -a or -A.
   -M, --modified-properties        Include modified properties in export (e.g.
                                    lastModifiedDate, lastModifiedBy, createdBy,
                                    creationDate, etc.) (default: false)
@@ -49,8 +48,8 @@ Options:
   --use-string-arrays              Where applicable, use string arrays to store
                                    scripts. (default: off)
   -x, --no-extract                 Do not extract the scripts from the exported
-                                   file and save them to separate files. Ignored
-                                   with -a.
+                                   file and save them to separate files. Cannot
+                                   be used with -a.
   -h, --help                       Help
   -hh, --help-more                 Help with all options.
   -hhh, --help-all                 Help with all options, environment variables,

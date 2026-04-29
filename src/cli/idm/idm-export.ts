@@ -26,32 +26,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --entity-id <id>',
-        'Config entity id/name. E.g. "managed", "sync", "provisioner-<connector-name>", etc. If specified, -a and -A are ignored.'
-      )
+        'Config entity id/name. E.g. "managed", "sync", "provisioner-<connector-name>", etc. Cannot be used with -e, -a or -A.'
+      ).conflicts(['entitiesFile', 'all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file [file]',
-        'Export file if -x or -a is provided. Ignored with -A.'
-      )
+        'Export file if -x or -a is provided. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-e, --entities-file [entities-file]',
-        'Name of the entity file. Ignored with -i.'
-      )
+        'Name of the entity file. Cannot be used with -i.'
+      ).conflicts(['entityId'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all IDM configuration objects into a single file in directory -D. Ignored with -i.'
-      )
+        'Export all IDM configuration objects into a single file in directory -D. Cannot be used with -i or -A.'
+      ).conflicts(['entityId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all IDM configuration objects into separate JSON files in directory -D. Ignored with -i, and -a.'
-      )
+        'Export all IDM configuration objects into separate JSON files in directory -D. Cannot be used with -i or -a.'
+      ).conflicts(['entityId', 'all'])
     )
     .addOption(
       new Option(
@@ -62,7 +62,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-x, --no-extract',
-        'Do not extract and save idm scripts and save to separate files. Ignored with -a.'
+        'Do not extract and save idm scripts and save to separate files. Cannot be used with -a.'
       ).default(true, 'true')
     )
     .requireOneOf({

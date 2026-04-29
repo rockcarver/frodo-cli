@@ -24,26 +24,26 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --journey-id <journey>',
-        'Name of a journey/tree. If specified, -a and -A are ignored.'
-      )
+        'Name of a journey/tree. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-f, --file <file>',
-        'Name of the file to write the exported journey(s) to. Ignored with -A.'
-      )
+        'Name of the file to write the exported journey(s) to. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Export all the journeys/trees in a realm. Ignored with -i.'
-      )
+        'Export all the journeys/trees in a realm. Cannot be used with -i or -A.'
+      ).conflicts(['journeyId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Export all the journeys/trees in a realm as separate files <journey/tree name>.json. Ignored with -i or -a.'
-      )
+        'Export all the journeys/trees in a realm as separate files <journey/tree name>.json. Cannot be used with -i, -f or -a.'
+      ).conflicts(['journeyId', 'file', 'all'])
     )
     .addOption(
       new Option(

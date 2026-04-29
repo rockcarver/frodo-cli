@@ -21,10 +21,15 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --other-id <other-id>',
-        '[Other] id. If specified, -a and -A are ignored.'
-      )
+        '[Other] id. Cannot be used with -a or -A.'
+      ).conflicts(['all', 'allSeparate'])
     )
-    .addOption(new Option('-a, --all', 'Delete all [others]. Ignored with -i.'))
+    .addOption(
+      new Option(
+        '-a, --all',
+        'Delete all [others]. Cannot be used with -i.'
+      ).conflicts(['somethingId'])
+    )
     .addOption(
       new Option(
         '--no-deep',

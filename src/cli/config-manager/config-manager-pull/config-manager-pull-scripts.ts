@@ -12,15 +12,15 @@ export default function setup() {
     .addOption(
       new Option(
         '-n, --script-name <script name>',
-        'Export specific script using filename. Omit file extension.'
-      )
+        'Export specific script using filename. Omit file extension. Cannot be used with -p.'
+      ).conflicts(['prefix'])
     )
     // added because fr-config manager has a SCRIPT_PREFIXES=[] variable in its .env configuration file to specify scripts
     .addOption(
       new ListOption(
         '-p, --prefix <prefix>',
-        'Export all scripts that start with a certain prefix. Repetition of this flag is allowed. Ignored with -n'
-      )
+        'Export all scripts that start with a certain prefix. Repetition of this flag is allowed. Cannot be used with -n.'
+      ).conflicts(['scriptName'])
     )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(

@@ -23,14 +23,14 @@ Arguments:
 
 Options:
   -A, --all-separate        Import all scripts from separate files
-                            (*.script.json) in the current directory. Ignored
-                            with -n.
+                            (*.script.json) in the current directory. Cannot be
+                            used with -i or -n.
   -d, --default             Import all scripts including the default scripts.
   -f, --file <file>         Name of the file to import.
-  -i, --script-id <uuid>    Uuid of the script. If specified, -a and -A are
-                            ignored.
-  -n, --script-name <name>  Name of the script. If specified, -a and -A are
-                            ignored.
+  -i, --script-id <uuid>    Uuid of the script. If specified, -n and -A cannot
+                            be used.
+  -n, --script-name <name>  Name of the script. If specified, -i and -A cannot
+                            be used.
   --no-deps                 Do not include script dependencies (i.e. library
                             scripts). Can only be used with -n or -i.
   --re-uuid                 Re-UUID. Create a new UUID for the script upon

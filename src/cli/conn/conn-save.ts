@@ -21,24 +21,29 @@ export default function setup() {
   program
     .alias('add')
     .description('Save connection profiles.')
-    .addOption(new Option('--no-sa', 'Do not create and add service account.'))
+    .addOption(
+      new Option(
+        '--no-sa',
+        'Do not create and add service account. Cannot be used with --sa-id or --sa-jwk-file.'
+      ).conflicts(['saId', 'saJwkFile'])
+    )
     .addOption(
       new Option(
         '--log-api-key [key]',
-        'Log API key. If specified, must also include --log-api-secret. Ignored with --no-log-api.'
-      )
+        'Log API key. If specified, must also include --log-api-secret. Cannot be used with --no-log-api.'
+      ).conflicts(['noLogApi'])
     )
     .addOption(
       new Option(
         '--log-api-secret [secret]',
-        'Log API secret. If specified, must also include --log-api-key. Ignored with --no-log-api.'
-      )
+        'Log API secret. If specified, must also include --log-api-key. Cannot be used with --no-log-api.'
+      ).conflicts(['noLogApi'])
     )
     .addOption(
       new Option(
         '--no-log-api',
         'Do not create and add log API key and secret.'
-      )
+      ).conflicts(['logApiKey', 'logApiSecret'])
     )
     .addOption(new Option('--no-validate', 'Do not validate connection.'))
     .addOption(

@@ -23,15 +23,15 @@ Arguments:
   password                    Password.
 
 Options:
-  -a, --all                   Export all the journeys/trees in a realm. Ignored
-                              with -i.
+  -a, --all                   Export all the journeys/trees in a realm. Cannot
+                              be used with -i or -A.
   -A, --all-separate          Export all the journeys/trees in a realm as
-                              separate files <journey/tree name>.json. Ignored
-                              with -i or -a.
+                              separate files <journey/tree name>.json. Cannot be
+                              used with -i, -f or -a.
   -f, --file <file>           Name of the file to write the exported journey(s)
-                              to. Ignored with -A.
-  -i, --journey-id <journey>  Name of a journey/tree. If specified, -a and -A
-                              are ignored. (pick from journey)
+                              to. Cannot be used with -A.
+  -i, --journey-id <journey>  Name of a journey/tree. Cannot be used with -a or
+                              -A. (pick from journey)
   -N, --no-metadata           Does not include metadata in the export file.
   --no-coords                 Do not include the x and y coordinate positions of
                               the journey/tree nodes.

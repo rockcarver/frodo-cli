@@ -25,14 +25,14 @@ Arguments:
 
 Options:
   -a, --all                    Import all entity providers from single file.
-                               Ignored with -i.
+                               Cannot be used with -i or -A.
   -A, --all-separate           Import all entity providers from separate files
-                               (*.saml.json) in the current directory. Ignored
-                               with -i or -a.
+                               (*.saml.json) in the current directory. Cannot be
+                               used with -i or -a.
   -f, --file <file>            Name of the file to import the entity provider(s)
                                from.
   -i, --entity-id <entity-id>  Entity id. If specified, only one provider is
-                               imported and the options -a and -A are ignored.
+                               imported and the options -a or -A cannot be used.
   --no-deps                    Do not include any dependencies (scripts).
   -h, --help                   Help
   -hh, --help-more             Help with all options.

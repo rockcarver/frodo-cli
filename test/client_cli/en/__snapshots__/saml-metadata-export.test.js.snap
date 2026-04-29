@@ -25,9 +25,9 @@ Arguments:
 
 Options:
   -f, --file [file]            Name of the file to write the exported metadata
-                               to. Ignored with -A. If not specified, the export
-                               file is named <entity-id>.metadata.xml.
-  -i, --entity-id <entity-id>  Entity id. If specified, -a and -A are ignored.
+                               to. Cannot be used with -A. If not specified, the
+                               export file is named <entity-id>.metadata.xml.
+  -i, --entity-id <entity-id>  Entity id. If specified, -A cannot be used.
   -h, --help                   Help
   -hh, --help-more             Help with all options.
   -hhh, --help-all             Help with all options, environment variables, and

@@ -22,16 +22,14 @@ Arguments:
   password               Password.
 
 Options:
-  -a, --all              Import all applications from single file. Ignored with
-                         -i or -n.
+  -a, --all              Import all applications from single file. Cannot be
+                         used with -i, -n or -A.
   -A, --all-separate     Import all applications from separate files
-                         (*.app.json) in the current directory. Ignored with -i,
-                         -n, or -a.
-  -f, --file <file>      Name of the file to import.
-  -i, --app-id <id>      Application id. If specified, only one application is
-                         imported and the options -n, -a, and -A are ignored.
-  -n, --app-name <name>  Application name. If specified, only one application is
-                         imported and the options -a and -A are ignored.
+                         (*.app.json) in the current directory. Cannot be used
+                         with -i, -n, -f or -a.
+  -f, --file <file>      Name of the file to import. Cannot be used with -A.
+  -i, --app-id <id>      Application id. Cannot be used with -n, -a or -A.
+  -n, --app-name <name>  Application name. Cannot be used with -i, -a or -A.
   --no-deps              Do not include any dependencies (scripts).
   -h, --help             Help
   -hh, --help-more       Help with all options.

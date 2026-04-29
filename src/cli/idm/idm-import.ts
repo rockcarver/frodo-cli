@@ -41,27 +41,32 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --entity-id <id>',
-        'Config entity id/name. E.g. "managed", "sync", "provisioner-<connector-name>", etc. If specified, -a and -A are ignored.'
-      )
+        'Config entity id/name. E.g. "managed", "sync", "provisioner-<connector-name>", etc. Cannot be used with -e, -a or -A.'
+      ).conflicts(['entitiesFile', 'all', 'allSeparate'])
     )
-    .addOption(new Option('-f, --file [file]', 'Import file. Ignored with -A.'))
+    .addOption(
+      new Option(
+        '-f, --file [file]',
+        'Import file. Cannot be used with -A.'
+      ).conflicts(['allSeparate'])
+    )
     .addOption(
       new Option(
         '-e, --entities-file [entities-file]',
-        'Name of the entity file. Ignored with -i.'
-      )
+        'Name of the entity file. Cannot be used with -i.'
+      ).conflicts(['entityId'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Import all IDM configuration objects from a single file in directory -D. Ignored with -i.'
-      )
+        'Import all IDM configuration objects from a single file in directory -D. Cannot be used with -i or -A.'
+      ).conflicts(['entityId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all IDM configuration objects from separate files in directory -D. Ignored with -i, and -a.'
-      )
+        'Import all IDM configuration objects from separate files in directory -D. Cannot be used with -i, -f or -a.'
+      ).conflicts(['entityId', 'file', 'all'])
     )
     .requireOneOf({
       options: ['all', 'allSeparate', 'entityId', 'file'],

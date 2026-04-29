@@ -18,8 +18,8 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --entity-id <entity-id>',
-        'Entity id. If specified, only one provider is imported and the options -a and -A are ignored.'
-      )
+        'Entity id. If specified, only one provider is imported and the options -a or -A cannot be used.'
+      ).conflicts(['all', 'allSeparate'])
     )
     .addOption(
       new Option(
@@ -30,14 +30,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-a, --all',
-        'Import all entity providers from single file. Ignored with -i.'
-      )
+        'Import all entity providers from single file. Cannot be used with -i or -A.'
+      ).conflicts(['entityId', 'allSeparate'])
     )
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all entity providers from separate files (*.saml.json) in the current directory. Ignored with -i or -a.'
-      )
+        'Import all entity providers from separate files (*.saml.json) in the current directory. Cannot be used with -i or -a.'
+      ).conflicts(['entityId', 'all'])
     )
     .addOption(
       new Option('--no-deps', 'Do not include any dependencies (scripts).')

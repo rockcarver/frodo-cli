@@ -16,8 +16,8 @@ export default function setup() {
     // .addOption(
     //   new Option(
     //     '-a, --all',
-    //     'Disable all the journeys/trees in a realm. Ignored with -i.'
-    //   )
+    //     'Disable all the journeys/trees in a realm. Cannot be used with -i.'
+    //   ).conflicts(['journeyId'])
     // )
     .requireOneOf({ options: ['journeyId'], purpose: 'which journey' })
     .addHelpText(

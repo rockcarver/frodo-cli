@@ -20,14 +20,14 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --journey-id <journey>',
-        'Name of a journey/tree. If specified, -a is ignored.'
-      )
+        'Name of a journey/tree. Cannot be used with -a.'
+      ).conflicts(['all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all the journeys/trees in a realm. Ignored with -i.'
-      )
+        'Delete all the journeys/trees in a realm. Cannot be used with -i.'
+      ).conflicts(['journeyId'])
     )
     .addOption(
       new Option(

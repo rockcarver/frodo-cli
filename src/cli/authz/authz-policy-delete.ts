@@ -30,17 +30,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --policy-id <policy-id>',
-        'Policy id/name. If specified, -a is ignored.'
-      )
+        'Policy id/name. Cannot be used with --set-id or -a.'
+      ).conflicts(['setId', 'all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all policies in a realm. Ignored with -i.'
-      )
+        'Delete all policies in a realm. Cannot be used with -i.'
+      ).conflicts(['policyId'])
     )
     .addOption(
-      new Option('--set-id <set-id>', 'Policy set id/name. Ignored with -i.')
+      new Option(
+        '--set-id <set-id>',
+        'Policy set id/name. Cannot be used with -i.'
+      ).conflicts(['policyId'])
     )
     .requireOneOf({
       options: ['all', 'policyId', 'setId'],

@@ -22,20 +22,20 @@ export default function setup() {
     .addOption(
       new Option(
         '-i, --script-id <uuid>',
-        'Uuid of the script. If specified, -a and -A are ignored.'
-      )
+        'Uuid of the script. If specified, -n or -a cannot be used.'
+      ).conflicts(['scriptName', 'all'])
     )
     .addOption(
       new Option(
         '-n, --script-name <name>',
-        'Name of the script. If specified, -a and -A are ignored.'
-      )
+        'Name of the script. If specified, -i or -a cannot be used.'
+      ).conflicts(['scriptId', 'all'])
     )
     .addOption(
       new Option(
         '-a, --all',
-        'Delete all non-default scripts in a realm. Ignored with -i.'
-      )
+        'Delete all non-default scripts in a realm. Cannot be used with -i or -n.'
+      ).conflicts(['scriptId', 'scriptName'])
     )
     .addOption(
       new Option(

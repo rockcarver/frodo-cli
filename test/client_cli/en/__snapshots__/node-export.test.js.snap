@@ -24,18 +24,16 @@ Arguments:
   password                     Password.
 
 Options:
-  -a, --all                    Export all custom nodes to a single file. Ignored
-                               with -i or -n.
+  -a, --all                    Export all custom nodes to a single file. Cannot
+                               be used with -i, -n and -A.
   -A, --all-separate           Export all custom nodes to separate files
                                (*.nodeTypes.json) in the current directory.
-                               Ignored with -i, -n, or -a.
-  -f, --file <file>            Name of the export file.
-  -i, --node-id <node-id>      Custom node id or service name. If specified,
-                               only one custom node is exported and the options
-                               -n, -a and -A are ignored.
-  -n, --node-name <node-name>  Custom node display name. If specified, only one
-                               custom node is exported and the options -a and -A
-                               are ignored.
+                               Cannot be used with -i, -n, -f or -a.
+  -f, --file <file>            Name of the export file. Cannot be used with -A.
+  -i, --node-id <node-id>      Custom node id or service name. Cannot be used
+                               with -n, -a or -A.
+  -n, --node-name <node-name>  Custom node display name. Cannot be used with -i,
+                               -a or -A.
   -N, --no-metadata            Does not include metadata in the export file.
   --use-string-arrays          Where applicable, use string arrays to store
                                scripts. (default: off)
