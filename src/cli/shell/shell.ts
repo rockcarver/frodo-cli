@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import repl from 'node:repl';
 
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 import util from 'util';
 import vm from 'vm';
@@ -90,6 +90,28 @@ async function startRepl(allowAwait = false, host?: string) {
 
   replServer.context.frodoLib = frodo;
   replServer.context.frodo = frodo;
+
+  // Register shell-specific output handlers so that debug and curlirize
+  // messages are written to the REPL output stream (stdout) rather than to
+  // process.stderr.  The Node.js REPL drives its terminal through stdout via
+  // readline, so anything written only to stderr may not be visible inside the
+  // interactive shell.
+  state.setDebugHandler((message) => {
+    if (!message || !state.getDebug()) return;
+    const text =
+      typeof message === 'object'
+        ? util.inspect(message, { depth: 6, colors: true })
+        : String(message)['brightMagenta'];
+    replServer.output.write(text + '\n');
+  });
+  state.setVerboseHandler((message) => {
+    if (!message || !state.getVerbose()) return;
+    replServer.output.write(String(message) + '\n');
+  });
+  state.setCurlirizeHandler((message) => {
+    if (!message || !state.getCurlirize()) return;
+    replServer.output.write(String(message)['brightBlue'] + '\n');
+  });
 
   // Inject the help() function, which surfaces type signatures and JSDoc from
   // the frodo-lib type definitions so users can explore the API without leaving
