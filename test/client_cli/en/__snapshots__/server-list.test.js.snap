@@ -16,8 +16,6 @@ Arguments:
                     appropriate rights to manage authentication journeys/trees.
   password          Password.
 
-Deployment: Classic-only
-
 Options:
   -l, --long        Long with all fields. (default: false)
   -h, --help        Help

@@ -19,8 +19,6 @@ Arguments:
                                  authentication journeys/trees.
   password                       Password.
 
-Deployment: Classic-only
-
 Options:
   -a, --all                      Import all servers from single file. Ignored
                                  with -i.
