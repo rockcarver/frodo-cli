@@ -5,8 +5,6 @@ exports[`CLI help interface for 'server' should be expected english 1`] = `
 
 Manage servers.
 
-Deployment: Classic-only
-
 Options:
   -h, --help        Help
   -hh, --help-more  Help with all options.
@@ -14,10 +12,8 @@ Options:
                     examples.
 
 Commands:
-  help              display help for command
-
-  (Classic-only):
   export            Export servers.
+  help              display help for command
   import            Import servers.
   list              List servers.
 "

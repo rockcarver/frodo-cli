@@ -19,8 +19,6 @@ Arguments:
                                  authentication journeys/trees.
   password                       Password.
 
-Deployment: Classic-only
-
 Options:
   -a, --all                      Export all servers to a single file. Ignored
                                  with -i.

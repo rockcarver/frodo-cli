@@ -10,8 +10,12 @@ import {
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const deploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
+const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
+  frodo.utils.constants;
+const deploymentTypes = [
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+];
 
 export default function setup() {
   const program = new FrodoCommand('frodo realm import');

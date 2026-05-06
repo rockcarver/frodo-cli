@@ -4,8 +4,12 @@ import { Option } from 'commander';
 import { getTokens } from '../../ops/AuthenticateOps';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
-const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
+const { CLASSIC_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
+  frodo.utils.constants;
+const globalDeploymentTypes = [
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+];
 
 export default function setup() {
   const program = new FrodoCommand('frodo agent describe');
