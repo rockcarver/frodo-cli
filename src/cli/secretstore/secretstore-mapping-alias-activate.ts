@@ -6,10 +6,17 @@ import { activateSecretStoreMappingAlias } from '../../ops/SecretStoreOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
-const { DEPLOYMENT_TYPES, CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const {
+  DEPLOYMENT_TYPES,
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+} = frodo.utils.constants;
 
 const deploymentTypes = DEPLOYMENT_TYPES;
-const globalDeploymentTypes = [CLASSIC_DEPLOYMENT_TYPE_KEY];
+const globalDeploymentTypes = [
+  CLASSIC_DEPLOYMENT_TYPE_KEY,
+  FORGEOPS_DEPLOYMENT_TYPE_KEY,
+];
 
 const { canSecretStoreHaveMappings } = frodo.secretStore;
 
