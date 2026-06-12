@@ -3,6 +3,7 @@ import AccessConfig from './config-manager-push-access-config';
 import Audit from './config-manager-push-audit';
 import Authentication from './config-manager-push-authentication';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
+import ConnectorMappings from './config-manager-push-connector-mappings';
 import CookieDomains from './config-manager-push-cookie-domain';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
@@ -43,6 +44,7 @@ export default function setup() {
   program.addCommand(UiConfig().name('ui-config'));
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
+  program.addCommand(ConnectorMappings().name('connector-mappings'));
 
   return program;
 }

@@ -17,6 +17,7 @@ Commands:
   audit                  [Experimental] Import audit configuration.
   authentication         [Experimental] Import authentication objects.
   connector-definitions  [Experimental] Import connector definitions.
+  connector-mappings     [Experimental] Import connector mappings.
   cookie-domains         [Experimental] Import cookie domains.
   email-provider         [Experimental] Import email provider configuration.
   email-templates        [Experimental] Import email template objects.
