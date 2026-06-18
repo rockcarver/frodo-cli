@@ -331,7 +331,7 @@ export async function testPromote(
 ) {
   env.env.FRODO_TEST_NAME = name
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
-  const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
+  const CMD = `frodo promote -M ${sourceDir} -e ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
   assertNoPollyReplayError(stdout, CMD);
   assertNoPollyReplayError(stderr, CMD);

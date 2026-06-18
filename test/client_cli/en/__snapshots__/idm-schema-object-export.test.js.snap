@@ -29,7 +29,6 @@ Options:
                                   into a single file in directory -D.
   -A, --all-separate              Export all IDM configuration managed objects
                                   into separate JSON files in directory -D.
-  -e, --env-file [envfile]        Name of the env file.
   -f, --file [file]               Export file if -x or -a are included. Ignored
                                   with -A.
   -i, --individual-object <name>  Export an individual managed object by

@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 1`] = `0`;
+exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -e test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 1`] = `0`;
 
-exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 2`] = `""`;
+exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -e test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json 2`] = `""`;
 
-exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json: allIdmTestFile.json 1`] = `
+exports[`frodo idm export "frodo idm export --all --file allIdmTestFile.json -e test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env --no-metadata": should export all idm config entities to a single file named allIdmTestFile.json: allIdmTestFile.json 1`] = `
 {
   "idm": {
     "repo.ds": {
@@ -67167,11 +67167,11 @@ println "Hello World!"
 }
 `;
 
-exports[`frodo idm export "frodo idm export -xi script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `0`;
+exports[`frodo idm export "frodo idm export -xi script --env-file test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 1`] = `0`;
 
-exports[`frodo idm export "frodo idm export -xi script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 2`] = `""`;
+exports[`frodo idm export "frodo idm export -xi script --env-file test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json 2`] = `""`;
 
-exports[`frodo idm export "frodo idm export -xi script -e test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json: my-script.idm.json 1`] = `
+exports[`frodo idm export "frodo idm export -xi script --env-file test/e2e/env/testEnvFile.env -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json: my-script.idm.json 1`] = `
 {
   "idm": {
     "script": {

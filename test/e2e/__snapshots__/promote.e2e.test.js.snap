@@ -1,20 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes 1`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on authentication changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on authentication changes 2`] = `
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "authentication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on authentication changes 2`] = `
 "✔ Imported alpha realm authentication settings.
 ✔ Imported bravo realm authentication settings.
 "
 `;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes 1`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on managedapplication changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "managedapplication frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on managedapplication changes 2`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes 1`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on mapping changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on mapping changes 2`] = `
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "mapping frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on mapping changes 2`] = `
 "✖ Error importing mapping undefined
 Invalid mapping id undefined. Must start with 'sync/' or 'mapping/'
 ✖ Error importing mapping undefined
@@ -24,6 +24,6 @@ Error deleting mapping undefined
 "
 `;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes 1`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on variable changes 1`] = `""`;
 
-exports[`frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -E ./tmp/tmp-*": this should run a promote on variable changes 2`] = `""`;
+exports[`frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-* "variable frodo promote -M ./test/e2e/exports/full-export-separate -e ./tmp/tmp-*": this should run a promote on variable changes 2`] = `""`;
