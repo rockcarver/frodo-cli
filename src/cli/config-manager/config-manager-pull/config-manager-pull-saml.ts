@@ -64,9 +64,6 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting config entity saml');

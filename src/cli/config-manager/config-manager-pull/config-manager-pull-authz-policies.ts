@@ -31,12 +31,6 @@ export default function setup() {
     .description('Export authorization policies from realm.')
     .addOption(
       new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only policy sets from this realm will be exported. Ignored with -f'
-      )
-    )
-    .addOption(
-      new Option(
         '-n, --policy-name <policy-set-name>',
         'Get only a specific policy set with the name.'
       )
@@ -78,11 +72,6 @@ export default function setup() {
         options,
         command
       );
-
-      // -r/--realm flag has precedence over [realm] arguement
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;
@@ -141,7 +130,7 @@ export default function setup() {
           outcome = await configManagerExportAuthzPolicySets(options.file);
         }
 
-        // -r/--realm
+        // realm argument
         else if (realm !== constants.DEFAULT_REALM_KEY) {
           printMessage(
             `Exporting all the policy sets in the ${state.getRealm()} realm.`

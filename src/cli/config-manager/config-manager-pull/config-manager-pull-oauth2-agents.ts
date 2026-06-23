@@ -31,12 +31,6 @@ export default function setup() {
     .description('Export OAuth2 Agents')
     .addOption(
       new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the agents from this realm will be exported.'
-      )
-    )
-    .addOption(
-      new Option(
         '-n, --agent-name <agent name>',
         'Export specific agent using agentId/agentName.'
       )
@@ -94,11 +88,6 @@ export default function setup() {
         command
       );
 
-      // -r/--realm flag has precedence over [realm] arguement
-      if (options.realm) {
-        realm = options.realm;
-      }
-
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;
 
@@ -152,7 +141,7 @@ export default function setup() {
           outcome = await configManagerExportConfigAgents(options.file);
         }
 
-        // -r/--realm
+        // realm arugment
         else if (realm !== constants.DEFAULT_REALM_KEY) {
           printMessage(
             `Exporting all the agents from the ${state.getRealm()} realm.`

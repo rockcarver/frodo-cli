@@ -29,9 +29,6 @@ export default function setup() {
         'Service name, It only export the service with the name.'
       )
     )
-    .addOption(
-      new Option('-r, --realm <realm>', 'Specific realm to get service from')
-    )
 
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
@@ -42,10 +39,6 @@ export default function setup() {
         options,
         command
       );
-
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         verboseMessage('Exporting services');

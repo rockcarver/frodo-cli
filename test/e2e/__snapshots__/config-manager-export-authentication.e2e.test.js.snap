@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir2": should export the authentication in fr-config-manager style" 1`] = `0`;
 
@@ -147,14 +147,14 @@ exports[`frodo config-manager pulls "frodo config-manager pull authentication -D
 }
 `;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -r bravo": should export the authentication in bravo realm in fr-config-manager style" 1`] = `0`;
+exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -m forgeops": should export the authentication in bravo realm in fr-config-manager style" 1`] = `0`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -r bravo": should export the authentication in bravo realm in fr-config-manager style" 2`] = `""`;
+exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -m forgeops": should export the authentication in bravo realm in fr-config-manager style" 2`] = `""`;
 
-exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -r bravo": should export the authentication in bravo realm in fr-config-manager style": testDir3/realms/bravo/realm-config/authentication.json 1`] = `
+exports[`frodo config-manager pulls "frodo config-manager pull authentication -D testDir3 -m forgeops": should export the authentication in bravo realm in fr-config-manager style": testDir3/realms/bravo/realm-config/authentication.json 1`] = `
 {
   "_id": "",
-  "_rev": "-861746544",
+  "_rev": "-174510483",
   "_type": {
     "_id": "EMPTY",
     "collection": false,
@@ -170,8 +170,8 @@ exports[`frodo config-manager pulls "frodo config-manager pull authentication -D
     "storeInvalidAttemptsInDataStore": true,
   },
   "core": {
-    "adminAuthModule": "Login",
-    "orgConfig": "Login",
+    "adminAuthModule": "ldapService",
+    "orgConfig": "ldapService",
   },
   "general": {
     "defaultAuthLevel": 0,
@@ -188,7 +188,7 @@ exports[`frodo config-manager pulls "frodo config-manager pull authentication -D
     "loginFailureUrl": [],
     "loginPostProcessClass": [],
     "loginSuccessUrl": [
-      "/enduser/?realm=/bravo",
+      "/am/console",
     ],
     "userAttributeSessionMapping": [],
     "usernameGeneratorClass": "com.sun.identity.authentication.spi.DefaultUserIDGenerator",
@@ -197,20 +197,17 @@ exports[`frodo config-manager pulls "frodo config-manager pull authentication -D
   "security": {
     "addClearSiteDataHeader": true,
     "keyAlias": "test",
-    "moduleBasedAuthEnabled": false,
-    "sharedSecret": {
-      "$string": "&{am.authentication.shared.secret}",
-    },
+    "sharedSecret": null,
     "zeroPageLoginAllowedWithoutReferrer": true,
     "zeroPageLoginEnabled": false,
     "zeroPageLoginReferrerWhiteList": [],
   },
   "trees": {
-    "authenticationSessionsMaxDuration": 15,
+    "authenticationSessionsMaxDuration": 5,
     "authenticationSessionsStateManagement": "JWT",
     "authenticationSessionsWhitelist": false,
     "authenticationTreeCookieHttpOnly": true,
-    "suspendedAuthenticationTimeout": 1440,
+    "suspendedAuthenticationTimeout": 5,
   },
   "userprofile": {
     "aliasAttributeName": [

@@ -30,12 +30,6 @@ export default function setup() {
     .description('Export authorization scripts.')
     .addOption(
       new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the scripts from this realm will be exported.'
-      )
-    )
-    .addOption(
-      new Option(
         '-n, --script-name <script name>',
         'Export specific script using filename. Omit file extension.'
       )
@@ -109,11 +103,6 @@ export default function setup() {
         command
       );
 
-      // -r/--realm flag has precedence over [realm] arguement
-      if (options.realm) {
-        realm = options.realm;
-      }
-
       const hasOptions: boolean =
         options.language ||
         options.scriptType ||
@@ -170,7 +159,7 @@ export default function setup() {
           }
         }
 
-        // -r/--realm
+        // realm argument
         else if (realm !== constants.DEFAULT_REALM_KEY) {
           printMessage(
             `Exporting scripts from the ${state.getRealm()} realm${hasOptions ? ' with custom options.' : '.'}`

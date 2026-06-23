@@ -28,12 +28,6 @@ export default function setup() {
 
   program
     .description('Export organization privileges config.')
-    .addOption(
-      new Option(
-        '-r, --realm <realm>',
-        'Specifies the realm to export from. Only the entity object from this realm will be exported.'
-      )
-    )
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -43,11 +37,6 @@ export default function setup() {
         options,
         command
       );
-
-      // -r flag has precedence
-      if (options.realm) {
-        realm = options.realm;
-      }
 
       if (await getTokens(false, true, deploymentTypes)) {
         let outcome: boolean;

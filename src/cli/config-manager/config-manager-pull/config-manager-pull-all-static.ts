@@ -18,7 +18,6 @@ export default function setup() {
     [],
     deploymentTypes
   );
-  // TO DO: adding a realm option to export all-static for specific realm
   program
     .description('Export all static config.')
     .action(async (host, realm, user, password, options, command) => {

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull scripts [options] [host] [realm] [username] [password]
@@ -32,9 +32,6 @@ Options:
                                      file extension.
   -p, --prefix <prefix>              Export all scripts that start with a
                                      certain prefix. Ignored with -n
-  -r, --realm <realm>                Specifies the realm to export from. Only
-                                     the scripts from this realm will be
-                                     exported.
   --script-type <script type>        Export all scripts of a certain type.
                                      Ignored with -n.
   -h, --help                         Help

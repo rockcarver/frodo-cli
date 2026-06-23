@@ -2,20 +2,21 @@
   "alpha": {
     "samlProviders": [
       {
-        "entityId": "urn:federation:MicrosoftOnline",
-        "fileName" : "microsoftOnline"
+        "entityId": "test-hosted-idp-saml",
+        "fileName" : "testIDP_SAML"
       },
       {
-      	"entityId": "iSPAzure",
-      	"replacements": [
-	   {
-	   "search":"https://idc.scheuber.io/am",
-	   "replacement": "${TENANT_BASE_URL}"
-      	   }
-      	]
+      	"entityId": "test-remote-sp-saml"
+      },
+      {
+        "entityId": "test-hosted-sp-saml",
+        "fileName" : "testSP_SAML"
+      },
+      {
+      	"entityId": "test-remote-idp-saml"
       }
     ],
-    "circlesOfTrust": ["AzureCOT", "affiliation-test"]
+    "circlesOfTrust": ["ForgeOps2Cloud", "Cloud2ForgeOps"]
   }
 }
 

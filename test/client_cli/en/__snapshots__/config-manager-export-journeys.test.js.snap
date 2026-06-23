@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CLI help interface for 'config export' should be expected english 1`] = `
 "Usage: frodo config-manager pull journeys [options] [host] [realm] [username] [password]
@@ -21,8 +21,6 @@ Options:
   -d, --pull-dependencies  Pull dependencies.
   -n, --name <name>        Journey name, It only export the journey with the
                            name.
-  -r, --realm <realm>      Specific realm to get journeys from (overrides
-                           environment)
   -h, --help               Help
   -hh, --help-more         Help with all options.
   -hhh, --help-all         Help with all options, environment variables, and

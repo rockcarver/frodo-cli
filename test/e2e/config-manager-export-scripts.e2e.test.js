@@ -47,35 +47,38 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir0
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p OAuth2
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir2 -r bravo
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Bravo OIDC Claims Script' -r bravo 
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir4 -r bravo -p OAuth2 --just-config --script-type OAUTH2_MAY_ACT --just-content --language GROOVY
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir5 --language GROOVY
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir6 --just-content
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir7 -r bravo -p SAML2 --just-config
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir8 -r bravo --just-content
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir9 -r bravo -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir10 --just-config
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir11 -r bravo --just-config
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir12 -r bravo -p SAML2 --just-content
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir13 --just-config --just-content
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir14 --script-type LIBRARY
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir15 -r bravo --script-type LIBRARY
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir16 -n 'Coin Flip'
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir17 -r bravo -p SAML2 --script-type SAML2_NAMEID_MAPPER
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir18 -r bravo -p SAML2
+
+// Forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p OAuth2 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir2 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Library Script' -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir4 --script-type OAUTH2_MAY_ACT --just-content --language JAVASCRIPT -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir7 -p SAML2 --just-config -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir8 --just-content -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir9 -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir11 --just-config -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir12 -p SAML2 --just-content -m forgeops 
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir15 --script-type LIBRARY -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull scripts -D configManagerExportScriptsDir17 -p SAML2 --script-type SAML2_NAMEID_MAPPER -m forgeops
 
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager pull scripts', () => {
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir0": should export all scripts from all realms in fr-config manager style.`, async () => {
@@ -83,33 +86,30 @@ describe('frodo config-manager pull scripts', () => {
         const CMD = `frodo config-manager pull scripts -D ${dirName}`;
         await testExport(CMD, env, undefined, undefined, dirName, false);
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p OAuth2": should export all scripts from all realms that start with OAuth2 in fr-config manager style.`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir1 -p OAuth2 -m forgeops": should export all scripts from all realms that start with OAuth2 in fr-config manager style.`, async () => {
         const dirName = 'configManagerExportScriptsDir1';
         const prefix = 'OAuth2'
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -p ${prefix}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -p ${prefix} -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir2 -r bravo": should export all scripts from the bravo realm in fr-config manager style.`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir2 -m forgeops": should export all scripts from the bravo realm in fr-config manager style.`, async () => {
         const dirName = 'configManagerExportScriptsDir2';
-        const realm = 'bravo';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r ${realm}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Bravo OIDC Claims Script' -r bravo": should export only the script with the name: "Bravo OIDC Claims Script".`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir3 -n 'Library Script' -m forgeops": should export only the script with the name: "Library Script".`, async () => {
         const dirName = 'configManagerExportScriptsDir3';
-        const scriptName = 'Bravo OIDC Claims Script';
-        const realm = 'bravo';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -n '${scriptName}' -r ${realm}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const scriptName = 'Library Script';
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -n '${scriptName}' -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir4 -r bravo -p OAuth2 --just-config --script-type OAUTH2_MAY_ACT --just-content --language GROOVY": should export just the script content in the bravo realm that start with OAuth2 that are of the type OAuth2 May Act and are in the programming language of groovy".`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir4 --script-type OAUTH2_MAY_ACT --just-content --language JAVASCRIPT -m forgeops": should export just the script content in the bravo realm that start with OAuth2 that are of the type OAuth2 May Act and are in the programming language of javascript".`, async () => {
         const dirName = 'configManagerExportScriptsDir4';
-        const realm = 'bravo';
         const prefix = 'OAuth2'
         const scriptType = 'OAUTH2_MAY_ACT';
-        const language = 'GROOVY';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r ${realm} -p ${prefix} --just-config --script-type ${scriptType} --just-content --language ${language}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const language = 'JAVASCRIPT';
+        const CMD = `frodo config-manager pull scripts -D ${dirName} --script-type ${scriptType} --just-content --language ${language} -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir5 --language GROOVY": should export all groovy scripts`, async () => {
         const language = 'GROOVY';
@@ -118,22 +118,27 @@ describe('frodo config-manager pull scripts', () => {
         await testExport(CMD, env, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir7 -r bravo -p SAML2 --just-config": should export just-config with prefix SAML2 in bravo realm `, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir6 --just-content": should export just content`, async () => {
+        const dirName = 'configManagerExportScriptsDir13';
+        const CMD = `frodo config-manager pull scripts -D ${dirName} --just-content`;
+        await testExport(CMD, env, undefined, undefined, dirName, false);
+    });
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir7 -p SAML2 --just-config -m forgeops": should export just-config with prefix SAML2 in bravo realm `, async () => {
         const dirName = 'configManagerExportScriptsDir7';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo -p SAML2 --just-config`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -p SAML2 --just-config -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir8 -r bravo --just-content": should export just content in bravo realm `, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir8 --just-content -m forgeops": should export just content in bravo realm `, async () => {
         const dirName = 'configManagerExportScriptsDir8';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo --just-content`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} --just-content -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir9 -r bravo -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER": should export scripts with prefix: SAML2, just-config, script-type: SAML2_NAMEID_MAPPER in bravo realm`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir9 -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER -m forgeops": should export scripts with prefix: SAML2, just-config, script-type: SAML2_NAMEID_MAPPER in bravo realm`, async () => {
         const dirName = 'configManagerExportScriptsDir9';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -p SAML2 --just-config --script-type SAML2_NAMEID_MAPPER -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir10 --just-config": should export just-config`, async () => {
@@ -142,16 +147,16 @@ describe('frodo config-manager pull scripts', () => {
         await testExport(CMD, env, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir11 -r bravo --just-config": should export all groovy scripts`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir11 --just-config -m forgeops": should export all groovy scripts`, async () => {
         const dirName = 'configManagerExportScriptsDir11';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo --just-config`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} --just-config -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir12 -r bravo -p SAML2 --just-content": should export all groovy scripts`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir12 -p SAML2 --just-content -m forgeops": should export all groovy scripts`, async () => {
         const dirName = 'configManagerExportScriptsDir12';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo -p SAML2 --just-content`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -p SAML2 --just-content -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir13 --just-config --just-content": should export all just config and just content`, async () => {
@@ -165,10 +170,10 @@ describe('frodo config-manager pull scripts', () => {
         await testExport(CMD, env, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir15 -r bravo --script-type LIBRARY": should export scripts-type LIBRARY in bravo realm only`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir15 --script-type LIBRARY -m forgeops": should export scripts-type LIBRARY in bravo realm only`, async () => {
         const dirName = 'configManagerExportScriptsDir15';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo --script-type LIBRARY`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} --script-type LIBRARY -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
     });
     test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir16 -n 'Coin Flip'": should export script name: coin Flip`, async () => {
@@ -177,15 +182,10 @@ describe('frodo config-manager pull scripts', () => {
         await testExport(CMD, env, undefined, undefined, dirName, false);
 
     });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir17 -r bravo -p SAML2 --script-type SAML2_NAMEID_MAPPER": should export scripts with prefix SAML2 and script-type SAML2_NAMEID_MAPPER in bravo realm`, async () => {
+    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir17 -p SAML2 --script-type SAML2_NAMEID_MAPPER -m forgeops": should export scripts with prefix SAML2 and script-type SAML2_NAMEID_MAPPER in bravo realm`, async () => {
         const dirName = 'configManagerExportScriptsDir17';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo -p SAML2 --script-type SAML2_NAMEID_MAPPER`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
+        const CMD = `frodo config-manager pull scripts -D ${dirName} -p SAML2 --script-type SAML2_NAMEID_MAPPER -m forgeops`;
+        await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
 
-    });
-    test(`"frodo config-manager pull scripts -D configManagerExportScriptsDir18 -r bravo -p SAML2" should export scripts with prefix SAML2 from bravo realm `, async () => {
-        const dirName = 'configManagerExportScriptsDir18';
-        const CMD = `frodo config-manager pull scripts -D ${dirName} -r bravo -p SAML2`;
-        await testExport(CMD, env, undefined, undefined, dirName, false);
     });
 });

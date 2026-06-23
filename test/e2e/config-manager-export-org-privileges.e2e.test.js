@@ -41,7 +41,7 @@
  *
  * 4. Write your test.
  *    Make sure to use the exact command including number of arguments and params.
- *
+ *--
  * 5. Commit both your test and your new recordings to the repository.
  *    Your tests are likely going to reside outside the frodo-lib project but
  *    the recordings must be committed to the frodo-lib project.

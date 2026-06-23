@@ -20,7 +20,6 @@ export default function setup() {
     [],
     deploymentTypes
   );
-  // TO DO: Adding a realm option to export all config for a specific realm
   program
     .description('Export all config.')
     .addOption(

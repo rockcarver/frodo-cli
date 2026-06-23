@@ -47,21 +47,24 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull journeys -D testDir11
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull journeys -r alpha -D testDir12
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull journeys -r alpha -n FrodoTest -D testDir13
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull journeys -D testDir14 --pull-dependencies
 
+// ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=alpha FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull journeys -D testDir12 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_REALM=bravo FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull journeys -n BravoTestRegistration -D testDir13 -m forgeops
 */
 
 
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 describe('frodo config-manager pulls', () => {
   test('"frodo config-manager pull journeys -D testDir11": should export the journeys in fr-config-manager style"', async () => {
@@ -69,15 +72,15 @@ describe('frodo config-manager pulls', () => {
       const CMD = `frodo config-manager pull journeys -D ${dirName}`;
       await testExport(CMD, env, undefined, undefined, dirName, false);
     });
-    test('"frodo config-manager pull journeys -r alpha -D testDir12": should export the journeys in alpha realm in fr-config-manager style"', async () => {
+    test('"frodo config-manager pull journeys -D testDir12 -m forgeops": should export the journeys in alpha realm in fr-config-manager style"', async () => {
       const dirName = 'testDir12';
-      const CMD = `frodo config-manager pull journeys -r alpha -D ${dirName}`;
-      await testExport(CMD, env, undefined, undefined, dirName, false);
+      const CMD = `frodo config-manager pull journeys -D ${dirName} -m forgeops`;
+      await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'alpha' } }, undefined, undefined, dirName, false);
     });
-    test('"frodo config-manager pull journeys -r alpha -n FrodoTest -D testDir13": should export journey with name: FrodoTest in fr-config-manager style"', async () => {
+    test('"frodo config-manager pull journeys -n BravoTestRegistration -D testDir13 -m forgeops": should export journey with name: BravoTestRegistration from bravo realm in fr-config-manager style"', async () => {
       const dirName = 'testDir13';
-      const CMD = `frodo config-manager pull journeys -r alpha -n FrodoTest -D ${dirName}`;
-      await testExport(CMD, env, undefined, undefined, dirName, false);
+      const CMD = `frodo config-manager pull journeys -n BravoTestRegistration -D ${dirName} -m forgeops`;
+      await testExport(CMD, { env: {...forgeopsEnv.env, FRODO_REALM: 'bravo' } }, undefined, undefined, dirName, false);
     });
     test('"frodo config-manager pull journeys -D testDir14 --pull-dependencies": should export the journeys in fr-config-manager style"', async () => {
       const dirName = 'testDir14';
