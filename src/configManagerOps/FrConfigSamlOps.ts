@@ -1,4 +1,4 @@
-import { frodo, state } from '@rockcarver/frodo-lib';
+import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { CirclesOfTrustExportInterface } from '@rockcarver/frodo-lib/types/ops/CirclesOfTrustOps';
 import { Saml2ExportInterface } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
@@ -10,7 +10,7 @@ import {
   safeFileNameUnderscore,
 } from '../utils/FrConfig';
 
-const { getFilePath, saveJsonToFile } = frodo.utils;
+const { getFilePath, saveJsonToFile, readToJson, loadEnvFile } = frodo.utils;
 const { exportSaml2Provider, importSaml2Providers } =
   frodo.saml2.entityProvider;
 const { exportCircleOfTrust, importCirclesOfTrust } =
@@ -108,13 +108,28 @@ export async function configManagerExportSaml(file): Promise<boolean> {
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
 
-export async function configManagerImportSaml(): Promise<boolean> {
+export async function configManagerImportSaml(
+  entityName?: string,
+  value?: string
+): Promise<boolean> {
   try {
     const realmsDir = getFilePath('realms/');
+    const envFile = loadEnvFile();
     const realmsToProcess = fs
       .readdirSync(realmsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
+
+    if (entityName) {
+      const realmsWithSaml = realmsToProcess.filter((realm) =>
+        fs.existsSync(getFilePath(`realms/${realm}/realm-config/saml`))
+      );
+      if (realmsWithSaml.length > 1) {
+        throw new FrodoError(
+          `For a named SAML entity, with only a single realm may contain SAML config`
+        );
+      }
+    }
 
     for (const realm of realmsToProcess) {
       state.setRealm(realm);
@@ -133,9 +148,14 @@ export async function configManagerImportSaml(): Promise<boolean> {
       if (fs.existsSync(hostedDir)) {
         for (const file of fs.readdirSync(hostedDir)) {
           if (file.endsWith('.json')) {
-            const hostedData = JSON.parse(
-              fs.readFileSync(`${hostedDir}/${file}`, 'utf8')
-            );
+            const hostedData = readToJson(`${hostedDir}/${file}`, {
+              overrideValue: value,
+              envFile,
+              base64Encode: false,
+            });
+            if (entityName && hostedData.config.entityID !== entityName)
+              continue;
+
             hosted[hostedData.config.entityId] = hostedData.config;
             metadata[hostedData.config.entityId] = [hostedData.metadata];
           }
@@ -145,9 +165,13 @@ export async function configManagerImportSaml(): Promise<boolean> {
       if (fs.existsSync(remoteDir)) {
         for (const file of fs.readdirSync(remoteDir)) {
           if (file.endsWith('.json')) {
-            const remoteData = JSON.parse(
-              fs.readFileSync(`${remoteDir}/${file}`, 'utf8')
-            );
+            const remoteData = readToJson(`${remoteDir}/${file}`, {
+              overrideValue: value,
+              envFile,
+              base64Encode: false,
+            });
+            if (entityName && remoteData.config.entityId !== entityName)
+              continue;
             remote[remoteData.config.entityId] = remoteData.config;
             metadata[remoteData.config.entityId] = [remoteData.metadata];
           }
@@ -157,25 +181,37 @@ export async function configManagerImportSaml(): Promise<boolean> {
       if (fs.existsSync(cotDir)) {
         for (const file of fs.readdirSync(cotDir)) {
           if (file.endsWith('.json')) {
-            const cotData = JSON.parse(
-              fs.readFileSync(`${cotDir}/${file}`, 'utf8')
-            );
+            const cotData = readToJson(`${cotDir}/${file}`, {
+              overrideValue: value,
+              envFile,
+              base64Encode: false,
+            });
+            if (entityName && cotData._id !== entityName) continue;
             cot[cotData._id] = cotData;
           }
         }
       }
-      const samlImportData: Saml2ExportInterface = {
-        script: {},
-        saml: { hosted, remote, metadata },
-      };
 
-      const cotImportData: CirclesOfTrustExportInterface = {
-        script: {},
-        saml: { hosted: {}, remote: {}, metadata: {}, cot },
-      };
+      const hasProviders =
+        Object.keys(hosted).length > 0 || Object.keys(remote).length > 0;
 
-      await importSaml2Providers(samlImportData, { deps: true });
-      await importCirclesOfTrust(cotImportData);
+      const hasCot = Object.keys(cot).length > 0;
+
+      if (hasProviders) {
+        const samlImportData: Saml2ExportInterface = {
+          script: {},
+          saml: { hosted, remote, metadata },
+        };
+        await importSaml2Providers(samlImportData, { deps: true });
+      }
+
+      if (hasCot) {
+        const cotImportData: CirclesOfTrustExportInterface = {
+          script: {},
+          saml: { hosted: {}, remote: {}, metadata: {}, cot },
+        };
+        await importCirclesOfTrust(cotImportData);
+      }
     }
 
     return true;

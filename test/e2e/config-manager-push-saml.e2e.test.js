@@ -49,6 +49,8 @@
 /*
 // ForgeOps
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager push saml -n test-IDP -e "https://platform.dev.trivir.com" -D test/e2e/exports/fr-config-manager/forgeops -m forgeops
+
 */
 
 import cp from 'child_process';
@@ -66,7 +68,17 @@ const allDirectory = "test/e2e/exports/fr-config-manager/forgeops";
 describe('frodo config-manager push saml', () => {
     test(`"frodo config-manager push saml -D ${allDirectory} -m forgeops": should import the saml into forgeops"`, async () => {
         const CMD = `frodo config-manager push saml -D ${allDirectory} -m forgeops`;
-        const { stdout } = await exec(CMD, forgeopsEnv);
+        const { stdout } = await exec(CMD, {
+            env: {
+                ...forgeopsEnv.env,
+                TENANT_BASE_URL: "https://platform.dev.trivir.com"
+            }
+        });
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+    test(`"frodo config-manager push saml -n test-IDP -e ... -D ${allDirectory}": should import a single named saml entity`, async () => {
+        const CMD = `frodo config-manager push saml -n test-IDP -e "https://platform.dev.trivir.com" -D ${allDirectory} `;
+        const { stdout } = await exec(CMD, { env: { ...forgeopsEnv.env } });
+        expect(stdout).toMatchSnapshot();
     });
 });
