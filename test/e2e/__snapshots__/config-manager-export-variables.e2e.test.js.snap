@@ -111,3 +111,16 @@ exports[`frodo config-manager pulls "frodo config-manager pull variables -D vari
   "valueBase64": "\${ESV_TRINITY_PHONE}",
 }
 `;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -d variableTestDir2 -n esv-goto-urls": should export the secret named "esv-goto-urls" in fr-config-manager style" 1`] = `0`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -d variableTestDir2 -n esv-goto-urls": should export the secret named "esv-goto-urls" in fr-config-manager style" 2`] = `""`;
+
+exports[`frodo config-manager pulls "frodo config-manager pull variables -d variableTestDir2 -n esv-goto-urls": should export the secret named "esv-goto-urls" in fr-config-manager style": variableTestDir2/esv/variable/esv-goto-urls.json 1`] = `
+{
+  "_id": "esv-goto-urls",
+  "description": "List of valid goto urls for post login",
+  "expressionType": "array",
+  "valueBase64": "\${ESV_GOTO_URLS}",
+}
+`;

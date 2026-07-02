@@ -10,7 +10,65 @@ import {
 import { escapePlaceholders, esvToEnv } from '../utils/FrConfig';
 
 const { getFilePath, saveJsonToFile } = frodo.utils;
-const { readVariables } = frodo.cloud.variable;
+const { readVariables, readVariable } = frodo.cloud.variable;
+
+/**
+ * Export a single variable determined by name / id
+ * @param {string} name variable name
+ * @returns {Promise<boolean>} true is successful, false otherwise
+ */
+export async function configManagerExportVariableByName(
+  name: string
+): Promise<boolean> {
+  let spinnerId: string;
+  let indicatorId: string;
+  let namedVariable: VariableSkeleton;
+  try {
+    spinnerId = createProgressIndicator(
+      'indeterminate',
+      0,
+      `Retrieving variable ${name}...`
+    );
+    namedVariable = await readVariable(name);
+    stopProgressIndicator(
+      spinnerId,
+      `Successfully retrieved ${name}`,
+      'success'
+    );
+  } catch (error) {
+    stopProgressIndicator(spinnerId, `Error retrieving ${name}`, 'fail');
+    printError(error);
+    return false;
+  }
+  try {
+    indicatorId = createProgressIndicator(
+      'determinate',
+      1,
+      `Exporting ${name}`
+    );
+    const envVariable = esvToEnv(namedVariable._id);
+
+    const variableObject = {
+      _id: namedVariable._id,
+      expressionType: namedVariable.expressionType,
+      description: escapePlaceholders(namedVariable.description),
+      valueBase64: '${' + envVariable + '}',
+    };
+
+    saveJsonToFile(
+      variableObject,
+      getFilePath(`esv/variable/${namedVariable._id}.json`, true),
+      false
+    );
+    updateProgressIndicator(indicatorId, `Writing ${name}`);
+    stopProgressIndicator(indicatorId, `${name} exported`);
+    return true;
+  } catch (error) {
+    stopProgressIndicator(indicatorId, `Error exporting ${name}`, 'fail');
+    printError(error);
+  }
+  return false;
+}
 
 /**
  * Export all variables to seperate files
