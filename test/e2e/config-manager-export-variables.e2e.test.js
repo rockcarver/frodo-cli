@@ -67,7 +67,7 @@ describe('frodo config-manager pulls', () => {
     const CMD = `frodo config-manager pull variables -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
-  test('"frodo config-manager pull variables -d variableTestDir2 -n esv-goto-urls": should export the secret named "esv-goto-urls" in fr-config-manager style"', async () => {
+  test('"frodo config-manager pull variables -D variableTestDir2 -n esv-goto-urls": should export the secret named "esv-goto-urls" in fr-config-manager style"', async () => {
     const dirName = 'variableTestDir2';
     const varName = 'esv-goto-urls';
     const CMD = `frodo config-manager pull variables -D ${dirName} -n ${varName}`;

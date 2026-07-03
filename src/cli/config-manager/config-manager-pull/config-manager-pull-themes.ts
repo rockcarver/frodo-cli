@@ -1,9 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
 
-import { configManagerExportThemes } from '../../../configManagerOps/FrConfigThemeOps';
+import { configManagerExportThemes, configManagerExportThemeByName } from '../../../configManagerOps/FrConfigThemeOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
 import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
+import { Option } from 'commander';
 
 const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
   frodo.utils.constants;
@@ -22,6 +23,7 @@ export default function setup() {
 
   program
     .description('Export themes.')
+    .addOption(new Option('-n, --name <name>', 'Export by name of theme.'))
     .action(async (host, realm, user, password, options, command) => {
       command.handleDefaultArgsAndOpts(
         host,
@@ -33,8 +35,14 @@ export default function setup() {
       );
 
       if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting themes');
-        const outcome = await configManagerExportThemes();
+        let outcome: boolean;
+        if (options.name) {
+          verboseMessage(`Exporting ${options.name}`);
+          outcome = await configManagerExportThemeByName(options.name);
+        } else {
+          verboseMessage('Exporting themes');
+          outcome = await configManagerExportThemes();
+        }
         if (!outcome) process.exitCode = 1;
       }
       // unrecognized combination of options or no options

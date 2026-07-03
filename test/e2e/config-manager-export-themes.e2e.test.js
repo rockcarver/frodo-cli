@@ -48,6 +48,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull themes -D themeTestDir
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config-manager pull themes -D themeTestDir2 -n Contrast
 
 */
 import { getEnv, testExport } from './utils/TestUtils';
@@ -63,5 +64,11 @@ describe('frodo config-manager pull themes -D themeTestDir', () => {
     const dirName = 'themeTestDir';
     const CMD = `frodo config-manager pull themes -D ${dirName}`;
     await testExport(CMD, env, undefined, undefined, dirName, false);
-    });
+  });
+  test('"frodo config-manager pull themes -D themeTestDir2 -n Contrast": should export theme named "Contrast" from all realms in fr-config-manager style', async () => {
+    const dirName = 'themeTestDir2';
+    const themeName = 'Contrast'
+    const CMD = `frodo config-manager pull themes -D ${dirName} -n ${themeName}`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+  });
 });
