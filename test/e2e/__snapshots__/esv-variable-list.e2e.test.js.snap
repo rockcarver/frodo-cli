@@ -1,194 +1,255 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo esv variable list "frodo esv variable list --usage --long --directory test/e2e/exports/all-separate/cloud": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all-separate/cloud directory 1`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier                     │Modified (UTC)               │Used                                                                                                                                          
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:11 GMT│no                                                                                                                                            
-esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:13 GMT│no                                                                                                                                            
-                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                             │                             │                                                                                                                                              
-                                 │"99.72.28.182/32" ] }                   │      │                                        │                             │                             │                                                                                                                                              
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:05 GMT│no                                                                                                                                            
-                                 │                                        │      │hovercraft.                             │                             │                             │                                                                                                                                              
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:07 GMT│no                                                                                                                                            
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                             │                             │                                                                                                                                              
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:09 GMT│no                                                                                                                                            
-esv-number                       │1.134                                   │loaded│test number                             │volker.scheuber@forgerock.com│Fri, 05 Jul 2024 19:42:20 GMT│no                                                                                                                                            
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 22:37:25 GMT│no                                                                                                                                            
-esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1720799681233       │Fri, 12 Jul 2024 17:40:41 GMT│yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
-esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:16 GMT│no                                                                                                                                            
-esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │phales@trivir.com            │Thu, 14 Dec 2023 15:34:13 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
-                                 │                                        │      │light in meters per second (as an int). │                             │                             │                                                                                                                                              
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:03 GMT│no                                                                                                                                            
-                                 │                                        │      │phone number Trinity is calling from is │                             │                             │                                                                                                                                              
-                                 │                                        │      │traced to (312)-555-0690                │                             │                             │                                                                                                                                              
+"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used                                                                                                                                          
+esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT│no                                                                                                                                            
+esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT│no                                                                                                                                            
+                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             │                                                                                                                                              
+                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             │                                                                                                                                              
+esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT│no                                                                                                                                            
+                                 │                                        │      │hovercraft.                             │                      │                             │                                                                                                                                              
+esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT│no                                                                                                                                            
+                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             │                                                                                                                                              
+esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT│no                                                                                                                                            
+esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT│no                                                                                                                                            
+esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT│no                                                                                                                                            
+esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT│no                                                                                                                                            
+esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT│yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
+esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT│no                                                                                                                                            
+esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
+                                 │                                        │      │light in meters per second (as an int). │                      │                             │                                                                                                                                              
+esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT│no                                                                                                                                            
+                                 │                                        │      │phone number Trinity is calling from is │                      │                             │                                                                                                                                              
+                                 │                                        │      │traced to (312)-555-0690                │                      │                             │                                                                                                                                              
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list --usage --long --file test/e2e/exports/all/all.cloud.json": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables in the test/e2e/exports/all/all.cloud.json file 1`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier                     │Modified (UTC)               │Used                                                                                                                        
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:11 GMT│no                                                                                                                          
-esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:13 GMT│no                                                                                                                          
-                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                             │                             │                                                                                                                            
-                                 │"99.72.28.182/32" ] }                   │      │                                        │                             │                             │                                                                                                                            
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:05 GMT│no                                                                                                                          
-                                 │                                        │      │hovercraft.                             │                             │                             │                                                                                                                            
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:07 GMT│no                                                                                                                          
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                             │                             │                                                                                                                            
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:09 GMT│no                                                                                                                          
-esv-number                       │1.134                                   │loaded│test number                             │volker.scheuber@forgerock.com│Fri, 05 Jul 2024 19:42:20 GMT│no                                                                                                                          
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 22:37:25 GMT│no                                                                                                                          
-esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1720799681233       │Fri, 12 Jul 2024 17:40:41 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script)
-esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:16 GMT│no                                                                                                                          
-esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │phales@trivir.com            │Thu, 14 Dec 2023 15:34:13 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script)
-                                 │                                        │      │light in meters per second (as an int). │                             │                             │                                                                                                                            
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:03 GMT│no                                                                                                                          
-                                 │                                        │      │phone number Trinity is calling from is │                             │                             │                                                                                                                            
-                                 │                                        │      │traced to (312)-555-0690                │                             │                             │                                                                                                                            
+"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used                                                                                                                        
+esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT│no                                                                                                                          
+esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT│no                                                                                                                          
+                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             │                                                                                                                            
+                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             │                                                                                                                            
+esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT│no                                                                                                                          
+                                 │                                        │      │hovercraft.                             │                      │                             │                                                                                                                            
+esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT│no                                                                                                                          
+                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             │                                                                                                                            
+esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT│no                                                                                                                          
+esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT│no                                                                                                                          
+esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT│no                                                                                                                          
+esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT│no                                                                                                                          
+esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script)
+esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT│no                                                                                                                          
+esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script)
+                                 │                                        │      │light in meters per second (as an int). │                      │                             │                                                                                                                            
+esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT│no                                                                                                                          
+                                 │                                        │      │phone number Trinity is calling from is │                      │                             │                                                                                                                            
+                                 │                                        │      │traced to (312)-555-0690                │                      │                             │                                                                                                                            
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -l": should list the ids, values, statuses, descriptions, modifiers, and modified times of the esv variables 1`] = `
-"Id                                          │Value                          │Status│Description                            │Modifier                                      │Modified (UTC)               
-esv-global-session-quotas-enable-constraints│ON                             │loaded│                                       │sandeep.chaturvedi@forgerock.com              │Mon, 22 Jan 2024 16:35:58 GMT
-esv-test-var                                │true                           │loaded│Simple ESV test variable with a boolean│unknown (76618ff6-e851-433e-9704-9d2852a17b7a)│Mon, 18 Dec 2023 23:02:35 GMT
-                                            │                               │      │value of true                          │                                              │                             
-esv-test-variable-belphegor                 │1000000000000066600000000000001│loaded│A test variable containing belphegor's │phales@trivir.com                             │Thu, 14 Dec 2023 15:31:06 GMT
-                                            │                               │      │palindromic prime number (as a string).│                                              │                             
-esv-test-variable-light                     │299792458                      │loaded│Test variable containing the speed of  │phales@trivir.com                             │Thu, 14 Dec 2023 15:34:13 GMT
-                                            │                               │      │light in meters per second (as an int).│                                              │                             
+"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               
+esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT
+esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT
+                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             
+                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             
+esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT
+                                 │                                        │      │hovercraft.                             │                      │                             
+esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT
+                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             
+esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT
+esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT
+esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT
+esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT
+esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT
+esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT
+esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT
+                                 │                                        │      │light in meters per second (as an int). │                      │                             
+esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT
+                                 │                                        │      │phone number Trinity is calling from is │                      │                             
+                                 │                                        │      │traced to (312)-555-0690                │                      │                             
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 1`] = `
 "✔ Successfully read 12 variables.
-• Exported 22 am config entities.
-• 13 mappings exported.
-• Exported 17 email templates.
-Error exporting idm config entity fidc/federation-EntraID
-  Error reading config entity fidc/federation-EntraID
-    Network error:
-      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
-      Status: 403
-      Code: ERR_BAD_REQUEST
-      Reason: Forbidden
-      Message: Access denied
-• Exported 69 config entities.
-• Exported 7 internal roles
-• Exported 7 custom nodes.
-• Exported 2 realms.
-• Exported 22 scriptTypes.
-• Exported 13 secrets.
+• Exported 27 am config entities.
+Progress indicator undefined not found.
+Error Exporting Mappings
+  Error exporting mappings
+    Error reading mappings
+      Error reading sync mappings
+        Error reading config entity sync
+          Network error:
+            URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/sync
+            Status: 404
+            Code: ERR_BAD_REQUEST
+            Reason: Not Found
+            Message: Not Found
+• Exported 5 email templates.
+• Exported 36 config entities.
+• Exported 6 internal roles
+• Exported 3 custom nodes.
+• Exported 3 realms.
+• Exported 40 scriptTypes.
+• Exported 2 secrets.
 • Exported 2 global services.
 • Exported 12 variables.
+• Exported 0 / realm SAML2 providers.
+• Exported 0 / realm agent groups.
+• Exported 0 / realm agents.
+• Exported 0 / realm OAuth2 clients.
+• 0 / realm providers exported.
+• Exported 0 / realm applications
+• Exported 169 / realm policies.
+• Exported 11 / realm policy sets.
+• Exported 3 / realm resource types.
+• Exported 0 secret stores.
+• Exported 0 / realm services.
+• Exported 0 / realm themes.
 • Exported 2 alpha realm SAML2 providers.
-• Exported 3 alpha realm circles of trust.
-• Exported 3 alpha realm agent groups.
-• Exported 11 alpha realm agents.
-• Exported 17 alpha realm OAuth2 clients.
-• 7 alpha realm providers exported.
-• Exported 21 alpha realm journeys.
-• Exported 3 alpha realm applications
-• Exported 6 alpha realm policies.
-• Exported 5 alpha realm policy sets.
-• Exported 8 alpha realm resource types.
-• Exported alpha realm 67 scripts.
+• Exported 2 alpha realm circles of trust.
+• Exported 1 alpha realm agent groups.
+• Exported 0 alpha realm agents.
+• Exported 1 alpha realm OAuth2 clients.
+• 5 alpha realm providers exported.
+• Exported 10 alpha realm journeys.
+• Exported 0 alpha realm applications
+• Exported 2 alpha realm policies.
+• Exported 4 alpha realm policy sets.
+• Exported 3 alpha realm resource types.
+• Exported alpha realm 60 scripts.
 • Exported 1 secret stores.
-• Exported 10 alpha realm services.
-• Exported 7 alpha realm themes.
+• Exported 7 alpha realm services.
+• Exported 6 alpha realm themes.
 • Exported 0 bravo realm SAML2 providers.
 • Exported 0 bravo realm agent groups.
 • Exported 0 bravo realm agents.
-• Exported 3 bravo realm OAuth2 clients.
+• Exported 1 bravo realm OAuth2 clients.
 • 0 bravo realm providers exported.
-• Exported 10 bravo realm journeys.
+• Exported 7 bravo realm journeys.
 • Exported 0 bravo realm applications
 • Exported 0 bravo realm policies.
-• Exported 1 bravo realm policy sets.
-• Exported 2 bravo realm resource types.
-• Exported bravo realm 60 scripts.
+• Exported 2 bravo realm policy sets.
+• Exported 3 bravo realm resource types.
+• Exported bravo realm 55 scripts.
 • Exported 1 secret stores.
-• Exported 9 bravo realm services.
+• Exported 6 bravo realm services.
 • Exported 5 bravo realm themes.
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 2`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier                     │Modified (UTC)               │Used                                                                                                                                          
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:11 GMT│no                                                                                                                                            
-esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:13 GMT│no                                                                                                                                            
-                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                             │                             │                                                                                                                                              
-                                 │"99.72.28.182/32" ] }                   │      │                                        │                             │                             │                                                                                                                                              
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:05 GMT│no                                                                                                                                            
-                                 │                                        │      │hovercraft.                             │                             │                             │                                                                                                                                              
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:07 GMT│no                                                                                                                                            
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                             │                             │                                                                                                                                              
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1730238488278       │Fri, 01 Nov 2024 16:21:14 GMT│no                                                                                                                                            
-esv-number                       │1.134                                   │loaded│test number                             │volker.scheuber@forgerock.com│Fri, 05 Jul 2024 19:42:20 GMT│no                                                                                                                                            
-esv-test                         │a,b,c,d                                 │loaded│list                                    │phales@trivir.com            │Fri, 01 Nov 2024 21:00:21 GMT│no                                                                                                                                            
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1730238488278       │Fri, 01 Nov 2024 16:21:15 GMT│no                                                                                                                                            
-esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1720799681233       │Fri, 12 Jul 2024 17:40:41 GMT│yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
-esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:16 GMT│no                                                                                                                                            
-esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │phales@trivir.com            │Thu, 14 Dec 2023 15:34:13 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
-                                 │                                        │      │light in meters per second (as an int). │                             │                             │                                                                                                                                              
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1701393386423       │Fri, 05 Jul 2024 20:01:03 GMT│no                                                                                                                                            
-                                 │                                        │      │phone number Trinity is calling from is │                             │                             │                                                                                                                                              
-                                 │                                        │      │traced to (312)-555-0690                │                             │                             │                                                                                                                                              
+"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used
+esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT│no  
+esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT│no  
+                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             │    
+                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             │    
+esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT│no  
+                                 │                                        │      │hovercraft.                             │                      │                             │    
+esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT│no  
+                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             │    
+esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT│no  
+esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT│no  
+esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT│no  
+esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT│no  
+esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT│no  
+esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT│no  
+esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT│no  
+                                 │                                        │      │light in meters per second (as an int). │                      │                             │    
+esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT│no  
+                                 │                                        │      │phone number Trinity is calling from is │                      │                             │    
+                                 │                                        │      │traced to (312)-555-0690                │                      │                             │    
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 1`] = `
 "✔ Successfully read 12 variables.
-• Exported 22 am config entities.
-• 13 mappings exported.
-• Exported 17 email templates.
-Error exporting idm config entity fidc/federation-EntraID
-  Error reading config entity fidc/federation-EntraID
-    Network error:
-      URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/fidc/federation-EntraID
-      Status: 403
-      Code: ERR_BAD_REQUEST
-      Reason: Forbidden
-      Message: Access denied
-• Exported 69 config entities.
-• Exported 7 internal roles
-• Exported 7 custom nodes.
-• Exported 2 realms.
-• Exported 22 scriptTypes.
-• Exported 13 secrets.
+• Exported 27 am config entities.
+Progress indicator undefined not found.
+Error Exporting Mappings
+  Error exporting mappings
+    Error reading mappings
+      Error reading sync mappings
+        Error reading config entity sync
+          Network error:
+            URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/sync
+            Status: 404
+            Code: ERR_BAD_REQUEST
+            Reason: Not Found
+            Message: Not Found
+• Exported 5 email templates.
+• Exported 36 config entities.
+• Exported 6 internal roles
+• Exported 3 custom nodes.
+• Exported 3 realms.
+• Exported 40 scriptTypes.
+• Exported 2 secrets.
 • Exported 2 global services.
 • Exported 12 variables.
+• Exported 0 / realm SAML2 providers.
+• Exported 0 / realm agent groups.
+• Exported 0 / realm agents.
+• Exported 0 / realm OAuth2 clients.
+• 0 / realm providers exported.
+• Exported 0 / realm applications
+• Exported 169 / realm policies.
+• Exported 11 / realm policy sets.
+• Exported 3 / realm resource types.
+• Exported 0 secret stores.
+• Exported 0 / realm services.
+• Exported 0 / realm themes.
 • Exported 2 alpha realm SAML2 providers.
-• Exported 3 alpha realm circles of trust.
-• Exported 3 alpha realm agent groups.
-• Exported 11 alpha realm agents.
-• Exported 17 alpha realm OAuth2 clients.
-• 7 alpha realm providers exported.
-• Exported 21 alpha realm journeys.
-• Exported 3 alpha realm applications
-• Exported 6 alpha realm policies.
-• Exported 5 alpha realm policy sets.
-• Exported 8 alpha realm resource types.
-• Exported alpha realm 67 scripts.
+• Exported 2 alpha realm circles of trust.
+• Exported 1 alpha realm agent groups.
+• Exported 0 alpha realm agents.
+• Exported 1 alpha realm OAuth2 clients.
+• 5 alpha realm providers exported.
+• Exported 10 alpha realm journeys.
+• Exported 0 alpha realm applications
+• Exported 2 alpha realm policies.
+• Exported 4 alpha realm policy sets.
+• Exported 3 alpha realm resource types.
+• Exported alpha realm 60 scripts.
 • Exported 1 secret stores.
-• Exported 10 alpha realm services.
-• Exported 7 alpha realm themes.
+• Exported 7 alpha realm services.
+• Exported 6 alpha realm themes.
 • Exported 0 bravo realm SAML2 providers.
 • Exported 0 bravo realm agent groups.
 • Exported 0 bravo realm agents.
-• Exported 3 bravo realm OAuth2 clients.
+• Exported 1 bravo realm OAuth2 clients.
 • 0 bravo realm providers exported.
-• Exported 10 bravo realm journeys.
+• Exported 7 bravo realm journeys.
 • Exported 0 bravo realm applications
 • Exported 0 bravo realm policies.
-• Exported 1 bravo realm policy sets.
-• Exported 2 bravo realm resource types.
-• Exported bravo realm 60 scripts.
+• Exported 2 bravo realm policy sets.
+• Exported 3 bravo realm resource types.
+• Exported bravo realm 55 scripts.
 • Exported 1 secret stores.
-• Exported 9 bravo realm services.
+• Exported 6 bravo realm services.
 • Exported 5 bravo realm themes.
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 2`] = `
+"Id                               │Used
+esv-blue-piller                  │no  
+esv-ipv4-cidr-access-rules       │no  
+esv-nebuchadnezzar-crew          │no  
+esv-nebuchadnezzar-crew-structure│no  
+esv-neo-age                      │no  
+esv-number                       │no  
+esv-test                         │no  
+esv-test-var                     │no  
+esv-test-var-pi                  │no  
+esv-test-var-pi-string           │no  
+esv-test-variable-light          │no  
+esv-trinity-phone                │no  
+"
+`;
+
+exports[`frodo esv variable list "frodo esv variable list -uD test/e2e/exports/all-separate/cloud": should list the usage of the esv variables in the test/e2e/exports/all-separate/cloud directory 1`] = `
 "Id                               │Used                                                                                                                                          
 esv-blue-piller                  │no                                                                                                                                            
 esv-ipv4-cidr-access-rules       │no                                                                                                                                            
@@ -205,22 +266,6 @@ esv-trinity-phone                │no
 "
 `;
 
-exports[`frodo esv variable list "frodo esv variable list -uD test/e2e/exports/all-separate/cloud": should list the usage of the esv variables in the test/e2e/exports/all-separate/cloud directory 1`] = `
-"Id                               │Used                                                                                                                                          
-esv-blue-piller                  │no                                                                                                                                            
-esv-ipv4-cidr-access-rules       │no                                                                                                                                            
-esv-nebuchadnezzar-crew          │no                                                                                                                                            
-esv-nebuchadnezzar-crew-structure│no                                                                                                                                            
-esv-neo-age                      │no                                                                                                                                            
-esv-number                       │no                                                                                                                                            
-esv-test-var                     │no                                                                                                                                            
-esv-test-var-pi                  │yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
-esv-test-var-pi-string           │no                                                                                                                                            
-esv-test-variable-light          │yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
-esv-trinity-phone                │no                                                                                                                                            
-"
-`;
-
 exports[`frodo esv variable list "frodo esv variable list -uf test/e2e/exports/all/all.cloud.json": should list the usage of the esv variables in the test/e2e/exports/all/all.cloud.json file 1`] = `
 "Id                               │Used                                                                                                                        
 esv-blue-piller                  │no                                                                                                                          
@@ -229,6 +274,7 @@ esv-nebuchadnezzar-crew          │no
 esv-nebuchadnezzar-crew-structure│no                                                                                                                          
 esv-neo-age                      │no                                                                                                                          
 esv-number                       │no                                                                                                                          
+esv-test                         │no                                                                                                                          
 esv-test-var                     │no                                                                                                                          
 esv-test-var-pi                  │yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script)
 esv-test-var-pi-string           │no                                                                                                                          
@@ -238,9 +284,17 @@ esv-trinity-phone                │no
 `;
 
 exports[`frodo esv variable list "frodo esv variable list": should list the ids of the esv variables 1`] = `
-"esv-global-session-quotas-enable-constraints
+"esv-blue-piller
+esv-ipv4-cidr-access-rules
+esv-nebuchadnezzar-crew
+esv-nebuchadnezzar-crew-structure
+esv-neo-age
+esv-number
+esv-test
 esv-test-var
-esv-test-variable-belphegor
+esv-test-var-pi
+esv-test-var-pi-string
 esv-test-variable-light
+esv-trinity-phone
 "
 `;
