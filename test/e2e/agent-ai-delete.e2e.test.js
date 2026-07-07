@@ -68,12 +68,20 @@ const deleteAgent = 'frodo agent ai delete volker-dev -i testAgent';
 const deleteAllAgents = 'frodo agent ai delete volker-dev -a';
 
 describe('frodo agent ai delete', () => {
-  beforeEach(async () => {
-    await stageFixture(stagedAgentImport, env);
+
+  // in recording mode, setup test data before recording and cleanup after
+  // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
+  beforeAll(async () => {
+    if (process.env['FRODO_MOCK'] === 'record') {
+      await stageFixture(stagedAgentImport, env);
+    }
   });
 
-  afterEach(async () => {
-    await clearFixture(deleteAgent, env);
+  afterAll(async () => {
+    if (process.env['FRODO_MOCK'] === 'record') {
+      await clearFixture(deleteAgent, env);
+      await clearFixture(deleteAllAgents, env);
+    }
   });
 
   test('"frodo agent ai delete volker-dev -i testAgent": should delete AI agent testAgent', async () => {
@@ -84,7 +92,6 @@ describe('frodo agent ai delete', () => {
 
   test('"frodo agent ai delete volker-dev --agent-id testAgent": should fail when testAgent already deleted', async () => {
     const CMD = 'frodo agent ai delete volker-dev --agent-id testAgent';
-    await exec(deleteAgent, env);
     try {
       await exec(CMD, env);
       fail("Command should've failed");

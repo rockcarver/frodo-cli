@@ -69,12 +69,19 @@ const deleteAllAgents = 'frodo agent gateway delete -a';
 
 describe('frodo agent gateway delete', () => {
 
-    beforeEach(async () => {
-        await stageFixture(stagedAgentImport, env);
+    // in recording mode, setup test data before recording and cleanup after
+    // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
+    beforeAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await stageFixture(stagedAgentImport, env);
+        }
     });
 
-    afterEach(async () => {
-        await clearFixture(deleteAgent, env);
+    afterAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await clearFixture(deleteAgent, env);
+            await clearFixture(deleteAllAgents, env);
+        }
     });
 
     test('"frodo agent gateway delete -i frodo-test-ig-agent": should delete the agent gateway with id \'frodo-test-ig-agent\'', async () => {
@@ -89,7 +96,6 @@ describe('frodo agent gateway delete', () => {
 
     test('"frodo agent gateway delete --agent-id frodo-test-ig-agent": should display error when the agent gateway with id \'frodo-test-ig-agent\' cannot be deleted since it does not exist', async () => {
         const CMD = 'frodo agent gateway delete --agent-id frodo-test-ig-agent';
-        await clearFixture(deleteAgent, env);
         try {
             await exec(CMD, env);
             fail("Command should've failed")
@@ -105,7 +111,6 @@ describe('frodo agent gateway delete', () => {
     });
 
     test('"frodo agent gateway delete --all": should do nothing when no agent gateways can be deleted', async () => {
-        await clearFixture(deleteAgent, env);
         const CMD = 'frodo agent gateway delete --all';
         const { stderr } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();

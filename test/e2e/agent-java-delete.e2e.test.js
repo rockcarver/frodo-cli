@@ -69,12 +69,19 @@ const deleteAllAgents = 'frodo agent java delete -a';
 
 describe('frodo agent java delete', () => {
 
-    beforeEach(async () => {
-        await stageFixture(stagedAgentImport, env);
+    // in recording mode, setup test data before recording and cleanup after
+    // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
+    beforeAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await stageFixture(stagedAgentImport, env);
+        }
     });
 
-    afterEach(async () => {
-        await clearFixture(deleteAgent, env);
+    afterAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await clearFixture(deleteAgent, env);
+            await clearFixture(deleteAllAgents, env);
+        }
     });
 
     test('"frodo agent java delete -i frodo-test-java-agent": should delete the java agent with id \'frodo-test-java-agent\'', async () => {
@@ -85,7 +92,6 @@ describe('frodo agent java delete', () => {
 
     test('"frodo agent java delete --agent-id frodo-test-java-agent": should display error when the java agent with id \'frodo-test-java-agent\' cannot be deleted since it does not exist', async () => {
         const CMD = 'frodo agent java delete --agent-id frodo-test-java-agent';
-        await exec(deleteAgent, env);
         try {
             await exec(CMD, env);
             fail("Command should've failed")
@@ -101,7 +107,6 @@ describe('frodo agent java delete', () => {
     });
 
     test('"frodo agent java delete --all": should do nothing when no java agent can be deleted since none exist', async () => {
-        await exec(deleteAgent, env);
         const CMD = 'frodo agent java delete --all';
         const { stderr } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();

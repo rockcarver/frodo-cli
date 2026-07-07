@@ -69,12 +69,19 @@ const deleteAllAgents = 'frodo agent web delete -a';
 
 describe('frodo agent web delete', () => {
 
-    beforeEach(async () => {
-        await stageFixture(stagedAgentImport, env);
+    // in recording mode, setup test data before recording and cleanup after
+    // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
+    beforeAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await stageFixture(stagedAgentImport, env);
+        }
     });
 
-    afterEach(async () => {
-        await clearFixture(deleteAgent, env);
+    afterAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await clearFixture(deleteAgent, env);
+            await clearFixture(deleteAllAgents, env);
+        }
     });
 
     test('"frodo agent web delete -i frodo-test-web-agent": should delete the web agent with id \'frodo-test-web-agent\'', async () => {
@@ -85,7 +92,6 @@ describe('frodo agent web delete', () => {
 
     test('"frodo agent web delete --agent-id frodo-test-web-agent": should display error when the web agent with id \'frodo-test-web-agent\' cannot be deleted since it does not exist', async () => {
         const CMD = 'frodo agent web delete --agent-id frodo-test-web-agent';
-        await exec(deleteAgent, env);
         try {
             await exec(CMD, env);
             fail("Command should've failed")
@@ -101,7 +107,6 @@ describe('frodo agent web delete', () => {
     });
 
     test('"frodo agent web delete --all": should do nothing when no web agent can be deleted', async () => {
-        await exec(deleteAgent, env);
         const CMD = 'frodo agent web delete --all';
         const { stderr } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
