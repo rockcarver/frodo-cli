@@ -826,12 +826,19 @@ function separateScriptsFromFullExport(
   fullExport: FullExportInterface
 ): SeparatedScripts {
   const scripts = { realm: {} };
+  // Some live exports can omit realm content; treat that as no script usage data.
+  if (!fullExport?.realm || typeof fullExport.realm !== 'object') {
+    return scripts;
+  }
   for (const [realm, realmExport] of Object.entries(fullExport.realm)) {
     if (!scripts.realm[realm]) {
       scripts.realm[realm] = {};
     }
-    scripts.realm[realm].script = realmExport.script;
-    delete realmExport.script;
+    // Normalize missing per-realm script sections to an empty object to avoid traversal errors.
+    scripts.realm[realm].script = realmExport?.script ?? {};
+    if (realmExport && typeof realmExport === 'object') {
+      delete realmExport.script;
+    }
   }
   return scripts;
 }
@@ -847,8 +854,11 @@ function getScriptLocations(
 ): string[] {
   const locations = [];
   const regex = new RegExp(`require\\(['|"]${scriptName}['|"]\\)`);
-  for (const [realm, realmExport] of Object.entries(configuration.realm)) {
-    for (const scriptData of Object.values(realmExport.script)) {
+  // Guard against partially populated exports where realm or script objects are missing.
+  for (const [realm, realmExport] of Object.entries(
+    configuration?.realm ?? {}
+  )) {
+    for (const scriptData of Object.values(realmExport?.script ?? {})) {
       let scriptString = scriptData.script as string;
       if (Array.isArray(scriptData.script)) {
         scriptString = scriptData.script.join('\n');
