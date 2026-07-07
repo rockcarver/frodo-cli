@@ -48,11 +48,11 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -i esv-test-secret
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -f test/e2e/exports/all/all.cloud.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret-pi -D test/e2e/exports/all-separate/cloud
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --file test/e2e/exports/all/all.cloud.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --directory test/e2e/exports/all-separate/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret -f test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe -ui esv-test-secret -D test/e2e/exports/all-separate/cloud
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret --file test/e2e/exports/all/all.cloud.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo esv secret describe --json --usage --secret-id esv-test-secret --directory test/e2e/exports/all-separate/cloud
 */
 import cp from 'child_process';
 import { promisify } from 'util';
@@ -74,8 +74,8 @@ describe('frodo esv secret describe', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo esv secret describe -ui esv-test-secret-pi": should describe the esv secret "esv-test-secret-pi" with usage`, async () => {
-        const CMD = `frodo esv secret describe -ui esv-test-secret-pi`;
+    test(`"frodo esv secret describe -ui esv-test-secret": should describe the esv secret "esv-test-secret" with usage`, async () => {
+        const CMD = `frodo esv secret describe -ui esv-test-secret`;
         try {
             await exec(CMD, env);
             fail("Command should've failed")
@@ -85,26 +85,26 @@ describe('frodo esv secret describe', () => {
         }
     });
 
-    test(`"frodo esv secret describe -ui esv-test-secret-pi -f ${allConfigFile}": should describe the esv secret "esv-test-secret-pi" with usage from file ${allConfigFile}`, async () => {
-        const CMD = `frodo esv secret describe -ui esv-test-secret-pi -f ${allConfigFile}`;
+    test(`"frodo esv secret describe -ui esv-test-secret -f ${allConfigFile}": should describe the esv secret "esv-test-secret" with usage from file ${allConfigFile}`, async () => {
+        const CMD = `frodo esv secret describe -ui esv-test-secret -f ${allConfigFile}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo esv secret describe -ui esv-test-secret-pi -D ${allConfigDirectory}": should describe the esv secret "esv-test-secret-pi" with usage from directory ${allConfigDirectory}`, async () => {
-        const CMD = `frodo esv secret describe -ui esv-test-secret-pi -D ${allConfigDirectory}`;
+    test(`"frodo esv secret describe -ui esv-test-secret -D ${allConfigDirectory}": should describe the esv secret "esv-test-secret" with usage from directory ${allConfigDirectory}`, async () => {
+        const CMD = `frodo esv secret describe -ui esv-test-secret -D ${allConfigDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --file ${allConfigFile}": should describe the esv secret "esv-test-secret-pi" with usage from file ${allConfigFile} and json output`, async () => {
-        const CMD = `frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --file ${allConfigFile}`;
+    test(`"frodo esv secret describe --json --usage --secret-id esv-test-secret --file ${allConfigFile}": should describe the esv secret "esv-test-secret" with usage from file ${allConfigFile} and json output`, async () => {
+        const CMD = `frodo esv secret describe --json --usage --secret-id esv-test-secret --file ${allConfigFile}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --directory ${allConfigDirectory}": should describe the esv secret "esv-test-secret-pi" with usage from directory ${allConfigDirectory} and json output`, async () => {
-        const CMD = `frodo esv secret describe --json --usage --secret-id esv-test-secret-pi --directory ${allConfigDirectory}`;
+    test(`"frodo esv secret describe --json --usage --secret-id esv-test-secret --directory ${allConfigDirectory}": should describe the esv secret "esv-test-secret" with usage from directory ${allConfigDirectory} and json output`, async () => {
+        const CMD = `frodo esv secret describe --json --usage --secret-id esv-test-secret --directory ${allConfigDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
