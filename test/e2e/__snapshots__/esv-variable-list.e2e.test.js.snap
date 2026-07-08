@@ -73,179 +73,43 @@ esv-trinity-phone                │(312)-555-0690                          │l
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 1`] = `
-"✔ Successfully read 12 variables.
-• Exported 27 am config entities.
-Progress indicator undefined not found.
-Error Exporting Mappings
-  Error exporting mappings
-    Error reading mappings
-      Error reading sync mappings
-        Error reading config entity sync
-          Network error:
-            URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/sync
-            Status: 404
-            Code: ERR_BAD_REQUEST
-            Reason: Not Found
-            Message: Not Found
-• Exported 5 email templates.
-• Exported 36 config entities.
-• Exported 6 internal roles
-• Exported 3 custom nodes.
-• Exported 3 realms.
-• Exported 40 scriptTypes.
-• Exported 2 secrets.
-• Exported 2 global services.
-• Exported 12 variables.
-• Exported 0 / realm SAML2 providers.
-• Exported 0 / realm agent groups.
-• Exported 0 / realm agents.
-• Exported 0 / realm OAuth2 clients.
-• 0 / realm providers exported.
-• Exported 0 / realm applications
-• Exported 169 / realm policies.
-• Exported 11 / realm policy sets.
-• Exported 3 / realm resource types.
-• Exported 0 secret stores.
-• Exported 0 / realm services.
-• Exported 0 / realm themes.
-• Exported 2 alpha realm SAML2 providers.
-• Exported 2 alpha realm circles of trust.
-• Exported 1 alpha realm agent groups.
-• Exported 0 alpha realm agents.
-• Exported 1 alpha realm OAuth2 clients.
-• 5 alpha realm providers exported.
-• Exported 10 alpha realm journeys.
-• Exported 0 alpha realm applications
-• Exported 2 alpha realm policies.
-• Exported 4 alpha realm policy sets.
-• Exported 3 alpha realm resource types.
-• Exported alpha realm 60 scripts.
-• Exported 1 secret stores.
-• Exported 7 alpha realm services.
-• Exported 6 alpha realm themes.
-• Exported 0 bravo realm SAML2 providers.
-• Exported 0 bravo realm agent groups.
-• Exported 0 bravo realm agents.
-• Exported 1 bravo realm OAuth2 clients.
-• 0 bravo realm providers exported.
-• Exported 7 bravo realm journeys.
-• Exported 0 bravo realm applications
-• Exported 0 bravo realm policies.
-• Exported 2 bravo realm policy sets.
-• Exported 3 bravo realm resource types.
-• Exported bravo realm 55 scripts.
-• Exported 1 secret stores.
-• Exported 6 bravo realm services.
-• Exported 5 bravo realm themes.
-"
-`;
-
-exports[`frodo esv variable list "frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables 2`] = `
-"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used
-esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT│no  
-esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT│no  
-                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             │    
-                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             │    
-esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT│no  
-                                 │                                        │      │hovercraft.                             │                      │                             │    
-esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT│no  
-                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             │    
-esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT│no  
-esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT│no  
-esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT│no  
-esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT│no  
-esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT│no  
-esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT│no  
-esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT│no  
-                                 │                                        │      │light in meters per second (as an int). │                      │                             │    
-esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT│no  
-                                 │                                        │      │phone number Trinity is calling from is │                      │                             │    
-                                 │                                        │      │traced to (312)-555-0690                │                      │                             │    
+"Id                               │Value                                   │Status│Description                             │Modifier              │Modified (UTC)               │Used                                                                                                                                          
+esv-blue-piller                  │false                                   │loaded│Zion membership criteria.               │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:37 GMT│no                                                                                                                                            
+esv-ipv4-cidr-access-rules       │{ "allow": [ "145.118.0.0/16",          │loaded│IPv4 CIDR access rules: { "allow": [    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:38 GMT│no                                                                                                                                            
+                                 │"132.35.0.0/16", "101.226.0.0/16",      │      │"address/mask" ] }                      │                      │                             │                                                                                                                                              
+                                 │"99.72.28.182/32" ] }                   │      │                                        │                      │                             │                                                                                                                                              
+esv-nebuchadnezzar-crew          │,"Apoc","Cypher","Mouse","Neo","Switch"]│loaded│The crew of the Nebuchadnezzar          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:39 GMT│no                                                                                                                                            
+                                 │                                        │      │hovercraft.                             │                      │                             │                                                                                                                                              
+esv-nebuchadnezzar-crew-structure│"Apoc","Cypher","Mouse","Neo","Switch"]}│loaded│The structure of the crew of the        │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:41 GMT│no                                                                                                                                            
+                                 │                                        │      │Nebuchadnezzar hovercraft.              │                      │                             │                                                                                                                                              
+esv-neo-age                      │28                                      │loaded│Neo's age in the matrix.                │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:42 GMT│no                                                                                                                                            
+esv-number                       │1.134                                   │loaded│test number                             │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:43 GMT│no                                                                                                                                            
+esv-test                         │a,b,c,d                                 │loaded│list                                    │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:44:22 GMT│no                                                                                                                                            
+esv-test-var                     │this is a test variable                 │loaded│this is a test description              │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:41:48 GMT│no                                                                                                                                            
+esv-test-var-pi                  │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:44 GMT│yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
+esv-test-var-pi-string           │3.1415926                               │loaded│This is another test variable.          │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:45 GMT│no                                                                                                                                            
+esv-test-variable-light          │299792458                               │loaded│Test variable containing the speed of   │Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:47 GMT│yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
+                                 │                                        │      │light in meters per second (as an int). │                      │                             │                                                                                                                                              
+esv-trinity-phone                │(312)-555-0690                          │loaded│In the opening of The Matrix (1999), the│Frodo-SA-1782747461119│Tue, 07 Jul 2026 13:42:48 GMT│no                                                                                                                                            
+                                 │                                        │      │phone number Trinity is calling from is │                      │                             │                                                                                                                                              
+                                 │                                        │      │traced to (312)-555-0690                │                      │                             │                                                                                                                                              
 "
 `;
 
 exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 1`] = `
-"✔ Successfully read 12 variables.
-• Exported 27 am config entities.
-Progress indicator undefined not found.
-Error Exporting Mappings
-  Error exporting mappings
-    Error reading mappings
-      Error reading sync mappings
-        Error reading config entity sync
-          Network error:
-            URL: https://openam-frodo-dev.forgeblocks.com/openidm/config/sync
-            Status: 404
-            Code: ERR_BAD_REQUEST
-            Reason: Not Found
-            Message: Not Found
-• Exported 5 email templates.
-• Exported 36 config entities.
-• Exported 6 internal roles
-• Exported 3 custom nodes.
-• Exported 3 realms.
-• Exported 40 scriptTypes.
-• Exported 2 secrets.
-• Exported 2 global services.
-• Exported 12 variables.
-• Exported 0 / realm SAML2 providers.
-• Exported 0 / realm agent groups.
-• Exported 0 / realm agents.
-• Exported 0 / realm OAuth2 clients.
-• 0 / realm providers exported.
-• Exported 0 / realm applications
-• Exported 169 / realm policies.
-• Exported 11 / realm policy sets.
-• Exported 3 / realm resource types.
-• Exported 0 secret stores.
-• Exported 0 / realm services.
-• Exported 0 / realm themes.
-• Exported 2 alpha realm SAML2 providers.
-• Exported 2 alpha realm circles of trust.
-• Exported 1 alpha realm agent groups.
-• Exported 0 alpha realm agents.
-• Exported 1 alpha realm OAuth2 clients.
-• 5 alpha realm providers exported.
-• Exported 10 alpha realm journeys.
-• Exported 0 alpha realm applications
-• Exported 2 alpha realm policies.
-• Exported 4 alpha realm policy sets.
-• Exported 3 alpha realm resource types.
-• Exported alpha realm 60 scripts.
-• Exported 1 secret stores.
-• Exported 7 alpha realm services.
-• Exported 6 alpha realm themes.
-• Exported 0 bravo realm SAML2 providers.
-• Exported 0 bravo realm agent groups.
-• Exported 0 bravo realm agents.
-• Exported 1 bravo realm OAuth2 clients.
-• 0 bravo realm providers exported.
-• Exported 7 bravo realm journeys.
-• Exported 0 bravo realm applications
-• Exported 0 bravo realm policies.
-• Exported 2 bravo realm policy sets.
-• Exported 3 bravo realm resource types.
-• Exported bravo realm 55 scripts.
-• Exported 1 secret stores.
-• Exported 6 bravo realm services.
-• Exported 5 bravo realm themes.
-"
-`;
-
-exports[`frodo esv variable list "frodo esv variable list -u": should list the usage of the esv variables 2`] = `
-"Id                               │Used
-esv-blue-piller                  │no  
-esv-ipv4-cidr-access-rules       │no  
-esv-nebuchadnezzar-crew          │no  
-esv-nebuchadnezzar-crew-structure│no  
-esv-neo-age                      │no  
-esv-number                       │no  
-esv-test                         │no  
-esv-test-var                     │no  
-esv-test-var-pi                  │no  
-esv-test-var-pi-string           │no  
-esv-test-variable-light          │no  
-esv-trinity-phone                │no  
+"Id                               │Used                                                                                                                                          
+esv-blue-piller                  │no                                                                                                                                            
+esv-ipv4-cidr-access-rules       │no                                                                                                                                            
+esv-nebuchadnezzar-crew          │no                                                                                                                                            
+esv-nebuchadnezzar-crew-structure│no                                                                                                                                            
+esv-neo-age                      │no                                                                                                                                            
+esv-number                       │no                                                                                                                                            
+esv-test                         │no                                                                                                                                            
+esv-test-var                     │no                                                                                                                                            
+esv-test-var-pi                  │yes (2 uses, including: realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.0)
+esv-test-var-pi-string           │no                                                                                                                                            
+esv-test-variable-light          │yes (at realm.root-alpha.script.da7a96a8-7969-4dab-9c6e-a812938cc76d(name: 'test-script-with-secrets-and-variables').script.2)                
+esv-trinity-phone                │no                                                                                                                                            
 "
 `;
 
