@@ -2,7 +2,25 @@
 
 exports[`frodo authz set import "frodo authz set import --all --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import all policy sets from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
 
-exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should import all policy sets from the test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset directory with no dependencies 1`] = `""`;
+exports[`frodo authz set import "frodo authz set import --all-separate --no-deps --prereqs --directory test/e2e/exports/all-separate/cloud/realm/root-alpha/policyset": should fail when prerequisite resource type definitions are not included in the separate export files 1`] = `
+"Error importing alpha realm policy sets
+  Error importing alpha realm hard dependencies for policy set EdgePolicySet
+    Import data is missing prerequisite resource type definitions for policy set EdgePolicySet. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policy sets
+  Error importing alpha realm hard dependencies for policy set FeatureStorePolicySet
+    Import data is missing prerequisite resource type definitions for policy set FeatureStorePolicySet. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policy sets
+  Error importing alpha realm hard dependencies for policy set data
+    Import data is missing prerequisite resource type definitions for policy set data. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policy sets
+  Error importing alpha realm hard dependencies for policy set oauth2Scopes
+    Import data is missing prerequisite resource type definitions for policy set oauth2Scopes. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+Error importing alpha realm policy sets
+  Error importing alpha realm hard dependencies for policy set test-policy-set
+    Import data is missing prerequisite resource type definitions for policy set test-policy-set. Provide import data with prerequisite resource type definitions included, or omit prerequisite import handling.
+✖ Failed after processing 5 policy sets from 5 files; 5 files had errors.
+"
+`;
 
 exports[`frodo authz set import "frodo authz set import --file test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json --no-deps --prereqs": should import the first policy set from the file "test/e2e/exports/all/allAlphaPolicySets.policyset.authz.json" with no dependencies 1`] = `""`;
 
