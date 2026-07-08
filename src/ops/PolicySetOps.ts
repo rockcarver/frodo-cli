@@ -515,6 +515,7 @@ export async function importPolicySetsFromFiles(
 ): Promise<boolean> {
   const errors = [];
   let indicatorId: string;
+  let failedFiles = 0;
   try {
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
@@ -546,6 +547,7 @@ export async function importPolicySetsFromFiles(
         );
       } catch (error) {
         errors.push(error);
+        failedFiles += 1;
         updateProgressIndicator(
           indicatorId,
           `Error importing policy sets from ${file}`
@@ -553,15 +555,25 @@ export async function importPolicySetsFromFiles(
         printError(error);
       }
     }
-    stopProgressIndicator(
-      indicatorId,
-      `Finished importing ${total} policy sets from ${files.length} files.`
-    );
+    if (errors.length > 0) {
+      stopProgressIndicator(
+        indicatorId,
+        `Failed after processing ${total} policy sets from ${files.length} files; ${failedFiles} files had errors.`,
+        'fail'
+      );
+    } else {
+      stopProgressIndicator(
+        indicatorId,
+        `Finished importing ${total} policy sets from ${files.length} files.`,
+        'success'
+      );
+    }
   } catch (error) {
     errors.push(error);
     stopProgressIndicator(
       indicatorId,
-      `Error importing policy sets from files.`
+      `Error importing policy sets from files.`,
+      'fail'
     );
     printError(error);
   }
