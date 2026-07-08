@@ -665,7 +665,13 @@ export async function importPoliciesFromFiles(
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
-      .filter((name) => name.toLowerCase().endsWith('.policy.authz.json'))
+      .filter((name) => {
+        const normalizedName = name.toLowerCase();
+        return (
+          normalizedName.endsWith('.policy.authz.json') ||
+          normalizedName.endsWith('.policy.json')
+        );
+      })
       .map((name) => getFilePath(name));
     indicatorId = createProgressIndicator(
       'determinate',

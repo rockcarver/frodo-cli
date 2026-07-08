@@ -519,7 +519,13 @@ export async function importPolicySetsFromFiles(
     debugMessage(`cli.PolicySetOps.importPolicySetsFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
-      .filter((name) => name.toLowerCase().endsWith('.policyset.authz.json'))
+      .filter((name) => {
+        const normalizedName = name.toLowerCase();
+        return (
+          normalizedName.endsWith('.policyset.authz.json') ||
+          normalizedName.endsWith('.policyset.json')
+        );
+      })
       .map((name) => getFilePath(name));
     indicatorId = createProgressIndicator(
       'determinate',

@@ -38,7 +38,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all resource types from separate files (*.resourcetype.authz.json) in the current directory. Ignored with -i, -n, or -a.'
+        'Import all resource types from separate files (*.resourcetype.authz.json or *.resourcetype.json) in the current directory. Ignored with -i, -n, or -a.'
       )
     )
     .action(
