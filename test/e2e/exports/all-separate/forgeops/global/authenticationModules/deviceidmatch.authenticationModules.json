@@ -1,0 +1,18 @@
+{
+  "authenticationModules": {
+    "deviceidmatch": {
+      "_id": "deviceidmatch",
+      "_type": {
+        "_id": "deviceidmatch",
+        "collection": false,
+        "name": "Device Id (Match)"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "clientScript": "157298c0-7d31-4059-a95b-eeb08473b7e5",
+        "clientScriptEnabled": true,
+        "serverScript": "703dab1a-1921-4981-98dd-b8e5349d8548"
+      }
+    }
+  }
+}

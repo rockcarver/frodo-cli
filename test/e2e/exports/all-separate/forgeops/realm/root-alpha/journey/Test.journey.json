@@ -1,0 +1,193 @@
+{
+  "trees": {
+    "Test": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "02e10086-108c-441c-b14b-cc2054ef7483": {
+          "_id": "02e10086-108c-441c-b14b-cc2054ef7483",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "True"
+            },
+            {
+              "displayName": "False",
+              "id": "False"
+            }
+          ],
+          "_type": {
+            "_id": "designer-c605506774a848f7877b4d17a453bd39",
+            "collection": true,
+            "name": "Has Session"
+          }
+        },
+        "0dd3743e-2aaf-4a4a-9e83-a64490303a10": {
+          "_id": "0dd3743e-2aaf-4a4a-9e83-a64490303a10",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "Success"
+            },
+            {
+              "displayName": "Script Error",
+              "id": "Script Error"
+            }
+          ],
+          "_type": {
+            "_id": "designer-c15e2efb3deb4d4ea338c74a6440b69f",
+            "collection": true,
+            "name": "Vector ALU"
+          },
+          "a": [
+            1,
+            2,
+            3
+          ],
+          "b": [
+            4,
+            5,
+            6
+          ],
+          "operator": "CROSS"
+        },
+        "1bfea910-5d16-4439-b0db-70c3245644e1": {
+          "_id": "1bfea910-5d16-4439-b0db-70c3245644e1",
+          "_outcomes": [
+            {
+              "displayName": "Success",
+              "id": "Success"
+            },
+            {
+              "displayName": "Script Error",
+              "id": "Script Error"
+            }
+          ],
+          "_type": {
+            "_id": "designer-c6063fb2f5dc42dd9772bedc93898bd8",
+            "collection": true,
+            "name": "ALU"
+          },
+          "operator": "ADD"
+        },
+        "cccb0cb9-a134-4f52-a499-55d4f095ac81": {
+          "_id": "cccb0cb9-a134-4f52-a499-55d4f095ac81",
+          "_outcomes": [
+            {
+              "displayName": "outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "designer-ef81b1a52c914710b3388caebfe7233a",
+            "collection": true,
+            "name": "Display Callback"
+          },
+          "callback": "TEXT_OUTPUT_CALLBACK",
+          "options": {
+            "message": "Hello World!",
+            "messageType": "0"
+          }
+        },
+        "df153624-6d66-4e82-9b62-8cee4d62ab8f": {
+          "_id": "df153624-6d66-4e82-9b62-8cee4d62ab8f",
+          "_outcomes": [
+            {
+              "displayName": "outcome",
+              "id": "outcome"
+            }
+          ],
+          "_type": {
+            "_id": "designer-8ab9f1aad4b4460a9c45d15fb148e221",
+            "collection": true,
+            "name": "Display State"
+          },
+          "displayFormat": "TABLE"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "Test",
+        "description": "Test journey",
+        "enabled": true,
+        "entryNodeId": "02e10086-108c-441c-b14b-cc2054ef7483",
+        "identityResource": "managed/alpha_user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "02e10086-108c-441c-b14b-cc2054ef7483": {
+            "connections": {
+              "False": "0dd3743e-2aaf-4a4a-9e83-a64490303a10",
+              "True": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Has Session",
+            "nodeType": "designer-c605506774a848f7877b4d17a453bd39",
+            "x": 210,
+            "y": 155
+          },
+          "0dd3743e-2aaf-4a4a-9e83-a64490303a10": {
+            "connections": {
+              "Script Error": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Success": "1bfea910-5d16-4439-b0db-70c3245644e1"
+            },
+            "displayName": "Vector ALU",
+            "nodeType": "designer-c15e2efb3deb4d4ea338c74a6440b69f",
+            "x": 440,
+            "y": 80
+          },
+          "1bfea910-5d16-4439-b0db-70c3245644e1": {
+            "connections": {
+              "Script Error": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Success": "df153624-6d66-4e82-9b62-8cee4d62ab8f"
+            },
+            "displayName": "ALU",
+            "nodeType": "designer-c6063fb2f5dc42dd9772bedc93898bd8",
+            "x": 670,
+            "y": 155
+          },
+          "cccb0cb9-a134-4f52-a499-55d4f095ac81": {
+            "connections": {
+              "outcome": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "displayName": "Hello World!",
+            "nodeType": "designer-ef81b1a52c914710b3388caebfe7233a",
+            "x": 1136,
+            "y": 181.5
+          },
+          "df153624-6d66-4e82-9b62-8cee4d62ab8f": {
+            "connections": {
+              "outcome": "cccb0cb9-a134-4f52-a499-55d4f095ac81"
+            },
+            "displayName": "Display State",
+            "nodeType": "designer-8ab9f1aad4b4460a9c45d15fb148e221",
+            "x": 900,
+            "y": 181.5
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 440,
+            "y": 284
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1390,
+            "y": 182
+          },
+          "startNode": {
+            "x": 70,
+            "y": 182
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"Test\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

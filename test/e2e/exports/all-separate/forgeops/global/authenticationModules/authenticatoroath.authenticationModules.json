@@ -1,0 +1,25 @@
+{
+  "authenticationModules": {
+    "authenticatoroath": {
+      "_id": "authenticatoroath",
+      "_type": {
+        "_id": "authenticatoroath",
+        "collection": false,
+        "name": "ForgeRock Authenticator (OATH)"
+      },
+      "defaults": {
+        "addChecksumToOtpEnabled": "False",
+        "authenticationLevel": 0,
+        "frOathOtpMaxRetry": 3,
+        "hotpWindowSize": 100,
+        "minimumSecretKeyLength": 32,
+        "oathAlgorithm": "HOTP",
+        "passwordLength": "6",
+        "totpMaximumClockDrift": 5,
+        "totpTimeStepInterval": 30,
+        "totpTimeStepsInWindow": 2,
+        "truncationOffset": -1
+      }
+    }
+  }
+}

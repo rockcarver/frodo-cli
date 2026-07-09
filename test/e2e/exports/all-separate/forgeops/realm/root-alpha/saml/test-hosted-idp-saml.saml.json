@@ -1,0 +1,236 @@
+{
+  "saml": {
+    "cot": {},
+    "hosted": {
+      "dGVzdC1ob3N0ZWQtaWRwLXNhbWw": {
+        "_id": "dGVzdC1ob3N0ZWQtaWRwLXNhbWw",
+        "entityId": "test-hosted-idp-saml",
+        "identityProvider": {
+          "advanced": {
+            "ecpConfiguration": {
+              "idpSessionMapper": "com.sun.identity.saml2.plugins.DefaultIDPECPSessionMapper"
+            },
+            "idpAdapter": {
+              "idpAdapterScript": "[Empty]"
+            },
+            "idpFinderImplementation": {},
+            "relayStateUrlList": {},
+            "saeConfiguration": {
+              "idpUrl": "https://platform.dev.trivir.com/am/idpsaehandler/metaAlias/test_1"
+            },
+            "sessionSynchronization": {}
+          },
+          "assertionContent": {
+            "assertionCache": {},
+            "assertionTime": {
+              "effectiveTime": 600,
+              "notBeforeTimeSkew": 600
+            },
+            "authenticationContext": {
+              "authContextItems": [
+                {
+                  "contextReference": "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+                  "level": 0
+                }
+              ],
+              "authenticationContextMapper": "com.sun.identity.saml2.plugins.DefaultIDPAuthnContextMapper"
+            },
+            "basicAuthentication": {},
+            "nameIdFormat": {
+              "nameIdFormatList": [
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName",
+                "urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos",
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+              ],
+              "nameIdValueMap": [
+                {
+                  "binary": false,
+                  "key": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+                  "value": "mail"
+                }
+              ]
+            },
+            "signingAndEncryption": {
+              "encryption": {},
+              "requestResponseSigning": {},
+              "secretIdAndAlgorithms": {}
+            }
+          },
+          "assertionProcessing": {
+            "accountMapper": {
+              "accountMapper": "com.sun.identity.saml2.plugins.DefaultIDPAccountMapper",
+              "disableNameIdPersistence": false
+            },
+            "attributeMapper": {
+              "attributeMapper": "com.sun.identity.saml2.plugins.DefaultIDPAttributeMapper",
+              "attributeMapperScript": "c4f22465-2368-4e27-8013-e6399974fd48"
+            },
+            "localConfiguration": {}
+          },
+          "services": {
+            "assertionIdRequest": [
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                "location": "https://platform.dev.trivir.com/am/AIDReqSoap/IDPRole/metaAlias/test_1"
+              },
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:URI",
+                "location": "https://platform.dev.trivir.com/am/AIDReqUri/IDPRole/metaAlias/test_1"
+              }
+            ],
+            "metaAlias": "/test_1",
+            "nameIdMapping": [
+              {
+                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                "location": "https://platform.dev.trivir.com/am/NIMSoap/metaAlias/test_1"
+              }
+            ],
+            "serviceAttributes": {
+              "artifactResolutionService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://platform.dev.trivir.com/am/ArtifactResolver/metaAlias/test_1"
+                }
+              ],
+              "nameIdService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1",
+                  "responseLocation": "https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1",
+                  "responseLocation": "https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://platform.dev.trivir.com/am/IDPMniSoap/metaAlias/test_1"
+                }
+              ],
+              "singleLogoutService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1",
+                  "responseLocation": "https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1",
+                  "responseLocation": "https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://platform.dev.trivir.com/am/IDPSloSoap/metaAlias/test_1"
+                }
+              ],
+              "singleSignOnService": [
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                  "location": "https://platform.dev.trivir.com/am/SSORedirect/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                  "location": "https://platform.dev.trivir.com/am/SSOPOST/metaAlias/test_1"
+                },
+                {
+                  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
+                  "location": "https://platform.dev.trivir.com/am/SSOSoap/metaAlias/test_1"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "dGVzdC1ob3N0ZWQtaWRwLXNhbWw": [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
+        "<EntityDescriptor entityID=\"test-hosted-idp-saml\" xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:query=\"urn:oasis:names:tc:SAML:metadata:ext:query\" xmlns:mdattr=\"urn:oasis:names:tc:SAML:metadata:attribute\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" xmlns:alg=\"urn:oasis:names:tc:SAML:metadata:algsupport\" xmlns:x509qry=\"urn:oasis:names:tc:SAML:metadata:X509:query\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">",
+        "    <IDPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\">",
+        "        <KeyDescriptor use=\"signing\">",
+        "            <ds:KeyInfo>",
+        "                <ds:X509Data>",
+        "                    <ds:X509Certificate>",
+        "MIIDYzCCAkugAwIBAgIILQnyOU1PHIEwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVUsxEDAO",
+        "BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazEZMBcG",
+        "A1UEAxMQcnNhand0c2lnbmluZ2tleTAeFw0yNjAyMDYxNDMzMzdaFw0zNjAyMDQxNDMzMzdaMGAx",
+        "CzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQK",
+        "EwlGb3JnZVJvY2sxGTAXBgNVBAMTEHJzYWp3dHNpZ25pbmdrZXkwggEiMA0GCSqGSIb3DQEBAQUA",
+        "A4IBDwAwggEKAoIBAQCrX9/hFscSTuI0g2tZ1jlqPM8vrYtqG0hauiewNmE0MNSSEIoskZaENiRU",
+        "UNkUlXHKQCWUflagqT0DkCyozCEB7XF/2Q8j4fPaSWA4Mefj0eecRVUaulCy1E8tJ0CzWZrqYTdn",
+        "lcB+gN5c2kJiSCRjJ38gzT4AQU9oJGLanKFpHvk+SMuqpnZiFUN3vTwWqMNhGxMDkYFmPtBzO71C",
+        "2mZrN+INd0DyrZzRNn8Qh5qo2tgVOJWzcbxtxtgh1ZAt/Q8oIQXmd6yoKguiQD+FGHV8tZRkFDIW",
+        "l0VCwH5PD0wY18E4SO+gsARMudN+rQ34y2O12Mirfl56GlgnRDYSbPRbAgMBAAGjITAfMB0GA1Ud",
+        "DgQWBBSklqDq7HRCjutHDVPh5XrRu5pfzTANBgkqhkiG9w0BAQsFAAOCAQEAOC5pivjGDgkQ/OFo",
+        "K4vl3iaQzewogHyTPcQj79Knj/Rg/GBwgEnMMRZiYIgksMrsdnmihotW4AniB1wpFi9mBBG6bF/s",
+        "e3VWST4VnpXs3Ex+uLPjegOW+NYYJWSbOwRRnS9ysHAcx/3jQKrXpn9/ZfMpuHqHkytniKsBwwrL",
+        "U6bT/0hH5L1sJRcS2utbvt3DO15jTMOhamJuvAoelSmdMlnudO8y0kR7AlgA2x50tvwAMlEEHPxo",
+        "N4+dZU1npbI/ao7KDS6AtQXaqXx2kXmovm2wMCHake9jOOVsphgiviGevSwGHhjet5D40+7URF1W",
+        "FaALI74mSNuSqqnloSB2YQ==",
+        "                    </ds:X509Certificate>",
+        "                </ds:X509Data>",
+        "            </ds:KeyInfo>",
+        "        </KeyDescriptor>",
+        "        <KeyDescriptor use=\"encryption\">",
+        "            <ds:KeyInfo>",
+        "                <ds:X509Data>",
+        "                    <ds:X509Certificate>",
+        "MIIDSzCCAjOgAwIBAgIIOsZo5CJTcc0wDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUsxEDAO",
+        "BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG",
+        "A1UEAxMEdGVzdDAeFw0yNjAyMDYxNDMzMzlaFw0zNjAyMDQxNDMzMzlaMFQxCzAJBgNVBAYTAlVL",
+        "MRAwDgYDVQQIEwdCcmlzdG9sMRAwDgYDVQQHEwdCcmlzdG9sMRIwEAYDVQQKEwlGb3JnZVJvY2sx",
+        "DTALBgNVBAMTBHRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDTBNilrFnQVprn",
+        "31AK9n1HOnFzTIQIu/ZzukYcYxMPTZV8rq4D2HHhwCGPK5VYyu9KC4zq/xOm71mpr4XiH9+ovubl",
+        "15pHek/2iwpbZzgdAHOCUuMT1WkKHz5jXFBI3JmSWyZLpQSbrnRzDoZgEMpn64K11It491dZ3En2",
+        "9QsRrcQQ7O3T7J25lQV4KpYHov8+gP4yvDZkALHNyBOxkuWvcFrjyx4jUrsEuDUi8vb8hZpEtcHQ",
+        "ZPllJzVsVu3obcEfLnlPu25VQn9xiL01DzeF8VEK/qtboRabNH6wfk19nNAmZu1UUW8TmBBe1AgD",
+        "G+uFxnv9W3Lm2ztUkH/Ltg+bAgMBAAGjITAfMB0GA1UdDgQWBBQarfWE+OACGmbhARDZtZNfDKiz",
+        "+zANBgkqhkiG9w0BAQsFAAOCAQEAxUvSU3HH90dPRryZ3V5wnkvGGvv3MTPr0NvrG2SiSFmXaG8o",
+        "08zUNYhhQkhpJst8Dxf4akZDmQ7vlpUXFcBCEKBWry0Ft16HthAV43+9R4m/goYMoPnCt6sesiz/",
+        "X8bt3VrSz2skkgt3c/G1ZnmGdTIaUIS+zmV9KJtvV14NGD0F5E/LdHh6Y8Z6tCfPCyXPq2E5HsOl",
+        "q3eA03YAMCTKOfjuR8AEj3UJnjnS1cD4csqoIzs2iauP48P/D43WjbhyhBuky8/NXP6pVKwPbp1m",
+        "NG958CoDkA9noVkolGk8pHAF+1iS76Pl4MIRFevGilNV5TphpKvxT8appm783Rk5ig==",
+        "                    </ds:X509Certificate>",
+        "                </ds:X509Data>",
+        "            </ds:KeyInfo>",
+        "            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p\">",
+        "                <ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>",
+        "            </EncryptionMethod>",
+        "            <EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes128-cbc\">",
+        "                <xenc:KeySize>128</xenc:KeySize>",
+        "            </EncryptionMethod>",
+        "        </KeyDescriptor>",
+        "        <ArtifactResolutionService index=\"0\" Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/ArtifactResolver/metaAlias/test_1\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPSloRedirect/metaAlias/test_1\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPSloPOST/metaAlias/test_1\"/>",
+        "        <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/IDPSloSoap/metaAlias/test_1\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPMniRedirect/metaAlias/test_1\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1\" ResponseLocation=\"https://platform.dev.trivir.com/am/IDPMniPOST/metaAlias/test_1\"/>",
+        "        <ManageNameIDService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/IDPMniSoap/metaAlias/test_1\"/>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>",
+        "        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</NameIDFormat>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://platform.dev.trivir.com/am/SSORedirect/metaAlias/test_1\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://platform.dev.trivir.com/am/SSOPOST/metaAlias/test_1\"/>",
+        "        <SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/SSOSoap/metaAlias/test_1\"/>",
+        "        <NameIDMappingService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/NIMSoap/metaAlias/test_1\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:SOAP\" Location=\"https://platform.dev.trivir.com/am/AIDReqSoap/IDPRole/metaAlias/test_1\"/>",
+        "        <AssertionIDRequestService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:URI\" Location=\"https://platform.dev.trivir.com/am/AIDReqUri/IDPRole/metaAlias/test_1\"/>",
+        "    </IDPSSODescriptor>",
+        "</EntityDescriptor>",
+        "",
+        ""
+      ]
+    },
+    "remote": {}
+  }
+}

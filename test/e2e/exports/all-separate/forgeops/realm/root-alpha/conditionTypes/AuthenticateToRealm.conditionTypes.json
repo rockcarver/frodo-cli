@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "AuthenticateToRealm": {
+      "_id": "AuthenticateToRealm",
+      "config": {
+        "properties": {
+          "authenticateToRealm": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "AuthenticateToRealm"
+    }
+  }
+}

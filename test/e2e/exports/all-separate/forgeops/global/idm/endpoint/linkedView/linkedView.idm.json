@@ -1,0 +1,10 @@
+{
+  "idm": {
+    "endpoint/linkedView": {
+      "_id": "endpoint/linkedView",
+      "context": "endpoint/linkedView/*",
+      "source": "file://linkedView.js",
+      "type": "text/javascript"
+    }
+  }
+}

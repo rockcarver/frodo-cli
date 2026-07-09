@@ -1,0 +1,12 @@
+{
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://UserToUserGroovySync/UserToUserGroovySync.sync.json",
+        "file://UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json",
+        "file://UserToUserNoScriptsSync.sync.json"
+      ]
+    }
+  }
+}

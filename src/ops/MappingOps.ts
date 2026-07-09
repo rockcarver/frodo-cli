@@ -7,6 +7,7 @@ import {
   SyncSkeleton,
 } from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import fs from 'fs';
+import path from 'path';
 
 import { extractDataToFile, getExtractedJsonData } from '../utils/Config';
 import {
@@ -18,6 +19,14 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import {
+  findIdmScripts,
+  getLastString,
+  getObjectByPath,
+  getObjectByPathExcludeLast,
+  getTopString,
+  resolveAllExtractedScriptsForImport,
+} from './IdmOps';
 
 const {
   getTypedFilename,
@@ -96,6 +105,7 @@ export async function exportMappingToFile(
   mappingId: string,
   file: string,
   includeMeta: boolean = true,
+  extract: boolean = false,
   options: MappingExportOptions = {
     deps: true,
     useStringArrays: true,
@@ -103,14 +113,21 @@ export async function exportMappingToFile(
 ): Promise<boolean> {
   try {
     const exportData = await exportMapping(mappingId, options);
-    let fileName = getTypedFilename(
-      getMappingNameFromId(mappingId),
-      getMappingTypeFromId(mappingId)
-    );
-    if (file) {
-      fileName = file;
+    const mappingName = getMappingNameFromId(mappingId);
+    const mappingType = getMappingTypeFromId(mappingId);
+    if (!extract) {
+      const fileName = file || getTypedFilename(mappingName, mappingType);
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+      return true;
     }
-    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    writeMappingJsonToDirectory(
+      mappingType === 'sync'
+        ? exportData.sync.mappings[0]
+        : exportData.mapping[mappingId],
+      '.',
+      includeMeta,
+      extract
+    );
     return true;
   } catch (error) {
     printError(error, `Error exporting mapping ${mappingId} to file`);
@@ -155,6 +172,7 @@ export async function exportMappingsToFile(
  */
 export async function exportMappingsToFiles(
   includeMeta: boolean = true,
+  extract: boolean,
   options: MappingExportOptions = {
     deps: true,
     useStringArrays: true,
@@ -163,19 +181,9 @@ export async function exportMappingsToFiles(
   try {
     const exportData = await exportMappings(options);
     for (const mapping of Object.values(exportData.mapping)) {
-      const fileName = getTypedFilename(
-        mapping.name,
-        getMappingTypeFromId(mapping._id)
-      );
-      saveToFile(
-        getMappingTypeFromId(mapping._id),
-        mapping,
-        '_id',
-        getFilePath('mapping/' + fileName, true),
-        includeMeta
-      );
+      writeMappingJsonToDirectory(mapping, 'mapping', includeMeta, extract);
     }
-    writeSyncJsonToDirectory(exportData.sync, 'sync', includeMeta);
+    writeSyncJsonToDirectory(exportData.sync, 'sync', includeMeta, extract);
     return true;
   } catch (error) {
     printError(error, `Error exporting mappings to files`);
@@ -255,18 +263,22 @@ export async function importMappingsFromFiles(
     const workingDirectory = getWorkingDirectory();
     const allMappingFiles = (await readFiles(workingDirectory)).filter(
       (f) =>
-        f.path.toLowerCase().endsWith('mapping.json') ||
-        f.path.toLowerCase().endsWith('sync.json') ||
-        f.path.toLowerCase().endsWith('sync.idm.json') ||
-        f.path.toLowerCase().endsWith('mapping.idm.json')
+        f.path.endsWith('mapping.json') ||
+        f.path.endsWith('sync.json') ||
+        f.path.endsWith('sync.idm.json') ||
+        f.path.endsWith('mapping.idm.json')
     );
-    const mapping = Object.fromEntries(
-      allMappingFiles
-        .filter((f) => f.path.toLowerCase().endsWith('mapping.json'))
-        .map((f) => Object.values(JSON.parse(f.content).mapping))
-        .flat()
-        .map((m) => [(m as MappingSkeleton)._id, m])
-    ) as Record<string, MappingSkeleton>;
+    const mappingEntries: [string, MappingSkeleton][] = [];
+    for (const f of allMappingFiles.filter((f) =>
+      f.path.endsWith('mapping.json')
+    )) {
+      const parsed = parseAndResolveMappingFile(f);
+      mappingEntries.push(...Object.entries(parsed));
+    }
+    const mapping = Object.fromEntries(mappingEntries) as Record<
+      string,
+      MappingSkeleton
+    >;
     await importMappings(
       {
         mapping,
@@ -274,11 +286,33 @@ export async function importMappingsFromFiles(
       } as MappingExportInterface,
       options
     );
+
     return true;
   } catch (error) {
     printError(error, `Error importing mappings from files`);
   }
   return false;
+}
+
+/**
+ * Loads and resolves extracted scripts from a single mapping file.
+ * @param file A file object with path and content (from readFiles)
+ * @returns Record of mappings keyed by _id
+ */
+export function parseAndResolveMappingFile(file: {
+  path: string;
+  content: string;
+}): Record<string, MappingSkeleton> {
+  const baseDir = path.dirname(file.path);
+  const parsed = JSON.parse(file.content);
+  const mappings = Object.values(parsed.mapping || {}) as MappingSkeleton[];
+
+  const mappingRecord: Record<string, MappingSkeleton> = {};
+  for (const mapping of mappings) {
+    resolveAllExtractedScriptsForImport(mapping, baseDir);
+    mappingRecord[mapping._id] = mapping;
+  }
+  return mappingRecord;
 }
 
 /**
@@ -455,19 +489,68 @@ export async function renameMappings(
 }
 
 /**
- * Helper that writes mappings in a sync.idm.json config entity to a directory
- * @param sync The sync.idm.json config entity
- * @param directory The directory to save the mappings
+ * Helper that extracts mapping scripts from a mapping object
+ * @param {MappingSkeleton} mapping The mapping object
+ * @param {string} directory The directory to extract scripts to within the base directory
+ * @returns {boolean} true if at least one script got extracted, false otherwise
+ */
+export function extractMappingScriptsToDirectory(
+  mapping: MappingSkeleton,
+  directory: string = mapping.name
+): boolean {
+  const scripts = findIdmScripts(mapping);
+  if (!scripts.length) return false;
+  for (const script of scripts) {
+    const objectSource = getObjectByPath(mapping, script.path);
+    let fileName = script.path;
+    if (getTopString(script.path) === 'policies') {
+      const situation = getObjectByPathExcludeLast(
+        mapping,
+        script.path
+      ).situation;
+      fileName = `${situation}.${getLastString(script.path)}`;
+    } else if (getTopString(script.path) === 'properties') {
+      let source = getObjectByPathExcludeLast(mapping, script.path).source;
+      if (!source) source = 'SOURCE';
+      let target = getObjectByPathExcludeLast(mapping, script.path).target;
+      if (!target) target = 'TARGET';
+      fileName = `${source}.${target}.${getLastString(script.path)}`;
+    }
+    objectSource.source = extractDataToFile(
+      script.source,
+      `${fileName}.${script.type}`,
+      directory
+    );
+  }
+  return true;
+}
+
+/**
+ * Helper that writes mappings in the sync IDM config entity to a directory
+ * @param {SyncSkeleton} sync The sync IDM config entity
+ * @param {string} directory The directory to save the entity to within the base directory
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
  */
 export function writeSyncJsonToDirectory(
   sync: SyncSkeleton,
   directory: string = 'sync',
-  includeMeta: boolean = true
+  includeMeta: boolean = true,
+  extract: boolean = false
 ) {
   const mappingPaths = [];
   for (const mapping of sync.mappings) {
     const fileName = getTypedFilename(mapping.name, 'sync');
-    mappingPaths.push(extractDataToFile(mapping, fileName, directory));
+    if (
+      extract &&
+      extractMappingScriptsToDirectory(mapping, `${directory}/${mapping.name}`)
+    ) {
+      mappingPaths.push(
+        extractDataToFile(mapping, `${mapping.name}/${fileName}`, directory)
+      );
+    } else {
+      mappingPaths.push(extractDataToFile(mapping, fileName, directory));
+    }
   }
   sync.mappings = mappingPaths;
   saveToFile(
@@ -480,10 +563,36 @@ export function writeSyncJsonToDirectory(
 }
 
 /**
- * Helper that returns the sync.idm.json object containing all the mappings in it by looking through the files
- *
- * @param files the files to get sync.idm.json object from
- * @returns the sync.idm.json object
+ * Helper that writes a mapping IDM config entity to a directory
+ * @param {MappingSkeleton} function The mapping IDM config entity
+ * @param {string} directory The directory to save the entity to within the base directory
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @param {boolean} extract true to extract idm scripts, false otherwise. Default: false
+ */
+export function writeMappingJsonToDirectory(
+  mapping: MappingSkeleton,
+  directory: string = '.',
+  includeMeta: boolean = true,
+  extract: boolean = false
+) {
+  const mappingType = getMappingTypeFromId(mapping._id);
+  const fileName = getTypedFilename(mapping.name, mappingType);
+  let filePath;
+  if (
+    extract &&
+    extractMappingScriptsToDirectory(mapping, `${directory}/${mapping.name}`)
+  ) {
+    filePath = getFilePath(`${directory}/${mapping.name}/${fileName}`, true);
+  } else {
+    filePath = getFilePath(`${directory}/${fileName}`, true);
+  }
+  saveToFile(mappingType, mapping, '_id', filePath, includeMeta);
+}
+
+/**
+ * Helper that reads the sync IDM config entity from files
+ * @param {{ path: string; content: string }[]} files the files to read the sync IDM config entity object from
+ * @returns {SyncSkeleton} the sync IDM config entity
  */
 export function getLegacyMappingsFromFiles(
   files: { path: string; content: string }[]
@@ -497,23 +606,47 @@ export function getLegacyMappingsFromFiles(
     mappings: [],
   };
   if (syncFiles.length === 1) {
-    const jsonData = JSON.parse(syncFiles[0].content);
-    const syncData = jsonData.sync ? jsonData.sync : jsonData.idm.sync;
-    const syncJsonDir = syncFiles[0].path.substring(
-      0,
-      syncFiles[0].path.indexOf('/sync.idm.json')
-    );
-    if (syncData.mappings) {
+    const file = syncFiles[0];
+    const jsonData = JSON.parse(file.content);
+    const syncData = jsonData.sync ?? jsonData.idm?.sync;
+    const syncJsonDir = path.dirname(file.path);
+    if (syncData?.mappings) {
       for (const mapping of syncData.mappings) {
+        let resolvedMapping: any;
         if (typeof mapping === 'string') {
-          sync.mappings.push(getExtractedJsonData(mapping, syncJsonDir));
+          resolvedMapping = getExtractedJsonData(mapping, syncJsonDir);
         } else {
-          sync.mappings.push(mapping);
+          resolvedMapping = mapping;
         }
+        resolveAllExtractedScriptsForImport(
+          resolvedMapping,
+          `${syncJsonDir}/${resolvedMapping.name}`
+        );
+        sync.mappings.push(resolvedMapping);
       }
     }
   }
   return sync;
+}
+
+/**
+ * Helper that reads mapping (non-legacy) config entities from files
+ * @param {{ path: string; content: string }[]} mappingFiles the files to read the mapping (non-legacy) config entities from
+ * @returns {Record<string, MappingSkeleton>} the mapping (non-legacy) config entities
+ */
+export function getNewMappingsFromFiles(
+  mappingFiles: { path: string; content: string }[]
+): Record<string, MappingSkeleton> {
+  const mappingEntries: [string, MappingSkeleton][] = [];
+  for (const f of mappingFiles.filter((f) => f.path.endsWith('mapping.json'))) {
+    const parsed = parseAndResolveMappingFile(f);
+    mappingEntries.push(...Object.entries(parsed));
+  }
+  const mapping = Object.fromEntries(mappingEntries) as Record<
+    string,
+    MappingSkeleton
+  >;
+  return mapping;
 }
 
 /**
@@ -549,24 +682,34 @@ function getMappingImportDataFromFile(file: string): MappingExportInterface {
   const filePath = getFilePath(file);
   const data = fs.readFileSync(filePath, 'utf8');
   let importData = JSON.parse(data);
-  //If importing from file not in export format, put it into export format
+  const baseDir = path.dirname(filePath);
+  // If importing from file not in export format, put it into export format
   if (!importData.sync && !importData.mapping) {
     const mapping = importData;
     importData = createMappingExportTemplate();
+
     if (mapping.idm) {
       importData.sync = getLegacyMappingsFromFiles([
         {
-          // Ensure path ends in /sync.idm.json so it gets processed
           path: `${filePath.substring(0, filePath.lastIndexOf('/'))}/sync.idm.json`,
           content: data,
         },
       ]);
     } else if (isLegacyMapping(mapping._id)) {
+      resolveAllExtractedScriptsForImport(mapping, baseDir);
       importData.sync.mappings.push(mapping);
     } else {
+      resolveAllExtractedScriptsForImport(mapping, baseDir);
       importData.mapping[mapping._id] = mapping;
     }
-  } else if (!importData.sync && importData.mapping) {
+  } else {
+    if (importData.mapping) {
+      Object.values(importData.mapping).forEach((m) => {
+        resolveAllExtractedScriptsForImport(m, baseDir);
+      });
+    }
+  }
+  if (!importData.sync && importData.mapping) {
     importData.sync = { id: 'sync', mappings: [] };
   } else if (importData.sync && !importData.mapping) {
     importData.mapping = {};

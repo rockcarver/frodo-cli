@@ -1,0 +1,22 @@
+{
+  "resourcetype": {
+    "76656a38-5f8e-401b-83aa-4ccb74ce88d2": {
+      "actions": {
+        "DELETE": true,
+        "GET": true,
+        "HEAD": true,
+        "OPTIONS": true,
+        "PATCH": true,
+        "POST": true,
+        "PUT": true
+      },
+      "description": "The built-in URL Resource Type available to OpenAMPolicies.",
+      "name": "URL",
+      "patterns": [
+        "*://*:*/*",
+        "*://*:*/*?*"
+      ],
+      "uuid": "76656a38-5f8e-401b-83aa-4ccb74ce88d2"
+    }
+  }
+}

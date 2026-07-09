@@ -47,36 +47,50 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --entity-id script
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -i script -e test/e2e/env/testEnvFile.env -f my-script.idm.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -xi script -e test/e2e/env/testEnvFile.env -f my-script.idm.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -i script -D testDir4
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -si sync
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -Ni sync
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -xNi sync
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --all --file allIdmTestFile.json -E test/e2e/env/testEntitiesFile.json -e test/e2e/env/testEnvFile.env --no-metadata
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export -AD testDir1
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env
+
+// ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export --no-extract --all-separate --no-metadata --directory idmTestDir3 --entities-file test/e2e/env/testEntitiesFile.json --env-file test/e2e/env/testEnvFile.env --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -AD idmTestDir5 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -xAD idmTestDir6 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -i endpoint/validateQueryFilter -D idmTestDir7 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -xi endpoint/validateQueryFilter -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export --entity-id sync -D idmTestDir8 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -x --entity-id sync -f syncForgeops.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -i managed -D idmTestDir9 --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm export -xi managed --type forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const type = 'idm';
 const entitiesFile = 'test/e2e/env/testEntitiesFile.json';
 const envFile = 'test/e2e/env/testEnvFile.env';
 
 describe('frodo idm export', () => {
+
+  // Cloud Tests
+
   test('"frodo idm export --entity-id script": should export the idm config entity with idm id "script"', async () => {
     const exportFile = 'script.idm.json';
     const CMD = `frodo idm export --entity-id script`;
     await testExport(CMD, env, type, exportFile, undefined, false);
   });
 
-  test(`"frodo idm export -i script -e ${envFile} -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json`, async () => {
+  test(`"frodo idm export -xi script -e ${envFile} -f my-script.idm.json": should export the idm config entity with idm id "script" into file named my-script.idm.json`, async () => {
     const exportFile = 'my-script.idm.json';
-    const CMD = `frodo idm export -i script -e ${envFile} -f ${exportFile}`;
+    const CMD = `frodo idm export -xi script -e ${envFile} -f ${exportFile}`;
     await testExport(CMD, env, type, exportFile, undefined, false);
   });
 
@@ -86,14 +100,8 @@ describe('frodo idm export', () => {
     await testExport(CMD, env, type, undefined, dirName, false);
   });
 
-  test('"frodo idm export -si sync": should export the idm config entity with idm id "sync" separately', async () => {
-    const dirName = 'sync';
-    const CMD = `frodo idm export -si sync`;
-    await testExport(CMD, env, 'sync', undefined, dirName, false);
-  });
-
-  test('"frodo idm export -Ni sync": should export the idm config entity with idm id "sync" separately', async () => {
-    const CMD = `frodo idm export -Ni sync`;
+  test('"frodo idm export -xNi sync": should export the idm config entity with idm id "sync" separately', async () => {
+    const CMD = `frodo idm export -xNi sync`;
     await testExport(CMD, env, 'sync', 'sync.idm.json', undefined, false);
   });
 
@@ -115,15 +123,59 @@ describe('frodo idm export', () => {
     await testExport(CMD, env, undefined, undefined, dirName, false);
   });
 
-  test(`"frodo idm export --all-separate --no-metadata --separate-mappings --directory testDir3 --entities-file ${entitiesFile} --env-file ${envFile}": should export all idm config entities to separate files in the "testDir" directory according to the entity and env files`, async () => {
-    const dirName = 'testDir3';
-    const CMD = `frodo idm export --all-separate --no-metadata --separate-mappings --directory ${dirName} --entities-file ${entitiesFile} --env-file ${envFile}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+  // ForgeOps Tests
+
+  test(`"frodo idm export --no-extract --all-separate --no-metadata --directory idmTestDir3 --entities-file ${entitiesFile} --env-file ${envFile} --type forgeops": should export all idm config entities to separate files in the "idmTestDir3" directory according to the entity and env files`, async () => {
+    const dirName = 'idmTestDir3';
+    const CMD = `frodo idm export --no-extract --all-separate --no-metadata --directory ${dirName} --entities-file ${entitiesFile} --env-file ${envFile} --type forgeops`;
+    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
   });
 
-  test(`"frodo idm export --all-separate --no-metadata --separate-objects --directory testDir5": should export all idm config entities to separate files in the "testDir5" directory`, async () => {
-    const dirName = 'testDir5';
-    const CMD = `frodo idm export --all-separate --no-metadata --separate-objects --directory ${dirName}`;
-    await testExport(CMD, env, undefined, undefined, dirName, false);
+  test(`"frodo idm export -AD idmTestDir5 -m forgeops": should export all idm config entities to separate files and extracted scripts`, async () => {
+    const dirName = 'idmTestDir5';
+    const CMD = `frodo idm export -xAD ${dirName} -m forgeops`;
+    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
+  });
+
+  test(`"frodo idm export -xAD idmTestDir6 -m forgeops": should export all idm config entities to separate files without extracted scripts`, async () => {
+    const dirName = 'idmTestDir6';
+    const CMD = `frodo idm export -xAD ${dirName} -m forgeops`;
+    await testExport(CMD, forgeopsEnv, undefined, undefined, dirName, false);
+  });
+
+  test('"frodo idm export -i endpoint/validateQueryFilter -D idmTestDir7 -m forgeops": should export the idm config entity with idm id "endpoint/validateQueryFilter" with extracted idm scripts', async () => {
+    const dirName = 'idmTestDir7';
+    const CMD = `frodo idm export -i endpoint/validateQueryFilter -D ${dirName} -m forgeops`;
+    await testExport(CMD, forgeopsEnv, type, undefined, dirName, false);
+  });
+
+  test('"frodo idm export -xi endpoint/validateQueryFilter -m forgeops": should export the idm config entity with idm id "endpoint/validateQueryFilter" without extracted idm scripts', async () => {
+    const fileName = "endpointvalidateQueryFilter.idm.json"
+    const CMD = `frodo idm export -xi endpoint/validateQueryFilter -m forgeops`;
+    await testExport(CMD, forgeopsEnv, type, fileName);
+  });
+
+  test('"frodo idm export --entity-id sync -D idmTestDir8 -m forgeops": should export the idm config entity with idm id "sync" with extracted idm scripts', async () => {
+    const dirName = 'idmTestDir8';
+    const CMD = `frodo idm export --entity-id sync -D ${dirName} -m forgeops`;
+    await testExport(CMD, forgeopsEnv, type, undefined, dirName, false);
+  });
+
+  test('"frodo idm export -x --entity-id sync -f syncForgeops.idm.json -m forgeops": should export the idm config entity with idm id "sync" without extracted idm scripts', async () => {
+    const fileName = "syncForgeops.idm.json"
+    const CMD = `frodo idm export -x --entity-id sync -f ${fileName} -m forgeops`;
+    await testExport(CMD, forgeopsEnv, type, fileName);
+  });
+
+  test('"frodo idm export -i managed -D idmTestDir9 --type forgeops": should export the idm config entity with idm id "managed" with extracted idm scripts', async () => {
+    const dirName = 'idmTestDir9';
+    const CMD = `frodo idm export -i managed -D ${dirName} --type forgeops`;
+    await testExport(CMD, forgeopsEnv, type, undefined, dirName, false);
+  });
+
+  test('"frodo idm export -xi managed --type forgeops": should export the idm config entity with idm id "managed" without extracted idm scripts', async () => {
+    const fileName = "managed.idm.json"
+    const CMD = `frodo idm export -xi managed --type forgeops`;
+    await testExport(CMD, forgeopsEnv, type, fileName);
   });
 });

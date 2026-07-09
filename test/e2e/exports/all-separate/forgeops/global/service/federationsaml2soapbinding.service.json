@@ -1,0 +1,15 @@
+{
+  "service": {
+    "federation/saml2soapbinding": {
+      "_id": "",
+      "_type": {
+        "_id": "federation/saml2soapbinding",
+        "collection": false,
+        "name": "SAML v2.0 SOAP Binding"
+      },
+      "location": "global",
+      "nextDescendents": [],
+      "requestHandlers": []
+    }
+  }
+}

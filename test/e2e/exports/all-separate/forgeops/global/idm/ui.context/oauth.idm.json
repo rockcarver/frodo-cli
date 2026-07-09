@@ -1,0 +1,11 @@
+{
+  "idm": {
+    "ui.context/oauth": {
+      "_id": "ui.context/oauth",
+      "defaultDir": "&{idm.install.dir}/ui/oauth/default",
+      "enabled": false,
+      "extensionDir": "&{idm.install.dir}/ui/oauth/extension",
+      "urlContextRoot": "/idm/oauthReturn"
+    }
+  }
+}

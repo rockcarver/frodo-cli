@@ -1,0 +1,22 @@
+{
+  "service": {
+    "httpclient": {
+      "_id": "",
+      "_type": {
+        "_id": "httpclient",
+        "collection": false,
+        "name": "Http Client Service"
+      },
+      "core": {
+        "enabled": false
+      },
+      "defaults": {
+        "core": {
+          "enabled": false
+        }
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

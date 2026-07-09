@@ -1,0 +1,26 @@
+{
+  "authenticationModules": {
+    "authSaml": {
+      "_id": "authSaml",
+      "_type": {
+        "_id": "authSaml",
+        "collection": false,
+        "name": "SAML2"
+      },
+      "defaults": {
+        "allowCreate": "true",
+        "authComparison": "exact",
+        "authenticationLevel": 0,
+        "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
+        "entityName": "http://",
+        "forceAuthn": "false",
+        "isPassive": "false",
+        "metaAlias": "/sp",
+        "nameIdFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+        "reqBinding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+        "sloEnabled": "false",
+        "sloRelay": "http://"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "service": {
+    "dashboard": {
+      "_id": "",
+      "_type": {
+        "_id": "dashboard",
+        "collection": false,
+        "name": "Dashboard"
+      },
+      "assignedDashboard": [
+        "app",
+        "app2"
+      ],
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

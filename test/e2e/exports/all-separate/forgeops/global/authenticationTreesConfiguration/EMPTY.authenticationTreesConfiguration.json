@@ -1,0 +1,12 @@
+{
+  "authenticationTreesConfiguration": {
+    "EMPTY": {
+      "_id": "",
+      "_type": {
+        "_id": "EMPTY",
+        "collection": false,
+        "name": "Authentication Trees Configuration"
+      }
+    }
+  }
+}

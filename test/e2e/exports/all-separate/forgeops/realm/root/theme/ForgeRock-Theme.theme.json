@@ -1,0 +1,87 @@
+{
+  "theme": {
+    "462b8800-1f13-4a72-a6b1-388e031f56a0": {
+      "_id": "462b8800-1f13-4a72-a6b1-388e031f56a0",
+      "accountFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2022</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "accountFooterEnabled": false,
+      "accountPageSections": {
+        "accountControls": {
+          "enabled": false
+        },
+        "accountSecurity": {
+          "enabled": true,
+          "subsections": {
+            "password": {
+              "enabled": true
+            },
+            "securityQuestions": {
+              "enabled": false
+            },
+            "twoStepVerification": {
+              "enabled": true
+            },
+            "username": {
+              "enabled": true
+            }
+          }
+        },
+        "consent": {
+          "enabled": false
+        },
+        "oauthApplications": {
+          "enabled": false
+        },
+        "personalInformation": {
+          "enabled": true
+        },
+        "preferences": {
+          "enabled": false
+        },
+        "social": {
+          "enabled": false
+        },
+        "trustedDevices": {
+          "enabled": true
+        }
+      },
+      "backgroundColor": "#f6f8fa",
+      "backgroundImage": "",
+      "bodyText": "#23282e",
+      "buttonRounded": 5,
+      "dangerColor": "#f7685b",
+      "favicon": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+      "isDefault": true,
+      "journeyFooter": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2022</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color: #0000ee\" class=\"pl-3 text-body\">Terms & Conditions</a></div>",
+      "journeyFooterEnabled": false,
+      "journeyHeader": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">Header Content</div>",
+      "journeyHeaderEnabled": false,
+      "journeyJustifiedContent": "",
+      "journeyJustifiedContentEnabled": false,
+      "journeyLayout": "card",
+      "journeyTheaterMode": false,
+      "linkActiveColor": "#0c85cf",
+      "linkColor": "#109cf1",
+      "linkedTrees": [],
+      "logo": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+      "logoAltText": "ForgeRock Logo",
+      "logoHeight": "40",
+      "logoProfile": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock-full.svg",
+      "logoProfileAltText": "ForgeRock Logo",
+      "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/forgerock/logo-forgerock.svg",
+      "logoProfileCollapsedAltText": "ForgeRock Logo",
+      "logoProfileCollapsedHeight": "22",
+      "logoProfileHeight": "40",
+      "name": "ForgeRock Theme",
+      "pageTitle": "#23282e",
+      "primaryColor": "#109cf1",
+      "primaryOffColor": "#0c85cf",
+      "profileBackgroundColor": "#f6f8fa",
+      "profileMenuHighlightColor": "#e4f4fd",
+      "profileMenuHoverColor": "#109cf1",
+      "profileMenuHoverTextColor": "#ffffff",
+      "profileMenuTextHighlightColor": "#455469",
+      "secondaryColor": "#69788b",
+      "textColor": "#ffffff"
+    }
+  }
+}

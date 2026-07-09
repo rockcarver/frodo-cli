@@ -1,0 +1,19 @@
+{
+  "service": {
+    "rest": {
+      "_id": "",
+      "_type": {
+        "_id": "rest",
+        "collection": false,
+        "name": "REST APIs"
+      },
+      "csrfFilterEnabled": true,
+      "defaultProtocolVersion": "Latest",
+      "defaultVersion": "Latest",
+      "descriptionsState": "DISABLED",
+      "location": "global",
+      "nextDescendents": [],
+      "warningHeader": false
+    }
+  }
+}

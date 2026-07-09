@@ -1,0 +1,88 @@
+{
+  "theme": {
+    "987e2468-75f9-46c7-b15b-886b24c2ea20": {
+      "_id": "987e2468-75f9-46c7-b15b-886b24c2ea20",
+      "accountFooter": "<footer class=\"w-100\">\n            <div class=\"d-flex flex-column flex-md-row justify-content-center align-items-center py-4\">\n              <div class=\"container w-100\">\n                <div class=\"mt-5 py-4 border-top border-darkened\">\n                  <div class=\"row\" style=\"color: #23282e;\">\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Company</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">About Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Contact Us</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Support</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Help Center</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Docs</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Privacy &amp; Terms</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem;\">Community</h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Facebook</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Twitter</a></li>\n                        <li class=\"nav-item\"><a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\">Forum</a></li>\n                      </ul>\n                    </div>\n                    <div class=\"col-12 col-lg-6\">\n                      <div class=\"d-flex align-items-center justify-content-lg-end py-4 py-lg-0\">\n                        <span class=\"pr-1\">&copy; 2022</span>\n                        <a href=\"#\" class=\"text-decoration-none\" target=\"_self\">Rob Roy Markets, Inc</a>\n                      </div>\n                    </div>\n                  </div>\n                </div> \n              </div>\n            </div>\n          </footer>\n",
+      "accountFooterEnabled": true,
+      "accountPageSections": {
+        "accountControls": {
+          "enabled": false
+        },
+        "accountSecurity": {
+          "enabled": true,
+          "subsections": {
+            "password": {
+              "enabled": true
+            },
+            "securityQuestions": {
+              "enabled": false
+            },
+            "twoStepVerification": {
+              "enabled": true
+            },
+            "username": {
+              "enabled": true
+            }
+          }
+        },
+        "consent": {
+          "enabled": false
+        },
+        "oauthApplications": {
+          "enabled": false
+        },
+        "personalInformation": {
+          "enabled": true
+        },
+        "preferences": {
+          "enabled": false
+        },
+        "social": {
+          "enabled": false
+        },
+        "trustedDevices": {
+          "enabled": true
+        }
+      },
+      "backgroundColor": "#FFFFFF",
+      "backgroundImage": "",
+      "bodyText": "#5E6D82",
+      "buttonRounded": "50",
+      "dangerColor": "#f7685b",
+      "favicon": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+      "isDefault": false,
+      "journeyFooter": "<footer class=\"w-100\">\n            <div\n              class=\"\n                d-flex\n                flex-column flex-md-row\n                justify-content-center\n                align-items-center\n                py-4\n              \"\n            >\n              <div class=\"container w-100\">\n                <div class=\"mt-5 py-4 border-top border-darkened\">\n                  <div class=\"row\" style=\"color: #23282e\">\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem\">\n                        Company\n                      </h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >About Us</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Contact Us</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Privacy &amp; Terms</a\n                          >\n                        </li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem\">\n                        Support\n                      </h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Help Center</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Docs</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Privacy &amp; Terms</a\n                          >\n                        </li>\n                      </ul>\n                    </div>\n                    <div class=\"col-4 col-md-3 col-lg-2\">\n                      <h5 style=\"font-weight: 600; font-size: 0.9375rem\">\n                        Community\n                      </h5>\n                      <ul class=\"nav mb-4 flex-column\">\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Facebook</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Twitter</a\n                          >\n                        </li>\n                        <li class=\"nav-item\">\n                          <a href=\"#\" class=\"nav-link px-0 py-1\" target=\"_self\"\n                            >Forum</a\n                          >\n                        </li>\n                      </ul>\n                    </div>\n                    <div class=\"col-12 col-lg-6\">\n                      <div\n                        class=\"\n                          d-flex\n                          align-items-center\n                          justify-content-lg-end\n                          py-4 py-lg-0\n                        \"\n                      >\n                        <span class=\"pr-1\">&copy; 2022</span>\n                        <a href=\"#\" class=\"text-decoration-none\" target=\"_self\"\n                          >Rob Roy Markets, Inc</a\n                        >\n                      </div>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </div>\n          </footer>\n",
+      "journeyFooterEnabled": true,
+      "journeyHeader": "<header>\n            <nav\n              class=\"navbar shadow-lg navbar-light bg-white navbar-expand-lg\"\n            >\n              <a href=\"#\" target=\"_self\" class=\"navbar-brand\">\n                <img\n                  src=\"https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg\"\n                  alt=\"Logo\"\n                  style=\"height: 28px\"\n                />\n              </a>\n              <div\n                class=\"navbar-collapse d-none d-lg-flex\"\n                id=\"navbarSupportedContent\"\n              >\n                <ul class=\"navbar-nav mr-auto\">\n                  <li class=\"nav-item\">\n                    <a class=\"nav-link\" href=\"#\">Link</a>\n                  </li>\n                  <li class=\"nav-item\">\n                    <a\n                      class=\"nav-link disabled\"\n                      href=\"#\"\n                      tabindex=\"-1\"\n                      aria-disabled=\"true\"\n                      >Disabled</a\n                    >\n                  </li>\n                </ul>\n                <ul class=\"navbar-nav ml-auto\">\n                  <li class=\"nav-item\">\n                    <a href=\"#\" target=\"_self\" class=\"nav-link\">Link</a>\n                  </li>\n                </ul>\n              </div>\n            </nav>\n          </header>\n",
+      "journeyHeaderEnabled": true,
+      "journeyJustifiedContent": "<img src=\"https://cdn.forgerock.com/platform/themes/robroy/illustration-robroy.svg\" class=\"w-100\">",
+      "journeyJustifiedContentEnabled": true,
+      "journeyLayout": "justified-right",
+      "journeyTheaterMode": false,
+      "linkActiveColor": "#49871E",
+      "linkColor": "#5AA625",
+      "linkedTrees": [],
+      "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+      "logoAltText": "Robroy",
+      "logoEnabled": true,
+      "logoHeight": "40",
+      "logoProfile": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-full.svg",
+      "logoProfileAltText": "RobRoy",
+      "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
+      "logoProfileCollapsedAltText": "RobRoy",
+      "logoProfileCollapsedHeight": "28",
+      "logoProfileHeight": "28",
+      "name": "Robroy",
+      "pageTitle": "#23282e",
+      "primaryColor": "#5AA625",
+      "primaryOffColor": "#49871E",
+      "profileBackgroundColor": "#FFFFFF",
+      "profileMenuHighlightColor": "#FFFFFF",
+      "profileMenuHoverColor": "#FFFFFF",
+      "profileMenuHoverTextColor": "#455469",
+      "profileMenuTextHighlightColor": "#5AA625",
+      "secondaryColor": "#69788b",
+      "textColor": "#ffffff"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "conditionTypes": {
+    "IdmUser": {
+      "_id": "IdmUser",
+      "config": {
+        "properties": {
+          "comparator": {
+            "enum": [
+              "EQUALS",
+              "CONTAINS",
+              "STARTS_WITH",
+              "ENDS_WITH",
+              "REGEX"
+            ],
+            "type": "string"
+          },
+          "decisionField": {
+            "type": "string"
+          },
+          "identityResource": {
+            "type": "string"
+          },
+          "queryField": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "IdmUser"
+    }
+  }
+}

@@ -1,30 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'idm' should be expected english 1`] = `
-"Usage: frodo idm schema object import [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'idm schema object export' should be expected english 1`] = `
+"Usage: frodo idm schema object export [options] [host] [realm] [username] [password]
 
-Import IDM configuration managed objects.
+Export IDM configuration managed objects.
 
 Arguments:
-  host                      AM base URL, e.g.: https://cdk.iam.example.com/am.
-                            To use a connection profile, just specify a unique
-                            substring or alias.
-  realm                     Realm. Specify realm as '/' for the root realm or
-                            'realm' or '/parent/child' otherwise. (default:
-                            "alpha" for Identity Cloud tenants, "/" otherwise.)
-  username                  Username to login with. Must be an admin user with
-                            appropriate rights to manage authentication
-                            journeys/trees.
-  password                  Password.
+  host                            AM base URL, e.g.:
+                                  https://cdk.iam.example.com/am. To use a
+                                  connection profile, just specify a unique
+                                  substring or alias.
+  realm                           Realm. Specify realm as '/' for the root realm
+                                  or 'realm' or '/parent/child' otherwise.
+                                  (default: "alpha" for Identity Cloud tenants,
+                                  "/" otherwise.)
+  username                        Username to login with. Must be an admin user
+                                  with appropriate rights to manage
+                                  authentication journeys/trees.
+  password                        Password.
 
 Options:
-  -e, --env-file [envfile]  Name of the env file.
-  -f, --file [file]         Import file.
-  -i, --individual-object   Import an individual object. Requires the use of the
-                            -f to specify the file.
-  -h, --help                Help
-  -hh, --help-more          Help with all options.
-  -hhh, --help-all          Help with all options, environment variables, and
-                            usage examples.
+  -a, --all                       Export all IDM configuration managed objects
+                                  into a single file in directory -D.
+  -A, --all-separate              Export all IDM configuration managed objects
+                                  into separate JSON files in directory -D.
+  -e, --env-file [envfile]        Name of the env file.
+  -f, --file [file]               Export file if -x or -a are included. Ignored
+                                  with -A.
+  -i, --individual-object <name>  Export an individual managed object by
+                                  specifying an objects name. E.g. "alpha_user",
+                                  "bravo_role", etc. If specified, -a and -A are
+                                  ignored.
+  -N, --no-metadata               Does not include metadata in the export file.
+  -x, --no-extract                Do not extract and save idm scripts to
+                                  separate files. Ignored with -a and -A.
+  -h, --help                      Help
+  -hh, --help-more                Help with all options.
+  -hhh, --help-all                Help with all options, environment variables,
+                                  and usage examples.
 "
 `;

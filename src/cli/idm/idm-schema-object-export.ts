@@ -45,13 +45,24 @@ export default function setup() {
         'Export an individual managed object by specifying an objects name. E.g. "alpha_user", "bravo_role", etc. If specified, -a and -A are ignored.'
       )
     )
-    .addOption(new Option('-f, --file [file]', 'Export file. Ignored with -A.'))
+    .addOption(
+      new Option(
+        '-f, --file [file]',
+        'Export file if -x or -a are included. Ignored with -A.'
+      )
+    )
     .addOption(new Option('-e, --env-file [envfile]', 'Name of the env file.'))
     .addOption(
       new Option(
         '-N, --no-metadata',
         'Does not include metadata in the export file.'
       )
+    )
+    .addOption(
+      new Option(
+        '-x, --no-extract',
+        'Do not extract and save idm scripts to separate files. Ignored with -a and -A.'
+      ).default(true, 'true')
     )
     .action(
       // implement command logic inside action handler
@@ -82,7 +93,8 @@ export default function setup() {
           const outcome = await exportManagedObjectToFile(
             options.individualObject,
             options.file,
-            options.envFile
+            options.envFile,
+            options.extract
           );
           if (!outcome) process.exitCode = 1;
         } // -a, --all
@@ -97,9 +109,8 @@ export default function setup() {
             'managed',
             options.file,
             options.envFile,
-            false,
-            false,
-            options.metadata
+            options.metadata,
+            false
           );
           if (!outcome) process.exitCode = 1;
         } // -A, --all-separate
@@ -114,9 +125,8 @@ export default function setup() {
             'managed',
             options.file,
             options.envFile,
-            false,
-            true,
-            options.metadata
+            options.metadata,
+            true
           );
           if (!outcome) process.exitCode = 1;
           await warnAboutOfflineConnectorServers();

@@ -1,0 +1,41 @@
+{
+  "service": {
+    "IdentityAssertionService": {
+      "_id": "",
+      "_type": {
+        "_id": "IdentityAssertionService",
+        "collection": false,
+        "name": "Identity Assertion Service"
+      },
+      "cacheDuration": 120,
+      "enable": true,
+      "location": "/",
+      "nextDescendents": [
+        {
+          "_id": "Server 2",
+          "_type": {
+            "_id": "serverConfigs",
+            "collection": true,
+            "name": "serverConfigs"
+          },
+          "jwtExpiration": 30,
+          "secretLabelIdentifier": "secret",
+          "serverUrl": "test.com",
+          "skewAllowance": 0
+        },
+        {
+          "_id": "Server 1",
+          "_type": {
+            "_id": "serverConfigs",
+            "collection": true,
+            "name": "serverConfigs"
+          },
+          "jwtExpiration": 30,
+          "secretLabelIdentifier": "secret",
+          "serverUrl": "test.com",
+          "skewAllowance": 0
+        }
+      ]
+    }
+  }
+}

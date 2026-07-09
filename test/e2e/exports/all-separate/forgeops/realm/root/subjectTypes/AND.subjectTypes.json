@@ -1,0 +1,17 @@
+{
+  "subjectTypes": {
+    "AND": {
+      "_id": "AND",
+      "config": {
+        "properties": {
+          "subjects": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": true,
+      "title": "AND"
+    }
+  }
+}

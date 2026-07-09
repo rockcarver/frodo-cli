@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "AND": {
+      "_id": "AND",
+      "config": {
+        "properties": {
+          "conditions": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": true,
+      "title": "AND"
+    }
+  }
+}

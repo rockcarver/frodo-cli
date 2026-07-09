@@ -671,104 +671,565 @@ isGoogleEligible;
 }
 `;
 
+exports[`frodo mapping export "frodo mapping export --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir7 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir7 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts 2`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir7 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts: mappingExportTestDir7/UserToUserJavascript/UserToUserJavascript.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/UserToUserJavascript": {
+      "_id": "mapping/UserToUserJavascript",
+      "correlationScript": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://correlationScript.js",
+        "type": "text/javascript",
+      },
+      "displayName": "User Test Javascript",
+      "linkQualifiers": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://linkQualifiers.js",
+        "type": "text/javascript",
+      },
+      "name": "UserToUserJavascript",
+      "null": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://null.js",
+        "type": "text/javascript",
+      },
+      "onCreate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onCreate.js",
+        "type": "text/javascript",
+      },
+      "onDelete": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onDelete.js",
+        "type": "text/javascript",
+      },
+      "onLink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onLink.js",
+        "type": "text/javascript",
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUnlink.js",
+        "type": "text/javascript",
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUpdate.js",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail",
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.js",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE.sn.transform.js",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.condition.js",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.transform.js",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+          "target": "userName",
+        },
+      ],
+      "result": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://result.js",
+        "type": "text/javascript",
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co "1"",
+      },
+      "syncAfter": [
+        "UserToUserGroovy",
+      ],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw "2"",
+      },
+      "validSource": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://validSource.js",
+        "type": "text/javascript",
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null,
+        },
+        "source": "file://validTarget.js",
+        "type": "text/javascript",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 1`] = `0`;
 
 exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user" 2`] = `""`;
 
-exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user": managedAlpha_user_managedBravo_user.sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export --mapping-id sync/managedAlpha_user_managedBravo_user": should export the mapping with mapping id "sync/managedAlpha_user_managedBravo_user": managedAlpha_user_managedBravo_user/managedAlpha_user_managedBravo_user.sync.json 1`] = `
 {
-  "mapping": {},
   "meta": Any<Object>,
   "sync": {
-    "_id": "sync",
-    "mappings": [
-      {
-        "_id": "sync/managedAlpha_user_managedBravo_user",
-        "consentRequired": true,
-        "displayName": "Test Mapping for Frodo",
-        "icon": null,
-        "name": "managedAlpha_user_managedBravo_user",
-        "policies": [
-          {
-            "action": "ASYNC",
-            "situation": "ABSENT",
+    "sync/managedAlpha_user_managedBravo_user": {
+      "_id": "sync/managedAlpha_user_managedBravo_user",
+      "consentRequired": true,
+      "displayName": "Test Mapping for Frodo",
+      "icon": null,
+      "name": "managedAlpha_user_managedBravo_user",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://accountStatus.applications.condition.js",
+            "type": "text/javascript",
           },
-          {
-            "action": "ASYNC",
-            "situation": "ALL_GONE",
+          "default": [
+            "Default value string",
+          ],
+          "source": "accountStatus",
+          "target": "applications",
+          "transform": {
+            "globals": {},
+            "source": "file://accountStatus.applications.transform.js",
+            "type": "text/javascript",
           },
-          {
-            "action": "ASYNC",
-            "situation": "AMBIGUOUS",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "CONFIRMED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "FOUND",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "FOUND_ALREADY_LINKED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "LINK_ONLY",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "MISSING",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "SOURCE_IGNORED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "SOURCE_MISSING",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "TARGET_IGNORED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "UNASSIGNED",
-          },
-          {
-            "action": "ASYNC",
-            "situation": "UNQUALIFIED",
-          },
-        ],
-        "properties": [
-          {
-            "condition": {
-              "globals": {},
-              "source": "console.log("Hello World!");",
-              "type": "text/javascript",
-            },
-            "default": [
-              "Default value string",
-            ],
-            "source": "accountStatus",
-            "target": "applications",
-            "transform": {
-              "globals": {},
-              "source": "console.log("hello");",
-              "type": "text/javascript",
-            },
-          },
-        ],
-        "source": "managed/alpha_user",
-        "syncAfter": [
-          "managedBravo_user_managedBravo_user",
-          "managedAlpha_application_managedBravo_application",
-        ],
-        "target": "managed/bravo_user",
-      },
-    ],
+        },
+      ],
+      "source": "managed/alpha_user",
+      "syncAfter": [
+        "managedBravo_user_managedBravo_user",
+        "managedAlpha_application_managedBravo_application",
+      ],
+      "target": "managed/bravo_user",
+    },
   },
 }
 `;
@@ -777,7 +1238,7 @@ exports[`frodo mapping export "frodo mapping export --no-deps --use-string-array
 
 exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3 2`] = `""`;
 
-exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps.sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/AlphaUser2GoogleApps.sync.json 1`] = `
 {
   "_id": "sync/AlphaUser2GoogleApps",
   "consentRequired": false,
@@ -802,15 +1263,12 @@ exports[`frodo mapping export "frodo mapping export --no-deps --use-string-array
   "name": "AlphaUser2GoogleApps",
   "onCreate": {
     "globals": {},
-    "source": "target.orgUnitPath = "/NewAccounts";",
+    "source": "file://onCreate.js",
     "type": "text/javascript",
   },
   "onUpdate": {
     "globals": {},
-    "source": "//testing1234
-target.givenName = oldTarget.givenName;
-target.familyName = oldTarget.familyName;
-target.__NAME__ = oldTarget.__NAME__;",
+    "source": "file://onUpdate.js",
     "type": "text/javascript",
   },
   "policies": [
@@ -825,44 +1283,7 @@ target.__NAME__ = oldTarget.__NAME__;",
     {
       "action": {
         "globals": {},
-        "source": "// Timing Constants
-var ATTEMPT = 6; // Number of attempts to find the Google user.
-var SLEEP_TIME = 500; // Milliseconds between retries.
-var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
-var MAPPING_NAME = "AlphaUser2GoogleApps";
-var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
-var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
-var frUserGUID = source._id;
-var resultingAction = "ASYNC";
-
-// Get the Google GUID
-var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
-var linkResults = openidm.query("repo/link/", linkQueryParams, null);
-var googleGUID;
-
-if (linkResults.resultCount === 1) {
-  googleGUID = linkResults.result[0].secondId;
-}
-
-var queryResults; // Resulting query from looking for the Google user.
-var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
-
-for (var i = 1; i <= ATTEMPT; i++) {
-    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
-    if (queryResults.result && queryResults.result.length > 0) {
-        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
-        resultingAction = "UPDATE";
-        break;
-    }
-    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
-}
-
-if (!queryResults.result || queryResults.resultCount === 0) {
-    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
-    resultingAction = "UNLINK";
-}
-resultingAction;
-",
+        "source": "file://MISSING.action.js",
         "type": "text/javascript",
       },
       "situation": "MISSING",
@@ -912,14 +1333,14 @@ resultingAction;
     {
       "condition": {
         "globals": {},
-        "source": "object.custom_password_encrypted != null",
+        "source": "file://custom_password_encrypted.__PASSWORD__.condition.js",
         "type": "text/javascript",
       },
       "source": "custom_password_encrypted",
       "target": "__PASSWORD__",
       "transform": {
         "globals": {},
-        "source": "openidm.decrypt(source);",
+        "source": "file://custom_password_encrypted.__PASSWORD__.transform.js",
         "type": "text/javascript",
       },
     },
@@ -928,7 +1349,7 @@ resultingAction;
       "target": "__NAME__",
       "transform": {
         "globals": {},
-        "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+        "source": "file://cn.__NAME__.transform.js",
         "type": "text/javascript",
       },
     },
@@ -941,11 +1362,7 @@ resultingAction;
       "target": "familyName",
       "transform": {
         "globals": {},
-        "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
-  source.sn + " (Student)"
-} else {
-  source.sn
-}",
+        "source": "file://SOURCE.familyName.transform.js",
         "type": "text/javascript",
       },
     },
@@ -969,7 +1386,92 @@ resultingAction;
   "target": "system/GoogleApps/__ACCOUNT__",
   "validSource": {
     "globals": {},
-    "source": "var isGoogleEligible = true;
+    "source": "file://validSource.js",
+    "type": "text/javascript",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/MISSING.action.js 1`] = `
+"// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/SOURCE.familyName.transform.js 1`] = `
+"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/cn.__NAME__.transform.js 1`] = `
+"source + "@" + identityServer.getProperty("esv.gac.domain");
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/custom_password_encrypted.__PASSWORD__.condition.js 1`] = `
+"object.custom_password_encrypted != null
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/custom_password_encrypted.__PASSWORD__.transform.js 1`] = `
+"openidm.decrypt(source);
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/onCreate.js 1`] = `
+"target.orgUnitPath = "/NewAccounts";
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/onUpdate.js 1`] = `
+"//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/AlphaUser2GoogleApps/validSource.js 1`] = `
+"var isGoogleEligible = true;
 //var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
 var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
 
@@ -1002,10 +1504,7 @@ if (isGoogleEligible) {
 }
 
 isGoogleEligible;
-",
-    "type": "text/javascript",
-  },
-}
+"
 `;
 
 exports[`frodo mapping export "frodo mapping export --no-deps --use-string-arrays --connector-id GoogleApps --managed-object-type alpha_user --all-separate --no-metadata --directory mappingExportTestDir3": should export all mappings to separate files in the directory mappingExportTestDir3: mappingExportTestDir3/sync/sync.idm.json 1`] = `
@@ -1014,7 +1513,7 @@ exports[`frodo mapping export "frodo mapping export --no-deps --use-string-array
     "sync": {
       "_id": "sync",
       "mappings": [
-        "file://AlphaUser2GoogleApps.sync.json",
+        "file://AlphaUser2GoogleApps/AlphaUser2GoogleApps.sync.json",
       ],
     },
   },
@@ -1264,6 +1763,477 @@ isGoogleEligible;
 }
 `;
 
+exports[`frodo mapping export "frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir9 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir9 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts 2`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export --no-extract --mapping-id mapping/UserToUserJavascript -D mappingExportTestDir9 -m forgeops": should export mapping/UserToUserJavascript object with extracted idm scripts: mappingExportTestDir9/UserToUserJavascript.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/UserToUserJavascript": {
+      "_id": "mapping/UserToUserJavascript",
+      "correlationScript": {
+        "globals": {
+          "test": null,
+        },
+        "source": "['test', 'default']",
+        "type": "text/javascript",
+      },
+      "displayName": "User Test Javascript",
+      "linkQualifiers": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// Hello there!
+// This is a test comment
+[]",
+        "type": "text/javascript",
+      },
+      "name": "UserToUserJavascript",
+      "null": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// other",
+        "type": "text/javascript",
+      },
+      "onCreate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// onCreate",
+        "type": "text/javascript",
+      },
+      "onDelete": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// onDelete",
+        "type": "text/javascript",
+      },
+      "onLink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// onLink",
+        "type": "text/javascript",
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// onUnlink",
+        "type": "text/javascript",
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// onUpdate",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform ambiguous",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When ambiguous",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete ambiguous",
+            "type": "text/javascript",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform source missing",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When source missing",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete source missing",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform missing",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When missing",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete missing",
+            "type": "text/javascript",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform found already linked",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When found already linked",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete found already linked",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform unqualified",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When unqualified",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete unqualified",
+            "type": "text/javascript",
+          },
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform unassigned",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When unassigned",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete unassigned",
+            "type": "text/javascript",
+          },
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform link_only",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When link_only",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete link_only",
+            "type": "text/javascript",
+          },
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform target_ignored",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When target_ignored",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete target_ignored",
+            "type": "text/javascript",
+          },
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform source_ignored",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When source_ignored",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete source_ignored",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform all_gone",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When all_gone",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete all_gone",
+            "type": "text/javascript",
+          },
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform confirmed",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When confirmed",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete confirmed",
+            "type": "text/javascript",
+          },
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform found",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When found",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete found",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Perform absent",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// When absent",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "// Complete absent",
+            "type": "text/javascript",
+          },
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail",
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "true;",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "source.sn.toLowerCase();",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "true;",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "source.toLowerCase();",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+          "target": "userName",
+        },
+      ],
+      "result": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// Recon script",
+        "type": "text/javascript",
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co "1"",
+      },
+      "syncAfter": [
+        "UserToUserGroovy",
+      ],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw "2"",
+      },
+      "validSource": {
+        "globals": {
+          "test": null,
+        },
+        "source": "// Validate source script",
+        "type": "text/javascript",
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null,
+        },
+        "source": "// Validate source script",
+        "type": "text/javascript",
+      },
+    },
+  },
+  "meta": Any<Object>,
+  "sync": {
+    "_id": "sync",
+    "mappings": [],
+  },
+}
+`;
+
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 1`] = `0`;
 
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory 2`] = `""`;
@@ -1412,7 +2382,7 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps.sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/AlphaUser2GoogleApps.sync.json 1`] = `
 {
   "_id": "sync/AlphaUser2GoogleApps",
   "consentRequired": false,
@@ -1437,15 +2407,12 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
   "name": "AlphaUser2GoogleApps",
   "onCreate": {
     "globals": {},
-    "source": "target.orgUnitPath = "/NewAccounts";",
+    "source": "file://onCreate.js",
     "type": "text/javascript",
   },
   "onUpdate": {
     "globals": {},
-    "source": "//testing1234
-target.givenName = oldTarget.givenName;
-target.familyName = oldTarget.familyName;
-target.__NAME__ = oldTarget.__NAME__;",
+    "source": "file://onUpdate.js",
     "type": "text/javascript",
   },
   "policies": [
@@ -1460,44 +2427,7 @@ target.__NAME__ = oldTarget.__NAME__;",
     {
       "action": {
         "globals": {},
-        "source": "// Timing Constants
-var ATTEMPT = 6; // Number of attempts to find the Google user.
-var SLEEP_TIME = 500; // Milliseconds between retries.
-var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
-var MAPPING_NAME = "AlphaUser2GoogleApps";
-var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
-var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
-var frUserGUID = source._id;
-var resultingAction = "ASYNC";
-
-// Get the Google GUID
-var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
-var linkResults = openidm.query("repo/link/", linkQueryParams, null);
-var googleGUID;
-
-if (linkResults.resultCount === 1) {
-  googleGUID = linkResults.result[0].secondId;
-}
-
-var queryResults; // Resulting query from looking for the Google user.
-var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
-
-for (var i = 1; i <= ATTEMPT; i++) {
-    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
-    if (queryResults.result && queryResults.result.length > 0) {
-        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
-        resultingAction = "UPDATE";
-        break;
-    }
-    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
-}
-
-if (!queryResults.result || queryResults.resultCount === 0) {
-    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
-    resultingAction = "UNLINK";
-}
-resultingAction;
-",
+        "source": "file://MISSING.action.js",
         "type": "text/javascript",
       },
       "situation": "MISSING",
@@ -1547,14 +2477,14 @@ resultingAction;
     {
       "condition": {
         "globals": {},
-        "source": "object.custom_password_encrypted != null",
+        "source": "file://custom_password_encrypted.__PASSWORD__.condition.js",
         "type": "text/javascript",
       },
       "source": "custom_password_encrypted",
       "target": "__PASSWORD__",
       "transform": {
         "globals": {},
-        "source": "openidm.decrypt(source);",
+        "source": "file://custom_password_encrypted.__PASSWORD__.transform.js",
         "type": "text/javascript",
       },
     },
@@ -1563,7 +2493,7 @@ resultingAction;
       "target": "__NAME__",
       "transform": {
         "globals": {},
-        "source": "source + "@" + identityServer.getProperty("esv.gac.domain");",
+        "source": "file://cn.__NAME__.transform.js",
         "type": "text/javascript",
       },
     },
@@ -1576,11 +2506,7 @@ resultingAction;
       "target": "familyName",
       "transform": {
         "globals": {},
-        "source": "if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
-  source.sn + " (Student)"
-} else {
-  source.sn
-}",
+        "source": "file://SOURCE.familyName.transform.js",
         "type": "text/javascript",
       },
     },
@@ -1604,7 +2530,92 @@ resultingAction;
   "target": "system/GoogleApps/__ACCOUNT__",
   "validSource": {
     "globals": {},
-    "source": "var isGoogleEligible = true;
+    "source": "file://validSource.js",
+    "type": "text/javascript",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/MISSING.action.js 1`] = `
+"// Timing Constants
+var ATTEMPT = 6; // Number of attempts to find the Google user.
+var SLEEP_TIME = 500; // Milliseconds between retries.
+var SYSTEM_ENDPOINT = "system/GoogleApps/__ACCOUNT__";
+var MAPPING_NAME = "AlphaUser2GoogleApps";
+var GOOGLE_DOMAIN = identityServer.getProperty("esv.gac.domain");
+var googleEmail = source.userName + "@" + GOOGLE_DOMAIN;
+var frUserGUID = source._id;
+var resultingAction = "ASYNC";
+
+// Get the Google GUID
+var linkQueryParams = {'_queryFilter': 'firstId eq "' + frUserGUID + '" and linkType eq "' + MAPPING_NAME + '"'};
+var linkResults = openidm.query("repo/link/", linkQueryParams, null);
+var googleGUID;
+
+if (linkResults.resultCount === 1) {
+  googleGUID = linkResults.result[0].secondId;
+}
+
+var queryResults; // Resulting query from looking for the Google user.
+var params = {'_queryFilter': '__UID__ eq "' + googleGUID + '"'};
+
+for (var i = 1; i <= ATTEMPT; i++) {
+    queryResults = openidm.query(SYSTEM_ENDPOINT, params);
+    if (queryResults.result && queryResults.result.length > 0) {
+        logger.info("idmlog: ---AlphaUser2GoogleApps - Missing->UPDATE - Result found in " + i + " attempts. Query result: " + JSON.stringify(queryResults));
+        resultingAction = "UPDATE";
+        break;
+    }
+    java.lang.Thread.sleep(SLEEP_TIME); // Wait before trying again.
+}
+
+if (!queryResults.result || queryResults.resultCount === 0) {
+    logger.warn("idmlog: ---AlphaUser2GoogleApps - Missing->UNLINK - " + googleEmail + " not found after " + ATTEMPT + " attempts.");
+    resultingAction = "UNLINK";
+}
+resultingAction;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/SOURCE.familyName.transform.js 1`] = `
+"if (source.frIndexedInteger1 > 2 && source.frIndexedInteger1 < 6) {
+  source.sn + " (Student)"
+} else {
+  source.sn
+}
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/cn.__NAME__.transform.js 1`] = `
+"source + "@" + identityServer.getProperty("esv.gac.domain");
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/custom_password_encrypted.__PASSWORD__.condition.js 1`] = `
+"object.custom_password_encrypted != null
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/custom_password_encrypted.__PASSWORD__.transform.js 1`] = `
+"openidm.decrypt(source);
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/onCreate.js 1`] = `
+"target.orgUnitPath = "/NewAccounts";
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/onUpdate.js 1`] = `
+"//testing1234
+target.givenName = oldTarget.givenName;
+target.familyName = oldTarget.familyName;
+target.__NAME__ = oldTarget.__NAME__;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/AlphaUser2GoogleApps/validSource.js 1`] = `
+"var isGoogleEligible = true;
 //var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + " cn: " + source.cn + ") -";
 var logMsg = "idmlog: ---AplhaUser2GAC (username: " + source.userName + " - userType: " + source.frIndexedInteger1 + ") -";
 
@@ -1637,10 +2648,7 @@ if (isGoogleEligible) {
 }
 
 isGoogleEligible;
-",
-    "type": "text/javascript",
-  },
-}
+"
 `;
 
 exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_application_managedBravo_application.sync.json 1`] = `
@@ -1724,7 +2732,17 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_user_managedBravo_user.sync.json 1`] = `
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_user_managedBravo_user/accountStatus.applications.condition.js 1`] = `
+"console.log("Hello World!");
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_user_managedBravo_user/accountStatus.applications.transform.js 1`] = `
+"console.log("hello");
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": should export all mappings to separate files in the mappingExportTestDir4 directory: mappingExportTestDir4/sync/managedAlpha_user_managedBravo_user/managedAlpha_user_managedBravo_user.sync.json 1`] = `
 {
   "_id": "sync/managedAlpha_user_managedBravo_user",
   "consentRequired": true,
@@ -1789,7 +2807,7 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
     {
       "condition": {
         "globals": {},
-        "source": "console.log("Hello World!");",
+        "source": "file://accountStatus.applications.condition.js",
         "type": "text/javascript",
       },
       "default": [
@@ -1799,7 +2817,7 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
       "target": "applications",
       "transform": {
         "globals": {},
-        "source": "console.log("hello");",
+        "source": "file://accountStatus.applications.transform.js",
         "type": "text/javascript",
       },
     },
@@ -1961,9 +2979,3090 @@ exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir4": 
       "mappings": [
         "file://managedBravo_user_managedBravo_user.sync.json",
         "file://managedAlpha_application_managedBravo_application.sync.json",
-        "file://managedAlpha_user_managedBravo_user.sync.json",
+        "file://managedAlpha_user_managedBravo_user/managedAlpha_user_managedBravo_user.sync.json",
         "file://managedBravo_user_managedAlpha_user.sync.json",
-        "file://AlphaUser2GoogleApps.sync.json",
+        "file://AlphaUser2GoogleApps/AlphaUser2GoogleApps.sync.json",
+      ],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files 2`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ABSENT.action.groovy 1`] = `
+"// Perform absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ABSENT.condition.groovy 1`] = `
+"// When absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ABSENT.postAction.groovy 1`] = `
+"// Complete absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ALL_GONE.action.groovy 1`] = `
+"// Perform all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ALL_GONE.condition.groovy 1`] = `
+"// When all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/ALL_GONE.postAction.groovy 1`] = `
+"// Complete all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/AMBIGUOUS.action.groovy 1`] = `
+"// Perform ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/AMBIGUOUS.condition.groovy 1`] = `
+"// When ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/AMBIGUOUS.postAction.groovy 1`] = `
+"// Complete ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/CONFIRMED.action.groovy 1`] = `
+"// Perform confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/CONFIRMED.condition.groovy 1`] = `
+"// When confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/CONFIRMED.postAction.groovy 1`] = `
+"// Complete confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND.action.groovy 1`] = `
+"// Perform found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND.condition.groovy 1`] = `
+"// When found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND.postAction.groovy 1`] = `
+"// Complete found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND_ALREADY_LINKED.action.groovy 1`] = `
+"// Perform found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND_ALREADY_LINKED.condition.groovy 1`] = `
+"// When found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/FOUND_ALREADY_LINKED.postAction.groovy 1`] = `
+"// Complete found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/LINK_ONLY.action.groovy 1`] = `
+"// Perform link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/LINK_ONLY.condition.groovy 1`] = `
+"// When link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/LINK_ONLY.postAction.groovy 1`] = `
+"// Complete link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/MISSING.action.groovy 1`] = `
+"// Perform missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/MISSING.condition.groovy 1`] = `
+"// When missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/MISSING.postAction.groovy 1`] = `
+"// Complete missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE.sn.condition.groovy 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE.sn.transform.groovy 1`] = `
+"source.sn.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_IGNORED.action.groovy 1`] = `
+"// Perform source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_IGNORED.condition.groovy 1`] = `
+"// When source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_IGNORED.postAction.groovy 1`] = `
+"// Complete source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_MISSING.action.groovy 1`] = `
+"// Perform source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_MISSING.condition.groovy 1`] = `
+"// When source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/SOURCE_MISSING.postAction.groovy 1`] = `
+"// Complete source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/TARGET_IGNORED.action.groovy 1`] = `
+"// Perform target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/TARGET_IGNORED.condition.groovy 1`] = `
+"// When target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/TARGET_IGNORED.postAction.groovy 1`] = `
+"// Complete target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNASSIGNED.action.groovy 1`] = `
+"// Perform unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNASSIGNED.condition.groovy 1`] = `
+"// When unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNASSIGNED.postAction.groovy 1`] = `
+"// Complete unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNQUALIFIED.action.groovy 1`] = `
+"// Perform unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNQUALIFIED.condition.groovy 1`] = `
+"// When unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UNQUALIFIED.postAction.groovy 1`] = `
+"// Complete unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/UserToUserGroovy": {
+      "_id": "mapping/UserToUserGroovy",
+      "correlationScript": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://correlationScript.groovy",
+        "type": "groovy",
+      },
+      "displayName": "User Test Groovy",
+      "linkQualifiers": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://linkQualifiers.groovy",
+        "type": "groovy",
+      },
+      "name": "UserToUserGroovy",
+      "null": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://null.groovy",
+        "type": "groovy",
+      },
+      "onCreate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onCreate.groovy",
+        "type": "groovy",
+      },
+      "onDelete": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onDelete.groovy",
+        "type": "groovy",
+      },
+      "onLink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onLink.groovy",
+        "type": "groovy",
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUnlink.groovy",
+        "type": "groovy",
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUpdate.groovy",
+        "type": "groovy",
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail",
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.groovy",
+            "type": "groovy",
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE.sn.transform.groovy",
+            "type": "groovy",
+          },
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.condition.groovy",
+            "type": "groovy",
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.transform.groovy",
+            "type": "groovy",
+          },
+        },
+        {
+          "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+          "target": "userName",
+        },
+      ],
+      "result": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://result.groovy",
+        "type": "groovy",
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co "1"",
+      },
+      "syncAfter": [],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw "2"",
+      },
+      "validSource": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://validSource.groovy",
+        "type": "groovy",
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null,
+        },
+        "source": "file://validTarget.groovy",
+        "type": "groovy",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/correlationScript.groovy 1`] = `
+"['test', 'default']
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/givenName.givenName.condition.groovy 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/givenName.givenName.transform.groovy 1`] = `
+"source.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/linkQualifiers.groovy 1`] = `
+"// Hello there!
+// This is a test comment
+[]
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/null.groovy 1`] = `
+"// other
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/onCreate.groovy 1`] = `
+"// onCreate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/onDelete.groovy 1`] = `
+"// onDelete
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/onLink.groovy 1`] = `
+"// onLink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/onUnlink.groovy 1`] = `
+"// onUnlink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/onUpdate.groovy 1`] = `
+"// onUpdate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/result.groovy 1`] = `
+"// Recon script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/validSource.groovy 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserGroovy/validTarget.groovy 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ABSENT.action.js 1`] = `
+"// Perform absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ABSENT.condition.js 1`] = `
+"// When absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ABSENT.postAction.js 1`] = `
+"// Complete absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ALL_GONE.action.js 1`] = `
+"// Perform all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ALL_GONE.condition.js 1`] = `
+"// When all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/ALL_GONE.postAction.js 1`] = `
+"// Complete all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/AMBIGUOUS.action.js 1`] = `
+"// Perform ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/AMBIGUOUS.condition.js 1`] = `
+"// When ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/AMBIGUOUS.postAction.js 1`] = `
+"// Complete ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/CONFIRMED.action.js 1`] = `
+"// Perform confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/CONFIRMED.condition.js 1`] = `
+"// When confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/CONFIRMED.postAction.js 1`] = `
+"// Complete confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND.action.js 1`] = `
+"// Perform found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND.condition.js 1`] = `
+"// When found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND.postAction.js 1`] = `
+"// Complete found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND_ALREADY_LINKED.action.js 1`] = `
+"// Perform found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND_ALREADY_LINKED.condition.js 1`] = `
+"// When found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/FOUND_ALREADY_LINKED.postAction.js 1`] = `
+"// Complete found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/LINK_ONLY.action.js 1`] = `
+"// Perform link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/LINK_ONLY.condition.js 1`] = `
+"// When link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/LINK_ONLY.postAction.js 1`] = `
+"// Complete link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/MISSING.action.js 1`] = `
+"// Perform missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/MISSING.condition.js 1`] = `
+"// When missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/MISSING.postAction.js 1`] = `
+"// Complete missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE.sn.condition.js 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE.sn.transform.js 1`] = `
+"source.sn.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_IGNORED.action.js 1`] = `
+"// Perform source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_IGNORED.condition.js 1`] = `
+"// When source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_IGNORED.postAction.js 1`] = `
+"// Complete source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_MISSING.action.js 1`] = `
+"// Perform source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_MISSING.condition.js 1`] = `
+"// When source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/SOURCE_MISSING.postAction.js 1`] = `
+"// Complete source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/TARGET_IGNORED.action.js 1`] = `
+"// Perform target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/TARGET_IGNORED.condition.js 1`] = `
+"// When target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/TARGET_IGNORED.postAction.js 1`] = `
+"// Complete target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNASSIGNED.action.js 1`] = `
+"// Perform unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNASSIGNED.condition.js 1`] = `
+"// When unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNASSIGNED.postAction.js 1`] = `
+"// Complete unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNQUALIFIED.action.js 1`] = `
+"// Perform unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNQUALIFIED.condition.js 1`] = `
+"// When unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UNQUALIFIED.postAction.js 1`] = `
+"// Complete unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/UserToUserJavascript.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/UserToUserJavascript": {
+      "_id": "mapping/UserToUserJavascript",
+      "correlationScript": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://correlationScript.js",
+        "type": "text/javascript",
+      },
+      "displayName": "User Test Javascript",
+      "linkQualifiers": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://linkQualifiers.js",
+        "type": "text/javascript",
+      },
+      "name": "UserToUserJavascript",
+      "null": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://null.js",
+        "type": "text/javascript",
+      },
+      "onCreate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onCreate.js",
+        "type": "text/javascript",
+      },
+      "onDelete": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onDelete.js",
+        "type": "text/javascript",
+      },
+      "onLink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onLink.js",
+        "type": "text/javascript",
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUnlink.js",
+        "type": "text/javascript",
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUpdate.js",
+        "type": "text/javascript",
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.action.js",
+            "type": "text/javascript",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.condition.js",
+            "type": "text/javascript",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.postAction.js",
+            "type": "text/javascript",
+          },
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail",
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.js",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE.sn.transform.js",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.condition.js",
+            "type": "text/javascript",
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.transform.js",
+            "type": "text/javascript",
+          },
+        },
+        {
+          "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+          "target": "userName",
+        },
+      ],
+      "result": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://result.js",
+        "type": "text/javascript",
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co "1"",
+      },
+      "syncAfter": [
+        "UserToUserGroovy",
+      ],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw "2"",
+      },
+      "validSource": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://validSource.js",
+        "type": "text/javascript",
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null,
+        },
+        "source": "file://validTarget.js",
+        "type": "text/javascript",
+      },
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/correlationScript.js 1`] = `
+"['test', 'default']
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/givenName.givenName.condition.js 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/givenName.givenName.transform.js 1`] = `
+"source.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/linkQualifiers.js 1`] = `
+"// Hello there!
+// This is a test comment
+[]
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/null.js 1`] = `
+"// other
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/onCreate.js 1`] = `
+"// onCreate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/onDelete.js 1`] = `
+"// onDelete
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/onLink.js 1`] = `
+"// onLink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/onUnlink.js 1`] = `
+"// onUnlink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/onUpdate.js 1`] = `
+"// onUpdate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/result.js 1`] = `
+"// Recon script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/validSource.js 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserJavascript/validTarget.js 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/mapping/UserToUserNoScripts.mapping.json 1`] = `
+{
+  "mapping": {
+    "mapping/UserToUserNoScripts": {
+      "_id": "mapping/UserToUserNoScripts",
+      "consentRequired": false,
+      "displayName": "UserToUserNoScripts",
+      "icon": null,
+      "name": "UserToUserNoScripts",
+      "policies": [
+        {
+          "action": "ASYNC",
+          "situation": "ABSENT",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": "ASYNC",
+          "situation": "UNQUALIFIED",
+        },
+      ],
+      "properties": [],
+      "source": "managed/user",
+      "target": "managed/user",
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ABSENT.action.groovy 1`] = `
+"// Perform absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ABSENT.condition.groovy 1`] = `
+"// When absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ABSENT.postAction.groovy 1`] = `
+"// Complete absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ALL_GONE.action.groovy 1`] = `
+"// Perform all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ALL_GONE.condition.groovy 1`] = `
+"// When all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/ALL_GONE.postAction.groovy 1`] = `
+"// Complete all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/AMBIGUOUS.action.groovy 1`] = `
+"// Perform ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/AMBIGUOUS.condition.groovy 1`] = `
+"// When ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/AMBIGUOUS.postAction.groovy 1`] = `
+"// Complete ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/CONFIRMED.action.groovy 1`] = `
+"// Perform confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/CONFIRMED.condition.groovy 1`] = `
+"// When confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/CONFIRMED.postAction.groovy 1`] = `
+"// Complete confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND.action.groovy 1`] = `
+"// Perform found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND.condition.groovy 1`] = `
+"// When found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND.postAction.groovy 1`] = `
+"// Complete found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND_ALREADY_LINKED.action.groovy 1`] = `
+"// Perform found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND_ALREADY_LINKED.condition.groovy 1`] = `
+"// When found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/FOUND_ALREADY_LINKED.postAction.groovy 1`] = `
+"// Complete found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/LINK_ONLY.action.groovy 1`] = `
+"// Perform link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/LINK_ONLY.condition.groovy 1`] = `
+"// When link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/LINK_ONLY.postAction.groovy 1`] = `
+"// Complete link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/MISSING.action.groovy 1`] = `
+"// Perform missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/MISSING.condition.groovy 1`] = `
+"// When missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/MISSING.postAction.groovy 1`] = `
+"// Complete missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE.sn.condition.groovy 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE.sn.transform.groovy 1`] = `
+"source.sn.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_IGNORED.action.groovy 1`] = `
+"// Perform source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_IGNORED.condition.groovy 1`] = `
+"// When source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_IGNORED.postAction.groovy 1`] = `
+"// Complete source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_MISSING.action.groovy 1`] = `
+"// Perform source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_MISSING.condition.groovy 1`] = `
+"// When source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/SOURCE_MISSING.postAction.groovy 1`] = `
+"// Complete source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/TARGET_IGNORED.action.groovy 1`] = `
+"// Perform target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/TARGET_IGNORED.condition.groovy 1`] = `
+"// When target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/TARGET_IGNORED.postAction.groovy 1`] = `
+"// Complete target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNASSIGNED.action.groovy 1`] = `
+"// Perform unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNASSIGNED.condition.groovy 1`] = `
+"// When unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNASSIGNED.postAction.groovy 1`] = `
+"// Complete unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNQUALIFIED.action.groovy 1`] = `
+"// Perform unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNQUALIFIED.condition.groovy 1`] = `
+"// When unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UNQUALIFIED.postAction.groovy 1`] = `
+"// Complete unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/UserToUserGroovySync.sync.json 1`] = `
+{
+  "_id": "sync/UserToUserGroovySync",
+  "correlationScript": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://correlationScript.groovy",
+    "type": "groovy",
+  },
+  "displayName": "User Test Groovy Sync",
+  "linkQualifiers": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://linkQualifiers.groovy",
+    "type": "groovy",
+  },
+  "name": "UserToUserGroovySync",
+  "null": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://null.groovy",
+    "type": "groovy",
+  },
+  "onCreate": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onCreate.groovy",
+    "type": "groovy",
+  },
+  "onDelete": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onDelete.groovy",
+    "type": "groovy",
+  },
+  "onLink": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onLink.groovy",
+    "type": "groovy",
+  },
+  "onUnlink": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onUnlink.groovy",
+    "type": "groovy",
+  },
+  "onUpdate": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onUpdate.groovy",
+    "type": "groovy",
+  },
+  "policies": [
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "MISSING",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "FOUND",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.action.groovy",
+        "type": "groovy",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.condition.groovy",
+        "type": "groovy",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.postAction.groovy",
+        "type": "groovy",
+      },
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [
+    {
+      "source": "mail",
+      "target": "mail",
+    },
+    {
+      "condition": {
+        "globals": {},
+        "source": "file://SOURCE.sn.condition.groovy",
+        "type": "groovy",
+      },
+      "default": "test",
+      "source": "",
+      "target": "sn",
+      "transform": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE.sn.transform.groovy",
+        "type": "groovy",
+      },
+    },
+    {
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://givenName.givenName.condition.groovy",
+        "type": "groovy",
+      },
+      "default": "test",
+      "source": "givenName",
+      "target": "givenName",
+      "transform": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://givenName.givenName.transform.groovy",
+        "type": "groovy",
+      },
+    },
+    {
+      "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+      "target": "userName",
+    },
+  ],
+  "result": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://result.groovy",
+    "type": "groovy",
+  },
+  "source": "managed/user",
+  "sourceQuery": {
+    "_queryFilter": "_id co "1"",
+  },
+  "syncAfter": [],
+  "target": "managed/user",
+  "targetQuery": {
+    "_queryFilter": "_id sw "2"",
+  },
+  "validSource": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://validSource.groovy",
+    "type": "groovy",
+  },
+  "validTarget": {
+    "globals": {
+      "validate": null,
+    },
+    "source": "file://validTarget.groovy",
+    "type": "groovy",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/correlationScript.groovy 1`] = `
+"['test', 'default']
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/givenName.givenName.condition.groovy 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/givenName.givenName.transform.groovy 1`] = `
+"source.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/linkQualifiers.groovy 1`] = `
+"// Hello there!
+// This is a test comment
+[]
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/null.groovy 1`] = `
+"// other
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/onCreate.groovy 1`] = `
+"// onCreate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/onDelete.groovy 1`] = `
+"// onDelete
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/onLink.groovy 1`] = `
+"// onLink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/onUnlink.groovy 1`] = `
+"// onUnlink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/onUpdate.groovy 1`] = `
+"// onUpdate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/result.groovy 1`] = `
+"// Recon script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/validSource.groovy 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserGroovySync/validTarget.groovy 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ABSENT.action.js 1`] = `
+"// Perform absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ABSENT.condition.js 1`] = `
+"// When absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ABSENT.postAction.js 1`] = `
+"// Complete absent
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ALL_GONE.action.js 1`] = `
+"// Perform all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ALL_GONE.condition.js 1`] = `
+"// When all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/ALL_GONE.postAction.js 1`] = `
+"// Complete all_gone
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/AMBIGUOUS.action.js 1`] = `
+"// Perform ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/AMBIGUOUS.condition.js 1`] = `
+"// When ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/AMBIGUOUS.postAction.js 1`] = `
+"// Complete ambiguous
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/CONFIRMED.action.js 1`] = `
+"// Perform confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/CONFIRMED.condition.js 1`] = `
+"// When confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/CONFIRMED.postAction.js 1`] = `
+"// Complete confirmed
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND.action.js 1`] = `
+"// Perform found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND.condition.js 1`] = `
+"// When found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND.postAction.js 1`] = `
+"// Complete found
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND_ALREADY_LINKED.action.js 1`] = `
+"// Perform found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND_ALREADY_LINKED.condition.js 1`] = `
+"// When found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/FOUND_ALREADY_LINKED.postAction.js 1`] = `
+"// Complete found already linked
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/LINK_ONLY.action.js 1`] = `
+"// Perform link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/LINK_ONLY.condition.js 1`] = `
+"// When link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/LINK_ONLY.postAction.js 1`] = `
+"// Complete link_only
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/MISSING.action.js 1`] = `
+"// Perform missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/MISSING.condition.js 1`] = `
+"// When missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/MISSING.postAction.js 1`] = `
+"// Complete missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE.sn.condition.js 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE.sn.transform.js 1`] = `
+"source.sn.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_IGNORED.action.js 1`] = `
+"// Perform source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_IGNORED.condition.js 1`] = `
+"// When source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_IGNORED.postAction.js 1`] = `
+"// Complete source_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_MISSING.action.js 1`] = `
+"// Perform source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_MISSING.condition.js 1`] = `
+"// When source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/SOURCE_MISSING.postAction.js 1`] = `
+"// Complete source missing
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/TARGET_IGNORED.action.js 1`] = `
+"// Perform target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/TARGET_IGNORED.condition.js 1`] = `
+"// When target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/TARGET_IGNORED.postAction.js 1`] = `
+"// Complete target_ignored
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNASSIGNED.action.js 1`] = `
+"// Perform unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNASSIGNED.condition.js 1`] = `
+"// When unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNASSIGNED.postAction.js 1`] = `
+"// Complete unassigned
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNQUALIFIED.action.js 1`] = `
+"// Perform unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNQUALIFIED.condition.js 1`] = `
+"// When unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UNQUALIFIED.postAction.js 1`] = `
+"// Complete unqualified
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json 1`] = `
+{
+  "_id": "sync/UserToUserJavascriptSync",
+  "correlationScript": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://correlationScript.js",
+    "type": "text/javascript",
+  },
+  "displayName": "User Test Javascript Sync",
+  "linkQualifiers": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://linkQualifiers.js",
+    "type": "text/javascript",
+  },
+  "name": "UserToUserJavascriptSync",
+  "null": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://null.js",
+    "type": "text/javascript",
+  },
+  "onCreate": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onCreate.js",
+    "type": "text/javascript",
+  },
+  "onDelete": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onDelete.js",
+    "type": "text/javascript",
+  },
+  "onLink": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onLink.js",
+    "type": "text/javascript",
+  },
+  "onUnlink": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onUnlink.js",
+    "type": "text/javascript",
+  },
+  "onUpdate": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://onUpdate.js",
+    "type": "text/javascript",
+  },
+  "policies": [
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://AMBIGUOUS.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_MISSING.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://MISSING.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "MISSING",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND_ALREADY_LINKED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNQUALIFIED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "UNQUALIFIED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://UNASSIGNED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://LINK_ONLY.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://TARGET_IGNORED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE_IGNORED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ALL_GONE.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://CONFIRMED.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://FOUND.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "FOUND",
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.action.js",
+        "type": "text/javascript",
+      },
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.condition.js",
+        "type": "text/javascript",
+      },
+      "postAction": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://ABSENT.postAction.js",
+        "type": "text/javascript",
+      },
+      "situation": "ABSENT",
+    },
+  ],
+  "properties": [
+    {
+      "source": "mail",
+      "target": "mail",
+    },
+    {
+      "condition": {
+        "globals": {},
+        "source": "file://SOURCE.sn.condition.js",
+        "type": "text/javascript",
+      },
+      "default": "test",
+      "source": "",
+      "target": "sn",
+      "transform": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://SOURCE.sn.transform.js",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "condition": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://givenName.givenName.condition.js",
+        "type": "text/javascript",
+      },
+      "default": "test",
+      "source": "givenName",
+      "target": "givenName",
+      "transform": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://givenName.givenName.transform.js",
+        "type": "text/javascript",
+      },
+    },
+    {
+      "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+      "target": "userName",
+    },
+  ],
+  "result": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://result.js",
+    "type": "text/javascript",
+  },
+  "source": "managed/user",
+  "sourceQuery": {
+    "_queryFilter": "_id co "1"",
+  },
+  "syncAfter": [
+    "UserToUserGroovySync",
+  ],
+  "target": "managed/user",
+  "targetQuery": {
+    "_queryFilter": "_id sw "2"",
+  },
+  "validSource": {
+    "globals": {
+      "test": null,
+    },
+    "source": "file://validSource.js",
+    "type": "text/javascript",
+  },
+  "validTarget": {
+    "globals": {
+      "validate": null,
+    },
+    "source": "file://validTarget.js",
+    "type": "text/javascript",
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/correlationScript.js 1`] = `
+"['test', 'default']
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/givenName.givenName.condition.js 1`] = `
+"true;
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/givenName.givenName.transform.js 1`] = `
+"source.toLowerCase();
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/linkQualifiers.js 1`] = `
+"// Hello there!
+// This is a test comment
+[]
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/null.js 1`] = `
+"// other
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/onCreate.js 1`] = `
+"// onCreate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/onDelete.js 1`] = `
+"// onDelete
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/onLink.js 1`] = `
+"// onLink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/onUnlink.js 1`] = `
+"// onUnlink
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/onUpdate.js 1`] = `
+"// onUpdate
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/result.js 1`] = `
+"// Recon script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/validSource.js 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserJavascriptSync/validTarget.js 1`] = `
+"// Validate source script
+"
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/UserToUserNoScriptsSync.sync.json 1`] = `
+{
+  "_id": "sync/UserToUserNoScriptsSync",
+  "consentRequired": false,
+  "displayName": "UserToUserNoScriptsSync",
+  "icon": null,
+  "name": "UserToUserNoScriptsSync",
+  "policies": [
+    {
+      "action": "ASYNC",
+      "situation": "ABSENT",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "ALL_GONE",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "AMBIGUOUS",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "CONFIRMED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "FOUND_ALREADY_LINKED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "LINK_ONLY",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "SOURCE_MISSING",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "TARGET_IGNORED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNASSIGNED",
+    },
+    {
+      "action": "ASYNC",
+      "situation": "UNQUALIFIED",
+    },
+  ],
+  "properties": [],
+  "source": "managed/user",
+  "syncAfter": [
+    "UserToUserGroovySync",
+    "UserToUserJavascriptSync",
+  ],
+  "target": "managed/user",
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -AD mappingExportTestDir5 -m forgeops": should export mapping objects into separate files: mappingExportTestDir5/sync/sync.idm.json 1`] = `
+{
+  "idm": {
+    "sync": {
+      "_id": "sync",
+      "mappings": [
+        "file://UserToUserGroovySync/UserToUserGroovySync.sync.json",
+        "file://UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json",
+        "file://UserToUserNoScriptsSync.sync.json",
       ],
     },
   },
@@ -2042,10 +6141,6 @@ exports[`frodo mapping export "frodo mapping export -Ni mapping/managedBravo_gro
       "source": "managed/bravo_group",
       "target": "managed/bravo_group",
     },
-  },
-  "sync": {
-    "_id": "sync",
-    "mappings": [],
   },
 }
 `;
@@ -2721,11 +6816,474 @@ isGoogleEligible;
 }
 `;
 
-exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 1`] = `0`;
+exports[`frodo mapping export "frodo mapping export -i sync/UserToUserGroovySync -D mappingExportTestDir6 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts 1`] = `0`;
 
-exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 2`] = `""`;
+exports[`frodo mapping export "frodo mapping export -i sync/UserToUserGroovySync -D mappingExportTestDir6 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts 2`] = `""`;
 
-exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json: my-frodo-test-mapping.mapping.json 1`] = `
+exports[`frodo mapping export "frodo mapping export -i sync/UserToUserGroovySync -D mappingExportTestDir6 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts: mappingExportTestDir6/UserToUserGroovySync/UserToUserGroovySync.sync.json 1`] = `
+{
+  "meta": Any<Object>,
+  "sync": {
+    "sync/UserToUserGroovySync": {
+      "_id": "sync/UserToUserGroovySync",
+      "correlationScript": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://correlationScript.groovy",
+        "type": "groovy",
+      },
+      "displayName": "User Test Groovy Sync",
+      "linkQualifiers": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://linkQualifiers.groovy",
+        "type": "groovy",
+      },
+      "name": "UserToUserGroovySync",
+      "null": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://null.groovy",
+        "type": "groovy",
+      },
+      "onCreate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onCreate.groovy",
+        "type": "groovy",
+      },
+      "onDelete": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onDelete.groovy",
+        "type": "groovy",
+      },
+      "onLink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onLink.groovy",
+        "type": "groovy",
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUnlink.groovy",
+        "type": "groovy",
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://onUpdate.groovy",
+        "type": "groovy",
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://AMBIGUOUS.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "AMBIGUOUS",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_MISSING.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "SOURCE_MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://MISSING.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "MISSING",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "FOUND_ALREADY_LINKED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNQUALIFIED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "UNQUALIFIED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://UNASSIGNED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "UNASSIGNED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://LINK_ONLY.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "LINK_ONLY",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://TARGET_IGNORED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "TARGET_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE_IGNORED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "SOURCE_IGNORED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ALL_GONE.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "ALL_GONE",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://CONFIRMED.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "CONFIRMED",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://FOUND.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "FOUND",
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.action.groovy",
+            "type": "groovy",
+          },
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.condition.groovy",
+            "type": "groovy",
+          },
+          "postAction": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://ABSENT.postAction.groovy",
+            "type": "groovy",
+          },
+          "situation": "ABSENT",
+        },
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail",
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.groovy",
+            "type": "groovy",
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://SOURCE.sn.transform.groovy",
+            "type": "groovy",
+          },
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.condition.groovy",
+            "type": "groovy",
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null,
+            },
+            "source": "file://givenName.givenName.transform.groovy",
+            "type": "groovy",
+          },
+        },
+        {
+          "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+          "target": "userName",
+        },
+      ],
+      "result": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://result.groovy",
+        "type": "groovy",
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co "1"",
+      },
+      "syncAfter": [],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw "2"",
+      },
+      "validSource": {
+        "globals": {
+          "test": null,
+        },
+        "source": "file://validSource.groovy",
+        "type": "groovy",
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null,
+        },
+        "source": "file://validTarget.groovy",
+        "type": "groovy",
+      },
+    },
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -xi mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -xi mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json 2`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -xi mapping/managedBravo_group_managedBravo_group -f my-frodo-test-mapping.mapping.json": should export the mapping with mapping id "mapping/managedBravo_group_managedBravo_group" into file named my-frodo-test-mapping.mapping.json: my-frodo-test-mapping.mapping.json 1`] = `
 {
   "mapping": {
     "mapping/managedBravo_group_managedBravo_group": {
@@ -2797,6 +7355,475 @@ exports[`frodo mapping export "frodo mapping export -i mapping/managedBravo_grou
   "sync": {
     "_id": "sync",
     "mappings": [],
+  },
+}
+`;
+
+exports[`frodo mapping export "frodo mapping export -xi sync/UserToUserGroovySync -D mappingExportTestDir8 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts 1`] = `0`;
+
+exports[`frodo mapping export "frodo mapping export -xi sync/UserToUserGroovySync -D mappingExportTestDir8 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts 2`] = `""`;
+
+exports[`frodo mapping export "frodo mapping export -xi sync/UserToUserGroovySync -D mappingExportTestDir8 -m forgeops": should export sync/UserToUserGroovySync object with extracted idm scripts: mappingExportTestDir8/UserToUserGroovySync.sync.json 1`] = `
+{
+  "mapping": {},
+  "meta": Any<Object>,
+  "sync": {
+    "_id": "sync",
+    "mappings": [
+      {
+        "_id": "sync/UserToUserGroovySync",
+        "correlationScript": {
+          "globals": {
+            "test": null,
+          },
+          "source": "['test', 'default']",
+          "type": "groovy",
+        },
+        "displayName": "User Test Groovy Sync",
+        "linkQualifiers": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// Hello there!
+// This is a test comment
+[]",
+          "type": "groovy",
+        },
+        "name": "UserToUserGroovySync",
+        "null": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// other",
+          "type": "groovy",
+        },
+        "onCreate": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// onCreate",
+          "type": "groovy",
+        },
+        "onDelete": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// onDelete",
+          "type": "groovy",
+        },
+        "onLink": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// onLink",
+          "type": "groovy",
+        },
+        "onUnlink": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// onUnlink",
+          "type": "groovy",
+        },
+        "onUpdate": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// onUpdate",
+          "type": "groovy",
+        },
+        "policies": [
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform ambiguous",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When ambiguous",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete ambiguous",
+              "type": "groovy",
+            },
+            "situation": "AMBIGUOUS",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform source missing",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When source missing",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete source missing",
+              "type": "groovy",
+            },
+            "situation": "SOURCE_MISSING",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform missing",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When missing",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete missing",
+              "type": "groovy",
+            },
+            "situation": "MISSING",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform found already linked",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When found already linked",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete found already linked",
+              "type": "groovy",
+            },
+            "situation": "FOUND_ALREADY_LINKED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform unqualified",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When unqualified",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete unqualified",
+              "type": "groovy",
+            },
+            "situation": "UNQUALIFIED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform unassigned",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When unassigned",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete unassigned",
+              "type": "groovy",
+            },
+            "situation": "UNASSIGNED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform link_only",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When link_only",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete link_only",
+              "type": "groovy",
+            },
+            "situation": "LINK_ONLY",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform target_ignored",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When target_ignored",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete target_ignored",
+              "type": "groovy",
+            },
+            "situation": "TARGET_IGNORED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform source_ignored",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When source_ignored",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete source_ignored",
+              "type": "groovy",
+            },
+            "situation": "SOURCE_IGNORED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform all_gone",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When all_gone",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete all_gone",
+              "type": "groovy",
+            },
+            "situation": "ALL_GONE",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform confirmed",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When confirmed",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete confirmed",
+              "type": "groovy",
+            },
+            "situation": "CONFIRMED",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform found",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When found",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete found",
+              "type": "groovy",
+            },
+            "situation": "FOUND",
+          },
+          {
+            "action": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Perform absent",
+              "type": "groovy",
+            },
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// When absent",
+              "type": "groovy",
+            },
+            "postAction": {
+              "globals": {
+                "test": null,
+              },
+              "source": "// Complete absent",
+              "type": "groovy",
+            },
+            "situation": "ABSENT",
+          },
+        ],
+        "properties": [
+          {
+            "source": "mail",
+            "target": "mail",
+          },
+          {
+            "condition": {
+              "globals": {},
+              "source": "true;",
+              "type": "groovy",
+            },
+            "default": "test",
+            "source": "",
+            "target": "sn",
+            "transform": {
+              "globals": {
+                "test": null,
+              },
+              "source": "source.sn.toLowerCase();",
+              "type": "groovy",
+            },
+          },
+          {
+            "condition": {
+              "globals": {
+                "test": null,
+              },
+              "source": "true;",
+              "type": "groovy",
+            },
+            "default": "test",
+            "source": "givenName",
+            "target": "givenName",
+            "transform": {
+              "globals": {
+                "test": null,
+              },
+              "source": "source.toLowerCase();",
+              "type": "groovy",
+            },
+          },
+          {
+            "condition": "(/object/_id eq "hello" and (/object/_id co "test" or /object/activeDate sw "bye"))",
+            "target": "userName",
+          },
+        ],
+        "result": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// Recon script",
+          "type": "groovy",
+        },
+        "source": "managed/user",
+        "sourceQuery": {
+          "_queryFilter": "_id co "1"",
+        },
+        "syncAfter": [],
+        "target": "managed/user",
+        "targetQuery": {
+          "_queryFilter": "_id sw "2"",
+        },
+        "validSource": {
+          "globals": {
+            "test": null,
+          },
+          "source": "// Validate source script",
+          "type": "groovy",
+        },
+        "validTarget": {
+          "globals": {
+            "validate": null,
+          },
+          "source": "// Validate source script",
+          "type": "groovy",
+        },
+      },
+    ],
   },
 }
 `;

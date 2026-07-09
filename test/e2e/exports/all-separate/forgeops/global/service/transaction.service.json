@@ -1,0 +1,17 @@
+{
+  "service": {
+    "transaction": {
+      "_id": "",
+      "_type": {
+        "_id": "transaction",
+        "collection": false,
+        "name": "Transaction Authentication Service"
+      },
+      "defaults": {
+        "timeToLive": "180"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

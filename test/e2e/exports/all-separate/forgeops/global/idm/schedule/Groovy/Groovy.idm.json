@@ -1,0 +1,28 @@
+{
+  "idm": {
+    "schedule/Groovy": {
+      "_id": "schedule/Groovy",
+      "concurrentExecution": false,
+      "enabled": true,
+      "endTime": null,
+      "invokeContext": {
+        "script": {
+          "globals": {},
+          "source": "file://invokeContext.script.groovy",
+          "type": "groovy"
+        }
+      },
+      "invokeLogLevel": "info",
+      "invokeService": "script",
+      "isCron": true,
+      "misfirePolicy": "fireAndProceed",
+      "persisted": true,
+      "recoverable": false,
+      "repeatCount": 0,
+      "repeatInterval": 0,
+      "schedule": "0 0 0 * * ?",
+      "startTime": null,
+      "type": "cron"
+    }
+  }
+}

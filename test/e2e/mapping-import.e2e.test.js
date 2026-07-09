@@ -47,6 +47,7 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f test/e2e/exports/all/allMappings.mapping.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --no-deps --mapping-id mapping/managedBravo_group_managedBravo_group --file allMappings.mapping.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -f test/e2e/exports/all/allMappings.mapping.json
@@ -55,23 +56,34 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --all --no-deps --file allMappings.mapping.json --directory test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import -AD test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo mapping import --all-separate --no-deps --directory test/e2e/exports/all-separate/cloud/global/idm
+// Forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping import -AD test/e2e/exports/all-separate/forgeops/global -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping import -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping import --file test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping import -i sync/UserToUserJavascriptSync -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo mapping import -i mapping/UserToUserGroovy --file test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { getEnv, removeAnsiEscapeCodes, testSuccess } from './utils/TestUtils';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const allDirectory = "test/e2e/exports/all";
 const allMappingsFileName = "allMappings.mapping.json";
 const allMappingsExport = `${allDirectory}/${allMappingsFileName}`;
 const allSeparateMappingsDirectory = `test/e2e/exports/all-separate/cloud/global/idm`;
+const forgeopsAllSeparateMappingsDirectory = `test/e2e/exports/all-separate/forgeops/global`;
 
 describe('frodo mapping import', () => {
+
+    // Cloud Tests
+
     test(`"frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f ${allMappingsExport}": should import the mapping with the id "sync/managedAlpha_application_managedBravo_application" from the file "${allMappingsExport}"`, async () => {
         const CMD = `frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f ${allMappingsExport}`;
         const { stdout } = await exec(CMD, env);
@@ -120,4 +132,30 @@ describe('frodo mapping import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
+    // Forgeops Tests
+
+    test(`"frodo mapping import -AD ${forgeopsAllSeparateMappingsDirectory} -m forgeops": should import all mappings from the ${forgeopsAllSeparateMappingsDirectory} directory`, async () => {
+        const CMD = `frodo mapping import -AD ${forgeopsAllSeparateMappingsDirectory} -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo mapping import -f ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping from the ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file`, async () => {
+        const CMD = `frodo mapping import -f ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo mapping import -f ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping from the ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file`, async () => {
+        const CMD = `frodo mapping import --file ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo mapping import -i sync/UserToUserJavascriptSync U -f ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping 'sync/UserToUserJavascriptSync' from the ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file`, async () => {
+        const CMD = `frodo mapping import -i sync/UserToUserJavascriptSync -f ${forgeopsAllSeparateMappingsDirectory}/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo mapping import -i mapping/UserToUserGroovy -f ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping 'mapping/UserToUserGroovy' from the ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file`, async () => {
+        const CMD = `frodo mapping import -i mapping/UserToUserGroovy --file ${forgeopsAllSeparateMappingsDirectory}/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
 });

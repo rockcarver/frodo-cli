@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-cert": {
+      "_id": "openidm-cert",
+      "condition": null,
+      "description": "Authenticated via certificate",
+      "name": "openidm-cert",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

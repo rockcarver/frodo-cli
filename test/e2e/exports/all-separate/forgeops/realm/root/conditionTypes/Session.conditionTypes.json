@@ -1,0 +1,21 @@
+{
+  "conditionTypes": {
+    "Session": {
+      "_id": "Session",
+      "config": {
+        "properties": {
+          "maxSessionTime": {
+            "type": "integer"
+          },
+          "terminateSession": {
+            "required": true,
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Session"
+    }
+  }
+}

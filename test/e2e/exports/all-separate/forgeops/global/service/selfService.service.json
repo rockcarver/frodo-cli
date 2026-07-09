@@ -1,0 +1,109 @@
+{
+  "service": {
+    "selfService": {
+      "_id": "",
+      "_type": {
+        "_id": "selfService",
+        "collection": false,
+        "name": "User Self-Service"
+      },
+      "defaults": {
+        "advancedConfig": {
+          "forgottenPasswordConfirmationUrl": "http://am:80/am/XUI/?realm=${realm}#passwordReset/",
+          "forgottenPasswordServiceConfigClass": "org.forgerock.openam.selfservice.config.flows.ForgottenPasswordConfigProvider",
+          "forgottenUsernameServiceConfigClass": "org.forgerock.openam.selfservice.config.flows.ForgottenUsernameConfigProvider",
+          "userRegistrationConfirmationUrl": "http://am:80/am/XUI/?realm=${realm}#register/",
+          "userRegistrationServiceConfigClass": "org.forgerock.openam.selfservice.config.flows.UserRegistrationConfigProvider"
+        },
+        "forgottenPassword": {
+          "forgottenPasswordCaptchaEnabled": false,
+          "forgottenPasswordEmailBody": [
+            "en|<h2>Click on this <a href=\"%link%\">link</a> to reset your password.</h2>"
+          ],
+          "forgottenPasswordEmailSubject": [
+            "en|Forgotten password email"
+          ],
+          "forgottenPasswordEmailVerificationEnabled": true,
+          "forgottenPasswordEnabled": false,
+          "forgottenPasswordKbaEnabled": false,
+          "forgottenPasswordTokenPaddingLength": 450,
+          "forgottenPasswordTokenTTL": 300,
+          "numberOfAllowedAttempts": 1,
+          "numberOfAttemptsEnforced": false
+        },
+        "forgottenUsername": {
+          "forgottenUsernameCaptchaEnabled": false,
+          "forgottenUsernameEmailBody": [
+            "en|<h2>Your username is <span style=\"color:blue\">%username%</span>.</h2>"
+          ],
+          "forgottenUsernameEmailSubject": [
+            "en|Forgotten username email"
+          ],
+          "forgottenUsernameEmailUsernameEnabled": true,
+          "forgottenUsernameEnabled": false,
+          "forgottenUsernameKbaEnabled": false,
+          "forgottenUsernameShowUsernameEnabled": false,
+          "forgottenUsernameTokenTTL": 300
+        },
+        "generalConfig": {
+          "captchaVerificationUrl": "https://www.google.com/recaptcha/api/siteverify",
+          "kbaQuestions": [
+            "4|en|What is your mother's maiden name?",
+            "3|en|What was the name of your childhood pet?",
+            "2|en|What was the model of your first car?",
+            "1|en|What is the name of your favourite restaurant?"
+          ],
+          "minimumAnswersToDefine": 1,
+          "minimumAnswersToVerify": 1,
+          "validQueryAttributes": [
+            "uid",
+            "mail",
+            "givenName",
+            "sn"
+          ]
+        },
+        "profileManagement": {
+          "profileAttributeWhitelist": [
+            "uid",
+            "telephoneNumber",
+            "mail",
+            "kbaInfo",
+            "givenName",
+            "sn",
+            "cn"
+          ],
+          "profileProtectedUserAttributes": [
+            "telephoneNumber",
+            "mail"
+          ]
+        },
+        "userRegistration": {
+          "userRegisteredDestination": "default",
+          "userRegistrationCaptchaEnabled": false,
+          "userRegistrationEmailBody": [
+            "en|<h2>Click on this <a href=\"%link%\">link</a> to register.</h2>"
+          ],
+          "userRegistrationEmailSubject": [
+            "en|Registration email"
+          ],
+          "userRegistrationEmailVerificationEnabled": true,
+          "userRegistrationEmailVerificationFirstEnabled": false,
+          "userRegistrationEnabled": false,
+          "userRegistrationKbaEnabled": false,
+          "userRegistrationTokenTTL": 300,
+          "userRegistrationValidUserAttributes": [
+            "userPassword",
+            "mail",
+            "givenName",
+            "kbaInfo",
+            "inetUserStatus",
+            "sn",
+            "username"
+          ]
+        }
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

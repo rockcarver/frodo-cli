@@ -55,18 +55,30 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all --file all.idm.json -D test/e2e/exports/all
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm import --all-separate --directory test/e2e/exports/all-separate/cloud/global/idm --env-file test/e2e/env/testEnvFile.env --entities-file test/e2e/env/testEntitiesFile.json
+
+// ForgeOps
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import --file test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -i endpoint/Groovy -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import --entity-id sync -f test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm import -i managed -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { getEnv, removeAnsiEscapeCodes, testSuccess } from './utils/TestUtils';
+import { connection as c , forgeops_connection as fc} from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const idmExportDirectory = "test/e2e/exports/all-separate/cloud/global/idm";
+const forgeopsExportDirectory = "test/e2e/exports/all-separate/forgeops";
+const forgeopsIdmExportDirectory = `${forgeopsExportDirectory}/global/idm`;
 const idmScriptConfigFileName = "script.idm.json";
 const idmScriptConfigExport = `${idmExportDirectory}/${idmScriptConfigFileName}`;
 const allIdmExportDirectory = 'test/e2e/exports/all';
@@ -76,6 +88,9 @@ const testEntitiesFile = 'test/e2e/env/testEntitiesFile.json';
 const testEnvFile = 'test/e2e/env/testEnvFile.env';
 
 describe('frodo idm import', () => {
+
+    // Cloud Tests
+
     test(`"frodo idm import -i script -D ${idmExportDirectory}": should import the idm config with name 'script' from the directory ${idmExportDirectory}"`, async () => {
         const CMD = `frodo idm import -i script -D ${idmExportDirectory}`;
         const { stdout } = await exec(CMD, env);
@@ -130,5 +145,42 @@ describe('frodo idm import', () => {
         const CMD = `frodo idm import --all-separate --directory ${idmExportDirectory} --env-file ${testEnvFile} --entities-file ${testEntitiesFile}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    // Forgeops Tests
+
+    test(`"frodo idm import -AD ${forgeopsIdmExportDirectory} -m forgeops": Should import all config from the directory '${forgeopsIdmExportDirectory}'.`, async () => {
+        const CMD = `frodo idm import -AD ${forgeopsIdmExportDirectory} -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import -f ${forgeopsIdmExportDirectory}/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'.`, async () => {
+        const CMD = `frodo idm import -f ${forgeopsIdmExportDirectory}/endpoint/Groovy/Groovy.idm.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import --file ${forgeopsExportDirectory}/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'.`, async () => {
+        const CMD = `frodo idm import --file ${forgeopsExportDirectory}/global/sync/sync.idm.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import -f ${forgeopsIdmExportDirectory}/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'.`, async () => {
+        const CMD = `frodo idm import -f ${forgeopsIdmExportDirectory}/managed/managed.idm.json --type forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import -i endpoint/Groovy -f ${forgeopsIdmExportDirectory}/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'.`, async () => {
+        const CMD = `frodo idm import -i endpoint/Groovy -f ${forgeopsIdmExportDirectory}/endpoint/Groovy/Groovy.idm.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import --entity-id sync -f ${forgeopsExportDirectory}/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'.`, async () => {
+        const CMD = `frodo idm import --entity-id sync -f ${forgeopsExportDirectory}/global/sync/sync.idm.json -m forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
+    });
+
+    test(`"frodo idm import -i managed -f ${forgeopsIdmExportDirectory}/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'.`, async () => {
+        const CMD = `frodo idm import -i managed -f ${forgeopsIdmExportDirectory}/managed/managed.idm.json --type forgeops`;
+        await testSuccess(CMD, forgeopsEnv);
     });
 });

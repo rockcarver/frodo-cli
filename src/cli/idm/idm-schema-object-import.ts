@@ -3,8 +3,8 @@ import { Option } from 'commander';
 
 import { getTokens } from '../../ops/AuthenticateOps';
 import {
-  importAllConfigEntitiesFromFile,
   importAllConfigEntitiesFromFiles,
+  importConfigEntityByIdFromFile,
   importManagedObjectFromFile,
 } from '../../ops/IdmOps';
 import { printMessage, verboseMessage } from '../../utils/Console';
@@ -84,9 +84,9 @@ export default function setup() {
           verboseMessage(
             `Importing IDM configuration objects ${envMessage}${fileMessage}`
           );
-          const outcome = await importAllConfigEntitiesFromFile(
+          const outcome = await importConfigEntityByIdFromFile(
+            'managed',
             options.file,
-            undefined,
             options.envFile
           );
           if (!outcome) process.exitCode = 1;

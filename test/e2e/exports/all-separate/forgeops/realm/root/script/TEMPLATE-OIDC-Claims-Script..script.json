@@ -1,0 +1,14 @@
+{
+  "script": {
+    "c64f9cfe-69f6-4568-a150-5546bdbe4c36": {
+      "_id": "c64f9cfe-69f6-4568-a150-5546bdbe4c36",
+      "context": "OIDC_CLAIMS",
+      "default": true,
+      "description": "Template with tokens for custom scopes/claims: CUSTOM_CLAIM_RESOLVER_MAPPINGS, CUSTOM_SCOPE_TO_CLAIM_MAP",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "TEMPLATE - OIDC Claims Script.",
+      "script": "file://TEMPLATE-OIDC-Claims-Script..script.groovy"
+    }
+  }
+}

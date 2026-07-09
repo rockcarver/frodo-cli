@@ -1,0 +1,457 @@
+{
+  "mapping": {
+    "mapping/UserToUserJavascript": {
+      "_id": "mapping/UserToUserJavascript",
+      "correlationScript": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://correlationScript.js",
+        "type": "text/javascript"
+      },
+      "displayName": "User Test Javascript",
+      "linkQualifiers": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://linkQualifiers.js",
+        "type": "text/javascript"
+      },
+      "name": "UserToUserJavascript",
+      "null": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://null.js",
+        "type": "text/javascript"
+      },
+      "onCreate": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onCreate.js",
+        "type": "text/javascript"
+      },
+      "onDelete": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onDelete.js",
+        "type": "text/javascript"
+      },
+      "onLink": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onLink.js",
+        "type": "text/javascript"
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onUnlink.js",
+        "type": "text/javascript"
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onUpdate.js",
+        "type": "text/javascript"
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "MISSING"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "FOUND"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.action.js",
+            "type": "text/javascript"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.condition.js",
+            "type": "text/javascript"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.postAction.js",
+            "type": "text/javascript"
+          },
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail"
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.js",
+            "type": "text/javascript"
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE.sn.transform.js",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://givenName.givenName.condition.js",
+            "type": "text/javascript"
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://givenName.givenName.transform.js",
+            "type": "text/javascript"
+          }
+        },
+        {
+          "condition": "(/object/_id eq \"hello\" and (/object/_id co \"test\" or /object/activeDate sw \"bye\"))",
+          "target": "userName"
+        }
+      ],
+      "result": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://result.js",
+        "type": "text/javascript"
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co \"1\""
+      },
+      "syncAfter": [
+        "UserToUserGroovy"
+      ],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw \"2\""
+      },
+      "validSource": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://validSource.js",
+        "type": "text/javascript"
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null
+        },
+        "source": "file://validTarget.js",
+        "type": "text/javascript"
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "service": {
+    "pingOneWorkerService": {
+      "_id": "",
+      "_type": {
+        "_id": "pingOneWorkerService",
+        "collection": false,
+        "name": "PingOne Worker Service"
+      },
+      "enabled": true,
+      "location": "/",
+      "nextDescendents": [
+        {
+          "_id": "Worker 2",
+          "_type": {
+            "_id": "workers",
+            "collection": true,
+            "name": "PingOne Worker"
+          },
+          "apiUrl": "https://api.pingone.com/v1",
+          "authUrl": "https://auth.pingone.com",
+          "clientId": "client id",
+          "clientSecretPurpose": "secret",
+          "environmentId": "environment id"
+        },
+        {
+          "_id": "Worker 1",
+          "_type": {
+            "_id": "workers",
+            "collection": true,
+            "name": "PingOne Worker"
+          },
+          "apiUrl": "https://api.pingone.com/v1",
+          "authUrl": "https://auth.pingone.com",
+          "clientId": "client id",
+          "clientSecretPurpose": "secret",
+          "environmentId": "environment id"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "service": {
+    "androidKeyAttestation": {
+      "_id": "",
+      "_type": {
+        "_id": "androidKeyAttestation",
+        "collection": false,
+        "name": "Android Key Attestation"
+      },
+      "crlUrl": "https://android.googleapis.com/attestation/status",
+      "location": "/",
+      "nextDescendents": []
+    }
+  }
+}

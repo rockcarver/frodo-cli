@@ -1,4 +1,5 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
+import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   FullExportInterface,
   FullGlobalExportInterface,
@@ -7,10 +8,17 @@ import {
 import { ExportMetaData } from '@rockcarver/frodo-lib/types/ops/OpsTypes';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
 
 import { readServersFromFiles } from '../ops/classic/ServerOps';
-import { getManagedObjectsFromFiles } from '../ops/IdmOps';
-import { getLegacyMappingsFromFiles } from '../ops/MappingOps';
+import {
+  getManagedObjectsFromFiles,
+  resolveAllExtractedScriptsForImport,
+} from '../ops/IdmOps';
+import {
+  getLegacyMappingsFromFiles,
+  getNewMappingsFromFiles,
+} from '../ops/MappingOps';
 import { getCustomNodeExportFromFile } from '../ops/NodeOps';
 import { getScriptExportByScriptFile } from '../ops/ScriptOps';
 import { errorHandler } from '../ops/utils/OpsUtils';
@@ -157,6 +165,9 @@ export async function getConfig(
   const jsonFiles = files.filter((f) => f.path.endsWith('.json'));
   const samlFiles = jsonFiles.filter((f) => f.path.endsWith('.saml.json'));
   const scriptFiles = jsonFiles.filter((f) => f.path.endsWith('.script.json'));
+  const mappingFiles = jsonFiles.filter((f) =>
+    f.path.endsWith('.mapping.json')
+  );
   const customNodefiles = jsonFiles.filter((f) =>
     f.path.endsWith('.nodeTypes.json')
   );
@@ -165,6 +176,16 @@ export async function getConfig(
       f.path.endsWith('.server.json') &&
       !f.path.endsWith('.properties.server.json')
   );
+  const idmFiles = jsonFiles.filter(
+    (f) =>
+      f.path.endsWith('idm.json') &&
+      !f.path.endsWith('/sync.idm.json') &&
+      !f.path.endsWith('sync.json') &&
+      !f.path.endsWith('/managed.idm.json') &&
+      !f.path.endsWith('managed.json') &&
+      !f.path.endsWith('mapping.idm.json')
+  );
+
   const allOtherFiles = jsonFiles.filter(
     (f) =>
       !f.path.endsWith('.saml.json') &&
@@ -174,7 +195,8 @@ export async function getConfig(
       !f.path.endsWith('/sync.idm.json') &&
       !f.path.endsWith('sync.json') &&
       !f.path.endsWith('/managed.idm.json') &&
-      !f.path.endsWith('managed.json')
+      !f.path.endsWith('managed.json') &&
+      !f.path.endsWith('idm.json')
   );
   // Handle all other json files
   for (const f of allOtherFiles) {
@@ -193,10 +215,29 @@ export async function getConfig(
       }
     }
   }
+  for (const f of idmFiles) {
+    const baseDirOfThisJson = path.dirname(f.path);
+    const parsed = JSON.parse(f.content);
+    if (!parsed.idm) continue;
+    const entities = Object.values(
+      parsed.idm
+    ) as unknown as IdObjectSkeletonInterface[];
+    for (const entity of entities) {
+      resolveAllExtractedScriptsForImport(entity, baseDirOfThisJson);
+      if (!(exportConfig as FullGlobalExportInterface).idm) {
+        (exportConfig as FullGlobalExportInterface).idm = {};
+      }
+      (exportConfig as FullGlobalExportInterface).idm[entity._id] = entity;
+    }
+  }
   // Handle sync files
   const sync = await getLegacyMappingsFromFiles(jsonFiles);
   if (sync.mappings.length > 0) {
     (exportConfig as FullGlobalExportInterface).sync = sync;
+  }
+  if (mappingFiles.length > 0) {
+    const mapping = await getNewMappingsFromFiles(mappingFiles);
+    (exportConfig as FullGlobalExportInterface).mapping = mapping;
   }
   const managed = await getManagedObjectsFromFiles(jsonFiles);
   if (managed.objects.length > 0) {

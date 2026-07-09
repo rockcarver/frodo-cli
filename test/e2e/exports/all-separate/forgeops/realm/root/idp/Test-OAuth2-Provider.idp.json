@@ -1,0 +1,47 @@
+{
+  "idp": {
+    "Test OAuth2 Provider": {
+      "_id": "Test OAuth2 Provider",
+      "_type": {
+        "_id": "oauth2Config",
+        "collection": true,
+        "name": "Client configuration for providers that implement the OAuth2 specification."
+      },
+      "authenticationIdKey": "auth-id",
+      "authorizationEndpoint": "authentication",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "client-id",
+      "enabled": true,
+      "introspectEndpoint": "introspection",
+      "issuerComparisonCheckType": "EXACT",
+      "jwksUriEndpoint": "uri",
+      "jwtEncryptionAlgorithm": "RSA-OAEP",
+      "jwtEncryptionMethod": "AES_256_GCM",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectAfterFormPostURI": "https://redirect-after.com:8080/am",
+      "redirectURI": "https://redirect.com:8080/am",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [
+        "NO_FALLBACK",
+        "ONLY_END_ENTITY",
+        "PREFER_CRLS",
+        "SOFT_FAIL",
+        "DISABLE_REVOCATION_CHECKING"
+      ],
+      "scopeDelimiter": ",",
+      "scopes": [
+        "scope"
+      ],
+      "tokenEndpoint": "access-token",
+      "transform": "ed685f9f-5909-4726-86e8-22bd38b47663",
+      "uiConfig": {
+        "key": "value",
+        "key2": "value2"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "user-profile"
+    }
+  }
+}

@@ -1,0 +1,455 @@
+{
+  "mapping": {
+    "mapping/UserToUserGroovy": {
+      "_id": "mapping/UserToUserGroovy",
+      "correlationScript": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://correlationScript.groovy",
+        "type": "groovy"
+      },
+      "displayName": "User Test Groovy",
+      "linkQualifiers": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://linkQualifiers.groovy",
+        "type": "groovy"
+      },
+      "name": "UserToUserGroovy",
+      "null": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://null.groovy",
+        "type": "groovy"
+      },
+      "onCreate": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onCreate.groovy",
+        "type": "groovy"
+      },
+      "onDelete": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onDelete.groovy",
+        "type": "groovy"
+      },
+      "onLink": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onLink.groovy",
+        "type": "groovy"
+      },
+      "onUnlink": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onUnlink.groovy",
+        "type": "groovy"
+      },
+      "onUpdate": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://onUpdate.groovy",
+        "type": "groovy"
+      },
+      "policies": [
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://AMBIGUOUS.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "AMBIGUOUS"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_MISSING.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "SOURCE_MISSING"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://MISSING.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "MISSING"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND_ALREADY_LINKED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "FOUND_ALREADY_LINKED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNQUALIFIED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "UNQUALIFIED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://UNASSIGNED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "UNASSIGNED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://LINK_ONLY.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "LINK_ONLY"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://TARGET_IGNORED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "TARGET_IGNORED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE_IGNORED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "SOURCE_IGNORED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ALL_GONE.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "ALL_GONE"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://CONFIRMED.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "CONFIRMED"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://FOUND.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "FOUND"
+        },
+        {
+          "action": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.action.groovy",
+            "type": "groovy"
+          },
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.condition.groovy",
+            "type": "groovy"
+          },
+          "postAction": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://ABSENT.postAction.groovy",
+            "type": "groovy"
+          },
+          "situation": "ABSENT"
+        }
+      ],
+      "properties": [
+        {
+          "source": "mail",
+          "target": "mail"
+        },
+        {
+          "condition": {
+            "globals": {},
+            "source": "file://SOURCE.sn.condition.groovy",
+            "type": "groovy"
+          },
+          "default": "test",
+          "source": "",
+          "target": "sn",
+          "transform": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://SOURCE.sn.transform.groovy",
+            "type": "groovy"
+          }
+        },
+        {
+          "condition": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://givenName.givenName.condition.groovy",
+            "type": "groovy"
+          },
+          "default": "test",
+          "source": "givenName",
+          "target": "givenName",
+          "transform": {
+            "globals": {
+              "test": null
+            },
+            "source": "file://givenName.givenName.transform.groovy",
+            "type": "groovy"
+          }
+        },
+        {
+          "condition": "(/object/_id eq \"hello\" and (/object/_id co \"test\" or /object/activeDate sw \"bye\"))",
+          "target": "userName"
+        }
+      ],
+      "result": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://result.groovy",
+        "type": "groovy"
+      },
+      "source": "managed/user",
+      "sourceQuery": {
+        "_queryFilter": "_id co \"1\""
+      },
+      "syncAfter": [],
+      "target": "managed/user",
+      "targetQuery": {
+        "_queryFilter": "_id sw \"2\""
+      },
+      "validSource": {
+        "globals": {
+          "test": null
+        },
+        "source": "file://validSource.groovy",
+        "type": "groovy"
+      },
+      "validTarget": {
+        "globals": {
+          "validate": null
+        },
+        "source": "file://validTarget.groovy",
+        "type": "groovy"
+      }
+    }
+  }
+}

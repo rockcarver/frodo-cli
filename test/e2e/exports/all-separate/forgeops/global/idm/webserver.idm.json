@@ -1,0 +1,16 @@
+{
+  "idm": {
+    "webserver": {
+      "_id": "webserver",
+      "gzip": {
+        "enabled": true,
+        "includedMethods": [
+          "GET"
+        ]
+      },
+      "maxThreads": {
+        "$int": "&{openidm.webserver.max.threads|&{org.ops4j.pax.web.server.maxThreads|200}}"
+      }
+    }
+  }
+}

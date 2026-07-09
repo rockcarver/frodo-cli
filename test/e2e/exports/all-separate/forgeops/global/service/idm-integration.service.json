@@ -1,0 +1,25 @@
+{
+  "service": {
+    "idm-integration": {
+      "_id": "",
+      "_type": {
+        "_id": "idm-integration",
+        "collection": false,
+        "name": "IdmIntegrationService"
+      },
+      "configurationCacheDuration": 0,
+      "enabled": true,
+      "idmDeploymentPath": "openidm",
+      "idmDeploymentUrl": "http://idm",
+      "idmProvisioningClient": "idm-provisioning",
+      "jwtSigningCompatibilityMode": false,
+      "location": "global",
+      "nextDescendents": [],
+      "provisioningEncryptionAlgorithm": "RSAES_PKCS1_V1_5",
+      "provisioningEncryptionKeyAlias": "openidm-selfservice-key",
+      "provisioningEncryptionMethod": "A128CBC_HS256",
+      "provisioningSigningAlgorithm": "HS256",
+      "provisioningSigningKeyAlias": "selfservice"
+    }
+  }
+}
