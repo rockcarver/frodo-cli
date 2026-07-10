@@ -60,24 +60,24 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.web.agent.json`;
+// const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.web.agent.json`;
 
 describe('frodo agent web describe', () => {
-  beforeEach(async () => {
-    await stageFixture(stagingCommand, env);
-  });
+  // beforeEach(async () => {
+  //   await stageFixture(stagingCommand, env);
+  // });
 
-  afterEach(async () => {
-    await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
-  });
-  test('"frodo agent web describe volker-dev -i frodo-test-web-agent": should describe web agent in table format', async () => {
-    const CMD = 'frodo agent web describe volker-dev -i frodo-test-web-agent';
+  // afterEach(async () => {
+  //   await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
+  // });
+  test('"frodo agent web describe -i frodo-test-web-agent": should describe web agent in table format', async () => {
+    const CMD = 'frodo agent web describe -i frodo-test-web-agent';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent web describe volker-dev -i frodo-test-web-agent --json": should describe web agent in JSON format', async () => {
-    const CMD = 'frodo agent web describe volker-dev -i frodo-test-web-agent --json';
+  test('"frodo agent web describe -i frodo-test-web-agent --json": should describe web agent in JSON format', async () => {
+    const CMD = 'frodo agent web describe -i frodo-test-web-agent --json';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
