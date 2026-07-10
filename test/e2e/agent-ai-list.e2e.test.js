@@ -61,30 +61,30 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-const stagingCommand = `frodo agent ai import volker-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json`;
+// const stagingCommand = `frodo agent ai import frodo-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json`;
 
 describe('frodo agent ai list', () => {
-  beforeEach(async () => {
-    await stageFixture(stagingCommand, env);
-  });
+  // beforeEach(async () => {
+  //   await stageFixture(stagingCommand, env);
+  // });
 
-  afterEach(async () => {
-    await clearFixture('frodo agent ai delete volker-dev -i testAgent', env);
-  });
-  test('"frodo agent ai list volker-dev": should list the ids of AI agents', async () => {
-    const CMD = 'frodo agent ai list volker-dev';
+  // afterEach(async () => {
+  //   await clearFixture('frodo agent ai delete frodo-dev -i testAgent', env);
+  // });
+  test('"frodo agent ai list": should list the ids of AI agents', async () => {
+    const CMD = 'frodo agent ai list';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent ai list volker-dev -l": should list ids and statuses of AI agents', async () => {
-    const CMD = 'frodo agent ai list volker-dev -l';
+  test('"frodo agent ai list -l": should list ids and statuses of AI agents', async () => {
+    const CMD = 'frodo agent ai list -l';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent ai list volker-dev --long": should list ids and statuses of AI agents', async () => {
-    const CMD = 'frodo agent ai list volker-dev --long';
+  test('"frodo agent ai list --long": should list ids and statuses of AI agents', async () => {
+    const CMD = 'frodo agent ai list --long';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
