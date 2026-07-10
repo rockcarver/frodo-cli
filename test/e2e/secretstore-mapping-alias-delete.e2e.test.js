@@ -76,10 +76,11 @@ describe('frodo secretstore mapping alias delete', () => {
         const CMD = `frodo secretstore mapping alias delete -i ESV -t GoogleSecretManagerSecretStoreProvider -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a esv-does-not-exist`;
         await testFail(CMD, env)
     });
-    test('"frodo secretstore mapping alias delete -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret --all": Should delete all aliases except active one on ESV secretstore', async () => {
-      const CMD = `frodo secretstore mapping alias delete -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret --all`;
-      await testSuccess(CMD, env);
-  });
+    // TODO: Need to re-create test config in frodo-dev and re-record the mock responses for this test to work again.
+    test.skip('"frodo secretstore mapping alias delete -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret --all": Should delete all aliases except active one on ESV secretstore', async () => {
+        const CMD = `frodo secretstore mapping alias delete -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret --all`;
+        await testSuccess(CMD, env);
+    });
     test('"frodo secretstore mapping alias delete -gi EnvironmentAndSystemPropertySecretStore -t EnvironmentAndSystemPropertySecretStore -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a alias -m classic": should fail since EnvironmentAndSystemPropertySecretStore has no mappings', async () => {
         const CMD = `frodo secretstore mapping alias delete -gi EnvironmentAndSystemPropertySecretStore -t EnvironmentAndSystemPropertySecretStore -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a alias -m classic`;
         await testFail(CMD, classicEnv)
