@@ -56,6 +56,8 @@ export default function setup() {
             program.help();
             process.exitCode = 1;
           }
+        } else {
+          process.exitCode = 1;
         }
       }
       // end command logic inside action handler
