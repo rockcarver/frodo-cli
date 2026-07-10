@@ -66,7 +66,11 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 process.env['FRODO_MASTER_KEY_PATH'] =
   './test/e2e/env/masterkey.key';
-const env = getEnv(c);
+const env = getEnv(c, { preserveProfilePaths: true });
+
+expect(env.env.FRODO_CONNECTION_PROFILES_PATH).toContain(
+  './test/e2e/env/Connections.json'
+);
 
 describe('frodo conn list', () => {
   testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(

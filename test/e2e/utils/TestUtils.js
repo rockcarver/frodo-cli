@@ -329,9 +329,11 @@ async function getAllFiles(dir, base) {
  * FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am npm run test:update e2e/test-name
  * 
  * @param connection The connection info
+ * @param {{ preserveProfilePaths?: boolean }} options Env assembly options
  * @returns {{env: {[p: string]: string | undefined, FRODO_SA_JWK: (string|(JwkInterface & {d: string, dp: string, dq: string, e: string, n: string, p: string, q: string, qi: string})|JwkRsa|*), TZ?: string, FRODO_HOST, FRODO_SA_ID: (string|string|*)}}} The env object
  */
-export function getEnv(connection = undefined) {
+export function getEnv(connection = undefined, options = {}) {
+  const { preserveProfilePaths = false } = options;
   const isRecording = process.env['FRODO_MOCK'] === 'record';
   const requestedProfile =
     process.env['FRODO_CONNECTION'] || (isRecording ? (connection?.profile || connection?.host) : connection?.profile);
@@ -344,9 +346,21 @@ export function getEnv(connection = undefined) {
     ...baseEnv
   } = process.env;
 
+  const pathOverrides = preserveProfilePaths
+    ? {
+      ...(process.env.FRODO_CONNECTION_PROFILES_PATH && {
+        FRODO_CONNECTION_PROFILES_PATH: process.env.FRODO_CONNECTION_PROFILES_PATH,
+      }),
+      ...(process.env.FRODO_MASTER_KEY_PATH && {
+        FRODO_MASTER_KEY_PATH: process.env.FRODO_MASTER_KEY_PATH,
+      }),
+    }
+    : {};
+
   return {
     env: {
       ...baseEnv,
+      ...pathOverrides,
       ...(isRecording && requestedProfile && {
         FRODO_CONNECTION: requestedProfile,
       }),

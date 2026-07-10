@@ -47,7 +47,7 @@
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import {getEnv, removeAnsiEscapeCodes, testif} from './utils/TestUtils';
+import { getEnv, removeAnsiEscapeCodes, testif } from './utils/TestUtils';
 import { connection as c, amster_connection as cc } from './utils/TestConfig';
 import { writeFileSync, rmSync } from 'fs';
 
@@ -60,8 +60,8 @@ process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/ConnectionsSave.json';
 process.env['FRODO_MASTER_KEY_PATH'] =
   './test/e2e/env/masterkey.key';
-const env = getEnv(c);
-const classicEnv = getEnv(cc);
+const env = getEnv(c, { preserveProfilePaths: true });
+const classicEnv = getEnv(cc, { preserveProfilePaths: true });
 
 const jwkFile = 'test/fs_tmp/conn-save-jwk.json';
 const pkFile = 'test/fs_tmp/conn-save-pk';

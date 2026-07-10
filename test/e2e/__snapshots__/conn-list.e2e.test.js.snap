@@ -2,20 +2,20 @@
 
 exports[`frodo conn list "frodo conn list --long": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
 "Host                                       │Alias │Service Account       │Username│Log API Key│Authentication Service
-https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
 http://openam-frodo-dev.amster.com:8080/am │amster│                      │amadmin │           │MockAmsterService     
+https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
 "
 `;
 
 exports[`frodo conn list "frodo conn list -l": should list the connection hosts, service accounts, usernames, and log API keys. 1`] = `
 "Host                                       │Alias │Service Account       │Username│Log API Key│Authentication Service
-https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
 http://openam-frodo-dev.amster.com:8080/am │amster│                      │amadmin │           │MockAmsterService     
+https://openam-frodo-dev.forgeblocks.com/am│      │Frodo-SA-1758728043147│        │           │                      
 "
 `;
 
 exports[`frodo conn list "frodo conn list": should list the connection hosts 1`] = `
-"https://openam-frodo-dev.forgeblocks.com/am
-http://openam-frodo-dev.amster.com:8080/am
+"http://openam-frodo-dev.amster.com:8080/am
+https://openam-frodo-dev.forgeblocks.com/am
 "
 `;
