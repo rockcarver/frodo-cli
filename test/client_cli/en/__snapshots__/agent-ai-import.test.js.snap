@@ -21,7 +21,7 @@ Options:
   -a, --all                  Import all agents from single file. Ignored with
                              -i.
   -A, --all-separate         Import all agents from separate files
-                             (*.aiagent.json) in the current directory. Ignored
+                             (*.ai.agent.json) in the current directory. Ignored
                              with -i or -a.
   -f, --file <file>          Name of the file to import.
   -i, --agent-id <agent-id>  Agent id. If specified, only one agent is imported
