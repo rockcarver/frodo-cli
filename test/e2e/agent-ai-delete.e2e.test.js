@@ -48,7 +48,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete -i testAgent
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete --agent-id testAgent
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete --agent-id does-not-exist
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai delete -a
 */
 
@@ -62,47 +62,45 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
 
-const stagedAgentImport =
-  'frodo agent ai import volker-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json';
-const deleteAgent = 'frodo agent ai delete volker-dev -i testAgent';
-const deleteAllAgents = 'frodo agent ai delete volker-dev -a';
+// const stagedAgentImport =
+//   'frodo agent ai import frodo-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json';
+const deleteAgent = 'frodo agent ai delete -i testAgent';
+const deleteNonExistantAgent = 'frodo agent ai delete --agent-id does-not-exist';
+const deleteAllAgents = 'frodo agent ai delete -a';
 
 describe('frodo agent ai delete', () => {
 
   // in recording mode, setup test data before recording and cleanup after
   // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
-  beforeAll(async () => {
-    if (process.env['FRODO_MOCK'] === 'record') {
-      await stageFixture(stagedAgentImport, env);
-    }
-  });
+  // beforeAll(async () => {
+  //   if (process.env['FRODO_MOCK'] === 'record') {
+  //     await stageFixture(stagedAgentImport, env);
+  //   }
+  // });
 
-  afterAll(async () => {
-    if (process.env['FRODO_MOCK'] === 'record') {
-      await clearFixture(deleteAgent, env);
-      await clearFixture(deleteAllAgents, env);
-    }
-  });
+  // afterAll(async () => {
+  //   if (process.env['FRODO_MOCK'] === 'record') {
+  //     await clearFixture(deleteAgent, env);
+  //     await clearFixture(deleteAllAgents, env);
+  //   }
+  // });
 
-  test('"frodo agent ai delete volker-dev -i testAgent": should delete AI agent testAgent', async () => {
-    const CMD = deleteAgent;
-    const { stdout } = await exec(CMD, env);
+  test('"frodo agent ai delete frodo-dev -i testAgent": should delete AI agent testAgent', async () => {
+    const { stdout } = await exec(deleteAgent, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent ai delete volker-dev --agent-id testAgent": should fail when testAgent already deleted', async () => {
-    const CMD = 'frodo agent ai delete volker-dev --agent-id testAgent';
+  test('"frodo agent ai delete frodo-dev --agent-id does-not-exist": should fail deleting does-not-exist', async () => {
     try {
-      await exec(CMD, env);
+      await exec(deleteNonExistantAgent, env);
       fail("Command should've failed");
     } catch (e) {
       expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
     }
   });
 
-  test('"frodo agent ai delete volker-dev -a": should delete all AI agents', async () => {
-    const CMD = deleteAllAgents;
-    const { stdout } = await exec(CMD, env);
+  test('"frodo agent ai delete frodo-dev -a": should delete all AI agents', async () => {
+    const { stdout } = await exec(deleteAllAgents, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 });
