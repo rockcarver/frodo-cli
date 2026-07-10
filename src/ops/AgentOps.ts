@@ -1454,9 +1454,7 @@ export async function deleteWebAgents(): Promise<boolean> {
  * List AIAgents
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function listAIAgents(
-  long: boolean = false
-): Promise<boolean> {
+export async function listAIAgents(long: boolean = false): Promise<boolean> {
   try {
     const agents = await readAIAgents();
     if (long) {
@@ -1465,9 +1463,7 @@ export async function listAIAgents(
         const status = resolveAgentStatus(agent);
         table.push([
           agent._id,
-          status === 'Active'
-            ? 'Active'['brightGreen']
-            : status['brightRed'],
+          status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -1708,9 +1704,10 @@ export async function describeAIAgent(
     const status = resolveAgentStatus(agent);
     const table = createTable(['Property', 'Value']);
     table.push(['Agent Id', agent._id]);
-    table.push(
-      ['Status', status === 'Active' ? 'Active'['brightGreen'] : status['brightRed']]
-    );
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
     table.push(['Type', agent._type.name]);
     return table.toString();
   } catch (error) {
@@ -1741,9 +1738,10 @@ export async function describeIdentityGatewayAgent(
     const status = resolveAgentStatus(targetAgent);
     const table = createTable(['Property', 'Value']);
     table.push(['Agent Id', targetAgent._id]);
-    table.push(
-      ['Status', status === 'Active' ? 'Active'['brightGreen'] : status['brightRed']]
-    );
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
   } catch (error) {
@@ -1774,9 +1772,10 @@ export async function describeJavaAgent(
     const status = resolveAgentStatus(targetAgent);
     const table = createTable(['Property', 'Value']);
     table.push(['Agent Id', targetAgent._id]);
-    table.push(
-      ['Status', status === 'Active' ? 'Active'['brightGreen'] : status['brightRed']]
-    );
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
   } catch (error) {
@@ -1807,9 +1806,10 @@ export async function describeWebAgent(
     const status = resolveAgentStatus(targetAgent);
     const table = createTable(['Property', 'Value']);
     table.push(['Agent Id', targetAgent._id]);
-    table.push(
-      ['Status', status === 'Active' ? 'Active'['brightGreen'] : status['brightRed']]
-    );
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
   } catch (error) {
@@ -1842,9 +1842,10 @@ export async function describeAgent(
     const status = resolveAgentStatus(targetAgent);
     const table = createTable(['Property', 'Value']);
     table.push(['Agent Id', targetAgent._id]);
-    table.push(
-      ['Status', status === 'Active' ? 'Active'['brightGreen'] : status['brightRed']]
-    );
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
   } catch (error) {
@@ -1924,7 +1925,9 @@ export async function importAIAgentsFromFiles(): Promise<boolean> {
  * @param {string} file import file name
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function importFirstAIAgentFromFile(file: string): Promise<boolean> {
+export async function importFirstAIAgentFromFile(
+  file: string
+): Promise<boolean> {
   try {
     debugMessage(`cli.AgentOps.importFirstAIAgentFromFile: start`);
     const verbose = state.getVerbose();
@@ -1934,12 +1937,14 @@ export async function importFirstAIAgentFromFile(file: string): Promise<boolean>
     );
     if (importData.agent && Object.keys(importData.agent).length > 0) {
       const agentId = Object.keys(importData.agent)[0];
-      if (!verbose)
-        var spinnerId = createProgressIndicator(
+      let spinnerId: string | undefined;
+      if (!verbose) {
+        spinnerId = createProgressIndicator(
           'indeterminate',
           0,
           `Importing first AIAgent (${agentId})...`
         );
+      }
       try {
         if (verbose)
           spinnerId = createProgressIndicator(
