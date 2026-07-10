@@ -1,5 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CLI help interface for 'agent java describe --json' should be expected english 1`] = `
+"Usage: frodo agent java describe [options] [host] [realm] [username] [password]
+
+Describe java agents.
+
+Arguments:
+  host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
+                             To use a connection profile, just specify a unique
+                             substring or alias.
+  realm                      Realm. Specify realm as '/' for the root realm or
+                             'realm' or '/parent/child' otherwise. (default:
+                             "alpha" for Identity Cloud tenants, "/" otherwise.)
+  username                   Username to login with. Must be an admin user with
+                             appropriate rights to manage authentication
+                             journeys/trees.
+  password                   Password.
+
+Options:
+  -i, --agent-id <agent-id>  Agent id.
+  --json                     Output in JSON format.
+  -h, --help                 Help
+  -hh, --help-more           Help with all options.
+  -hhh, --help-all           Help with all options, environment variables, and
+                             usage examples.
+"
+`;
+
 exports[`CLI help interface for 'agent java describe' should be expected english 1`] = `
 "Usage: frodo agent java describe [options] [host] [realm] [username] [password]
 
@@ -19,6 +46,7 @@ Arguments:
 
 Options:
   -i, --agent-id <agent-id>  Agent id.
+  --json                     Output in JSON format.
   -h, --help                 Help
   -hh, --help-more           Help with all options.
   -hhh, --help-all           Help with all options, environment variables, and

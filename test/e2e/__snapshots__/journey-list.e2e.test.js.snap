@@ -1,48 +1,93 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`frodo journey list "frodo journey list --long": should list the names, status, and tags of the default journeys 1`] = `
-"Name              │Status │Inner Only│Must Run│No Session│Tx Only│Resource          │Tags               
-Agent             │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-amsterService     │enabled│no        │no      │no        │no     │managed/alpha_user│                   
-devintest         │enabled│no        │no      │no        │no     │managed/alpha_user│                   
-ForgottenUsername │enabled│no        │no      │no        │no     │managed/alpha_user│Username Reset     
-Login             │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-PrestonTestJourney│enabled│no        │no      │no        │no     │managed/alpha_user│                   
-ProgressiveProfile│enabled│no        │no      │no        │no     │managed/alpha_user│Progressive Profile
-Registration      │enabled│no        │no      │no        │no     │managed/alpha_user│Registration       
-ResetPassword     │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
-TestLogin         │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-UpdatePassword    │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
+"Name                 │Status │Inner Only│Must Run│No Session│Tx Only│Resource          │Tags               
+Agent                │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
+ForgottenUsername    │enabled│no        │no      │no        │no     │managed/alpha_user│Username Reset     
+FrodoTest            │enabled│no        │no      │no        │no     │managed/alpha_user│Frodo, Prototype   
+FrodoTestJourney13   │enabled│no        │no      │no        │no     │managed/alpha_user│Frodo, Prototype   
+j00                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j01                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j02                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j03                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j04                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j05                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j06                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j07                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j08                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j09                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j10                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+Login                │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
+OrphanedTest         │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+P1P-Test             │enabled│no        │no      │no        │no     │managed/alpha_user│Helper, P1 Protect 
+PrestonTest          │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+ProgressiveProfile   │enabled│no        │no      │no        │no     │managed/alpha_user│Progressive Profile
+RadioChoice          │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+Registration         │enabled│no        │no      │no        │no     │managed/alpha_user│Registration       
+ResetPassword        │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
+SocialProviderHandler│enabled│no        │no      │no        │no     │managed/alpha_user│                   
+test                 │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+UpdatePassword       │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
 "
 `;
 
 exports[`frodo journey list "frodo journey list -l": should list the names, status, and tags of the default journeys 1`] = `
-"Name              │Status │Inner Only│Must Run│No Session│Tx Only│Resource          │Tags               
-Agent             │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-amsterService     │enabled│no        │no      │no        │no     │managed/alpha_user│                   
-devintest         │enabled│no        │no      │no        │no     │managed/alpha_user│                   
-ForgottenUsername │enabled│no        │no      │no        │no     │managed/alpha_user│Username Reset     
-Login             │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-PrestonTestJourney│enabled│no        │no      │no        │no     │managed/alpha_user│                   
-ProgressiveProfile│enabled│no        │no      │no        │no     │managed/alpha_user│Progressive Profile
-Registration      │enabled│no        │no      │no        │no     │managed/alpha_user│Registration       
-ResetPassword     │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
-TestLogin         │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
-UpdatePassword    │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
+"Name                 │Status │Inner Only│Must Run│No Session│Tx Only│Resource          │Tags               
+Agent                │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
+ForgottenUsername    │enabled│no        │no      │no        │no     │managed/alpha_user│Username Reset     
+FrodoTest            │enabled│no        │no      │no        │no     │managed/alpha_user│Frodo, Prototype   
+FrodoTestJourney13   │enabled│no        │no      │no        │no     │managed/alpha_user│Frodo, Prototype   
+j00                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j01                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j02                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j03                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j04                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j05                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j06                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j07                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j08                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j09                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+j10                  │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+Login                │enabled│no        │no      │no        │no     │managed/alpha_user│Authentication     
+OrphanedTest         │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+P1P-Test             │enabled│no        │no      │no        │no     │managed/alpha_user│Helper, P1 Protect 
+PrestonTest          │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+ProgressiveProfile   │enabled│no        │no      │no        │no     │managed/alpha_user│Progressive Profile
+RadioChoice          │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+Registration         │enabled│no        │no      │no        │no     │managed/alpha_user│Registration       
+ResetPassword        │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
+SocialProviderHandler│enabled│no        │no      │no        │no     │managed/alpha_user│                   
+test                 │enabled│no        │no      │no        │no     │managed/alpha_user│                   
+UpdatePassword       │enabled│no        │no      │no        │no     │managed/alpha_user│Password Reset     
 "
 `;
 
 exports[`frodo journey list "frodo journey list": should list the names of the default journeys 1`] = `
 "Agent
-amsterService
-devintest
 ForgottenUsername
+FrodoTest
+FrodoTestJourney13
+j00
+j01
+j02
+j03
+j04
+j05
+j06
+j07
+j08
+j09
+j10
 Login
-PrestonTestJourney
+OrphanedTest
+P1P-Test
+PrestonTest
 ProgressiveProfile
+RadioChoice
 Registration
 ResetPassword
-TestLogin
+SocialProviderHandler
+test
 UpdatePassword
 "
 `;

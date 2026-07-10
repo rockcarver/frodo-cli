@@ -1,0 +1,36 @@
+{
+  "description": "Template run log. Duplicate this file per test batch and append runs.",
+  "runs": [
+    {
+      "variant": "agentic",
+      "scenarioId": "S01-read-list-count",
+      "taskCompleted": true,
+      "attempts": [
+        {
+          "toolName": "frodo_list",
+          "success": true,
+          "errorCategory": null
+        }
+      ],
+      "notes": "Example successful single-attempt run."
+    },
+    {
+      "variant": "standard",
+      "scenarioId": "S04-scope-required",
+      "taskCompleted": true,
+      "attempts": [
+        {
+          "toolName": "frodo_read",
+          "success": false,
+          "errorCategory": "scope-missing"
+        },
+        {
+          "toolName": "frodo_read",
+          "success": true,
+          "errorCategory": null
+        }
+      ],
+      "notes": "Example duplicate-tool retry after parameter error."
+    }
+  ]
+}

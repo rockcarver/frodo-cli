@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent ai import "frodo agent ai import volker-dev -af test/e2e/exports/all/allAlphaAgents.ai.agent.json": should import all AI agents from file 1`] = `""`;
+
+exports[`frodo agent ai import "frodo agent ai import volker-dev -f test/e2e/exports/all/allAlphaAgents.ai.agent.json": should import first AI agent from file 1`] = `""`;
+
+exports[`frodo agent ai import "frodo agent ai import volker-dev -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json": should import testAgent from file 1`] = `""`;

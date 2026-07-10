@@ -12,6 +12,7 @@ Options:
                     examples.
 
 Commands:
+  ai                Manage AI agents.
   delete            Delete agents.
   describe          Describe agents.
   export            Export agents.

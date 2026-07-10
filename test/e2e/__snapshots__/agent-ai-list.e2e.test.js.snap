@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent ai list "frodo agent ai list --long": should list ids and statuses of AI agents 1`] = `
+"AIAgent Id          │Status
+FrodoOpsTestAIAgent2│Active
+banking-assistant   │Active
+investment-advisor  │Active
+testAgent           │Active
+lending-agent       │Active
+"
+`;
+
+exports[`frodo agent ai list "frodo agent ai list -l": should list ids and statuses of AI agents 1`] = `
+"AIAgent Id          │Status
+FrodoOpsTestAIAgent2│Active
+banking-assistant   │Active
+investment-advisor  │Active
+testAgent           │Active
+lending-agent       │Active
+"
+`;
+
+exports[`frodo agent ai list "frodo agent ai list": should list the ids of AI agents 1`] = `
+"FrodoOpsTestAIAgent2
+banking-assistant
+investment-advisor
+testAgent
+lending-agent
+"
+`;

@@ -21,10 +21,10 @@ Arguments:
 Options:
   -a, --all                   Delete all the journeys/trees in a realm. Ignored
                               with -i.
+  --deep                      Deep delete. Also delete journey node artifacts
+                              (for older AM versions).
   -i, --journey-id <journey>  Name of a journey/tree. If specified, -a is
                               ignored.
-  --no-deep                   No deep delete. This leaves orphaned configuration
-                              artifacts behind.
   -h, --help                  Help
   -hh, --help-more            Help with all options.
   -hhh, --help-all            Help with all options, environment variables, and

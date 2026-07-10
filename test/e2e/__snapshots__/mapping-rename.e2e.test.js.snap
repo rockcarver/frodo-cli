@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`frodo mapping rename "frodo mapping rename --all": should rename all mappings to new" 1`] = `""`;
+
 exports[`frodo mapping rename "frodo mapping rename --legacy --mapping-id mapping/managedBravo_group_managedBravo_group": should rename the mapping with id mapping/managedBravo_group_managedBravo_group to legacy" 1`] = `""`;
+
+exports[`frodo mapping rename "frodo mapping rename -al": should rename all mappings to legacy" 1`] = `""`;
 
 exports[`frodo mapping rename "frodo mapping rename -i sync/managedAlpha_application_managedBravo_application": should rename the mapping with id sync/managedAlpha_application_managedBravo_application to new" 1`] = `""`;

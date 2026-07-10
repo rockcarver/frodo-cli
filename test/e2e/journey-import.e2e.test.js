@@ -79,6 +79,7 @@ const allDirectory = "test/e2e/exports/all";
 const allAlphaJourneysFileName = "allAlphaJourneys.journey.json";
 const allAlphaJourneysExport = `${allDirectory}/${allAlphaJourneysFileName}`;
 const allSeparateJourneysDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/journey`;
+const allSeparateLegacyJourneysDirectory = `test/e2e/exports/all-separate-legacy/cloud/realm/root-alpha/journey`;
 
 describe('frodo journey import', () => {
     test(`"frodo journey import -f ${allSeparateJourneysDirectory}/FrodoTest.journey.json": should import the journey in file "${allSeparateJourneysDirectory}/FrodoTest.journey.json"`, async () => {
@@ -176,5 +177,18 @@ describe('frodo journey import', () => {
         const CMD = `frodo journey import --all-separate --no-deps --directory ${allSeparateJourneysDirectory}`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    });
+
+    test(`"frodo journey import --all-separate --no-deps --directory ${allSeparateLegacyJourneysDirectory}": should not fail with null/undefined object conversion when reading legacy single-tree files`, async () => {
+        const CMD = `frodo journey import --all-separate --no-deps --directory ${allSeparateLegacyJourneysDirectory}`;
+        let output = '';
+        try {
+            const { stdout, stderr } = await exec(CMD, env);
+            output = removeAnsiEscapeCodes(`${stdout}\n${stderr}`);
+        } catch (error) {
+            output = removeAnsiEscapeCodes(`${error.stdout || ''}\n${error.stderr || ''}`);
+        }
+        expect(output).not.toContain('Cannot convert undefined or null to object');
+        expect(output).toContain('Importing all journeys from separate files in current directory...');
     });
 });

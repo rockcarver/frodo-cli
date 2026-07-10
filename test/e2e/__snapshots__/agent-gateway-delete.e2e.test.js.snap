@@ -10,4 +10,8 @@ exports[`frodo agent gateway delete "frodo agent gateway delete --all": should d
 
 exports[`frodo agent gateway delete "frodo agent gateway delete -a": should delete all agent gateways 1`] = `""`;
 
-exports[`frodo agent gateway delete "frodo agent gateway delete -i frodo-test-ig-agent": should delete the agent gateway with id 'frodo-test-ig-agent' 1`] = `""`;
+exports[`frodo agent gateway delete "frodo agent gateway delete -i frodo-test-ig-agent": should delete the agent gateway with id 'frodo-test-ig-agent' 1`] = `
+"Error deleting alpha realm identity gateway agent frodo-test-ig-agent
+  alpha realm identity gateway agent 'frodo-test-ig-agent' not found!
+"
+`;

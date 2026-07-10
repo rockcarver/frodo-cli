@@ -1,0 +1,163 @@
+{
+  "generatedAt": "2026-04-28T03:04:55.375Z",
+  "batches": [
+    "batch2",
+    "batch3",
+    "batch4"
+  ],
+  "formula": {
+    "weightedScore": "1000 - ((100-completionRate)*1.5 + (100-firstAttemptSuccessRate)*1.0 + meanAttemptsPerTask*12 + duplicateRetryRate*1.0 + intentionalFollowUpRate*0.15 + temptationFailureRate*1.8)",
+    "notes": [
+      "Temptation failures carry a heavier penalty than intentional follow-ups.",
+      "Intentional pagination/chaining follow-ups are lightly penalized to avoid over-penalizing valid workflows.",
+      "Higher weightedScore is better."
+    ]
+  },
+  "ranking": [
+    {
+      "variant": "agentic",
+      "batches": {
+        "batch2": {
+          "runCount": 8,
+          "completedCount": 8,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 1.88,
+          "firstAttemptSuccessRate": 100,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 0,
+          "weightedScore": 977.44
+        },
+        "batch3": {
+          "runCount": 6,
+          "completedCount": 6,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 1.83,
+          "firstAttemptSuccessRate": 100,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 16.67,
+          "temptationFailureRate": 0,
+          "weightedScore": 975.54
+        },
+        "batch4": {
+          "runCount": 4,
+          "completedCount": 4,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 2.5,
+          "firstAttemptSuccessRate": 100,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 0,
+          "weightedScore": 970
+        }
+      },
+      "aggregate": {
+        "weightedCompletionRate": 100,
+        "weightedFirstAttemptSuccessRate": 100,
+        "weightedMeanAttemptsPerTask": 2,
+        "weightedDuplicateRetryRate": 0,
+        "weightedIntentionalFollowUpRate": 5.56,
+        "weightedTemptationFailureRate": 0,
+        "weightedScore": 975.153
+      }
+    },
+    {
+      "variant": "standard",
+      "batches": {
+        "batch2": {
+          "runCount": 8,
+          "completedCount": 8,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 2,
+          "firstAttemptSuccessRate": 87.5,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 0,
+          "weightedScore": 963.5
+        },
+        "batch3": {
+          "runCount": 6,
+          "completedCount": 6,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 1.83,
+          "firstAttemptSuccessRate": 100,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 16.67,
+          "temptationFailureRate": 0,
+          "weightedScore": 975.54
+        },
+        "batch4": {
+          "runCount": 4,
+          "completedCount": 4,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 2.75,
+          "firstAttemptSuccessRate": 75,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 100,
+          "weightedScore": 762
+        }
+      },
+      "aggregate": {
+        "weightedCompletionRate": 100,
+        "weightedFirstAttemptSuccessRate": 88.89,
+        "weightedMeanAttemptsPerTask": 2.11,
+        "weightedDuplicateRetryRate": 0,
+        "weightedIntentionalFollowUpRate": 5.56,
+        "weightedTemptationFailureRate": 22.22,
+        "weightedScore": 922.736
+      }
+    },
+    {
+      "variant": "admin",
+      "batches": {
+        "batch2": {
+          "runCount": 8,
+          "completedCount": 3,
+          "completionRate": 37.5,
+          "meanAttemptsPerTask": 1.88,
+          "firstAttemptSuccessRate": 75,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 0,
+          "weightedScore": 858.69
+        },
+        "batch3": {
+          "runCount": 6,
+          "completedCount": 6,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 1.83,
+          "firstAttemptSuccessRate": 100,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 16.67,
+          "temptationFailureRate": 0,
+          "weightedScore": 975.54
+        },
+        "batch4": {
+          "runCount": 4,
+          "completedCount": 4,
+          "completionRate": 100,
+          "meanAttemptsPerTask": 3,
+          "firstAttemptSuccessRate": 50,
+          "duplicateRetryRate": 0,
+          "intentionalFollowUpRate": 0,
+          "temptationFailureRate": 100,
+          "weightedScore": 734
+        }
+      },
+      "aggregate": {
+        "weightedCompletionRate": 72.22,
+        "weightedFirstAttemptSuccessRate": 77.78,
+        "weightedMeanAttemptsPerTask": 2.11,
+        "weightedDuplicateRetryRate": 0,
+        "weightedIntentionalFollowUpRate": 5.56,
+        "weightedTemptationFailureRate": 22.22,
+        "weightedScore": 869.931
+      }
+    }
+  ],
+  "recommendation": {
+    "variant": "agentic",
+    "rationale": "Best weighted score with strong completion/first-attempt rates and no import/export temptation failures."
+  }
+}

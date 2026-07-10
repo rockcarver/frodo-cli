@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent ai delete "frodo agent ai delete frodo-dev --agent-id does-not-exist": should fail deleting does-not-exist 1`] = `
+"Error deleting alpha realm AI agent does-not-exist
+  alpha realm AI agent 'does-not-exist' not found!
+"
+`;
+
+exports[`frodo agent ai delete "frodo agent ai delete frodo-dev -a": should delete all AI agents 1`] = `""`;
+
+exports[`frodo agent ai delete "frodo agent ai delete frodo-dev -i testAgent": should delete AI agent testAgent 1`] = `""`;

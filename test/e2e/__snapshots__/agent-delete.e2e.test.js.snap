@@ -1,9 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`frodo agent delete "frodo agent delete --agent-id frodo-test-ig-agent": should display error when the agent with id 'frodo-test-ig-agent' cannot be deleted since it does not exist 1`] = `
-"Error deleting alpha realm agent frodo-test-ig-agent
-  alpha realm agent 'frodo-test-ig-agent' not found!
-"
+exports[`frodo agent delete "frodo agent delete --agent-id frodo-test-non-existing-ig-agent": should display error when the agent with id 'frodo-test-non-existing-ig-agent' cannot be deleted since it does not exist 1`] = `
+"Error deleting alpha realm agent frodo-test-non-existing-ig-agent
+  alpha realm agent 'frodo-test-non-existing-ig-agent' not found!"
 `;
 
 exports[`frodo agent delete "frodo agent delete --all": should do nothing when no agents can be deleted 1`] = `""`;

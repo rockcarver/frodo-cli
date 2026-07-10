@@ -56,15 +56,23 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export -A
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent gateway export --all-separate --no-metadata --directory agentGatewayExportTestDir3
 */
-import { getEnv, testExport } from './utils/TestUtils';
+import { getEnv, testExport, stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 const type = 'gateway.agent';
+const stagingCommand = `frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json`;
 
 describe('frodo agent gateway export', () => {
+    beforeEach(async () => {
+        await stageFixture(stagingCommand, env);
+    });
+
+    afterEach(async () => {
+        await clearFixture('frodo agent gateway delete -i frodo-test-ig-agent', env);
+    });
     test('"frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent"', async () => {
         const exportFile = "frodo-test-ig-agent.gateway.agent.json";
         const CMD = `frodo agent gateway export --agent-id frodo-test-ig-agent`;

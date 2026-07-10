@@ -55,6 +55,8 @@ includeRequestedAuthenticationContext│true
                   useNameIDAsSPUserID│true                                                                                                  
       responseArtifactMessageEncoding│                                                                                                      
                              encoding│URI                                                                                                   
+      adapter                        │                                                                                                      
+                      spAdapterScript│07ee6240-d106-4e25-a781-5fcabc477d22                                                                  
                                      │                                                                                                      
     services                         │                                                                                                      
                             metaAlias│/alpha/iSPAzure                                                                                       
@@ -164,6 +166,8 @@ includeRequestedAuthenticationContext│true
                   useNameIDAsSPUserID│true                                                                                                  
       responseArtifactMessageEncoding│                                                                                                      
                              encoding│URI                                                                                                   
+      adapter                        │                                                                                                      
+                      spAdapterScript│07ee6240-d106-4e25-a781-5fcabc477d22                                                                  
                                      │                                                                                                      
     services                         │                                                                                                      
                             metaAlias│/alpha/iSPAzure                                                                                       

@@ -529,18 +529,29 @@ export async function importJourneysFromFiles(
     const jsonFiles = names
       .filter((name) => name.toLowerCase().endsWith('.journey.json'))
       .map((name) => getFilePath(name));
-    const allJourneysData = { trees: {} };
+    const allJourneysData: MultiTreeExportInterface = { trees: {} };
     for (const file of jsonFiles) {
       const fileObj = JSON.parse(fs.readFileSync(file, 'utf8'));
-      for (const [id, obj] of Object.entries(fileObj.trees)) {
-        allJourneysData.trees[id] = obj;
+      if (fileObj?.trees && typeof fileObj.trees === 'object') {
+        for (const [id, obj] of Object.entries(fileObj.trees)) {
+          allJourneysData.trees[id] = obj as SingleTreeExportInterface;
+        }
+      } else if (fileObj?.tree?._id) {
+        allJourneysData.trees[fileObj.tree._id] =
+          fileObj as SingleTreeExportInterface;
+      } else {
+        printMessage(
+          `Skipping unsupported journey file format: ${file}`,
+          'warning'
+        );
       }
     }
-    await importJourneys(
-      allJourneysData as MultiTreeExportInterface,
-      options,
-      errorHandler
-    );
+    if (Object.keys(allJourneysData.trees).length === 0) {
+      throw new FrodoError(
+        `No valid journeys found in ${getWorkingDirectory()}. Expected files with either a top-level "trees" object or a top-level "tree" object.`
+      );
+    }
+    await importJourneys(allJourneysData, options, errorHandler);
     return true;
   } catch (error) {
     printError(error);
