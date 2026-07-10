@@ -49,7 +49,7 @@
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent describe
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent describe --json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent describe -i testAgent --json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent describe -i banking-assistant --json
 */
 
 import cp from 'child_process';
@@ -63,20 +63,20 @@ process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 describe('frodo agent describe', () => {
-  test('"frodo agent describe volker-dev": should describe all agents in table format', async () => {
-    const CMD = 'frodo agent describe volker-dev';
+  test('"frodo agent describe": should describe all agents in table format', async () => {
+    const CMD = 'frodo agent describe';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent describe volker-dev --json": should describe all agents in JSON format', async () => {
-    const CMD = 'frodo agent describe volker-dev --json';
+  test('"frodo agent describe --json": should describe all agents in JSON format', async () => {
+    const CMD = 'frodo agent describe --json';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test('"frodo agent describe volker-dev -i testAgent --json": should describe one agent by ID in JSON format', async () => {
-    const CMD = 'frodo agent describe volker-dev -i testAgent --json';
+  test('"frodo agent describe -i banking-assistant --json": should describe one agent by ID in JSON format', async () => {
+    const CMD = 'frodo agent describe -i banking-assistant --json';
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
