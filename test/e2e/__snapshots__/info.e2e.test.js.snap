@@ -3,16 +3,16 @@
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> --json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..cO4V4jU67gojWcjyPCXaUQ.5ouO7CUh-vD2sCWyDsvOqx128lS3oB06f6UisuCzMxpTGiRr3v82-9XyKleWfYopvgVJtgGDQHcQSVn00BPs0HxGvb0iQhLZpIxpy1FOqlyzCvWu--DlVS5xanrTbXJ12YiPi4hfWNPkk7Vhup08qzoXJTFWgc4Vx1itK3bBkJ7DeY3kmHNhP4XNnz_vZhCwsXMtERDw2ma4GIzJyX49y9hxW1wUsf8AP63TDUzjlKPAcnPMQfI0g1Rh3K3b0LkBo7yuWTRSfClS8K8qj_1nuM5BbiZaMRAyDvfT3BQlnbH0d1DN38wzrJq8dFhOnlBjvzvVQrR3ZTvQl0bIZPXRbmx3ygLe2FNnMRKwbROWttD39aKqZ8Y92DZCA7A3L_ag1G8P7zHTo2QsiJ9EtD0F4unfJ7R9GbTwbtEDs170MFamdCanJGb7Nfp_1EXIjVQWqllCED7_rW-lGOgWqAheZ_Z2nVrHyOtMmMI5TFvUe8LMlyZCd-gS2bs_YNT23voUh_CoJ-6lkY9xGP2NsqyGbX4ZpBUb0o84IweMoxYgLI9O6ukFT7Q4QXPlNCvh8xnElnDc-OsM01ZGlAeTe7_EgrVK-JJzlwOCVQCj2MMLNPg-utI7fSncv3g01_exUNGwUfRGWNVKgk8fqLaZrLOAfPHw9ZRrfBrkrCvAtLps5OwFPV1hwqVKSG8MQhScZjN-T1S8wz1--wiCl2oIQy-tKiBsbUPiEUDKC6it3Tst05OrGVuDSMHK1JOfHeBPx-_q6Z4kPsjwCpghcPUhHEs-x2q8x6p0KcgNYWrrYVrO2OYrFqt78XgQhPBPUOQjLn3ljuf7Ryno4Bv_lLZOegPXeX52NxJ9LqB-Q0vuediPouRBoJA4NWsGxzrXka56FWf1EuKqrACuwrhStJKuPVwlmlLsDjGTF9xfW-WHW5Q-Xjv4r6qFijMh0nyLPlBxaVDVzsOQRyJnFbEByDmrZ8AjBtGz4wPXtzDJ5RxMMfLDkcoSyOVh3JU_KhVxmhO9NG6SQBX662lKu9m6XIF6QprHwtOUXIdJSF62xYQhf6G0E24.zubSnAH4v83IZ5mFEllZ5A",
+  "bearerToken": "<access token>",
   "backupRegion": "us-south1",
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -33,16 +33,16 @@ exports[`frodo info Authenticate as service account using cli args frodo info <h
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> --scriptFriendly 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..hCMbyzFLSuGtU7ad9OXS4w.Ap6pQpeHN75K2dcNIQgvJ0RVOU1SN_K58vkgFIFdCJDhTH4KPJOeReW1sONj_jB9fEaWrKWyEnTLoYxpyMJeVs38HUCcH5QlXk3hG1I5IT3miVUOcJDS18aA_NAfOqLo3D530QJJXjj3qLJydJA_ii_NUjPT0JAwDFxt1aCdhPjr6wpL0aaPIrSo6GwEPNiOb-oqI28oulbByyX4MPCN3YPGlaUiAejaXoCB-zuEHywzyocsOiMH5mKIBe2zdlFGbVu7YsLkCkjvY22qgBdPdel0ZZESt0JFh_dUo_8yMWnHeYE_qBsDGvddmoSEsu1JjliX3_b1R_pTsfVOXVSwFXXKDXBMMn9rae7NUrxIUvbnbwfNG1thhYpVKQS_qbk2H5-bw7SduSug_Fgqys_vHlsIVvVmM2vUhbk73ihzIM9jfnVKJYHnaR3houh3bp4PVG9ohnMk_sMofQ3GKcya8crRvIp2GsTrsuyQ7X3OcpI6ip6YSOqe4uMWhllJAN1nn4Wtxv7qQStwCSxtXNJBHAbtOefO79dGxvCAxxM0s9BM8l__OIj0BhZn3BMjYTIW79pMbxUrADuYltxR50zvwIEwaif6gESEVYSmh_jrbiy-iEuudDudDAZ-CBy97DW5jLjS8g1DDURrbU02IpayImxDJkMRbu6aLi5cfHEasXMJJwKHWc2FKf6gAYpIaoN-nRgOJa5M5rnARERGOmvkZPnxUuDZMQ6npqtBRKb0zLsq3iofxIj8zNwFagxc9ftk8hKf1cxF4kBuSPZcsaQIfsod0ReBuGP1Utl0hJC_Fyo02s7UIBsJW1rEHj_vcdDT53I3fGLRfkhkaM_YzZjMHhvTmpl1AKpGoNex0Ek-plQYdITtvNY9sbaEAm_eFkcklyQ0GdXRvWCSf5cvrit7r4pnRerdEOVsCm_UEDyF3Setp8iRjQipnh9EXe7Y9VkhD_VnQIHG8H78U2la4O-3AbIhDHeIrG54d-G-mgxct8ZNPwoTM4qWUxbgIgfHMKM7v8e3xYCJeeqxZ1MKRhCwIsPRiZbWM5fsehQn4mW-cnU.UNY4cyynMXj4n4Zf0ZLkjQ",
+  "bearerToken": "<access token>",
   "backupRegion": "us-south1",
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -63,16 +63,16 @@ exports[`frodo info Authenticate as service account using cli args frodo info <h
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> -s 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..tzhK_llBbiol6ULw9V6gLA.uz8Xx20e-wPjlCClEEshu2_NLh7OQDvUBR7WTKQbGI_0io8q2EtCGcJ-PhqUJGluZthgxsiC_g6l8glFwYRAMuyUr6QyaNFlkBnhPm4jKfYdBG0OAi_ibjKRdziypdMJGnqDPebAgVDpNvjlRYspSKAXn2tzOO5ZWB2HjWtlfSUm--k_Zetjnx2q8Vd-gm5mVT1ER8IDcgqm13dWx3UjKAZRPHiS6g_8iA7YCBJ1KyjryrdlDknwPHrckiVTK6w7a4a4vv9nSPi6dOG-TumFTSIjxvTZ_PEWsDHyhtjAeVtEDP6FNJOzNot9IhYChbvF2nUobKTt-gcpGhW6KrCj2QjysKOUDZiPag2pokttQA18UFo1XyLu62EWwGIrjO2TOMDRmh81pOvCUXlI1yprc8y1KIu7S4KIgXZd5TAZLVvkt7XuVOduXp2oOn5PFf32yKhgcLW4BhuRWa7MTJv3etlUqHSuo37jv0DEGmBgsq58bfmhkor6huYt-AXEad0RPLi9K4NgOxD5m6oNI2FG_wkft03NTqz746E2iP1p_Tc5yhcKTgTsKUbpWu-F7G2Co5BHOl2-glNh1IQcZ-6O5Eq0hC3eSn4c7P_HL3Zn0jvJiqQCgVi08xXij4kTdT79wkKU4jG_ioVFymYrbRBouT3_7vew8S3h2RwprpVpwgy44ViQKqoXEYGtayzJZhoUOOFWIjRKnVV-gn2cEXT420HaTKU4bspaBaFIQvi9VECsxdlSbtW2z9t30IXz_UWWfUvZa705mi4oMe_dDeLDETM7AIrD8WAFlEWbOkHhYd8nvznERyqD3KVdXw4-Q2dfwkCkEmTUirNvNTiUvSq5QAcfNgbJpIQ8lL5LEROGPS4ugLzXZhGjTfohxFhQ40ezdfUW6vLM-PD7YL39-DeJp_AtgFN0KHlfNPx7XIoW6TbrlInDLus7pyUb-vlSGRoLh0kVeaujhVpgfNc-Xvu7NN4EMvwqs-vS0bup36eb7BfZ0SFw0x7XbK4MdOGQOij-DjJiCS5Fa8FLrEJDgSOjPPP6GZ66LRe1brZShZRg8rE.Ik2wL5FoST6m3YTlgR_SYw",
+  "bearerToken": "<access token>",
   "backupRegion": "us-south1",
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -93,8 +93,8 @@ exports[`frodo info Authenticate as service account using cli args frodo info <h
 exports[`frodo info Authenticate as service account using cli args frodo info <host> --sa-id <sa-id> --sa-jwk-file <sa-jwk-file> 1`] = `
 "
 Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
-AM Version            │7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)
-Subject (Type)        │Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   
+AM Version            │9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)
+Subject (Type)        │Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   
 Deployment Type       │cloud                                                                             
 Cookie Name           │6ac6499e9da2071                                                                   
 backupRegion          │us-south1                                                                         
@@ -106,7 +106,7 @@ Region                │us-central1
 Tier                  │other                                                                             
                       │                                                                                  
   ipAddresses         │                                                                                  
-                     0│104.197.33.46                                                                     
+                     0│34.58.53.151                                                                      
                       │                                                                                  
   promotionTierInfo   │                                                                                  
        tierDisplayName│other                                                                             
@@ -124,8 +124,8 @@ Bearer token:
 exports[`frodo info Authenticate as service account using env vars frodo info --json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
   "bearerToken": "<access token>",
@@ -133,7 +133,7 @@ exports[`frodo info Authenticate as service account using env vars frodo info --
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -154,8 +154,8 @@ exports[`frodo info Authenticate as service account using env vars frodo info --
 exports[`frodo info Authenticate as service account using env vars frodo info --scriptFriendly 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
   "bearerToken": "<access token>",
@@ -163,7 +163,7 @@ exports[`frodo info Authenticate as service account using env vars frodo info --
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -184,8 +184,8 @@ exports[`frodo info Authenticate as service account using env vars frodo info --
 exports[`frodo info Authenticate as service account using env vars frodo info -s 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)",
-  "authenticatedSubject": "Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
+  "authenticatedSubject": "Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
   "bearerToken": "<access token>",
@@ -193,7 +193,7 @@ exports[`frodo info Authenticate as service account using env vars frodo info -s
   "config_promotion_done": false,
   "immutable": false,
   "ipAddresses": [
-    "104.197.33.46"
+    "34.58.53.151"
   ],
   "locked": false,
   "placeholder_management": "CUSTOMER",
@@ -214,8 +214,8 @@ exports[`frodo info Authenticate as service account using env vars frodo info -s
 exports[`frodo info Authenticate as service account using env vars frodo info 1`] = `
 "
 Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
-AM Version            │7.6.0-SNAPSHOT Build 3044e8afddd78acfb775451f6053575b124e7cb3 (2024-June-25 16:54)
-Subject (Type)        │Frodo-SA-1701807230743 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   
+AM Version            │9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)
+Subject (Type)        │Frodo-SA-1782747461119 [b672336b-41ef-428d-ae4a-e0c082875377] (Service Account)   
 Deployment Type       │cloud                                                                             
 Cookie Name           │6ac6499e9da2071                                                                   
 backupRegion          │us-south1                                                                         
@@ -227,7 +227,7 @@ Region                │us-central1
 Tier                  │other                                                                             
                       │                                                                                  
   ipAddresses         │                                                                                  
-                     0│104.197.33.46                                                                     
+                     0│34.58.53.151                                                                      
                       │                                                                                  
   promotionTierInfo   │                                                                                  
        tierDisplayName│other                                                                             
@@ -245,17 +245,19 @@ Bearer token:
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --json 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "sessionToken": "MHA64HUj_aJNQWXhqkdOngxIK-I.*AAJTSQACMDIAAlNLABxOVGFkMFRqVlRycG1qWnljR3hKOUxXNk5LcWs9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjI5NjMxMGUtMTBmMS00NWQ3LWE4NDMtZTZmZTNkY2YzMGY0LTI5NTQ2NDUiLCJzdWJuYW1lIjoiOGVmYWE1YjYtOGM5OC00NDg5LTliMjEtZWU0MWY1NTg5YWI3IiwiaXNzIjoiaHR0cHM6Ly9vcGVuYW0tZnJvZG8tZGV2LmZvcmdlYmxvY2tzLmNvbTo0NDMvYW0vb2F1dGgyIiwidG9rZW5OYW1lIjoiYWNjZXNzX3Rva2VuIiwidG9rZW5fdHlwZSI6IkJlYXJlciIsImF1dGhHcmFudElkIjoiVFBVZGw3aHphNnhPSkFJRG5acWotdUFpbW5VIiwiYXVkIjoiaWRtQWRtaW5DbGllbnQiLCJuYmYiOjE2ODczMDk4NzEsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzY29wZSI6WyJvcGVuaWQiLCJmcjppZGM6ZXN2OioiLCJmcjppZG06KiJdLCJhdXRoX3RpbWUiOjE2ODczMDk4NzAsInJlYWxtIjoiLyIsImV4cCI6MTY4NzMxMzQ3MSwiaWF0IjoxNjg3MzA5ODcxLCJleHBpcmVzX2luIjozNjAwLCJqdGkiOiJjMXhDeHRuQ2tnOWh1MFFZVDNzUmtsZmpRekUifQ.UsrW3Ds_vAYB-ji-VWvxbAPnJkbHbiX9whkTMZK6wQOtf4YKhwFLgF3jYL2Im932600oVwHjiZHhevj_sXhZkHq6MG4iX_C6ZATIpRFDC_fXK834SLAVBzZjh03lgVYI2pkcpQDi280TTbYcrpOWXB4fX8AulkjnEc2Bc-Y2hElHd4HddFL17fpAIYRDppOUWdFJbRTUWjSUanPdMxrzx-hEosYCC8X0fiKKwqI5SaaQi9QulaSYM1_9Qdah9_p9zuWCsUUIz6evunK0R1lFu4sFv-FB-WNvEQNhVasUAuWKfPbk_8pd9g5MIUaOYEv3UXsGLg7lHy3c01iRb1v41w",
-  "immutable": false,
-  "locked": false,
-  "region": "us-central1",
-  "tier": "other",
+  "sessionToken": "<token id>",
+  "bearerToken": "<access token>",
+  "backupRegion": "us-south1",
   "config_promotion_done": false,
+  "immutable": false,
+  "ipAddresses": [
+    "34.58.53.151"
+  ],
+  "locked": false,
   "placeholder_management": "CUSTOMER",
   "promotionTierInfo": {
     "tierDisplayName": "other",
@@ -264,7 +266,9 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --json 
     ],
     "upperTierDisplayName": null,
     "lowerTierDisplayName": null
-  }
+  },
+  "region": "us-central1",
+  "tier": "other"
 }
 "
 `;
@@ -272,17 +276,19 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --json 
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --scriptFriendly 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "sessionToken": "9vlaR5zHZCrjWPcrAgE2okf3zHU.*AAJTSQACMDIAAlNLABxlUE5ndTZwTUo2R1poMVFEYnJwUTllQXBqLzg9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjI5NjMxMGUtMTBmMS00NWQ3LWE4NDMtZTZmZTNkY2YzMGY0LTI5NTQ5MjMiLCJzdWJuYW1lIjoiOGVmYWE1YjYtOGM5OC00NDg5LTliMjEtZWU0MWY1NTg5YWI3IiwiaXNzIjoiaHR0cHM6Ly9vcGVuYW0tZnJvZG8tZGV2LmZvcmdlYmxvY2tzLmNvbTo0NDMvYW0vb2F1dGgyIiwidG9rZW5OYW1lIjoiYWNjZXNzX3Rva2VuIiwidG9rZW5fdHlwZSI6IkJlYXJlciIsImF1dGhHcmFudElkIjoiU2NDTnRuOUVKV3ljdHh5LVM0Q0dDNF9KMDc4IiwiYXVkIjoiaWRtQWRtaW5DbGllbnQiLCJuYmYiOjE2ODczMDk4ODcsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzY29wZSI6WyJvcGVuaWQiLCJmcjppZGM6ZXN2OioiLCJmcjppZG06KiJdLCJhdXRoX3RpbWUiOjE2ODczMDk4ODcsInJlYWxtIjoiLyIsImV4cCI6MTY4NzMxMzQ4NywiaWF0IjoxNjg3MzA5ODg3LCJleHBpcmVzX2luIjozNjAwLCJqdGkiOiJjdlNaai1YbEVvSklVVHIxdTJGdTNtdURBMDQifQ.RCAO2iLQE6JCtSYQ2orkrKx0SyVADgRZY8s5e38wa4Z6BCnnldL6EVzNsMatHlNryPYSoZ12wHwazqObbDYmE4FQu17MvkYY84iwxmF4mhKzTujwrL25JLLkfWYPyLywUyX6qU2MxEVrKPzWq3SGyMFSFQrP1e6rPrteQ7rFiBqFDZNrQ9xAiNHVH8xeCPsheJWCqEuqQIyfIHA3x8p_mltxuguVSTyYSX-Hv7ZWhEfLxhv6oFlplQPsxbncaSR-eOtHByQtwsKvDMGfoQQCEkem4Moa8Ajpp1hNuMNASjR86Y1UY-F3OVWb_0mZWWIqZCLRzrznxkTceI58sHeGQA",
-  "immutable": false,
-  "locked": false,
-  "region": "us-central1",
-  "tier": "other",
+  "sessionToken": "<token id>",
+  "bearerToken": "<access token>",
+  "backupRegion": "us-south1",
   "config_promotion_done": false,
+  "immutable": false,
+  "ipAddresses": [
+    "34.58.53.151"
+  ],
+  "locked": false,
   "placeholder_management": "CUSTOMER",
   "promotionTierInfo": {
     "tierDisplayName": "other",
@@ -291,7 +297,9 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --scrip
     ],
     "upperTierDisplayName": null,
     "lowerTierDisplayName": null
-  }
+  },
+  "region": "us-central1",
+  "tier": "other"
 }
 "
 `;
@@ -299,17 +307,19 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> --scrip
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> -s 1`] = `
 "{
   "host": "https://openam-frodo-dev.forgeblocks.com/am",
-  "amVersion": "7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)",
+  "amVersion": "9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)",
   "authenticatedSubject": "volker.scheuber@forgerock.com (User)",
   "deploymentType": "cloud",
   "cookieName": "6ac6499e9da2071",
-  "sessionToken": "hi5dqz4p3nasUbX4SdLXyQxzqC4.*AAJTSQACMDIAAlNLABwzV05xMGM1bFQyMGhoenZLSnJCTmZoQnE4K1k9AAR0eXBlAANDVFMAAlMxAAIwMQ..*",
-  "bearerToken": "eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjI5NjMxMGUtMTBmMS00NWQ3LWE4NDMtZTZmZTNkY2YzMGY0LTI5NTYwMTQiLCJzdWJuYW1lIjoiOGVmYWE1YjYtOGM5OC00NDg5LTliMjEtZWU0MWY1NTg5YWI3IiwiaXNzIjoiaHR0cHM6Ly9vcGVuYW0tZnJvZG8tZGV2LmZvcmdlYmxvY2tzLmNvbTo0NDMvYW0vb2F1dGgyIiwidG9rZW5OYW1lIjoiYWNjZXNzX3Rva2VuIiwidG9rZW5fdHlwZSI6IkJlYXJlciIsImF1dGhHcmFudElkIjoibjNNbE1FcHlYNTFpMnY0UkFVRnF1Q00tNGh3IiwiYXVkIjoiaWRtQWRtaW5DbGllbnQiLCJuYmYiOjE2ODczMDk5MDQsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzY29wZSI6WyJvcGVuaWQiLCJmcjppZGM6ZXN2OioiLCJmcjppZG06KiJdLCJhdXRoX3RpbWUiOjE2ODczMDk5MDQsInJlYWxtIjoiLyIsImV4cCI6MTY4NzMxMzUwNCwiaWF0IjoxNjg3MzA5OTA0LCJleHBpcmVzX2luIjozNjAwLCJqdGkiOiJFV2p6bE5yaDRta01LOTBSVkZDSHN4YzV4bjAifQ.P2rPfBWRb1xRQFwii-XctPOSVy_fTBW6Kjmm4d3IkFdswTZ9l3YzLUkn2GdtoDCtlM6PVq_p1ktoUJ8fmuft09WuhRp8n7I8GffZrnKRwVdxP__9uIp6bFO5ra2Oe-K1ibkFUaFm8iRcSJD8silGMhZTrMQSeW8d5tvLaUVUwqkbBDnScgRXHh1H6Dt8HR6vDeUHlMNJYHVprUrRt-983PgBzXEoQhbPF7jgWqESmVfBS07r3cM23HLJhAG7-I8sCmxnhvEI0vyfbE-PleKaRd4wtpp-pdJByKRcrBAO5ezr96EhCCE3-jd15mwPRuPQf5jrNQmqNEkzWnvGm-pM-w",
-  "immutable": false,
-  "locked": false,
-  "region": "us-central1",
-  "tier": "other",
+  "sessionToken": "<token id>",
+  "bearerToken": "<access token>",
+  "backupRegion": "us-south1",
   "config_promotion_done": false,
+  "immutable": false,
+  "ipAddresses": [
+    "34.58.53.151"
+  ],
+  "locked": false,
   "placeholder_management": "CUSTOMER",
   "promotionTierInfo": {
     "tierDisplayName": "other",
@@ -318,38 +328,43 @@ exports[`frodo info Authenticate as user frodo info <host> <user> <pass> -s 1`] 
     ],
     "upperTierDisplayName": null,
     "lowerTierDisplayName": null
-  }
+  },
+  "region": "us-central1",
+  "tier": "other"
 }
 "
 `;
 
 exports[`frodo info Authenticate as user frodo info <host> <user> <pass> 1`] = `
-"Connected to https://openam-frodo-dev.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
-
-Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                      
-AM Version            │7.4.0-SNAPSHOT Build cb5c9d0995369298fbd943c2a71df3dc85da6cba (2023-May-30 09:53)
-Subject (Type)        │volker.scheuber@forgerock.com (User)                                             
-Deployment Type       │cloud                                                                            
-Cookie Name           │6ac6499e9da2071                                                                  
-Immutable             │false                                                                            
-Locked                │false                                                                            
-Region                │us-central1                                                                      
-Tier                  │other                                                                            
-Promotion Done        │false                                                                            
-Placeholder Management│CUSTOMER                                                                         
-                      │                                                                                 
-  promotionTierInfo   │                                                                                 
-       tierDisplayName│other                                                                            
-  upperTierDisplayName│                                                                                 
-  lowerTierDisplayName│                                                                                 
-                      │                                                                                 
-    tiers             │                                                                                 
-                     0│other                                                                            
+"
+Host URL              │https://openam-frodo-dev.forgeblocks.com/am                                       
+AM Version            │9.0.0-SNAPSHOT Build c6c99b2f35d4d905937aeef7e7b8426bf5d8e820 (2026-June-12 09:10)
+Subject (Type)        │volker.scheuber@forgerock.com (User)                                              
+Deployment Type       │cloud                                                                             
+Cookie Name           │6ac6499e9da2071                                                                   
+backupRegion          │us-south1                                                                         
+Promotion Done        │false                                                                             
+Immutable             │false                                                                             
+Locked                │false                                                                             
+Placeholder Management│CUSTOMER                                                                          
+Region                │us-central1                                                                       
+Tier                  │other                                                                             
+                      │                                                                                  
+  ipAddresses         │                                                                                  
+                     0│34.58.53.151                                                                      
+                      │                                                                                  
+  promotionTierInfo   │                                                                                  
+       tierDisplayName│other                                                                             
+  upperTierDisplayName│                                                                                  
+  lowerTierDisplayName│                                                                                  
+                      │                                                                                  
+    tiers             │                                                                                  
+                     0│other                                                                             
 
 Session token:
-57X_mfKtsTJXuOINxAdr4BvwukE.*AAJTSQACMDIAAlNLABx1ME5PQnIwTytSNGM1NDNEaWVjeWN5ajFhY2M9AAR0eXBlAANDVFMAAlMxAAIwMQ..*
+<token id>
 
 Bearer token:
-eyJ0eXAiOiJKV1QiLCJraWQiOiJob0tZU0FMdEM3NHlkOUg0K0tBdHhTbkZzcXc9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI4ZWZhYTViNi04Yzk4LTQ0ODktOWIyMS1lZTQxZjU1ODlhYjciLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXV0aF9sZXZlbCI6MCwiYXVkaXRUcmFja2luZ0lkIjoiZjI5NjMxMGUtMTBmMS00NWQ3LWE4NDMtZTZmZTNkY2YzMGY0LTI5NTQ1MDMiLCJzdWJuYW1lIjoiOGVmYWE1YjYtOGM5OC00NDg5LTliMjEtZWU0MWY1NTg5YWI3IiwiaXNzIjoiaHR0cHM6Ly9vcGVuYW0tZnJvZG8tZGV2LmZvcmdlYmxvY2tzLmNvbTo0NDMvYW0vb2F1dGgyIiwidG9rZW5OYW1lIjoiYWNjZXNzX3Rva2VuIiwidG9rZW5fdHlwZSI6IkJlYXJlciIsImF1dGhHcmFudElkIjoiZVVPX3FZZ3ZxSktKMTUwMVAtX1NxOHllcTI4IiwiYXVkIjoiaWRtQWRtaW5DbGllbnQiLCJuYmYiOjE2ODczMDk4NTQsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJzY29wZSI6WyJvcGVuaWQiLCJmcjppZGM6ZXN2OioiLCJmcjppZG06KiJdLCJhdXRoX3RpbWUiOjE2ODczMDk4NTQsInJlYWxtIjoiLyIsImV4cCI6MTY4NzMxMzQ1NCwiaWF0IjoxNjg3MzA5ODU0LCJleHBpcmVzX2luIjozNjAwLCJqdGkiOiJxSDBHOU90YjFkei1fRGtXUk83SV9jQlgxTEkifQ.k8yAk4iU5L8yfoMzns0YJKHD95yesFE5-vx-kK-NImJEDY1nQe5VrxNOn_oBhyXG3t3aUA5_4T_1z_moqkc7rnjbreatpWyzl5aBagk_8Zqk4qjBXj_60ZqJwcL8UoEGLCMQakWuLOPZ_8Px32i2p29JCW3u40B7JEsg1S53tnr-NGscJE7vfDGhQB1PnWyGG0YNu57V6b4TImC2Iv_oK3FCMD6iTJ00p0lFhvC_vG0OkXo_SUPfpKZ_0ogJu1kaxyOJY8Q8skmeOH-Vo7gVvjThjWjgFwvorVq1kvFmIa5jkwnpu70tWEDvnipG2SXP5x_Uyb7SYuYQSd6E-ESyhQ
+<access token>
 "
 `;
