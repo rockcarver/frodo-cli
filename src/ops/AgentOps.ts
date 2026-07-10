@@ -1894,7 +1894,7 @@ export async function importAIAgentsFromFiles(): Promise<boolean> {
     debugMessage(`cli.AgentOps.importAIAgentsFromFiles: start`);
     const workDir = getWorkingDirectory();
     const files = fs.readdirSync(workDir);
-    const importFiles = files.filter((f) => f.endsWith('.aiagent.json'));
+    const importFiles = files.filter((f) => f.endsWith('.ai.agent.json'));
     let outcome = true;
     for (const file of importFiles) {
       const data = fs.readFileSync(getFilePath(file), 'utf8');

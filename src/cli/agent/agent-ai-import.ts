@@ -31,7 +31,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all agents from separate files (*.aiagent.json) in the current directory. Ignored with -i or -a.'
+        'Import all agents from separate files (*.ai.agent.json) in the current directory. Ignored with -i or -a.'
       )
     )
     .action(
