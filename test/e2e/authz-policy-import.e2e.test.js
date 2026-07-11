@@ -61,7 +61,10 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import {
+    getEnv,
+    removeAnsiEscapeCodes,
+} from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -129,16 +132,24 @@ describe('frodo authz policy import', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test(`"frodo authz policy import -AD ${allSeparatePoliciesSetsDirectory}": should import all policies from the ${allSeparatePoliciesSetsDirectory} directory"`, async () => {
+    test(`"frodo authz policy import -AD ${allSeparatePoliciesSetsDirectory}": should fail when dependency definitions are not included in the separate export files`, async () => {
         const CMD = `frodo authz policy import -AD ${allSeparatePoliciesSetsDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed");
+        } catch (e) {
+            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
-    test(`"frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory ${allSeparatePoliciesSetsDirectory}": should import all policies from the ${allSeparatePoliciesSetsDirectory} directory with no dependencies`, async () => {
+    test(`"frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory ${allSeparatePoliciesSetsDirectory}": should fail when prerequisite definitions are not included in the separate export files`, async () => {
         const CMD = `frodo authz policy import --all-separate --set-id test-policy-set --no-deps --prereqs --directory ${allSeparatePoliciesSetsDirectory}`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        try {
+            await exec(CMD, env);
+            fail("Command should've failed");
+        } catch (e) {
+            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
 });

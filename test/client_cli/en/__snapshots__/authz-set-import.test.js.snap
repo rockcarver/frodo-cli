@@ -21,8 +21,8 @@ Options:
   -a, --all              Import all policy sets from single file. Ignored with
                          -i.
   -A, --all-separate     Import all policy sets from separate files
-                         (*.policyset.authz.json) in the current directory.
-                         Ignored with -i or -a.
+                         (*.policyset.authz.json or *.policyset.json) in the
+                         current directory. Ignored with -i or -a.
   -f, --file <file>      Name of the file to import.
   -i, --set-id <set-id>  Policy set id/name. If specified, only one policy set
                          is imported and the options -a and -A are ignored.

@@ -1,0 +1,579 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant --json": should describe AI agent in JSON format 1`] = `
+"{
+  "_id": "banking-assistant",
+  "_rev": "1982117255",
+  "overrideOAuth2ClientConfig": {
+    "issueRefreshToken": true,
+    "validateScopePluginType": "PROVIDER",
+    "tokenEncryptionEnabled": false,
+    "enableApplicationContext": false,
+    "acceptAudienceParametersInTokenExchangeRequests": false,
+    "evaluateScopePluginType": "PROVIDER",
+    "oidcMayActScript": "[Empty]",
+    "oidcClaimsScript": "[Empty]",
+    "scopesPolicySet": "oauth2Scopes",
+    "accessTokenModificationPluginType": "PROVIDER",
+    "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+    "useForceAuthnForMaxAge": false,
+    "oidcClaimsPluginType": "PROVIDER",
+    "providerOverridesEnabled": false,
+    "authorizeEndpointDataProviderScript": "[Empty]",
+    "statelessTokensEnabled": false,
+    "authorizeEndpointDataProviderPluginType": "PROVIDER",
+    "remoteConsentServiceId": null,
+    "enableRemoteConsent": false,
+    "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+    "usePolicyEngineForScope": false,
+    "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+    "overrideableOIDCClaims": [],
+    "accessTokenMayActScript": "[Empty]",
+    "evaluateScopeScript": "[Empty]",
+    "clientsCanSkipConsent": false,
+    "accessTokenModificationScript": "[Empty]",
+    "issueRefreshTokenOnRefreshedToken": true,
+    "validateScopeScript": "[Empty]"
+  },
+  "advancedOAuth2ClientConfig": {
+    "logoUri": {
+      "inherited": false,
+      "value": []
+    },
+    "subjectType": {
+      "inherited": false,
+      "value": "public"
+    },
+    "clientUri": {
+      "inherited": false,
+      "value": []
+    },
+    "tokenExchangeAuthLevel": {
+      "inherited": false,
+      "value": 0
+    },
+    "responseTypes": {
+      "inherited": false,
+      "value": [
+        "code",
+        "token",
+        "id_token",
+        "code token",
+        "token id_token",
+        "code id_token",
+        "code token id_token",
+        "device_code",
+        "device_code id_token"
+      ]
+    },
+    "mixUpMitigation": {
+      "inherited": false,
+      "value": false
+    },
+    "customProperties": {
+      "inherited": false,
+      "value": []
+    },
+    "javascriptOrigins": {
+      "inherited": false,
+      "value": []
+    },
+    "policyUri": {
+      "inherited": false,
+      "value": []
+    },
+    "softwareVersion": {
+      "inherited": false
+    },
+    "tosURI": {
+      "inherited": false,
+      "value": []
+    },
+    "sectorIdentifierUri": {
+      "inherited": false
+    },
+    "tokenEndpointAuthMethod": {
+      "inherited": false,
+      "value": "client_secret_basic"
+    },
+    "refreshTokenGracePeriod": {
+      "inherited": false,
+      "value": 0
+    },
+    "isConsentImplied": {
+      "inherited": false,
+      "value": false
+    },
+    "softwareIdentity": {
+      "inherited": false
+    },
+    "grantTypes": {
+      "inherited": false,
+      "value": [
+        "authorization_code"
+      ]
+    },
+    "allowedResourceServerAudienceValues": {
+      "inherited": false,
+      "value": []
+    },
+    "require_pushed_authorization_requests": {
+      "inherited": false,
+      "value": false
+    },
+    "descriptions": {
+      "inherited": false,
+      "value": []
+    },
+    "requestUris": {
+      "inherited": false,
+      "value": []
+    },
+    "name": {
+      "inherited": false,
+      "value": []
+    },
+    "contacts": {
+      "inherited": false,
+      "value": []
+    },
+    "updateAccessToken": {
+      "inherited": false
+    },
+    "acceptedJwtIssuers": {
+      "inherited": false,
+      "value": []
+    },
+    "introspectionPolicySets": {
+      "inherited": false,
+      "value": []
+    },
+    "treeName": {
+      "inherited": false,
+      "value": "[Empty]"
+    }
+  },
+  "signEncOAuth2ClientConfig": {
+    "tokenEndpointAuthSigningAlgorithm": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "idTokenEncryptionEnabled": {
+      "inherited": false,
+      "value": false
+    },
+    "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "requestParameterSignedAlg": {
+      "inherited": false
+    },
+    "authorizationResponseSigningAlgorithm": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "clientJwtPublicKey": {
+      "inherited": false
+    },
+    "idTokenPublicEncryptionKey": {
+      "inherited": false
+    },
+    "mTLSSubjectDN": {
+      "inherited": false
+    },
+    "jwkStoreCacheMissCacheTime": {
+      "inherited": false,
+      "value": 60000
+    },
+    "jwkSet": {
+      "inherited": false
+    },
+    "idTokenEncryptionMethod": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "jwksUri": {
+      "inherited": false
+    },
+    "tokenIntrospectionEncryptedResponseAlg": {
+      "inherited": false,
+      "value": "RSA-OAEP-256"
+    },
+    "authorizationResponseEncryptionMethod": {
+      "inherited": false
+    },
+    "userinfoResponseFormat": {
+      "inherited": false,
+      "value": "JSON"
+    },
+    "mTLSCertificateBoundAccessTokens": {
+      "inherited": false,
+      "value": false
+    },
+    "publicKeyLocation": {
+      "inherited": false,
+      "value": "jwks_uri"
+    },
+    "tokenIntrospectionResponseFormat": {
+      "inherited": false,
+      "value": "JSON"
+    },
+    "requestParameterEncryptedEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    },
+    "userinfoSignedResponseAlg": {
+      "inherited": false
+    },
+    "idTokenEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "RSA-OAEP-256"
+    },
+    "requestParameterEncryptedAlg": {
+      "inherited": false
+    },
+    "authorizationResponseEncryptionAlgorithm": {
+      "inherited": false
+    },
+    "mTLSTrustedCert": {
+      "inherited": false
+    },
+    "jwksCacheTimeout": {
+      "inherited": false,
+      "value": 3600000
+    },
+    "userinfoEncryptedResponseAlg": {
+      "inherited": false
+    },
+    "idTokenSignedResponseAlg": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "tokenIntrospectionSignedResponseAlg": {
+      "inherited": false,
+      "value": "RS256"
+    },
+    "userinfoEncryptedResponseEncryptionAlgorithm": {
+      "inherited": false,
+      "value": "A128CBC-HS256"
+    }
+  },
+  "coreOAuth2ClientConfig": {
+    "userpassword": null,
+    "secretLabelIdentifier": {
+      "inherited": false
+    },
+    "status": {
+      "inherited": false,
+      "value": "Active"
+    },
+    "clientName": {
+      "inherited": false,
+      "value": [
+        "banking-assistant"
+      ]
+    },
+    "clientType": {
+      "inherited": false,
+      "value": "Confidential"
+    },
+    "loopbackInterfaceRedirection": {
+      "inherited": false,
+      "value": false
+    },
+    "defaultScopes": {
+      "inherited": false,
+      "value": []
+    },
+    "refreshTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "scopes": {
+      "inherited": false,
+      "value": []
+    },
+    "accessTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "redirectionUris": {
+      "inherited": false,
+      "value": []
+    },
+    "authorizationCodeLifetime": {
+      "inherited": false,
+      "value": 0
+    }
+  },
+  "coreOpenIDClientConfig": {
+    "claims": {
+      "inherited": false,
+      "value": []
+    },
+    "backchannel_logout_uri": {
+      "inherited": false
+    },
+    "defaultAcrValues": {
+      "inherited": false,
+      "value": []
+    },
+    "jwtTokenLifetime": {
+      "inherited": false,
+      "value": 0
+    },
+    "defaultMaxAgeEnabled": {
+      "inherited": false,
+      "value": false
+    },
+    "clientSessionUri": {
+      "inherited": false
+    },
+    "defaultMaxAge": {
+      "inherited": false,
+      "value": 600
+    },
+    "postLogoutRedirectUri": {
+      "inherited": false,
+      "value": []
+    },
+    "backchannel_logout_session_required": {
+      "inherited": false,
+      "value": false
+    }
+  },
+  "coreUmaClientConfig": {
+    "claimsRedirectionUris": {
+      "inherited": false,
+      "value": []
+    }
+  },
+  "aiAgentIdentityAttributes": {
+    "inherited": false,
+    "value": {
+      "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+      "_rev": "49ce32f2-0399-489d-91c0-e7c010ff31dd-163724",
+      "oauth2ClientId": "banking-assistant",
+      "name": "Banking Assistant",
+      "description": "A digital banking assistant.",
+      "customAttributes": {
+        "atmAccess": "false"
+      }
+    }
+  },
+  "aiAgentIdentityUid": {
+    "inherited": false,
+    "value": "ec85268c-729a-47a2-887e-6d2884a0fdb1"
+  },
+  "_type": {
+    "_id": "AIAgent",
+    "name": "AI Agents",
+    "collection": true
+  },
+  "_aiAgentIdentity": {
+    "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+    "_rev": "49ce32f2-0399-489d-91c0-e7c010ff31dd-163724",
+    "oauth2ClientId": "banking-assistant",
+    "name": "Banking Assistant",
+    "description": "A digital banking assistant.",
+    "customAttributes": {
+      "atmAccess": "false"
+    },
+    "privileges": [
+      {
+        "_refResourceCollection": "managed/alpha_aiagentprivilege",
+        "_refResourceId": "90f77862-4761-4549-a284-5e6aead8cc2e",
+        "_refProperties": {
+          "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005",
+          "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897006"
+        },
+        "_ref": "managed/alpha_aiagentprivilege/90f77862-4761-4549-a284-5e6aead8cc2e"
+      },
+      {
+        "_refResourceCollection": "managed/alpha_aiagentprivilege",
+        "_refResourceId": "dc0d7091-5073-4c48-bc4d-fa6931c07a17",
+        "_refProperties": {
+          "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131104",
+          "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131105"
+        },
+        "_ref": "managed/alpha_aiagentprivilege/dc0d7091-5073-4c48-bc4d-fa6931c07a17"
+      }
+    ],
+    "owners": [
+      {
+        "_refResourceCollection": "managed/alpha_user",
+        "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0",
+        "_refProperties": {
+          "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-3743890",
+          "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-3743891"
+        },
+        "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0"
+      }
+    ],
+    "_privileges": [
+      {
+        "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005",
+        "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897006",
+        "_ref": "managed/alpha_aiagentprivilege/90f77862-4761-4549-a284-5e6aead8cc2e",
+        "_refResourceCollection": "managed/alpha_aiagentprivilege",
+        "_refResourceId": "90f77862-4761-4549-a284-5e6aead8cc2e",
+        "_refResourceRev": "49ce32f2-0399-489d-91c0-e7c010ff31dd-126721",
+        "_refProperties": {
+          "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005",
+          "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897006"
+        },
+        "subjects": [
+          {
+            "_refResourceCollection": "managed/alpha_user",
+            "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897012",
+              "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897013"
+            },
+            "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0"
+          }
+        ],
+        "resource": {
+          "_refResourceCollection": "managed/alpha_application",
+          "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3",
+          "_refProperties": {
+            "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897008",
+            "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897009"
+          },
+          "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3"
+        },
+        "agent": {
+          "_refResourceCollection": "managed/alpha_aiagent",
+          "_refResourceId": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+          "_refProperties": {
+            "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005",
+            "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897006"
+          },
+          "_ref": "managed/alpha_aiagent/ec85268c-729a-47a2-887e-6d2884a0fdb1"
+        },
+        "subjectGroups": [
+          {
+            "_refResourceCollection": "managed/alpha_group",
+            "_refResourceId": "Customers",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897207",
+              "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897208"
+            },
+            "_ref": "managed/alpha_group/Customers"
+          }
+        ],
+        "agentOAuth2ClientId": "banking-assistant",
+        "subjectIDs": [
+          "75459be5-b64a-4090-9e77-433f975519f0"
+        ],
+        "description": null,
+        "permissions": [
+          {
+            "type": "scopes",
+            "values": [
+              "banking:accounts:read",
+              "banking:transactions:read",
+              "banking:transactions:write"
+            ]
+          }
+        ],
+        "resourceData": {
+          "ssoEntities": {
+            "oidcId": "id4ai-mcp-server-client",
+            "idpLoginUrl": "http://localhost:8080/auth/callback"
+          },
+          "_rev": "0c075294-1491-49f4-aab7-589490de0ef1-465",
+          "_id": "911bb34f-8970-479a-9687-a740090dfdc3",
+          "_refResourceCollection": "managed/alpha_application",
+          "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3",
+          "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3"
+        },
+        "agentID": "ec85268c-729a-47a2-887e-6d2884a0fdb1"
+      },
+      {
+        "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131104",
+        "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131105",
+        "_ref": "managed/alpha_aiagentprivilege/dc0d7091-5073-4c48-bc4d-fa6931c07a17",
+        "_refResourceCollection": "managed/alpha_aiagentprivilege",
+        "_refResourceId": "dc0d7091-5073-4c48-bc4d-fa6931c07a17",
+        "_refResourceRev": "1e348d20-6a71-4d78-bc9f-2bb9790401c5-5713",
+        "_refProperties": {
+          "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131104",
+          "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131105"
+        },
+        "subjects": [
+          {
+            "_refResourceCollection": "managed/alpha_user",
+            "_refResourceId": "819f89dd-a5de-4cc6-80f5-1d4110f9ef25",
+            "_refProperties": {
+              "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131119",
+              "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131120"
+            },
+            "_ref": "managed/alpha_user/819f89dd-a5de-4cc6-80f5-1d4110f9ef25"
+          }
+        ],
+        "resource": {
+          "_refResourceCollection": "managed/alpha_application",
+          "_refResourceId": "4f669706-8073-4efc-b553-abab6ce07503",
+          "_refProperties": {
+            "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131115",
+            "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131116"
+          },
+          "_ref": "managed/alpha_application/4f669706-8073-4efc-b553-abab6ce07503"
+        },
+        "agent": {
+          "_refResourceCollection": "managed/alpha_aiagent",
+          "_refResourceId": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+          "_refProperties": {
+            "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131104",
+            "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131105"
+          },
+          "_ref": "managed/alpha_aiagent/ec85268c-729a-47a2-887e-6d2884a0fdb1"
+        },
+        "subjectGroups": [
+          {
+            "_refResourceCollection": "managed/alpha_group",
+            "_refResourceId": "Customers",
+            "_refProperties": {
+              "_id": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131112",
+              "_rev": "92feb8b8-f283-4332-8038-0c222ba0d0ad-131113"
+            },
+            "_ref": "managed/alpha_group/Customers"
+          }
+        ],
+        "agentOAuth2ClientId": "banking-assistant",
+        "subjectIDs": [
+          "819f89dd-a5de-4cc6-80f5-1d4110f9ef25"
+        ],
+        "description": null,
+        "permissions": [
+          {
+            "type": "scopes",
+            "values": [
+              "lending:read"
+            ]
+          }
+        ],
+        "resourceData": {
+          "ssoEntities": {
+            "oidcId": "id4ai-lending-mcp-server-client",
+            "idpLoginUrl": "http://localhost:8080/oauth/callback"
+          },
+          "_rev": "ed615c94-8456-410d-afea-f8601e266f24-11476",
+          "_id": "4f669706-8073-4efc-b553-abab6ce07503",
+          "_refResourceCollection": "managed/alpha_application",
+          "_refResourceId": "4f669706-8073-4efc-b553-abab6ce07503",
+          "_ref": "managed/alpha_application/4f669706-8073-4efc-b553-abab6ce07503"
+        },
+        "agentID": "ec85268c-729a-47a2-887e-6d2884a0fdb1"
+      }
+    ]
+  }
+}
+"
+`;
+
+exports[`frodo agent ai describe "frodo agent ai describe -i banking-assistant": should describe AI agent in table format 1`] = `""`;
+
+exports[`frodo agent ai describe "frodo agent ai describe -i does-not-exist": should fail for non-existing AI agent 1`] = `undefined`;

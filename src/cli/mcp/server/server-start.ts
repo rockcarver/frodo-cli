@@ -8,7 +8,7 @@ import {
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-type McpPolicyPreset = 'read-only' | 'standard' | 'admin';
+type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
 
 /** Parsed options for `frodo mcp server start`. */
 type McpStartOptions = {
@@ -32,6 +32,14 @@ type McpStartOptions = {
   json?: boolean;
 };
 
+type McpServicePolicySelection = {
+  policyPreset: 'read-only' | 'standard' | 'admin';
+  policyOverride?: {
+    name?: string;
+    denyOperationTypes?: Array<'delete' | 'import' | 'export'>;
+  };
+};
+
 /**
  * MCP server start command.
  */
@@ -40,9 +48,12 @@ export default function setup() {
     .description('Start an MCP server session from frodo-lib capabilities.')
     .withStability('experimental')
     .addOption(
-      new Option('--policy <preset>', 'Capability policy preset.')
-        .choices(['read-only', 'standard', 'admin'])
-        .default('standard')
+      new Option(
+        '--policy <preset>',
+        'Capability policy preset (agentic excludes import/export by default).'
+      )
+        .choices(['read-only', 'agentic', 'standard', 'admin'])
+        .default('agentic')
     )
     .addOption(
       new Option(
@@ -97,8 +108,10 @@ export default function setup() {
       );
 
       const opts = options as McpStartOptions;
+      const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
-        policyPreset: opts.policy,
+        policyPreset: policySelection.policyPreset,
+        policyOverride: policySelection.policyOverride,
         inventoryOptions: {
           includeTopLevelDomains: opts.includeDomains,
           excludeTopLevelDomains: opts.excludeDomains,
@@ -125,6 +138,14 @@ export default function setup() {
           special: service.manifest.specialTools.length,
         },
         descriptorCount: service.manifest.backingDescriptorCount,
+        importExportExposed: {
+          export: service.capabilities.some(
+            (descriptor) => descriptor.operationType === 'export'
+          ),
+          import: service.capabilities.some(
+            (descriptor) => descriptor.operationType === 'import'
+          ),
+        },
       };
 
       if (opts.json) {
@@ -139,6 +160,9 @@ export default function setup() {
         );
         printMessage(
           `  Backing descriptors: ${startupSummary.descriptorCount}`
+        );
+        printMessage(
+          `  Import/export exposed: export=${startupSummary.importExportExposed.export}, import=${startupSummary.importExportExposed.import}`
         );
         if (opts.transport === 'http') {
           printMessage(
@@ -187,4 +211,25 @@ function inferAuthModeFromState():
   }
 
   return 'state-config';
+}
+
+/**
+ * Maps user-facing policy choices to a compatible createMcpService input.
+ */
+function resolvePolicySelection(
+  policy: McpPolicyPreset
+): McpServicePolicySelection {
+  if (policy === 'agentic') {
+    return {
+      policyPreset: 'standard',
+      policyOverride: {
+        name: 'agentic',
+        denyOperationTypes: ['delete', 'import', 'export'],
+      },
+    };
+  }
+
+  return {
+    policyPreset: policy,
+  };
 }

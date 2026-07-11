@@ -65,8 +65,8 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     './test/e2e/env/Connections.json';
-const env = getEnv(c);
-const classicEnv = getEnv(cc);
+const env = getEnv(c, { preserveProfilePaths: true });
+const classicEnv = getEnv(cc, { preserveProfilePaths: true });
 
 describe('frodo conn describe', () => {
     testif(process.env['FRODO_MASTER_KEY'] || process.env['FRODO_MASTER_KEY_PATH'])(

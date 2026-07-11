@@ -527,7 +527,13 @@ export async function importResourceTypesFromFiles(): Promise<boolean> {
     debugMessage(`cli.ResourceTypeOps.importResourceTypesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
-      .filter((name) => name.toLowerCase().endsWith('.resourcetype.authz.json'))
+      .filter((name) => {
+        const normalizedName = name.toLowerCase();
+        return (
+          normalizedName.endsWith('.resourcetype.authz.json') ||
+          normalizedName.endsWith('.resourcetype.json')
+        );
+      })
       .map((name) => getFilePath(name));
     indicatorId = createProgressIndicator(
       'determinate',

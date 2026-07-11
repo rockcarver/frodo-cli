@@ -749,7 +749,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 
 exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Contrast/Contrast.json 1`] = `
 {
-  "_id": "cd6c93e2-52e2-4340-9770-66a588343841",
+  "_id": "bf4828bd-6e24-41ba-8773-0a4a349399d3",
   "accountFooter": {
     "file": "accountFooter.html",
   },
@@ -798,7 +798,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "backgroundImage": "",
   "bodyText": "#000000",
   "buttonRounded": "0",
-  "dangerColor": "#f7685b",
+  "dangerColor": "#dc3545",
   "favicon": "",
   "isDefault": false,
   "journeyFooter": {
@@ -842,7 +842,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 
 exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Highlander/Highlander.json 1`] = `
 {
-  "_id": "00203891-dde0-4114-b27a-219ae0b43a61",
+  "_id": "f2bdd040-2e46-4602-a0ab-24ed52103cdc",
   "accountFooter": {
     "file": "accountFooter.html",
   },
@@ -891,7 +891,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "backgroundImage": "",
   "bodyText": "#5E6D82",
   "buttonRounded": "50",
-  "dangerColor": "#f7685b",
+  "dangerColor": "#dc3545",
   "favicon": "",
   "isDefault": false,
   "journeyFooter": {
@@ -909,7 +909,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "linkActiveColor": "#C60819",
   "linkColor": "#EB0A1E",
   "linkedTrees": [],
-  "logo": "",
+  "logo": "https://cdn.forgerock.com/platform/themes/highlander/logo-highlander-icon.svg",
   "logoAltText": "",
   "logoEnabled": true,
   "logoHeight": "40",
@@ -935,7 +935,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 
 exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Robroy/Robroy.json 1`] = `
 {
-  "_id": "b82755e8-fe9a-4d27-b66b-45e37ae12345",
+  "_id": "62ac2a64-9db9-4f0a-a7e4-74f3d662bc42",
   "accountFooter": {
     "file": "accountFooter.html",
   },
@@ -984,7 +984,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "backgroundImage": "",
   "bodyText": "#5E6D82",
   "buttonRounded": "50",
-  "dangerColor": "#f7685b",
+  "dangerColor": "#dc3545",
   "favicon": "",
   "isDefault": false,
   "journeyFooter": {
@@ -1004,7 +1004,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "linkActiveColor": "#49871E",
   "linkColor": "#5AA625",
   "linkedTrees": [],
-  "logo": "",
+  "logo": "https://cdn.forgerock.com/platform/themes/robroy/logo-robroy-icon.svg",
   "logoAltText": "",
   "logoEnabled": true,
   "logoHeight": "40",
@@ -1030,7 +1030,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 
 exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Starter Theme/Starter Theme.json 1`] = `
 {
-  "_id": "86ce2f64-586d-44fe-8593-b12a85aac68d",
+  "_id": "b7d8de5a-f788-4ac8-b80a-3220a5f977ec",
   "accountFooter": {
     "file": "accountFooter.html",
   },
@@ -1079,7 +1079,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "backgroundImage": "",
   "bodyText": "#23282e",
   "buttonRounded": 5,
-  "dangerColor": "#f7685b",
+  "dangerColor": "#dc3545",
   "favicon": "",
   "isDefault": true,
   "journeyFooter": {
@@ -1122,7 +1122,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
 
 exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager pull test": should receive access tokens": themeTestDir/realms/bravo/themes/Zardoz/Zardoz.json 1`] = `
 {
-  "_id": "4ded6d91-ceea-400a-ae3f-42209f1b0e06",
+  "_id": "8dfd6c93-972a-4786-950d-79904f66af4b",
   "accountFooter": {
     "file": "accountFooter.html",
   },
@@ -1171,7 +1171,7 @@ exports[`frodo config-manager pull themes -D themeTestDir "frodo config-manager 
   "backgroundImage": "",
   "bodyText": "#5E6D82",
   "buttonRounded": "50",
-  "dangerColor": "#f7685b",
+  "dangerColor": "#dc3545",
   "favicon": "",
   "isDefault": false,
   "journeyFooter": {

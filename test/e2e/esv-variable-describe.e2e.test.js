@@ -76,13 +76,8 @@ describe('frodo esv variable describe', () => {
 
     test(`"frodo esv variable describe -ui esv-test-var-pi": should describe the esv variable "esv-test-var-pi" with usage`, async () => {
         const CMD = `frodo esv variable describe -ui esv-test-var-pi`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed")
-        } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
-        }
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test(`"frodo esv variable describe -ui esv-test-var-pi -f ${allConfigFile}": should describe the esv variable "esv-test-var-pi" with usage from file ${allConfigFile}`, async () => {

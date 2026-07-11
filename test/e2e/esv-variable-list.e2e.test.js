@@ -84,24 +84,14 @@ describe('frodo esv variable list', () => {
 
     test('"frodo esv variable list -u": should list the usage of the esv variables', async () => {
         const CMD = `frodo esv variable list -u`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed")
-        } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
-        }
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test('"frodo esv variable list -lu": should list the ids, values, statuses, descriptions, modifiers, usage, and modified times of the esv variables', async () => {
         const CMD = `frodo esv variable list -lu`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed")
-        } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
-        }
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test(`"frodo esv variable list -uf ${allConfigFile}": should list the usage of the esv variables in the ${allConfigFile} file`, async () => {

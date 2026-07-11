@@ -23,8 +23,9 @@ Options:
   -a, --all                    Import all resource types from single file.
                                Ignored with -i.
   -A, --all-separate           Import all resource types from separate files
-                               (*.resourcetype.authz.json) in the current
-                               directory. Ignored with -i, -n, or -a.
+                               (*.resourcetype.authz.json or
+                               *.resourcetype.json) in the current directory.
+                               Ignored with -i, -n, or -a.
   -f, --file <file>            Name of the file to import.
   -i, --type-id <type-uuid>    Resource type uuid. If specified, -a and -A are
                                ignored.

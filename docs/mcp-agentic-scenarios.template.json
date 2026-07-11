@@ -1,0 +1,65 @@
+{
+  "description": "Template scenario catalog for MCP agentic invocation benchmarking.",
+  "scenarios": [
+    {
+      "id": "S01-read-list-count",
+      "category": "read-only",
+      "prompt": "List available journeys and count total in realm root.",
+      "notes": "Should avoid mutation and avoid import/export."
+    },
+    {
+      "id": "S02-search-read",
+      "category": "read-only",
+      "prompt": "Find a journey by name and read its details.",
+      "notes": "Common two-tool flow."
+    },
+    {
+      "id": "S03-read-update",
+      "category": "crud",
+      "prompt": "Read a specific object and update one non-destructive field.",
+      "notes": "Validates update argument contracts."
+    },
+    {
+      "id": "S04-scope-required",
+      "category": "contract",
+      "prompt": "Execute a domain/object operation that requires explicit scope selection.",
+      "notes": "Tracks scope ambiguity failures."
+    },
+    {
+      "id": "S05-paging",
+      "category": "contract",
+      "prompt": "List paginated results using page hints and read a selected entry.",
+      "notes": "Tracks paging parameter mismatches."
+    },
+    {
+      "id": "S06-realm-override",
+      "category": "contract",
+      "prompt": "Read object data from a non-default realm using realm override.",
+      "notes": "Tracks realm wiring issues."
+    },
+    {
+      "id": "S07-export-optional",
+      "category": "migration-adjacent",
+      "prompt": "Gather configuration details needed for migration planning without exporting bundles.",
+      "notes": "Measures whether export is unnecessarily selected."
+    },
+    {
+      "id": "S08-named-args",
+      "category": "contract",
+      "prompt": "Invoke a tool known to require named arguments and retrieve the object.",
+      "notes": "Tracks positional-vs-named errors."
+    },
+    {
+      "id": "S09-discover-then-act",
+      "category": "discovery",
+      "prompt": "Use discovery first to identify a valid operation, then execute it once.",
+      "notes": "Checks discoverability efficiency."
+    },
+    {
+      "id": "S10-invalid-then-correct",
+      "category": "error-recovery",
+      "prompt": "Attempt one intentionally invalid call and then complete the task correctly.",
+      "notes": "Used to classify and score error clarity."
+    }
+  ]
+}

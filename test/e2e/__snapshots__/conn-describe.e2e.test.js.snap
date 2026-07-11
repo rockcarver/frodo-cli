@@ -19,7 +19,6 @@ Service Account Name │Frodo-SA-1758728043147
 Service Account Id   │912dcd07-421b-4ba9-b019-edbfe66a89be       
 Service Account JWK  │[present]                                  
 Service Account Scope│fr:am:*                                    
-                     │fr:autoaccess:*                            
                      │fr:idc:analytics:*                         
                      │fr:idc:certificate:*                       
                      │fr:idc:content-security-policy:*           

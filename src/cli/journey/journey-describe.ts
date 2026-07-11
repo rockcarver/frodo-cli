@@ -8,8 +8,12 @@ import { printError, printMessage, verboseMessage } from '../../utils/Console';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { saveTextToFile } = frodo.utils;
-const { createFileParamTreeExportResolver, readJourneys, exportJourney } =
-  frodo.authn.journey;
+const {
+  createFileParamTreeExportResolver,
+  readJourneys,
+  exportJourney,
+  onlineTreeExportResolver,
+} = frodo.authn.journey;
 
 export default function setup() {
   const program = new FrodoCommand('frodo journey describe');
@@ -141,29 +145,52 @@ export default function setup() {
           verboseMessage(
             `Describing journey(s) in realm "${state.getRealm()}"...`
           );
-          // override version
-          if (typeof options.overrideVersion !== 'undefined') {
-            state.setAmVersion(options.overrideVersion);
-          }
           if (typeof options.journeyId === 'undefined') {
             let journeys = [];
             journeys = await readJourneys();
             for (const journey of journeys) {
               try {
                 // eslint-disable-next-line no-await-in-loop, dot-notation
+                // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
                 const treeData = await exportJourney(journey['_id']);
-                // ANSI text output
-                if (!options.markdown) {
-                  const outcome = await describeJourney(treeData);
-                  if (!outcome) process.exitCode = 1;
-                }
-                // Markdown output
-                else {
-                  // reset output file
-                  if (options.outputFile)
-                    saveTextToFile('', options.outputFile);
-                  const outcome = await describeJourneyMd(treeData);
-                  if (!outcome) process.exitCode = 1;
+                const originalAmVersion = state.getAmVersion();
+                const runtimeResolver = async (treeId) => {
+                  // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
+                  const resolverVersion = state.getAmVersion();
+                  state.setAmVersion(originalAmVersion);
+                  try {
+                    return await onlineTreeExportResolver(treeId, state);
+                  } finally {
+                    state.setAmVersion(resolverVersion);
+                  }
+                };
+                try {
+                  // Override is for compatibility rendering only, not for live fetch/export transport behavior.
+                  if (typeof options.overrideVersion !== 'undefined') {
+                    state.setAmVersion(options.overrideVersion);
+                  }
+                  // ANSI text output
+                  if (!options.markdown) {
+                    const outcome = await describeJourney(
+                      treeData,
+                      runtimeResolver
+                    );
+                    if (!outcome) process.exitCode = 1;
+                  }
+                  // Markdown output
+                  else {
+                    // reset output file
+                    if (options.outputFile)
+                      saveTextToFile('', options.outputFile);
+                    const outcome = await describeJourneyMd(
+                      treeData,
+                      runtimeResolver
+                    );
+                    if (!outcome) process.exitCode = 1;
+                  }
+                } finally {
+                  // Always restore the original runtime version for subsequent operations.
+                  state.setAmVersion(originalAmVersion);
                 }
               } catch (error) {
                 printError(error);
@@ -172,18 +199,46 @@ export default function setup() {
             }
           } else {
             try {
+              // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
               const treeData = await exportJourney(options.journeyId);
-              // ANSI text output
-              if (!options.markdown) {
-                const outcome = await describeJourney(treeData);
-                if (!outcome) process.exitCode = 1;
-              }
-              // Markdown output
-              else {
-                // reset output file
-                if (options.outputFile) saveTextToFile('', options.outputFile);
-                const outcome = await describeJourneyMd(treeData);
-                if (!outcome) process.exitCode = 1;
+              const originalAmVersion = state.getAmVersion();
+              const runtimeResolver = async (treeId) => {
+                // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
+                const resolverVersion = state.getAmVersion();
+                state.setAmVersion(originalAmVersion);
+                try {
+                  return await onlineTreeExportResolver(treeId, state);
+                } finally {
+                  state.setAmVersion(resolverVersion);
+                }
+              };
+              try {
+                // Override is for compatibility rendering only, not for live fetch/export transport behavior.
+                if (typeof options.overrideVersion !== 'undefined') {
+                  state.setAmVersion(options.overrideVersion);
+                }
+                // ANSI text output
+                if (!options.markdown) {
+                  const outcome = await describeJourney(
+                    treeData,
+                    runtimeResolver
+                  );
+                  if (!outcome) process.exitCode = 1;
+                }
+                // Markdown output
+                else {
+                  // reset output file
+                  if (options.outputFile)
+                    saveTextToFile('', options.outputFile);
+                  const outcome = await describeJourneyMd(
+                    treeData,
+                    runtimeResolver
+                  );
+                  if (!outcome) process.exitCode = 1;
+                }
+              } finally {
+                // Always restore the original runtime version for subsequent operations.
+                state.setAmVersion(originalAmVersion);
               }
             } catch (error) {
               printError(error);

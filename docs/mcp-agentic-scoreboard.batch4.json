@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-04-28T03:00:56.217Z",
+  "runCount": 12,
+  "variants": {
+    "agentic": {
+      "runCount": 4,
+      "completedCount": 4,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 2.5,
+      "firstAttemptSuccessRate": 100,
+      "duplicateRetryRate": 0,
+      "intentionalFollowUpRate": 0,
+      "temptationFailureRate": null,
+      "totalAttempts": 10,
+      "duplicateRetryCount": 0,
+      "intentionalFollowUpCount": 0,
+      "temptationAttemptCount": 0,
+      "temptationFailureCount": 0
+    },
+    "standard": {
+      "runCount": 4,
+      "completedCount": 4,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 2.75,
+      "firstAttemptSuccessRate": 75,
+      "duplicateRetryRate": 0,
+      "intentionalFollowUpRate": 0,
+      "temptationFailureRate": 100,
+      "totalAttempts": 11,
+      "duplicateRetryCount": 0,
+      "intentionalFollowUpCount": 0,
+      "temptationAttemptCount": 1,
+      "temptationFailureCount": 1
+    },
+    "admin": {
+      "runCount": 4,
+      "completedCount": 4,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 3,
+      "firstAttemptSuccessRate": 50,
+      "duplicateRetryRate": 0,
+      "intentionalFollowUpRate": 0,
+      "temptationFailureRate": 100,
+      "totalAttempts": 12,
+      "duplicateRetryCount": 0,
+      "intentionalFollowUpCount": 0,
+      "temptationAttemptCount": 2,
+      "temptationFailureCount": 2
+    }
+  }
+}

@@ -661,11 +661,18 @@ export async function importPoliciesFromFiles(
 ): Promise<boolean> {
   const errors = [];
   let indicatorId: string;
+  let failedFiles = 0;
   try {
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: begin`);
     const names = fs.readdirSync(getWorkingDirectory());
     const files = names
-      .filter((name) => name.toLowerCase().endsWith('.policy.authz.json'))
+      .filter((name) => {
+        const normalizedName = name.toLowerCase();
+        return (
+          normalizedName.endsWith('.policy.authz.json') ||
+          normalizedName.endsWith('.policy.json')
+        );
+      })
       .map((name) => getFilePath(name));
     indicatorId = createProgressIndicator(
       'determinate',
@@ -677,7 +684,7 @@ export async function importPoliciesFromFiles(
       try {
         const data = fs.readFileSync(file, 'utf8');
         const fileData: PolicyExportInterface = JSON.parse(data);
-        const count = Object.keys(fileData.policyset).length;
+        const count = Object.keys(fileData.policy ?? {}).length;
         total += count;
         await importPolicies(fileData, options);
         updateProgressIndicator(
@@ -686,19 +693,28 @@ export async function importPoliciesFromFiles(
         );
       } catch (error) {
         errors.push(error);
+        failedFiles += 1;
+        updateProgressIndicator(
+          indicatorId,
+          `Error importing policies from ${file}`
+        );
       }
     }
     if (errors.length > 0) {
-      throw new FrodoError(`Error importing policies`, errors);
+      throw new FrodoError(
+        `Failed after processing ${total} policies from ${files.length} files; ${failedFiles} files had errors.`,
+        errors
+      );
     }
     stopProgressIndicator(
       indicatorId,
-      `Finished importing ${total} policies from ${files.length} files.`
+      `Finished importing ${total} policies from ${files.length} files.`,
+      'success'
     );
     debugMessage(`cli.PolicyOps.importPoliciesFromFiles: end`);
     return true;
   } catch (error) {
-    stopProgressIndicator(indicatorId, `Error importing policies`);
+    stopProgressIndicator(indicatorId, `Error importing policies`, 'fail');
     printError(error);
   }
   return false;

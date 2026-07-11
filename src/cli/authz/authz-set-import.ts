@@ -31,7 +31,7 @@ export default function setup() {
     .addOption(
       new Option(
         '-A, --all-separate',
-        'Import all policy sets from separate files (*.policyset.authz.json) in the current directory. Ignored with -i or -a.'
+        'Import all policy sets from separate files (*.policyset.authz.json or *.policyset.json) in the current directory. Ignored with -i or -a.'
       )
     )
     .addOption(

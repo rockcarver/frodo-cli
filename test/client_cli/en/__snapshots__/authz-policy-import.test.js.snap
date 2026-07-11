@@ -23,8 +23,8 @@ Options:
   -a, --all                    Import all policies from single file. Ignored
                                with -i.
   -A, --all-separate           Import all policies from separate files
-                               (*.policy.authz.json) in the current directory.
-                               Ignored with -i or -a.
+                               (*.policy.authz.json or *.policy.json) in the
+                               current directory. Ignored with -i or -a.
   -f, --file <file>            Name of the file to import.
   -i, --policy-id <policy-id>  Policy id. If specified, only one policy is
                                imported and the options -a and -A are ignored.

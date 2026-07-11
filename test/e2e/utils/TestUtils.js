@@ -21,6 +21,106 @@ export function removeAnsiEscapeCodes(text) {
 }
 
 /**
+ * Returns true when tests run in recording mode.
+ * @returns {boolean}
+ */
+export function isRecordingMode() {
+  return process.env['FRODO_MOCK'] === 'record';
+}
+
+/**
+ * Print prefixed progress output in recording mode.
+ * @param {string} message Log message
+ * @param {boolean} [enabled=isRecordingMode()] Whether logging is enabled
+ */
+export function logRecordingProgress(message, enabled = isRecordingMode()) {
+  if (enabled) {
+    console.log(`[recording] ${message}`);
+  }
+}
+
+/**
+ * Execute a command and emit timing/progress logs in recording mode.
+ * @param {string} command Command to execute
+ * @param {{env: Record<string, string>}} options exec() options
+ * @param {boolean} [enabled=isRecordingMode()] Whether progress logging is enabled
+ * @returns {Promise<{stdout: string, stderr: string}>}
+ */
+export async function execWithRecordingProgress(
+  command,
+  options,
+  enabled = isRecordingMode()
+) {
+  const startedAt = Date.now();
+  logRecordingProgress(`START: ${command}`, enabled);
+  try {
+    const result = await exec(command, options);
+    logRecordingProgress(
+      `SUCCESS (${Date.now() - startedAt}ms): ${command}`,
+      enabled
+    );
+    return result;
+  } catch (error) {
+    logRecordingProgress(
+      `FAIL (${Date.now() - startedAt}ms): ${command}`,
+      enabled
+    );
+    throw error;
+  }
+}
+
+/**
+ * Guard against accidentally snapshotting Polly replay/auth errors.
+ * Returns de-ANSI-fied output text when no replay markers are present.
+ * @param {string} output Command stdout/stderr
+ * @param {string} command Command being validated
+ * @param {string[]} [extraMarkers=[]] Additional marker substrings to detect
+ * @returns {string}
+ */
+export function assertNoPollyReplayError(
+  output,
+  command,
+  extraMarkers = []
+) {
+  const text = removePollyRecordingNoise(removeAnsiEscapeCodes(output || ''));
+  const markers = [
+    '[Polly] [adapter:node-http] Recording for the following request is not found',
+    'PollyError',
+    'Error getting tokens',
+    ...extraMarkers,
+  ];
+  const hasPollyReplayError = markers.some((marker) => text.includes(marker));
+  if (hasPollyReplayError) {
+    throw new Error(
+      `Unexpected Polly replay error while running "${command}".\n` +
+      'The test attempted to snapshot an error payload instead of command output.\n\n' +
+      text
+    );
+  }
+  return text;
+}
+
+/**
+ * Remove verbose Polly record-mode diagnostics that are not command errors.
+ * @param {string} text
+ * @returns {string}
+ */
+export function removePollyRecordingNoise(text) {
+  if (!text) return text;
+  const lines = text.split('\n');
+  const filtered = lines.filter((line) => {
+    if (line.startsWith('[Polly] Recording may fail because the browser is offline.')) {
+      return false;
+    }
+    if (line.startsWith('{"url":"') && line.includes('"recordingName":')) {
+      return false;
+    }
+    return true;
+  });
+  return filtered.join('\n').trim();
+}
+
+/**
  * Method that runs an export command and tests that it was executed correctly.
  * @param {string} command The export command to run
  * @param {{env: Record<string, string>}} env The environment variables
@@ -224,25 +324,70 @@ async function getAllFiles(dir, base) {
 
 /**
  * Returns env for testing given connection info
+ * 
+ * When recording (FRODO_MOCK=record), you must also set FRODO_HOST:
+ * FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am npm run test:update e2e/test-name
+ * 
  * @param connection The connection info
+ * @param {{ preserveProfilePaths?: boolean }} options Env assembly options
  * @returns {{env: {[p: string]: string | undefined, FRODO_SA_JWK: (string|(JwkInterface & {d: string, dp: string, dq: string, e: string, n: string, p: string, q: string, qi: string})|JwkRsa|*), TZ?: string, FRODO_HOST, FRODO_SA_ID: (string|string|*)}}} The env object
  */
-export function getEnv(connection = undefined) {
+export function getEnv(connection = undefined, options = {}) {
+  const { preserveProfilePaths = false } = options;
+  const isRecording = process.env['FRODO_MOCK'] === 'record';
+  const requestedProfile =
+    process.env['FRODO_CONNECTION'] || (isRecording ? (connection?.profile || connection?.host) : connection?.profile);
+
+  // Mock/replay mode must always use explicit test credentials, not local live profiles.
+  const {
+    FRODO_CONNECTION: _ignoredFrodoConnection,
+    FRODO_CONNECTION_PROFILES_PATH: _ignoredProfilesPath,
+    FRODO_MASTER_KEY_PATH: _ignoredMasterKeyPath,
+    ...baseEnv
+  } = process.env;
+
+  const pathOverrides = preserveProfilePaths
+    ? {
+      ...(process.env.FRODO_CONNECTION_PROFILES_PATH && {
+        FRODO_CONNECTION_PROFILES_PATH: process.env.FRODO_CONNECTION_PROFILES_PATH,
+      }),
+      ...(process.env.FRODO_MASTER_KEY_PATH && {
+        FRODO_MASTER_KEY_PATH: process.env.FRODO_MASTER_KEY_PATH,
+      }),
+    }
+    : {};
+
   return {
     env: {
-      ...process.env,
+      ...baseEnv,
+      ...pathOverrides,
+      ...(isRecording && requestedProfile && {
+        FRODO_CONNECTION: requestedProfile,
+      }),
       // only add property if we have it
       ...(connection?.host && { FRODO_HOST: connection.host }),
-      ...(connection?.saId && { FRODO_SA_ID: connection.saId }),
-      ...(connection?.saJwk && { FRODO_SA_JWK: connection.saJwk }),
-      ...(connection?.user && { FRODO_USERNAME: connection.user }),
-      ...(connection?.pass && { FRODO_PASSWORD: connection.pass }),
-      ...(connection?.pk && { FRODO_AMSTER_PRIVATE_KEY: connection.pk }),
       ...(connection?.authService && { FRODO_AUTHENTICATION_SERVICE: connection.authService }),
       ...(connection?.isIGA && { FRODO_IGA: connection.isIGA }),
       ...(connection?.isPingFed && { FRODO_PINGFED: connection.isPingFed }),
+      ...(!isRecording && connection?.saId && { FRODO_SA_ID: connection.saId }),
+      ...(!isRecording && connection?.saJwk && { FRODO_SA_JWK: connection.saJwk }),
+      ...(!isRecording && connection?.user && { FRODO_USERNAME: connection.user }),
+      ...(!isRecording && connection?.pass && { FRODO_PASSWORD: connection.pass }),
+      ...(!isRecording && connection?.pk && { FRODO_AMSTER_PRIVATE_KEY: connection.pk }),
     },
   };
+}
+
+/**
+ * Backward-compatible wrapper around getEnv().
+ * Prefer getEnv() directly for all test suites.
+ */
+export function getRecordingEnv(profileName = 'default', mockConnection = undefined) {
+  // Backward-compatible wrapper: prefer using getEnv() directly.
+  return getEnv({
+    ...(mockConnection || {}),
+    profile: profileName,
+  });
 }
 
 /**
@@ -280,5 +425,108 @@ export async function testFail(
   }
   if (commandSucceeded) {
     throw new Error("Command should've failed")
+  }
+}
+
+/**
+ * Stage fixture data by executing a staging command (e.g., import fixture data).
+ * Used in beforeEach to set up deterministic test state.
+ * @param {string} command The staging command to run (e.g., 'frodo agent import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.agent.json')
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @param {Object} options Optional configuration
+ * @param {number} options.timeout Optional timeout in milliseconds for the staging command
+ * @returns {Promise<void>}
+ */
+export async function stageFixture(command, env, options = {}) {
+  await exec(command, env);
+}
+
+/**
+ * Clear fixture data by executing a teardown command (e.g., delete fixture data).
+ * Used in afterEach to clean up test state. Idempotent—ignores errors on cleanup.
+ * @param {string} command The cleanup command to run (e.g., 'frodo agent delete -i frodo-test-ig-agent')
+ * @param {{env: Record<string, string>}} env The environment variables
+ * @param {Object} options Optional configuration
+ * @param {number} options.timeout Optional timeout in milliseconds for the cleanup command
+ * @returns {Promise<void>}
+ */
+export async function clearFixture(command, env, options = {}) {
+  try {
+    await exec(command, env);
+  } catch (error) {
+    // ignore cleanup failures so teardown stays idempotent across reruns
+  }
+}
+
+/**
+ * Verify that authentication works in recording mode.
+ * Makes a safe read-only API call to detect token acquisition failures early.
+ * Throws a descriptive error if auth fails, preventing corrupt recordings.
+ * 
+ * Call this in beforeAll during recording mode to fail fast:
+ * ```javascript
+ * beforeAll(async () => {
+ *   if (process.env['FRODO_MOCK'] === 'record') {
+ *     await verifyAuth(env);
+ *     await stageFixture(importCommand, env);
+ *   }
+ * });
+ * ```
+ * 
+ * @param {{env: Record<string, string>}} envWrapper The env wrapper from getEnv()
+ * @returns {Promise<void>} Resolves if auth succeeds; throws with descriptive message on failure
+ * @throws {Error} If in recording mode and authentication fails
+ */
+export async function verifyAuth(envWrapper) {
+  const isRecording = process.env['FRODO_MOCK'] === 'record';
+  if (!isRecording) {
+    // Skip verification in replay mode—HAR responses are deterministic
+    return;
+  }
+
+  try {
+    // Make a simple read-only API call to verify bearer token is valid
+    // frodo info requires authentication and is a safe read-only operation
+    const testCmd = 'frodo info';
+    await exec(testCmd, envWrapper);
+  } catch (error) {
+    const profileFromEnv = envWrapper.env.FRODO_CONNECTION || 'frodo-dev';
+    const masterKeyPath = envWrapper.env.FRODO_MASTER_KEY_PATH;
+    const profilesPath = envWrapper.env.FRODO_CONNECTION_PROFILES_PATH;
+
+    const errorDetails = [
+      '❌ Token acquisition failed during recording mode setup.',
+      `Requested profile: "${profileFromEnv}"`,
+      '',
+      'Actual Error:',
+      `  Command: frodo info`,
+      `  Exit code: ${error.code}`,
+      '',
+      'Error output:',
+      error.stderr ? error.stderr.trim() : '(no stderr)',
+      '',
+      error.stdout ? `Stdout:\n${error.stdout.trim()}\n` : '',
+      'Possible causes:',
+      '  • Connection profile not found or incorrect credentials',
+      '  • Master key file missing or wrong path',
+      '  • JWT issuer not trusted by test environment',
+      '  • Network/connectivity issue',
+      '',
+      'Debug steps:',
+      '  1. Ensure FRODO_HOST is set when recording:',
+      '     FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am',
+      `  2. Verify profile exists: frodo conn list`,
+      `  3. Test profile directly: FRODO_CONNECTION=${profileFromEnv} frodo info`,
+      '  4. Check master key file exists:',
+      `     ls -la "${masterKeyPath || '~/.frodo/masterkey.key'}"`,
+      '  5. Check profiles file exists:',
+      `     ls -la "${profilesPath || '~/.frodo/connections.json'}"`,
+
+      '',
+      'Recording cannot proceed with failed authentication.',
+      'This prevents corrupt test responses from being saved to HAR files.',
+    ].join('\n');
+
+    throw new Error(errorDetails);
   }
 }
