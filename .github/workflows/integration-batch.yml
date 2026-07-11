@@ -43,10 +43,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          prs_json="$(gh pr list --state open --label integration-batch --json number,isDraft,title,labels --jq '
+          prs_json="$(gh pr list --state open --json number,isDraft,title,labels --jq '
             map(
               select(.isDraft == false)
-              | select((.labels | map(.name) | index("integrated")) | not)
+              | .label_names = (.labels | map(.name))
+              | select((.label_names | index("integration-batch")) != null or (.label_names | index("integrated")) != null)
             )
             | sort_by(.number)
           ')"
@@ -59,15 +60,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
+          git fetch origin main
           prs_json='${{ steps.candidates.outputs.prs_json }}'
 
           selected='[]'
           skipped='[]'
+          stale_integrated_requeued='[]'
 
           for pr in $(echo "$prs_json" | jq -r '.[].number'); do
             head_sha="$(gh pr view "$pr" --repo "$REPO" --json headRefOid --jq .headRefOid)"
             checks_json="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$head_sha/check-runs")"
             title="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | .title")"
+            has_integrated_label="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | ((.labels | map(.name) | index(\"integrated\")) != null)")"
+            has_batch_label="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | ((.labels | map(.name) | index(\"integration-batch\")) != null)")"
+
+            if [ "$has_integrated_label" = "true" ] && [ "$has_batch_label" = "false" ]; then
+              if git merge-base --is-ancestor "$head_sha" origin/main; then
+                skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"already in main"}]')"
+                continue
+              fi
+
+              selected="$(echo "$selected" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+              stale_integrated_requeued="$(echo "$stale_integrated_requeued" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+              continue
+            fi
 
             total_count="$(echo "$checks_json" | jq -r '.total_count')"
             pending_count="$(echo "$checks_json" | jq '[.check_runs // [] | .[] | select(.status != "completed")] | length')"
@@ -86,6 +102,7 @@ jobs:
 
           echo "selected=$(echo "$selected" | jq -c .)" >> "$GITHUB_OUTPUT"
           echo "skipped=$(echo "$skipped" | jq -c .)" >> "$GITHUB_OUTPUT"
+          echo "stale_integrated_requeued=$(echo "$stale_integrated_requeued" | jq -c .)" >> "$GITHUB_OUTPUT"
 
       - name: Reset integration branch to main
         run: |
@@ -300,6 +317,10 @@ jobs:
 
           echo "**Merged into integration:**" >> "$GITHUB_STEP_SUMMARY"
           echo '${{ steps.merge.outputs.merged }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "**Stale integrated PRs re-queued:**" >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ steps.selected.outputs.stale_integrated_requeued }}' | jq -r '.[] | "- #\(.number): \(.title)"' >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           echo "**Skipped (checks):**" >> "$GITHUB_STEP_SUMMARY"

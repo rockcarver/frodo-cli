@@ -1,0 +1,63 @@
+name: Close Integrated Source PRs
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  close-integrated-prs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Close source PRs after integration PR merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          prs_json="$(gh api -H "Accept: application/vnd.github+json" "/repos/$REPO/commits/$SHA/pulls")"
+          pr_count="$(echo "$prs_json" | jq 'length')"
+
+          if [ "$pr_count" -ne 1 ]; then
+            echo "Not a single-PR main push (count=$pr_count); nothing to close."
+            exit 0
+          fi
+
+          pr_number="$(echo "$prs_json" | jq -r '.[0].number')"
+          pr_title="$(echo "$prs_json" | jq -r '.[0].title')"
+
+          if [ "$pr_title" != "integration" ]; then
+            echo "Main push is from PR #$pr_number with title '$pr_title'; not integration."
+            exit 0
+          fi
+
+          body="$(echo "$prs_json" | jq -r '.[0].body // ""')"
+
+          included_numbers="$(
+            printf '%s\n' "$body" |
+              awk '
+                /^## Included/ { in_section=1; next }
+                /^## / { if (in_section) exit }
+                { if (in_section) print }
+              ' |
+              sed -n 's/^- #\([0-9][0-9]*\):.*/\1/p'
+          )"
+
+          if [ -z "$included_numbers" ]; then
+            echo "Integration PR body has no included source PR list."
+            exit 0
+          fi
+
+          for source_pr in $included_numbers; do
+            state="$(gh pr view "$source_pr" --repo "$REPO" --json state --jq .state 2>/dev/null || echo UNKNOWN)"
+            if [ "$state" = "OPEN" ]; then
+              gh pr close "$source_pr" --repo "$REPO" --comment "Closed automatically: changes were delivered via integration PR #$pr_number and are now on main at commit $SHA."
+            else
+              echo "PR #$source_pr already in state $state"
+            fi
+          done
