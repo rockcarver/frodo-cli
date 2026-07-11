@@ -9,14 +9,17 @@ The [`integration-batch` workflow](../.github/workflows/integration-batch.yml) a
 - `integration-failed`: automation attempted integration but hit a merge conflict.
 - `integration-needs-snapshot-review`: applied to the generated `integration -> main` PR when snapshot auto-recovery updates snapshot files.
 
+### Label recovery behavior
+
+If a PR is labeled `integrated` but its head commit is not reachable from `main` (for example after a failed or superseded integration cycle), automation will re-queue it in the next integration run even if `integration-batch` is not present.
+
 ## Selection rules
 
 The workflow selects PRs that are:
 
 - open
 - non-draft
-- labeled `integration-batch`
-- not labeled `integrated`
+- labeled `integration-batch`, or labeled `integrated` but not yet present in `main`
 - with check runs present for the PR head SHA
 - with all check runs in `completed` status
 - with all completed check runs concluded as `success`, `skipped`, or `neutral`
@@ -45,6 +48,8 @@ Union allowlist generation runs on every workflow execution:
   - `.github/integration/union-blocklist.txt`
 
 After merges, the workflow updates `@rockcarver/frodo-lib` to `@next`, commits lockfile changes when needed, pushes `integration`, runs the full test suite on `integration`, and then creates or updates an `integration -> main` PR titled `integration`.
+
+When that `integration -> main` PR is merged, source PRs listed under `## Included` are automatically closed by the `close-integrated-prs` workflow.
 
 Because `integration` is pushed before the full test suite runs, the branch can be temporarily red until the test stage finishes.
 
