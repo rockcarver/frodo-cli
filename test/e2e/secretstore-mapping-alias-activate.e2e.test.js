@@ -66,7 +66,8 @@ const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
 describe('frodo secretstore mapping alias activate', () => {
-    test('"frodo secretstore mapping alias activate -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a esv-test-client-cert": Should activate the alias esv-test-client-cert', async () => {
+    // TODO: Need to re-create the necessary config in frodo-dev so we can record the mock responses for this test.
+    test.skip('"frodo secretstore mapping alias activate -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a esv-test-client-cert": Should activate the alias esv-test-client-cert', async () => {
         const CMD = `frodo secretstore mapping alias activate -i ESV -s am.services.httpclient.mtls.clientcert.testClientCert.secret -a esv-test-client-cert`;
         await testSuccess(CMD, env);
     });

@@ -1,7 +1,9 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
+import { describeAgent, describeAgents } from '../../ops/AgentOps.js';
 import { getTokens } from '../../ops/AuthenticateOps';
+import { printMessage } from '../../utils/Console.js';
 import { FrodoCommand } from '../FrodoCommand';
 
 const { CLASSIC_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
@@ -14,6 +16,7 @@ export default function setup() {
     .description('Describe agents.')
     .addOption(new Option('-i, --agent-id <agent-id>', 'Agent id.'))
     .addOption(new Option('-g, --global', 'Describe global agent.'))
+    .addOption(new Option('--json', 'Output in JSON format.'))
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -32,7 +35,23 @@ export default function setup() {
             options.global ? globalDeploymentTypes : undefined
           )
         ) {
-          // code goes here
+          // describe single agent
+          if (options.agentId) {
+            const description = await describeAgent(
+              options.agentId,
+              options.global,
+              options.json
+            );
+            printMessage(description, 'data');
+          }
+          // describe all agents
+          else {
+            const description = await describeAgents(
+              options.global,
+              options.json
+            );
+            printMessage(description, 'data');
+          }
         } else {
           process.exitCode = 1;
         }

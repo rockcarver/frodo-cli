@@ -1,0 +1,1193 @@
+{
+  "agent": {
+    "FrodoOpsTestAIAgent2": {
+      "_aiAgentIdentity": {
+        "_id": "a558e950-3a86-4cb6-a3d3-bbbbbbbbbbbb",
+        "_privileges": [],
+        "customAttributes": null,
+        "description": "Test AI agent 2 for Frodo unit tests.",
+        "name": "Frodo Test AI Agent 2",
+        "oauth2ClientId": "FrodoOpsTestAIAgent2",
+        "owners": [],
+        "privileges": []
+      },
+      "_id": "FrodoOpsTestAIAgent2",
+      "_type": {
+        "_id": "AIAgent",
+        "collection": true,
+        "name": "AI Agents"
+      },
+      "advancedOAuth2ClientConfig": {
+        "acceptedJwtIssuers": [],
+        "allowedResourceServerAudienceValues": [],
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "introspectionPolicySets": [],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "treeName": "[Empty]",
+        "updateAccessToken": null
+      },
+      "aiAgentIdentityAttributes": {
+        "_id": "a558e950-3a86-4cb6-a3d3-bbbbbbbbbbbb",
+        "customAttributes": null,
+        "description": "Test AI agent 2 for Frodo unit tests.",
+        "name": "Frodo Test AI Agent 2",
+        "oauth2ClientId": "FrodoOpsTestAIAgent2"
+      },
+      "aiAgentIdentityUid": "a558e950-3a86-4cb6-a3d3-bbbbbbbbbbbb",
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "agentgroup": null,
+        "authorizationCodeLifetime": 0,
+        "clientName": [],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "secretLabelIdentifier": null,
+        "status": "Active"
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "overrideOAuth2ClientConfig": {
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "accessTokenMayActScript": "[Empty]",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "accessTokenModificationScript": "[Empty]",
+        "accessTokenModifierClass": null,
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "customLoginUrlTemplate": null,
+        "enableApplicationContext": false,
+        "enableRemoteConsent": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "evaluateScopePluginType": "PROVIDER",
+        "evaluateScopeScript": "[Empty]",
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsClass": null,
+        "oidcClaimsPluginType": "PROVIDER",
+        "oidcClaimsScript": "[Empty]",
+        "oidcMayActScript": "[Empty]",
+        "overrideableOIDCClaims": [],
+        "providerOverridesEnabled": false,
+        "remoteConsentServiceId": null,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "useForceAuthnForMaxAge": false,
+        "usePolicyEngineForScope": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "validateScopePluginType": "PROVIDER",
+        "validateScopeScript": "[Empty]"
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    },
+    "banking-assistant": {
+      "_aiAgentIdentity": {
+        "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+        "_privileges": [
+          {
+            "_id": "90f77862-4761-4549-a284-5e6aead8cc2e",
+            "agent": {
+              "_ref": "managed/alpha_aiagent/ec85268c-729a-47a2-887e-6d2884a0fdb1",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005"
+              },
+              "_refResourceCollection": "managed/alpha_aiagent",
+              "_refResourceId": "ec85268c-729a-47a2-887e-6d2884a0fdb1"
+            },
+            "agentID": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+            "agentOAuth2ClientId": "banking-assistant",
+            "description": null,
+            "permissions": [
+              {
+                "type": "scopes",
+                "values": [
+                  "banking:accounts:read",
+                  "banking:transactions:read",
+                  "banking:transactions:write"
+                ]
+              }
+            ],
+            "resource": {
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897008"
+              },
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3"
+            },
+            "resourceData": {
+              "_id": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "ssoEntities": {
+                "idpLoginUrl": "http://localhost:8080/auth/callback",
+                "oidcId": "id4ai-mcp-server-client"
+              }
+            },
+            "subjectGroups": [
+              {
+                "_ref": "managed/alpha_group/Customers",
+                "_refProperties": {
+                  "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897207"
+                },
+                "_refResourceCollection": "managed/alpha_group",
+                "_refResourceId": "Customers"
+              }
+            ],
+            "subjectIDs": [
+              "75459be5-b64a-4090-9e77-433f975519f0"
+            ],
+            "subjects": [
+              {
+                "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0",
+                "_refProperties": {
+                  "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897012"
+                },
+                "_refResourceCollection": "managed/alpha_user",
+                "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0"
+              }
+            ]
+          }
+        ],
+        "customAttributes": {
+          "atmAccess": "false"
+        },
+        "description": "A digital banking assistant.",
+        "name": "Banking Assistant",
+        "oauth2ClientId": "banking-assistant",
+        "owners": [
+          {
+            "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-3743890"
+            },
+            "_refResourceCollection": "managed/alpha_user",
+            "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0"
+          }
+        ],
+        "privileges": [
+          {
+            "_ref": "managed/alpha_aiagentprivilege/90f77862-4761-4549-a284-5e6aead8cc2e",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005"
+            },
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "90f77862-4761-4549-a284-5e6aead8cc2e"
+          }
+        ]
+      },
+      "_id": "banking-assistant",
+      "_type": {
+        "_id": "AIAgent",
+        "collection": true,
+        "name": "AI Agents"
+      },
+      "advancedOAuth2ClientConfig": {
+        "acceptedJwtIssuers": [],
+        "allowedResourceServerAudienceValues": [],
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "introspectionPolicySets": [],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "treeName": "[Empty]",
+        "updateAccessToken": null
+      },
+      "aiAgentIdentityAttributes": {
+        "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+        "customAttributes": {
+          "atmAccess": "false"
+        },
+        "description": "A digital banking assistant.",
+        "name": "Banking Assistant",
+        "oauth2ClientId": "banking-assistant"
+      },
+      "aiAgentIdentityUid": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "authorizationCodeLifetime": 0,
+        "clientName": [
+          "banking-assistant"
+        ],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "secretLabelIdentifier": null,
+        "status": "Active",
+        "userpassword": null
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "overrideOAuth2ClientConfig": {
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "accessTokenMayActScript": "[Empty]",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "accessTokenModificationScript": "[Empty]",
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "enableApplicationContext": false,
+        "enableRemoteConsent": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "evaluateScopePluginType": "PROVIDER",
+        "evaluateScopeScript": "[Empty]",
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsPluginType": "PROVIDER",
+        "oidcClaimsScript": "[Empty]",
+        "oidcMayActScript": "[Empty]",
+        "overrideableOIDCClaims": [],
+        "providerOverridesEnabled": false,
+        "remoteConsentServiceId": null,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "useForceAuthnForMaxAge": false,
+        "usePolicyEngineForScope": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "validateScopePluginType": "PROVIDER",
+        "validateScopeScript": "[Empty]"
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    },
+    "investment-advisor": {
+      "_aiAgentIdentity": {
+        "_id": "8a1cec96-40b2-48ae-b00f-06d1f5c5ad69",
+        "_privileges": [
+          {
+            "_id": "f2c9a506-89f4-4b3c-8777-51a625503327",
+            "agent": {
+              "_ref": "managed/alpha_aiagent/8a1cec96-40b2-48ae-b00f-06d1f5c5ad69",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2898860"
+              },
+              "_refResourceCollection": "managed/alpha_aiagent",
+              "_refResourceId": "8a1cec96-40b2-48ae-b00f-06d1f5c5ad69"
+            },
+            "agentID": "8a1cec96-40b2-48ae-b00f-06d1f5c5ad69",
+            "agentOAuth2ClientId": "investment-advisor",
+            "description": null,
+            "permissions": [
+              {
+                "type": "scopes",
+                "values": [
+                  "banking:accounts:read",
+                  "banking:transactions:read"
+                ]
+              }
+            ],
+            "resource": {
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2898866"
+              },
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3"
+            },
+            "resourceData": {
+              "_id": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "ssoEntities": {
+                "idpLoginUrl": "http://localhost:8080/auth/callback",
+                "oidcId": "id4ai-mcp-server-client"
+              }
+            },
+            "subjectGroups": [
+              {
+                "_ref": "managed/alpha_group/Employees",
+                "_refProperties": {
+                  "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2898863"
+                },
+                "_refResourceCollection": "managed/alpha_group",
+                "_refResourceId": "Employees"
+              }
+            ],
+            "subjectIDs": [],
+            "subjects": []
+          }
+        ],
+        "customAttributes": null,
+        "description": null,
+        "name": "Investment Advisor",
+        "oauth2ClientId": "investment-advisor",
+        "owners": [],
+        "privileges": [
+          {
+            "_ref": "managed/alpha_aiagentprivilege/f2c9a506-89f4-4b3c-8777-51a625503327",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2898860"
+            },
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "f2c9a506-89f4-4b3c-8777-51a625503327"
+          }
+        ]
+      },
+      "_id": "investment-advisor",
+      "_type": {
+        "_id": "AIAgent",
+        "collection": true,
+        "name": "AI Agents"
+      },
+      "advancedOAuth2ClientConfig": {
+        "acceptedJwtIssuers": [],
+        "allowedResourceServerAudienceValues": [],
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "introspectionPolicySets": [],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "treeName": "[Empty]",
+        "updateAccessToken": null
+      },
+      "aiAgentIdentityAttributes": {
+        "_id": "8a1cec96-40b2-48ae-b00f-06d1f5c5ad69",
+        "customAttributes": null,
+        "description": null,
+        "name": "Investment Advisor",
+        "oauth2ClientId": "investment-advisor"
+      },
+      "aiAgentIdentityUid": "8a1cec96-40b2-48ae-b00f-06d1f5c5ad69",
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "agentgroup": null,
+        "authorizationCodeLifetime": 0,
+        "clientName": [
+          "Investment Advisor"
+        ],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "secretLabelIdentifier": null,
+        "status": "Active",
+        "userpassword": null
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "overrideOAuth2ClientConfig": {
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "accessTokenMayActScript": "[Empty]",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "accessTokenModificationScript": "[Empty]",
+        "accessTokenModifierClass": null,
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "customLoginUrlTemplate": null,
+        "enableApplicationContext": false,
+        "enableRemoteConsent": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "evaluateScopePluginType": "PROVIDER",
+        "evaluateScopeScript": "[Empty]",
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsClass": null,
+        "oidcClaimsPluginType": "PROVIDER",
+        "oidcClaimsScript": "[Empty]",
+        "oidcMayActScript": "[Empty]",
+        "overrideableOIDCClaims": [],
+        "providerOverridesEnabled": false,
+        "remoteConsentServiceId": null,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "useForceAuthnForMaxAge": false,
+        "usePolicyEngineForScope": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "validateScopePluginType": "PROVIDER",
+        "validateScopeScript": "[Empty]"
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    },
+    "lending-agent": {
+      "_aiAgentIdentity": {
+        "_id": "92992e1f-ab29-4d0a-b4cd-92c84f9952e1",
+        "_privileges": [
+          {
+            "_id": "44464f6e-a7fb-4018-803b-2c7ac30b3dd7",
+            "agent": {
+              "_ref": "managed/alpha_aiagent/92992e1f-ab29-4d0a-b4cd-92c84f9952e1",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2899349"
+              },
+              "_refResourceCollection": "managed/alpha_aiagent",
+              "_refResourceId": "92992e1f-ab29-4d0a-b4cd-92c84f9952e1"
+            },
+            "agentID": "92992e1f-ab29-4d0a-b4cd-92c84f9952e1",
+            "agentOAuth2ClientId": "lending-agent",
+            "description": null,
+            "permissions": [
+              {
+                "type": "scopes",
+                "values": [
+                  "lending:read",
+                  "lending:credit:read",
+                  "lending:credit:limits"
+                ]
+              }
+            ],
+            "resource": {
+              "_ref": "managed/alpha_application/4f669706-8073-4efc-b553-abab6ce07503",
+              "_refProperties": {
+                "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2899355"
+              },
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "4f669706-8073-4efc-b553-abab6ce07503"
+            },
+            "resourceData": {
+              "_id": "4f669706-8073-4efc-b553-abab6ce07503",
+              "_ref": "managed/alpha_application/4f669706-8073-4efc-b553-abab6ce07503",
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "4f669706-8073-4efc-b553-abab6ce07503",
+              "ssoEntities": {
+                "idpLoginUrl": "http://localhost:8080/oauth/callback",
+                "oidcId": "id4ai-lending-mcp-server-client"
+              }
+            },
+            "subjectGroups": [
+              {
+                "_ref": "managed/alpha_group/Employees",
+                "_refProperties": {
+                  "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2899352"
+                },
+                "_refResourceCollection": "managed/alpha_group",
+                "_refResourceId": "Employees"
+              }
+            ],
+            "subjectIDs": [],
+            "subjects": []
+          }
+        ],
+        "customAttributes": null,
+        "description": null,
+        "name": "Lending Agent",
+        "oauth2ClientId": "lending-agent",
+        "owners": [],
+        "privileges": [
+          {
+            "_ref": "managed/alpha_aiagentprivilege/44464f6e-a7fb-4018-803b-2c7ac30b3dd7",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2899349"
+            },
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "44464f6e-a7fb-4018-803b-2c7ac30b3dd7"
+          }
+        ]
+      },
+      "_id": "lending-agent",
+      "_type": {
+        "_id": "AIAgent",
+        "collection": true,
+        "name": "AI Agents"
+      },
+      "advancedOAuth2ClientConfig": {
+        "acceptedJwtIssuers": [],
+        "allowedResourceServerAudienceValues": [],
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "introspectionPolicySets": [],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "treeName": "[Empty]",
+        "updateAccessToken": null
+      },
+      "aiAgentIdentityAttributes": {
+        "_id": "92992e1f-ab29-4d0a-b4cd-92c84f9952e1",
+        "customAttributes": null,
+        "description": null,
+        "name": "Lending Agent",
+        "oauth2ClientId": "lending-agent"
+      },
+      "aiAgentIdentityUid": "92992e1f-ab29-4d0a-b4cd-92c84f9952e1",
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "agentgroup": null,
+        "authorizationCodeLifetime": 0,
+        "clientName": [
+          "Lending Agent"
+        ],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "secretLabelIdentifier": null,
+        "status": "Active",
+        "userpassword": null
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "overrideOAuth2ClientConfig": {
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "accessTokenMayActScript": "[Empty]",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "accessTokenModificationScript": "[Empty]",
+        "accessTokenModifierClass": null,
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "customLoginUrlTemplate": null,
+        "enableApplicationContext": false,
+        "enableRemoteConsent": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "evaluateScopePluginType": "PROVIDER",
+        "evaluateScopeScript": "[Empty]",
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsClass": null,
+        "oidcClaimsPluginType": "PROVIDER",
+        "oidcClaimsScript": "[Empty]",
+        "oidcMayActScript": "[Empty]",
+        "overrideableOIDCClaims": [],
+        "providerOverridesEnabled": false,
+        "remoteConsentServiceId": null,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "useForceAuthnForMaxAge": false,
+        "usePolicyEngineForScope": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "validateScopePluginType": "PROVIDER",
+        "validateScopeScript": "[Empty]"
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    },
+    "testAgent": {
+      "_aiAgentIdentity": {
+        "_id": "ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+        "_privileges": [
+          {
+            "_id": "f8f81dfb-5c08-4961-9a47-f6c46bc2a111",
+            "agent": {
+              "_ref": "managed/alpha_aiagent/ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+              "_refProperties": {
+                "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2824641"
+              },
+              "_refResourceCollection": "managed/alpha_aiagent",
+              "_refResourceId": "ee0b2b6f-f01c-473b-8a13-85a05d4af457"
+            },
+            "agentID": "ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+            "agentOAuth2ClientId": "testAgent",
+            "description": null,
+            "permissions": [
+              {
+                "type": "scopes",
+                "values": [
+                  "banking:accounts:read",
+                  "banking:transactions:read",
+                  "banking:transactions:write"
+                ]
+              }
+            ],
+            "resource": {
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refProperties": {
+                "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2824647"
+              },
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3"
+            },
+            "resourceData": {
+              "_id": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "_ref": "managed/alpha_application/911bb34f-8970-479a-9687-a740090dfdc3",
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "911bb34f-8970-479a-9687-a740090dfdc3",
+              "ssoEntities": {
+                "idpLoginUrl": "http://localhost:8080/auth/callback",
+                "oidcId": "id4ai-mcp-server-client"
+              }
+            },
+            "subjectGroups": [
+              {
+                "_ref": "managed/alpha_group/Employees",
+                "_refProperties": {
+                  "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2824644"
+                },
+                "_refResourceCollection": "managed/alpha_group",
+                "_refResourceId": "Employees"
+              }
+            ],
+            "subjectIDs": [
+              "75459be5-b64a-4090-9e77-433f975519f0"
+            ],
+            "subjects": [
+              {
+                "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0",
+                "_refProperties": {
+                  "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2824651"
+                },
+                "_refResourceCollection": "managed/alpha_user",
+                "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0"
+              }
+            ]
+          },
+          {
+            "_id": "84e1d987-2cf0-448a-9db0-57de49494ac6",
+            "agent": {
+              "_ref": "managed/alpha_aiagent/ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+              "_refProperties": {
+                "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2825469"
+              },
+              "_refResourceCollection": "managed/alpha_aiagent",
+              "_refResourceId": "ee0b2b6f-f01c-473b-8a13-85a05d4af457"
+            },
+            "agentID": "ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+            "agentOAuth2ClientId": "testAgent",
+            "description": null,
+            "permissions": [
+              {
+                "type": "scopes",
+                "values": [
+                  "banking:accounts:read",
+                  "banking:transactions:read",
+                  "banking:transactions:write"
+                ]
+              }
+            ],
+            "resource": {
+              "_ref": "managed/alpha_application/0bcea84e-a14b-4cb7-8e21-ecef53052685",
+              "_refProperties": {
+                "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2825475"
+              },
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "0bcea84e-a14b-4cb7-8e21-ecef53052685"
+            },
+            "resourceData": {
+              "_id": "0bcea84e-a14b-4cb7-8e21-ecef53052685",
+              "_ref": "managed/alpha_application/0bcea84e-a14b-4cb7-8e21-ecef53052685",
+              "_refResourceCollection": "managed/alpha_application",
+              "_refResourceId": "0bcea84e-a14b-4cb7-8e21-ecef53052685",
+              "ssoEntities": {
+                "oidcId": "id4ai-agent-client"
+              }
+            },
+            "subjectGroups": [
+              {
+                "_ref": "managed/alpha_group/Crew%20Member",
+                "_refProperties": {
+                  "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2825472"
+                },
+                "_refResourceCollection": "managed/alpha_group",
+                "_refResourceId": "Crew Member"
+              }
+            ],
+            "subjectIDs": [
+              "03f4f90e-d1fa-433d-bc67-6349a8a6ca77"
+            ],
+            "subjects": [
+              {
+                "_ref": "managed/alpha_user/03f4f90e-d1fa-433d-bc67-6349a8a6ca77",
+                "_refProperties": {
+                  "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2825479"
+                },
+                "_refResourceCollection": "managed/alpha_user",
+                "_refResourceId": "03f4f90e-d1fa-433d-bc67-6349a8a6ca77"
+              }
+            ]
+          }
+        ],
+        "customAttributes": {
+          "custom1": "value1",
+          "custom2": "value2"
+        },
+        "description": null,
+        "name": "testAgent",
+        "oauth2ClientId": "testAgent",
+        "owners": [
+          {
+            "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0",
+            "_refProperties": {
+              "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2823582"
+            },
+            "_refResourceCollection": "managed/alpha_user",
+            "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0"
+          }
+        ],
+        "privileges": [
+          {
+            "_ref": "managed/alpha_aiagentprivilege/f8f81dfb-5c08-4961-9a47-f6c46bc2a111",
+            "_refProperties": {
+              "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2824641"
+            },
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "f8f81dfb-5c08-4961-9a47-f6c46bc2a111"
+          },
+          {
+            "_ref": "managed/alpha_aiagentprivilege/84e1d987-2cf0-448a-9db0-57de49494ac6",
+            "_refProperties": {
+              "_id": "4be0ee5a-8123-4011-9bee-81f44dd061d3-2825469"
+            },
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "84e1d987-2cf0-448a-9db0-57de49494ac6"
+          }
+        ]
+      },
+      "_id": "testAgent",
+      "_type": {
+        "_id": "AIAgent",
+        "collection": true,
+        "name": "AI Agents"
+      },
+      "advancedOAuth2ClientConfig": {
+        "acceptedJwtIssuers": [],
+        "allowedResourceServerAudienceValues": [],
+        "clientUri": [],
+        "contacts": [],
+        "customProperties": [],
+        "descriptions": [],
+        "grantTypes": [
+          "authorization_code"
+        ],
+        "introspectionPolicySets": [],
+        "isConsentImplied": false,
+        "javascriptOrigins": [],
+        "logoUri": [],
+        "mixUpMitigation": false,
+        "name": [],
+        "policyUri": [],
+        "refreshTokenGracePeriod": 0,
+        "requestUris": [],
+        "require_pushed_authorization_requests": false,
+        "responseTypes": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "token id_token",
+          "code id_token",
+          "code token id_token",
+          "device_code",
+          "device_code id_token"
+        ],
+        "sectorIdentifierUri": null,
+        "softwareIdentity": null,
+        "softwareVersion": null,
+        "subjectType": "public",
+        "tokenEndpointAuthMethod": "client_secret_basic",
+        "tokenExchangeAuthLevel": 0,
+        "tosURI": [],
+        "treeName": "[Empty]",
+        "updateAccessToken": null
+      },
+      "aiAgentIdentityAttributes": {
+        "_id": "ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+        "customAttributes": {
+          "custom1": "value1",
+          "custom2": "value2"
+        },
+        "description": null,
+        "name": "testAgent",
+        "oauth2ClientId": "testAgent"
+      },
+      "aiAgentIdentityUid": "ee0b2b6f-f01c-473b-8a13-85a05d4af457",
+      "coreOAuth2ClientConfig": {
+        "accessTokenLifetime": 0,
+        "authorizationCodeLifetime": 0,
+        "clientName": [
+          "testAgent"
+        ],
+        "clientType": "Confidential",
+        "defaultScopes": [],
+        "loopbackInterfaceRedirection": false,
+        "redirectionUris": [],
+        "refreshTokenLifetime": 0,
+        "scopes": [],
+        "secretLabelIdentifier": null,
+        "status": "Active",
+        "userpassword": null
+      },
+      "coreOpenIDClientConfig": {
+        "backchannel_logout_session_required": false,
+        "backchannel_logout_uri": null,
+        "claims": [],
+        "clientSessionUri": null,
+        "defaultAcrValues": [],
+        "defaultMaxAge": 600,
+        "defaultMaxAgeEnabled": false,
+        "jwtTokenLifetime": 0,
+        "postLogoutRedirectUri": []
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": []
+      },
+      "overrideOAuth2ClientConfig": {
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "accessTokenMayActScript": "[Empty]",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "accessTokenModificationScript": "[Empty]",
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "enableApplicationContext": false,
+        "enableRemoteConsent": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "evaluateScopePluginType": "PROVIDER",
+        "evaluateScopeScript": "[Empty]",
+        "issueRefreshToken": true,
+        "issueRefreshTokenOnRefreshedToken": true,
+        "oidcClaimsPluginType": "PROVIDER",
+        "oidcClaimsScript": "[Empty]",
+        "oidcMayActScript": "[Empty]",
+        "overrideableOIDCClaims": [],
+        "providerOverridesEnabled": false,
+        "remoteConsentServiceId": null,
+        "scopesPolicySet": "oauth2Scopes",
+        "statelessTokensEnabled": false,
+        "tokenEncryptionEnabled": false,
+        "useForceAuthnForMaxAge": false,
+        "usePolicyEngineForScope": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "validateScopePluginType": "PROVIDER",
+        "validateScopeScript": "[Empty]"
+      },
+      "signEncOAuth2ClientConfig": {
+        "authorizationResponseEncryptionAlgorithm": null,
+        "authorizationResponseEncryptionMethod": null,
+        "authorizationResponseSigningAlgorithm": "RS256",
+        "clientJwtPublicKey": null,
+        "idTokenEncryptionAlgorithm": "RSA-OAEP-256",
+        "idTokenEncryptionEnabled": false,
+        "idTokenEncryptionMethod": "A128CBC-HS256",
+        "idTokenPublicEncryptionKey": null,
+        "idTokenSignedResponseAlg": "RS256",
+        "jwkSet": null,
+        "jwkStoreCacheMissCacheTime": 60000,
+        "jwksCacheTimeout": 3600000,
+        "jwksUri": null,
+        "mTLSCertificateBoundAccessTokens": false,
+        "mTLSSubjectDN": null,
+        "mTLSTrustedCert": null,
+        "publicKeyLocation": "jwks_uri",
+        "requestParameterEncryptedAlg": null,
+        "requestParameterEncryptedEncryptionAlgorithm": "A128CBC-HS256",
+        "requestParameterSignedAlg": null,
+        "tokenEndpointAuthSigningAlgorithm": "RS256",
+        "tokenIntrospectionEncryptedResponseAlg": "RSA-OAEP-256",
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "tokenIntrospectionResponseFormat": "JSON",
+        "tokenIntrospectionSignedResponseAlg": "RS256",
+        "userinfoEncryptedResponseAlg": null,
+        "userinfoEncryptedResponseEncryptionAlgorithm": "A128CBC-HS256",
+        "userinfoResponseFormat": "JSON",
+        "userinfoSignedResponseAlg": null
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2026-05-13T03:52:11.603Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.0-42 [v25.5.0]",
+    "exportedBy": "vscheuber@gmail.com",
+    "origin": "https://openam-volker-dev.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

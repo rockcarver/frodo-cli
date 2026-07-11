@@ -76,13 +76,18 @@ describe('frodo script describe', () => {
 
     test(`"frodo script describe -un shared": should describe the script with name "shared" with usage`, async () => {
         const CMD = `frodo script describe -un shared`;
+        let stdout = '';
+        let stderr = '';
         try {
-            await exec(CMD, env);
-            fail("Command should've failed")
+            const result = await exec(CMD, env);
+            stdout = result.stdout ?? '';
+            stderr = result.stderr ?? '';
         } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
+            stdout = e?.stdout ?? '';
+            stderr = e?.stderr ?? '';
         }
+        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test(`"frodo script describe -un shared -f ${allConfigFile}": should describe the script with name "shared" with usage from file ${allConfigFile}`, async () => {

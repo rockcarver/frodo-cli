@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo agent gateway describe "frodo agent gateway describe -i frodo-test-ig-agent --json": should describe gateway agent in JSON format 1`] = `
+"{
+  "_id": "frodo-test-ig-agent",
+  "_rev": "-1490423122",
+  "secretLabelIdentifier": null,
+  "igTokenIntrospection": "Realm",
+  "igCdssoLoginUrlTemplate": "http://testurl.com:8080/frodo",
+  "status": "Inactive",
+  "igCdssoRedirectUrls": [
+    "http://testurl.com:8080/frodo"
+  ],
+  "agentgroup": "test_ig_group",
+  "_type": {
+    "_id": "IdentityGatewayAgent",
+    "name": "Identity Gateway Agents",
+    "collection": true
+  }
+}
+"
+`;
+
+exports[`frodo agent gateway describe "frodo agent gateway describe -i frodo-test-ig-agent": should describe gateway agent in table format 1`] = `
+"Property│Value                  
+Agent Id│frodo-test-ig-agent    
+Status  │Inactive               
+Type    │Identity Gateway Agents
+"
+`;

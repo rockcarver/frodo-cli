@@ -84,24 +84,14 @@ describe('frodo esv secret list', () => {
 
     test('"frodo esv secret list -u": should list the usage of the esv secrets', async () => {
         const CMD = `frodo esv secret list -u`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed")
-        } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
-        }
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test('"frodo esv secret list -lu": should list the ids, active/loaded versions, statuses, descriptions, modifiers, modified times, and usage of the esv secrets', async () => {
         const CMD = `frodo esv secret list -lu`;
-        try {
-            await exec(CMD, env);
-            fail("Command should've failed")
-        } catch (e) {
-            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
-            expect(removeAnsiEscapeCodes(e.stdout)).toMatchSnapshot();
-        }
+        const { stdout } = await exec(CMD, env);
+        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test(`"frodo esv secret list -uf ${allConfigFile}": should list the usage of the esv secrets in the ${allConfigFile} file`, async () => {

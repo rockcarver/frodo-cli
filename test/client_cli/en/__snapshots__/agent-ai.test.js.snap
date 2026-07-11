@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'agent ai' should be expected english 1`] = `
+"Usage: frodo agent ai [options] [command]
+
+Manage AI agents.
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Commands:
+  delete            Delete AI agents.
+  describe          Describe AI agents.
+  export            Export AI agents.
+  help              display help for command
+  import            Import AI agents.
+  list              List AI agents.
+"
+`;

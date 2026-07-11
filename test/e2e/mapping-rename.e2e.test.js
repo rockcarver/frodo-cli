@@ -75,15 +75,13 @@ describe('frodo mapping rename', () => {
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    // TODO: Get these tests passing. For some reason, after making new recordings, the tests fail due to missing recordings
-
-    test.skip(`"frodo mapping rename --all": should rename all mappings to new"`, async () => {
+    test(`"frodo mapping rename --all": should rename all mappings to new"`, async () => {
         const CMD = `frodo mapping rename --all`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
-    test.skip(`"frodo mapping rename -al": should rename all mappings to legacy"`, async () => {
+    test(`"frodo mapping rename -al": should rename all mappings to legacy"`, async () => {
         const CMD = `frodo mapping rename -al`;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();

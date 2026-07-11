@@ -4,7 +4,7 @@ import { Option } from 'commander';
 import { printMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-type McpPolicyPreset = 'read-only' | 'standard' | 'admin';
+type McpPolicyPreset = 'read-only' | 'agentic' | 'standard' | 'admin';
 
 /** Parsed options for `frodo mcp server tools`. */
 type McpToolsOptions = {
@@ -20,6 +20,14 @@ type McpToolsOptions = {
   json?: boolean;
 };
 
+type McpServicePolicySelection = {
+  policyPreset: 'read-only' | 'standard' | 'admin';
+  policyOverride?: {
+    name?: string;
+    denyOperationTypes?: Array<'delete' | 'import' | 'export'>;
+  };
+};
+
 /**
  * Lists the current MCP tool surface derived from frodo-lib descriptors.
  */
@@ -28,9 +36,12 @@ export default function setup() {
     .description('List MCP tools exposed under the current policy/profile.')
     .withStability('experimental')
     .addOption(
-      new Option('--policy <preset>', 'Capability policy preset.')
-        .choices(['read-only', 'standard', 'admin'])
-        .default('standard')
+      new Option(
+        '--policy <preset>',
+        'Capability policy preset (agentic excludes import/export by default).'
+      )
+        .choices(['read-only', 'agentic', 'standard', 'admin'])
+        .default('agentic')
     )
     .addOption(
       new Option(
@@ -61,8 +72,10 @@ export default function setup() {
       );
 
       const opts = options as McpToolsOptions;
+      const policySelection = resolvePolicySelection(opts.policy);
       const service = createMcpService({
-        policyPreset: opts.policy,
+        policyPreset: policySelection.policyPreset,
+        policyOverride: policySelection.policyOverride,
         inventoryOptions: {
           includeTopLevelDomains: opts.includeDomains,
           excludeTopLevelDomains: opts.excludeDomains,
@@ -97,4 +110,25 @@ export default function setup() {
     });
 
   return program;
+}
+
+/**
+ * Maps user-facing policy choices to a compatible createMcpService input.
+ */
+function resolvePolicySelection(
+  policy: McpPolicyPreset
+): McpServicePolicySelection {
+  if (policy === 'agentic') {
+    return {
+      policyPreset: 'standard',
+      policyOverride: {
+        name: 'agentic',
+        denyOperationTypes: ['delete', 'import', 'export'],
+      },
+    };
+  }
+
+  return {
+    policyPreset: policy,
+  };
 }

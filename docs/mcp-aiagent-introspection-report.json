@@ -1,0 +1,484 @@
+{
+  "generatedAt": "2026-04-28T03:24:34.731Z",
+  "status": "passed",
+  "summary": "AIAgent capabilities are exposed and at least one AI agent record was discovered and introspected successfully.",
+  "discovery": {
+    "agentObjectTypes": [
+      "AIAgent",
+      "Agent",
+      "AgentByTypeAndId",
+      "AgentExportTemplate",
+      "AgentGroup",
+      "AgentGroupExportTemplate",
+      "AgentType",
+      "IdentityGatewayAgent",
+      "JavaAgent",
+      "WebAgent"
+    ],
+    "agentReadObjectTypes": [
+      "Agent",
+      "AgentByTypeAndId",
+      "AgentGroup",
+      "AIAgent",
+      "IdentityGatewayAgent",
+      "JavaAgent",
+      "WebAgent"
+    ],
+    "agentListObjectTypes": [
+      "AgentGroup",
+      "Agent",
+      "AgentType",
+      "AIAgent",
+      "IdentityGatewayAgent",
+      "JavaAgent",
+      "WebAgent"
+    ],
+    "agentSearchObjectTypes": [],
+    "aiCapabilityEntries": [
+      {
+        "operationType": "read",
+        "objectType": "AIAgent",
+        "methodName": "readAIAgent",
+        "sourcePath": "agent.readAIAgent",
+        "toolName": "frodo_read"
+      },
+      {
+        "operationType": "list",
+        "objectType": "AIAgent",
+        "methodName": "readAIAgents",
+        "sourcePath": "agent.readAIAgents",
+        "toolName": "frodo_list"
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "toolName": "frodo_discover",
+      "success": true,
+      "message": ""
+    },
+    {
+      "toolName": "frodo_list",
+      "success": true,
+      "message": "",
+      "objectType": "AIAgent"
+    },
+    {
+      "toolName": "frodo_read",
+      "success": true,
+      "message": "",
+      "objectType": "AIAgent",
+      "agentId": "banking-assistant"
+    }
+  ],
+  "findings": {
+    "aiCapabilityObjectTypes": [
+      "AIAgent"
+    ],
+    "aiRecordsFound": 3,
+    "introspectionSucceeded": true,
+    "introspectionSample": {
+      "_id": "banking-assistant",
+      "_rev": "1982117255",
+      "overrideOAuth2ClientConfig": {
+        "issueRefreshToken": true,
+        "validateScopePluginType": "PROVIDER",
+        "tokenEncryptionEnabled": false,
+        "enableApplicationContext": false,
+        "acceptAudienceParametersInTokenExchangeRequests": false,
+        "evaluateScopePluginType": "PROVIDER",
+        "oidcMayActScript": "[Empty]",
+        "oidcClaimsScript": "[Empty]",
+        "scopesPolicySet": "oauth2Scopes",
+        "accessTokenModificationPluginType": "PROVIDER",
+        "authorizeEndpointDataProviderClass": "org.forgerock.oauth2.core.plugins.registry.DefaultEndpointDataProvider",
+        "useForceAuthnForMaxAge": false,
+        "oidcClaimsPluginType": "PROVIDER",
+        "providerOverridesEnabled": false,
+        "authorizeEndpointDataProviderScript": "[Empty]",
+        "statelessTokensEnabled": false,
+        "authorizeEndpointDataProviderPluginType": "PROVIDER",
+        "remoteConsentServiceId": null,
+        "enableRemoteConsent": false,
+        "validateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeValidator",
+        "usePolicyEngineForScope": false,
+        "evaluateScopeClass": "org.forgerock.oauth2.core.plugins.registry.DefaultScopeEvaluator",
+        "overrideableOIDCClaims": [],
+        "accessTokenMayActScript": "[Empty]",
+        "evaluateScopeScript": "[Empty]",
+        "clientsCanSkipConsent": false,
+        "accessTokenModificationScript": "[Empty]",
+        "issueRefreshTokenOnRefreshedToken": true,
+        "validateScopeScript": "[Empty]"
+      },
+      "advancedOAuth2ClientConfig": {
+        "logoUri": {
+          "inherited": false,
+          "value": []
+        },
+        "subjectType": {
+          "inherited": false,
+          "value": "public"
+        },
+        "clientUri": {
+          "inherited": false,
+          "value": []
+        },
+        "tokenExchangeAuthLevel": {
+          "inherited": false,
+          "value": 0
+        },
+        "responseTypes": {
+          "inherited": false,
+          "value": [
+            "code",
+            "token",
+            "id_token",
+            "code token",
+            "token id_token",
+            "code id_token",
+            "code token id_token",
+            "device_code",
+            "device_code id_token"
+          ]
+        },
+        "mixUpMitigation": {
+          "inherited": false,
+          "value": false
+        },
+        "customProperties": {
+          "inherited": false,
+          "value": []
+        },
+        "javascriptOrigins": {
+          "inherited": false,
+          "value": []
+        },
+        "policyUri": {
+          "inherited": false,
+          "value": []
+        },
+        "softwareVersion": {
+          "inherited": false
+        },
+        "tosURI": {
+          "inherited": false,
+          "value": []
+        },
+        "sectorIdentifierUri": {
+          "inherited": false
+        },
+        "tokenEndpointAuthMethod": {
+          "inherited": false,
+          "value": "client_secret_basic"
+        },
+        "refreshTokenGracePeriod": {
+          "inherited": false,
+          "value": 0
+        },
+        "isConsentImplied": {
+          "inherited": false,
+          "value": false
+        },
+        "softwareIdentity": {
+          "inherited": false
+        },
+        "grantTypes": {
+          "inherited": false,
+          "value": [
+            "authorization_code"
+          ]
+        },
+        "allowedResourceServerAudienceValues": {
+          "inherited": false,
+          "value": []
+        },
+        "require_pushed_authorization_requests": {
+          "inherited": false,
+          "value": false
+        },
+        "descriptions": {
+          "inherited": false,
+          "value": []
+        },
+        "requestUris": {
+          "inherited": false,
+          "value": []
+        },
+        "name": {
+          "inherited": false,
+          "value": []
+        },
+        "contacts": {
+          "inherited": false,
+          "value": []
+        },
+        "updateAccessToken": {
+          "inherited": false
+        },
+        "acceptedJwtIssuers": {
+          "inherited": false,
+          "value": []
+        },
+        "introspectionPolicySets": {
+          "inherited": false,
+          "value": []
+        },
+        "treeName": {
+          "inherited": false,
+          "value": "[Empty]"
+        }
+      },
+      "signEncOAuth2ClientConfig": {
+        "tokenEndpointAuthSigningAlgorithm": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "idTokenEncryptionEnabled": {
+          "inherited": false,
+          "value": false
+        },
+        "tokenIntrospectionEncryptedResponseEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "requestParameterSignedAlg": {
+          "inherited": false
+        },
+        "authorizationResponseSigningAlgorithm": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "clientJwtPublicKey": {
+          "inherited": false
+        },
+        "idTokenPublicEncryptionKey": {
+          "inherited": false
+        },
+        "mTLSSubjectDN": {
+          "inherited": false
+        },
+        "jwkStoreCacheMissCacheTime": {
+          "inherited": false,
+          "value": 60000
+        },
+        "jwkSet": {
+          "inherited": false
+        },
+        "idTokenEncryptionMethod": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "jwksUri": {
+          "inherited": false
+        },
+        "tokenIntrospectionEncryptedResponseAlg": {
+          "inherited": false,
+          "value": "RSA-OAEP-256"
+        },
+        "authorizationResponseEncryptionMethod": {
+          "inherited": false
+        },
+        "userinfoResponseFormat": {
+          "inherited": false,
+          "value": "JSON"
+        },
+        "mTLSCertificateBoundAccessTokens": {
+          "inherited": false,
+          "value": false
+        },
+        "publicKeyLocation": {
+          "inherited": false,
+          "value": "jwks_uri"
+        },
+        "tokenIntrospectionResponseFormat": {
+          "inherited": false,
+          "value": "JSON"
+        },
+        "requestParameterEncryptedEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        },
+        "userinfoSignedResponseAlg": {
+          "inherited": false
+        },
+        "idTokenEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "RSA-OAEP-256"
+        },
+        "requestParameterEncryptedAlg": {
+          "inherited": false
+        },
+        "authorizationResponseEncryptionAlgorithm": {
+          "inherited": false
+        },
+        "mTLSTrustedCert": {
+          "inherited": false
+        },
+        "jwksCacheTimeout": {
+          "inherited": false,
+          "value": 3600000
+        },
+        "userinfoEncryptedResponseAlg": {
+          "inherited": false
+        },
+        "idTokenSignedResponseAlg": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "tokenIntrospectionSignedResponseAlg": {
+          "inherited": false,
+          "value": "RS256"
+        },
+        "userinfoEncryptedResponseEncryptionAlgorithm": {
+          "inherited": false,
+          "value": "A128CBC-HS256"
+        }
+      },
+      "coreOAuth2ClientConfig": {
+        "userpassword": null,
+        "secretLabelIdentifier": {
+          "inherited": false
+        },
+        "status": {
+          "inherited": false,
+          "value": "Active"
+        },
+        "clientName": {
+          "inherited": false,
+          "value": [
+            "banking-assistant"
+          ]
+        },
+        "clientType": {
+          "inherited": false,
+          "value": "Confidential"
+        },
+        "loopbackInterfaceRedirection": {
+          "inherited": false,
+          "value": false
+        },
+        "defaultScopes": {
+          "inherited": false,
+          "value": []
+        },
+        "refreshTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "scopes": {
+          "inherited": false,
+          "value": []
+        },
+        "accessTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "redirectionUris": {
+          "inherited": false,
+          "value": []
+        },
+        "authorizationCodeLifetime": {
+          "inherited": false,
+          "value": 0
+        }
+      },
+      "coreOpenIDClientConfig": {
+        "claims": {
+          "inherited": false,
+          "value": []
+        },
+        "backchannel_logout_uri": {
+          "inherited": false
+        },
+        "defaultAcrValues": {
+          "inherited": false,
+          "value": []
+        },
+        "jwtTokenLifetime": {
+          "inherited": false,
+          "value": 0
+        },
+        "defaultMaxAgeEnabled": {
+          "inherited": false,
+          "value": false
+        },
+        "clientSessionUri": {
+          "inherited": false
+        },
+        "defaultMaxAge": {
+          "inherited": false,
+          "value": 600
+        },
+        "postLogoutRedirectUri": {
+          "inherited": false,
+          "value": []
+        },
+        "backchannel_logout_session_required": {
+          "inherited": false,
+          "value": false
+        }
+      },
+      "coreUmaClientConfig": {
+        "claimsRedirectionUris": {
+          "inherited": false,
+          "value": []
+        }
+      },
+      "aiAgentIdentityAttributes": {
+        "inherited": false,
+        "value": {
+          "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+          "_rev": "49ce32f2-0399-489d-91c0-e7c010ff31dd-163724",
+          "oauth2ClientId": "banking-assistant",
+          "name": "Banking Assistant",
+          "description": "A digital banking assistant.",
+          "customAttributes": {
+            "atmAccess": "false"
+          }
+        }
+      },
+      "aiAgentIdentityUid": {
+        "inherited": false,
+        "value": "ec85268c-729a-47a2-887e-6d2884a0fdb1"
+      },
+      "_type": {
+        "_id": "AIAgent",
+        "name": "AI Agents",
+        "collection": true
+      },
+      "_aiAgentIdentity": {
+        "_id": "ec85268c-729a-47a2-887e-6d2884a0fdb1",
+        "_rev": "49ce32f2-0399-489d-91c0-e7c010ff31dd-163724",
+        "oauth2ClientId": "banking-assistant",
+        "name": "Banking Assistant",
+        "description": "A digital banking assistant.",
+        "customAttributes": {
+          "atmAccess": "false"
+        },
+        "privileges": [
+          {
+            "_refResourceCollection": "managed/alpha_aiagentprivilege",
+            "_refResourceId": "90f77862-4761-4549-a284-5e6aead8cc2e",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897005",
+              "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-2897006"
+            },
+            "_ref": "managed/alpha_aiagentprivilege/90f77862-4761-4549-a284-5e6aead8cc2e"
+          }
+        ],
+        "owners": [
+          {
+            "_refResourceCollection": "managed/alpha_user",
+            "_refResourceId": "75459be5-b64a-4090-9e77-433f975519f0",
+            "_refProperties": {
+              "_id": "86bb64c3-e54e-481c-9564-e7849121d6c0-3743890",
+              "_rev": "86bb64c3-e54e-481c-9564-e7849121d6c0-3743891"
+            },
+            "_ref": "managed/alpha_user/75459be5-b64a-4090-9e77-433f975519f0"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -67,9 +67,28 @@ export async function configManagerImportPasswordPolicy(
         `realms/${realmName}/password-policy/${realmName}_user-password-policy.json`
       );
       const mainFile = fs.readFileSync(filePath, 'utf8');
-      let importData = JSON.parse(mainFile);
-      const id = importData._id;
-      importData = { idm: { [id]: importData } };
+      const parsedData = JSON.parse(mainFile);
+      let importData;
+
+      // Support both fr-config wrappers ({ idm: { ... }, meta: ... }) and
+      // legacy single-entity files with top-level _id.
+      if (
+        parsedData &&
+        typeof parsedData === 'object' &&
+        parsedData.idm &&
+        typeof parsedData.idm === 'object' &&
+        Object.keys(parsedData.idm).length > 0
+      ) {
+        importData = { idm: parsedData.idm };
+      } else {
+        const id = parsedData?._id;
+        if (!id) {
+          throw new Error(
+            `Invalid password policy payload in '${filePath}': expected either an 'idm' map or top-level '_id'.`
+          );
+        }
+        importData = { idm: { [id]: parsedData } };
+      }
       await importConfigEntities(importData);
     }
     return true;

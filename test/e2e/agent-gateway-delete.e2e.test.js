@@ -54,24 +54,48 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { clearFixture, getEnv, removeAnsiEscapeCodes, stageFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
-process.env['FRODO_MOCK'] = '1';
+process.env['FRODO_MOCK'] ||= '1';
 const env = getEnv(c);
+
+const stagedAgentImport =
+    'frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json';
+const deleteAgent = 'frodo agent gateway delete -i frodo-test-ig-agent';
+const deleteAllAgents = 'frodo agent gateway delete -a';
 
 describe('frodo agent gateway delete', () => {
 
+    // in recording mode, setup test data before recording and cleanup after
+    // in replay mode, tests run with mock data from HAR files (no setup/teardown needed)
+    beforeAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await stageFixture(stagedAgentImport, env);
+        }
+    });
+
+    afterAll(async () => {
+        if (process.env['FRODO_MOCK'] === 'record') {
+            await clearFixture(deleteAgent, env);
+            await clearFixture(deleteAllAgents, env);
+        }
+    });
+
     test('"frodo agent gateway delete -i frodo-test-ig-agent": should delete the agent gateway with id \'frodo-test-ig-agent\'', async () => {
-        const CMD = `frodo agent gateway delete -i frodo-test-ig-agent`;
-        const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        const CMD = deleteAgent;
+        try {
+            const { stdout } = await exec(CMD, env);
+            expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        } catch (e) {
+            expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+        }
     });
 
     test('"frodo agent gateway delete --agent-id frodo-test-ig-agent": should display error when the agent gateway with id \'frodo-test-ig-agent\' cannot be deleted since it does not exist', async () => {
-        const CMD = `frodo agent gateway delete --agent-id frodo-test-ig-agent`;
+        const CMD = 'frodo agent gateway delete --agent-id frodo-test-ig-agent';
         try {
             await exec(CMD, env);
             fail("Command should've failed")
@@ -81,13 +105,13 @@ describe('frodo agent gateway delete', () => {
     });
 
     test('"frodo agent gateway delete -a": should delete all agent gateways', async () => {
-        const CMD = `frodo agent gateway delete -a`;
+        const CMD = deleteAllAgents;
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
 
     test('"frodo agent gateway delete --all": should do nothing when no agent gateways can be deleted', async () => {
-        const CMD = `frodo agent gateway delete --all`;
+        const CMD = 'frodo agent gateway delete --all';
         const { stderr } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     });

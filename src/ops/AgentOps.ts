@@ -25,14 +25,18 @@ const {
   readIdentityGatewayAgents,
   readJavaAgents,
   readWebAgents,
+  readAIAgents,
+  readAIAgent,
   exportAgents,
   exportIdentityGatewayAgents,
   exportJavaAgents,
   exportWebAgents,
+  exportAIAgents,
   exportAgent,
   exportIdentityGatewayAgent,
   exportJavaAgent,
   exportWebAgent,
+  exportAIAgent,
   importAgent,
   importIdentityGatewayAgent,
   importJavaAgent,
@@ -41,10 +45,15 @@ const {
   importIdentityGatewayAgents,
   importJavaAgents,
   importWebAgents,
+  importAIAgents,
+  importAIAgent,
+  deleteAIAgent: deleteAIAgentLib,
+  deleteAIAgents: deleteAIAgentsLib,
 } = frodo.agent;
 
 const agentTypeToFileIdMap = {
   ['2.2_Agent']: 'policy.agent',
+  AIAgent: 'ai.agent',
   IdentityGatewayAgent: 'gateway.agent',
   J2EEAgent: 'java.agent',
   OAuth2Thing: 'oauth2.agent',
@@ -72,6 +81,30 @@ function normalizeAgentImportData(
 }
 
 /**
+ * Resolve agent status based on agent type
+ * @param {any} agent agent object
+ * @returns {string} status value
+ */
+function resolveAgentStatus(agent: any): string {
+  switch (agent._type._id) {
+    case 'AIAgent':
+      return (
+        agent['coreOAuth2ClientConfig']?.['status']?.['value'] ??
+        agent['coreOAuth2ClientConfig']?.['status'] ??
+        'Unknown'
+      );
+    case 'J2EEAgent':
+      return agent['globalJ2EEAgentConfig']?.['status'] ?? 'Unknown';
+    case 'WebAgent':
+      return agent['globalWebAgentConfig']?.['status'] ?? 'Unknown';
+    case 'IdentityGatewayAgent':
+      return agent['status'] ?? 'Unknown';
+    default:
+      return agent['status'] ?? 'Unknown';
+  }
+}
+
+/**
  * List agents
  * @param {boolean} [long=false] detailed list
  * @param {boolean} global true to list global agents, false otherwise
@@ -86,20 +119,7 @@ export async function listAgents(
     if (long) {
       const table = createTable(['Agent Id', 'Status', 'Agent Type']);
       for (const agent of agents) {
-        let status = 'Unknown';
-        switch (agent._type._id) {
-          case 'J2EEAgent':
-            status = agent['globalJ2EEAgentConfig']['status'];
-            break;
-          case 'WebAgent':
-            status = agent['globalWebAgentConfig']['status'];
-            break;
-          default:
-            if (agent.status) {
-              status = agent.status as string;
-            }
-            break;
-        }
+        const status = resolveAgentStatus(agent);
         table.push([
           agent._id,
           status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
@@ -1426,6 +1446,535 @@ export async function deleteWebAgents(): Promise<boolean> {
     return true;
   } catch (error) {
     printError(error);
+  }
+  return false;
+}
+
+/**
+ * List AIAgents
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function listAIAgents(long: boolean = false): Promise<boolean> {
+  try {
+    const agents = await readAIAgents();
+    if (long) {
+      const table = createTable(['AIAgent Id', 'Status']);
+      for (const agent of agents) {
+        const status = resolveAgentStatus(agent);
+        table.push([
+          agent._id,
+          status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+        ]);
+      }
+      printMessage(table.toString(), 'data');
+    } else {
+      agents.forEach((agent) => {
+        printMessage(`${agent._id}`, 'data');
+      });
+    }
+    return true;
+  } catch (error) {
+    printError(error, `Error listing AIAgents`);
+  }
+  return false;
+}
+
+/**
+ * Export AIAgent to file
+ * @param {string} agentId agent id
+ * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function exportAIAgentToFile(
+  agentId: string,
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    const exportData = await exportAIAgent(agentId);
+    let fileName = getTypedFilename(
+      agentId,
+      agentTypeToFileIdMap[exportData.agent[agentId]._type._id]
+    );
+    if (file) {
+      fileName = file;
+    }
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting AIAgent ${agentId} to file`);
+  }
+  return false;
+}
+
+/**
+ * Export all AIAgents to file
+ * @param {string} file file name
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function exportAIAgentsToFile(
+  file: string,
+  includeMeta: boolean = true
+): Promise<boolean> {
+  try {
+    const exportData = await exportAIAgents();
+    let fileName = getTypedFilename(
+      `all${titleCase(getRealmName(state.getRealm()))}AIAgents`,
+      agentTypeToFileIdMap['AIAgent']
+    );
+    if (file) {
+      fileName = file;
+    }
+    saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting AIAgents to file`);
+  }
+  return false;
+}
+
+/**
+ * Export all AIAgents to separate files
+ * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function exportAIAgentsToFiles(
+  includeMeta = true
+): Promise<boolean> {
+  try {
+    const agents = await readAIAgents();
+    debugMessage(`exportAIAgentsToFiles: ${agents.length} agents`);
+    for (const agent of agents) {
+      const fileName = getTypedFilename(
+        agent._id,
+        agentTypeToFileIdMap[agent._type._id]
+      );
+      const exportData = createAgentExportTemplate();
+      exportData.agent[agent._id] = agent;
+      debugMessage(
+        `exportAIAgentsToFiles: exporting ${agent._id} to ${getFilePath(
+          fileName,
+          true
+        )}`
+      );
+      saveJsonToFile(exportData, getFilePath(fileName, true), includeMeta);
+    }
+    debugMessage(`exportAIAgentsToFiles: done.`);
+    return true;
+  } catch (error) {
+    printError(error, `Error exporting AIAgents to files`);
+  }
+  return false;
+}
+
+/**
+ * Import AIAgent from file
+ * @param {string} agentId agent id
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importAIAgentFromFile(
+  agentId: string,
+  file: string
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.AgentOps.importAIAgentFromFile: start`);
+    const verbose = state.getVerbose();
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
+    if (importData.agent && importData.agent[agentId]) {
+      const agent = importData.agent[agentId];
+      importData.agent = {};
+      importData.agent[agentId] = agent;
+    } else if (importData.agent) {
+      importData.agent = null;
+    }
+    let spinnerId: string;
+    if (importData.agent) {
+      if (!verbose)
+        spinnerId = createProgressIndicator(
+          'indeterminate',
+          0,
+          `Importing ${agentId}...`
+        );
+      try {
+        if (verbose)
+          spinnerId = createProgressIndicator(
+            'indeterminate',
+            0,
+            `Importing ${agentId}...`
+          );
+        await importAIAgent(agentId, importData);
+        stopProgressIndicator(spinnerId, `Imported ${agentId}.`, 'success');
+        return true;
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          `Error importing AIAgent ${agentId}`,
+          'fail'
+        );
+        printError(error, `Error importing AIAgent ${agentId}`);
+      }
+    } else {
+      spinnerId = createProgressIndicator(
+        'indeterminate',
+        0,
+        `Importing ${agentId}...`
+      );
+      stopProgressIndicator(spinnerId, `${agentId} not found!`, 'fail');
+    }
+    debugMessage(`cli.AgentOps.importAIAgentFromFile: end`);
+  } catch (error) {
+    printError(error, `Error importing AIAgent ${agentId} from file`);
+  }
+  return false;
+}
+
+/**
+ * Import AIAgents from file
+ * @param {String} file file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importAIAgentsFromFile(file: string): Promise<boolean> {
+  try {
+    debugMessage(`cli.AgentOps.importAIAgentsFromFile: start`);
+    const filePath = getFilePath(file);
+    const data = fs.readFileSync(filePath, 'utf8');
+    debugMessage(`cli.AgentOps.importAIAgentsFromFile: importing ${filePath}`);
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
+    await importAIAgents(importData);
+    debugMessage(`cli.AgentOps.importAIAgentsFromFile: end`);
+    return true;
+  } catch (error) {
+    printError(error, `Error importing AIAgents from file`);
+  }
+  return false;
+}
+
+/**
+ * Delete AIAgent
+ * @param {string} agentId agent id
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteAIAgent(agentId: string): Promise<boolean> {
+  try {
+    await deleteAIAgentLib(agentId);
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Delete all AIAgents
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function deleteAIAgents(): Promise<boolean> {
+  try {
+    await deleteAIAgentsLib();
+    return true;
+  } catch (error) {
+    printError(error);
+  }
+  return false;
+}
+
+/**
+ * Describe AIAgent
+ * @param {string} agentId agent id
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} description of the agent
+ */
+export async function describeAIAgent(
+  agentId: string,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agent = await readAIAgent(agentId);
+    if (asJson) {
+      return JSON.stringify(agent, null, 2);
+    }
+    const status = resolveAgentStatus(agent);
+    const table = createTable(['Property', 'Value']);
+    table.push(['Agent Id', agent._id]);
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
+    table.push(['Type', agent._type.name]);
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing AIAgent ${agentId}`);
+    return '';
+  }
+}
+
+/**
+ * Describe Identity Gateway Agent
+ * @param {string} agentId agent id
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} description of the agent
+ */
+export async function describeIdentityGatewayAgent(
+  agentId: string,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agent = await readIdentityGatewayAgents();
+    const targetAgent = agent.find((a) => a._id === agentId);
+    if (!targetAgent) {
+      throw new Error(`Agent not found: ${agentId}`);
+    }
+    if (asJson) {
+      return JSON.stringify(targetAgent, null, 2);
+    }
+    const status = resolveAgentStatus(targetAgent);
+    const table = createTable(['Property', 'Value']);
+    table.push(['Agent Id', targetAgent._id]);
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
+    table.push(['Type', targetAgent._type.name]);
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing Identity Gateway Agent ${agentId}`);
+    return '';
+  }
+}
+
+/**
+ * Describe Java Agent
+ * @param {string} agentId agent id
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} description of the agent
+ */
+export async function describeJavaAgent(
+  agentId: string,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agents = await readJavaAgents();
+    const targetAgent = agents.find((a) => a._id === agentId);
+    if (!targetAgent) {
+      throw new Error(`Agent not found: ${agentId}`);
+    }
+    if (asJson) {
+      return JSON.stringify(targetAgent, null, 2);
+    }
+    const status = resolveAgentStatus(targetAgent);
+    const table = createTable(['Property', 'Value']);
+    table.push(['Agent Id', targetAgent._id]);
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
+    table.push(['Type', targetAgent._type.name]);
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing Java Agent ${agentId}`);
+    return '';
+  }
+}
+
+/**
+ * Describe Web Agent
+ * @param {string} agentId agent id
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} description of the agent
+ */
+export async function describeWebAgent(
+  agentId: string,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agents = await readWebAgents();
+    const targetAgent = agents.find((a) => a._id === agentId);
+    if (!targetAgent) {
+      throw new Error(`Agent not found: ${agentId}`);
+    }
+    if (asJson) {
+      return JSON.stringify(targetAgent, null, 2);
+    }
+    const status = resolveAgentStatus(targetAgent);
+    const table = createTable(['Property', 'Value']);
+    table.push(['Agent Id', targetAgent._id]);
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
+    table.push(['Type', targetAgent._type.name]);
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing Web Agent ${agentId}`);
+    return '';
+  }
+}
+
+/**
+ * Describe single agent by ID
+ * @param {string} agentId agent id
+ * @param {boolean} global true for global agents, false for realm-specific
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} description of the agent
+ */
+export async function describeAgent(
+  agentId: string,
+  global: boolean = false,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agent = await readAgents(global);
+    const targetAgent = agent.find((a) => a._id === agentId);
+    if (!targetAgent) {
+      throw new Error(`Agent not found: ${agentId}`);
+    }
+    if (asJson) {
+      return JSON.stringify(targetAgent, null, 2);
+    }
+    const status = resolveAgentStatus(targetAgent);
+    const table = createTable(['Property', 'Value']);
+    table.push(['Agent Id', targetAgent._id]);
+    table.push([
+      'Status',
+      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+    ]);
+    table.push(['Type', targetAgent._type.name]);
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing agent ${agentId}`);
+    return '';
+  }
+}
+
+/**
+ * Describe all agents (multi-agent summary)
+ * @param {boolean} global true for global agents, false for realm-specific
+ * @param {boolean} asJson output as JSON
+ * @returns {Promise<string>} summary of all agents
+ */
+export async function describeAgents(
+  global: boolean = false,
+  asJson: boolean = false
+): Promise<string> {
+  try {
+    const agents = await readAgents(global);
+    if (asJson) {
+      return JSON.stringify(agents, null, 2);
+    }
+    const table = createTable(['Agent Id', 'Status', 'Agent Type']);
+    for (const agent of agents) {
+      const status = resolveAgentStatus(agent);
+      table.push([
+        agent._id,
+        status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+        agent._type.name,
+      ]);
+    }
+    return table.toString();
+  } catch (error) {
+    printError(error, `Error describing agents`);
+    return '';
+  }
+}
+
+/**
+ * Import AIAgents from separate files
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importAIAgentsFromFiles(): Promise<boolean> {
+  try {
+    debugMessage(`cli.AgentOps.importAIAgentsFromFiles: start`);
+    const workDir = getWorkingDirectory();
+    const files = fs.readdirSync(workDir);
+    const importFiles = files.filter((f) => f.endsWith('.ai.agent.json'));
+    let outcome = true;
+    for (const file of importFiles) {
+      const data = fs.readFileSync(getFilePath(file), 'utf8');
+      const importData = normalizeAgentImportData(
+        JSON.parse(data) as AgentImportData
+      );
+      if (!importData.agent) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      try {
+        await importAIAgents(importData);
+      } catch (error) {
+        printError(error, `Error importing AIAgents from file ${file}`);
+        outcome = false;
+      }
+    }
+    debugMessage(`cli.AgentOps.importAIAgentsFromFiles: end`);
+    return outcome;
+  } catch (error) {
+    printError(error, `Error importing AIAgents from files`);
+  }
+  return false;
+}
+
+/**
+ * Import first AIAgent from file
+ * @param {string} file import file name
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
+export async function importFirstAIAgentFromFile(
+  file: string
+): Promise<boolean> {
+  try {
+    debugMessage(`cli.AgentOps.importFirstAIAgentFromFile: start`);
+    const verbose = state.getVerbose();
+    const data = fs.readFileSync(getFilePath(file), 'utf8');
+    const importData = normalizeAgentImportData(
+      JSON.parse(data) as AgentImportData
+    );
+    if (importData.agent && Object.keys(importData.agent).length > 0) {
+      const agentId = Object.keys(importData.agent)[0];
+      let spinnerId: string | undefined;
+      if (!verbose) {
+        spinnerId = createProgressIndicator(
+          'indeterminate',
+          0,
+          `Importing first AIAgent (${agentId})...`
+        );
+      }
+      try {
+        if (verbose)
+          spinnerId = createProgressIndicator(
+            'indeterminate',
+            0,
+            `Importing first AIAgent (${agentId})...`
+          );
+        await importAIAgents(importData);
+        stopProgressIndicator(spinnerId, `Imported first AIAgent.`, 'success');
+        debugMessage(`cli.AgentOps.importFirstAIAgentFromFile: end`);
+        return true;
+      } catch (error) {
+        stopProgressIndicator(
+          spinnerId,
+          `Error importing first AIAgent`,
+          'fail'
+        );
+        printError(error, `Error importing first AIAgent`);
+      }
+    } else {
+      const spinnerId = createProgressIndicator(
+        'indeterminate',
+        0,
+        `Importing first AIAgent...`
+      );
+      stopProgressIndicator(spinnerId, `No AIAgents found!`, 'fail');
+    }
+    debugMessage(`cli.AgentOps.importFirstAIAgentFromFile: end`);
+  } catch (error) {
+    printError(error, `Error importing first AIAgent from file`);
   }
   return false;
 }

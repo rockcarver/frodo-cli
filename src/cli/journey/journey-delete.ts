@@ -25,9 +25,15 @@ export default function setup() {
     )
     .addOption(
       new Option(
-        '--no-deep',
-        'No deep delete. This leaves orphaned configuration artifacts behind.'
+        '--deep',
+        'Deep delete. Also delete journey node artifacts (for older AM versions).'
       )
+    )
+    .addOption(
+      new Option(
+        '--no-deep',
+        'Deprecated compatibility flag. Deep delete is disabled by default.'
+      ).hideHelp()
     )
     .action(
       // implement command logic inside action handler
@@ -40,6 +46,11 @@ export default function setup() {
           options,
           command
         );
+        // Default to shallow delete. --deep explicitly opts into legacy deep behavior.
+        const deep = options.deep === true;
+        const verbose = state.getVerbose();
+        const deleteJourneyOptions = { deep, verbose, progress: true };
+        const deleteJourneysOptions = { deep, verbose };
         // delete by id
         if (options.journeyId && (await getTokens())) {
           verboseMessage(
@@ -47,13 +58,16 @@ export default function setup() {
               options.journeyId
             } in realm "${state.getRealm()}"...`
           );
-          const outcome = await deleteJourney(options.journeyId, options);
+          const outcome = await deleteJourney(
+            options.journeyId,
+            deleteJourneyOptions
+          );
           if (!outcome) process.exitCode = 1;
         }
         // --all -a
         else if (options.all && (await getTokens())) {
           verboseMessage('Deleting all journeys...');
-          const outcome = await deleteJourneys(options);
+          const outcome = await deleteJourneys(deleteJourneysOptions);
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

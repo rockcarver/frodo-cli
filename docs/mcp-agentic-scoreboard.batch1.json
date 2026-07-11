@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-04-28T02:19:37.529Z",
+  "runCount": 30,
+  "variants": {
+    "agentic": {
+      "runCount": 10,
+      "completedCount": 10,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 1.1,
+      "firstAttemptSuccessRate": 100,
+      "duplicateRetryRate": 10,
+      "totalAttempts": 11,
+      "duplicateRetryCount": 1
+    },
+    "standard": {
+      "runCount": 10,
+      "completedCount": 10,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 1.2,
+      "firstAttemptSuccessRate": 90,
+      "duplicateRetryRate": 10,
+      "totalAttempts": 12,
+      "duplicateRetryCount": 1
+    },
+    "admin": {
+      "runCount": 10,
+      "completedCount": 10,
+      "completionRate": 100,
+      "meanAttemptsPerTask": 1.3,
+      "firstAttemptSuccessRate": 80,
+      "duplicateRetryRate": 10,
+      "totalAttempts": 13,
+      "duplicateRetryCount": 1
+    }
+  }
+}
