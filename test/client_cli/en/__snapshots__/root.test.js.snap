@@ -37,11 +37,9 @@ Commands:
                                     trust.
   script                            Manage scripts.
   secretstore                       Manage secret stores.
+  server                            Manage servers.
   service                           Manage AM services.
   theme                             Manage themes.
-
-  (Classic-only):
-  server                            Manage servers.
 
   (Cloud-only):
   dcc|direct-configuration-control  [Preview] Direct Configuration Control (DCC)
