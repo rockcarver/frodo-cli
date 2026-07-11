@@ -124,7 +124,7 @@ function debug(message: string | object, newline = true) {
  */
 function curlirize(message: string) {
   if (!message) return;
-  console.error(message['brightBlue']);
+  printMessage(message['brightBlue']);
 }
 
 /**
