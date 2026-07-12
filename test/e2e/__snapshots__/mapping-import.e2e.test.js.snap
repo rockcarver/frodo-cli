@@ -10,40 +10,8 @@ exports[`frodo mapping import "frodo mapping import --no-deps --mapping-id mappi
 
 exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/cloud/global/idm": should import all mappings from the test/e2e/exports/all-separate/cloud/global/idm directory" 1`] = `""`;
 
-exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/forgeops/global -m forgeops": should import all mappings from the test/e2e/exports/all-separate/forgeops/global directory 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -AD test/e2e/exports/all-separate/forgeops/global -m forgeops": should import all mappings from the test/e2e/exports/all-separate/forgeops/global directory 2`] = `""`;
-
 exports[`frodo mapping import "frodo mapping import -af test/e2e/exports/all/allMappings.mapping.json": should import all mappings from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
 
 exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all/allMappings.mapping.json": should import the first mapping from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping from the test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping from the test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file 2`] = `
-"• Successfully imported first mapping from test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json.
-"
-`;
-
-exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping from the test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping from the test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file 2`] = `
-"• Successfully imported first mapping from test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json.
-"
-`;
-
-exports[`frodo mapping import "frodo mapping import -i mapping/UserToUserGroovy -f test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping 'mapping/UserToUserGroovy' from the test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -i mapping/UserToUserGroovy -f test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json -m forgeops": should import mapping 'mapping/UserToUserGroovy' from the test/e2e/exports/all-separate/forgeops/global/mapping/UserToUserGroovy/UserToUserGroovy.mapping.json file 2`] = `
-"• Successfully imported mapping mapping/UserToUserGroovy.
-"
-`;
-
-exports[`frodo mapping import "frodo mapping import -i sync/UserToUserJavascriptSync U -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping 'sync/UserToUserJavascriptSync' from the test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file 1`] = `""`;
-
-exports[`frodo mapping import "frodo mapping import -i sync/UserToUserJavascriptSync U -f test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json -m forgeops": should import mapping 'sync/UserToUserJavascriptSync' from the test/e2e/exports/all-separate/forgeops/global/sync/UserToUserJavascriptSync/UserToUserJavascriptSync.sync.json file 2`] = `
-"• Successfully imported mapping sync/UserToUserJavascriptSync.
-"
-`;
 
 exports[`frodo mapping import "frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f test/e2e/exports/all/allMappings.mapping.json": should import the mapping with the id "sync/managedAlpha_application_managedBravo_application" from the file "test/e2e/exports/all/allMappings.mapping.json" 1`] = `""`;
