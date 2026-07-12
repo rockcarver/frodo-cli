@@ -63,16 +63,16 @@ process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 const type = 'gateway.agent';
-const stagingCommand = `frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json`;
+// const stagingCommand = `frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json`;
 
 describe('frodo agent gateway export', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent gateway delete -i frodo-test-ig-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent gateway delete -i frodo-test-ig-agent', env);
+    // });
     test('"frodo agent gateway export --agent-id frodo-test-ig-agent": should export the gateway agent with agent id "frodo-test-ig-agent"', async () => {
         const exportFile = "frodo-test-ig-agent.gateway.agent.json";
         const CMD = `frodo agent gateway export --agent-id frodo-test-ig-agent`;

@@ -60,16 +60,16 @@ const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
-const stagingCommand = `frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json`;
+// const stagingCommand = `frodo agent gateway import -i frodo-test-ig-agent -f test/e2e/exports/all/allAlphaAgents.gateway.agent.json`;
 
 describe('frodo agent gateway list', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent gateway delete -i frodo-test-ig-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent gateway delete -i frodo-test-ig-agent', env);
+    // });
     test('"frodo agent gateway list": should list the ids of the gateway agents', async () => {
         const CMD = `frodo agent gateway list`;
         const { stdout } = await exec(CMD, env);

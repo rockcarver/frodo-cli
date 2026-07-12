@@ -74,17 +74,17 @@ const env = getEnv(c);
 const classicEnv = getEnv(cc);
 
 const type = 'agent';
-const stagingCommand = 'frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json';
-const cleanupCommand = 'frodo agent delete -a';
+// const stagingCommand = 'frodo agent import -af test/e2e/exports/all/allAlphaAgents.agent.json';
+// const cleanupCommand = 'frodo agent delete -a';
 
 describe('frodo agent export', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture(cleanupCommand, env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture(cleanupCommand, env);
+    // });
 
     describe('Cloud Tests:', () => {
         test('"frodo agent export --agent-id frodo-test-java-agent": should export the agent with agent id "frodo-test-java-agent"', async () => {

@@ -73,16 +73,16 @@ const allDirectory = "test/e2e/exports/all";
 const allAlphaJavaAgentsFileName = "allAlphaAgents.java.agent.json";
 const allAlphaJavaAgentsExport = `${allDirectory}/${allAlphaJavaAgentsFileName}`;
 const allSeparateJavaAgentsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/agent`;
-const stagingCommand = `frodo agent java import -i frodo-test-java-agent -f ${allAlphaJavaAgentsExport}`;
+// const stagingCommand = `frodo agent java import -i frodo-test-java-agent -f ${allAlphaJavaAgentsExport}`;
 
 describe('frodo agent java import', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent java delete -i frodo-test-java-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent java delete -i frodo-test-java-agent', env);
+    // });
     test(`"frodo agent java import -i frodo-test-java-agent -f ${allAlphaJavaAgentsExport}": should import the agent with the id "frodo-test-java-agent" from the file "${allAlphaJavaAgentsExport}"`, async () => {
         const CMD = `frodo agent java import -i frodo-test-java-agent -f ${allAlphaJavaAgentsExport}`;
         const { stdout } = await exec(CMD, env);

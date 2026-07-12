@@ -63,16 +63,16 @@ process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 const type = 'web.agent';
-const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.web.agent.json`;
+// const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f test/e2e/exports/all/allAlphaAgents.web.agent.json`;
 
 describe('frodo agent web export', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
+    // });
     test('"frodo agent web export --agent-id frodo-test-web-agent": should export the web agent with agent id "frodo-test-web-agent"', async () => {
         const exportFile = "frodo-test-web-agent.web.agent.json";
         const CMD = `frodo agent web export --agent-id frodo-test-web-agent`;

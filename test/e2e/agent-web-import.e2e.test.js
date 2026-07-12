@@ -73,16 +73,16 @@ const allDirectory = "test/e2e/exports/all";
 const allAlphaWebAgentsFileName = "allAlphaAgents.web.agent.json";
 const allAlphaWebAgentsExport = `${allDirectory}/${allAlphaWebAgentsFileName}`;
 const allSeparateWebAgentsDirectory = `test/e2e/exports/all-separate/cloud/realm/root-alpha/agent`;
-const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f ${allAlphaWebAgentsExport}`;
+// const stagingCommand = `frodo agent web import -i frodo-test-web-agent -f ${allAlphaWebAgentsExport}`;
 
 describe('frodo agent web import', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent web delete -i frodo-test-web-agent', env);
+    // });
 
     test(`"frodo agent web import -i frodo-test-web-agent -f ${allAlphaWebAgentsExport}": should import the agent with the id "frodo-test-web-agent" from the file "${allAlphaWebAgentsExport}"`, async () => {
         const CMD = `frodo agent web import -i frodo-test-web-agent -f ${allAlphaWebAgentsExport}`;
