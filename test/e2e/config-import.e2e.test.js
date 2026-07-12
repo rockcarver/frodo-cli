@@ -96,7 +96,7 @@ import {
 import { connection as c, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
-const env = getEnv(c);
+const cloudEnv = getEnv(c);
 const classicEnv = getEnv(cc);
 const forgeopsEnv = getEnv(fc);
 
@@ -113,104 +113,110 @@ const allSeparateForgeopsDirectory = `test/e2e/exports/all-separate/forgeops`;
 
 describe('frodo config import', () => {
 
-  // TODO: Re-record test
-  test.skip(`"frodo config import -adf ${allCloudExport}" Import everything from "${allCloudFileName}", including default scripts.`, async () => {
-    const CMD = `frodo config import -adf ${allCloudExport}`;
-    await testSuccess(CMD, env);
-  });
+  describe('Cloud', () => {
 
-  // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-  test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}" Import everything from "${allCloudFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-    const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}`;
-    await testSuccess(CMD, env);
-  });
+    // TODO: Re-record test
+    test.skip(`"frodo config import -adf ${allCloudExport}" Import everything from "${allCloudFileName}", including default scripts.`, async () => {
+      const CMD = `frodo config import -adf ${allCloudExport}`;
+      await testSuccess(CMD, cloudEnv);
+    });
 
-  // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-  test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}" Import everything from directory "${allSeparateCloudDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-    const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}`;
-    await testSuccess(CMD, env);
-  });
+    // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
+    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}" Import everything from "${allCloudFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allCloudExport}`;
+      await testSuccess(CMD, cloudEnv);
+    });
 
-  // TODO: Re-record test
-  test.skip(`"frodo config import -AD ${allSeparateCloudDirectory} --include-active-values" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
-    const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --include-active-values`;
-    await testFail(CMD, env);
-  });
+    // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
+    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}" Import everything from directory "${allSeparateCloudDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateCloudDirectory}`;
+      await testSuccess(CMD, cloudEnv);
+    });
 
-  test(`"frodo config import -gf ${allSeparateCloudDirectory}/global/sync/sync.idm.json" Import sync.idm.json along with extracted mappings and no errors`, async () => {
-    const CMD = `frodo config import -gf ${allSeparateCloudDirectory}/global/sync/sync.idm.json`;
-    await testSuccess(CMD, env);
-  });
+    // TODO: Re-record test
+    test.skip(`"frodo config import -AD ${allSeparateCloudDirectory} --include-active-values" Import everything with secret values from directory "${allSeparateCloudDirectory}"`, async () => {
+      const CMD = `frodo config import -AD ${allSeparateCloudDirectory} --include-active-values`;
+      await testFail(CMD, cloudEnv);
+    });
 
-  test(`"frodo config import --file ${allSeparateCloudDirectory}/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors`, async () => {
-    const CMD = `frodo config import --file ${allSeparateCloudDirectory}/realm/root-alpha/script/mode.script.json`;
-    await testSuccess(CMD, env);
+    // TODO: Re-record test
+    test.skip(`"frodo config import -gf ${allSeparateCloudDirectory}/global/sync/sync.idm.json" Import sync.idm.json along with extracted mappings and no errors`, async () => {
+      const CMD = `frodo config import -gf ${allSeparateCloudDirectory}/global/sync/sync.idm.json`;
+      await testSuccess(CMD, cloudEnv);
+    });
+
+    test(`"frodo config import --file ${allSeparateCloudDirectory}/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors`, async () => {
+      const CMD = `frodo config import --file ${allSeparateCloudDirectory}/realm/root-alpha/script/mode.script.json`;
+      await testSuccess(CMD, cloudEnv);
+    });
   });
 
   // Classic Env Tests
+  describe('Classic', () => {
+    // TODO: Re-record test
+    test.skip(`"frodo config import -adf ${allClassicExport} -m classic" Import everything from "${allClassicFileName}", including default scripts.`, async () => {
+      const CMD = `frodo config import -adf ${allClassicExport} -m classic`;
+      await testFail(CMD, classicEnv);
+    }, 300000);
 
-  // TODO: Re-record test
-  test.skip(`"frodo config import -adf ${allClassicExport} -m classic" Import everything from "${allClassicFileName}", including default scripts.`, async () => {
-    const CMD = `frodo config import -adf ${allClassicExport} -m classic`;
-    await testFail(CMD, classicEnv);
-  }, 300000);
+    // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
+    test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport} --type classic" Import everything from "${allClassicFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport}--type classic`;
+      await testSuccess(CMD, classicEnv);
+    });
 
-  // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-  test.skip(`"frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport} --type classic" Import everything from "${allClassicFileName}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-    const CMD = `frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file ${allClassicExport}--type classic`;
-    await testSuccess(CMD, classicEnv);
-  });
+    // TODO: Re-record test
+    test.skip(`"frodo config import -AdD ${allSeparateClassicDirectory} -m classic" Import everything from directory "${allSeparateClassicDirectory}"`, async () => {
+      const CMD = `frodo config import -AdD ${allSeparateClassicDirectory} -m classic`;
+      await testFail(CMD, classicEnv);
+    }, 300000);
 
-  // TODO: Re-record test
-  test.skip(`"frodo config import -AdD ${allSeparateClassicDirectory} -m classic" Import everything from directory "${allSeparateClassicDirectory}"`, async () => {
-    const CMD = `frodo config import -AdD ${allSeparateClassicDirectory} -m classic`;
-    await testFail(CMD, classicEnv);
-  }, 300000);
+    // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
+    test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic" Import everything from directory "${allSeparateClassicDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
+      const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic`;
+      await testSuccess(CMD, classicEnv);
+    });
 
-  // TODO: Fix test. Unable get test passing consistently, even after recording mocks (probably due to the re-uuid stuff). Skip for the meantime
-  test.skip(`"frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic" Import everything from directory "${allSeparateClassicDirectory}". Clean old services, and re-uuid journeys and scripts.`, async () => {
-    const CMD = `frodo config import --all-separate --clean --re-uuid-scripts --re-uuid-journeys --directory ${allSeparateClassicDirectory} --type classic`;
-    await testSuccess(CMD, classicEnv);
-  });
+    test(`"frodo config import -gf ${allSeparateClassicDirectory}/global/server/01.server.json -m classic" Import server 01 along with extracted properties and no errors`, async () => {
+      const CMD = `frodo config import -gf ${allSeparateClassicDirectory}/global/server/01.server.json -m classic`;
+      await testSuccess(CMD, classicEnv);
+    });
 
-  test(`"frodo config import -gf ${allSeparateClassicDirectory}/global/server/01.server.json -m classic" Import server 01 along with extracted properties and no errors`, async () => {
-    const CMD = `frodo config import -gf ${allSeparateClassicDirectory}/global/server/01.server.json -m classic`;
-    await testSuccess(CMD, classicEnv);
-  });
+    test(`"frodo config import --global --file ${allSeparateClassicDirectory}/global/authenticationModules/authPushReg.authenticationModules.json --type classic" Fail to import authentication module due to it being read only.`, async () => {
+      const CMD = `frodo config import --global --file ${allSeparateClassicDirectory}/global/authenticationModules/authPushReg.authenticationModules.json --type classic`;
+      await testFail(CMD, classicEnv);
+    });
 
-  test(`"frodo config import --global --file ${allSeparateClassicDirectory}/global/authenticationModules/authPushReg.authenticationModules.json --type classic" Fail to import authentication module due to it being read only.`, async () => {
-    const CMD = `frodo config import --global --file ${allSeparateClassicDirectory}/global/authenticationModules/authPushReg.authenticationModules.json --type classic`;
-    await testFail(CMD, classicEnv);
-  });
-
-  test(`"frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors`, async () => {
-    const CMD = `frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic`;
-    await testSuccess(CMD, classicEnv);
+    test(`"frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic" Import the webhook service with no errors`, async () => {
+      const CMD = `frodo config import -f ${allSeparateClassicDirectory}/realm/root/webhookService/Cool-Webhook.webhookService.json -m classic`;
+      await testSuccess(CMD, classicEnv);
+    });
   });
 
   // Forgeops Tests
+  describe('Forgeops', () => {
+    test(`"frodo config import -af ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}".`, async () => {
+      const CMD = `frodo config import -af ${allForgeopsExport} -m forgeops`;
+      await testFail(CMD, forgeopsEnv);
+    });
 
-  test(`"frodo config import -af ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}".`, async () => {
-    const CMD = `frodo config import -af ${allForgeopsExport} -m forgeops`;
-    await testFail(CMD, forgeopsEnv);
-  });
+    // The tests with -C, --clean result in polly recording errors in the snapshots. This is because certain service configuration is not deletable.
+    // TODO: For some reason Polly is unable to record these delete requests. If it's possible to fix this issue, then update this test to pass.
+    test.skip(`"frodo config import -aCf ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}". Clean old services`, async () => {
+      const CMD = `frodo config import -aCf ${allForgeopsExport} -m forgeops`;
+      await testFail(CMD, forgeopsEnv);
+    });
 
-  // The tests with -C, --clean result in polly recording errors in the snapshots. This is because certain service configuration is not deletable.
-  // TODO: For some reason Polly is unable to record these delete requests. If it's possible to fix this issue, then update this test to pass.
-  test.skip(`"frodo config import -aCf ${allForgeopsExport} -m forgeops" Import everything from "${allForgeopsFileName}". Clean old services`, async () => {
-    const CMD = `frodo config import -aCf ${allForgeopsExport} -m forgeops`;
-    await testFail(CMD, forgeopsEnv);
-  });
+    test(`"frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}".`, async () => {
+      const CMD = `frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops`;
+      await testFail(CMD, forgeopsEnv);
+    });
 
-  test(`"frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}".`, async () => {
-    const CMD = `frodo config import -AD ${allSeparateForgeopsDirectory} -m forgeops`;
-    await testFail(CMD, forgeopsEnv);
-  });
-
-  // The tests with -C, --clean result in polly recording errors in the snapshots. This is because certain service configuration is not deletable.
-  // TODO: For some reason Polly is unable to record these delete requests. If it's possible to fix this issue, then update this test to pass.
-  test.skip(`"frodo config import --default -CAD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}", including default scripts. Clean old services`, async () => {
-    const CMD = `frodo config import --default -CAD ${allSeparateForgeopsDirectory} -m forgeops`;
-    await testFail(CMD, forgeopsEnv);
+    // The tests with -C, --clean result in polly recording errors in the snapshots. This is because certain service configuration is not deletable.
+    // TODO: For some reason Polly is unable to record these delete requests. If it's possible to fix this issue, then update this test to pass.
+    test.skip(`"frodo config import --default -CAD ${allSeparateForgeopsDirectory} -m forgeops" Import everything from directory "${allSeparateForgeopsDirectory}", including default scripts. Clean old services`, async () => {
+      const CMD = `frodo config import --default -CAD ${allSeparateForgeopsDirectory} -m forgeops`;
+      await testFail(CMD, forgeopsEnv);
+    });
   });
 });
