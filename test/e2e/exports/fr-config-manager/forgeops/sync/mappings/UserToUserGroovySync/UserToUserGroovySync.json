@@ -1,0 +1,451 @@
+{
+  "_id": "sync/UserToUserGroovySync",
+  "correlationScript": {
+    "globals": {
+      "test": null
+    },
+    "source": "['test', 'default']",
+    "type": "groovy"
+  },
+  "displayName": "User Test Groovy Sync",
+  "linkQualifiers": {
+    "globals": {
+      "test": null
+    },
+    "source": "// Hello there!\n// This is a test comment\n[]",
+    "type": "groovy"
+  },
+  "name": "UserToUserGroovySync",
+  "null": {
+    "globals": {
+      "test": null
+    },
+    "source": "// other",
+    "type": "groovy"
+  },
+  "onCreate": {
+    "globals": {
+      "test": null
+    },
+    "source": "// onCreate",
+    "type": "groovy"
+  },
+  "onDelete": {
+    "globals": {
+      "test": null
+    },
+    "source": "// onDelete",
+    "type": "groovy"
+  },
+  "onLink": {
+    "globals": {
+      "test": null
+    },
+    "source": "// onLink",
+    "type": "groovy"
+  },
+  "onUnlink": {
+    "globals": {
+      "test": null
+    },
+    "source": "// onUnlink",
+    "type": "groovy"
+  },
+  "onUpdate": {
+    "globals": {
+      "test": null
+    },
+    "source": "// onUpdate",
+    "type": "groovy"
+  },
+  "policies": [
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform ambiguous",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When ambiguous",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete ambiguous",
+        "type": "groovy"
+      },
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform source missing",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When source missing",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete source missing",
+        "type": "groovy"
+      },
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform missing",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When missing",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete missing",
+        "type": "groovy"
+      },
+      "situation": "MISSING"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform found already linked",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When found already linked",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete found already linked",
+        "type": "groovy"
+      },
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform unqualified",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When unqualified",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete unqualified",
+        "type": "groovy"
+      },
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform unassigned",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When unassigned",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete unassigned",
+        "type": "groovy"
+      },
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform link_only",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When link_only",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete link_only",
+        "type": "groovy"
+      },
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform target_ignored",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When target_ignored",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete target_ignored",
+        "type": "groovy"
+      },
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform source_ignored",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When source_ignored",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete source_ignored",
+        "type": "groovy"
+      },
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform all_gone",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When all_gone",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete all_gone",
+        "type": "groovy"
+      },
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform confirmed",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When confirmed",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete confirmed",
+        "type": "groovy"
+      },
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform found",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When found",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete found",
+        "type": "groovy"
+      },
+      "situation": "FOUND"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform absent",
+        "type": "groovy"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When absent",
+        "type": "groovy"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete absent",
+        "type": "groovy"
+      },
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [
+    {
+      "source": "mail",
+      "target": "mail"
+    },
+    {
+      "condition": {
+        "globals": {},
+        "source": "true;",
+        "type": "groovy"
+      },
+      "default": "test",
+      "source": "",
+      "target": "sn",
+      "transform": {
+        "globals": {
+          "test": null
+        },
+        "source": "source.sn.toLowerCase();",
+        "type": "groovy"
+      }
+    },
+    {
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "true;",
+        "type": "groovy"
+      },
+      "default": "test",
+      "source": "givenName",
+      "target": "givenName",
+      "transform": {
+        "globals": {
+          "test": null
+        },
+        "source": "source.toLowerCase();",
+        "type": "groovy"
+      }
+    },
+    {
+      "condition": "(/object/_id eq \"hello\" and (/object/_id co \"test\" or /object/activeDate sw \"bye\"))",
+      "target": "userName"
+    }
+  ],
+  "result": {
+    "globals": {
+      "test": null
+    },
+    "source": "// Recon script",
+    "type": "groovy"
+  },
+  "source": "managed/user",
+  "sourceQuery": {
+    "_queryFilter": "_id co \"1\""
+  },
+  "syncAfter": [],
+  "target": "managed/user",
+  "targetQuery": {
+    "_queryFilter": "_id sw \"2\""
+  },
+  "validSource": {
+    "globals": {
+      "test": null
+    },
+    "source": "// Validate source script",
+    "type": "groovy"
+  },
+  "validTarget": {
+    "globals": {
+      "validate": null
+    },
+    "source": "// Validate source script",
+    "type": "groovy"
+  }
+}

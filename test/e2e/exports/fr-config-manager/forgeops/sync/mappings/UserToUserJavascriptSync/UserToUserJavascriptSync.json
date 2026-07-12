@@ -1,0 +1,453 @@
+{
+  "_id": "sync/UserToUserJavascriptSync",
+  "correlationScript": {
+    "file": "UserToUserJavascriptSync.correlationScript.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "displayName": "User Test Javascript Sync",
+  "linkQualifiers": {
+    "file": "UserToUserJavascriptSync.linkQualifiers.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "name": "UserToUserJavascriptSync",
+  "null": {
+    "file": "UserToUserJavascriptSync.null.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onCreate": {
+    "file": "UserToUserJavascriptSync.onCreate.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onDelete": {
+    "file": "UserToUserJavascriptSync.onDelete.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onLink": {
+    "file": "UserToUserJavascriptSync.onLink.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onUnlink": {
+    "file": "UserToUserJavascriptSync.onUnlink.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "onUpdate": {
+    "file": "UserToUserJavascriptSync.onUpdate.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "policies": [
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform ambiguous",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When ambiguous",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete ambiguous",
+        "type": "text/javascript"
+      },
+      "situation": "AMBIGUOUS"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform source missing",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When source missing",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete source missing",
+        "type": "text/javascript"
+      },
+      "situation": "SOURCE_MISSING"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform missing",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When missing",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete missing",
+        "type": "text/javascript"
+      },
+      "situation": "MISSING"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform found already linked",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When found already linked",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete found already linked",
+        "type": "text/javascript"
+      },
+      "situation": "FOUND_ALREADY_LINKED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform unqualified",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When unqualified",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete unqualified",
+        "type": "text/javascript"
+      },
+      "situation": "UNQUALIFIED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform unassigned",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When unassigned",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete unassigned",
+        "type": "text/javascript"
+      },
+      "situation": "UNASSIGNED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform link_only",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When link_only",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete link_only",
+        "type": "text/javascript"
+      },
+      "situation": "LINK_ONLY"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform target_ignored",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When target_ignored",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete target_ignored",
+        "type": "text/javascript"
+      },
+      "situation": "TARGET_IGNORED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform source_ignored",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When source_ignored",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete source_ignored",
+        "type": "text/javascript"
+      },
+      "situation": "SOURCE_IGNORED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform all_gone",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When all_gone",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete all_gone",
+        "type": "text/javascript"
+      },
+      "situation": "ALL_GONE"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform confirmed",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When confirmed",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete confirmed",
+        "type": "text/javascript"
+      },
+      "situation": "CONFIRMED"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform found",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When found",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete found",
+        "type": "text/javascript"
+      },
+      "situation": "FOUND"
+    },
+    {
+      "action": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Perform absent",
+        "type": "text/javascript"
+      },
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "// When absent",
+        "type": "text/javascript"
+      },
+      "postAction": {
+        "globals": {
+          "test": null
+        },
+        "source": "// Complete absent",
+        "type": "text/javascript"
+      },
+      "situation": "ABSENT"
+    }
+  ],
+  "properties": [
+    {
+      "source": "mail",
+      "target": "mail"
+    },
+    {
+      "condition": {
+        "globals": {},
+        "source": "true;",
+        "type": "text/javascript"
+      },
+      "default": "test",
+      "source": "",
+      "target": "sn",
+      "transform": {
+        "globals": {
+          "test": null
+        },
+        "source": "source.sn.toLowerCase();",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "condition": {
+        "globals": {
+          "test": null
+        },
+        "source": "true;",
+        "type": "text/javascript"
+      },
+      "default": "test",
+      "source": "givenName",
+      "target": "givenName",
+      "transform": {
+        "globals": {
+          "test": null
+        },
+        "source": "source.toLowerCase();",
+        "type": "text/javascript"
+      }
+    },
+    {
+      "condition": "(/object/_id eq \"hello\" and (/object/_id co \"test\" or /object/activeDate sw \"bye\"))",
+      "target": "userName"
+    }
+  ],
+  "result": {
+    "file": "UserToUserJavascriptSync.result.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "source": "managed/user",
+  "sourceQuery": {
+    "_queryFilter": "_id co \"1\""
+  },
+  "syncAfter": [
+    "UserToUserGroovySync"
+  ],
+  "target": "managed/user",
+  "targetQuery": {
+    "_queryFilter": "_id sw \"2\""
+  },
+  "validSource": {
+    "file": "UserToUserJavascriptSync.validSource.js",
+    "globals": {
+      "test": null
+    },
+    "type": "text/javascript"
+  },
+  "validTarget": {
+    "file": "UserToUserJavascriptSync.validTarget.js",
+    "globals": {
+      "validate": null
+    },
+    "type": "text/javascript"
+  }
+}
