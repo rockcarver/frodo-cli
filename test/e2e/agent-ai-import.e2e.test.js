@@ -47,9 +47,9 @@
  */
 
 /*
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -i testAgent -f test/e2e/exports/all/allAlphaAgents.ai.agent.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -f test/e2e/exports/all/allAlphaAgents.ai.agent.json
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -af test/e2e/exports/all/allAlphaAgents.ai.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -i testAgent -f test/e2e/exports/all/allAlphaAIAgents.ai.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -f test/e2e/exports/all/allAlphaAIAgents.ai.agent.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo agent ai import -af test/e2e/exports/all/allAlphaAIAgents.ai.agent.json
 */
 
 import cp from 'child_process';
@@ -63,33 +63,37 @@ process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 const allDirectory = 'test/e2e/exports/all';
-const allAlphaAIAgentsFileName = 'allAlphaAgents.ai.agent.json';
+const allAlphaAIAgentsFileName = 'allAlphaAIAgents.ai.agent.json';
 const allAlphaAIAgentsExport = `${allDirectory}/${allAlphaAIAgentsFileName}`;
-const stagingCommand = `frodo agent ai import volker-dev -i testAgent -f ${allAlphaAIAgentsExport}`;
+// const stagingCommand = `frodo agent ai import -i testAgent -f ${allAlphaAIAgentsExport}`;
 
 describe('frodo agent ai import', () => {
-  beforeEach(async () => {
-    await stageFixture(stagingCommand, env);
-  });
+  // beforeEach(async () => {
+  //   if (process.env['FRODO_MOCK'] === 'record') {
+  //     await stageFixture(stagingCommand, env);
+  //   }
+  // });
 
-  afterEach(async () => {
-    await clearFixture('frodo agent ai delete volker-dev -i testAgent', env);
-  });
+  // afterEach(async () => {
+  //   if (process.env['FRODO_MOCK'] === 'record') {
+  //     await clearFixture('frodo agent ai delete -i testAgent', env);
+  //   }
+  // });
 
-  test(`"frodo agent ai import volker-dev -i testAgent -f ${allAlphaAIAgentsExport}": should import testAgent from file`, async () => {
-    const CMD = `frodo agent ai import volker-dev -i testAgent -f ${allAlphaAIAgentsExport}`;
+  test(`"frodo agent ai import -i testAgent -f ${allAlphaAIAgentsExport}": should import testAgent from file`, async () => {
+    const CMD = `frodo agent ai import -i testAgent -f ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo agent ai import volker-dev -f ${allAlphaAIAgentsExport}": should import first AI agent from file`, async () => {
-    const CMD = `frodo agent ai import volker-dev -f ${allAlphaAIAgentsExport}`;
+  test(`"frodo agent ai import -f ${allAlphaAIAgentsExport}": should import first AI agent from file`, async () => {
+    const CMD = `frodo agent ai import -f ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
 
-  test(`"frodo agent ai import volker-dev -af ${allAlphaAIAgentsExport}": should import all AI agents from file`, async () => {
-    const CMD = `frodo agent ai import volker-dev -af ${allAlphaAIAgentsExport}`;
+  test(`"frodo agent ai import -af ${allAlphaAIAgentsExport}": should import all AI agents from file`, async () => {
+    const CMD = `frodo agent ai import -af ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
   });
