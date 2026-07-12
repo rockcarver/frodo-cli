@@ -21,6 +21,41 @@ export function removeAnsiEscapeCodes(text) {
 }
 
 /**
+ * Mask random ForgeRock transaction IDs that make snapshots non-deterministic.
+ * @param {string} text
+ * @returns {string}
+ */
+export function maskTransactionIds(text) {
+  if (!text) return text;
+  return text.replace(
+    /"x-forgerock-transactionid":\s*"frodo-[0-9a-f-]+"/g,
+    '"x-forgerock-transactionid": "frodo-<transaction-id>"'
+  );
+}
+
+/**
+ * Normalize absolute local/CI stack trace paths in snapshot text.
+ * @param {string} text
+ * @returns {string}
+ */
+export function normalizeStackPaths(text) {
+  if (!text) return text;
+  return text.replace(
+    /\((?:\/Users\/[^)]+|\/home\/runner\/work\/[^)]+)(\/(?:dist\/app\.cjs|node_modules\/.+?@pollyjs\/adapter\/src\/index\.js):\d+:\d+)\)/g,
+    '(<repo>$1)'
+  );
+}
+
+/**
+ * Normalize command output for stable snapshots across local and CI environments.
+ * @param {string} text
+ * @returns {string}
+ */
+export function normalizeSnapshotText(text) {
+  return normalizeStackPaths(maskTransactionIds(removeAnsiEscapeCodes(text)));
+}
+
+/**
  * Returns true when tests run in recording mode.
  * @returns {boolean}
  */
@@ -82,7 +117,7 @@ export function assertNoPollyReplayError(
   command,
   extraMarkers = []
 ) {
-  const text = removePollyRecordingNoise(removeAnsiEscapeCodes(output || ''));
+  const text = removePollyRecordingNoise(normalizeSnapshotText(output || ''));
   const markers = [
     '[Polly] [adapter:node-http] Recording for the following request is not found',
     'PollyError',
@@ -173,8 +208,8 @@ export async function testExport(
   } else {
     expect(filePaths.length >= 1).toBeTruthy();
   }
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  if (checkStderr) expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+  if (checkStderr) expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
   let deleteExportDirectory = true;
   filePaths.forEach((path) => {
     let deleteExportFile = true;
@@ -265,8 +300,8 @@ export async function testPromote(
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
 
 async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {
@@ -401,8 +436,8 @@ export async function testSuccess(
   env,
 ) {
   const { stdout, stderr } = await exec(command, env);
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
 
 /**
@@ -420,7 +455,7 @@ export async function testFail(
     await exec(command, env);
     commandSucceeded = true;
   } catch (e) {
-    expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
     expect(e.code).toMatchSnapshot();
   }
   if (commandSucceeded) {
