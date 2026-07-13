@@ -13,6 +13,7 @@ import {
   stopProgressIndicator,
   updateProgressIndicator,
 } from '../utils/Console';
+import { esvToEnv } from '../utils/FrConfig';
 
 const { getFilePath, saveJsonToFile, readJsonFile } = frodo.utils;
 const {
@@ -20,30 +21,21 @@ const {
   exportSecret,
   createSecret,
   createVersionOfSecret,
+  readVersionsOfSecret,
   pruneVersionsOfSecret,
 } = frodo.cloud.secret;
 
-/**
- * Export all secrets to individual files in fr-config-manager format
- * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
- * @param {boolean} includeActiveValues include active value of secret (default: false)
- * @param {string} target Host URL of target environment to encrypt secret value for
- * @returns {Promise<boolean>} true if successful, false otherwise
- */
 type FrConfigSecret = SecretSkeleton & {
   valueBase64: string;
 };
 
-async function getFrConfigSecrets(): Promise<FrConfigSecret[]> {
-  const originalSecrets = await readSecrets();
-  return originalSecrets.map((secret) => ({
-    ...secret,
-    valueBase64: `\${${secret._id.toUpperCase().replace(/-/g, '_')}}`,
-  }));
-}
-
+/**
+ * Export all secrets to individual files in fr-config-manager format
+ * @param {boolean} activeOnly true to export only active secret versions, false to export all secrets versions
+ * @returns {Promise<boolean>} true if successful, false otherwise
+ */
 export async function configManagerExportSecrets(
-  target?: string
+  activeOnly?: boolean
 ): Promise<boolean> {
   let secrets: FrConfigSecret[] = [];
   const spinnerId = createProgressIndicator(
@@ -52,7 +44,7 @@ export async function configManagerExportSecrets(
     `Reading secrets...`
   );
   try {
-    secrets = await getFrConfigSecrets();
+    secrets = (await readSecrets()) as FrConfigSecret[];
     secrets.sort((a, b) => a._id.localeCompare(b._id));
     stopProgressIndicator(
       spinnerId,
@@ -67,18 +59,35 @@ export async function configManagerExportSecrets(
     for (const secret of secrets) {
       const exportData: SecretsExportInterface = await exportSecret(
         secret._id,
-        false,
-        target
+        false
       );
       const [secretKey] = Object.keys(exportData.secret);
       const fullSecret = exportData.secret[secretKey] as FrConfigSecret;
-      const cleanSecret = {
+      const cleanSecret: Partial<SecretSkeleton> = {
         _id: fullSecret._id,
         description: fullSecret.description,
         encoding: fullSecret.encoding,
         useInPlaceholders: fullSecret.useInPlaceholders,
-        valueBase64: `\${${secret._id.toUpperCase().replace(/-/g, '_')}}`,
       };
+      if (activeOnly) {
+        cleanSecret.valueBase64 = `\${${esvToEnv(secret._id)}}`;
+      } else {
+        const versionsResponse = await readVersionsOfSecret(fullSecret._id);
+        const versions = versionsResponse.filter(
+          (version) => version.status !== 'DESTROYED'
+        );
+        const versionInfo = versions.map((version, i) => {
+          const versionNumber = (i + 1).toString();
+
+          return {
+            version: versionNumber,
+            status: version.status,
+            valueBase64: `\${${esvToEnv(`${secret._id}_${versionNumber}`)}}`,
+          };
+        });
+        cleanSecret.versions = versionInfo;
+      }
+
       saveJsonToFile(
         cleanSecret,
         getFilePath(`esvs/secrets/${secret._id}.json`, true),
