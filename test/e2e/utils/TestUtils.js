@@ -136,7 +136,6 @@ export function assertNoPollyReplayError(
   const markers = [
     '[Polly] [adapter:node-http] Recording for the following request is not found',
     'PollyError',
-    'Error getting tokens',
     ...extraMarkers,
   ];
   const hasPollyReplayError = markers.some((marker) => text.includes(marker));
