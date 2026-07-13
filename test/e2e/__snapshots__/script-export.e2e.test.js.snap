@@ -12406,24 +12406,6 @@ exports[`frodo script export "frodo script export --script-name 'GitHub Profile 
 
 exports[`frodo script export "frodo script export --script-name 'GitHub Profile Normalization'": should export the script named "GitHub Profile Normalization" 2`] = `""`;
 
-exports[`frodo script export "frodo script export --script-name 'GitHub Profile Normalization'": should export the script named "GitHub Profile Normalization": GitHub-Profile-Normalization.script.json 1`] = `
-{
-  "meta": Any<Object>,
-  "script": {
-    "a7a78773-445b-4eca-bb93-409e86bced81": {
-      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "default": true,
-      "description": "Normalizes raw profile data from GitHub",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "name": "GitHub Profile Normalization",
-      "script": "file://GitHub-Profile-Normalization.script.groovy",
-    },
-  },
-}
-`;
-
 exports[`frodo script export "frodo script export -A": should export all scripts to separate files 1`] = `0`;
 
 exports[`frodo script export "frodo script export -A": should export all scripts to separate files 2`] = `""`;
@@ -14939,24 +14921,6 @@ return json(object(
 "
 `;
 
-exports[`frodo script export "frodo script export -A": should export all scripts to separate files: GitHub-Profile-Normalization.script.json 1`] = `
-{
-  "meta": Any<Object>,
-  "script": {
-    "a7a78773-445b-4eca-bb93-409e86bced81": {
-      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "default": true,
-      "description": "Normalizes raw profile data from GitHub",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "name": "GitHub Profile Normalization",
-      "script": "file://GitHub-Profile-Normalization.script.groovy",
-    },
-  },
-}
-`;
-
 exports[`frodo script export "frodo script export -A": should export all scripts to separate files: GitHub-Profile-Normalization-(VS).script.groovy 1`] = `
 "/*
  * Copyright 2020 ForgeRock AS. All Rights Reserved
@@ -16136,24 +16100,6 @@ exports[`frodo script export "frodo script export -A": should export all scripts
       "language": "JAVASCRIPT",
       "name": "mode",
       "script": "file://mode.script.js",
-    },
-  },
-}
-`;
-
-exports[`frodo script export "frodo script export -A": should export all scripts to separate files: my-GitHub-Profile-Normalization.script.json 1`] = `
-{
-  "meta": Any<Object>,
-  "script": {
-    "a7a78773-445b-4eca-bb93-409e86bced81": {
-      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "default": true,
-      "description": "Normalizes raw profile data from GitHub",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "name": "GitHub Profile Normalization",
-      "script": "file://GitHub-Profile-Normalization.script.groovy",
     },
   },
 }
@@ -19726,44 +19672,6 @@ exports[`frodo script export "frodo script export -MNaD scriptExportTestDir2": s
 exports[`frodo script export "frodo script export -MNxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1 1`] = `0`;
 
 exports[`frodo script export "frodo script export -MNxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1 2`] = `""`;
-
-exports[`frodo script export "frodo script export -MNxn 'GitHub Profile Normalization' -D scriptExportTestDir1": should export the script named "GitHub Profile Normalization" into the directory scriptExportTestDir1: scriptExportTestDir1/GitHub-Profile-Normalization.script.json 1`] = `
-{
-  "script": {
-    "a7a78773-445b-4eca-bb93-409e86bced81": {
-      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "createdBy": "null",
-      "creationDate": 0,
-      "default": true,
-      "description": "Normalizes raw profile data from GitHub",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "lastModifiedBy": "null",
-      "lastModifiedDate": 0,
-      "name": "GitHub Profile Normalization",
-      "script": [
-        "/*",
-        " * Copyright 2022 ForgeRock AS. All Rights Reserved",
-        " *",
-        " * Use of this code requires a commercial software license with ForgeRock AS.",
-        " * or with one of its affiliates. All use shall be exclusively subject",
-        " * to such license between the licensee and ForgeRock AS.",
-        " */",
-        "",
-        "import static org.forgerock.json.JsonValue.field",
-        "import static org.forgerock.json.JsonValue.json",
-        "import static org.forgerock.json.JsonValue.object",
-        "",
-        "return json(object(",
-        "        field("id", rawProfile.id),",
-        "        field("displayName", rawProfile.name),",
-        "        field("username", rawProfile.login)))",
-      ],
-    },
-  },
-}
-`;
 
 exports[`frodo script export "frodo script export -NAxD scriptExportTestDir3": should export all scripts to separate files in the directory scriptExportTestDir3 1`] = `0`;
 
@@ -31454,21 +31362,3 @@ exports[`frodo script export "frodo script export -ad --file my-allAlphaScripts.
 exports[`frodo script export "frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json": should export the script named "GitHub Profile Normalization" into file named my-GitHub-Profile-Normalization.script.json 1`] = `0`;
 
 exports[`frodo script export "frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json": should export the script named "GitHub Profile Normalization" into file named my-GitHub-Profile-Normalization.script.json 2`] = `""`;
-
-exports[`frodo script export "frodo script export -n 'GitHub Profile Normalization' -f my-GitHub-Profile-Normalization.script.json": should export the script named "GitHub Profile Normalization" into file named my-GitHub-Profile-Normalization.script.json: my-GitHub-Profile-Normalization.script.json 1`] = `
-{
-  "meta": Any<Object>,
-  "script": {
-    "a7a78773-445b-4eca-bb93-409e86bced81": {
-      "_id": "a7a78773-445b-4eca-bb93-409e86bced81",
-      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
-      "default": true,
-      "description": "Normalizes raw profile data from GitHub",
-      "evaluatorVersion": "1.0",
-      "language": "GROOVY",
-      "name": "GitHub Profile Normalization",
-      "script": "file://GitHub-Profile-Normalization.script.groovy",
-    },
-  },
-}
-`;
