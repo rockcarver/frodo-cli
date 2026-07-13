@@ -194,77 +194,97 @@ export async function testExport(
   let stdout;
   let stderr;
   let exitCode = 0;
-  try {
-    const output = await exec(command, env);
-    stdout = output.stdout;
-    stderr = output.stderr;
-  } catch (e) {
-    stdout = e.stdout;
-    stderr = e.stderr;
-    exitCode = e.code;
-  }
-  expect(exitCode).toMatchSnapshot();
-  // console.error(`stdout:\n${stdout}`);
-  // console.error(`stderr:\n${stderr}`);
-  const regex = new RegExp(
-    fileName
-      ? fileName
-      : type
-        ? `.*\\.${type}\\.(json|js|groovy|xml)`
-        : `.*\\.(json|js|groovy|xml)`
-  );
-  const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
-    regex.test(p)
-  );
-  if (fileName) {
-    // if (filePaths.length !== 0)
-    //   console.error(`filePaths:\n${filePaths.join('\n')}`);
-    expect(filePaths.length).toBe(1);
-  } else {
-    expect(filePaths.length >= 1).toBeTruthy();
-  }
-  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
-  if (checkStderr) expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
   let deleteExportDirectory = true;
-  filePaths.forEach((path) => {
-    let deleteExportFile = true;
-    if (path.endsWith('json')) {
-      let exportData = {};
-      try {
-        exportData = JSON.parse(fs.readFileSync(path, 'utf8'));
-      } catch (error) {
-        deleteExportFile = false;
-        deleteExportDirectory = false;
-        exportData = { path, error };
-      }
-      if (checkForMetadata || exportData.meta) {
-        expect(exportData).toMatchSnapshot(
-          {
-            meta: expect.any(Object),
-          },
-          path
-        );
-      } else {
-        expect(exportData).toMatchSnapshot(path);
-      }
+  try {
+    try {
+      const output = await exec(command, env);
+      stdout = output.stdout;
+      stderr = output.stderr;
+    } catch (e) {
+      stdout = e.stdout;
+      stderr = e.stderr;
+      exitCode = e.code;
+    }
+    assertNoPollyReplayError(stdout, command);
+    assertNoPollyReplayError(stderr, command);
+    expect(exitCode).toMatchSnapshot();
+    // console.error(`stdout:\n${stdout}`);
+    // console.error(`stderr:\n${stderr}`);
+    const regex = new RegExp(
+      fileName
+        ? fileName
+        : type
+          ? `.*\\.${type}\\.(json|js|groovy|xml)`
+          : `.*\\.(json|js|groovy|xml)`
+    );
+    const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
+      regex.test(p)
+    );
+    if (fileName) {
+      // if (filePaths.length !== 0)
+      //   console.error(`filePaths:\n${filePaths.join('\n')}`);
+      expect(filePaths.length).toBe(1);
     } else {
-      const data = fs.readFileSync(path, 'utf8');
-      expect(data).toMatchSnapshot(path);
+      expect(filePaths.length >= 1).toBeTruthy();
     }
-    //Delete export file
-    if (deleteExportFile) {
-      try {
-        fs.unlinkSync(path);
-      } catch (error) {
-        // ignore for now, since this is only cleanup
+    expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+    if (checkStderr) expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
+    filePaths.forEach((path) => {
+      let deleteExportFile = true;
+      if (path.endsWith('json')) {
+        let exportData = {};
+        try {
+          exportData = JSON.parse(fs.readFileSync(path, 'utf8'));
+        } catch (error) {
+          deleteExportFile = false;
+          deleteExportDirectory = false;
+          exportData = { path, error };
+        }
+        if (checkForMetadata || exportData.meta) {
+          expect(exportData).toMatchSnapshot(
+            {
+              meta: expect.any(Object),
+            },
+            path
+          );
+        } else {
+          expect(exportData).toMatchSnapshot(path);
+        }
+      } else {
+        const data = fs.readFileSync(path, 'utf8');
+        expect(data).toMatchSnapshot(path);
+      }
+      //Delete export file
+      if (deleteExportFile) {
+        try {
+          fs.unlinkSync(path);
+        } catch (error) {
+          // ignore for now, since this is only cleanup
+        }
+      }
+    });
+  } finally {
+    // Always clean up generated export artifacts, even when an assertion above
+    // (e.g. the Polly replay-integrity guard or a snapshot mismatch) throws
+    // before the normal cleanup runs. Files are intentionally preserved only
+    // when a JSON parse error set deleteExportDirectory to false, so a human
+    // can inspect the malformed export.
+    if (deleteExportDirectory) {
+      if (!isCurrentDirectory) {
+        try {
+          fs.rmSync(directory, { recursive: true, force: true });
+        } catch (error) {
+          // ignore cleanup failures
+        }
+      } else if (fileName) {
+        try {
+          fs.unlinkSync(fileName);
+        } catch (error) {
+          // ignore cleanup failures
+        }
       }
     }
-  });
-  if (!isCurrentDirectory && deleteExportDirectory)
-    fs.rmSync(directory, {
-      recursive: true,
-      force: true,
-    });
+  }
 }
 
 export const testif = (condition) => (condition ? test : test.skip);
@@ -315,6 +335,8 @@ export async function testPromote(
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
+  assertNoPollyReplayError(stdout, CMD);
+  assertNoPollyReplayError(stderr, CMD);
   expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
   expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
@@ -451,6 +473,8 @@ export async function testSuccess(
   env,
 ) {
   const { stdout, stderr } = await exec(command, env);
+  assertNoPollyReplayError(stdout, command);
+  assertNoPollyReplayError(stderr, command);
   expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
   expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
@@ -470,6 +494,8 @@ export async function testFail(
     await exec(command, env);
     commandSucceeded = true;
   } catch (e) {
+    assertNoPollyReplayError(e.stdout, command);
+    assertNoPollyReplayError(e.stderr, command);
     expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
     expect(e.code).toMatchSnapshot();
   }
