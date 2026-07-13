@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'idm' should be expected english 1`] = `
+exports[`CLI help interface for 'idm schema' should be expected english 1`] = `
 "Usage: frodo idm schema [options] [command]
 
 Manage IDM schema.

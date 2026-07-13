@@ -1,0 +1,35 @@
+{
+  "service": {
+    "policyconfiguration": {
+      "_id": "",
+      "_type": {
+        "_id": "policyconfiguration",
+        "collection": false,
+        "name": "Policy Configuration"
+      },
+      "bindDn": "uid=am-config,ou=admins,ou=am-config",
+      "bindPassword": null,
+      "checkIfResourceTypeExists": true,
+      "connectionPoolMaximumSize": 10,
+      "connectionPoolMinimumSize": 1,
+      "ldapServer": [
+        "ds-idrepo-0.ds-idrepo:1636"
+      ],
+      "location": "/",
+      "maximumSearchResults": 100,
+      "mtlsEnabled": false,
+      "nextDescendents": [],
+      "policyHeartbeatInterval": 10,
+      "policyHeartbeatTimeUnit": "SECONDS",
+      "realmSearchFilter": "(objectclass=sunismanagedorganization)",
+      "searchTimeout": 5,
+      "sslEnabled": true,
+      "subjectsResultTTL": 10,
+      "userAliasEnabled": false,
+      "usersBaseDn": "ou=identities",
+      "usersSearchAttribute": "uid",
+      "usersSearchFilter": "(objectclass=inetorgperson)",
+      "usersSearchScope": "SCOPE_SUB"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "authenticationModules": {
+    "radius": {
+      "_id": "radius",
+      "_type": {
+        "_id": "radius",
+        "collection": false,
+        "name": "RADIUS"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "healthCheckInterval": 5,
+        "primaryRadiusServers": [
+          "127.0.0.1"
+        ],
+        "secondaryRadiusServers": [
+          "127.0.0.1"
+        ],
+        "serverPortNumber": 1645,
+        "serverTimeout": 3,
+        "stopRadiusbindAfterInmemoryLockedEnabled": false
+      }
+    }
+  }
+}

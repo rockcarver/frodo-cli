@@ -1,0 +1,74 @@
+{
+  "trees": {
+    "amsterService": {
+      "circlesOfTrust": {},
+      "emailTemplates": {},
+      "innerNodes": {},
+      "nodes": {
+        "cfcd2084-95d5-35ef-a6e7-d7f9f98764db": {
+          "_id": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
+          "_outcomes": [
+            {
+              "displayName": "True",
+              "id": "true"
+            },
+            {
+              "displayName": "False",
+              "id": "false"
+            }
+          ],
+          "_type": {
+            "_id": "AmsterJwtDecisionNode",
+            "collection": true,
+            "name": "Amster Jwt Decision Node"
+          },
+          "authorizedKeys": "/var/run/secrets/amster/authorized_keys"
+        }
+      },
+      "saml2Entities": {},
+      "scripts": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "tree": {
+        "_id": "amsterService",
+        "description": "Authentication Tree for Amster utility",
+        "enabled": true,
+        "entryNodeId": "cfcd2084-95d5-35ef-a6e7-d7f9f98764db",
+        "identityResource": "managed/user",
+        "innerTreeOnly": false,
+        "mustRun": false,
+        "noSession": false,
+        "nodes": {
+          "cfcd2084-95d5-35ef-a6e7-d7f9f98764db": {
+            "connections": {
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "displayName": "Amster Jwt Decision Node",
+            "nodeType": "AmsterJwtDecisionNode",
+            "x": 200,
+            "y": 30
+          }
+        },
+        "staticNodes": {
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 500,
+            "y": 30
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 500,
+            "y": 130
+          },
+          "startNode": {
+            "x": 50,
+            "y": 30
+          }
+        },
+        "uiConfig": {
+          "categories": "[\"Authentication\"]"
+        }
+      },
+      "variable": {}
+    }
+  }
+}

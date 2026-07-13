@@ -1,0 +1,1 @@
+try { org.forgerock.openidm.query.StringQueryFilters.parse(request.content._queryFilter).accept(new org.forgerock.util.query.MapFilterVisitor(), null); } catch (e) { throw { 'code' : 400, 'message' : e.message } };

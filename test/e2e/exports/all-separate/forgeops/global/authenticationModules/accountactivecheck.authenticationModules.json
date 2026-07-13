@@ -1,0 +1,15 @@
+{
+  "authenticationModules": {
+    "accountactivecheck": {
+      "_id": "accountactivecheck",
+      "_type": {
+        "_id": "accountactivecheck",
+        "collection": false,
+        "name": "Account Active Check"
+      },
+      "defaults": {
+        "authenticationLevel": 0
+      }
+    }
+  }
+}

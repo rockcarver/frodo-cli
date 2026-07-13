@@ -1,0 +1,16 @@
+{
+  "service": {
+    "DataStoreService": {
+      "_id": "",
+      "_type": {
+        "_id": "DataStoreService",
+        "collection": false,
+        "name": "External Data Stores"
+      },
+      "applicationDataStoreId": "application-store",
+      "location": "/alpha",
+      "nextDescendents": [],
+      "policyDataStoreId": "policy-store"
+    }
+  }
+}

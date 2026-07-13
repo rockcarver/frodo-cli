@@ -1,0 +1,20 @@
+{
+  "conditionTypes": {
+    "OAuth2Scope": {
+      "_id": "OAuth2Scope",
+      "config": {
+        "properties": {
+          "requiredScopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "OAuth2Scope"
+    }
+  }
+}

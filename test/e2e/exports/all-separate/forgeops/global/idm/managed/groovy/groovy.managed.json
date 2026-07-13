@@ -1,0 +1,586 @@
+{
+  "name": "groovy",
+  "onCreate": {
+    "globals": {},
+    "source": "file://onCreate.groovy",
+    "type": "groovy"
+  },
+  "onDelete": {
+    "globals": {},
+    "source": "file://onDelete.groovy",
+    "type": "groovy"
+  },
+  "onRead": {
+    "globals": {},
+    "source": "file://onRead.groovy",
+    "type": "groovy"
+  },
+  "onRetrieve": {
+    "globals": {},
+    "source": "file://onRetrieve.groovy",
+    "type": "groovy"
+  },
+  "onStore": {
+    "globals": {},
+    "source": "file://onStore.groovy",
+    "type": "groovy"
+  },
+  "onSync": {
+    "globals": {},
+    "source": "file://onSync.groovy",
+    "type": "groovy"
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "file://onUpdate.groovy",
+    "type": "groovy"
+  },
+  "onValidate": {
+    "globals": {},
+    "source": "file://onValidate.groovy",
+    "type": "groovy"
+  },
+  "postCreate": {
+    "globals": {},
+    "source": "file://postCreate.groovy",
+    "type": "groovy"
+  },
+  "postDelete": {
+    "globals": {},
+    "source": "file://postDelete.groovy",
+    "type": "groovy"
+  },
+  "postUpdate": {
+    "globals": {},
+    "source": "file://postUpdate.groovy",
+    "type": "groovy"
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Groovy scripts",
+    "icon": "fa-music",
+    "mat-icon": "",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array"
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object"
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean"
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.array.onRetrieve.groovy",
+                "type": "groovy"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.array.onStore.groovy",
+                "type": "groovy"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.array.onValidate.groovy",
+                "type": "groovy"
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.object.onRetrieve.groovy",
+                "type": "groovy"
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.object.onStore.groovy",
+                "type": "groovy"
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.object.onValidate.groovy",
+                "type": "groovy"
+              },
+              "order": [
+                "object",
+                "string"
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onRetrieve.groovy",
+                    "type": "groovy"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onStore.groovy",
+                    "type": "groovy"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onValidate.groovy",
+                    "type": "groovy"
+                  },
+                  "order": [
+                    "object",
+                    "string"
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onRetrieve.groovy",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onStore.groovy",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onValidate.groovy",
+                        "type": "groovy"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onRetrieve.groovy",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onStore.groovy",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onValidate.groovy",
+                        "type": "groovy"
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onRetrieve.groovy",
+                    "type": "groovy"
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onStore.groovy",
+                    "type": "groovy"
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onValidate.groovy",
+                    "type": "groovy"
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true
+                }
+              },
+              "required": [
+                "object"
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true
+            }
+          },
+          "required": [
+            "array",
+            "object"
+          ],
+          "type": "object"
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://array.onRetrieve.groovy",
+          "type": "groovy"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://array.onStore.groovy",
+          "type": "groovy"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://array.onValidate.groovy",
+          "type": "groovy"
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://object.onRetrieve.groovy",
+          "type": "groovy"
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://object.onStore.groovy",
+          "type": "groovy"
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://object.onValidate.groovy",
+          "type": "groovy"
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number"
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object"
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number"
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onRetrieve.groovy",
+                              "type": "groovy"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onValidate.groovy",
+                              "type": "groovy"
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onRetrieve.groovy",
+                              "type": "groovy"
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onStore.groovy",
+                              "type": "groovy"
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onValidate.groovy",
+                              "type": "groovy"
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true
+                          }
+                        },
+                        "required": [],
+                        "type": "object"
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onRetrieve.groovy",
+                        "type": "groovy"
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onStore.groovy",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onValidate.groovy",
+                        "type": "groovy"
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onRetrieve.groovy",
+                        "type": "groovy"
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onValidate.groovy",
+                        "type": "groovy"
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.array.onRetrieve.groovy",
+              "type": "groovy"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.array.onStore.groovy",
+              "type": "groovy"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.array.onValidate.groovy",
+              "type": "groovy"
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.object.onRetrieve.groovy",
+              "type": "groovy"
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.object.onStore.groovy",
+              "type": "groovy"
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.object.onValidate.groovy",
+              "type": "groovy"
+            },
+            "order": [
+              "object",
+              "string"
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.object.onRetrieve.groovy",
+                  "type": "groovy"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.object.onStore.groovy",
+                  "type": "groovy"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.object.onValidate.groovy",
+                  "type": "groovy"
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.string.onRetrieve.groovy",
+                  "type": "groovy"
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.string.onStore.groovy",
+                  "type": "groovy"
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.string.onValidate.groovy",
+                  "type": "groovy"
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true
+              }
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true
+          }
+        },
+        "required": [
+          "object",
+          "array"
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true
+      }
+    },
+    "required": [
+      "array",
+      "object"
+    ],
+    "title": "Groovy",
+    "type": "object"
+  }
+}

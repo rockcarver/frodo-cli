@@ -345,6 +345,9 @@ exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-we
           "inherited": false,
           "value": false,
         },
+        "secretLabelIdentifier": {
+          "inherited": false,
+        },
         "ssoOnlyMode": {
           "inherited": false,
           "value": false,
@@ -353,7 +356,6 @@ exports[`frodo agent web export "frodo agent web export --agent-id frodo-test-we
           "inherited": false,
           "value": "Inactive",
         },
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": {
           "inherited": false,
           "value": 30,
@@ -616,9 +618,9 @@ exports[`frodo agent web export "frodo agent web export --all": should export al
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscWebAgentConfig": {
@@ -778,6 +780,7 @@ exports[`frodo agent web export "frodo agent web export --all": should export al
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -951,6 +954,7 @@ exports[`frodo agent web export "frodo agent web export --all-separate --no-meta
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -1119,6 +1123,7 @@ exports[`frodo agent web export "frodo agent web export --all-separate --no-meta
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -1291,9 +1296,9 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
-        "userpassword": null,
         "webSocketConnectionIntervalInMinutes": 30,
       },
       "miscWebAgentConfig": {
@@ -1461,6 +1466,7 @@ exports[`frodo agent web export "frodo agent web export -A": should export all w
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -1634,6 +1640,7 @@ exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestD
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -1795,6 +1802,7 @@ exports[`frodo agent web export "frodo agent web export -NaD agentWebExportTestD
         "notificationsEnabled": true,
         "repositoryLocation": "centralized",
         "resetIdleTime": false,
+        "secretLabelIdentifier": null,
         "ssoOnlyMode": false,
         "status": "Inactive",
         "webSocketConnectionIntervalInMinutes": 30,
@@ -2188,6 +2196,9 @@ exports[`frodo agent web export "frodo agent web export -Ni frodo-test-web-agent
         "resetIdleTime": {
           "inherited": false,
           "value": false,
+        },
+        "secretLabelIdentifier": {
+          "inherited": false,
         },
         "ssoOnlyMode": {
           "inherited": false,
@@ -2679,6 +2690,9 @@ exports[`frodo agent web export "frodo agent web export -i frodo-test-web-agent 
         "resetIdleTime": {
           "inherited": false,
           "value": false,
+        },
+        "secretLabelIdentifier": {
+          "inherited": false,
         },
         "ssoOnlyMode": {
           "inherited": false,

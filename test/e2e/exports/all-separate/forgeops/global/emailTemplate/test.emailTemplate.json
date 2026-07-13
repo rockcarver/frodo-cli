@@ -1,0 +1,27 @@
+{
+  "emailTemplate": {
+    "test": {
+      "_id": "emailTemplate/test",
+      "advancedEditor": true,
+      "defaultLocale": "en",
+      "description": "Description of template",
+      "displayName": "Test",
+      "enabled": true,
+      "from": "\"Organization Name\" <example@example.com>",
+      "html": {
+        "en": ""
+      },
+      "message": {
+        "en": "<html>\n  <head></head>\n  <body style=\"background-color: #324054; color: #455469; padding: 60px; text-align: center;\">\n    <div class=\"content\" style=\"background-color: #fff; border-radius: 4px; margin: 0 auto; padding: 48px; width: 235px;\">\n      <p>\n        <img src=\"https://tinyurl.com/3mwewu3v\" alt=\"alt text\" title=\"Email Title Text\">\n        </p>\n        <h1 id=\"emailtitle\">Email Title</h1>\n        <p>Message text lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod tempor.</p>\n      </div>\n    </body>\n  </html>",
+        "es": "<html>\n  <head></head>\n  <body style=\"background-color:#324054;color:#455469;padding:60px;text-align:center\">\n    <div class=\"content\" style=\"background-color:#fff;border-radius:4px;margin:0 auto;padding:48px;width:235px\">\n      <p>\n        <img src=\"https://tinyurl.com/3mwewu3v\" alt=\"alt text\" title=\"Email Title Text\" />\n        </p>\n        <h1 id=\"emailtitle\">Titulo de Correo Electronico</h1>\n        <p>Texto de Mensaje lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod tempor.</p>\n      </div>\n    </body>\n  </html>"
+      },
+      "mimeType": "text/html",
+      "styles": "body {\n   background-color: #324054;\n   color: #455469;\n   padding: 60px;\n   text-align: center \n}\n a {\n   text-decoration: none;\n   color: #109cf1;\n}\n .content {\n   background-color: #fff;\n   border-radius: 4px;\n   margin: 0 auto;\n   padding: 48px;\n   width: 235px \n}\n",
+      "subject": {
+        "en": "",
+        "es": ""
+      },
+      "templateId": "test"
+    }
+  }
+}

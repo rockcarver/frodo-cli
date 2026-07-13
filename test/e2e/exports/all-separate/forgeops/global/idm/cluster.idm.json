@@ -1,0 +1,13 @@
+{
+  "idm": {
+    "cluster": {
+      "_id": "cluster",
+      "enabled": true,
+      "instanceCheckInInterval": 5000,
+      "instanceCheckInOffset": 0,
+      "instanceId": "&{openidm.node.id}",
+      "instanceRecoveryTimeout": 30000,
+      "instanceTimeout": 30000
+    }
+  }
+}

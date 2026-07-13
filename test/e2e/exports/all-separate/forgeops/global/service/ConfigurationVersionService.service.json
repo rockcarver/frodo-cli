@@ -1,0 +1,41 @@
+{
+  "service": {
+    "ConfigurationVersionService": {
+      "_id": "",
+      "_type": {
+        "_id": "ConfigurationVersionService",
+        "collection": false,
+        "name": "Configuration Version Service"
+      },
+      "appliedRuleIds": [
+        "AME-23273",
+        "AME-21032",
+        "AME-21768",
+        "AME-27353",
+        "OPENAM-15410",
+        "AME-25921",
+        "OPENAM-22404",
+        "OPENAM-20383",
+        "OPENAM-20942",
+        "AME-27976",
+        "OPENAM-22725",
+        "AME-28469",
+        "AME-29015",
+        "AME-29153",
+        "OPENAM-23219",
+        "AME-29702",
+        "AME-30141",
+        "OPENAM-23218",
+        "AME-30227",
+        "AME-30061",
+        "AME-30238",
+        "AME-30543",
+        "AME-30762"
+      ],
+      "configurationCommit": "39d77d491fa06907a297be20082944f83e46dedd",
+      "configurationVersion": "8.0.0.0",
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

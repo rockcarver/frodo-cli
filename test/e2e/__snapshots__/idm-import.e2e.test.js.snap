@@ -16,6 +16,17 @@ exports[`frodo idm import "frodo idm import --all-separate --directory test/e2e/
 
 exports[`frodo idm import "frodo idm import --entity-id script --file test/e2e/exports/all-separate/cloud/global/idm/script.idm.json": should import the idm config with name 'script' from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;
 
+exports[`frodo idm import "frodo idm import --entity-id sync -f test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import --entity-id sync -f test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'. 2`] = `""`;
+
+exports[`frodo idm import "frodo idm import --file test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import --file test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json -m forgeops": Should import idm configuration 'sync'. 2`] = `
+"✔ Imported sync from test/e2e/exports/all-separate/forgeops/global/sync/sync.idm.json.
+"
+`;
+
 exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/cloud/global/idm": Should import all configs from the directory 'test/e2e/exports/all-separate/cloud/global/idm'" 1`] = `
 "Error updating config entity endpoint/Test
   Network error:
@@ -35,9 +46,38 @@ Error updating config entity endpoint/testEndpoint2
 "
 `;
 
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -AD test/e2e/exports/all-separate/forgeops/global/idm -m forgeops": Should import all config from the directory 'test/e2e/exports/all-separate/forgeops/global/idm'. 2`] = `
+"✔ Imported config entities
+"
+`;
+
 exports[`frodo idm import "frodo idm import -af test/e2e/exports/all/all.idm.json -e test/e2e/env/testEnvFile.env -E test/e2e/env/testEntitiesFile.json": Should import all configs from the file 'test/e2e/exports/all/all.idm.json' according to the env and entity files" 1`] = `""`;
 
 exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/cloud/global/idm/script.idm.json": should import the idm config from the file named 'test/e2e/exports/all-separate/cloud/global/idm/script.idm.json'" 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 2`] = `
+"✔ Imported endpoint/Groovy from test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json.
+"
+`;
+
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'. 2`] = `
+"✔ Imported managed from test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json.
+"
+`;
+
+exports[`frodo idm import "frodo idm import -i endpoint/Groovy -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -i endpoint/Groovy -f test/e2e/exports/all-separate/forgeops/global/idm/endpoint/Groovy/Groovy.idm.json -m forgeops": Should import idm configuration 'endpoint/Groovy'. 2`] = `""`;
+
+exports[`frodo idm import "frodo idm import -i managed -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'. 1`] = `""`;
+
+exports[`frodo idm import "frodo idm import -i managed -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json --type forgeops": Should import idm configuration 'managed'. 2`] = `""`;
 
 exports[`frodo idm import "frodo idm import -i script -D test/e2e/exports/all-separate/cloud/global/idm": should import the idm config with name 'script' from the directory test/e2e/exports/all-separate/cloud/global/idm" 1`] = `""`;
 

@@ -28,19 +28,15 @@ Options:
                                        Ignored with -i, and -a.
   -e, --env-file [envfile]             Name of the env file.
   -E, --entities-file [entities-file]  Name of the entity file. Ignored with -i.
-  -f, --file [file]                    Export file (or directory name if
-                                       exporting mappings separately). Ignored
-                                       with -A.
+  -f, --file [file]                    Export file if -x or -a is provided.
+                                       Ignored with -A.
   -i, --entity-id <id>                 Config entity id/name. E.g. "managed",
                                        "sync", "provisioner-<connector-name>",
                                        etc. If specified, -a and -A are ignored.
   -N, --no-metadata                    Does not include metadata in the export
                                        file.
-  -o, --separate-objects               Export managed.idm.json objects
-                                       separately in their own directory.
-                                       Ignored with -a.
-  -s, --separate-mappings              Export sync.idm.json mappings separately
-                                       in their own directory. Ignored with -a.
+  -x, --no-extract                     Do not extract and save idm scripts and
+                                       save to separate files. Ignored with -a.
   -h, --help                           Help
   -hh, --help-more                     Help with all options.
   -hhh, --help-all                     Help with all options, environment

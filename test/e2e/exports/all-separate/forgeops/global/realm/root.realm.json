@@ -1,0 +1,15 @@
+{
+  "realm": {
+    "Lw": {
+      "_id": "Lw",
+      "active": true,
+      "aliases": [
+        "am-config",
+        "platform.dev.trivir.com",
+        "am"
+      ],
+      "name": "/",
+      "parentPath": ""
+    }
+  }
+}

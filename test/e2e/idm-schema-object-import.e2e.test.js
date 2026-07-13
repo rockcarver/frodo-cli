@@ -47,26 +47,37 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -D test/e2e/exports/all-separate/cloud/global/idm/managed
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -i -f test/e2e/exports/all-separate/cloud/global/idm/managed/alpha_user.managed.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object import -f test/e2e/exports/all/all.managed.json
+// Forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object import -D test/e2e/exports/all-separate/forgeops/global/idm/managed -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object import -f test/e2e/exports/all-separate/forgeops/global/idm/managed/managed.idm.json -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object import -i -f test/e2e/exports/all-separate/forgeops/global/idm/managed/groovy/groovy.managed.json -m forgeops
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { getEnv, removeAnsiEscapeCodes, testSuccess } from './utils/TestUtils';
+import { connection as c , forgeops_connection as fc} from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const managedObjectsExportDirectory =
   'test/e2e/exports/all-separate/cloud/global/idm/managed';
+const forgeopsManagedObjectsExportDirectory =
+  'test/e2e/exports/all-separate/forgeops/global/idm/managed';
 const alphaUserFile = 'alpha_user.managed.json';
 const allManagedPath = 'test/e2e/exports/all/all.managed.json';
 
 describe('frodo idm import', () => {
+
+  // Cloud Tests
+
   test(`"frodo idm schema object import -D ${managedObjectsExportDirectory}": should import the managed objects from the directory ${managedObjectsExportDirectory}`, async () => {
     const CMD = `frodo idm schema object import -D ${managedObjectsExportDirectory}`;
     const { stdout } = await exec(CMD, env);
@@ -83,5 +94,22 @@ describe('frodo idm import', () => {
     const CMD = `frodo idm schema object import -f ${allManagedPath}`;
     const { stdout } = await exec(CMD, env);
     expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+  });
+
+  // Forgeops Tests
+  
+  test(`"frodo idm schema object import -D ${forgeopsManagedObjectsExportDirectory} -m forgeops": should import the managed objects from the directory '${forgeopsManagedObjectsExportDirectory}'.`, async () => {
+    const CMD = `frodo idm schema object import -D ${forgeopsManagedObjectsExportDirectory} -m forgeops`;
+    await testSuccess(CMD, forgeopsEnv);
+  });
+
+  test(`"frodo idm schema object import -f ${forgeopsManagedObjectsExportDirectory}/managed.idm.json -m forgeops": should import the managed objects from a single file '${forgeopsManagedObjectsExportDirectory}/managed.idm.json'`, async () => {
+    const CMD = `frodo idm schema object import -f ${forgeopsManagedObjectsExportDirectory}/managed.idm.json -m forgeops`;
+    await testSuccess(CMD, forgeopsEnv);
+  });
+  
+  test(`"frodo idm schema object import -i -f ${forgeopsManagedObjectsExportDirectory}/groovy/groovy.managed.json -m forgeops": should import just the groovy managed object from '${forgeopsManagedObjectsExportDirectory}/groovy/groovy.managed.json'.`, async () => {
+    const CMD = `frodo idm schema object import -i -f ${forgeopsManagedObjectsExportDirectory}/groovy/groovy.managed.json -m forgeops`;
+    await testSuccess(CMD, forgeopsEnv);
   });
 });

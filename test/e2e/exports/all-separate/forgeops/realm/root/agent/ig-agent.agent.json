@@ -1,0 +1,19 @@
+{
+  "agent": {
+    "ig-agent": {
+      "_id": "ig-agent",
+      "_type": {
+        "_id": "IdentityGatewayAgent",
+        "collection": true,
+        "name": "Identity Gateway Agents"
+      },
+      "agentgroup": null,
+      "igCdssoRedirectUrls": [
+        "http://am:80/am/cdcservlet"
+      ],
+      "igTokenIntrospection": "None",
+      "status": "Active",
+      "userpassword": null
+    }
+  }
+}

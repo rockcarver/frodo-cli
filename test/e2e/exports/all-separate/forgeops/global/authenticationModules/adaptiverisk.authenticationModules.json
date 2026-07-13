@@ -1,0 +1,73 @@
+{
+  "authenticationModules": {
+    "adaptiverisk": {
+      "_id": "adaptiverisk",
+      "_type": {
+        "_id": "adaptiverisk",
+        "collection": false,
+        "name": "Adaptive Risk "
+      },
+      "defaults": {
+        "attributecheck": {
+          "invertProfileRiskAttributeScore": false,
+          "profileRiskAttributeCheckEnabled": false,
+          "profileRiskAttributeScore": 1
+        },
+        "authfailed": {
+          "failedAuthenticationCheckEnabled": false,
+          "failureScore": 1,
+          "invertFailureScore": false
+        },
+        "devicecookie": {
+          "deviceCookieCheckEnabled": false,
+          "deviceCookieName": "Device",
+          "deviceCookieScore": 1,
+          "invertDeviceCookieScore": false,
+          "saveDeviceCookieValueOnSuccessfulLogin": false
+        },
+        "general": {
+          "authenticationLevel": 0,
+          "riskThreshold": 1
+        },
+        "geolocation": {
+          "geolocationCheckEnabled": false,
+          "geolocationScore": 1,
+          "invertGeolocationScore": false
+        },
+        "iphistory": {
+          "invertIPHistoryScore": false,
+          "ipHistoryCheckEnabled": false,
+          "ipHistoryCount": 5,
+          "ipHistoryProfileAttribute": "iphistory",
+          "ipHistoryScore": 1,
+          "saveSuccessfulIP": false
+        },
+        "iprange": {
+          "invertIPRangeScoreEnabled": false,
+          "ipRange": [
+            "10.0.0.0/24"
+          ],
+          "ipRangeCheckEnabled": false,
+          "ipRangeScore": 1
+        },
+        "knowncookie": {
+          "createKnownCookieOnSuccessfulLogin": false,
+          "invertKnownCookieScore": false,
+          "knownCookieCheckEnabled": false,
+          "knownCookieScore": 1
+        },
+        "lastlogin": {
+          "invertTimeSinceLastLoginScore": false,
+          "saveLastLoginTimeOnSuccessfulLogin": false,
+          "timeSinceLastLoginCheckEnabled": false,
+          "timeSinceLastLoginScore": 1
+        },
+        "requestheader": {
+          "invertRequestHeaderScore": false,
+          "requestHeaderCheckEnabled": false,
+          "requestHeaderScore": 1
+        }
+      }
+    }
+  }
+}

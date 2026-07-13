@@ -1,0 +1,26 @@
+{
+  "conditionTypes": {
+    "IPv4": {
+      "_id": "IPv4",
+      "config": {
+        "properties": {
+          "dnsName": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "endIp": {
+            "type": "string"
+          },
+          "startIp": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "IPv4"
+    }
+  }
+}

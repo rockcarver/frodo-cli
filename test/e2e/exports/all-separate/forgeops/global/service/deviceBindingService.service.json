@@ -1,0 +1,20 @@
+{
+  "service": {
+    "deviceBindingService": {
+      "_id": "",
+      "_type": {
+        "_id": "deviceBindingService",
+        "collection": false,
+        "name": "Device Binding Service"
+      },
+      "defaults": {
+        "deviceBindingAttrName": "boundDevices",
+        "deviceBindingSettingsEncryptionKeystorePassword": null,
+        "deviceBindingSettingsEncryptionKeystoreType": "JKS",
+        "deviceBindingSettingsEncryptionScheme": "NONE"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

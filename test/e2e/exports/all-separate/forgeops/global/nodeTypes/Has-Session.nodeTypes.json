@@ -1,0 +1,22 @@
+{
+  "nodeTypes": {
+    "c605506774a848f7877b4d17a453bd39-1": {
+      "_id": "c605506774a848f7877b4d17a453bd39-1",
+      "description": "Checks if the user has a current session.",
+      "displayName": "Has Session",
+      "errorOutcome": false,
+      "inputs": [],
+      "outcomes": [
+        "True",
+        "False"
+      ],
+      "outputs": [],
+      "properties": {},
+      "script": "file://Has-Session.nodeTypes.js",
+      "serviceName": "c605506774a848f7877b4d17a453bd39",
+      "tags": [
+        "utilities"
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "idm": {
+    "endpoint/Javascript": {
+      "_id": "endpoint/Javascript",
+      "description": "Test Javascript Script",
+      "globalsObject": "\"  {\\n    \\\"request\\\": {\\n      \\\"method\\\": \\\"create\\\"\\n    }\\n  }\"",
+      "source": "file://Javascript.js",
+      "type": "text/javascript"
+    }
+  }
+}

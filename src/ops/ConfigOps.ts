@@ -1,4 +1,5 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
+import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
 import {
   FullExportInterface,
   FullExportOptions,
@@ -6,7 +7,10 @@ import {
   FullImportOptions,
   FullRealmExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/ConfigOps';
-import { SyncSkeleton } from '@rockcarver/frodo-lib/types/ops/MappingOps';
+import {
+  MappingSkeleton,
+  SyncSkeleton,
+} from '@rockcarver/frodo-lib/types/ops/MappingOps';
 import { CustomNodeExportInterface } from '@rockcarver/frodo-lib/types/ops/NodeOps';
 import { ScriptExportInterface } from '@rockcarver/frodo-lib/types/ops/ScriptOps';
 import fs from 'fs';
@@ -18,8 +22,15 @@ import {
 } from '../utils/Config';
 import { cleanupProgressIndicators, printError } from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
-import { ManagedSkeleton, writeManagedJsonToDirectory } from './IdmOps';
-import { writeSyncJsonToDirectory } from './MappingOps';
+import {
+  ManagedSkeleton,
+  writeIdmObjectToDirectory,
+  writeManagedJsonToDirectory,
+} from './IdmOps';
+import {
+  writeMappingJsonToDirectory,
+  writeSyncJsonToDirectory,
+} from './MappingOps';
 import { extractCustomNodeScriptsToFiles } from './NodeOps';
 import { extractScriptsToFiles } from './ScriptOps';
 import { errorHandler } from './utils/OpsUtils';
@@ -27,7 +38,6 @@ import { errorHandler } from './utils/OpsUtils';
 const {
   getTypedFilename,
   saveJsonToFile,
-  saveToFile,
   getFilePath,
   getWorkingDirectory,
   getRealmsForExport,
@@ -82,8 +92,6 @@ export async function exportEverythingToFile(
 /**
  * Export everything to separate files
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
- * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
- * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {FullExportOptions} options export options
@@ -91,8 +99,6 @@ export async function exportEverythingToFile(
  */
 export async function exportEverythingToFiles(
   extract: boolean = false,
-  separateMappings: boolean = false,
-  separateObjects: boolean = false,
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
   options: FullExportOptions = {
@@ -124,9 +130,7 @@ export async function exportEverythingToFiles(
         `${baseDirectory}/global`,
         includeMeta,
         keepModifiedProperties,
-        extract,
-        separateMappings,
-        separateObjects
+        extract
       )
     );
     Object.entries(exportData.realm).forEach(([realm, data]: [string, any]) =>
@@ -138,9 +142,7 @@ export async function exportEverythingToFiles(
           `${baseDirectory}/realm/${realm}`,
           includeMeta,
           keepModifiedProperties,
-          extract,
-          separateMappings,
-          separateObjects
+          extract
         )
       )
     );
@@ -163,8 +165,6 @@ export async function exportEverythingToFiles(
  * @param {boolean} includeMeta true to include metadata, false otherwise. Default: true
  * @param {boolean} keepModifiedProperties true to keep modified properties, otherwise delete them. Default: false
  * @param {boolean} extract Extracts the scripts from the exports into separate files if true
- * @param {boolean} separateMappings separate sync.idm.json mappings if true, otherwise keep them in a single file
- * @param {boolean} separateObjects separate managed.idm.json objects if true, otherwise keep them in a single file
  */
 export function exportItem(
   exportData,
@@ -173,9 +173,7 @@ export function exportItem(
   baseDirectory,
   includeMeta,
   keepModifiedProperties,
-  extract,
-  separateMappings = false,
-  separateObjects = false
+  extract
 ) {
   if (!obj || !Object.keys(obj).length) {
     return;
@@ -264,7 +262,8 @@ export function exportItem(
     writeSyncJsonToDirectory(
       obj as SyncSkeleton,
       `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
-      includeMeta
+      includeMeta,
+      extract
     );
   } else if (type === 'server') {
     saveServersToFiles(
@@ -274,43 +273,33 @@ export function exportItem(
       extract,
       includeMeta
     );
+  } else if (type === 'mapping') {
+    for (const mapping of Object.values(obj)) {
+      writeMappingJsonToDirectory(
+        mapping as MappingSkeleton,
+        `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
+        includeMeta,
+        extract
+      );
+    }
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Object.entries(obj).forEach(([id, value]: [string, any]) => {
       if (type === 'idm') {
         if (value != null) {
-          if (separateMappings && id === 'sync') {
-            writeSyncJsonToDirectory(
-              value as SyncSkeleton,
-              `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/sync`,
-              includeMeta
-            );
-          } else if (separateObjects && id === 'managed') {
+          if (extract && id === 'managed') {
             writeManagedJsonToDirectory(
               value as ManagedSkeleton,
               `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}/managed`,
-              includeMeta
+              includeMeta,
+              extract
             );
           } else {
-            const filename = `${id}.idm.json`;
-            if (filename.includes('/')) {
-              fs.mkdirSync(
-                `${baseDirectory}/${fileType}/${filename.slice(
-                  0,
-                  filename.lastIndexOf('/')
-                )}`,
-                {
-                  recursive: true,
-                }
-              );
-            }
-            saveToFile(
-              'idm',
-              value,
-              '_id',
-              `${baseDirectory}/${fileType}/${filename}`,
+            writeIdmObjectToDirectory(
+              value as IdObjectSkeletonInterface,
+              `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`,
               includeMeta,
-              keepModifiedProperties
+              extract
             );
           }
         }

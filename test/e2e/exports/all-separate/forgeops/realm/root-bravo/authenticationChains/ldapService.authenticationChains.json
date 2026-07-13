@@ -1,0 +1,22 @@
+{
+  "authenticationChains": {
+    "ldapService": {
+      "_id": "ldapService",
+      "_type": {
+        "_id": "EMPTY",
+        "collection": true,
+        "name": "Authentication Configuration"
+      },
+      "authChainConfiguration": [
+        {
+          "criteria": "REQUIRED",
+          "module": "DataStore",
+          "options": {}
+        }
+      ],
+      "loginFailureUrl": [],
+      "loginPostProcessClass": [],
+      "loginSuccessUrl": []
+    }
+  }
+}

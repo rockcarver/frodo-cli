@@ -72,6 +72,7 @@ const allMappingsExport = `${allDirectory}/${allMappingsFileName}`;
 const allSeparateMappingsDirectory = `test/e2e/exports/all-separate/cloud/global/idm`;
 
 describe('frodo mapping import', () => {
+
     test(`"frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f ${allMappingsExport}": should import the mapping with the id "sync/managedAlpha_application_managedBravo_application" from the file "${allMappingsExport}"`, async () => {
         const CMD = `frodo mapping import -i sync/managedAlpha_application_managedBravo_application -f ${allMappingsExport}`;
         const { stdout } = await exec(CMD, env);
@@ -119,5 +120,4 @@ describe('frodo mapping import', () => {
         const { stdout } = await exec(CMD, env);
         expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
     });
-
 });

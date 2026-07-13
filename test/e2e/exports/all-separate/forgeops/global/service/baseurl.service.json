@@ -1,0 +1,19 @@
+{
+  "service": {
+    "baseurl": {
+      "_id": "",
+      "_type": {
+        "_id": "baseurl",
+        "collection": false,
+        "name": "Base URL Source"
+      },
+      "defaults": {
+        "contextPath": "/am",
+        "fixedValue": "https://platform.dev.trivir.com",
+        "source": "FIXED_VALUE"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

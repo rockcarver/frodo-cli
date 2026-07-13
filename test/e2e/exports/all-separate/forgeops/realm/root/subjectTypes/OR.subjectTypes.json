@@ -1,0 +1,17 @@
+{
+  "subjectTypes": {
+    "OR": {
+      "_id": "OR",
+      "config": {
+        "properties": {
+          "subjects": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": true,
+      "title": "OR"
+    }
+  }
+}

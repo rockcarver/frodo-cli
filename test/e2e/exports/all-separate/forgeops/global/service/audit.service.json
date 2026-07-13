@@ -1,0 +1,87 @@
+{
+  "service": {
+    "audit": {
+      "_id": "",
+      "_type": {
+        "_id": "audit",
+        "collection": false,
+        "name": "Audit Logging"
+      },
+      "auditEnabled": true,
+      "blacklistFieldFilters": [],
+      "defaults": {
+        "auditEnabled": true,
+        "blacklistFieldFilters": [],
+        "whitelistFieldFilters": []
+      },
+      "location": "global",
+      "nextDescendents": [
+        {
+          "_id": "StdOut",
+          "_type": {
+            "_id": "JSONStdout",
+            "collection": true,
+            "name": "JSON (stdout)"
+          },
+          "commonHandler": {
+            "enabled": true,
+            "topics": [
+              "access",
+              "activity",
+              "config",
+              "authentication"
+            ]
+          },
+          "commonHandlerPlugin": {
+            "handlerFactory": "org.forgerock.openam.audit.events.handlers.JsonStdoutAuditEventHandlerFactory"
+          },
+          "jsonConfig": {
+            "elasticsearchCompatible": true
+          }
+        },
+        {
+          "_id": "Global JSON Handler",
+          "_type": {
+            "_id": "JSON",
+            "collection": true,
+            "name": "JSON"
+          },
+          "commonHandler": {
+            "enabled": true,
+            "topics": [
+              "access",
+              "activity",
+              "config",
+              "authentication"
+            ]
+          },
+          "commonHandlerPlugin": {
+            "handlerFactory": "org.forgerock.openam.audit.events.handlers.JsonAuditEventHandlerFactory"
+          },
+          "jsonBuffering": {
+            "bufferingMaxSize": "100000",
+            "bufferingWriteInterval": "5"
+          },
+          "jsonConfig": {
+            "elasticsearchCompatible": false,
+            "location": "%BASE_DIR%/var/audit/",
+            "rotationRetentionCheckInterval": "5"
+          },
+          "jsonFileRetention": {
+            "retentionMaxDiskSpaceToUse": "-1",
+            "retentionMaxNumberOfHistoryFiles": "1",
+            "retentionMinFreeSpaceRequired": "-1"
+          },
+          "jsonFileRotation": {
+            "rotationEnabled": true,
+            "rotationFileSuffix": "-yyyy.MM.dd-HH.mm.ss",
+            "rotationInterval": "-1",
+            "rotationMaxFileSize": "100000000",
+            "rotationTimes": []
+          }
+        }
+      ],
+      "whitelistFieldFilters": []
+    }
+  }
+}

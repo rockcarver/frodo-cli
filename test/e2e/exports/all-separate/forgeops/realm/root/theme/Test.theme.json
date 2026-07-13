@@ -1,0 +1,161 @@
+{
+  "theme": {
+    "27d96c03-d55e-48a6-ba8b-ad2b144ab732": {
+      "_id": "27d96c03-d55e-48a6-ba8b-ad2b144ab732",
+      "accountCardBackgroundColor": "#ffffff",
+      "accountCardHeaderColor": "#23282e",
+      "accountCardInnerBorderColor": "#e7eef4",
+      "accountCardInputBackgroundColor": "#ffffff",
+      "accountCardInputBorderColor": "#c0c9d5",
+      "accountCardInputFocusBorderColor": "#324054",
+      "accountCardInputLabelColor": "#5e6d82",
+      "accountCardInputSelectColor": "#e4f4fd",
+      "accountCardInputSelectHoverColor": "#f6f8fa",
+      "accountCardInputTextColor": "#23282e",
+      "accountCardOuterBorderColor": "#e7eef4",
+      "accountCardShadow": 3,
+      "accountCardTabActiveBorderColor": "#109cf1",
+      "accountCardTabActiveColor": "#e4f4fd",
+      "accountCardTextColor": "#5e6d82",
+      "accountFooter": {
+        "en": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2026</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Terms &amp; Conditions</a></div>",
+        "es": "<div class=\"d-flex justify-content-center py-4 w-100\">\n  <span class=\"pr-1\">© 2026</span>\n  <a href=\"#\" target=\"_blank\" class=\"text-body\">Mi Empresa, Inc</a>\n  <a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Política de Privacidad</a>\n  <a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Términos &amp; Condiciones</a>\n</div>"
+      },
+      "accountFooterEnabled": true,
+      "accountFooterScriptTag": "<script>\n    console.log(\"Hello World!\");\n</script>\n<script>\n    console.log(\"Hola Mundo!\");\n</script>",
+      "accountFooterScriptTagEnabled": true,
+      "accountNavigationBackgroundColor": "#ffffff",
+      "accountNavigationTextColor": "#455469",
+      "accountNavigationToggleBorderColor": "#e7eef4",
+      "accountPageSections": {
+        "accountControls": {
+          "enabled": true
+        },
+        "accountSecurity": {
+          "enabled": true,
+          "subsections": {
+            "password": {
+              "enabled": true
+            },
+            "securityQuestions": {
+              "enabled": true
+            },
+            "twoStepVerification": {
+              "enabled": true
+            },
+            "username": {
+              "enabled": true
+            }
+          }
+        },
+        "consent": {
+          "enabled": true
+        },
+        "oauthApplications": {
+          "enabled": true
+        },
+        "personalInformation": {
+          "enabled": true
+        },
+        "preferences": {
+          "enabled": true
+        },
+        "social": {
+          "enabled": true
+        },
+        "trustedDevices": {
+          "enabled": true
+        }
+      },
+      "accountTableRowHoverColor": "#f6f8fa",
+      "backgroundColor": "#ffffff",
+      "backgroundImage": "",
+      "bodyText": "#23282e",
+      "boldLinks": false,
+      "buttonFocusBorderColor": "#0778d6",
+      "buttonRounded": 5,
+      "dangerColor": "#dc3545",
+      "darkColor": "#23282e",
+      "favicon": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+      "fontFamily": "Open Sans",
+      "infoColor": "#109cf1",
+      "isDefault": false,
+      "journeyA11yAddFallbackErrorHeading": true,
+      "journeyCardBackgroundColor": "#ffffff",
+      "journeyCardBorderRadius": 4,
+      "journeyCardHeaderBackgroundColor": "#ffffff",
+      "journeyCardShadow": 3,
+      "journeyCardTextColor": "#5e6d82",
+      "journeyCardTitleColor": "#23282e",
+      "journeyFloatingLabels": true,
+      "journeyFocusElement": "content",
+      "journeyFocusFirstFocusableItemEnabled": false,
+      "journeyFooter": {
+        "en": "<div class=\"d-flex justify-content-center py-4 w-100\"><span class=\"pr-1\">© 2026</span>\n<a href=\"#\" target=\"_blank\" class=\"text-body\">My Company, Inc</a><a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Privacy Policy</a><a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Terms &amp; Conditions</a></div>",
+        "es": "<div class=\"d-flex justify-content-center py-4 w-100\">\n  <span class=\"pr-1\">© 2026</span>\n  <a href=\"#\" target=\"_blank\" class=\"text-body\">Mi Empresa, Inc</a>\n  <a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Política de Privacidad</a>\n  <a href=\"#\" target=\"_blank\" style=\"color:#0000ee\" class=\"pl-3 text-body\">Términos &amp; Condiciones</a>\n</div>"
+      },
+      "journeyFooterEnabled": true,
+      "journeyFooterScriptTag": "<script>\n    console.log(\"Hello World!\");\n</script>\n<script>\n    console.log(\"Hola Mundo!\");\n</script>",
+      "journeyFooterScriptTagEnabled": true,
+      "journeyHeader": {
+        "en": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">\n    Hello World!\n</div>",
+        "es": "<div class=\"d-flex justify-content-center py-4 flex-grow-1\">\n    Hola Mundo!\n</div>"
+      },
+      "journeyHeaderEnabled": true,
+      "journeyHeaderSkipLinkEnabled": true,
+      "journeyInputBackgroundColor": "#ffffff",
+      "journeyInputBorderColor": "#c0c9d5",
+      "journeyInputFocusBorderColor": "#324054",
+      "journeyInputLabelColor": "#5e6d82",
+      "journeyInputSelectColor": "#e4f4fd",
+      "journeyInputSelectHoverColor": "#f6f8fa",
+      "journeyInputTextColor": "#23282e",
+      "journeyJustifiedContent": {
+        "en": "<p>\n    Hello World!\n</p>",
+        "es": "<p>\n    Hola Mundo!\n</p>"
+      },
+      "journeyJustifiedContentEnabled": true,
+      "journeyJustifiedContentMobileViewEnabled": true,
+      "journeyLayout": "justified-left",
+      "journeyRememberMeEnabled": true,
+      "journeyRememberMeLabel": "remember me!",
+      "journeySignInButtonPosition": "justify-content-center",
+      "journeyTheaterMode": true,
+      "lightColor": "#f6f8fa",
+      "linkActiveColor": "#0a6eab",
+      "linkActiveColorOnDark": "#0a6eab",
+      "linkColor": "#109cf1",
+      "linkColorOnDark": "#109cf1",
+      "linkedTrees": [
+        "Login"
+      ],
+      "logo": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+      "logoAltText": "Logo",
+      "logoEnabled": true,
+      "logoHeight": "43",
+      "logoProfile": "https://cdn.forgerock.com/platform/themes/starter/logo-starter-full.svg",
+      "logoProfileAltText": "Logo",
+      "logoProfileCollapsed": "https://cdn.forgerock.com/platform/themes/starter/logo-starter.svg",
+      "logoProfileCollapsedAltText": "Logo",
+      "logoProfileHeight": "24",
+      "name": "Test",
+      "pageTitle": "#23282e",
+      "primaryColor": "#324054",
+      "primaryOffColor": "#242E3C",
+      "profileBackgroundColor": "#ffffff",
+      "profileMenuHighlightColor": "#f3f5f8",
+      "profileMenuHoverColor": "#f3f5f8",
+      "profileMenuHoverTextColor": "#455469",
+      "profileMenuTextHighlightColor": "#455469",
+      "secondaryColor": "#69788b",
+      "successColor": "#2ed47a",
+      "switchBackgroundColor": "#c0c9d5",
+      "textColor": "#ffffff",
+      "topBarBackgroundColor": "#ffffff",
+      "topBarBorderColor": "#e7eef4",
+      "topBarHeaderColor": "#23282e",
+      "topBarTextColor": "#69788b",
+      "warningColor": "#ffb946"
+    }
+  }
+}

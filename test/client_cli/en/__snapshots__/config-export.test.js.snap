@@ -47,16 +47,12 @@ Options:
                              the journey/tree nodes.
   --no-decode                Do not include decoded variable value in variable
                              export
-  -o, --separate-objects     Export managed.idm.json objects separately in their
-                             own directory. Ignored with -a.
   -r, --realm-only           Export only the config for the active realm. If -g,
                              --global-only is also active, then the global
                              config will also be exported.
   -R, --read-only            Export read-only config (with the exception of
                              default scripts) in addition to the importable
                              config.
-  -s, --separate-mappings    Export sync.idm.json mappings separately in their
-                             own directory. Ignored with -a.
   --target <host url>        Host URL of the environment to perform secret value
                              encryption. The URL must resolve to an existing
                              connection profile. Use this option to generate an

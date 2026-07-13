@@ -1,0 +1,60 @@
+{
+  "idp": {
+    "Test OpenID Provider": {
+      "_id": "Test OpenID Provider",
+      "_type": {
+        "_id": "oidcConfig",
+        "collection": true,
+        "name": "Client configuration for providers that implement the OpenID Connect specification."
+      },
+      "acrValues": [
+        "acr1",
+        "acr2"
+      ],
+      "authenticationIdKey": "auth-id",
+      "authorizationEndpoint": "authentication",
+      "claims": "{}",
+      "clientAuthenticationMethod": "CLIENT_SECRET_POST",
+      "clientId": "client-id",
+      "enableNativeNonce": true,
+      "enabled": true,
+      "encryptJwtRequestParameter": false,
+      "encryptedIdTokens": true,
+      "introspectEndpoint": "introspect",
+      "issuer": "issuer",
+      "issuerComparisonCheckType": "EXACT",
+      "jwksUriEndpoint": "jwks",
+      "jwtEncryptionAlgorithm": "RSA-OAEP",
+      "jwtEncryptionMethod": "AES_256_GCM",
+      "jwtRequestParameterOption": "NONE",
+      "jwtSigningAlgorithm": "NONE",
+      "pkceMethod": "S256",
+      "privateKeyJwtExpTime": 600,
+      "redirectAfterFormPostURI": "https://redirect-after.com:8080/am",
+      "redirectURI": "https://redirect.com:8080/am",
+      "requestObjectAudience": "audience",
+      "responseMode": "DEFAULT",
+      "revocationCheckOptions": [
+        "ONLY_END_ENTITY",
+        "PREFER_CRLS",
+        "NO_FALLBACK",
+        "SOFT_FAIL",
+        "DISABLE_REVOCATION_CHECKING"
+      ],
+      "scopeDelimiter": ",",
+      "scopes": [
+        "scope",
+        "test"
+      ],
+      "tokenEndpoint": "access-token",
+      "transform": "58c824ae-84ed-4724-82cd-db128fc3f6c",
+      "uiConfig": {
+        "key1": "value1",
+        "key2": "value2"
+      },
+      "useCustomTrustStore": false,
+      "userInfoEndpoint": "user-profile",
+      "userInfoResponseType": "JSON"
+    }
+  }
+}

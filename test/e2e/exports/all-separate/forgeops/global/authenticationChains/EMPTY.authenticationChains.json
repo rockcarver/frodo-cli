@@ -1,0 +1,15 @@
+{
+  "authenticationChains": {
+    "EMPTY": {
+      "_id": "",
+      "_type": {
+        "_id": "EMPTY",
+        "collection": false,
+        "name": "Authentication Configuration"
+      },
+      "dynamic": {
+        "authChainConfiguration": "[Empty]"
+      }
+    }
+  }
+}

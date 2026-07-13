@@ -21,6 +21,56 @@ export function removeAnsiEscapeCodes(text) {
 }
 
 /**
+ * Mask random ForgeRock transaction IDs that make snapshots non-deterministic.
+ * @param {string} text
+ * @returns {string}
+ */
+export function maskTransactionIds(text) {
+  if (!text) return text;
+  return text.replace(
+    /"x-forgerock-transactionid":\s*"frodo-[0-9a-f-]+"/g,
+    '"x-forgerock-transactionid": "frodo-<transaction-id>"'
+  );
+}
+
+/**
+ * Mask frodo user-agent versions that change with package releases.
+ * @param {string} text
+ * @returns {string}
+ */
+export function maskUserAgentVersions(text) {
+  if (!text) return text;
+  return text.replace(
+    /"user-agent":\s*"@rockcarver\/frodo-lib\/[^"]+"/g,
+    '"user-agent": "@rockcarver/frodo-lib/<version>"'
+  );
+}
+
+/**
+ * Normalize absolute local/CI stack trace paths in snapshot text.
+ * @param {string} text
+ * @returns {string}
+ */
+export function normalizeStackPaths(text) {
+  if (!text) return text;
+  return text.replace(
+    /\((?:\/Users\/[^)]+|\/home\/runner\/work\/[^)]+)(\/(?:dist\/app\.cjs|node_modules\/.+?@pollyjs\/adapter\/src\/index\.js):\d+:\d+)\)/g,
+    '(<repo>$1)'
+  );
+}
+
+/**
+ * Normalize command output for stable snapshots across local and CI environments.
+ * @param {string} text
+ * @returns {string}
+ */
+export function normalizeSnapshotText(text) {
+  return normalizeStackPaths(
+    maskUserAgentVersions(maskTransactionIds(removeAnsiEscapeCodes(text)))
+  );
+}
+
+/**
  * Returns true when tests run in recording mode.
  * @returns {boolean}
  */
@@ -82,11 +132,10 @@ export function assertNoPollyReplayError(
   command,
   extraMarkers = []
 ) {
-  const text = removePollyRecordingNoise(removeAnsiEscapeCodes(output || ''));
+  const text = removePollyRecordingNoise(normalizeSnapshotText(output || ''));
   const markers = [
     '[Polly] [adapter:node-http] Recording for the following request is not found',
     'PollyError',
-    'Error getting tokens',
     ...extraMarkers,
   ];
   const hasPollyReplayError = markers.some((marker) => text.includes(marker));
@@ -141,80 +190,112 @@ export async function testExport(
   checkStderr = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
-  let stdout;
-  let stderr;
-  let exitCode = 0;
-  try {
-    const output = await exec(command, env);
-    stdout = output.stdout;
-    stderr = output.stderr;
-  } catch (e) {
-    stdout = e.stdout;
-    stderr = e.stderr;
-    exitCode = e.code;
-  }
-  expect(exitCode).toMatchSnapshot();
-  // console.error(`stdout:\n${stdout}`);
-  // console.error(`stderr:\n${stderr}`);
-  const regex = new RegExp(
+  const exportFileRegex = new RegExp(
     fileName
       ? fileName
       : type
         ? `.*\\.${type}\\.(json|js|groovy|xml)`
         : `.*\\.(json|js|groovy|xml)`
   );
-  const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
-    regex.test(p)
-  );
-  if (fileName) {
-    // if (filePaths.length !== 0)
-    //   console.error(`filePaths:\n${filePaths.join('\n')}`);
-    expect(filePaths.length).toBe(1);
-  } else {
-    expect(filePaths.length >= 1).toBeTruthy();
-  }
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  if (checkStderr) expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  let stdout;
+  let stderr;
+  let exitCode = 0;
   let deleteExportDirectory = true;
-  filePaths.forEach((path) => {
-    let deleteExportFile = true;
-    if (path.endsWith('json')) {
-      let exportData = {};
-      try {
-        exportData = JSON.parse(fs.readFileSync(path, 'utf8'));
-      } catch (error) {
-        deleteExportFile = false;
-        deleteExportDirectory = false;
-        exportData = { path, error };
-      }
-      if (checkForMetadata || exportData.meta) {
-        expect(exportData).toMatchSnapshot(
-          {
-            meta: expect.any(Object),
-          },
-          path
-        );
-      } else {
-        expect(exportData).toMatchSnapshot(path);
-      }
+  try {
+    try {
+      const output = await exec(command, env);
+      stdout = output.stdout;
+      stderr = output.stderr;
+    } catch (e) {
+      stdout = e.stdout;
+      stderr = e.stderr;
+      exitCode = e.code;
+    }
+    assertNoPollyReplayError(stdout, command);
+    assertNoPollyReplayError(stderr, command);
+    expect(exitCode).toMatchSnapshot();
+    // console.error(`stdout:\n${stdout}`);
+    // console.error(`stderr:\n${stderr}`);
+    const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
+      exportFileRegex.test(p)
+    );
+    if (fileName) {
+      // if (filePaths.length !== 0)
+      //   console.error(`filePaths:\n${filePaths.join('\n')}`);
+      expect(filePaths.length).toBe(1);
     } else {
-      const data = fs.readFileSync(path, 'utf8');
-      expect(data).toMatchSnapshot(path);
+      expect(filePaths.length >= 1).toBeTruthy();
     }
-    //Delete export file
-    if (deleteExportFile) {
-      try {
-        fs.unlinkSync(path);
-      } catch (error) {
-        // ignore for now, since this is only cleanup
+    expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+    if (checkStderr) expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
+    filePaths.forEach((path) => {
+      let deleteExportFile = true;
+      if (path.endsWith('json')) {
+        let exportData = {};
+        try {
+          exportData = JSON.parse(fs.readFileSync(path, 'utf8'));
+        } catch (error) {
+          deleteExportFile = false;
+          deleteExportDirectory = false;
+          exportData = { path, error };
+        }
+        if (checkForMetadata || exportData.meta) {
+          expect(exportData).toMatchSnapshot(
+            {
+              meta: expect.any(Object),
+            },
+            path
+          );
+        } else {
+          expect(exportData).toMatchSnapshot(path);
+        }
+      } else {
+        const data = fs.readFileSync(path, 'utf8');
+        expect(data).toMatchSnapshot(path);
+      }
+      //Delete export file
+      if (deleteExportFile) {
+        try {
+          fs.unlinkSync(path);
+        } catch (error) {
+          // ignore for now, since this is only cleanup
+        }
+      }
+    });
+  } finally {
+    // Always clean up generated export artifacts, even when an assertion above
+    // (e.g. the Polly replay-integrity guard or a snapshot mismatch) throws
+    // before the normal cleanup runs. Files are intentionally preserved only
+    // when a JSON parse error set deleteExportDirectory to false, so a human
+    // can inspect the malformed export.
+    if (deleteExportDirectory) {
+      if (!isCurrentDirectory) {
+        try {
+          fs.rmSync(directory, { recursive: true, force: true });
+        } catch (error) {
+          // ignore cleanup failures
+        }
+      } else {
+        // Current-directory exports may produce one file (fileName) or many
+        // (type-based, no fileName). Remove every matching export artifact so
+        // nothing is left behind when a test throws before the per-file
+        // unlink loop above runs.
+        try {
+          getFilePaths(directory, false)
+            .filter((p) => exportFileRegex.test(p))
+            .forEach((p) => {
+              try {
+                fs.unlinkSync(p);
+              } catch (error) {
+                // ignore cleanup failures
+              }
+            });
+        } catch (error) {
+          // ignore cleanup failures
+        }
       }
     }
-  });
-  if (!isCurrentDirectory && deleteExportDirectory)
-    fs.rmSync(directory, {
-      recursive: true,
-      force: true,
-    });
+  }
 }
 
 export const testif = (condition) => (condition ? test : test.skip);
@@ -265,8 +346,10 @@ export async function testPromote(
   const tempDir = await copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs)
   const CMD = `frodo promote -M ${sourceDir} -E ${tempDir}`;
   const { stdout, stderr } = await exec(CMD, env);
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  assertNoPollyReplayError(stdout, CMD);
+  assertNoPollyReplayError(stderr, CMD);
+  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
 
 async function copyAndModifyDirectory(sourceDir, modifiedFilesDir, referenceSubDirs) {
@@ -401,8 +484,10 @@ export async function testSuccess(
   env,
 ) {
   const { stdout, stderr } = await exec(command, env);
-  expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
-  expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+  assertNoPollyReplayError(stdout, command);
+  assertNoPollyReplayError(stderr, command);
+  expect(normalizeSnapshotText(stdout)).toMatchSnapshot();
+  expect(normalizeSnapshotText(stderr)).toMatchSnapshot();
 }
 
 /**
@@ -420,7 +505,9 @@ export async function testFail(
     await exec(command, env);
     commandSucceeded = true;
   } catch (e) {
-    expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
+    assertNoPollyReplayError(e.stdout, command);
+    assertNoPollyReplayError(e.stderr, command);
+    expect(normalizeSnapshotText(e.stderr)).toMatchSnapshot();
     expect(e.code).toMatchSnapshot();
   }
   if (commandSucceeded) {

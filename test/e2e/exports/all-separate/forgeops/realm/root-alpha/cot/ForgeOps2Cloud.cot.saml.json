@@ -1,0 +1,22 @@
+{
+  "saml": {
+    "cot": {
+      "ForgeOps2Cloud": {
+        "_id": "ForgeOps2Cloud",
+        "_type": {
+          "_id": "circlesoftrust",
+          "collection": true,
+          "name": "Circle of Trust"
+        },
+        "status": "active",
+        "trustedProviders": [
+          "test-remote-sp-saml|saml2",
+          "test-hosted-idp-saml|saml2"
+        ]
+      }
+    },
+    "hosted": {},
+    "metadata": {},
+    "remote": {}
+  }
+}

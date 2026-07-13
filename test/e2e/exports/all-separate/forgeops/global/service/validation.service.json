@@ -1,0 +1,20 @@
+{
+  "service": {
+    "validation": {
+      "_id": "",
+      "_type": {
+        "_id": "validation",
+        "collection": false,
+        "name": "Validation Service"
+      },
+      "defaults": {
+        "validGotoDestinations": [
+          "https://platform.dev.trivir.com/*?*"
+        ]
+      },
+      "location": "global",
+      "nextDescendents": [],
+      "validGotoDestinations": []
+    }
+  }
+}

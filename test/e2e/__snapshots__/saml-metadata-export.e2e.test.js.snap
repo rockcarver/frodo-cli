@@ -11,47 +11,14 @@ exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPA
         <KeyDescriptor use="signing">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDXzCCAkegAwIBAgIEDvqo1zANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMRkwFwYDVQQD
-ExByc2Fqd3RzaWduaW5na2V5MB4XDTIyMDgxMTAxMzIyOVoXDTMyMDgwODAxMzIyOVowYDELMAkG
-A1UEBhMCVUsxEDAOBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZv
-cmdlUm9jazEZMBcGA1UEAxMQcnNhand0c2lnbmluZ2tleTCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAKz4i7AfLdKa2fOueSyaX3rviRZXzY3w8J01B6VZZk+ujatitD8h9uSE7RjK2NS6
-BYSf/wMsg2/Xy/vVbqEMrAl8ptdjXd9rsyL4sz33IRDgs9PqW2X2Ml5et0ASCwwQJWv8aGJJqkOG
-ZorLVGqCS8PvkiN8MoYXGvkMpLPeWuSBqTTC2iBubhenRqcRkvCoeZ0JbrRWfEHKoFM1gkTj/xcn
-L8yrXb5S3e2iAPkRw8+UPf8d4i9syS/jDyUZgrfqOsypbHh0dNMkS5dYpiqnOmJDWkjy1UDdUGmA
-SKglu7c6gKaPaxcqh9VNGnTerQFbpKMV34guBoyBFrVFD1Sq6eUCAwEAAaMhMB8wHQYDVR0OBBYE
-FCRENQBDfGf/R6qys11dPZM1+i5zMA0GCSqGSIb3DQEBCwUAA4IBAQACttnaeWl6CLVhffIlVz28
-CgxJbLB+pY9mL/jy7G0+5AxK7h9Njoe9ZK9k59uMcwD5BfVPl58kxFLJcnFc68R9m2Cdii1aCm/A
-BLlHPhpxHni5INeH9J4P7MLdVwxMa/Inp9tw3gZQ60txgG/mv535kL1mtlUSqbPDf57AtG0tNWKT
-2EBe/aSLndIWAhGf1qjS5Sc3uz+O5QEG7fnkLS4uOh5//coh14wfY3EAnMl/DpkgViliQOu7voX8
-7geBJd5jJhs6Ne2BJUp0q4iylD6WJrcfOLc3mcrgVaey5rLzVvX8vsp+p/m88KKhPzK+C8soYHz4
-T7PNNC7YVB2EQVSm
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
         </KeyDescriptor>
         <KeyDescriptor use="encryption">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDRzCCAi+gAwIBAgIEK9RtfDANBgkqhkiG9w0BAQsFADBUMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMQ0wCwYDVQQD
-EwR0ZXN0MB4XDTIyMDgxMTAxMzIzMFoXDTMyMDgwODAxMzIzMFowVDELMAkGA1UEBhMCVUsxEDAO
-BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG
-A1UEAxMEdGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjkMGOu0kbOsvdp45J6
-FYW5wIn5TsKEPQUlNbYiFITg9o18Ja+6vWouK0fbIkzp8Ejj3U5OPHXqCtXCiDWiNX+bbFZoELW2
-KUigC26QdqbhmA/hTBheyQaUg/I4D64fqebUare9r0zxtMYE8FnR3YRgGeEG2qSlxgmIFvTMnzd4
-UwrUuw8C/uZTRbppDQITpkLDrOKb9608qnRvbXSR7UVP/JTm8Pq6uP2pvXz2F/QSK/wMKOnsjf+B
-XfnqNZ9b+PP+fJvUKIcxjFwgDkmGP+Kr9YV7aFaur5Hgh7Q+q4bSDJMbNDhk5Lqu6qr3oGulyiTX
-htoEkLMcbMA7JrVFCl0CAwEAAaMhMB8wHQYDVR0OBBYEFPoZt1jm2z/0gX/TnN/Sn+T31BU1MA0G
-CSqGSIb3DQEBCwUAA4IBAQAY2Hy1f+lKClRzJFHNVyYZ0ahRCkbGB0FppwI8ZhIt6Aj3p9LBXOdu
-IckDfAjg0/mckuEteA7l1LRqYcQIxpxrJU4FTxeyV1gTgudW43rw9Vd3AxdVocXqdpVxAvECtI+X
-/jdbkk54k0mYTCI9ruNRdof1BpOWkI9Jtdj0GRe7L9nydNb3V/kJzSVMDNsx+Vc0GnmysL7edZDo
-mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
-328SOTHshVUBtIGbq11vuQleknlVL7A/aYUeUIyOvdYhWD7YoVnBV+QwcrAH
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
             <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
@@ -79,7 +46,6 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
         <AssertionConsumerService index="2" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure"/>
     </SPSSODescriptor>
 </EntityDescriptor>
-
 "
 `;
 
@@ -94,47 +60,14 @@ exports[`frodo saml metadata export "frodo saml metadata export --entity-id iSPA
         <KeyDescriptor use="signing">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDXzCCAkegAwIBAgIEDvqo1zANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMRkwFwYDVQQD
-ExByc2Fqd3RzaWduaW5na2V5MB4XDTIyMDgxMTAxMzIyOVoXDTMyMDgwODAxMzIyOVowYDELMAkG
-A1UEBhMCVUsxEDAOBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZv
-cmdlUm9jazEZMBcGA1UEAxMQcnNhand0c2lnbmluZ2tleTCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAKz4i7AfLdKa2fOueSyaX3rviRZXzY3w8J01B6VZZk+ujatitD8h9uSE7RjK2NS6
-BYSf/wMsg2/Xy/vVbqEMrAl8ptdjXd9rsyL4sz33IRDgs9PqW2X2Ml5et0ASCwwQJWv8aGJJqkOG
-ZorLVGqCS8PvkiN8MoYXGvkMpLPeWuSBqTTC2iBubhenRqcRkvCoeZ0JbrRWfEHKoFM1gkTj/xcn
-L8yrXb5S3e2iAPkRw8+UPf8d4i9syS/jDyUZgrfqOsypbHh0dNMkS5dYpiqnOmJDWkjy1UDdUGmA
-SKglu7c6gKaPaxcqh9VNGnTerQFbpKMV34guBoyBFrVFD1Sq6eUCAwEAAaMhMB8wHQYDVR0OBBYE
-FCRENQBDfGf/R6qys11dPZM1+i5zMA0GCSqGSIb3DQEBCwUAA4IBAQACttnaeWl6CLVhffIlVz28
-CgxJbLB+pY9mL/jy7G0+5AxK7h9Njoe9ZK9k59uMcwD5BfVPl58kxFLJcnFc68R9m2Cdii1aCm/A
-BLlHPhpxHni5INeH9J4P7MLdVwxMa/Inp9tw3gZQ60txgG/mv535kL1mtlUSqbPDf57AtG0tNWKT
-2EBe/aSLndIWAhGf1qjS5Sc3uz+O5QEG7fnkLS4uOh5//coh14wfY3EAnMl/DpkgViliQOu7voX8
-7geBJd5jJhs6Ne2BJUp0q4iylD6WJrcfOLc3mcrgVaey5rLzVvX8vsp+p/m88KKhPzK+C8soYHz4
-T7PNNC7YVB2EQVSm
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
         </KeyDescriptor>
         <KeyDescriptor use="encryption">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDRzCCAi+gAwIBAgIEK9RtfDANBgkqhkiG9w0BAQsFADBUMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMQ0wCwYDVQQD
-EwR0ZXN0MB4XDTIyMDgxMTAxMzIzMFoXDTMyMDgwODAxMzIzMFowVDELMAkGA1UEBhMCVUsxEDAO
-BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG
-A1UEAxMEdGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjkMGOu0kbOsvdp45J6
-FYW5wIn5TsKEPQUlNbYiFITg9o18Ja+6vWouK0fbIkzp8Ejj3U5OPHXqCtXCiDWiNX+bbFZoELW2
-KUigC26QdqbhmA/hTBheyQaUg/I4D64fqebUare9r0zxtMYE8FnR3YRgGeEG2qSlxgmIFvTMnzd4
-UwrUuw8C/uZTRbppDQITpkLDrOKb9608qnRvbXSR7UVP/JTm8Pq6uP2pvXz2F/QSK/wMKOnsjf+B
-XfnqNZ9b+PP+fJvUKIcxjFwgDkmGP+Kr9YV7aFaur5Hgh7Q+q4bSDJMbNDhk5Lqu6qr3oGulyiTX
-htoEkLMcbMA7JrVFCl0CAwEAAaMhMB8wHQYDVR0OBBYEFPoZt1jm2z/0gX/TnN/Sn+T31BU1MA0G
-CSqGSIb3DQEBCwUAA4IBAQAY2Hy1f+lKClRzJFHNVyYZ0ahRCkbGB0FppwI8ZhIt6Aj3p9LBXOdu
-IckDfAjg0/mckuEteA7l1LRqYcQIxpxrJU4FTxeyV1gTgudW43rw9Vd3AxdVocXqdpVxAvECtI+X
-/jdbkk54k0mYTCI9ruNRdof1BpOWkI9Jtdj0GRe7L9nydNb3V/kJzSVMDNsx+Vc0GnmysL7edZDo
-mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
-328SOTHshVUBtIGbq11vuQleknlVL7A/aYUeUIyOvdYhWD7YoVnBV+QwcrAH
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
             <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
@@ -162,7 +95,6 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
         <AssertionConsumerService index="2" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure"/>
     </SPSSODescriptor>
 </EntityDescriptor>
-
 "
 `;
 
@@ -177,47 +109,14 @@ exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure -D s
         <KeyDescriptor use="signing">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDXzCCAkegAwIBAgIEDvqo1zANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMRkwFwYDVQQD
-ExByc2Fqd3RzaWduaW5na2V5MB4XDTIyMDgxMTAxMzIyOVoXDTMyMDgwODAxMzIyOVowYDELMAkG
-A1UEBhMCVUsxEDAOBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZv
-cmdlUm9jazEZMBcGA1UEAxMQcnNhand0c2lnbmluZ2tleTCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAKz4i7AfLdKa2fOueSyaX3rviRZXzY3w8J01B6VZZk+ujatitD8h9uSE7RjK2NS6
-BYSf/wMsg2/Xy/vVbqEMrAl8ptdjXd9rsyL4sz33IRDgs9PqW2X2Ml5et0ASCwwQJWv8aGJJqkOG
-ZorLVGqCS8PvkiN8MoYXGvkMpLPeWuSBqTTC2iBubhenRqcRkvCoeZ0JbrRWfEHKoFM1gkTj/xcn
-L8yrXb5S3e2iAPkRw8+UPf8d4i9syS/jDyUZgrfqOsypbHh0dNMkS5dYpiqnOmJDWkjy1UDdUGmA
-SKglu7c6gKaPaxcqh9VNGnTerQFbpKMV34guBoyBFrVFD1Sq6eUCAwEAAaMhMB8wHQYDVR0OBBYE
-FCRENQBDfGf/R6qys11dPZM1+i5zMA0GCSqGSIb3DQEBCwUAA4IBAQACttnaeWl6CLVhffIlVz28
-CgxJbLB+pY9mL/jy7G0+5AxK7h9Njoe9ZK9k59uMcwD5BfVPl58kxFLJcnFc68R9m2Cdii1aCm/A
-BLlHPhpxHni5INeH9J4P7MLdVwxMa/Inp9tw3gZQ60txgG/mv535kL1mtlUSqbPDf57AtG0tNWKT
-2EBe/aSLndIWAhGf1qjS5Sc3uz+O5QEG7fnkLS4uOh5//coh14wfY3EAnMl/DpkgViliQOu7voX8
-7geBJd5jJhs6Ne2BJUp0q4iylD6WJrcfOLc3mcrgVaey5rLzVvX8vsp+p/m88KKhPzK+C8soYHz4
-T7PNNC7YVB2EQVSm
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
         </KeyDescriptor>
         <KeyDescriptor use="encryption">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDRzCCAi+gAwIBAgIEK9RtfDANBgkqhkiG9w0BAQsFADBUMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMQ0wCwYDVQQD
-EwR0ZXN0MB4XDTIyMDgxMTAxMzIzMFoXDTMyMDgwODAxMzIzMFowVDELMAkGA1UEBhMCVUsxEDAO
-BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG
-A1UEAxMEdGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjkMGOu0kbOsvdp45J6
-FYW5wIn5TsKEPQUlNbYiFITg9o18Ja+6vWouK0fbIkzp8Ejj3U5OPHXqCtXCiDWiNX+bbFZoELW2
-KUigC26QdqbhmA/hTBheyQaUg/I4D64fqebUare9r0zxtMYE8FnR3YRgGeEG2qSlxgmIFvTMnzd4
-UwrUuw8C/uZTRbppDQITpkLDrOKb9608qnRvbXSR7UVP/JTm8Pq6uP2pvXz2F/QSK/wMKOnsjf+B
-XfnqNZ9b+PP+fJvUKIcxjFwgDkmGP+Kr9YV7aFaur5Hgh7Q+q4bSDJMbNDhk5Lqu6qr3oGulyiTX
-htoEkLMcbMA7JrVFCl0CAwEAAaMhMB8wHQYDVR0OBBYEFPoZt1jm2z/0gX/TnN/Sn+T31BU1MA0G
-CSqGSIb3DQEBCwUAA4IBAQAY2Hy1f+lKClRzJFHNVyYZ0ahRCkbGB0FppwI8ZhIt6Aj3p9LBXOdu
-IckDfAjg0/mckuEteA7l1LRqYcQIxpxrJU4FTxeyV1gTgudW43rw9Vd3AxdVocXqdpVxAvECtI+X
-/jdbkk54k0mYTCI9ruNRdof1BpOWkI9Jtdj0GRe7L9nydNb3V/kJzSVMDNsx+Vc0GnmysL7edZDo
-mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
-328SOTHshVUBtIGbq11vuQleknlVL7A/aYUeUIyOvdYhWD7YoVnBV+QwcrAH
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
             <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
@@ -245,7 +144,6 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
         <AssertionConsumerService index="2" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure"/>
     </SPSSODescriptor>
 </EntityDescriptor>
-
 "
 `;
 
@@ -260,47 +158,14 @@ exports[`frodo saml metadata export "frodo saml metadata export -i iSPAzure": sh
         <KeyDescriptor use="signing">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDXzCCAkegAwIBAgIEDvqo1zANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMRkwFwYDVQQD
-ExByc2Fqd3RzaWduaW5na2V5MB4XDTIyMDgxMTAxMzIyOVoXDTMyMDgwODAxMzIyOVowYDELMAkG
-A1UEBhMCVUsxEDAOBgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZv
-cmdlUm9jazEZMBcGA1UEAxMQcnNhand0c2lnbmluZ2tleTCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAKz4i7AfLdKa2fOueSyaX3rviRZXzY3w8J01B6VZZk+ujatitD8h9uSE7RjK2NS6
-BYSf/wMsg2/Xy/vVbqEMrAl8ptdjXd9rsyL4sz33IRDgs9PqW2X2Ml5et0ASCwwQJWv8aGJJqkOG
-ZorLVGqCS8PvkiN8MoYXGvkMpLPeWuSBqTTC2iBubhenRqcRkvCoeZ0JbrRWfEHKoFM1gkTj/xcn
-L8yrXb5S3e2iAPkRw8+UPf8d4i9syS/jDyUZgrfqOsypbHh0dNMkS5dYpiqnOmJDWkjy1UDdUGmA
-SKglu7c6gKaPaxcqh9VNGnTerQFbpKMV34guBoyBFrVFD1Sq6eUCAwEAAaMhMB8wHQYDVR0OBBYE
-FCRENQBDfGf/R6qys11dPZM1+i5zMA0GCSqGSIb3DQEBCwUAA4IBAQACttnaeWl6CLVhffIlVz28
-CgxJbLB+pY9mL/jy7G0+5AxK7h9Njoe9ZK9k59uMcwD5BfVPl58kxFLJcnFc68R9m2Cdii1aCm/A
-BLlHPhpxHni5INeH9J4P7MLdVwxMa/Inp9tw3gZQ60txgG/mv535kL1mtlUSqbPDf57AtG0tNWKT
-2EBe/aSLndIWAhGf1qjS5Sc3uz+O5QEG7fnkLS4uOh5//coh14wfY3EAnMl/DpkgViliQOu7voX8
-7geBJd5jJhs6Ne2BJUp0q4iylD6WJrcfOLc3mcrgVaey5rLzVvX8vsp+p/m88KKhPzK+C8soYHz4
-T7PNNC7YVB2EQVSm
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
         </KeyDescriptor>
         <KeyDescriptor use="encryption">
             <ds:KeyInfo>
                 <ds:X509Data>
-                    <ds:X509Certificate>
-MIIDRzCCAi+gAwIBAgIEK9RtfDANBgkqhkiG9w0BAQsFADBUMQswCQYDVQQGEwJVSzEQMA4GA1UE
-CBMHQnJpc3RvbDEQMA4GA1UEBxMHQnJpc3RvbDESMBAGA1UEChMJRm9yZ2VSb2NrMQ0wCwYDVQQD
-EwR0ZXN0MB4XDTIyMDgxMTAxMzIzMFoXDTMyMDgwODAxMzIzMFowVDELMAkGA1UEBhMCVUsxEDAO
-BgNVBAgTB0JyaXN0b2wxEDAOBgNVBAcTB0JyaXN0b2wxEjAQBgNVBAoTCUZvcmdlUm9jazENMAsG
-A1UEAxMEdGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjkMGOu0kbOsvdp45J6
-FYW5wIn5TsKEPQUlNbYiFITg9o18Ja+6vWouK0fbIkzp8Ejj3U5OPHXqCtXCiDWiNX+bbFZoELW2
-KUigC26QdqbhmA/hTBheyQaUg/I4D64fqebUare9r0zxtMYE8FnR3YRgGeEG2qSlxgmIFvTMnzd4
-UwrUuw8C/uZTRbppDQITpkLDrOKb9608qnRvbXSR7UVP/JTm8Pq6uP2pvXz2F/QSK/wMKOnsjf+B
-XfnqNZ9b+PP+fJvUKIcxjFwgDkmGP+Kr9YV7aFaur5Hgh7Q+q4bSDJMbNDhk5Lqu6qr3oGulyiTX
-htoEkLMcbMA7JrVFCl0CAwEAAaMhMB8wHQYDVR0OBBYEFPoZt1jm2z/0gX/TnN/Sn+T31BU1MA0G
-CSqGSIb3DQEBCwUAA4IBAQAY2Hy1f+lKClRzJFHNVyYZ0ahRCkbGB0FppwI8ZhIt6Aj3p9LBXOdu
-IckDfAjg0/mckuEteA7l1LRqYcQIxpxrJU4FTxeyV1gTgudW43rw9Vd3AxdVocXqdpVxAvECtI+X
-/jdbkk54k0mYTCI9ruNRdof1BpOWkI9Jtdj0GRe7L9nydNb3V/kJzSVMDNsx+Vc0GnmysL7edZDo
-mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
-328SOTHshVUBtIGbq11vuQleknlVL7A/aYUeUIyOvdYhWD7YoVnBV+QwcrAH
-                    </ds:X509Certificate>
+                    <ds:X509Certificate>PGNlcnRpZmljYXRlPg==</ds:X509Certificate>
                 </ds:X509Data>
             </ds:KeyInfo>
             <EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
@@ -328,6 +193,5 @@ mK3zry+aIWav0yj1Pmh2lOgD6rEnOlGZDqrmIqWd0d2jp8Am4iawP0sr9e7etjK/YGCFW4byuCOx
         <AssertionConsumerService index="2" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://idc.scheuber.io/am/Consumer/ECP/metaAlias/alpha/iSPAzure"/>
     </SPSSODescriptor>
 </EntityDescriptor>
-
 "
 `;

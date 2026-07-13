@@ -1,0 +1,30 @@
+{
+  "authenticationModules": {
+    "openidconnect": {
+      "_id": "openidconnect",
+      "_type": {
+        "_id": "openidconnect",
+        "collection": false,
+        "name": "OpenID Connect id_token bearer"
+      },
+      "defaults": {
+        "acceptedAuthorizedParties": [
+          "http://www.example.com/authorized/party",
+          "AuthorizedPartyExample"
+        ],
+        "accountProviderClass": "org.forgerock.openam.authentication.modules.common.mapping.DefaultAccountProvider",
+        "audienceName": "example",
+        "cryptoContextType": ".well-known/openid-configuration_url",
+        "cryptoContextValue": "https://accounts.google.com/.well-known/openid-configuration",
+        "idTokenHeaderName": "oidc_id_token",
+        "idTokenIssuer": "accounts.google.com",
+        "jwtToLdapAttributeMappings": [
+          "sub=uid",
+          "email=mail"
+        ],
+        "principalMapperClass": "org.forgerock.openam.authentication.modules.oidc.JwtAttributeMapper",
+        "useSubClaimIfNoMatch": false
+      }
+    }
+  }
+}

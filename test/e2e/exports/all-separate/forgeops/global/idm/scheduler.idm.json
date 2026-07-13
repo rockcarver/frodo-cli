@@ -1,0 +1,15 @@
+{
+  "idm": {
+    "scheduler": {
+      "_id": "scheduler",
+      "scheduler": {
+        "executePersistentSchedules": {
+          "$bool": "&{openidm.scheduler.execute.persistent.schedules}"
+        }
+      },
+      "threadPool": {
+        "threadCount": 10
+      }
+    }
+  }
+}

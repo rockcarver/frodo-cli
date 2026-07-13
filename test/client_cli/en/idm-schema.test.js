@@ -5,6 +5,6 @@ const exec = promisify(cp.exec);
 const CMD = 'frodo idm schema --help';
 const { stdout } = await exec(CMD);
 
-test("CLI help interface for 'idm' should be expected english", async () => {
+test("CLI help interface for 'idm schema' should be expected english", async () => {
   expect(stdout).toMatchSnapshot();
 });

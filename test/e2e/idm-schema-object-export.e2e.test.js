@@ -47,6 +47,7 @@
  */
 
 /*
+// Cloud
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D testDir1
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -a -D testDir2 -f test.file.json
@@ -57,16 +58,25 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -i bravo_assignment -f test2.file.json 
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -i alpha_role -f test2.file.json -D testDir4
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo idm schema object export -i alpha_group -D testDir5
+
+// Forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo idm schema object export -xi groovy -D managedSchemaTestDir8 -m forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c } from './utils/TestConfig';
+import { connection as c, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
+const forgeopsEnv = getEnv(fc);
 
 const type = 'idm';
 
 describe('frodo idm schema object export', () => {
+
+  // Cloud Tests
+
   test('"frodo idm schema object export -a": should export all managed objects into a single file', async () => {
     const CMD = `frodo idm schema object export -a`;
     await testExport(CMD, env, type, undefined, undefined, false);
@@ -127,5 +137,25 @@ describe('frodo idm schema object export', () => {
     const dirName = 'testDir5';
     const CMD = `frodo idm schema object export -i alpha_group -D ${dirName}`;
     await testExport(CMD, env, type, defaultFileName, dirName, false);
+  });
+
+  // ForgeOps Tests
+
+  test('"frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops": should export managed objects into separate files', async () => {
+    const dirName = 'managedSchemaTestDir6';
+    const CMD = `frodo idm schema object export -AD ${dirName} -m forgeops`;
+    await testExport(CMD, env, type, undefined, dirName, false);
+  });
+
+  test('"frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts', async () => {
+    const dirName = 'managedSchemaTestDir7';
+    const CMD = `frodo idm schema object export -i groovy -D ${dirName} -m forgeops`;
+    await testExport(CMD, env, undefined, undefined, dirName, false);
+  });
+
+  test('"frodo idm schema object export -xi groovy -D managedSchemaTestDir8 -m forgeops": should export groovy object without extracted idm scripts', async () => {
+    const dirName = 'managedSchemaTestDir8';
+    const CMD = `frodo idm schema object export -xi groovy -D ${dirName} -m forgeops`;
+    await testExport(CMD, env, undefined, "groovy.managed.json", dirName, false);
   });
 });

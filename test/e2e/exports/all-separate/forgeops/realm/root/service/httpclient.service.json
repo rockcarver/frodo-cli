@@ -1,0 +1,58 @@
+{
+  "service": {
+    "httpclient": {
+      "_id": "",
+      "_type": {
+        "_id": "httpclient",
+        "collection": false,
+        "name": "Http Client Service"
+      },
+      "core": {
+        "enabled": false
+      },
+      "location": "/",
+      "nextDescendents": [
+        {
+          "_id": "HTTP2",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "Http Client Instance Configuration"
+          },
+          "core": {
+            "enabled": false
+          },
+          "timeouts": {
+            "connectionTimeout": 10,
+            "responseTimeout": 10,
+            "useInstanceTimeouts": false
+          },
+          "tls": {
+            "disableRevocationChecks": false,
+            "trustAllCertificates": false
+          }
+        },
+        {
+          "_id": "HTTP1",
+          "_type": {
+            "_id": "instances",
+            "collection": true,
+            "name": "Http Client Instance Configuration"
+          },
+          "core": {
+            "enabled": false
+          },
+          "timeouts": {
+            "connectionTimeout": 10,
+            "responseTimeout": 10,
+            "useInstanceTimeouts": false
+          },
+          "tls": {
+            "disableRevocationChecks": false,
+            "trustAllCertificates": false
+          }
+        }
+      ]
+    }
+  }
+}

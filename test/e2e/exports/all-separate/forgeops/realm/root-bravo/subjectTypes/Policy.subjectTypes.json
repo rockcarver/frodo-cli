@@ -1,0 +1,26 @@
+{
+  "subjectTypes": {
+    "Policy": {
+      "_id": "Policy",
+      "config": {
+        "properties": {
+          "className": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "values": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "Policy"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "idm": {
+    "ui.context/api": {
+      "_id": "ui.context/api",
+      "defaultDir": "&{idm.install.dir}/ui/api/default",
+      "enabled": false,
+      "extensionDir": "&{idm.install.dir}/ui/api/extension",
+      "urlContextRoot": "/swagger"
+    }
+  }
+}

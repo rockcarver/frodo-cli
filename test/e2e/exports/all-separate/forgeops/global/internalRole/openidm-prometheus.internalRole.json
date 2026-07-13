@@ -1,0 +1,12 @@
+{
+  "internalRole": {
+    "openidm-prometheus": {
+      "_id": "openidm-prometheus",
+      "condition": null,
+      "description": "Prometheus access",
+      "name": "openidm-prometheus",
+      "privileges": [],
+      "temporalConstraints": []
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "serverInformation": {
+    "*": {
+      "_id": "*",
+      "cookieName": "iPlanetDirectoryPro",
+      "domains": [
+        null
+      ],
+      "fileBasedConfiguration": true,
+      "forgotPassword": "true",
+      "forgotUsername": "true",
+      "kbaEnabled": "false",
+      "lang": "en-US",
+      "nodeDesignerXuiEnabled": true,
+      "protectedUserAttributes": [
+        "telephoneNumber",
+        "mail"
+      ],
+      "realm": "/",
+      "referralsEnabled": "false",
+      "secureCookie": true,
+      "selfRegistration": "true",
+      "socialImplementations": [],
+      "successfulUserRegistrationDestination": "default",
+      "userIdAttributes": [
+        "fr-idm-uuid"
+      ],
+      "xuiUserSessionValidationEnabled": true,
+      "zeroPageLogin": {
+        "allowedWithoutReferer": true,
+        "enabled": false,
+        "refererWhitelist": []
+      }
+    }
+  }
+}

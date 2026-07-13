@@ -1,0 +1,18 @@
+{
+  "service": {
+    "securid": {
+      "_id": "",
+      "_type": {
+        "_id": "securid",
+        "collection": false,
+        "name": "SecurID"
+      },
+      "defaults": {
+        "authenticationLevel": 0,
+        "serverConfigPath": "/home/forgerock/openam/config/auth/ace/data"
+      },
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

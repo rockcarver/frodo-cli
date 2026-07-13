@@ -1,0 +1,10 @@
+{
+  "idm": {
+    "endpoint/Groovy": {
+      "_id": "endpoint/Groovy",
+      "description": "Test Groovy Script",
+      "source": "file://Groovy.groovy",
+      "type": "groovy"
+    }
+  }
+}

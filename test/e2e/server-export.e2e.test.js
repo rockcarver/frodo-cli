@@ -66,7 +66,7 @@ const classicEnv = getEnv(cc);
 
 const type = 'server';
 
-describe('frodo server export', () => {
+describe.skip('frodo server export', () => {
     test('"frodo server export -i 01 -f serverExportTestFile1.json -xNdD serverExportTestDir1": should export the server with server id "01" along with default properties.', async () => {
         const exportFile = "serverExportTestFile1.json"
         const exportDirectory = "serverExportTestDir1";

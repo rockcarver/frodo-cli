@@ -1,0 +1,27 @@
+{
+  "idm": {
+    "schedule/Javascript": {
+      "_id": "schedule/Javascript",
+      "concurrentExecution": false,
+      "enabled": true,
+      "endTime": null,
+      "invokeContext": {
+        "script": {
+          "globals": {},
+          "source": "file://invokeContext.script.js",
+          "type": "text/javascript"
+        }
+      },
+      "invokeLogLevel": "info",
+      "invokeService": "script",
+      "isCron": false,
+      "misfirePolicy": "fireAndProceed",
+      "persisted": true,
+      "recoverable": false,
+      "repeatCount": 5,
+      "repeatInterval": 155520000000,
+      "startTime": "2026-06-06T00:00:00+04:15",
+      "type": "simple"
+    }
+  }
+}

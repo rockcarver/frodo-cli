@@ -1,0 +1,19 @@
+{
+  "resourcetype": {
+    "88e74fda-3e8b-47b3-b50d-22a456c9bab1": {
+      "actions": {
+        "create": true,
+        "delete": true,
+        "read": false,
+        "update": false
+      },
+      "description": "",
+      "name": "Test Resource Type 2",
+      "patterns": [
+        "*/test2",
+        "test2/*"
+      ],
+      "uuid": "88e74fda-3e8b-47b3-b50d-22a456c9bab1"
+    }
+  }
+}

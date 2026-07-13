@@ -1,0 +1,20 @@
+{
+  "authenticationModules": {
+    "persistentcookie": {
+      "_id": "persistentcookie",
+      "_type": {
+        "_id": "persistentcookie",
+        "collection": false,
+        "name": "Persistent Cookie"
+      },
+      "defaults": {
+        "cookieName": "session-jwt",
+        "enforceClientIP": false,
+        "idleTimeout": 5,
+        "maxLife": 5,
+        "useHttpOnlyCookie": true,
+        "useSecureCookie": true
+      }
+    }
+  }
+}

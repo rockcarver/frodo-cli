@@ -58,6 +58,31 @@ exports[`frodo idm schema object export "frodo idm schema object export -A": sho
 }
 `;
 
+exports[`frodo idm schema object export "frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops": should export managed objects into separate files 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops": should export managed objects into separate files 2`] = `""`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -AD managedSchemaTestDir6 -m forgeops": should export managed objects into separate files: managedSchemaTestDir6/managed/managed.idm.json 1`] = `
+{
+  "idm": {
+    "managed": {
+      "_id": "managed",
+      "objects": [
+        "file://user.managed.json",
+        "file://role.managed.json",
+        "file://assignment.managed.json",
+        "file://organization.managed.json",
+        "file://group.managed.json",
+        "file://application.managed.json",
+        "file://javascript/javascript.managed.json",
+        "file://groovy/groovy.managed.json",
+      ],
+    },
+  },
+  "meta": Any<Object>,
+}
+`;
+
 exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1 1`] = `0`;
 
 exports[`frodo idm schema object export "frodo idm schema object export -a -D testDir1": should export all managed objects into a single file in testDir1 2`] = `""`;
@@ -24938,6 +24963,1648 @@ exports[`frodo idm schema object export "frodo idm schema object export -i bravo
       "mapping",
     ],
     "title": "Bravo realm - Assignment",
+    "type": "object",
+  },
+}
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts 2`] = `""`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.array.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.array.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.array.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.string.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.string.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.object.string.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.string.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.string.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.items.object.string.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/array.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/groovy.managed.json 1`] = `
+{
+  "name": "groovy",
+  "onCreate": {
+    "globals": {},
+    "source": "file://onCreate.groovy",
+    "type": "groovy",
+  },
+  "onDelete": {
+    "globals": {},
+    "source": "file://onDelete.groovy",
+    "type": "groovy",
+  },
+  "onRead": {
+    "globals": {},
+    "source": "file://onRead.groovy",
+    "type": "groovy",
+  },
+  "onRetrieve": {
+    "globals": {},
+    "source": "file://onRetrieve.groovy",
+    "type": "groovy",
+  },
+  "onStore": {
+    "globals": {},
+    "source": "file://onStore.groovy",
+    "type": "groovy",
+  },
+  "onSync": {
+    "globals": {},
+    "source": "file://onSync.groovy",
+    "type": "groovy",
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "file://onUpdate.groovy",
+    "type": "groovy",
+  },
+  "onValidate": {
+    "globals": {},
+    "source": "file://onValidate.groovy",
+    "type": "groovy",
+  },
+  "postCreate": {
+    "globals": {},
+    "source": "file://postCreate.groovy",
+    "type": "groovy",
+  },
+  "postDelete": {
+    "globals": {},
+    "source": "file://postDelete.groovy",
+    "type": "groovy",
+  },
+  "postUpdate": {
+    "globals": {},
+    "source": "file://postUpdate.groovy",
+    "type": "groovy",
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Groovy scripts",
+    "icon": "fa-music",
+    "mat-icon": "",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array",
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object",
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean",
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.array.onRetrieve.groovy",
+                "type": "groovy",
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.array.onStore.groovy",
+                "type": "groovy",
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.array.onValidate.groovy",
+                "type": "groovy",
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true,
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "file://array.items.object.onRetrieve.groovy",
+                "type": "groovy",
+              },
+              "onStore": {
+                "globals": {},
+                "source": "file://array.items.object.onStore.groovy",
+                "type": "groovy",
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "file://array.items.object.onValidate.groovy",
+                "type": "groovy",
+              },
+              "order": [
+                "object",
+                "string",
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onRetrieve.groovy",
+                    "type": "groovy",
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onStore.groovy",
+                    "type": "groovy",
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.object.onValidate.groovy",
+                    "type": "groovy",
+                  },
+                  "order": [
+                    "object",
+                    "string",
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onRetrieve.groovy",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onStore.groovy",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.object.onValidate.groovy",
+                        "type": "groovy",
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onRetrieve.groovy",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onStore.groovy",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://array.items.object.object.string.onValidate.groovy",
+                        "type": "groovy",
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true,
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onRetrieve.groovy",
+                    "type": "groovy",
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onStore.groovy",
+                    "type": "groovy",
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "file://array.items.object.string.onValidate.groovy",
+                    "type": "groovy",
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true,
+                },
+              },
+              "required": [
+                "object",
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true,
+            },
+          },
+          "required": [
+            "array",
+            "object",
+          ],
+          "type": "object",
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://array.onRetrieve.groovy",
+          "type": "groovy",
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://array.onStore.groovy",
+          "type": "groovy",
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://array.onValidate.groovy",
+          "type": "groovy",
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "file://object.onRetrieve.groovy",
+          "type": "groovy",
+        },
+        "onStore": {
+          "globals": {},
+          "source": "file://object.onStore.groovy",
+          "type": "groovy",
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "file://object.onValidate.groovy",
+          "type": "groovy",
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number",
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object",
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number",
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onRetrieve.groovy",
+                              "type": "groovy",
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.number.onValidate.groovy",
+                              "type": "groovy",
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true,
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onRetrieve.groovy",
+                              "type": "groovy",
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onStore.groovy",
+                              "type": "groovy",
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "file://object.array.items.items.items.array.items.string.onValidate.groovy",
+                              "type": "groovy",
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true,
+                          },
+                        },
+                        "required": [],
+                        "type": "object",
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onRetrieve.groovy",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onStore.groovy",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.array.onValidate.groovy",
+                        "type": "groovy",
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onRetrieve.groovy",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "file://object.array.items.items.items.object.onValidate.groovy",
+                        "type": "groovy",
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                  },
+                  "required": [],
+                  "type": "object",
+                },
+                "type": "array",
+              },
+              "type": "array",
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.array.onRetrieve.groovy",
+              "type": "groovy",
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.array.onStore.groovy",
+              "type": "groovy",
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.array.onValidate.groovy",
+              "type": "groovy",
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "file://object.object.onRetrieve.groovy",
+              "type": "groovy",
+            },
+            "onStore": {
+              "globals": {},
+              "source": "file://object.object.onStore.groovy",
+              "type": "groovy",
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "file://object.object.onValidate.groovy",
+              "type": "groovy",
+            },
+            "order": [
+              "object",
+              "string",
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.object.onRetrieve.groovy",
+                  "type": "groovy",
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.object.onStore.groovy",
+                  "type": "groovy",
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.object.onValidate.groovy",
+                  "type": "groovy",
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true,
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "file://object.object.string.onRetrieve.groovy",
+                  "type": "groovy",
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "file://object.object.string.onStore.groovy",
+                  "type": "groovy",
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "file://object.object.string.onValidate.groovy",
+                  "type": "groovy",
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true,
+              },
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true,
+          },
+        },
+        "required": [
+          "object",
+          "array",
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true,
+      },
+    },
+    "required": [
+      "array",
+      "object",
+    ],
+    "title": "Groovy",
+    "type": "object",
+  },
+}
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.items.number.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.items.number.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.items.string.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.items.string.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.items.string.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.array.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.items.items.items.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.array.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.string.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.string.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.object.string.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/object.onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onCreate.groovy 1`] = `
+"// Test Groovy onCreate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onDelete.groovy 1`] = `
+"// Test Groovy onDelete script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onRead.groovy 1`] = `
+"// Test Groovy onRead script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onRetrieve.groovy 1`] = `
+"// Test Groovy onRetrieve script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onStore.groovy 1`] = `
+"// Test Groovy onStore script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onSync.groovy 1`] = `
+"// Test Groovy onSync script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onUpdate.groovy 1`] = `
+"// Test Groovy onUpdate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/onValidate.groovy 1`] = `
+"// Test Groovy onValidate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/postCreate.groovy 1`] = `
+"// Test Groovy postCreate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/postDelete.groovy 1`] = `
+"// Test Groovy postDelete script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -i groovy -D managedSchemaTestDir7 -m forgeops": should export groovy object with extracted idm scripts: managedSchemaTestDir7/groovy/postUpdate.groovy 1`] = `
+"// Test Groovy postUpdate script
+println "Hello World!"
+"
+`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -xi groovy -D managedSchemaTestDir8 -m forgeops": should export groovy object without extracted idm scripts 1`] = `0`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -xi groovy -D managedSchemaTestDir8 -m forgeops": should export groovy object without extracted idm scripts 2`] = `""`;
+
+exports[`frodo idm schema object export "frodo idm schema object export -xi groovy -D managedSchemaTestDir8 -m forgeops": should export groovy object without extracted idm scripts: managedSchemaTestDir8/groovy.managed.json 1`] = `
+{
+  "name": "groovy",
+  "onCreate": {
+    "globals": {},
+    "source": "// Test Groovy onCreate script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onDelete": {
+    "globals": {},
+    "source": "// Test Groovy onDelete script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onRead": {
+    "globals": {},
+    "source": "// Test Groovy onRead script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onRetrieve": {
+    "globals": {},
+    "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onStore": {
+    "globals": {},
+    "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onSync": {
+    "globals": {},
+    "source": "// Test Groovy onSync script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onUpdate": {
+    "globals": {},
+    "source": "// Test Groovy onUpdate script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "onValidate": {
+    "globals": {},
+    "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "postCreate": {
+    "globals": {},
+    "source": "// Test Groovy postCreate script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "postDelete": {
+    "globals": {},
+    "source": "// Test Groovy postDelete script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "postUpdate": {
+    "globals": {},
+    "source": "// Test Groovy postUpdate script
+println "Hello World!"
+",
+    "type": "groovy",
+  },
+  "schema": {
+    "$schema": "http://forgerock.org/json-schema#",
+    "description": "Managed object that contains Groovy scripts",
+    "icon": "fa-music",
+    "mat-icon": "",
+    "order": [
+      "object",
+      "string",
+      "boolean",
+      "number",
+      "array",
+    ],
+    "properties": {
+      "array": {
+        "description": null,
+        "isVirtual": false,
+        "items": {
+          "order": [
+            "array",
+            "object",
+          ],
+          "properties": {
+            "array": {
+              "description": null,
+              "isVirtual": false,
+              "items": {
+                "type": "boolean",
+              },
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "searchable": false,
+              "title": "Array",
+              "type": "array",
+              "userEditable": true,
+              "viewable": true,
+            },
+            "object": {
+              "description": null,
+              "isVirtual": false,
+              "nullable": false,
+              "onRetrieve": {
+                "globals": {},
+                "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "onStore": {
+                "globals": {},
+                "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "onValidate": {
+                "globals": {},
+                "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                "type": "groovy",
+              },
+              "order": [
+                "object",
+                "string",
+              ],
+              "properties": {
+                "object": {
+                  "description": null,
+                  "isVirtual": false,
+                  "nullable": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "order": [
+                    "object",
+                    "string",
+                  ],
+                  "properties": {
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                    "string": {
+                      "description": null,
+                      "format": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "searchable": false,
+                      "title": "String",
+                      "type": "string",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                  },
+                  "required": [],
+                  "searchable": false,
+                  "title": "Object",
+                  "type": "object",
+                  "userEditable": true,
+                  "viewable": true,
+                },
+                "string": {
+                  "description": null,
+                  "format": null,
+                  "isVirtual": false,
+                  "onRetrieve": {
+                    "globals": {},
+                    "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "onStore": {
+                    "globals": {},
+                    "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "onValidate": {
+                    "globals": {},
+                    "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                    "type": "groovy",
+                  },
+                  "searchable": false,
+                  "title": "String",
+                  "type": "string",
+                  "userEditable": true,
+                  "viewable": true,
+                },
+              },
+              "required": [
+                "object",
+              ],
+              "searchable": false,
+              "title": "Object",
+              "type": "object",
+              "userEditable": true,
+              "viewable": true,
+            },
+          },
+          "required": [
+            "array",
+            "object",
+          ],
+          "type": "object",
+        },
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "onStore": {
+          "globals": {},
+          "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "searchable": false,
+        "title": "Array",
+        "type": "array",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "boolean": {
+        "searchable": false,
+        "title": "Boolean",
+        "type": "boolean",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "number": {
+        "searchable": false,
+        "title": "Number",
+        "type": "number",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "object": {
+        "description": null,
+        "isVirtual": false,
+        "nullable": false,
+        "onRetrieve": {
+          "globals": {},
+          "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "onStore": {
+          "globals": {},
+          "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "onValidate": {
+          "globals": {},
+          "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+          "type": "groovy",
+        },
+        "order": [
+          "object",
+          "array",
+          "string",
+          "number",
+        ],
+        "properties": {
+          "array": {
+            "description": null,
+            "isVirtual": false,
+            "items": {
+              "items": {
+                "items": {
+                  "order": [
+                    "array",
+                    "object",
+                  ],
+                  "properties": {
+                    "array": {
+                      "description": null,
+                      "isVirtual": false,
+                      "items": {
+                        "order": [
+                          "string",
+                          "number",
+                        ],
+                        "properties": {
+                          "number": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                              "type": "groovy",
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                              "type": "groovy",
+                            },
+                            "searchable": false,
+                            "title": "Number",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true,
+                          },
+                          "string": {
+                            "description": null,
+                            "format": null,
+                            "isVirtual": false,
+                            "onRetrieve": {
+                              "globals": {},
+                              "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                              "type": "groovy",
+                            },
+                            "onStore": {
+                              "globals": {},
+                              "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                              "type": "groovy",
+                            },
+                            "onValidate": {
+                              "globals": {},
+                              "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                              "type": "groovy",
+                            },
+                            "searchable": false,
+                            "title": "String",
+                            "type": "string",
+                            "userEditable": true,
+                            "viewable": true,
+                          },
+                        },
+                        "required": [],
+                        "type": "object",
+                      },
+                      "nullable": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onStore": {
+                        "globals": {},
+                        "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "searchable": false,
+                      "title": "Array",
+                      "type": "array",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                    "object": {
+                      "description": null,
+                      "isVirtual": false,
+                      "onRetrieve": {
+                        "globals": {},
+                        "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "onValidate": {
+                        "globals": {},
+                        "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                        "type": "groovy",
+                      },
+                      "order": [],
+                      "properties": {},
+                      "required": [],
+                      "searchable": false,
+                      "title": "Object",
+                      "type": "object",
+                      "userEditable": true,
+                      "viewable": true,
+                    },
+                  },
+                  "required": [],
+                  "type": "object",
+                },
+                "type": "array",
+              },
+              "type": "array",
+            },
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "searchable": false,
+            "title": "Array",
+            "type": "array",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "number": {
+            "searchable": false,
+            "title": "Number",
+            "type": "number",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "object": {
+            "description": null,
+            "isVirtual": false,
+            "nullable": false,
+            "onRetrieve": {
+              "globals": {},
+              "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "onStore": {
+              "globals": {},
+              "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "onValidate": {
+              "globals": {},
+              "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+              "type": "groovy",
+            },
+            "order": [
+              "object",
+              "string",
+            ],
+            "properties": {
+              "object": {
+                "description": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "order": [],
+                "properties": {},
+                "required": [],
+                "searchable": false,
+                "title": "Object",
+                "type": "object",
+                "userEditable": true,
+                "viewable": true,
+              },
+              "string": {
+                "description": null,
+                "format": null,
+                "isVirtual": false,
+                "onRetrieve": {
+                  "globals": {},
+                  "source": "// Test Groovy onRetrieve script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "onStore": {
+                  "globals": {},
+                  "source": "// Test Groovy onStore script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "onValidate": {
+                  "globals": {},
+                  "source": "// Test Groovy onValidate script
+println "Hello World!"
+",
+                  "type": "groovy",
+                },
+                "searchable": false,
+                "title": "String",
+                "type": "string",
+                "userEditable": true,
+                "viewable": true,
+              },
+            },
+            "required": [],
+            "searchable": false,
+            "title": "Object",
+            "type": "object",
+            "userEditable": true,
+            "viewable": true,
+          },
+          "string": {
+            "searchable": false,
+            "title": "String",
+            "type": "string",
+            "userEditable": true,
+            "viewable": true,
+          },
+        },
+        "required": [
+          "object",
+          "array",
+        ],
+        "searchable": false,
+        "title": "Object",
+        "type": "object",
+        "userEditable": true,
+        "viewable": true,
+      },
+      "string": {
+        "searchable": false,
+        "title": "String",
+        "type": "string",
+        "userEditable": true,
+        "viewable": true,
+      },
+    },
+    "required": [
+      "array",
+      "object",
+    ],
+    "title": "Groovy",
     "type": "object",
   },
 }

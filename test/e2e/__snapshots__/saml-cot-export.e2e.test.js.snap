@@ -17,7 +17,10 @@ exports[`frodo saml cot export "frodo saml cot export --all": should export all 
           "name": "Circle of Trust",
         },
         "status": "active",
-        "trustedProviders": [],
+        "trustedProviders": [
+          "benefits-IDP|saml2",
+          "iSPAzure|saml2",
+        ],
       },
       "AzureCOT": {
         "_id": "AzureCOT",
@@ -154,7 +157,10 @@ exports[`frodo saml cot export "frodo saml cot export -A": should export all sam
           "name": "Circle of Trust",
         },
         "status": "active",
-        "trustedProviders": [],
+        "trustedProviders": [
+          "benefits-IDP|saml2",
+          "iSPAzure|saml2",
+        ],
       },
     },
     "hosted": {},
@@ -291,7 +297,10 @@ exports[`frodo saml cot export "frodo saml cot export -a --file my-allAlphaCircl
           "name": "Circle of Trust",
         },
         "status": "active",
-        "trustedProviders": [],
+        "trustedProviders": [
+          "benefits-IDP|saml2",
+          "iSPAzure|saml2",
+        ],
       },
       "AzureCOT": {
         "_id": "AzureCOT",

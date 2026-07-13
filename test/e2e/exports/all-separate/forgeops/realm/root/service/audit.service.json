@@ -1,0 +1,109 @@
+{
+  "service": {
+    "audit": {
+      "_id": "",
+      "_type": {
+        "_id": "audit",
+        "collection": false,
+        "name": "Audit Logging"
+      },
+      "auditEnabled": true,
+      "blacklistFieldFilters": [],
+      "location": "/",
+      "nextDescendents": [
+        {
+          "_id": "CSV",
+          "_type": {
+            "_id": "CSV",
+            "collection": true,
+            "name": "CSV"
+          },
+          "commonHandler": {
+            "enabled": true,
+            "topics": [
+              "access",
+              "activity",
+              "config",
+              "authentication"
+            ]
+          },
+          "commonHandlerPlugin": {
+            "handlerFactory": "org.forgerock.openam.audit.events.handlers.CsvAuditEventHandlerFactory"
+          },
+          "csvBuffering": {
+            "bufferingAutoFlush": false,
+            "bufferingEnabled": true
+          },
+          "csvConfig": {
+            "location": "%BASE_DIR%/var/audit/"
+          },
+          "csvFileRetention": {
+            "retentionMaxDiskSpaceToUse": "-1",
+            "retentionMaxNumberOfHistoryFiles": "1",
+            "retentionMinFreeSpaceRequired": "-1"
+          },
+          "csvFileRotation": {
+            "rotationEnabled": true,
+            "rotationFileSuffix": "-yyyy.MM.dd-HH.mm.ss",
+            "rotationInterval": "-1",
+            "rotationMaxFileSize": "100000000",
+            "rotationTimes": [
+              "42",
+              "60"
+            ]
+          },
+          "csvSecurity": {
+            "securityEnabled": false,
+            "securityFilename": "%BASE_DIR%/var/audit/Logger.jks",
+            "securitySignatureInterval": "900"
+          }
+        },
+        {
+          "_id": "JSON",
+          "_type": {
+            "_id": "JSON",
+            "collection": true,
+            "name": "JSON"
+          },
+          "commonHandler": {
+            "enabled": true,
+            "topics": [
+              "access",
+              "activity",
+              "config",
+              "authentication"
+            ]
+          },
+          "commonHandlerPlugin": {
+            "handlerFactory": "org.forgerock.openam.audit.events.handlers.JsonAuditEventHandlerFactory"
+          },
+          "jsonBuffering": {
+            "bufferingMaxSize": "100000",
+            "bufferingWriteInterval": "5"
+          },
+          "jsonConfig": {
+            "elasticsearchCompatible": false,
+            "location": "%BASE_DIR%/var/audit/",
+            "rotationRetentionCheckInterval": "5"
+          },
+          "jsonFileRetention": {
+            "retentionMaxDiskSpaceToUse": "-1",
+            "retentionMaxNumberOfHistoryFiles": "1",
+            "retentionMinFreeSpaceRequired": "-1"
+          },
+          "jsonFileRotation": {
+            "rotationEnabled": true,
+            "rotationFileSuffix": "-yyyy.MM.dd-HH.mm.ss",
+            "rotationInterval": "-1",
+            "rotationMaxFileSize": "100000000",
+            "rotationTimes": [
+              "42",
+              "60"
+            ]
+          }
+        }
+      ],
+      "whitelistFieldFilters": []
+    }
+  }
+}

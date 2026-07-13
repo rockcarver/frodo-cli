@@ -1,0 +1,16 @@
+{
+  "service": {
+    "platform": {
+      "_id": "",
+      "_type": {
+        "_id": "platform",
+        "collection": false,
+        "name": "Platform"
+      },
+      "cookieDomains": [],
+      "locale": "en_US",
+      "location": "global",
+      "nextDescendents": []
+    }
+  }
+}

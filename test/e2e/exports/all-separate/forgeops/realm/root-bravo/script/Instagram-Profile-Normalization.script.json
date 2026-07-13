@@ -1,0 +1,14 @@
+{
+  "script": {
+    "1244e639-4a31-401d-ab61-d75133d8dc9e": {
+      "_id": "1244e639-4a31-401d-ab61-d75133d8dc9e",
+      "context": "SOCIAL_IDP_PROFILE_TRANSFORMATION",
+      "default": true,
+      "description": "Normalizes raw profile data from Instagram",
+      "evaluatorVersion": "1.0",
+      "language": "GROOVY",
+      "name": "Instagram Profile Normalization",
+      "script": "file://Instagram-Profile-Normalization.script.groovy"
+    }
+  }
+}

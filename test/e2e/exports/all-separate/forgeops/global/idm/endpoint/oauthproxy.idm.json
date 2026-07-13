@@ -1,0 +1,10 @@
+{
+  "idm": {
+    "endpoint/oauthproxy": {
+      "_id": "endpoint/oauthproxy",
+      "context": "endpoint/oauthproxy",
+      "file": "oauthProxy.js",
+      "type": "text/javascript"
+    }
+  }
+}

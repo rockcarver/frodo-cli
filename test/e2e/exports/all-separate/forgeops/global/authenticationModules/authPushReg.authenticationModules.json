@@ -1,0 +1,20 @@
+{
+  "authenticationModules": {
+    "authPushReg": {
+      "_id": "authPushReg",
+      "_type": {
+        "_id": "authPushReg",
+        "collection": false,
+        "name": "ForgeRock Authenticator (Push) Registration"
+      },
+      "defaults": {
+        "appleLink": "https://itunes.apple.com/app/forgerock-authenticator/id1038442926",
+        "authenticationLevel": 0,
+        "bgcolour": "#519387",
+        "googleLink": "https://play.google.com/store/apps/details?id=com.forgerock.authenticator",
+        "issuer": "ForgeRock",
+        "timeoutInMilliSecconds": 120000
+      }
+    }
+  }
+}

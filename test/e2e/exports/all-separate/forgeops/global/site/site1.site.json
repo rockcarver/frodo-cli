@@ -1,0 +1,15 @@
+{
+  "site": {
+    "site1": {
+      "_id": "site1",
+      "secondaryURLs": [],
+      "servers": [
+        {
+          "id": "01",
+          "url": "http://am:80/am"
+        }
+      ],
+      "url": "https://platform.dev.trivir.com"
+    }
+  }
+}

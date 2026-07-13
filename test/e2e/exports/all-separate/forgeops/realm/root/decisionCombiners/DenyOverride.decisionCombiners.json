@@ -1,0 +1,8 @@
+{
+  "decisionCombiners": {
+    "DenyOverride": {
+      "_id": "DenyOverride",
+      "title": "DenyOverride"
+    }
+  }
+}

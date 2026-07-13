@@ -1,0 +1,17 @@
+{
+  "conditionTypes": {
+    "LDAPFilter": {
+      "_id": "LDAPFilter",
+      "config": {
+        "properties": {
+          "ldapFilter": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "logical": false,
+      "title": "LDAPFilter"
+    }
+  }
+}

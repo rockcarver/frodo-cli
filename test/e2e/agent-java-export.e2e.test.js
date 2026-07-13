@@ -63,16 +63,16 @@ process.env['FRODO_MOCK'] = '1';
 const env = getEnv(c);
 
 const type = 'java.agent';
-const stagingCommand = `frodo agent java import -i frodo-test-java-agent -f test/e2e/exports/all/allAlphaAgents.java.agent.json`;
+// const stagingCommand = `frodo agent java import -i frodo-test-java-agent -f test/e2e/exports/all/allAlphaAgents.java.agent.json`;
 
 describe('frodo agent java export', () => {
-    beforeEach(async () => {
-        await stageFixture(stagingCommand, env);
-    });
+    // beforeEach(async () => {
+    //     await stageFixture(stagingCommand, env);
+    // });
 
-    afterEach(async () => {
-        await clearFixture('frodo agent java delete -i frodo-test-java-agent', env);
-    });
+    // afterEach(async () => {
+    //     await clearFixture('frodo agent java delete -i frodo-test-java-agent', env);
+    // });
     test('"frodo agent java export --agent-id frodo-test-java-agent": should export the java agent with agent id "frodo-test-java-agent"', async () => {
         const exportFile = "frodo-test-java-agent.java.agent.json";
         const CMD = `frodo agent java export --agent-id frodo-test-java-agent`;
