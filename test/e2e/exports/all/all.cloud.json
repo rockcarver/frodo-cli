@@ -43527,15 +43527,6 @@
       },
       "authenticationChains": {},
       "authenticationModules": {
-        "Federation": {
-          "_id": "Federation",
-          "_type": {
-            "_id": "federation",
-            "collection": true,
-            "name": "Federation"
-          },
-          "authenticationLevel": 0
-        },
         "amster": {
           "_id": "amster",
           "_type": {

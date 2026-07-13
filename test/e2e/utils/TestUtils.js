@@ -34,6 +34,19 @@ export function maskTransactionIds(text) {
 }
 
 /**
+ * Mask frodo user-agent versions that change with package releases.
+ * @param {string} text
+ * @returns {string}
+ */
+export function maskUserAgentVersions(text) {
+  if (!text) return text;
+  return text.replace(
+    /"user-agent":\s*"@rockcarver\/frodo-lib\/[^"]+"/g,
+    '"user-agent": "@rockcarver/frodo-lib/<version>"'
+  );
+}
+
+/**
  * Normalize absolute local/CI stack trace paths in snapshot text.
  * @param {string} text
  * @returns {string}
@@ -52,7 +65,9 @@ export function normalizeStackPaths(text) {
  * @returns {string}
  */
 export function normalizeSnapshotText(text) {
-  return normalizeStackPaths(maskTransactionIds(removeAnsiEscapeCodes(text)));
+  return normalizeStackPaths(
+    maskUserAgentVersions(maskTransactionIds(removeAnsiEscapeCodes(text)))
+  );
 }
 
 /**
