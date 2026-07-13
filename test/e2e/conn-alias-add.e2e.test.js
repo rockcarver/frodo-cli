@@ -47,22 +47,27 @@
  */
 import cp from 'child_process';
 import { promisify } from 'util';
+import path from 'path';
 import { getEnv, removeAnsiEscapeCodes, testif } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 import { readFileSync, rmSync, writeFileSync } from 'fs';
 
 const exec = promisify(cp.exec);
-const connectionsFile = './test/e2e/env/Connections.json';
-const connectionsAliasFile = './test/e2e/env/ConnectionsAddAlias.json';
+const connectionsFile = path.resolve('./test/e2e/env/Connections.json');
+const connectionsAliasFile = path.resolve('./test/e2e/env/ConnectionsAddAlias.json');
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] = connectionsAliasFile;
 process.env['FRODO_MASTER_KEY_PATH'] =
-  './test/e2e/env/masterkey.key';
+  path.resolve('./test/e2e/env/masterkey.key');
 const env = getEnv(undefined, { preserveProfilePaths: true });
 const alias = 'testname';
 
 beforeAll(() => {
+  // Verify environment variables are properly set to prevent accidentally writing to user's ~/.frodo/Connections.json
+  expect(env.env.FRODO_CONNECTION_PROFILES_PATH).toContain(
+    'ConnectionsAddAlias.json'
+  );
   writeFileSync(connectionsAliasFile, readFileSync(connectionsFile));
 });
 
@@ -75,7 +80,7 @@ describe('frodo conn alias add', () => {
     `"frodo conn alias add ${alias} ${c.host}": should add an alias 'testname' to the connection profile`,
     async () => {
       const CMD = `frodo conn alias add ${alias} ${c.host}`;
-      const { stdout, stderr } = await exec(CMD, env);
+      const { stdout, stderr } = await exec(CMD, { ...env, cwd: process.cwd() });
       expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
       expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
     }
@@ -92,7 +97,7 @@ describe('frodo conn alias add', () => {
       writeFileSync(connectionsAliasFile, JSON.stringify(profiles, null, 2));
       const CMD = `frodo conn alias add ${alias} ${c.host}`;
       try {
-        await exec(CMD, env);
+        await exec(CMD, { ...env, cwd: process.cwd() });
         throw new Error('Expected command to fail');
       } catch (e) {
         expect(removeAnsiEscapeCodes(e.stderr)).toMatchSnapshot();
