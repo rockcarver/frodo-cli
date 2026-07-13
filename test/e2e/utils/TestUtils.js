@@ -191,6 +191,13 @@ export async function testExport(
   checkStderr = false
 ) {
   const isCurrentDirectory = directory === './' || directory === '.';
+  const exportFileRegex = new RegExp(
+    fileName
+      ? fileName
+      : type
+        ? `.*\\.${type}\\.(json|js|groovy|xml)`
+        : `.*\\.(json|js|groovy|xml)`
+  );
   let stdout;
   let stderr;
   let exitCode = 0;
@@ -210,15 +217,8 @@ export async function testExport(
     expect(exitCode).toMatchSnapshot();
     // console.error(`stdout:\n${stdout}`);
     // console.error(`stderr:\n${stderr}`);
-    const regex = new RegExp(
-      fileName
-        ? fileName
-        : type
-          ? `.*\\.${type}\\.(json|js|groovy|xml)`
-          : `.*\\.(json|js|groovy|xml)`
-    );
     const filePaths = getFilePaths(directory, !isCurrentDirectory).filter((p) =>
-      regex.test(p)
+      exportFileRegex.test(p)
     );
     if (fileName) {
       // if (filePaths.length !== 0)
@@ -276,9 +276,21 @@ export async function testExport(
         } catch (error) {
           // ignore cleanup failures
         }
-      } else if (fileName) {
+      } else {
+        // Current-directory exports may produce one file (fileName) or many
+        // (type-based, no fileName). Remove every matching export artifact so
+        // nothing is left behind when a test throws before the per-file
+        // unlink loop above runs.
         try {
-          fs.unlinkSync(fileName);
+          getFilePaths(directory, false)
+            .filter((p) => exportFileRegex.test(p))
+            .forEach((p) => {
+              try {
+                fs.unlinkSync(p);
+              } catch (error) {
+                // ignore cleanup failures
+              }
+            });
         } catch (error) {
           // ignore cleanup failures
         }
