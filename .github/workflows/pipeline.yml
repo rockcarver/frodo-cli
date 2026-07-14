@@ -161,7 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [25, 24, 22]
+        node-version: [26, 24, 22]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Service containers to run with `test`
