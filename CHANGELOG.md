@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated to Frodo Lib 4.0.0
+- Updated binary release to run on Node v24
+- Dropped support for Node v20 in the 4.x line.
+- Export extraction is now the default for supported export commands; use `--no-extract` to keep content inline.
+- Updated `-M, --modified-properties` behavior/docs to align with creation timestamp filtering changes in exports.
+- Improved CLI help output structure and added stability indicators to command help.
+- Improved `frodo shell` UX with:
+  - Contextual `help()`, enhanced `.help`, and persistent per-host `.history` support (including clear/trim operations).
+  - Added shell autocomplete enhancements with method parameter and type hints.
+- Updated dependencies
+
+### Added
+
+- Added support for Node Designer Nodes through several API and Ops functions to allow for doing exports, imports, deletes, etc. with custom node configurations.
+  - Just like with journeys, custom nodes get exported and imported in the same way as they do from AIC/AM, so you can import Frodo exported custom nodes into AIC/AM and vice versa.
+  - Additionally, journeys were updated to include custom node dependencies during exports. Even if a journey is exported with Frodo and contains these dependencies in the export JSON, they can still be imported into AIC/AM using the admin UI as it should ignore the custom node dependencies (since AIC/AM doesn't support exporting them yet).
+- Added `--retry <strategy>` option to all commands to control automatic retry of failed operations. Valid values for strategy:
+  - everything: Retry all failed operations.
+  - network:    Retry only network-related failed operations.
+  - nothing:    Do not retry failed operations (this is the default modus operandi).
+- Added the ability to authenticate to an AM classic deployment using Amster credentials (i.e. a public/private key pair). The private key can be in a variety of formats such as PKCS, JWK, and OpenSSH, but is ultimately stored in PKCS#8 format. You can also use encrypted private keys by providing the passphrase when creating the connection profile.
+- Added secret store command coverage, including secret store mapping and alias sub-commands.
+- Added `frodo mcp ...` commands for Model Context Protocol server management.
+- Added `frodo dcc ...` (direct configuration session/control) command support, including session lifecycle commands.
+- Added command alias support across CLI commands.
+- Added connection profile IGA support (`isIGA`) and `FRODO_IGA` environment override support.
+- Added app command support to export/import/delete by app ID in addition to name.
+- Added managed object naming controls for ForgeOps-style deployments (realm prefix handling options).
+- Added experimental `frodo config-manager` (`fr-config-manager`) commands.
+- Added support for extracting IDM scripts during exports, with compatible import support for that extracted format.
+
+### Fixed
+
+- Fixed `frodo log fetch --query-filter` handling by aligning CLI behavior with corrected lib query filter encoding (rockcarver/frodo-cli#553).
+- Fixed inability to connect to AM instances with expired certificates when using `-k` (rockcarver/frodo-cli#568).
+- Fixed ForgeOps full AM export/import command gating to allow compatible commands to run correctly (rockcarver/frodo-cli#612).
+- Fixed deprecation warnings when running packaged/binary Frodo CLI builds (rockcarver/frodo-cli#570).
+- Fixed authentication/configuration header override application issues by updating to matching frodo-lib fixes.
+
 ## [4.0.0-54] - 2026-07-13
 
 ## [4.0.0-53] - 2026-07-12
