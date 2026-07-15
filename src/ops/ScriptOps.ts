@@ -78,7 +78,12 @@ type ScriptLike = ScriptSkeleton & {
   evaluatorVersion?: string;
 };
 
-function readScriptsWithOptionalFilters(
+/**
+ * Pass filters through to newer frodo-lib versions when available.
+ * Current frodo-lib releases ignore the extra argument, so callers still
+ * apply local filtering as a compatibility fallback.
+ */
+function readScriptsWithFilterPassthrough(
   filters: ScriptFilters = {}
 ): Promise<ScriptLike[]> {
   return (
@@ -86,7 +91,12 @@ function readScriptsWithOptionalFilters(
   )(normalizeScriptFilters(filters));
 }
 
-function exportScriptsWithOptionalFilters(
+/**
+ * Pass filters through to newer frodo-lib versions when available.
+ * Current frodo-lib releases ignore the extra argument, so callers still
+ * apply local filtering as a compatibility fallback.
+ */
+function exportScriptsWithFilterPassthrough(
   options: ScriptExportOptions,
   filters: ScriptFilters = {}
 ): Promise<ScriptExportInterface> {
@@ -102,7 +112,10 @@ function exportScriptsWithOptionalFilters(
 async function readFilteredScripts(
   filters: ScriptFilters = {}
 ): Promise<ScriptLike[]> {
-  return filterScripts(await readScriptsWithOptionalFilters(filters), filters);
+  return filterScripts(
+    await readScriptsWithFilterPassthrough(filters),
+    filters
+  );
 }
 
 async function readFilteredNonDefaultScripts(
@@ -452,7 +465,7 @@ export async function exportScriptsToFile(
       fileName = file;
     }
     const scriptExport = filterTypedScriptExport(
-      await exportScriptsWithOptionalFilters(options, filters),
+      await exportScriptsWithFilterPassthrough(options, filters),
       filters,
       options.deps
     );
@@ -489,7 +502,7 @@ export async function exportScriptsToFiles(
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
   const scriptExport = filterTypedScriptExport(
-    await exportScriptsWithOptionalFilters(options, filters),
+    await exportScriptsWithFilterPassthrough(options, filters),
     filters,
     options.deps
   );
