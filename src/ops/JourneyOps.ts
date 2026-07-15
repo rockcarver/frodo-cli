@@ -107,7 +107,12 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
         for (let i = 0; i < journeyExports.length; i++) {
           const { journeyId } = journeyExportPromises[i];
           const treeExport = journeyExports[i].trees[journeyId];
-          if (!treeExport) continue;
+          if (!treeExport) {
+            debugMessage(
+              `listJourneys: journey '${journeyId}' not found in export response, skipping`
+            );
+            continue;
+          }
           table.push([
             `${treeExport.tree._id}`,
             treeExport.tree.enabled === false
