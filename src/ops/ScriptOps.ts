@@ -78,6 +78,55 @@ type ScriptLike = ScriptSkeleton & {
   evaluatorVersion?: string;
 };
 
+function readScriptsWithOptionalFilters(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  return (
+    readScripts as unknown as (filters?: ScriptFilters) => Promise<ScriptLike[]>
+  )(normalizeScriptFilters(filters));
+}
+
+function exportScriptsWithOptionalFilters(
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
+): Promise<ScriptExportInterface> {
+  return (
+    exportScripts as unknown as (
+      options?: ScriptExportOptions,
+      resultCallback?: typeof errorHandler,
+      filters?: ScriptFilters
+    ) => Promise<ScriptExportInterface>
+  )(options, errorHandler, normalizeScriptFilters(filters));
+}
+
+async function readFilteredScripts(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  return filterScripts(await readScriptsWithOptionalFilters(filters), filters);
+}
+
+async function readFilteredNonDefaultScripts(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  return (await readFilteredScripts(filters)).filter(
+    (script) => !script.default
+  );
+}
+
+function filterTypedScriptExport(
+  scriptExport: ScriptExportInterface,
+  filters: ScriptFilters = {},
+  includeDependencies = false
+): ScriptExportInterface {
+  return filterScriptExport(
+    scriptExport as unknown as {
+      script: Record<string, ScriptLike>;
+    },
+    filters,
+    includeDependencies
+  ) as ScriptExportInterface;
+}
+
 /**
  * Get a one-line description of the script object
  * @param {ScriptSkeleton} scriptObj script object to describe
@@ -128,7 +177,6 @@ export async function listScripts(
 ): Promise<boolean> {
   let spinnerId: string;
   let scripts: ScriptSkeleton[] = [];
-  const normalizedFilters = normalizeScriptFilters(filters);
   debugMessage(`Cli.ScriptOps.listScripts: start`);
   try {
     spinnerId = createProgressIndicator(
@@ -136,15 +184,7 @@ export async function listScripts(
       0,
       `Reading scripts...`
     );
-    scripts = await (
-      readScripts as unknown as (
-        filters?: ScriptFilters
-      ) => Promise<ScriptSkeleton[]>
-    )(normalizedFilters);
-    scripts = filterScripts(
-      scripts as unknown as ScriptLike[],
-      normalizedFilters
-    ) as unknown as ScriptSkeleton[];
+    scripts = await readFilteredScripts(filters);
     scripts.sort((a, b) => a.name.localeCompare(b.name));
     stopProgressIndicator(
       spinnerId,
@@ -411,17 +451,11 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = filterScriptExport(
-      await (
-        exportScripts as unknown as (
-          options?: ScriptExportOptions,
-          resultCallback?: typeof errorHandler,
-          filters?: ScriptFilters
-        ) => Promise<ScriptExportInterface>
-      )(options, errorHandler, normalizeScriptFilters(filters)),
+    const scriptExport = filterTypedScriptExport(
+      await exportScriptsWithOptionalFilters(options, filters),
       filters,
       options.deps
-    ) as ScriptExportInterface;
+    );
     saveJsonToFile(
       scriptExport,
       getFilePath(fileName, true),
@@ -454,17 +488,11 @@ export async function exportScriptsToFiles(
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  const scriptExport = filterScriptExport(
-    await (
-      exportScripts as unknown as (
-        options?: ScriptExportOptions,
-        resultCallback?: typeof errorHandler,
-        filters?: ScriptFilters
-      ) => Promise<ScriptExportInterface>
-    )(options, errorHandler, normalizeScriptFilters(filters)),
+  const scriptExport = filterTypedScriptExport(
+    await exportScriptsWithOptionalFilters(options, filters),
     filters,
     options.deps
-  ) as ScriptExportInterface;
+  );
   const scriptList = Object.values(scriptExport.script);
   const barId = createProgressIndicator(
     'determinate',
@@ -855,16 +883,7 @@ export async function deleteAllScripts(
   );
   try {
     if (hasScriptFilters(filters)) {
-      const scripts = filterScripts(
-        (
-          await (
-            readScripts as unknown as (
-              filters?: ScriptFilters
-            ) => Promise<ScriptSkeleton[]>
-          )(normalizeScriptFilters(filters))
-        ).filter((script) => !script.default) as ScriptLike[],
-        filters
-      );
+      const scripts = await readFilteredNonDefaultScripts(filters);
       for (const script of scripts) {
         await deleteScript(script._id);
       }
