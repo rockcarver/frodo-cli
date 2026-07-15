@@ -101,8 +101,10 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
           'Resource',
           'Tags',
         ]);
-        for (const journeyExport of journeyExports) {
-          const treeExport = Object.values(journeyExport.trees)[0];
+        for (let i = 0; i < journeyExports.length; i++) {
+          const journeyId = journeys[i]['_id'];
+          const treeExport = journeyExports[i].trees[journeyId];
+          if (!treeExport) continue;
           table.push([
             `${treeExport.tree._id}`,
             treeExport.tree.enabled === false

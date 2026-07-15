@@ -154,6 +154,11 @@ export default function setup() {
                 // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
                 const multiTreeData = await exportJourney(journey['_id']);
                 const treeData = multiTreeData.trees[journey['_id']];
+                if (!treeData) {
+                  throw new Error(
+                    `Journey '${journey['_id']}' not found in export response`
+                  );
+                }
                 const originalAmVersion = state.getAmVersion();
                 const runtimeResolver = async (treeId) => {
                   // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
@@ -203,6 +208,11 @@ export default function setup() {
               // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
               const multiTreeData = await exportJourney(options.journeyId);
               const treeData = multiTreeData.trees[options.journeyId];
+              if (!treeData) {
+                throw new Error(
+                  `Journey '${options.journeyId}' not found in export response`
+                );
+              }
               const originalAmVersion = state.getAmVersion();
               const runtimeResolver = async (treeId) => {
                 // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
