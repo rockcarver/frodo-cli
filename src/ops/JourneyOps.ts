@@ -74,18 +74,21 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
         0,
         `Retrieving details of all journeys...`
       );
-      const exportPromises: Promise<MultiTreeExportInterface>[] = [];
       try {
-        for (const journeyStub of journeys) {
-          exportPromises.push(
-            exportJourney(journeyStub['_id'], {
-              useStringArrays: false,
-              deps: false,
-              coords: true,
-            })
-          );
-        }
-        const journeyExports = await Promise.all(exportPromises);
+        const journeyExportPromises: {
+          journeyId: string;
+          promise: Promise<MultiTreeExportInterface>;
+        }[] = journeys.map((journeyStub) => ({
+          journeyId: journeyStub['_id'],
+          promise: exportJourney(journeyStub['_id'], {
+            useStringArrays: false,
+            deps: false,
+            coords: true,
+          }),
+        }));
+        const journeyExports = await Promise.all(
+          journeyExportPromises.map((p) => p.promise)
+        );
         stopProgressIndicator(
           spinnerId,
           'Retrieved details of all journeys.',
@@ -102,7 +105,7 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
           'Tags',
         ]);
         for (let i = 0; i < journeyExports.length; i++) {
-          const journeyId = journeys[i]['_id'];
+          const { journeyId } = journeyExportPromises[i];
           const treeExport = journeyExports[i].trees[journeyId];
           if (!treeExport) continue;
           table.push([
