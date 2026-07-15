@@ -33,6 +33,24 @@ export default function setup() {
         'Delete all non-default scripts in a realm. Ignored with -i.'
       )
     )
+    .addOption(
+      new Option(
+        '--language <language>',
+        'Filter scripts by language when using -a. Use lowercase values such as javascript or groovy.'
+      ).choices(['javascript', 'groovy'])
+    )
+    .addOption(
+      new Option(
+        '--context <context>',
+        'Filter scripts by context when using -a. Values are case-insensitive; kebab-case and underscore formats are both accepted.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--evaluator-version <version>',
+        'Filter scripts by evaluator version when using -a. Combine with other filters to imply AND matching.'
+      )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -62,7 +80,11 @@ export default function setup() {
           if (!outcome) process.exitCode = 1;
         } else if (options.all && (await getTokens())) {
           verboseMessage('Deleting all non-default scripts...');
-          const outcome = await deleteAllScripts();
+          const outcome = await deleteAllScripts({
+            context: options.context,
+            evaluatorVersion: options.evaluatorVersion,
+            language: options.language,
+          });
           if (!outcome) process.exitCode = 1;
         }
         // unrecognized combination of options or no options

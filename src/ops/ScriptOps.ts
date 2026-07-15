@@ -29,6 +29,12 @@ import {
   updateProgressIndicator,
 } from '../utils/Console';
 import { errorHandler } from './utils/OpsUtils';
+import {
+  filterScriptExport,
+  filterScripts,
+  hasScriptFilters,
+  normalizeScriptFilters,
+} from './utils/ScriptFilters';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -57,8 +63,19 @@ const {
 
 const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
 
+export type ScriptFilters = {
+  context?: string;
+  evaluatorVersion?: string;
+  language?: string;
+};
+
 type SeparatedScripts = {
   realm: Record<string, { script: Record<string, ScriptSkeleton> }>;
+};
+
+type ScriptLike = ScriptSkeleton & {
+  _id: string;
+  evaluatorVersion?: string;
 };
 
 /**
@@ -106,10 +123,12 @@ export function getTableRowMd(scriptObj: ScriptSkeleton): string {
 export async function listScripts(
   long: boolean = false,
   usage: boolean = false,
-  file: string | null = null
+  file: string | null = null,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   let spinnerId: string;
   let scripts: ScriptSkeleton[] = [];
+  const normalizedFilters = normalizeScriptFilters(filters);
   debugMessage(`Cli.ScriptOps.listScripts: start`);
   try {
     spinnerId = createProgressIndicator(
@@ -117,7 +136,15 @@ export async function listScripts(
       0,
       `Reading scripts...`
     );
-    scripts = await readScripts();
+    scripts = await (
+      readScripts as unknown as (
+        filters?: ScriptFilters
+      ) => Promise<ScriptSkeleton[]>
+    )(normalizedFilters);
+    scripts = filterScripts(
+      scripts as unknown as ScriptLike[],
+      normalizedFilters
+    ) as unknown as ScriptSkeleton[];
     scripts.sort((a, b) => a.name.localeCompare(b.name));
     stopProgressIndicator(
       spinnerId,
@@ -372,7 +399,8 @@ export async function exportScriptsToFile(
   file: string,
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
-  options: ScriptExportOptions
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
   try {
@@ -383,7 +411,17 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts(options, errorHandler);
+    const scriptExport = filterScriptExport(
+      await (
+        exportScripts as unknown as (
+          options?: ScriptExportOptions,
+          resultCallback?: typeof errorHandler,
+          filters?: ScriptFilters
+        ) => Promise<ScriptExportInterface>
+      )(options, errorHandler, normalizeScriptFilters(filters)),
+      filters,
+      options.deps
+    ) as ScriptExportInterface;
     saveJsonToFile(
       scriptExport,
       getFilePath(fileName, true),
@@ -411,11 +449,22 @@ export async function exportScriptsToFiles(
   extract: boolean = false,
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
-  options: ScriptExportOptions
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  const scriptExport = await exportScripts(options, errorHandler);
+  const scriptExport = filterScriptExport(
+    await (
+      exportScripts as unknown as (
+        options?: ScriptExportOptions,
+        resultCallback?: typeof errorHandler,
+        filters?: ScriptFilters
+      ) => Promise<ScriptExportInterface>
+    )(options, errorHandler, normalizeScriptFilters(filters)),
+    filters,
+    options.deps
+  ) as ScriptExportInterface;
   const scriptList = Object.values(scriptExport.script);
   const barId = createProgressIndicator(
     'determinate',
@@ -796,13 +845,36 @@ export async function deleteScriptName(name: string): Promise<boolean> {
  * Delete all non-default scripts
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAllScripts(): Promise<boolean> {
+export async function deleteAllScripts(
+  filters: ScriptFilters = {}
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all non-default scripts...`
   );
   try {
+    if (hasScriptFilters(filters)) {
+      const scripts = filterScripts(
+        (
+          await (
+            readScripts as unknown as (
+              filters?: ScriptFilters
+            ) => Promise<ScriptSkeleton[]>
+          )(normalizeScriptFilters(filters))
+        ).filter((script) => !script.default) as ScriptLike[],
+        filters
+      );
+      for (const script of scripts) {
+        await deleteScript(script._id);
+      }
+      stopProgressIndicator(
+        spinnerId,
+        `Deleted ${scripts.length} matching non-default script${scripts.length === 1 ? '' : 's'}.`,
+        'success'
+      );
+      return true;
+    }
     await deleteScripts(errorHandler);
     stopProgressIndicator(
       spinnerId,

@@ -6,31 +6,45 @@ exports[`CLI help interface for 'script list' should be expected english 1`] = `
 List scripts.
 
 Arguments:
-  host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
-                     connection profile, just specify a unique substring or
-                     alias.
-  realm              Realm. Specify realm as '/' for the root realm or 'realm'
-                     or '/parent/child' otherwise. (default: "alpha" for
-                     Identity Cloud tenants, "/" otherwise.)
-  username           Username to login with. Must be an admin user with
-                     appropriate rights to manage authentication journeys/trees.
-  password           Password.
+  host                           AM base URL, e.g.:
+                                 https://cdk.iam.example.com/am. To use a
+                                 connection profile, just specify a unique
+                                 substring or alias.
+  realm                          Realm. Specify realm as '/' for the root realm
+                                 or 'realm' or '/parent/child' otherwise.
+                                 (default: "alpha" for Identity Cloud tenants,
+                                 "/" otherwise.)
+  username                       Username to login with. Must be an admin user
+                                 with appropriate rights to manage
+                                 authentication journeys/trees.
+  password                       Password.
 
 Options:
-  -f, --file [file]  Optional export file to use to determine usage. Overrides
-                     -D, --directory. Only used if -u or --usage is provided as
-                     well.
-  -l, --long         Long with all fields besides usage. (default: false)
-  -u, --usage        Display usage field. If a file is provided with -f or
-                     --file, it will search for usage in the file. If a
-                     directory is provided with -D or --directory, it will
-                     search for usage in all .json files in the directory and
-                     sub-directories. If no file or directory is provided, it
-                     will perform a full export automatically to determine
-                     usage. (default: false)
-  -h, --help         Help
-  -hh, --help-more   Help with all options.
-  -hhh, --help-all   Help with all options, environment variables, and usage
-                     examples.
+  --context <context>            Filter scripts by context. Values are
+                                 case-insensitive; kebab-case and underscore
+                                 formats are both accepted.
+  --evaluator-version <version>  Filter scripts by evaluator version. Combine
+                                 with other filters to imply AND matching.
+  -f, --file [file]              Optional export file to use to determine usage.
+                                 Overrides -D, --directory. Only used if -u or
+                                 --usage is provided as well.
+  -l, --long                     Long with all fields besides usage. (default:
+                                 false)
+  --language <language>          Filter scripts by language using lowercase
+                                 values such as javascript or groovy. (choices:
+                                 "javascript", "groovy")
+  -u, --usage                    Display usage field. If a file is provided with
+                                 -f or --file, it will search for usage in the
+                                 file. If a directory is provided with -D or
+                                 --directory, it will search for usage in all
+                                 .json files in the directory and
+                                 sub-directories. If no file or directory is
+                                 provided, it will perform a full export
+                                 automatically to determine usage. (default:
+                                 false)
+  -h, --help                     Help
+  -hh, --help-more               Help with all options.
+  -hhh, --help-all               Help with all options, environment variables,
+                                 and usage examples.
 "
 `;
