@@ -152,7 +152,8 @@ export default function setup() {
               try {
                 // eslint-disable-next-line no-await-in-loop, dot-notation
                 // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
-                const treeData = await exportJourney(journey['_id']);
+                const multiTreeData = await exportJourney(journey['_id']);
+                const treeData = multiTreeData.trees[journey['_id']];
                 const originalAmVersion = state.getAmVersion();
                 const runtimeResolver = async (treeId) => {
                   // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
@@ -200,7 +201,8 @@ export default function setup() {
           } else {
             try {
               // Keep live export pinned to the detected/runtime AM version so endpoint selection remains valid.
-              const treeData = await exportJourney(options.journeyId);
+              const multiTreeData = await exportJourney(options.journeyId);
+              const treeData = multiTreeData.trees[options.journeyId];
               const originalAmVersion = state.getAmVersion();
               const runtimeResolver = async (treeId) => {
                 // Dependency resolution can trigger additional online exports; force those to use runtime AM version.
