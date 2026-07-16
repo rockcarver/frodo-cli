@@ -1,4 +1,5 @@
 import {
+  createScriptFilter,
   filterScriptExport,
   filterScripts,
   normalizeScriptFilters,
@@ -51,6 +52,37 @@ describe('script filter helpers', () => {
       context: 'AUTHENTICATION_TREE_DECISION_NODE',
       evaluatorVersion: '2.0',
       language: 'GROOVY',
+    });
+  });
+
+  test('normalizeScriptFilters drops blank filter values', () => {
+    expect(
+      normalizeScriptFilters({
+        context: '   ',
+        evaluatorVersion: ' ',
+        language: '\t',
+      })
+    ).toEqual({
+      context: undefined,
+      evaluatorVersion: undefined,
+      language: undefined,
+    });
+  });
+
+  test('createScriptFilter converts flattened filters to frodo-lib filter syntax', () => {
+    expect(
+      createScriptFilter({
+        context: 'authentication-tree-decision-node',
+        evaluatorVersion: '1.0',
+        language: 'javascript',
+      })
+    ).toEqual({
+      operator: 'AND',
+      filters: [
+        { field: 'context', value: 'AUTHENTICATION_TREE_DECISION_NODE' },
+        { field: 'evaluatorVersion', value: '1.0' },
+        { field: 'language', value: 'JAVASCRIPT' },
+      ],
     });
   });
 

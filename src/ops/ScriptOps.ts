@@ -30,10 +30,10 @@ import {
 } from '../utils/Console';
 import { errorHandler } from './utils/OpsUtils';
 import {
+  createScriptFilter,
   filterScriptExport,
   filterScripts,
   hasScriptFilters,
-  normalizeScriptFilters,
 } from './utils/ScriptFilters';
 import wordwrap from './utils/Wordwrap';
 
@@ -86,9 +86,10 @@ type ScriptLike = ScriptSkeleton & {
 function readScriptsWithFilterPassthrough(
   filters: ScriptFilters = {}
 ): Promise<ScriptLike[]> {
+  const filter = createScriptFilter(filters);
   return (
-    readScripts as unknown as (filters?: ScriptFilters) => Promise<ScriptLike[]>
-  )(normalizeScriptFilters(filters));
+    readScripts as unknown as (filter?: unknown) => Promise<ScriptLike[]>
+  )(filter);
 }
 
 /**
@@ -100,13 +101,11 @@ function exportScriptsWithFilterPassthrough(
   options: ScriptExportOptions,
   filters: ScriptFilters = {}
 ): Promise<ScriptExportInterface> {
-  return (
-    exportScripts as unknown as (
-      options?: ScriptExportOptions,
-      resultCallback?: typeof errorHandler,
-      filters?: ScriptFilters
-    ) => Promise<ScriptExportInterface>
-  )(options, errorHandler, normalizeScriptFilters(filters));
+  const filter = createScriptFilter(filters);
+  const optionsWithFilter: ScriptExportOptions = filter
+    ? { ...options, filter: filter as ScriptExportOptions['filter'] }
+    : options;
+  return exportScripts(optionsWithFilter, errorHandler);
 }
 
 async function readFilteredScripts(

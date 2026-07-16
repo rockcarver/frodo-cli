@@ -1,8 +1,15 @@
+function normalizeFilterValue(value) {
+  const normalizedValue = value?.trim();
+  return normalizedValue ? normalizedValue : undefined;
+}
+
 export function normalizeScriptFilters(filters = {}) {
   return {
-    context: filters.context?.trim().replace(/[\s-]+/g, '_').toUpperCase(),
-    evaluatorVersion: filters.evaluatorVersion?.trim(),
-    language: filters.language?.trim().toUpperCase(),
+    context: normalizeFilterValue(filters.context)
+      ?.replace(/[\s-]+/g, '_')
+      .toUpperCase(),
+    evaluatorVersion: normalizeFilterValue(filters.evaluatorVersion),
+    language: normalizeFilterValue(filters.language)?.toUpperCase(),
   };
 }
 
@@ -25,6 +32,30 @@ export function matchesScriptFilters(script, filters = {}) {
 export function filterScripts(scripts, filters = {}) {
   if (!hasScriptFilters(filters)) return scripts;
   return scripts.filter((script) => matchesScriptFilters(script, filters));
+}
+
+export function createScriptFilter(filters = {}) {
+  const normalizedFilters = normalizeScriptFilters(filters);
+  const filterConditions = [
+    normalizedFilters.context && {
+      field: 'context',
+      value: normalizedFilters.context,
+    },
+    normalizedFilters.evaluatorVersion && {
+      field: 'evaluatorVersion',
+      value: normalizedFilters.evaluatorVersion,
+    },
+    normalizedFilters.language && {
+      field: 'language',
+      value: normalizedFilters.language,
+    },
+  ].filter(Boolean);
+  if (filterConditions.length === 0) return undefined;
+  if (filterConditions.length === 1) return filterConditions[0];
+  return {
+    operator: 'AND',
+    filters: filterConditions,
+  };
 }
 
 function getLibraryScriptNames(script) {
