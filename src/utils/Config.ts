@@ -11,6 +11,7 @@ import os from 'os';
 import path from 'path';
 
 import { readServersFromFiles } from '../ops/classic/ServerOps';
+import { getWorkflowExportFromFile } from '../ops/cloud/iga/IgaWorkflowOps';
 import {
   getManagedObjectsFromFiles,
   resolveAllExtractedScriptsForImport,
@@ -102,6 +103,7 @@ export async function getFullExportConfig(
         includeActiveValues: false,
         target: '',
         includeReadOnly: true,
+        onlyCustom: false,
         onlyRealm: false,
         onlyGlobal: false,
       },
@@ -172,6 +174,9 @@ export async function getConfig(
   );
   const customNodefiles = jsonFiles.filter((f) =>
     f.path.endsWith('.nodeTypes.json')
+  );
+  const workflowFiles = jsonFiles.filter((f) =>
+    f.path.endsWith('.workflow.json')
   );
   const serverFiles = jsonFiles.filter(
     (f) =>
@@ -308,6 +313,19 @@ export async function getConfig(
     const nodeExport = getCustomNodeExportFromFile(f.path);
     Object.entries(nodeExport.nodeTypes).forEach(([id, node]) => {
       (exportConfig as FullGlobalExportInterface).nodeTypes[id] = node;
+    });
+  }
+  // Handle extracted workflow scripts
+  if (
+    workflowFiles.length > 0 &&
+    !(exportConfig as FullGlobalExportInterface).workflow
+  ) {
+    (exportConfig as FullGlobalExportInterface).workflow = {};
+  }
+  for (const f of workflowFiles) {
+    const workflowExport = getWorkflowExportFromFile(f.path);
+    Object.entries(workflowExport.workflow).forEach(([id, workflow]) => {
+      (exportConfig as FullGlobalExportInterface).workflow[id] = workflow;
     });
   }
 }

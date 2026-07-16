@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'iga workflow' should be expected english 1`] = `
+"Usage: frodo iga workflow [options] [command]
+
+Manage workflows.
+
+Deployment: Cloud-only
+
+Options:
+  -h, --help        Help
+  -hh, --help-more  Help with all options.
+  -hhh, --help-all  Help with all options, environment variables, and usage
+                    examples.
+
+Commands:
+  help              display help for command
+
+  (Cloud-only):
+  delete            Delete workflows.
+  describe          Describe workflow.
+  export            Export workflows.
+  import            Import workflows.
+  list              List workflows.
+  publish           Publish workflow.
+"
+`;

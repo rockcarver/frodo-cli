@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "c385b530-b912-4dcd-98c8-931673add9b7": {
+      "assignments": [
+        {
+          "formId": "c385b530-b912-4dcd-98c8-931673add9b7",
+          "metadata": {},
+          "objectId": "workflow/phhNewUserCreate/node/approvalTask-75cf4247ba1d"
+        }
+      ],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "Request new user",
+      "form": {
+        "events": {
+          "onLoad": {
+            "script": "form.hideField('custom.positionOther');\nform.setValue('custom.positionOther', '');",
+            "type": "script"
+          }
+        },
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "First Name",
+                "id": "a221cdbe-3e28-4d98-91b5-4f99bca8ccf6",
+                "label": "Given Name",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "custom.givenName",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "d3488e29-dde5-4406-873f-3e99ee818508"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Last Name",
+                "id": "8e398b29-4229-4fec-a37c-d95a91928864",
+                "label": "Surname",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "custom.sn",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "regex": {},
+                  "required": true
+                }
+              }
+            ],
+            "id": "312caf93-1aa9-4659-b076-cef7a6fc9f39"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Email address",
+                "id": "02cf58e1-d05b-4b24-84e2-073b56fe033f",
+                "label": "Personal eMail",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "model": "custom.mail",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              },
+              {
+                "customSlot": false,
+                "description": "Individual cell phone number. (Needed for Duo server access)",
+                "id": "3bb65f28-6f65-45aa-b2c6-4a6d1d90ce73",
+                "label": "Cell number",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "regex": {
+                    "message": "Please correct your phone number.",
+                    "pattern": "^(\\+0?1\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$"
+                  },
+                  "required": true
+                }
+              }
+            ],
+            "id": "6fd16bae-ea14-43db-ac27-b0dfad060b46"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Position",
+                "id": "dfeba91e-5141-4da6-97f3-4ad520e64334",
+                "label": "Position",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "model": "custom.positionSelect",
+                "onChangeEvent": {
+                  "script": "// Get the newly selected value\nvar selectedPosition = form.currentFieldValue;\n\n//console.log('Position changed to:', selectedPosition);\n\nif (selectedPosition === 'positionOther') {\n    // Show the text field and enable it\n    form.showField('custom.positionOther');\n    form.enableField('custom.positionOther');\n} else {\n    // Hide the text field and clear any value\n    form.hideField('custom.positionOther');\n    form.setValue('custom.positionOther', '');\n    \n    // Optionally disable it as well (though hidden fields are already non-interactive)\n    form.disableField('custom.positionOther');\n}",
+                  "type": "script"
+                },
+                "options": [
+                  {
+                    "label": "One",
+                    "selectedByDefault": true,
+                    "value": "positionOne"
+                  },
+                  {
+                    "label": "Two",
+                    "value": "positionTwo"
+                  },
+                  {
+                    "label": "Other",
+                    "value": "positionOther"
+                  }
+                ],
+                "readOnly": false,
+                "type": "select",
+                "validation": {
+                  "required": true
+                }
+              },
+              {
+                "customSlot": false,
+                "description": "Please provide a position",
+                "id": "5081c59a-016c-4ac3-a518-45123a34cd22",
+                "label": "",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "model": "custom.positionOther",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "4d5bbe99-4c48-48f2-9c02-16c194c95a8e"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Start Date",
+                "id": "855991a5-6ac8-4bc0-91a6-c1b156e9832c",
+                "label": "Start Date",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "model": "custom.startDate",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "date",
+                "validation": {
+                  "required": true
+                }
+              },
+              {
+                "customSlot": false,
+                "description": "End Date",
+                "id": "e1687d03-9db3-4f3b-8939-5bb42893a165",
+                "label": "End Date",
+                "layout": {
+                  "columns": 6,
+                  "offset": 0
+                },
+                "model": "custom.endDate",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "date",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "d36ce194-5b64-452a-bb10-b99a30ce8038"
+          }
+        ]
+      },
+      "id": "c385b530-b912-4dcd-98c8-931673add9b7",
+      "metadata": {},
+      "name": "phh-new-user",
+      "type": "request"
+    }
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.670Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "extendGrantEndDate": {
+      "draft": {
+        "childType": false,
+        "description": "Basic Workflow to extend a grant end date",
+        "displayName": "Basic Grant End date Extension",
+        "id": "extendGrantEndDate",
+        "mutable": false,
+        "name": "extendGrantEndDate",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2087,
+            "y": 210
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-b80009644545"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://extendGrantEndDate/draft/approvalTask-74cf85c35437.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 724,
+              "y": 277
+            },
+            "exclusiveGateway-2bf686c17905": {
+              "x": 457,
+              "y": 95.015625
+            },
+            "scriptTask-0c9ab2d8fd7f": {
+              "x": 1518,
+              "y": 114.015625
+            },
+            "scriptTask-b80009644545": {
+              "x": 164,
+              "y": 108.015625
+            },
+            "scriptTask-ba009484a101": {
+              "x": 1035,
+              "y": 114.015625
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1320,
+              "y": 373
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://extendGrantEndDate/draft/approvalTask-74cf85c35437.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://extendGrantEndDate/draft/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-b80009644545",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-2bf686c17905"
+                }
+              ],
+              "script": "file://extendGrantEndDate/draft/scriptTask-b80009644545.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-2bf686c17905",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://extendGrantEndDate/draft/exclusiveGateway-2bf686c17905.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approval",
+            "name": "scriptTask-ba009484a101",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0c9ab2d8fd7f"
+                }
+              ],
+              "script": "file://extendGrantEndDate/draft/scriptTask-ba009484a101.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "UpdateRevokeRequest",
+            "name": "scriptTask-0c9ab2d8fd7f",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://extendGrantEndDate/draft/scriptTask-0c9ab2d8fd7f.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic Workflow to extend a grant end date",
+        "displayName": "Basic Grant End date Extension",
+        "id": "extendGrantEndDate",
+        "mutable": false,
+        "name": "extendGrantEndDate",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2087,
+            "y": 210
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-b80009644545"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://extendGrantEndDate/published/approvalTask-74cf85c35437.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 724,
+              "y": 277
+            },
+            "exclusiveGateway-2bf686c17905": {
+              "x": 457,
+              "y": 95.015625
+            },
+            "scriptTask-0c9ab2d8fd7f": {
+              "x": 1518,
+              "y": 114.015625
+            },
+            "scriptTask-b80009644545": {
+              "x": 164,
+              "y": 108.015625
+            },
+            "scriptTask-ba009484a101": {
+              "x": 1035,
+              "y": 114.015625
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1320,
+              "y": 373
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://extendGrantEndDate/published/approvalTask-74cf85c35437.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://extendGrantEndDate/published/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-b80009644545",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-2bf686c17905"
+                }
+              ],
+              "script": "file://extendGrantEndDate/published/scriptTask-b80009644545.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-2bf686c17905",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://extendGrantEndDate/published/exclusiveGateway-2bf686c17905.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approval",
+            "name": "scriptTask-ba009484a101",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0c9ab2d8fd7f"
+                }
+              ],
+              "script": "file://extendGrantEndDate/published/scriptTask-ba009484a101.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "UpdateRevokeRequest",
+            "name": "scriptTask-0c9ab2d8fd7f",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://extendGrantEndDate/published/scriptTask-0c9ab2d8fd7f.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

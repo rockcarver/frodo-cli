@@ -1,0 +1,313 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo iga workflow describe "frodo iga workflow describe --file test/e2e/exports/all/allWorkflows.workflow.json": should describe first workflow from file test/e2e/exports/all/allWorkflows.workflow.json 1`] = `
+"Draft Workflow
+Id          │BasicApplicationGrant                                              
+Name        │BasicApplicationGrant                                              
+Display Name│Basic Application Grant                                            
+Description │Basic request flow for granting a user an account in an application
+Type        │provisioning                                                       
+Status      │draft                                                              
+Mutable     │false                                                              
+ChildType   │false                                                              
+Steps (13)  │approvalTask-74cf85c35437                                          
+            │scriptTask-626899b6e99a                                            
+            │scriptTask-c58309b8c470                                            
+            │exclusiveGateway-5167870154a9                                      
+            │scriptTask-3a74557440fb                                            
+            │scriptTask-744ef6a8b9a2                                            
+            │scriptTask-4e9121fe850a                                            
+            │exclusiveGateway-621c9996676a                                      
+            │scriptTask-0e5b6187ea62                                            
+            │waitTask-13cf96ebeb37                                              
+            │inclusiveGateway-a71e67faaad1                                      
+            │inclusiveGateway-7d248125a9bd                                      
+            │scriptTask-14acc58c28dd                                            
+
+Published Workflow
+Id          │BasicApplicationGrant                                              
+Name        │BasicApplicationGrant                                              
+Display Name│Basic Application Grant                                            
+Description │Basic request flow for granting a user an account in an application
+Type        │provisioning                                                       
+Status      │published                                                          
+Mutable     │false                                                              
+ChildType   │false                                                              
+Steps (13)  │approvalTask-74cf85c35437                                          
+            │scriptTask-626899b6e99a                                            
+            │scriptTask-c58309b8c470                                            
+            │exclusiveGateway-5167870154a9                                      
+            │scriptTask-3a74557440fb                                            
+            │scriptTask-744ef6a8b9a2                                            
+            │scriptTask-4e9121fe850a                                            
+            │exclusiveGateway-621c9996676a                                      
+            │scriptTask-0e5b6187ea62                                            
+            │waitTask-13cf96ebeb37                                              
+            │inclusiveGateway-a71e67faaad1                                      
+            │inclusiveGateway-7d248125a9bd                                      
+            │scriptTask-14acc58c28dd                                            
+
+
+Email Templates (15):
+- [FrodoTestEmailTemplate1] Frodo Test Email Template One - Reset your password
+- [FrodoTestEmailTemplate2] Frodo Test Email Template Two - One-Time Password for login
+- [FrodoTestEmailTemplate3] Frodo Test Email Template Three - Multi-Factor Email for Identity Cloud login
+- [frodoTestEmailTemplateFour] Frodo Test Email Template Four - Subject
+- [requestAssigned]  - ATTENTION: Request Assigned
+- [requestEscalated]  - ATTENTION: Request Escalation
+- [requestExpired]  - ATTENTION: Expiration of Request
+- [requestReassigned]  - ATTENTION: Request Reassigned
+- [requestReminder]  - ATTENTION: Reminder to complete Request
+- [violationAssigned]  - ATTENTION: Violation Assigned
+- [violationEscalated]  - ATTENTION: Violation Escalation
+- [violationExpired]  - ATTENTION: Expiration of Violation
+- [violationReassigned]  - ATTENTION: Violation Reassigned
+- [violationReminder]  - ATTENTION: Reminder to make decision on violation
+- [welcome]  - Your account has been created
+
+Events (16):
+- [27c4b3e8-76b1-4e4b-b2e4-d7e27c2ee060] phh-teacher-birthright-role-approval
+- [46cb85f2-6ee3-4626-86cf-532f92b3a06f] test-events-2
+- [508a0ac5-26cc-4084-a53a-a01b307fc50c] test_workflow_event_1
+- [5f46b08d-d31a-4b36-b38a-2299674e1c3d] test_events_1
+- [734c942e-e324-4930-a59d-a1ea44a2b06f] test-events-3
+- [779c1d07-e52f-4c2d-9721-306c3772bc84] test_workflow_event_1
+- [89c12943-afd3-47f2-bbee-cdf86dbf1ff8] test_workflow_event_1
+- [9b144d77-cf42-478c-9f8a-1cfe136ea979] test_workflow_event_1
+- [a1721a49-14a2-4e5c-b0ed-a30e9f0d82ff] test_workflow_event_3
+- [ab5c9ece-a018-4549-a82f-4341e69a3b90] test_workflow_event_1
+- [ae1bada3-0ae2-40b5-8e31-547a6191198e] test_workflow_event_1
+- [c5b6e348-2c9d-4331-8247-b5d161e3095a] test-events-4
+- [cae05df9-14a9-4b8f-b94d-0ecf6c0510c8] test_workflow_event_1
+- [cea15442-5573-40b3-8fbf-f458bd4a7e5f] test_workflow_event_1
+- [dda20d06-c29c-4478-abd8-b62d0a39adc7] test_workflow_event_1
+- [e58ffc1d-bc76-4790-b702-77270d9e9afb] test_workflow_event_1
+
+Request Forms (4):
+- [9c10b680-a790-4f73-95ed-81b345f0f3e9] phh-delegated-user-disable-form
+- [9e3fc668-4e96-4b03-9605-38b830bea26c] test_workflow_request_form_2
+- [c385b530-b912-4dcd-98c8-931673add9b7] phh-new-user
+- [fa1a5e72-d803-4879-bc2a-07a5da3d8ee9] test_workflow_request_form_1
+
+Request Types (23):
+- [3eb082e7-68f2-409f-9423-26e771259dc8] test_workflow_request_type_4
+- [6854ac4d-c1bc-467b-ae90-a79328c6296d] test_workflow_request_type_6
+- [8d0055b3-155f-4885-a415-4f1c536098e8] phh-create-user
+- [a1af958e-1d43-4c9d-bb83-c6843135a21b] test
+- [af4a6f84-f9a9-4f8d-82ae-649639debabc] test_workflow_request_type_5
+- [applicationGrant] Grant Application
+- [applicationRemove] Remove Application
+- [createEntitlement] Create Entitlement
+- [createRole] Create Role
+- [createUser] Create User
+- [dcbba5d2-a033-4113-8eeb-6f5752afc928] Test
+- [deleteRole] Delete Role
+- [deleteUser] Delete User
+- [e9dcd66e-1388-4872-9790-66df2f44deef] test_workflow_request_type_1
+- [entitlementGrant] Grant Entitlement
+- [entitlementRemove] Remove Entitlement
+- [fdf9e9a1-b5cf-496a-821b-e7b3d5841252] phh-delegate-user-disable-type
+- [modifyEntitlement] Modify Entitlement
+- [modifyRole] Modify Role
+- [modifyUser] Modify User
+- [publishRole] Publish Role
+- [roleGrant] Grant Role
+- [roleRemove] Remove Role
+"
+`;
+
+exports[`frodo iga workflow describe "frodo iga workflow describe --file test/e2e/exports/all/allWorkflows.workflow.json": should describe first workflow from file test/e2e/exports/all/allWorkflows.workflow.json 2`] = `""`;
+
+exports[`frodo iga workflow describe "frodo iga workflow describe --workflow-id testWorkflow1": should describe workflow 'testWorkflow1' 1`] = `
+"Draft Workflow
+Id          │testWorkflow1                
+Name        │test_workflow_1              
+Display Name│test_workflow_1              
+Description │test_workflow_1              
+Status      │draft                        
+Mutable     │true                         
+ChildType   │false                        
+Steps (14)  │approvalTask-7e33e73d6763    
+            │fulfillmentTask-7fce35a32915 
+            │exclusiveGateway-94bc3d35f3b4
+            │inclusiveGateway-a6cf9605ce55
+            │scriptTask-493f5ea87636      
+            │violationTask-50261d9bc712   
+            │emailTask-2068f5d711c8       
+            │waitTask-b7fc169ca4eb        
+            │approvalTask-363e32acf981    
+            │fulfillmentTask-29a71d4ab8ed 
+            │emailTask-881f2975e240       
+            │waitTask-72d593301121        
+            │waitTask-b343cc7df7c9        
+            │violationTask-f8066518b46a   
+
+Published Workflow
+Id          │testWorkflow1                
+Name        │test_workflow_1              
+Display Name│test_workflow_1              
+Description │test_workflow_1              
+Status      │published                    
+Mutable     │true                         
+ChildType   │false                        
+Steps (14)  │approvalTask-7e33e73d6763    
+            │fulfillmentTask-7fce35a32915 
+            │exclusiveGateway-94bc3d35f3b4
+            │inclusiveGateway-a6cf9605ce55
+            │scriptTask-493f5ea87636      
+            │violationTask-50261d9bc712   
+            │emailTask-2068f5d711c8       
+            │waitTask-b7fc169ca4eb        
+            │approvalTask-363e32acf981    
+            │fulfillmentTask-29a71d4ab8ed 
+            │emailTask-881f2975e240       
+            │waitTask-72d593301121        
+            │waitTask-b343cc7df7c9        
+            │violationTask-f8066518b46a   
+
+
+Email Templates (4):
+- [FrodoTestEmailTemplate1] Frodo Test Email Template One - Reset your password
+- [FrodoTestEmailTemplate2] Frodo Test Email Template Two - One-Time Password for login
+- [FrodoTestEmailTemplate3] Frodo Test Email Template Three - Multi-Factor Email for Identity Cloud login
+- [frodoTestEmailTemplateFour] Frodo Test Email Template Four - Subject
+
+Events (8):
+- [508a0ac5-26cc-4084-a53a-a01b307fc50c] test_workflow_event_1
+- [779c1d07-e52f-4c2d-9721-306c3772bc84] test_workflow_event_1
+- [89c12943-afd3-47f2-bbee-cdf86dbf1ff8] test_workflow_event_1
+- [9b144d77-cf42-478c-9f8a-1cfe136ea979] test_workflow_event_1
+- [ab5c9ece-a018-4549-a82f-4341e69a3b90] test_workflow_event_1
+- [ae1bada3-0ae2-40b5-8e31-547a6191198e] test_workflow_event_1
+- [dda20d06-c29c-4478-abd8-b62d0a39adc7] test_workflow_event_1
+- [e58ffc1d-bc76-4790-b702-77270d9e9afb] test_workflow_event_1
+
+Request Forms (2):
+- [fa1a5e72-d803-4879-bc2a-07a5da3d8ee9] test_workflow_request_form_1
+- [9e3fc668-4e96-4b03-9605-38b830bea26c] test_workflow_request_form_2
+
+Request Types (2):
+- [af4a6f84-f9a9-4f8d-82ae-649639debabc] test_workflow_request_type_5
+- [e9dcd66e-1388-4872-9790-66df2f44deef] test_workflow_request_type_1
+"
+`;
+
+exports[`frodo iga workflow describe "frodo iga workflow describe --workflow-id testWorkflow1": should describe workflow 'testWorkflow1' 2`] = `""`;
+
+exports[`frodo iga workflow describe "frodo iga workflow describe -i testWorkflow1 -f test/e2e/exports/all/allWorkflows.workflow.json": should describe workflow 'testWorkflow1' from file test/e2e/exports/all/allWorkflows.workflow.json 1`] = `
+"Draft Workflow
+Id          │testWorkflow1                
+Name        │test_workflow_1              
+Display Name│test_workflow_1              
+Description │test_workflow_1              
+Status      │draft                        
+Mutable     │true                         
+ChildType   │false                        
+Steps (14)  │approvalTask-7e33e73d6763    
+            │fulfillmentTask-7fce35a32915 
+            │exclusiveGateway-94bc3d35f3b4
+            │inclusiveGateway-a6cf9605ce55
+            │scriptTask-493f5ea87636      
+            │violationTask-50261d9bc712   
+            │emailTask-2068f5d711c8       
+            │waitTask-b7fc169ca4eb        
+            │approvalTask-363e32acf981    
+            │fulfillmentTask-29a71d4ab8ed 
+            │emailTask-881f2975e240       
+            │waitTask-72d593301121        
+            │waitTask-b343cc7df7c9        
+            │violationTask-f8066518b46a   
+
+Published Workflow
+Id          │testWorkflow1                
+Name        │test_workflow_1              
+Display Name│test_workflow_1              
+Description │test_workflow_1              
+Status      │published                    
+Mutable     │true                         
+ChildType   │false                        
+Steps (14)  │approvalTask-7e33e73d6763    
+            │fulfillmentTask-7fce35a32915 
+            │exclusiveGateway-94bc3d35f3b4
+            │inclusiveGateway-a6cf9605ce55
+            │scriptTask-493f5ea87636      
+            │violationTask-50261d9bc712   
+            │emailTask-2068f5d711c8       
+            │waitTask-b7fc169ca4eb        
+            │approvalTask-363e32acf981    
+            │fulfillmentTask-29a71d4ab8ed 
+            │emailTask-881f2975e240       
+            │waitTask-72d593301121        
+            │waitTask-b343cc7df7c9        
+            │violationTask-f8066518b46a   
+
+
+Email Templates (15):
+- [FrodoTestEmailTemplate1] Frodo Test Email Template One - Reset your password
+- [FrodoTestEmailTemplate2] Frodo Test Email Template Two - One-Time Password for login
+- [FrodoTestEmailTemplate3] Frodo Test Email Template Three - Multi-Factor Email for Identity Cloud login
+- [frodoTestEmailTemplateFour] Frodo Test Email Template Four - Subject
+- [requestAssigned]  - ATTENTION: Request Assigned
+- [requestEscalated]  - ATTENTION: Request Escalation
+- [requestExpired]  - ATTENTION: Expiration of Request
+- [requestReassigned]  - ATTENTION: Request Reassigned
+- [requestReminder]  - ATTENTION: Reminder to complete Request
+- [violationAssigned]  - ATTENTION: Violation Assigned
+- [violationEscalated]  - ATTENTION: Violation Escalation
+- [violationExpired]  - ATTENTION: Expiration of Violation
+- [violationReassigned]  - ATTENTION: Violation Reassigned
+- [violationReminder]  - ATTENTION: Reminder to make decision on violation
+- [welcome]  - Your account has been created
+
+Events (16):
+- [27c4b3e8-76b1-4e4b-b2e4-d7e27c2ee060] phh-teacher-birthright-role-approval
+- [46cb85f2-6ee3-4626-86cf-532f92b3a06f] test-events-2
+- [508a0ac5-26cc-4084-a53a-a01b307fc50c] test_workflow_event_1
+- [5f46b08d-d31a-4b36-b38a-2299674e1c3d] test_events_1
+- [734c942e-e324-4930-a59d-a1ea44a2b06f] test-events-3
+- [779c1d07-e52f-4c2d-9721-306c3772bc84] test_workflow_event_1
+- [89c12943-afd3-47f2-bbee-cdf86dbf1ff8] test_workflow_event_1
+- [9b144d77-cf42-478c-9f8a-1cfe136ea979] test_workflow_event_1
+- [a1721a49-14a2-4e5c-b0ed-a30e9f0d82ff] test_workflow_event_3
+- [ab5c9ece-a018-4549-a82f-4341e69a3b90] test_workflow_event_1
+- [ae1bada3-0ae2-40b5-8e31-547a6191198e] test_workflow_event_1
+- [c5b6e348-2c9d-4331-8247-b5d161e3095a] test-events-4
+- [cae05df9-14a9-4b8f-b94d-0ecf6c0510c8] test_workflow_event_1
+- [cea15442-5573-40b3-8fbf-f458bd4a7e5f] test_workflow_event_1
+- [dda20d06-c29c-4478-abd8-b62d0a39adc7] test_workflow_event_1
+- [e58ffc1d-bc76-4790-b702-77270d9e9afb] test_workflow_event_1
+
+Request Forms (4):
+- [9c10b680-a790-4f73-95ed-81b345f0f3e9] phh-delegated-user-disable-form
+- [9e3fc668-4e96-4b03-9605-38b830bea26c] test_workflow_request_form_2
+- [c385b530-b912-4dcd-98c8-931673add9b7] phh-new-user
+- [fa1a5e72-d803-4879-bc2a-07a5da3d8ee9] test_workflow_request_form_1
+
+Request Types (23):
+- [3eb082e7-68f2-409f-9423-26e771259dc8] test_workflow_request_type_4
+- [6854ac4d-c1bc-467b-ae90-a79328c6296d] test_workflow_request_type_6
+- [8d0055b3-155f-4885-a415-4f1c536098e8] phh-create-user
+- [a1af958e-1d43-4c9d-bb83-c6843135a21b] test
+- [af4a6f84-f9a9-4f8d-82ae-649639debabc] test_workflow_request_type_5
+- [applicationGrant] Grant Application
+- [applicationRemove] Remove Application
+- [createEntitlement] Create Entitlement
+- [createRole] Create Role
+- [createUser] Create User
+- [dcbba5d2-a033-4113-8eeb-6f5752afc928] Test
+- [deleteRole] Delete Role
+- [deleteUser] Delete User
+- [e9dcd66e-1388-4872-9790-66df2f44deef] test_workflow_request_type_1
+- [entitlementGrant] Grant Entitlement
+- [entitlementRemove] Remove Entitlement
+- [fdf9e9a1-b5cf-496a-821b-e7b3d5841252] phh-delegate-user-disable-type
+- [modifyEntitlement] Modify Entitlement
+- [modifyRole] Modify Role
+- [modifyUser] Modify User
+- [publishRole] Publish Role
+- [roleGrant] Grant Role
+- [roleRemove] Remove Role
+"
+`;
+
+exports[`frodo iga workflow describe "frodo iga workflow describe -i testWorkflow1 -f test/e2e/exports/all/allWorkflows.workflow.json": should describe workflow 'testWorkflow1' from file test/e2e/exports/all/allWorkflows.workflow.json 2`] = `""`;

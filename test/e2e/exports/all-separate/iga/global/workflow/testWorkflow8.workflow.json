@@ -1,0 +1,2047 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.682Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "testWorkflow8": {
+      "draft": {
+        "childType": false,
+        "description": "test_workflow_8",
+        "displayName": "test_workflow_8",
+        "id": "testWorkflow8",
+        "mutable": true,
+        "name": "test_workflow_8",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 826,
+            "y": 50
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "approvalTask-7e33e73d6763"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 20,
+            "y": 42
+          },
+          "uiConfig": {
+            "approvalTask-363e32acf981": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                },
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6"
+                  },
+                  "type": "role"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "applicationOwner"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "type": "manager"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "type": "entitlementOwner"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "escalationDate": 1,
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 1
+              },
+              "x": 478.3999938964844,
+              "y": 195.6125030517578
+            },
+            "approvalTask-7e33e73d6763": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/approvalTask-7e33e73d6763.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "variable",
+                "expirationDateVariable": "customExpirationDuration",
+                "expirationTimeSpan": "hour(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + requestIndex.manager.id"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  }
+                ],
+                "reminderDate": 4,
+                "reminderTimeSpan": "month(s)"
+              },
+              "x": 146.39999389648438,
+              "y": 15.61250305175781
+            },
+            "emailTask-2068f5d711c8": {
+              "x": 150.39999389648438,
+              "y": 648.812502861023
+            },
+            "emailTask-881f2975e240": {
+              "x": 478.3999938964844,
+              "y": 474.41250228881836
+            },
+            "exclusiveGateway-94bc3d35f3b4": {
+              "x": 145.39999389648438,
+              "y": 274.6125030517578
+            },
+            "fulfillmentTask-29a71d4ab8ed": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationDate": 1,
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "variable",
+                "expirationDateVariable": "customExpirationDate",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 1
+              },
+              "x": 479.3999938964844,
+              "y": 334.41250228881836
+            },
+            "fulfillmentTask-7fce35a32915": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/fulfillmentTask-7fce35a32915.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "hour(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 8,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "month(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "comment": true,
+                      "deny": true,
+                      "fulfill": true,
+                      "modify": true,
+                      "reassign": true
+                    }
+                  }
+                ],
+                "reminderDate": 2,
+                "reminderTimeSpan": "month(s)"
+              },
+              "x": 145.39999389648438,
+              "y": 146.6125030517578
+            },
+            "inclusiveGateway-a6cf9605ce55": {
+              "x": 147.39999389648438,
+              "y": 405.6125030517578
+            },
+            "scriptTask-493f5ea87636": {
+              "x": 148.39999389648438,
+              "y": 570.6125030517578
+            },
+            "violationTask-50261d9bc712": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/violationTask-50261d9bc712.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "week(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 8,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "month(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "allow": true,
+                      "comment": true,
+                      "exception": true,
+                      "reassign": true,
+                      "remediate": true
+                    }
+                  }
+                ],
+                "reminderDate": 3,
+                "reminderTimeSpan": "hour(s)"
+              },
+              "x": 480.3999938964844,
+              "y": 13.61250305175781
+            },
+            "violationTask-f8066518b46a": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationType": "applicationOwner",
+                "expirationDateType": "variable",
+                "expirationDateVariable": "taskExpirationDate",
+                "reassignedActors": []
+              },
+              "x": 788.3999938964844,
+              "y": 613.4125022888184
+            },
+            "waitTask-72d593301121": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.startDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 476.3999938964844,
+              "y": 612.4125022888184
+            },
+            "waitTask-b343cc7df7c9": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "variable",
+                "resumeDateVariable": "resumeDate"
+              },
+              "x": 476.3999938964844,
+              "y": 694.4125022888184
+            },
+            "waitTask-b7fc169ca4eb": {
+              "events": {
+                "resumeDateNumber": 5,
+                "resumeDateTimeSpan": "month(s)",
+                "resumeDateType": "duration"
+              },
+              "x": 148.39999389648438,
+              "y": 779.812502861023
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/approvalTask-7e33e73d6763.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + requestIndex.manager.id"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "content.customExpirationDuration"
+                  },
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(4*30*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 4,
+                  "notification": "FrodoTestEmailTemplate1"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "fulfillmentTask-7fce35a32915"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "displayName": "Custom Approval Task",
+            "name": "approvalTask-7e33e73d6763",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Custom Fulfillment Task",
+            "fulfillmentTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/fulfillmentTask-7fce35a32915.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "comment": true,
+                        "deny": true,
+                        "fulfill": true,
+                        "modify": true,
+                        "reassign": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(2*30*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 2,
+                  "notification": "FrodoTestEmailTemplate2"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "exclusiveGateway-94bc3d35f3b4"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-7fce35a32915",
+            "type": "fulfillmentTask"
+          },
+          {
+            "displayName": "Custom Validation Gateway",
+            "name": "exclusiveGateway-94bc3d35f3b4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "// This is a validation success\noutcome == true",
+                  "outcome": "validationSuccess",
+                  "step": "inclusiveGateway-a6cf9605ce55"
+                },
+                {
+                  "condition": "// This is a validation failure\noutcome == false",
+                  "outcome": "validationFailure",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "script": "file://testWorkflow8/draft/exclusiveGateway-94bc3d35f3b4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Inclusive Gateway",
+            "name": "inclusiveGateway-a6cf9605ce55",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "// This is outcome 1\noutcome === 1",
+                  "outcome": "outcomeOne",
+                  "step": "scriptTask-493f5ea87636"
+                },
+                {
+                  "condition": "// This is outcome 2\noutcome === 2",
+                  "outcome": "outcomeTwo",
+                  "step": "scriptTask-493f5ea87636"
+                },
+                {
+                  "condition": "// This is outcome 3\noutcome === 3",
+                  "outcome": "outcomeThree",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "script": "file://testWorkflow8/draft/inclusiveGateway-a6cf9605ce55.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Script Task",
+            "name": "scriptTask-493f5ea87636",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "emailTask-2068f5d711c8"
+                }
+              ],
+              "script": "file://testWorkflow8/draft/scriptTask-493f5ea87636.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Violation Task",
+            "name": "violationTask-50261d9bc712",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/draft/violationTask-50261d9bc712.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*7*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "allow": true,
+                        "comment": true,
+                        "exception": true,
+                        "reassign": true,
+                        "remediate": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(8*30*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "FrodoTestEmailTemplate3"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "EXPIRATION",
+                  "step": "approvalTask-7e33e73d6763"
+                }
+              ]
+            }
+          },
+          {
+            "displayName": "Custom Email Task",
+            "emailTask": {
+              "bcc": {
+                "isExpression": true,
+                "value": "// This is the bcc script\n\"bcc@email.com\";"
+              },
+              "cc": {
+                "isExpression": true,
+                "value": "// This is the cc script\n\"cc@email.com\";"
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "SUCCESS",
+                  "step": "waitTask-b7fc169ca4eb"
+                },
+                {
+                  "condition": null,
+                  "outcome": "FAILED",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "object": {
+                "hello": "goodbye",
+                "hi": "hola"
+              },
+              "templateName": "frodoTestEmailTemplateFour",
+              "to": {
+                "isExpression": true,
+                "value": "// This is the to script\n\"to@email.com\";"
+              }
+            },
+            "name": "emailTask-2068f5d711c8",
+            "type": "emailTask"
+          },
+          {
+            "displayName": "Custom Wait Task",
+            "name": "waitTask-b7fc169ca4eb",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "approvalTask-363e32acf981"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "(new Date(new Date().getTime()+(5*30*24*60*60*1000))).toISOString()"
+              }
+            }
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "expiration": {
+                  "date": {
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  }
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "fulfillmentTask-29a71d4ab8ed"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "displayName": "Custom Approval Task 2",
+            "name": "approvalTask-363e32acf981",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Custom Fulfillment Task 2",
+            "fulfillmentTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "comment": true,
+                    "deny": true,
+                    "fulfill": true,
+                    "modify": true,
+                    "reassign": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "expiration": {
+                  "date": {
+                    "value": "content.customExpirationDate"
+                  }
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "emailTask-881f2975e240"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-29a71d4ab8ed",
+            "type": "fulfillmentTask"
+          },
+          {
+            "displayName": "Custom Email Task 2",
+            "emailTask": {
+              "bcc": "bcc@email.com",
+              "cc": "cc@email.com",
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "SUCCESS",
+                  "step": "waitTask-72d593301121"
+                },
+                {
+                  "condition": null,
+                  "outcome": "FAILED",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "object": {},
+              "templateName": "frodoTestEmailTemplateFour",
+              "to": "to@email.com"
+            },
+            "name": "emailTask-881f2975e240",
+            "type": "emailTask"
+          },
+          {
+            "displayName": "Custom Wait Task 2",
+            "name": "waitTask-72d593301121",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "waitTask-b343cc7df7c9"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.startDate"
+              }
+            }
+          },
+          {
+            "displayName": "Custom Wait Task 3",
+            "name": "waitTask-b343cc7df7c9",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "violationTask-f8066518b46a"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "content.get('resumeDate')"
+              }
+            }
+          },
+          {
+            "displayName": "Custom Violation Task 2",
+            "name": "violationTask-f8066518b46a",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "allow": true,
+                    "comment": true,
+                    "exception": true,
+                    "reassign": true,
+                    "remediate": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {},
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "EXPIRATION",
+                  "step": "approvalTask-7e33e73d6763"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "published": {
+        "childType": false,
+        "description": "test_workflow_8",
+        "displayName": "test_workflow_8",
+        "id": "testWorkflow8",
+        "mutable": true,
+        "name": "test_workflow_8",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 826,
+            "y": 50
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "approvalTask-7e33e73d6763"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 20,
+            "y": 42
+          },
+          "uiConfig": {
+            "approvalTask-363e32acf981": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                },
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6"
+                  },
+                  "type": "role"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "applicationOwner"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "type": "manager"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "type": "entitlementOwner"
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "escalationDate": 1,
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 1
+              },
+              "x": 478.3999938964844,
+              "y": 195.6125030517578
+            },
+            "approvalTask-7e33e73d6763": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/approvalTask-7e33e73d6763.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "variable",
+                "expirationDateVariable": "customExpirationDuration",
+                "expirationTimeSpan": "hour(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + requestIndex.manager.id"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  },
+                  {
+                    "id": {
+                      "isExpression": true,
+                      "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                    },
+                    "permissions": {
+                      "approve": true,
+                      "comment": true,
+                      "modify": true,
+                      "reassign": true,
+                      "reject": true
+                    }
+                  }
+                ],
+                "reminderDate": 4,
+                "reminderTimeSpan": "month(s)"
+              },
+              "x": 146.39999389648438,
+              "y": 15.61250305175781
+            },
+            "emailTask-2068f5d711c8": {
+              "x": 150.39999389648438,
+              "y": 648.812502861023
+            },
+            "emailTask-881f2975e240": {
+              "x": 478.3999938964844,
+              "y": 474.41250228881836
+            },
+            "exclusiveGateway-94bc3d35f3b4": {
+              "x": 145.39999389648438,
+              "y": 274.6125030517578
+            },
+            "fulfillmentTask-29a71d4ab8ed": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationDate": 1,
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "variable",
+                "expirationDateVariable": "customExpirationDate",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 1
+              },
+              "x": 479.3999938964844,
+              "y": 334.41250228881836
+            },
+            "fulfillmentTask-7fce35a32915": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/fulfillmentTask-7fce35a32915.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "hour(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 8,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "month(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "comment": true,
+                      "deny": true,
+                      "fulfill": true,
+                      "modify": true,
+                      "reassign": true
+                    }
+                  }
+                ],
+                "reminderDate": 2,
+                "reminderTimeSpan": "month(s)"
+              },
+              "x": 145.39999389648438,
+              "y": 146.6125030517578
+            },
+            "inclusiveGateway-a6cf9605ce55": {
+              "x": 147.39999389648438,
+              "y": 405.6125030517578
+            },
+            "scriptTask-493f5ea87636": {
+              "x": 148.39999389648438,
+              "y": 570.6125030517578
+            },
+            "violationTask-50261d9bc712": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/violationTask-50261d9bc712.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "week(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 8,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "month(s)",
+                "reassignedActors": [
+                  {
+                    "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                    "permissions": {
+                      "allow": true,
+                      "comment": true,
+                      "exception": true,
+                      "reassign": true,
+                      "remediate": true
+                    }
+                  }
+                ],
+                "reminderDate": 3,
+                "reminderTimeSpan": "hour(s)"
+              },
+              "x": 480.3999938964844,
+              "y": 13.61250305175781
+            },
+            "violationTask-f8066518b46a": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationType": "applicationOwner",
+                "expirationDateType": "variable",
+                "expirationDateVariable": "taskExpirationDate",
+                "reassignedActors": []
+              },
+              "x": 788.3999938964844,
+              "y": 613.4125022888184
+            },
+            "waitTask-72d593301121": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.startDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 476.3999938964844,
+              "y": 612.4125022888184
+            },
+            "waitTask-b343cc7df7c9": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "variable",
+                "resumeDateVariable": "resumeDate"
+              },
+              "x": 476.3999938964844,
+              "y": 694.4125022888184
+            },
+            "waitTask-b7fc169ca4eb": {
+              "events": {
+                "resumeDateNumber": 5,
+                "resumeDateTimeSpan": "month(s)",
+                "resumeDateType": "duration"
+              },
+              "x": 148.39999389648438,
+              "y": 779.812502861023
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/approvalTask-7e33e73d6763.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + requestIndex.manager.id"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    },
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                      },
+                      "permissions": {
+                        "approve": true,
+                        "comment": true,
+                        "modify": true,
+                        "reassign": true,
+                        "reject": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "content.customExpirationDuration"
+                  },
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate1"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(4*30*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 4,
+                  "notification": "FrodoTestEmailTemplate1"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "fulfillmentTask-7fce35a32915"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "displayName": "Custom Approval Task",
+            "name": "approvalTask-7e33e73d6763",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Custom Fulfillment Task",
+            "fulfillmentTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/fulfillmentTask-7fce35a32915.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "comment": true,
+                        "deny": true,
+                        "fulfill": true,
+                        "modify": true,
+                        "reassign": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate2"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(2*30*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 2,
+                  "notification": "FrodoTestEmailTemplate2"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "exclusiveGateway-94bc3d35f3b4"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-7fce35a32915",
+            "type": "fulfillmentTask"
+          },
+          {
+            "displayName": "Custom Validation Gateway",
+            "name": "exclusiveGateway-94bc3d35f3b4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "// This is a validation success\noutcome == true",
+                  "outcome": "validationSuccess",
+                  "step": "inclusiveGateway-a6cf9605ce55"
+                },
+                {
+                  "condition": "// This is a validation failure\noutcome == false",
+                  "outcome": "validationFailure",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "script": "file://testWorkflow8/published/exclusiveGateway-94bc3d35f3b4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Inclusive Gateway",
+            "name": "inclusiveGateway-a6cf9605ce55",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "// This is outcome 1\noutcome === 1",
+                  "outcome": "outcomeOne",
+                  "step": "scriptTask-493f5ea87636"
+                },
+                {
+                  "condition": "// This is outcome 2\noutcome === 2",
+                  "outcome": "outcomeTwo",
+                  "step": "scriptTask-493f5ea87636"
+                },
+                {
+                  "condition": "// This is outcome 3\noutcome === 3",
+                  "outcome": "outcomeThree",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "script": "file://testWorkflow8/published/inclusiveGateway-a6cf9605ce55.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Script Task",
+            "name": "scriptTask-493f5ea87636",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "emailTask-2068f5d711c8"
+                }
+              ],
+              "script": "file://testWorkflow8/published/scriptTask-493f5ea87636.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Custom Violation Task",
+            "name": "violationTask-50261d9bc712",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://testWorkflow8/published/violationTask-50261d9bc712.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*7*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "expiration": {
+                  "action": "reassign",
+                  "actors": [
+                    {
+                      "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                      "permissions": {
+                        "allow": true,
+                        "comment": true,
+                        "exception": true,
+                        "reassign": true,
+                        "remediate": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(8*30*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "reassign": {
+                  "notification": "FrodoTestEmailTemplate3"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "FrodoTestEmailTemplate3"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "EXPIRATION",
+                  "step": "approvalTask-7e33e73d6763"
+                }
+              ]
+            }
+          },
+          {
+            "displayName": "Custom Email Task",
+            "emailTask": {
+              "bcc": {
+                "isExpression": true,
+                "value": "// This is the bcc script\n\"bcc@email.com\";"
+              },
+              "cc": {
+                "isExpression": true,
+                "value": "// This is the cc script\n\"cc@email.com\";"
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "SUCCESS",
+                  "step": "waitTask-b7fc169ca4eb"
+                },
+                {
+                  "condition": null,
+                  "outcome": "FAILED",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "object": {
+                "hello": "goodbye",
+                "hi": "hola"
+              },
+              "templateName": "frodoTestEmailTemplateFour",
+              "to": {
+                "isExpression": true,
+                "value": "// This is the to script\n\"to@email.com\";"
+              }
+            },
+            "name": "emailTask-2068f5d711c8",
+            "type": "emailTask"
+          },
+          {
+            "displayName": "Custom Wait Task",
+            "name": "waitTask-b7fc169ca4eb",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "approvalTask-363e32acf981"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "(new Date(new Date().getTime()+(5*30*24*60*60*1000))).toISOString()"
+              }
+            }
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": "managed/role/be68f831-a8f3-42da-93df-84bbc66427f6",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                },
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "expiration": {
+                  "date": {
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  }
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "fulfillmentTask-29a71d4ab8ed"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "displayName": "Custom Approval Task 2",
+            "name": "approvalTask-363e32acf981",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Custom Fulfillment Task 2",
+            "fulfillmentTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "comment": true,
+                    "deny": true,
+                    "fulfill": true,
+                    "modify": true,
+                    "reassign": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "expiration": {
+                  "date": {
+                    "value": "content.customExpirationDate"
+                  }
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "emailTask-881f2975e240"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-29a71d4ab8ed",
+            "type": "fulfillmentTask"
+          },
+          {
+            "displayName": "Custom Email Task 2",
+            "emailTask": {
+              "bcc": "bcc@email.com",
+              "cc": "cc@email.com",
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "SUCCESS",
+                  "step": "waitTask-72d593301121"
+                },
+                {
+                  "condition": null,
+                  "outcome": "FAILED",
+                  "step": "violationTask-50261d9bc712"
+                }
+              ],
+              "object": {},
+              "templateName": "frodoTestEmailTemplateFour",
+              "to": "to@email.com"
+            },
+            "name": "emailTask-881f2975e240",
+            "type": "emailTask"
+          },
+          {
+            "displayName": "Custom Wait Task 2",
+            "name": "waitTask-72d593301121",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "waitTask-b343cc7df7c9"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.startDate"
+              }
+            }
+          },
+          {
+            "displayName": "Custom Wait Task 3",
+            "name": "waitTask-b343cc7df7c9",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "violationTask-f8066518b46a"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "content.get('resumeDate')"
+              }
+            }
+          },
+          {
+            "displayName": "Custom Violation Task 2",
+            "name": "violationTask-f8066518b46a",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "allow": true,
+                    "comment": true,
+                    "exception": true,
+                    "reassign": true,
+                    "remediate": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {},
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "EXPIRATION",
+                  "step": "approvalTask-7e33e73d6763"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,649 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.667Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "ModifyEntitlement": {
+      "draft": {
+        "childType": false,
+        "description": "Basic request flow for modifying an existing entitlement",
+        "displayName": "Modify Entitlement",
+        "id": "ModifyEntitlement",
+        "mutable": false,
+        "name": "ModifyEntitlement",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1774,
+            "y": 221
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-365b50ab00a7"
+            },
+            "id": "startNode",
+            "x": 12,
+            "y": 110
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.entitlementOwner[0].id ? \"managed/user/\" + requestIndex.entitlementOwner[0].id : \"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "entitlementOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 1
+              },
+              "x": 1128,
+              "y": 260
+            },
+            "exclusiveGateway-abbb089758c8": {
+              "x": 847,
+              "y": 164.015625
+            },
+            "exclusiveGateway-c82a357d8c38": {
+              "x": 306,
+              "y": 87.015625
+            },
+            "fulfillmentTask-cce84a670745": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://ModifyEntitlement/draft/fulfillmentTask-cce84a670745.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 595,
+              "y": 46.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1413,
+              "y": 291.015625
+            },
+            "scriptTask-365b50ab00a7": {
+              "x": 95,
+              "y": 106.015625
+            },
+            "scriptTask-87ad089a5484": {
+              "x": 591,
+              "y": 224.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1412,
+              "y": 118.015625
+            },
+            "scriptTask-e8842de66fbb": {
+              "x": 1124,
+              "y": 169.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Modify Entitlement",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Approval",
+            "name": "scriptTask-e8842de66fbb",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/scriptTask-e8842de66fbb.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Gateway",
+            "name": "exclusiveGateway-abbb089758c8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-e8842de66fbb"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/exclusiveGateway-abbb089758c8.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Check",
+            "name": "scriptTask-87ad089a5484",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-abbb089758c8"
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/scriptTask-87ad089a5484.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Check",
+            "name": "scriptTask-365b50ab00a7",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-c82a357d8c38"
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/scriptTask-365b50ab00a7.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Check Certification",
+            "name": "exclusiveGateway-c82a357d8c38",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "certification == true",
+                  "outcome": "isCertification",
+                  "step": "fulfillmentTask-cce84a670745"
+                },
+                {
+                  "condition": "certification == false",
+                  "outcome": "isNotCertification",
+                  "step": "scriptTask-87ad089a5484"
+                }
+              ],
+              "script": "file://ModifyEntitlement/draft/exclusiveGateway-c82a357d8c38.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Certifier Modifications",
+            "fulfillmentTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://ModifyEntitlement/draft/fulfillmentTask-cce84a670745.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "scriptTask-87ad089a5484"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-cce84a670745",
+            "type": "fulfillmentTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic request flow for modifying an existing entitlement",
+        "displayName": "Modify Entitlement",
+        "id": "ModifyEntitlement",
+        "mutable": false,
+        "name": "ModifyEntitlement",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1774,
+            "y": 221
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-365b50ab00a7"
+            },
+            "id": "startNode",
+            "x": 12,
+            "y": 110
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.entitlementOwner[0].id ? \"managed/user/\" + requestIndex.entitlementOwner[0].id : \"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "entitlementOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 1
+              },
+              "x": 1128,
+              "y": 260
+            },
+            "exclusiveGateway-abbb089758c8": {
+              "x": 847,
+              "y": 164.015625
+            },
+            "exclusiveGateway-c82a357d8c38": {
+              "x": 306,
+              "y": 87.015625
+            },
+            "fulfillmentTask-cce84a670745": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://ModifyEntitlement/published/fulfillmentTask-cce84a670745.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 595,
+              "y": 46.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1413,
+              "y": 291.015625
+            },
+            "scriptTask-365b50ab00a7": {
+              "x": 95,
+              "y": 106.015625
+            },
+            "scriptTask-87ad089a5484": {
+              "x": 591,
+              "y": 224.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1412,
+              "y": 118.015625
+            },
+            "scriptTask-e8842de66fbb": {
+              "x": 1124,
+              "y": 169.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + ((requestIndex.entitlementOwner && requestIndex.entitlementOwner.length > 0) ? requestIndex.entitlementOwner[0].id : requestIndex.applicationOwner[0].id)"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Modify Entitlement",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Approval",
+            "name": "scriptTask-e8842de66fbb",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/scriptTask-e8842de66fbb.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Gateway",
+            "name": "exclusiveGateway-abbb089758c8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-e8842de66fbb"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/exclusiveGateway-abbb089758c8.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Check",
+            "name": "scriptTask-87ad089a5484",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-abbb089758c8"
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/scriptTask-87ad089a5484.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Check",
+            "name": "scriptTask-365b50ab00a7",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-c82a357d8c38"
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/scriptTask-365b50ab00a7.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Check Certification",
+            "name": "exclusiveGateway-c82a357d8c38",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "certification == true",
+                  "outcome": "isCertification",
+                  "step": "fulfillmentTask-cce84a670745"
+                },
+                {
+                  "condition": "certification == false",
+                  "outcome": "isNotCertification",
+                  "step": "scriptTask-87ad089a5484"
+                }
+              ],
+              "script": "file://ModifyEntitlement/published/exclusiveGateway-c82a357d8c38.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Certifier Modifications",
+            "fulfillmentTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://ModifyEntitlement/published/fulfillmentTask-cce84a670745.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "FULFILL",
+                  "step": "scriptTask-87ad089a5484"
+                },
+                {
+                  "condition": null,
+                  "outcome": "DENY",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "name": "fulfillmentTask-cce84a670745",
+            "type": "fulfillmentTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

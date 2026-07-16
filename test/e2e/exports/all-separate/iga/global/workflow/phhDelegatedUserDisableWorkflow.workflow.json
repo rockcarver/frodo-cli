@@ -1,0 +1,329 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.669Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "phhDelegatedUserDisableWorkflow": {
+      "draft": null,
+      "published": {
+        "childType": false,
+        "description": "phh-delegated-user-disable-workflow",
+        "displayName": "phh-delegated-user-disable-workflow",
+        "id": "phhDelegatedUserDisableWorkflow",
+        "mutable": true,
+        "name": "phh-delegated-user-disable-workflow",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 1563,
+            "y": 352
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "scriptTask-3d854e98930e"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 50,
+            "y": 250
+          },
+          "uiConfig": {
+            "approvalTask-bebe49db4dac": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "type": "manager"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 1177,
+              "y": 60.61250305175781
+            },
+            "exclusiveGateway-26e0a9262468": {
+              "x": 438.3999938964844,
+              "y": 232.6125030517578
+            },
+            "exclusiveGateway-d5b7b2e2a80a": {
+              "x": 931.7999877929688,
+              "y": 111.61250305175781
+            },
+            "scriptTask-38eb13f4deca": {
+              "x": 648.3999938964844,
+              "y": 343.6125030517578
+            },
+            "scriptTask-3d854e98930e": {
+              "x": 175.39999389648438,
+              "y": 251.6125030517578
+            },
+            "scriptTask-449aac6b18b8": {
+              "x": 1149.3999938964844,
+              "y": 236.6125030517578
+            },
+            "scriptTask-4f4b87291099": {
+              "x": 1442.9999694824219,
+              "y": 101.61250305175781
+            },
+            "scriptTask-8e24794e9be4": {
+              "x": 649.3999938964844,
+              "y": 132.6125030517578
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "Load Delegation Info",
+            "name": "scriptTask-3d854e98930e",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-26e0a9262468"
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/scriptTask-3d854e98930e.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auth Check",
+            "name": "exclusiveGateway-26e0a9262468",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "hasDelegationAuthority == true",
+                  "outcome": "validationSuccess",
+                  "step": "scriptTask-8e24794e9be4"
+                },
+                {
+                  "condition": "hasDelegationAuthority == false",
+                  "outcome": "validationFailure",
+                  "step": "scriptTask-38eb13f4deca"
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/exclusiveGateway-26e0a9262468.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Reject - No Authority",
+            "name": "scriptTask-38eb13f4deca",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/scriptTask-38eb13f4deca.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validate Delegation Request",
+            "name": "scriptTask-8e24794e9be4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-d5b7b2e2a80a"
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/scriptTask-8e24794e9be4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Passed?",
+            "name": "exclusiveGateway-d5b7b2e2a80a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "validationPassed == true",
+                  "outcome": "validationSuccess",
+                  "step": "approvalTask-bebe49db4dac"
+                },
+                {
+                  "condition": "validationPassed == false",
+                  "outcome": "validationFailure",
+                  "step": "scriptTask-449aac6b18b8"
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/exclusiveGateway-d5b7b2e2a80a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Reject - Validation Failed",
+            "name": "scriptTask-449aac6b18b8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/scriptTask-449aac6b18b8.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.manager.id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/9de92b26-e91e-44b7-ac81-7ae1c6adf9ad"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "doNothing",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-4f4b87291099"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": null
+                }
+              ]
+            },
+            "displayName": "Manager Approval",
+            "name": "approvalTask-bebe49db4dac",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Disable User Account",
+            "name": "scriptTask-4f4b87291099",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhDelegatedUserDisableWorkflow/published/scriptTask-4f4b87291099.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ]
+      }
+    }
+  }
+}

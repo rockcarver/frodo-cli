@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "982113c6-3e20-401d-91a8-657cf429f85e": {
+      "allowedValues": [],
+      "description": "Is this account a privileged account",
+      "displayName": "Privileged",
+      "enumeratedValues": [],
+      "id": "982113c6-3e20-401d-91a8-657cf429f85e",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "privileged",
+      "objectType": "/iga/governance/account",
+      "searchable": true,
+      "type": "boolean"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.520Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

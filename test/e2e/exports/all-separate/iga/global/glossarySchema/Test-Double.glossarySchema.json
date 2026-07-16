@@ -1,0 +1,36 @@
+{
+  "glossarySchema": {
+    "f50f68c9-859c-4cea-9a82-6f66210b0272": {
+      "allowedValues": [
+        1.5,
+        3.5
+      ],
+      "description": "Test Double",
+      "displayName": "Test Double",
+      "enumeratedValues": [
+        {
+          "text": 0.5,
+          "value": 1.5
+        },
+        {
+          "text": 2.5,
+          "value": 3.5
+        }
+      ],
+      "id": "f50f68c9-859c-4cea-9a82-6f66210b0272",
+      "isMultiValue": true,
+      "metadata": {},
+      "name": "Test Double",
+      "objectType": "/openidm/managed/role",
+      "searchable": true,
+      "type": "integer"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.522Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

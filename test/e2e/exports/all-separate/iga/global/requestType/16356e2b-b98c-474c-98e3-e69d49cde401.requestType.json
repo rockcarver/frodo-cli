@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.596Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestType": {
+    "16356e2b-b98c-474c-98e3-e69d49cde401": {
+      "custom": false,
+      "customValidation": null,
+      "description": "This is a test request type",
+      "displayName": "test_request_type_4",
+      "id": "16356e2b-b98c-474c-98e3-e69d49cde401",
+      "metadata": {},
+      "notModifiableProperties": [],
+      "schemas": {},
+      "validation": {},
+      "workflow": {}
+    }
+  }
+}

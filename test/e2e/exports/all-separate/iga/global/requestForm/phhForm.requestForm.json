@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "ddd56024-02ef-4c14-8bce-7b8bf4649b99": {
+      "assignments": [],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "",
+      "form": {
+        "events": {},
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Type here",
+                "id": "998bfc8d-6fbc-487d-8c77-bb5fe5603d96",
+                "label": "phhText",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "custom.phhText",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "7efdd73f-2a18-4861-ac45-e9c1f26f1d91"
+          }
+        ]
+      },
+      "id": "ddd56024-02ef-4c14-8bce-7b8bf4649b99",
+      "metadata": {},
+      "name": "phhForm",
+      "type": "request"
+    }
+  }
+}

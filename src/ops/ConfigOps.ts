@@ -1,5 +1,6 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { IdObjectSkeletonInterface } from '@rockcarver/frodo-lib/types/api/ApiTypes';
+import { WorkflowExportInterface } from '@rockcarver/frodo-lib/types/ops/cloud/iga/IgaWorkflowOps';
 import {
   FullExportInterface,
   FullExportOptions,
@@ -26,6 +27,7 @@ import {
   printMessage,
 } from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
+import { extractWorkflowScriptsToFiles } from './cloud/iga/IgaWorkflowOps';
 import {
   ManagedSkeleton,
   writeIdmObjectToDirectory,
@@ -69,6 +71,7 @@ export async function exportEverythingToFile(
     includeActiveValues: false,
     target: '',
     includeReadOnly: false,
+    onlyCustom: false,
     onlyRealm: false,
     onlyGlobal: false,
   }
@@ -113,6 +116,7 @@ export async function exportEverythingToFiles(
     includeActiveValues: false,
     target: '',
     includeReadOnly: false,
+    onlyCustom: false,
     onlyRealm: false,
     onlyGlobal: false,
   }
@@ -339,6 +343,12 @@ export function exportItem(
             id,
             `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
           );
+        } else if (extract && type === 'workflow') {
+          extractWorkflowScriptsToFiles(
+            exportData as WorkflowExportInterface,
+            id,
+            `${baseDirectory.substring(getWorkingDirectory(false).length + 1)}/${fileType}`
+          );
         }
         if (!fs.existsSync(`${baseDirectory}/${fileType}`)) {
           fs.mkdirSync(`${baseDirectory}/${fileType}`);
@@ -374,6 +384,7 @@ export async function importEverythingFromFile(
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
+    onlyCustom: false,
     source: '',
   }
 ): Promise<boolean> {
@@ -408,6 +419,7 @@ export async function importEverythingFromFiles(
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
+    onlyCustom: false,
     source: '',
   }
 ): Promise<boolean> {
@@ -439,6 +451,7 @@ export async function importEntityfromFile(
     cleanServices: false,
     includeDefault: false,
     includeActiveValues: false,
+    onlyCustom: false,
     source: '',
   }
 ): Promise<boolean> {

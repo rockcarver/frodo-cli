@@ -76,6 +76,9 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all -f test/e2e/exports/all/all.empty.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import --all-separate -D nonexistant
+// Cloud IGA
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -caf test/e2e/exports/all/all.iga.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config import -AD test/e2e/exports/all-separate/iga
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import -adf test/e2e/exports/all/all.classic.json -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config import --all --clean --re-uuid-scripts --re-uuid-journeys --file test/e2e/exports/all/all.classic.json --type classic
@@ -95,10 +98,11 @@ import {
   testFail,
   testSuccess
 } from './utils/TestUtils';
-import { connection as c, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
+import { connection as c, iga_connection as ic, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 const cloudEnv = getEnv(c);
+const igaEnv = getEnv(ic);
 const classicEnv = getEnv(cc);
 const forgeopsEnv = getEnv(fc);
 
@@ -155,6 +159,20 @@ describe('frodo config import', () => {
     test(`"frodo config import --all-separate -D nonexistant" Import nothing with no existing directories`, async () => {
       const CMD = `frodo config import --all-separate -D nonexistant`;
       await testSuccess(CMD, cloudEnv);
+    });
+  });
+
+  // Cloud IGA Tests
+  describe('IGA', () => {
+    // TODO: Record tests (unable to get these passing after recording due to missing recordings, seems like polly is failing to save certain requests)
+    test.skip(`"frodo config import -caf test/e2e/exports/all/all.iga.json": Should import all IGA configuration from single file, with only custom request types imported`, async () => {
+      const CMD = `frodo config import -caf test/e2e/exports/all/all.iga.json`;
+      await testSuccess(CMD, igaEnv);
+    });
+    // TODO: Record tests (unable to get these passing after recording due to missing recordings, seems like polly is failing to save certain requests)
+    test.skip(`"frodo config import -AD test/e2e/exports/all-separate/iga": Should import all IGA configuration from separate files`, async () => {
+      const CMD = `frodo config import -AD test/e2e/exports/all-separate/iga`;
+      await testSuccess(CMD, igaEnv);
     });
   });
 

@@ -1,0 +1,136 @@
+{
+  "certificationTemplate": {
+    "965c4548-1f53-4947-ba06-dfa821da42a6": {
+      "allowBulkCertify": false,
+      "allowPartialSignoff": true,
+      "allowSelfCertification": false,
+      "assignmentNotification": "emailTemplate/certificationAssigned",
+      "assignmentNotificationIncludeManager": false,
+      "certificationType": "entitlement",
+      "defaultCertifierId": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018",
+      "defaultCertifierInfo": {
+        "givenName": "Parent",
+        "id": "6b21c283-d491-4fd9-8322-898c171c7018",
+        "mail": "pholderness+poadmin@trivir.com",
+        "sn": "Admin",
+        "userName": "phh-parent-org-admin"
+      },
+      "description": "Entitlements Review - All Applications",
+      "enableForward": true,
+      "enableReassign": true,
+      "escalationFrequency": null,
+      "escalationNotification": null,
+      "escalationOwner": null,
+      "events": {
+        "assignment": {
+          "notification": "emailTemplate/certificationAssigned"
+        },
+        "reassign": {
+          "notification": "emailTemplate/certificationReassigned"
+        }
+      },
+      "exceptionDuration": 14,
+      "excludeConditionalAccess": true,
+      "excludeRoleBasedAccess": true,
+      "expirationAction": null,
+      "expirationActionDelay": 0,
+      "expirationNotification": null,
+      "expirationReassignee": null,
+      "finalizeRule": "",
+      "id": "965c4548-1f53-4947-ba06-dfa821da42a6",
+      "initializeRule": "",
+      "isEventBased": false,
+      "metadata": {},
+      "name": "phh-entitlement-assignment-certification",
+      "ownerId": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018",
+      "ownerInfo": {
+        "givenName": "Parent",
+        "id": "6b21c283-d491-4fd9-8322-898c171c7018",
+        "mail": "pholderness+poadmin@trivir.com",
+        "sn": "Admin",
+        "userName": "phh-parent-org-admin"
+      },
+      "reassignNotification": "emailTemplate/certificationReassigned",
+      "reassignPermissions": {
+        "certify": true,
+        "claim": true,
+        "comment": true,
+        "delegate": true,
+        "exception": true,
+        "forward": true,
+        "reassign": true,
+        "reset": true,
+        "revoke": true,
+        "save": true,
+        "signoff": true
+      },
+      "remediationDelay": 0,
+      "remediationRule": "BasicRevocation",
+      "reminderFrequency": 0,
+      "reminderNotification": null,
+      "requireJustification": {
+        "exceptionAllowed": true,
+        "revoke": true
+      },
+      "scheduleId": "templateScheduleae1381d5cfad4374b3dc075605b1036d",
+      "selfCertificationRule": "none",
+      "skipInactiveCertifiers": false,
+      "stageDuration": 14,
+      "stages": [
+        {
+          "certifierId": null,
+          "certifierPath": null,
+          "certifierScript": null,
+          "certifierType": "entitlementOwner"
+        }
+      ],
+      "stagingEnabled": true,
+      "status": "active",
+      "targetFilter": {
+        "application": {
+          "operand": {
+            "targetName": "authoritative",
+            "targetValue": false
+          },
+          "operator": "EQUALS"
+        },
+        "decision": {
+          "operand": [],
+          "operator": "ALL"
+        },
+        "entitlement": {
+          "operand": [],
+          "operator": "ALL"
+        },
+        "memberOfOrg": [],
+        "type": [
+          "entitlementGrant",
+          "ResourceGrant"
+        ],
+        "user": {
+          "operand": [],
+          "operator": "ALL"
+        }
+      },
+      "uiConfig": {
+        "columnConfig": {
+          "entitlements": [
+            "user.user",
+            "application.application",
+            "entitlement.entitlement",
+            "account.account",
+            "review.flags",
+            "review.comments"
+          ]
+        }
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.493Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

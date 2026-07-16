@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "09c470af-abc5-4733-beaf-3d169b62a234": {
+      "allowedValues": [],
+      "description": "Actors for the account",
+      "displayName": "Actors",
+      "enumeratedValues": [],
+      "id": "09c470af-abc5-4733-beaf-3d169b62a234",
+      "isInternal": true,
+      "isMultiValue": true,
+      "metadata": {},
+      "name": "actors",
+      "objectType": "/iga/governance/account",
+      "searchable": true,
+      "type": "string"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.515Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

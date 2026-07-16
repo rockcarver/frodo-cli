@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.598Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestType": {
+    "createEntitlement": {
+      "custom": false,
+      "customValidation": null,
+      "displayName": "Create Entitlement",
+      "id": "createEntitlement",
+      "metadata": {},
+      "notModifiableProperties": [
+        "entitlement.applicationId",
+        "entitlement.objectType"
+      ],
+      "schemas": {
+        "common": [
+          {
+            "_meta": {
+              "displayName": "commonRequest",
+              "properties": {
+                "blob": {
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "context": {
+                  "display": {
+                    "description": "The context of the request",
+                    "isVisible": true,
+                    "name": "Context",
+                    "order": 1
+                  },
+                  "isInternal": true,
+                  "isMultiValue": false,
+                  "isRequired": false
+                },
+                "endDate": {
+                  "display": {
+                    "description": "End date of the grant",
+                    "isVisible": true,
+                    "name": "End date",
+                    "order": 8
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "expiryDate": {
+                  "display": {
+                    "description": "User provided date on which the request will cancel",
+                    "isVisible": true,
+                    "name": "Request expiration date",
+                    "order": 7
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "externalRequestId": {
+                  "display": {
+                    "description": "The external ID for the request",
+                    "isVisible": true,
+                    "name": "External Request ID",
+                    "order": 4
+                  },
+                  "isChangable": false,
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "isDraft": {
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "justification": {
+                  "display": {
+                    "description": "The reason for the request",
+                    "isVisible": true,
+                    "name": "Justification",
+                    "order": 3
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "priority": {
+                  "display": {
+                    "description": "The priority of the reqeust",
+                    "isVisible": true,
+                    "name": "Priority",
+                    "order": 6
+                  },
+                  "isRequired": false,
+                  "text": {
+                    "defaultValue": "low"
+                  }
+                },
+                "requestIdPrefix": {
+                  "display": {
+                    "description": "Prefix for the request ID",
+                    "isVisible": true,
+                    "name": "Request ID prefix",
+                    "order": 5
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "startDate": {
+                  "display": {
+                    "description": "Start date of the grant",
+                    "isVisible": true,
+                    "name": "Start date",
+                    "order": 8
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "workflowId": {
+                  "display": {
+                    "description": "The ID key of the BPMN workflow",
+                    "isVisible": true,
+                    "name": "BPMN workflow ID",
+                    "order": 7
+                  },
+                  "isChangable": false,
+                  "isInternal": true,
+                  "isRequired": false
+                }
+              },
+              "type": "system"
+            },
+            "properties": {
+              "blob": {
+                "type": "object"
+              },
+              "context": {
+                "type": "object"
+              },
+              "endDate": {
+                "type": "text"
+              },
+              "expiryDate": {
+                "type": "text"
+              },
+              "externalRequestId": {
+                "type": "text"
+              },
+              "isDraft": {
+                "type": "boolean"
+              },
+              "justification": {
+                "type": "text"
+              },
+              "priority": {
+                "type": "text"
+              },
+              "requestIdPrefix": {
+                "type": "text"
+              },
+              "startDate": {
+                "type": "text"
+              },
+              "workflowId": {
+                "type": "text"
+              }
+            }
+          }
+        ],
+        "entitlement": [
+          {
+            "_meta": {
+              "display": "Entitlement Creation",
+              "properties": {
+                "applicationId": {
+                  "display": {
+                    "description": "The application that the entitlement belongs to",
+                    "isVisible": true,
+                    "name": "Application",
+                    "order": 1
+                  },
+                  "isInternal": true,
+                  "isMultiValue": false,
+                  "isRequired": true,
+                  "lookup": {
+                    "path": "/iga/index/catalog",
+                    "query": "application/id/keyword eq \"${applicationId}\" and item/type/keyword eq \"accountGrant\""
+                  }
+                },
+                "glossary": {
+                  "display": {
+                    "description": "The contents of the entitlement's glossary (business data)",
+                    "isVisible": true,
+                    "name": "Glossary"
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "object": {
+                  "display": {
+                    "description": "The contents of the entitlement object (technical data)",
+                    "isVisible": true,
+                    "name": "Entitlement Contents"
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "objectType": {
+                  "display": {
+                    "description": "Object type of the entitlement in the external system (e.g. __GROUP__)",
+                    "isVisible": true,
+                    "name": "Object Type"
+                  },
+                  "isInternal": true,
+                  "isMultiValue": false,
+                  "isRequired": true
+                }
+              },
+              "type": "system"
+            },
+            "properties": {
+              "applicationId": {
+                "type": "text"
+              },
+              "glossary": {
+                "type": "object"
+              },
+              "object": {
+                "type": "object"
+              },
+              "objectType": {
+                "type": "text"
+              }
+            }
+          }
+        ]
+      },
+      "validation": {
+        "source": "var validation = {\"errors\" : [], \"comments\" : []};if(object.requester.id.startsWith(\"managed/user/\")){var userId = object.requester.id.split('/');try{var application = openidm.action(\"iga/governance/application/\" + request.entitlement.applicationId, 'GET', {}, {\"endUserId\": userId[2]});if(!application.permissions.createEntitlement){validation.errors.push(\"User does not have permission to create this entitlement.\");}}catch(e){validation.errors.push(\"User does not have permission to create this entitlement.\")}}if(systemSettings.settings.requireRequestJustification === true && (request.common.justification == undefined || request.common.justification.trim() == \"\")){validation.errors.push(\"Justification is required\");}validation;"
+      },
+      "workflow": {
+        "id": "CreateEntitlement",
+        "type": "bpmn"
+      }
+    }
+  }
+}

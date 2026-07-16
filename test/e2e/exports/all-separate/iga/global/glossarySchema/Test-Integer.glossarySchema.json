@@ -1,0 +1,36 @@
+{
+  "glossarySchema": {
+    "2e9da388-6f0d-429b-b1a4-c2576a662aed": {
+      "allowedValues": [
+        1,
+        2
+      ],
+      "description": "Test Integers",
+      "displayName": "Test Integer",
+      "enumeratedValues": [
+        {
+          "text": 0,
+          "value": 1
+        },
+        {
+          "text": 1,
+          "value": 2
+        }
+      ],
+      "id": "2e9da388-6f0d-429b-b1a4-c2576a662aed",
+      "isMultiValue": true,
+      "metadata": {},
+      "name": "Test Integer",
+      "objectType": "/openidm/managed/role",
+      "searchable": true,
+      "type": "integer"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.517Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}
