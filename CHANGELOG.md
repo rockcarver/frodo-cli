@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated journey commands to work correctly with frodo-lib 4.0.1 export format changes (PR #629).
 - Improved `frodo journey list`, `frodo journey describe`, and journey export flows to more reliably return the requested journey when processing multi-journey export data (PR #629).
+- Improved journey dependency handling for exports/imports involving nested trees referenced by Backchannel Initialize nodes via frodo-lib 4.0.1 (PR #595).
 - The latest CLI is now based on `@rockcarver/frodo-lib` `4.0.1`.
 
 ### Added
@@ -20,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `frodo script export -a/-A --language <language> --context <context> --evaluator-version <version>`
   - `frodo script delete -a --language <language> --context <context> --evaluator-version <version>`
 - Added support for combining script filters so you can narrow bulk list/export/delete operations to only the scripts you intend to target (PR #627).
+
+### Fixed
+
+- Improved service-account authentication reliability for hosts that include explicit default ports, avoiding JWT audience mismatches during token requests via frodo-lib 4.0.1 (PR #591).
+- Improved connection/runtime compatibility for standalone AM environments with incomplete `serverinfo` payloads by using more resilient version parsing via frodo-lib 4.0.1 (PR #594).
+- Fixed secret export behavior when active values are requested but `Use in Placeholders` is disabled: CLI flows now skip incompatible active-value reads instead of failing via frodo-lib 4.0.1 (PR #592).
 
 ## [4.0.1-1] - 2026-07-16
 
