@@ -6,43 +6,54 @@ exports[`CLI help interface for 'script export' should be expected english 1`] =
 Export scripts.
 
 Arguments:
-  host                       AM base URL, e.g.: https://cdk.iam.example.com/am.
-                             To use a connection profile, just specify a unique
-                             substring or alias.
-  realm                      Realm. Specify realm as '/' for the root realm or
-                             'realm' or '/parent/child' otherwise. (default:
-                             "alpha" for Identity Cloud tenants, "/" otherwise.)
-  username                   Username to login with. Must be an admin user with
-                             appropriate rights to manage authentication
-                             journeys/trees.
-  password                   Password.
+  host                           AM base URL, e.g.:
+                                 https://cdk.iam.example.com/am. To use a
+                                 connection profile, just specify a unique
+                                 substring or alias.
+  realm                          Realm. Specify realm as '/' for the root realm
+                                 or 'realm' or '/parent/child' otherwise.
+                                 (default: "alpha" for Identity Cloud tenants,
+                                 "/" otherwise.)
+  username                       Username to login with. Must be an admin user
+                                 with appropriate rights to manage
+                                 authentication journeys/trees.
+  password                       Password.
 
 Options:
-  -a, --all                  Export all scripts to a single file. Ignored with
-                             -n.
-  -A, --all-separate         Export all scripts to separate files
-                             (*.script.json) in the current directory. Ignored
-                             with -n or -a.
-  -d, --default              Export all scripts including the default scripts.
-                             Ignored with -n.
-  -f, --file <file>          Name of the export file.
-  -i, --script-id <uuid>     Uuid of the script. If specified, -a and -A are
-                             ignored.
-  -M, --modified-properties  Include modified properties in export (e.g.
-                             lastModifiedDate, lastModifiedBy, createdBy,
-                             creationDate, etc.) (default: false)
-  -n, --script-name <name>   Name of the script. If specified, -a and -A are
-                             ignored.
-  -N, --no-metadata          Does not include metadata in the export file.
-  --no-deps                  Do not include script dependencies (i.e. library
-                             scripts). Ignored with -a and -A.
-  -s, --script <script>      DEPRECATED! Use -n/--script-name instead. Name of
-                             the script.
-  -x, --no-extract           Do not extract the script from the exported file to
-                             a separate file.
-  -h, --help                 Help
-  -hh, --help-more           Help with all options.
-  -hhh, --help-all           Help with all options, environment variables, and
-                             usage examples.
+  -a, --all                      Export all scripts to a single file. Ignored
+                                 with -n.
+  -A, --all-separate             Export all scripts to separate files
+                                 (*.script.json) in the current directory.
+                                 Ignored with -n or -a.
+  --context <context>            Filter scripts by context when using -a or -A.
+                                 Values are case-insensitive; kebab-case and
+                                 underscore formats are both accepted.
+  -d, --default                  Export all scripts including the default
+                                 scripts. Ignored with -n.
+  --evaluator-version <version>  Filter scripts by evaluator version when using
+                                 -a or -A. Combine with other filters to imply
+                                 AND matching.
+  -f, --file <file>              Name of the export file.
+  -i, --script-id <uuid>         Uuid of the script. If specified, -a and -A are
+                                 ignored.
+  --language <language>          Filter scripts by language when using -a or -A.
+                                 Use lowercase values such as javascript or
+                                 groovy. (choices: "javascript", "groovy")
+  -M, --modified-properties      Include modified properties in export (e.g.
+                                 lastModifiedDate, lastModifiedBy, createdBy,
+                                 creationDate, etc.) (default: false)
+  -n, --script-name <name>       Name of the script. If specified, -a and -A are
+                                 ignored.
+  -N, --no-metadata              Does not include metadata in the export file.
+  --no-deps                      Do not include script dependencies (i.e.
+                                 library scripts). Ignored with -a and -A.
+  -s, --script <script>          DEPRECATED! Use -n/--script-name instead. Name
+                                 of the script.
+  -x, --no-extract               Do not extract the script from the exported
+                                 file to a separate file.
+  -h, --help                     Help
+  -hh, --help-more               Help with all options.
+  -hhh, --help-all               Help with all options, environment variables,
+                                 and usage examples.
 "
 `;
