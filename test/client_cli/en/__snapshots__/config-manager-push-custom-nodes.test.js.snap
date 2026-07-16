@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'config-manager pull custom-nodes' should be expected english 1`] = `
-"Usage: frodo config-manager pull custom-nodes [options] [host] [realm] [username] [password]
+exports[`CLI help interface for 'config-manager push custom-nodes' should be expected english 1`] = `
+"Usage: frodo config-manager push custom-nodes [options] [host] [realm] [username] [password]
 
-[Experimental] Export custom nodes.
+[Experimental] Import custom nodes.
 
 Arguments:
   host               AM base URL, e.g.: https://cdk.iam.example.com/am. To use a
@@ -17,8 +17,8 @@ Arguments:
   password           Password.
 
 Options:
-  -n, --name <name>  Custom node display name. If specified, only one custom
-                     node is exported.
+  -n, --name <name>  Custom node display name. If specified, only the specified
+                     custom node is imported.
   -h, --help         Help
   -hh, --help-more   Help with all options.
   -hhh, --help-all   Help with all options, environment variables, and usage

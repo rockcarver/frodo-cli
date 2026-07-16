@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push custom-nodes "frodo config-manager push custom-nodes -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the custom-nodes into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push custom-nodes "frodo config-manager push custom-nodes -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import the custom-nodes into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push custom-nodes'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager push custom-nodes "frodo config-manager push custom-nodes -n "Display Callback" -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific custom node by name into forgeops" 1`] = `""`;
+
+exports[`frodo config-manager push custom-nodes "frodo config-manager push custom-nodes -n "Display Callback" -D test/e2e/exports/fr-config-manager/forgeops -m forgeops": should import a specific custom node by name into forgeops" 2`] = `
+"Experimental feature in use: 'frodo config-manager push custom-nodes'. This feature may change without notice.
+"
+`;

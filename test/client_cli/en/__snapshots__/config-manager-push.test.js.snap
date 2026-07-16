@@ -19,6 +19,7 @@ Commands:
   connector-definitions  [Experimental] Import connector definitions.
   connector-mappings     [Experimental] Import connector mappings.
   cookie-domains         [Experimental] Import cookie domains.
+  custom-nodes           [Experimental] Import custom nodes.
   email-provider         [Experimental] Import email provider configuration.
   email-templates        [Experimental] Import email template objects.
   endpoints              [Experimental] Import custom endpoints objects.
