@@ -104,7 +104,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@rockcarver/frodo-lib": "4.0.0",
+    "@rockcarver/frodo-lib": "4.0.1-6",
     "@types/colors": "^1.2.1",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.3",
@@ -149,5 +149,9 @@
     "uuid": "^11.1.0",
     "yesno": "^0.4.0",
     "zod": "^4.3.6"
+  },
+  "allowScripts": {
+    "esbuild@0.27.2": true,
+    "fsevents@2.3.3": true
   }
 }

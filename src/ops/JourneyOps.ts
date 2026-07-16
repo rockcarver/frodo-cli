@@ -74,18 +74,21 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
         0,
         `Retrieving details of all journeys...`
       );
-      const exportPromises: Promise<SingleTreeExportInterface>[] = [];
       try {
-        for (const journeyStub of journeys) {
-          exportPromises.push(
-            exportJourney(journeyStub['_id'], {
-              useStringArrays: false,
-              deps: false,
-              coords: true,
-            })
-          );
-        }
-        const journeyExports = await Promise.all(exportPromises);
+        const journeyExportPromises: {
+          journeyId: string;
+          promise: Promise<MultiTreeExportInterface>;
+        }[] = journeys.map((journeyStub) => ({
+          journeyId: journeyStub['_id'],
+          promise: exportJourney(journeyStub['_id'], {
+            useStringArrays: false,
+            deps: false,
+            coords: true,
+          }),
+        }));
+        const journeyExports = await Promise.all(
+          journeyExportPromises.map((p) => p.promise)
+        );
         stopProgressIndicator(
           spinnerId,
           'Retrieved details of all journeys.',
@@ -101,30 +104,38 @@ export async function listJourneys(long: boolean = false): Promise<boolean> {
           'Resource',
           'Tags',
         ]);
-        for (const journeyExport of journeyExports) {
+        for (let i = 0; i < journeyExports.length; i++) {
+          const { journeyId } = journeyExportPromises[i];
+          const treeExport = journeyExports[i].trees[journeyId];
+          if (!treeExport) {
+            debugMessage(
+              `listJourneys: journey '${journeyId}' not found in export response, skipping`
+            );
+            continue;
+          }
           table.push([
-            `${journeyExport.tree._id}`,
-            journeyExport.tree.enabled === false
+            `${treeExport.tree._id}`,
+            treeExport.tree.enabled === false
               ? 'disabled'['brightRed']
               : 'enabled'['brightGreen'],
-            journeyExport.tree.innerTreeOnly
+            treeExport.tree.innerTreeOnly
               ? 'yes'['brightYellow']
               : 'no'['brightGreen'],
-            journeyExport.tree.mustRun
+            treeExport.tree.mustRun
               ? 'yes'['brightYellow']
               : 'no'['brightGreen'],
-            journeyExport.tree.noSession
+            treeExport.tree.noSession
               ? 'yes'['brightYellow']
               : 'no'['brightGreen'],
-            journeyExport.tree.transactionalOnly
+            treeExport.tree.transactionalOnly
               ? 'yes'['brightYellow']
               : 'no'['brightGreen'],
-            journeyExport.tree.identityResource
-              ? journeyExport.tree.identityResource
+            treeExport.tree.identityResource
+              ? treeExport.tree.identityResource
               : '',
-            journeyExport.tree.uiConfig?.categories
+            treeExport.tree.uiConfig?.categories
               ? wordwrap(
-                  JSON.parse(journeyExport.tree.uiConfig.categories).join(', '),
+                  JSON.parse(treeExport.tree.uiConfig.categories).join(', '),
                   60
                 )
               : '',
@@ -175,18 +186,14 @@ export async function exportJourneyToFile(
   if (!verbose)
     spinnerId = createProgressIndicator('indeterminate', 0, `${journeyId}`);
   try {
-    const fileData: SingleTreeExportInterface = await exportJourney(
+    const fileData: MultiTreeExportInterface = await exportJourney(
       journeyId,
       options
     );
     delete fileData.meta;
     if (verbose)
       spinnerId = createProgressIndicator('indeterminate', 0, `${journeyId}`);
-    saveJsonToFile(
-      { trees: { [fileData.tree._id]: fileData } },
-      filePath,
-      includeMeta
-    );
+    saveJsonToFile(fileData, filePath, includeMeta);
     stopProgressIndicator(
       spinnerId,
       `Exported ${journeyId['brightCyan']} to ${filePath['brightCyan']}.`,
