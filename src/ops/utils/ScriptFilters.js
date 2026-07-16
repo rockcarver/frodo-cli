@@ -1,3 +1,9 @@
+/**
+ * @typedef {import('@rockcarver/frodo-lib/types/ops/ScriptOps').ScriptFilter} LibScriptFilter
+ * @typedef {import('@rockcarver/frodo-lib/types/ops/ScriptOps').ScriptFilterCondition} LibScriptFilterCondition
+ * @typedef {import('@rockcarver/frodo-lib/types/ops/ScriptOps').ScriptFilterGroup} LibScriptFilterGroup
+ */
+
 function normalizeFilterValue(value) {
   const normalizedValue = value?.trim();
   return normalizedValue ? normalizedValue : undefined;
@@ -34,8 +40,13 @@ export function filterScripts(scripts, filters = {}) {
   return scripts.filter((script) => matchesScriptFilters(script, filters));
 }
 
+/**
+ * @param {{ context?: string, evaluatorVersion?: string, language?: string }} [filters={}]
+ * @returns {LibScriptFilter | undefined}
+ */
 export function createScriptFilter(filters = {}) {
   const normalizedFilters = normalizeScriptFilters(filters);
+  /** @type {LibScriptFilterCondition[]} */
   const filterConditions = [
     normalizedFilters.context && {
       field: 'context',
@@ -52,10 +63,10 @@ export function createScriptFilter(filters = {}) {
   ].filter(Boolean);
   if (filterConditions.length === 0) return undefined;
   if (filterConditions.length === 1) return filterConditions[0];
-  return {
+  return /** @type {LibScriptFilterGroup} */ ({
     operator: 'AND',
     filters: filterConditions,
-  };
+  });
 }
 
 function getLibraryScriptNames(script) {

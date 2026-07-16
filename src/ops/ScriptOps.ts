@@ -103,7 +103,7 @@ function exportScriptsWithFilterPassthrough(
 ): Promise<ScriptExportInterface> {
   const filter = createScriptFilter(filters);
   const optionsWithFilter: ScriptExportOptions = filter
-    ? { ...options, filter: filter as ScriptExportOptions['filter'] }
+    ? { ...options, filter }
     : options;
   return exportScripts(optionsWithFilter, errorHandler);
 }
