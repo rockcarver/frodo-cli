@@ -120,7 +120,8 @@ export async function getFullExportConfig(
 export async function getFullExportConfigFromDirectory(
   directory: string
 ): Promise<FullExportInterface> {
-  const realms = fs.readdirSync(directory + '/realm');
+  const realmDir = directory + '/realm';
+  const realms = fs.existsSync(realmDir) ? fs.readdirSync(realmDir) : [];
   const fullExportConfig: FullExportInterface = {
     meta: {} as ExportMetaData,
     global: {} as unknown as FullGlobalExportInterface,
@@ -135,7 +136,7 @@ export async function getFullExportConfigFromDirectory(
     await getConfig(
       fullExportConfig.realm[realm],
       undefined,
-      directory + '/realm/' + realm
+      `${realmDir}/${realm}`
     );
   }
   return fullExportConfig;
@@ -158,6 +159,7 @@ export async function getConfig(
   if (!directory && file) {
     directory = file.substring(0, file.lastIndexOf('/'));
   }
+  if (!fs.existsSync(directory)) return;
   const fileName = file ? file.substring(file.lastIndexOf('/') + 1) : undefined;
   const files = (await readFiles(directory)).filter(
     (f) => !fileName || f.path.endsWith(fileName)

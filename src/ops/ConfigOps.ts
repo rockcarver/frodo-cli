@@ -20,7 +20,11 @@ import {
   getFullExportConfig,
   getFullExportConfigFromDirectory,
 } from '../utils/Config';
-import { cleanupProgressIndicators, printError } from '../utils/Console';
+import {
+  cleanupProgressIndicators,
+  printError,
+  printMessage,
+} from '../utils/Console';
 import { saveServersToFiles } from './classic/ServerOps';
 import {
   ManagedSkeleton,
@@ -375,7 +379,15 @@ export async function importEverythingFromFile(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfig(file);
-    await importFullConfiguration(data, options, errorHandler);
+    const importedEntities = await importFullConfiguration(
+      data,
+      options,
+      errorHandler
+    );
+    if (!importedEntities.length) {
+      printMessage('No configuration was imported.', 'warn');
+      return true;
+    }
     return true;
   } catch (error) {
     cleanupProgressIndicators();
@@ -401,7 +413,15 @@ export async function importEverythingFromFiles(
 ): Promise<boolean> {
   try {
     const data = await getFullExportConfigFromDirectory(getWorkingDirectory());
-    await importFullConfiguration(data, options, errorHandler);
+    const importedEntities = await importFullConfiguration(
+      data,
+      options,
+      errorHandler
+    );
+    if (!importedEntities.length) {
+      printMessage('No configuration was imported.', 'warn');
+      return true;
+    }
     return true;
   } catch (error) {
     printError(error);

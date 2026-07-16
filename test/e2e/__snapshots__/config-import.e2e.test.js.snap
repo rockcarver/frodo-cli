@@ -26,12 +26,21 @@ exports[`frodo config import Classic "frodo config import -gf test/e2e/exports/a
 "
 `;
 
-exports[`frodo config import Cloud "frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors 1`] = `""`;
+exports[`frodo config import Cloud "frodo config import --all -f test/e2e/exports/all/all.empty.json" Import nothing with empty JSON file 1`] = `""`;
 
-exports[`frodo config import Cloud "frodo config import --file test/e2e/exports/all-separate/cloud/realm/root-alpha/script/mode.script.json" Import mode.script.json long with extracted scripts and no errors 2`] = `
+exports[`frodo config import Cloud "frodo config import --all -f test/e2e/exports/all/all.empty.json" Import nothing with empty JSON file 2`] = `
 "✔ Finished Importing Everything to global!
-✔ Finished Importing Everything to root-alpha realm!
 ✔ Finished Importing all other AM config entities!
+No configuration was imported.
+"
+`;
+
+exports[`frodo config import Cloud "frodo config import --all-separate -D nonexistant" Import nothing with no existing directories 1`] = `""`;
+
+exports[`frodo config import Cloud "frodo config import --all-separate -D nonexistant" Import nothing with no existing directories 2`] = `
+"✔ Finished Importing Everything to global!
+✔ Finished Importing all other AM config entities!
+No configuration was imported.
 "
 `;
 
