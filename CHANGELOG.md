@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-07-17
+
 ### Changed
 
 - Updated journey commands to work correctly with frodo-lib 4.0.1 export format changes (PR #629).
@@ -376,18 +378,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Improve support for custom platform deployments (non-forgeops or customized forgeops)
+
   - \#429: Added options to support custom oauth2 clients used to obtain the access token for IDM API calls:
+
     - `--login-client-id <client-id>` Specify a custom OAuth2 client id to use a your own oauth2 client for IDM API calls in deployments of type "cloud" or "forgeops". Your custom client must be configured as a public client and allow the authorization code grant using the "openid fr:idm:\*" scope. Use the "--redirect-uri" parameter if you have configured a custom redirect uri (default: "<host>/platform/appAuthHelperRedirect.html").
     - `--login-redirect-uri <redirect-uri>` Specify a custom redirect URI to use with your custom OAuth2 client (efault: "<host>/platform/appAuthHelperRedirect.html").
 
     The above options can also be supplied through environment variables:
+
     - `FRODO_LOGIN_CLIENT_ID` OAuth2 client id for IDM API calls. Overridden by '--login-client-id' option.
     - `FRODO_LOGIN_REDIRECT_URI` Redirect Uri for custom OAuth2 client id. Overridden by '--login-redirect-uri' option.
 
   - \#359: Added an option to support custom IDM host URLs for all IDM API calls (e.g. platform deployments hosting AM and IDM on/in different DNS hosts/domains):
+
     - `--idm-host <idm-host>` IDM base URL, e.g.: <https://cdk.idm.example.com/myidm>. Use only if your IDM installation resides in a different domain and/or if the base path differs from the default "/openidm".
 
     The above option can also be supplied through an environment variable:
+
     - `FRODO_IDM_HOST` IDM base URL. Overridden by '--idm-host' option.
 
   **_Note:_** All the above options are also persisted in connection profiles so they only have to specified once and after that they come out of the connection profile.
@@ -729,12 +736,15 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
   - `frodo esv secret import`
 
 - Frodo now supports exporting (and importing) of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo will always encrypt values using either encryption keys from the source environment (default) or the target environment (export option). Frodo will never export secrets in the clear. However, frodo supports importing clear values (as well as importing encrypted values). Use these new commands and parameters to export/import variables and secrets including secret values:
+
   - New parameters for existing `frodo esv secret export` and `frodo config export` commands:
+
     - `--include-active-values` Include the currently active (and loaded) secret value in the export. By default, secret values are encrypted server-side in the environment they are exported from. Use `--target <host url>` to have another environment perform the encryption.
 
     - `--target <host url>` Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.
 
   - New `frodo esv secret import` and updated existing `frodo config import` command and note-worthy parameters:
+
     - `--include-active-values` Import any secret values contained in the import file. By default, secret values are encrypted server-side in the environment they are exported from. Use `--source <host url>` to import a file exported from another environment than the one you are importing to.
 
     - `--source <host url>` Host URL of the environment which performed secret value encryption. The URL must resolve to an existing connection profile. Use this option to import a file that was exported from a different source environment than the one you are importing to.
@@ -912,12 +922,14 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - \#283: Support for authentication settings:
+
   - `frodo authn` Manage authentication setting.
     - `describe` List authentication settings.
     - `export` Export authentication settings.
     - `import` Import authentication settings.
 
   Examples:
+
   - Describe authentication settings:<br>
     `frodo authn describe <myTenant> <realm>`
 
@@ -1020,12 +1032,14 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - \#251: Support for Identity Cloud admin federation configuration:
+
   - `frodo admin federation` Manage admin federation configuration.
     - `export` Export admin federation providers.
     - `import` Import admin federation providers.
     - `list` List admin federation providers.
 
   Examples:
+
   - List all configured admin federation providers:<br>
     `frodo admin federation list <myTenant>`
 
@@ -1063,12 +1077,14 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 
 - MacOS binaries are now signed and notarized and run without security exceptions.
 - \#251: Support for Identity Cloud admin federation configuration:
+
   - `frodo admin federation` Manage admin federation configuration.
     - `export` Export admin federation providers.
     - `import` Import admin federation providers.
     - `list` List admin federation providers.
 
   Examples:
+
   - List all configured admin federation providers:<br>
     `frodo admin federation list <myTenant>`
 
@@ -1101,12 +1117,14 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - \#251: Support for Identity Cloud admin federation configuration:
+
   - `frodo admin federation` Manage admin federation configuration.
     - `export` Export admin federation providers.
     - `import` Import admin federation providers.
     - `list` List admin federation providers.
 
   Examples:
+
   - List all configured admin federation providers:<br>
     `frodo admin federation list <myTenant>`
 
@@ -1159,6 +1177,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - Support for authorization policies, policy sets, and resource types through new `authz` commands:
+
   - `frodo authz type` Manage authorization resource types.
     - `delete` Delete authorization resource types.
     - `describe` Describe authorization resource types.
@@ -1179,6 +1198,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
     - `list` List authorization policies.
 
   Examples:
+
   - Export a whole policy set including policies and resource types:<br>
     `frodo authz set export -i <myPolicySet> <myTenant>`
   - Import a whole policy set including dependencies exported using the previous example:<br>
@@ -1192,6 +1212,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
     **_Note_**: Policy IDs/names have to be unique within the realm. Therefore you cannot export all policies from one policy set and import them into another policy set in the same realm without deleting the original policy set first.
 
   Notes:
+
   - Use the new `--prereqs` option with the `authz set/policy import/export` commands to include structural prerequisites like resource types and policy sets.
   - Use the new `--json` option with all `describe` sub-commands:<br>
     `frodo authz type describe --json -n URL <myTenant>`<br>
@@ -1332,9 +1353,11 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - \#52: Added new developer options for `script export` and `script import` commands:
+
   - `frodo script export`:
     - `-x`, `--extract`: Extract the script from the exported file, and save it to a separate file. Ignored with `-n` or `-a`.
   - `frodo script import`:
+
     - `-w`, `--watch`: Watch for changes to the script files and import the scripts automatically when the file changes. Can only be used with `-A`. (default: false)
 
       **_Note:_** This new option only applies if the export was generated with the new `--extract` option!
@@ -1375,50 +1398,53 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - Full support for Identity Cloud Service Accounts across all commands. Three options to leverage service accounts:
-  1.  Connection profiles for daily CLI usage:
 
-      For daily admin and development tasks, using the new `frodo conn save` command (see details under next bullet) is the easiest way to get going with service accounts. To migrate an existing connection profile to service accounts and automatically create a service account for your tenant admin, simply issue the following command:
+  1. Connection profiles for daily CLI usage:
 
-          % frodo conn save service-accounts
-          Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
-          Created and added service account Frodo-SA-1673586189578 with id 99c04bba-7213-463b-9a27-ceafa8a95734 to profile.
-          Saved connection profile https://openam-service-accounts.forgeblocks.com/am
-          %
+     For daily admin and development tasks, using the new `frodo conn save` command (see details under next bullet) is the easiest way to get going with service accounts. To migrate an existing connection profile to service accounts and automatically create a service account for your tenant admin, simply issue the following command:
 
-      Then validate your connection profile is using the new service account:
+         % frodo conn save service-accounts
+         Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as user volker.scheuber@forgerock.com
+         Created and added service account Frodo-SA-1673586189578 with id 99c04bba-7213-463b-9a27-ceafa8a95734 to profile.
+         Saved connection profile https://openam-service-accounts.forgeblocks.com/am
+         %
 
-          % frodo info service-accounts
-          Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as service account Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734]
+     Then validate your connection profile is using the new service account:
 
-          Host URL       │https://openam-service-accounts.forgeblocks.com/am
-          AM Version     │7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)
-          Subject (Type) │Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734] (Service Account)
-          Deployment Type│cloud
-          Cookie Name    │e8b2bd07d5440d3
-          Immutable      │false
-          Locked         │false
-          Region         │us-west1
-          Tier           │other
+         % frodo info service-accounts
+         Connected to https://openam-service-accounts.forgeblocks.com/am [alpha] as service account Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734]
 
-          Bearer token:
-          eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..JD1iu64iGZZoGNwEr-iF2w.af-0-UDDOdusAETjw9YE3YnjOPr6TrdQrBLcl1lxf5RpNThfRhD08xvu1WtJbUZgvjbWdajECEFJfnEinnrUdpe9l0tHU6gAxDrRmu9hAjt0AB3PFSk9BE5SlwvaGoW5vrF4oH0IYtuv4899hFF8KGNYUtou143xmSrsLH37862YiAeiRKtjaQsVUrdbDPAFnKgGRxJIiXp-UE0ZCQQGSqm-Gj0AqVvo-Piib9THrEbbJCzdc00RPaCU2Ra1DH9PDid7ix-zfuind5IgEXxA8XwBM7kSEkiDLUWZ8EaFhn6YXwIHjXetacgYvvDaUav2Fq5baIitnG_LIrCm32XzcDkVnph4mVklBwfbQbWE6BGXEVLK-QLdDupaQw-bic-yVs2d7PBk2y70gbChHCQOm6-MepkYznP4wKoRR1gkqCdl51QIp-tsFB5K2plrKXiwsfHlHKfFKmsbdQUmH7xJFZQRhAtR_pKm-vHPOrPfBh0VbAdLRSkSeOZUABFH56X3gwXIpG_zuH42bQQkM9AlkB-lZrLf4jN0zFq-2ZN-zDgRR9h6qiiD3p9BDmFfaorUDTfFSrfaKas7OIp5ooW8Kqpv28RRtRtvfex0vT_kRbWl5R08MPWZDKZbx4IMyuun-2pYJ-F2-dvfA4A-jRvWIvC6jTUTu-RZZ0Yw1F2lgwFOVbmpMmG2uGHp5GceWePsZ34FVtJuaTd5D-uq_FoAb3HQ7FGEgUMJN_q82hCCX3URv_ocbFMjYwctdUqV_Ed-__A_9lbHHr8D2Uw_Qo0mwku7qwNBTS0-OcrwDvBOJohzRbpbfim-Sq2UzV9SBzzXNK7sMft1pNfu2-saOwPfy6SE0u42-HDqxE9t4MkklSroPY0oDUxO58ET8LXnewGhC9Tt0XTk6WA2rNLcNirhFqdmtKgfrSMQ_t22_DQEDwXpXqtHGmDoltJe7x_6Ofh0W5l7_A71MoHeFpVa_AHpHybnaF4fvUbD284wOV8i22SqrUKuHoJ3o6_g5JlhvMCvb4OZQ-ltxSf98aPsB9nCSthYg5-GkiR_r5mK1w9gZkBTXfYs0qC8-zYEQb4WNiI9.2JGMj9iW6YD-RE_dGkL7_w
-          %
+         Host URL       │https://openam-service-accounts.forgeblocks.com/am
+         AM Version     │7.3.0-2022-10-SNAPSHOT Build 9a1793c301ef579705e59b66ce57587f553e915f (2022-December-13 10:05)
+         Subject (Type) │Frodo-SA-1673586189578 [99c04bba-7213-463b-9a27-ceafa8a95734] (Service Account)
+         Deployment Type│cloud
+         Cookie Name    │e8b2bd07d5440d3
+         Immutable      │false
+         Locked         │false
+         Region         │us-west1
+         Tier           │other
 
-      Once you have verified that your service account works, go ahead and enable MFA for your tenant admin account!
+         Bearer token:
+         eyJ0eXAiOiJKV1QiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..JD1iu64iGZZoGNwEr-iF2w.af-0-UDDOdusAETjw9YE3YnjOPr6TrdQrBLcl1lxf5RpNThfRhD08xvu1WtJbUZgvjbWdajECEFJfnEinnrUdpe9l0tHU6gAxDrRmu9hAjt0AB3PFSk9BE5SlwvaGoW5vrF4oH0IYtuv4899hFF8KGNYUtou143xmSrsLH37862YiAeiRKtjaQsVUrdbDPAFnKgGRxJIiXp-UE0ZCQQGSqm-Gj0AqVvo-Piib9THrEbbJCzdc00RPaCU2Ra1DH9PDid7ix-zfuind5IgEXxA8XwBM7kSEkiDLUWZ8EaFhn6YXwIHjXetacgYvvDaUav2Fq5baIitnG_LIrCm32XzcDkVnph4mVklBwfbQbWE6BGXEVLK-QLdDupaQw-bic-yVs2d7PBk2y70gbChHCQOm6-MepkYznP4wKoRR1gkqCdl51QIp-tsFB5K2plrKXiwsfHlHKfFKmsbdQUmH7xJFZQRhAtR_pKm-vHPOrPfBh0VbAdLRSkSeOZUABFH56X3gwXIpG_zuH42bQQkM9AlkB-lZrLf4jN0zFq-2ZN-zDgRR9h6qiiD3p9BDmFfaorUDTfFSrfaKas7OIp5ooW8Kqpv28RRtRtvfex0vT_kRbWl5R08MPWZDKZbx4IMyuun-2pYJ-F2-dvfA4A-jRvWIvC6jTUTu-RZZ0Yw1F2lgwFOVbmpMmG2uGHp5GceWePsZ34FVtJuaTd5D-uq_FoAb3HQ7FGEgUMJN_q82hCCX3URv_ocbFMjYwctdUqV_Ed-__A_9lbHHr8D2Uw_Qo0mwku7qwNBTS0-OcrwDvBOJohzRbpbfim-Sq2UzV9SBzzXNK7sMft1pNfu2-saOwPfy6SE0u42-HDqxE9t4MkklSroPY0oDUxO58ET8LXnewGhC9Tt0XTk6WA2rNLcNirhFqdmtKgfrSMQ_t22_DQEDwXpXqtHGmDoltJe7x_6Ofh0W5l7_A71MoHeFpVa_AHpHybnaF4fvUbD284wOV8i22SqrUKuHoJ3o6_g5JlhvMCvb4OZQ-ltxSf98aPsB9nCSthYg5-GkiR_r5mK1w9gZkBTXfYs0qC8-zYEQb4WNiI9.2JGMj9iW6YD-RE_dGkL7_w
+         %
 
-  2.  CLI parameters:
+     Once you have verified that your service account works, go ahead and enable MFA for your tenant admin account!
 
-      All commands support the following new options to use service accounts:
-      - `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`.
-      - `--sa-jwk-file <file>` File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include `--sa-id`.
+  2. CLI parameters:
 
-      This is a great way to leverage the nice UI to create and manage service accounts and then use one of the accounts with Frodo.
+     All commands support the following new options to use service accounts:
 
-  3.  Environment variables for CI/CD
+     - `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`.
+     - `--sa-jwk-file <file>` File containing the service account's java web key (jwk). Jwk must contain private key! If specified, must also include `--sa-id`.
 
-      For CI/CD pipelines, environment variables are preferable over command line parameters, because they are not visible in system logs:
-      - `FRODO_SA_ID`: Service account's uuid. If set, must also set `FRODO_SA_JWK`.
-      - `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
+     This is a great way to leverage the nice UI to create and manage service accounts and then use one of the accounts with Frodo.
+
+  3. Environment variables for CI/CD
+
+     For CI/CD pipelines, environment variables are preferable over command line parameters, because they are not visible in system logs:
+
+     - `FRODO_SA_ID`: Service account's uuid. If set, must also set `FRODO_SA_JWK`.
+     - `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
 
 - \#143: Support Identity Cloud Service Accounts in `frodo conn save|add` command
   1. The `frodo conn add` command is renamed to `frodo conn save` and `add` is added as an alias for backwards compatibility.
@@ -1433,6 +1459,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
   5. The `frodo conn save` command validates service account configuration unless the `--no-validate` options is supplied.
 
 - Add support for additional environment variables:
+
   - `FRODO_SA_ID`: Service account's uuid. If set, must also set `FRODO_SA_JWK`.
   - `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
   - `FRODO_AUTHENTICATION_SERVICE=journey`: Specify a login journey for frodo to use.
@@ -1440,6 +1467,7 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
   - `FRODO_POLLY_LOG_LEVEL=info`: Frodo mock engine log level (`trace`, `debug`, `info`, `warn`, `error`, `silent`). This is helpful for troubleshooting the mock capability, only.
 
   Environment variables added in 0.19.0:
+
   - `FRODO_HOST`
   - `FRODO_REALM`
   - `FRODO_USERNAME`
@@ -2312,7 +2340,8 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1-1...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1-1...v4.0.1
 [4.0.1-1]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1-0...v4.0.1-1
 [4.0.1-0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0...v4.0.1-0
 [4.0.0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0-54...v4.0.0
