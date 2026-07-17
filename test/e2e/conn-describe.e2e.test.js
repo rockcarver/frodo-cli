@@ -66,8 +66,10 @@ const exec = promisify(cp.exec);
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
     path.resolve('./test/e2e/env/Connections.json');
-process.env['FRODO_MASTER_KEY_PATH'] =
-    path.resolve('./test/e2e/env/masterkey.key');
+if (!process.env['FRODO_MASTER_KEY']) {
+    process.env['FRODO_MASTER_KEY_PATH'] =
+        path.resolve('./test/e2e/env/masterkey.key');
+}
 const cloudEnv = getEnv(c, { preserveProfilePaths: true });
 const classicEnv = getEnv(cc, { preserveProfilePaths: true });
 
