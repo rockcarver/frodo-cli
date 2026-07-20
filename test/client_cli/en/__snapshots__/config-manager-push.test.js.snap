@@ -31,6 +31,7 @@ Commands:
   password-policy        [Experimental] Import password-policy objects.
   schedules              [Experimental] Import schedules.
   service-objects        [Experimental] Import service objects.
+  remote-servers         [Experimental] Import remote server objects.
   terms-and-conditions   [Experimental] Import terms and conditions.
   themes                 [Experimental] Import themes.
   ui-config              [Experimental] Import UI configuration.

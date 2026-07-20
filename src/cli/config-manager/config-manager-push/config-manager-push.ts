@@ -14,6 +14,7 @@ import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
+import RemoteServers from './config-manager-push-remote-servers';
 import Schedules from './config-manager-push-schedules';
 import ServiceObjects from './config-manager-push-service-objects';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
@@ -45,6 +46,7 @@ export default function setup() {
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
+  program.addCommand(RemoteServers().name('remote-servers'));
 
   return program;
 }

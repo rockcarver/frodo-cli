@@ -1,9 +1,10 @@
 import { frodo } from '@rockcarver/frodo-lib';
+import fs from 'fs';
 
 import { getIdmImportExportOptions } from '../ops/IdmOps';
 import { printError } from '../utils/Console';
 
-const { exportConfigEntity } = frodo.idm.config;
+const { exportConfigEntity, importConfigEntities } = frodo.idm.config;
 const { getFilePath, saveJsonToFile } = frodo.utils;
 
 /**
@@ -37,6 +38,26 @@ export async function configManagerExportRemoteServers(
       error,
       `Error exporting config entity RCS: provisioner.openicf.connectorinfoprovider`
     );
+  }
+  return false;
+}
+
+/**
+ * Imports the remote connector server (RCS) provisioner config from disk.
+ * @returns {Promise<boolean>} true on success, false if reading/importing fails
+ */
+export async function configManagerImportRemoteServers(): Promise<boolean> {
+  try {
+    const fileData = getFilePath(
+      'sync/rcs/provisioner.openicf.connectorinfoprovider.json'
+    );
+    const readData = fs.readFileSync(fileData, 'utf8');
+    let importData = JSON.parse(readData);
+    importData = { idm: { [importData._id]: importData } };
+    await importConfigEntities(importData);
+    return true;
+  } catch (error) {
+    printError(error);
   }
   return false;
 }
