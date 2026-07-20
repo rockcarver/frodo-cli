@@ -1,18 +1,13 @@
-import { frodo } from '@rockcarver/frodo-lib';
+import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
 
 import { configManagerExportIgaWorkflows } from '../../../configManagerOps/FrConfigIgaWorkflowsOps';
 import { getTokens } from '../../../ops/AuthenticateOps';
-import { verboseMessage } from '../../../utils/Console';
+import { printMessage, verboseMessage } from '../../../utils/Console';
 import { FrodoCommand } from '../../FrodoCommand';
 
-const { CLOUD_DEPLOYMENT_TYPE_KEY, FORGEOPS_DEPLOYMENT_TYPE_KEY } =
-  frodo.utils.constants;
-const deploymentTypes = [
-  CLOUD_DEPLOYMENT_TYPE_KEY,
-  FORGEOPS_DEPLOYMENT_TYPE_KEY,
-];
-
+const { CLOUD_DEPLOYMENT_TYPE_KEY } = frodo.utils.constants;
+const deploymentTypes = [CLOUD_DEPLOYMENT_TYPE_KEY];
 export default function setup() {
   const program = new FrodoCommand(
     'frodo config-manager pull iga-workflows',
@@ -39,17 +34,26 @@ export default function setup() {
         options,
         command
       );
-      if (options.realm) {
-        realm = options.realm;
-      }
-      if (await getTokens(false, true, deploymentTypes)) {
-        verboseMessage('Exporting config entity iga-workflows');
-        const outcome = await configManagerExportIgaWorkflows(
-          options.name,
-          options.includeImmutable
+      const getTokensIsSuccessful = await getTokens(
+        false,
+        true,
+        deploymentTypes
+      );
+      if (!getTokensIsSuccessful) process.exit(1);
+      if (!state.getIsIGA()) {
+        printMessage(
+          'Command not supported for non-IGA cloud tenants',
+          'error'
         );
-        if (!outcome) process.exitCode = 1;
+        process.exitCode = 1;
+        return;
       }
+      verboseMessage('Exporting config entity iga-workflows');
+      const outcome = await configManagerExportIgaWorkflows(
+        options.name,
+        options.includeImmutable
+      );
+      if (!outcome) process.exitCode = 1;
     });
   return program;
 }

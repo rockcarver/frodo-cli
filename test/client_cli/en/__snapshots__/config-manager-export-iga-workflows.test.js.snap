@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CLI help interface for 'config export' should be expected english 1`] = `
+exports[`CLI help interface for 'config-manager pull iga-workflows' should be expected english 1`] = `
 "Usage: frodo config-manager pull iga-workflows [options] [host] [realm] [username] [password]
 
 [Experimental] Export iga-workflows.
@@ -16,6 +16,8 @@ Arguments:
                             appropriate rights to manage authentication
                             journeys/trees.
   password                  Password.
+
+Deployment: Cloud-only
 
 Options:
   -i, --include-immutable   Include immutable IGA workflows.

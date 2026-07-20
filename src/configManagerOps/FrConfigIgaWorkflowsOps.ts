@@ -18,51 +18,49 @@ export async function configManagerExportIgaWorkflows(
   includeImmutable: boolean = false
 ): Promise<boolean> {
   try {
-    let workflows = await readWorkflows();
-    if (name) {
-      workflows = workflows.filter((workflow) => workflow.name === name);
+    const workflows = (await readWorkflows()).filter(
+      (w) => (!name || w.name === name) && (includeImmutable || w.mutable)
+    );
+    if (name && workflows.length === 0) {
+      throw new Error(`Workflow ${name} not found`);
     }
-    if (!includeImmutable) {
-      workflows = workflows.filter((workflow) => workflow.mutable);
-    }
-    workflows.forEach((workflow) => {
-      processIgaWorkflow(workflow, 'iga/workflows');
-    });
+    workflows.forEach(processIgaWorkflow);
     return true;
   } catch (error) {
     printError(error, 'Error exporting iga-workflows to files');
   }
   return false;
 }
-
-async function processIgaWorkflow(workflow, fileDir) {
+/**
+ * Export a single IGA workflow to files in fr-config-manager format.
+ * @param {object} workflow the workflow to export
+ * @param {string} fileDir base directory to write the workflow into
+ */
+async function processIgaWorkflow(workflow) {
   try {
     const workflowName = safeFileName(workflow.name);
-    const workflowPath = `${fileDir}/${workflowName}`;
-    if (Array.isArray(workflow.steps)) {
-      const stepsPath = `${workflowPath}/steps`;
-      workflow.steps.forEach((step) => {
-        const uniqueId = safeFileName(`${step.displayName} - ${step.name}`);
-        const stepPath = `${stepsPath}/${uniqueId}`;
-        const stepBody = step[step.type];
-        if (
-          stepBody &&
-          typeof stepBody === 'object' &&
-          typeof stepBody.script === 'string' &&
-          stepBody.script.length > 0
-        ) {
-          const scriptFilename = `${uniqueId}.js`;
-          extractFrConfigDataToFile(stepBody.script, scriptFilename, stepPath);
-          stepBody.script = {
-            file: scriptFilename,
-          };
-        }
-        const stepFileName = `${stepPath}/${uniqueId}.json`;
-        saveJsonToFile(step, getFilePath(stepFileName, true), false, true);
-      });
-      delete workflow.steps;
-    }
-    const fileName = `${workflowPath}/${workflowName}.json`;
+    const stepsPath = `${workflowName}/steps`;
+    workflow.steps.forEach((step) => {
+      const uniqueId = safeFileName(`${step.displayName} - ${step.name}`);
+      const stepPath = `${stepsPath}/${uniqueId}`;
+      const stepBody = step[step.type];
+      if (
+        stepBody &&
+        typeof stepBody === 'object' &&
+        typeof stepBody.script === 'string' &&
+        stepBody.script
+      ) {
+        const scriptFilename = `${uniqueId}.js`;
+        extractFrConfigDataToFile(stepBody.script, scriptFilename, stepPath);
+        stepBody.script = {
+          file: scriptFilename,
+        };
+      }
+      const stepFileName = `${stepPath}/${uniqueId}.json`;
+      saveJsonToFile(step, getFilePath(stepFileName, true), false, true);
+    });
+    delete workflow.steps;
+    const fileName = `${workflowName}/${workflowName}.json`;
     saveJsonToFile(workflow, getFilePath(fileName, true), false, true);
   } catch (err) {
     printError(err);

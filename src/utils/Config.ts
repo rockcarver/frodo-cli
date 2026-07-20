@@ -106,7 +106,7 @@ export async function getFullExportConfig(
         onlyCustom: false,
         onlyRealm: false,
         onlyGlobal: false,
-        includeNonCustom: false,
+        onlyCustom: false,
       },
       errorHandler
     );

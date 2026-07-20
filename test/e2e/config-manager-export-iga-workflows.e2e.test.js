@@ -50,10 +50,12 @@
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-trivir-fairfax.forgeblocks.com/am frodo config-manager pull iga-workflows -D igaTestDir01
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-trivir-fairfax.forgeblocks.com/am frodo config-manager pull iga-workflows -n test_workflow_4 -D igaTestDir02
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-trivir-fairfax.forgeblocks.com/am frodo config-manager pull iga-workflows -i -D igaTestDir03
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-trivir-fairfax.forgeblocks.com/am frodo config-manager pull iga-workflows -i -n testWorkflow9 -D igaTestDir04
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-trivir-fairfax.forgeblocks.com/am frodo config-manager pull iga-workflows --name testWorkflow1 -D igaTestDir05
 */
 
 
-import { getEnv, testExport } from './utils/TestUtils';
+import { getEnv, testExport, testFail } from './utils/TestUtils';
 import { iga_connection as ic } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
@@ -75,4 +77,14 @@ describe('frodo config-manager pull ', () => {
         const CMD = `frodo config-manager pull iga-workflows -i -D ${dirName}`;
         await testExport(CMD, env, undefined, undefined, dirName, false, true);
     });
+    test('"frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set"', async () => {
+      const dirName = 'igaTestDir04';
+      const CMD = `frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D ${dirName}`;
+      await testExport(CMD, env, undefined, undefined, dirName, false, true);
+  });
+  test('"frodo config-manager pull iga-workflows --name BasicApplicationGrant -D igaTestDir05": should fail because the non-mutable workflow is not found without -i"', async () => {
+      const dirName = 'igaTestDir05';
+      const CMD = `frodo config-manager pull iga-workflows --name BasicApplicationGrant -D ${dirName}`;
+      await testFail(CMD, env, undefined, undefined, dirName, false, true);
+  });
 });
