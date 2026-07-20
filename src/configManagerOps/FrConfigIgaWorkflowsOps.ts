@@ -34,7 +34,6 @@ export async function configManagerExportIgaWorkflows(
 /**
  * Export a single IGA workflow to files in fr-config-manager format.
  * @param {object} workflow the workflow to export
- * @param {string} fileDir base directory to write the workflow into
  */
 async function processIgaWorkflow(workflow) {
   try {

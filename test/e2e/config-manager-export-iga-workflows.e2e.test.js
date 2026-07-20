@@ -67,17 +67,17 @@ describe('frodo config-manager pull ', () => {
       const CMD = `frodo config-manager pull iga-workflows -D ${dirName}`;
       await testExport(CMD, env, undefined, undefined, dirName, false, true);
     });
-    test('"frodo config-manager pull iga-workflows -n test_workflow_4  -D igaTestDir02": should export a single iga workflow by name: test_workflow_4 in fr-config-manager style"', async () => {
+  test('"frodo config-manager pull iga-workflows -n test_workflow_4  -D igaTestDir02": should export a single iga workflow by name: test_workflow_4 in fr-config-manager style"', async () => {
       const dirName = 'igaTestDir02';
       const CMD = `frodo config-manager pull iga-workflows -n test_workflow_4 -D ${dirName}`;
       await testExport(CMD, env, undefined, undefined, dirName, false, true);
-    });
-    test('"frodo config-manager pull iga-workflows -i -D igaTestDir03": should export a single iga workflow by name: test_workflow_4 in fr-config-manager style"', async () => {
-        const dirName = 'igaTestDir03';
-        const CMD = `frodo config-manager pull iga-workflows -i -D ${dirName}`;
-        await testExport(CMD, env, undefined, undefined, dirName, false, true);
-    });
-    test('"frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set"', async () => {
+  });
+  test('"frodo config-manager pull iga-workflows -i -D igaTestDir03": should export all worfklows including immutable ones in fr-config-manager style"', async () => {
+      const dirName = 'igaTestDir03';
+      const CMD = `frodo config-manager pull iga-workflows -i -D ${dirName}`;
+      await testExport(CMD, env, undefined, undefined, dirName, false, true);
+  });
+  test('"frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D igaTestDir04": should export a non-mutable workflow when -i is set"', async () => {
       const dirName = 'igaTestDir04';
       const CMD = `frodo config-manager pull iga-workflows -i -n BasicApplicationGrant -D ${dirName}`;
       await testExport(CMD, env, undefined, undefined, dirName, false, true);

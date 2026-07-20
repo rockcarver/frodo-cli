@@ -45,15 +45,14 @@ export default function setup() {
           'Command not supported for non-IGA cloud tenants',
           'error'
         );
-        process.exitCode = 1;
-        return;
+        process.exit(1);
       }
-      verboseMessage('Exporting config entity iga-workflows');
+      verboseMessage('Exporting IGA workflows');
       const outcome = await configManagerExportIgaWorkflows(
         options.name,
         options.includeImmutable
       );
-      if (!outcome) process.exitCode = 1;
+      if (!outcome) process.exit(1);
     });
   return program;
 }
