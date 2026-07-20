@@ -1,0 +1,196 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.597Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestType": {
+    "822e832b-865a-4b9a-9b35-8c9765c6a515": {
+      "custom": true,
+      "displayName": "phhCustomRequestType",
+      "id": "822e832b-865a-4b9a-9b35-8c9765c6a515",
+      "metadata": {},
+      "notModifiableProperties": [],
+      "schemas": {
+        "common": [
+          {
+            "_meta": {
+              "displayName": "commonRequest",
+              "properties": {
+                "blob": {
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "context": {
+                  "display": {
+                    "description": "The context of the request",
+                    "isVisible": true,
+                    "name": "Context",
+                    "order": 1
+                  },
+                  "isInternal": true,
+                  "isMultiValue": false,
+                  "isRequired": false
+                },
+                "endDate": {
+                  "display": {
+                    "description": "End date of the grant",
+                    "isVisible": true,
+                    "name": "End date",
+                    "order": 8
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "expiryDate": {
+                  "display": {
+                    "description": "User provided date on which the request will cancel",
+                    "isVisible": true,
+                    "name": "Request expiration date",
+                    "order": 7
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "externalRequestId": {
+                  "display": {
+                    "description": "The external ID for the request",
+                    "isVisible": true,
+                    "name": "External Request ID",
+                    "order": 4
+                  },
+                  "isChangable": false,
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "isDraft": {
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "justification": {
+                  "display": {
+                    "description": "The reason for the request",
+                    "isVisible": true,
+                    "name": "Justification",
+                    "order": 3
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "priority": {
+                  "display": {
+                    "description": "The priority of the reqeust",
+                    "isVisible": true,
+                    "name": "Priority",
+                    "order": 6
+                  },
+                  "isRequired": false,
+                  "text": {
+                    "defaultValue": "low"
+                  }
+                },
+                "requestIdPrefix": {
+                  "display": {
+                    "description": "Prefix for the request ID",
+                    "isVisible": true,
+                    "name": "Request ID prefix",
+                    "order": 5
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "startDate": {
+                  "display": {
+                    "description": "Start date of the grant",
+                    "isVisible": true,
+                    "name": "Start date",
+                    "order": 8
+                  },
+                  "isInternal": true,
+                  "isRequired": false
+                },
+                "workflowId": {
+                  "display": {
+                    "description": "The ID key of the BPMN workflow",
+                    "isVisible": true,
+                    "name": "BPMN workflow ID",
+                    "order": 7
+                  },
+                  "isChangable": false,
+                  "isInternal": true,
+                  "isRequired": false
+                }
+              },
+              "type": "system"
+            },
+            "properties": {
+              "blob": {
+                "type": "object"
+              },
+              "context": {
+                "type": "object"
+              },
+              "endDate": {
+                "type": "text"
+              },
+              "expiryDate": {
+                "type": "text"
+              },
+              "externalRequestId": {
+                "type": "text"
+              },
+              "isDraft": {
+                "type": "boolean"
+              },
+              "justification": {
+                "type": "text"
+              },
+              "priority": {
+                "type": "text"
+              },
+              "requestIdPrefix": {
+                "type": "text"
+              },
+              "startDate": {
+                "type": "text"
+              },
+              "workflowId": {
+                "type": "text"
+              }
+            }
+          }
+        ],
+        "custom": [
+          {
+            "_meta": {
+              "properties": {
+                "teamNumber": {
+                  "display": {
+                    "isVisible": true,
+                    "name": "Team Number",
+                    "order": 1
+                  },
+                  "isInternal": false,
+                  "isMultiValue": false,
+                  "isRequired": true
+                }
+              },
+              "type": "system"
+            },
+            "properties": {
+              "teamNumber": {
+                "type": "text"
+              }
+            }
+          }
+        ]
+      },
+      "validation": null,
+      "workflow": {
+        "id": "phhCustomWorkflow"
+      }
+    }
+  }
+}

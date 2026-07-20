@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "de06ffdb-0186-4fff-b1a9-ab26a1aa3fab": {
+      "allowedValues": [],
+      "description": "When was account reconciled successfully",
+      "displayName": "Last Sync",
+      "enumeratedValues": [],
+      "id": "de06ffdb-0186-4fff-b1a9-ab26a1aa3fab",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "lastSync",
+      "objectType": "/iga/governance/account",
+      "searchable": true,
+      "type": "date"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.521Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

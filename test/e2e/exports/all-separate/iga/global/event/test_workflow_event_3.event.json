@@ -1,0 +1,141 @@
+{
+  "event": {
+    "a1721a49-14a2-4e5c-b0ed-a30e9f0d82ff": {
+      "action": {
+        "name": "testWorkflow4",
+        "parameters": {
+          "var1": "val1",
+          "var2": "val2",
+          "var3": "val3"
+        },
+        "type": "orchestration"
+      },
+      "condition": {
+        "filter": {
+          "or": [
+            {
+              "contains": {
+                "in_string": "user.before.city",
+                "search_string": {
+                  "literal": "a"
+                }
+              }
+            },
+            {
+              "not_contains": {
+                "in_string": "user.after.city",
+                "search_string": {
+                  "literal": "b"
+                }
+              }
+            },
+            {
+              "equals": {
+                "left": "user.before.city",
+                "right": {
+                  "literal": "c"
+                }
+              }
+            },
+            {
+              "not_equals": {
+                "left": "user.after.city",
+                "right": {
+                  "literal": "d"
+                }
+              }
+            },
+            {
+              "starts_with": {
+                "prefix": {
+                  "literal": "e"
+                },
+                "value": "user.before.city"
+              }
+            },
+            {
+              "ends_with": {
+                "suffix": {
+                  "literal": "f"
+                },
+                "value": "user.after.city"
+              }
+            },
+            {
+              "not_equals": {
+                "left": "user.before.city",
+                "right": "user.after.city"
+              }
+            },
+            {
+              "equals": {
+                "left": "user.before.city",
+                "right": "user.after.city"
+              }
+            },
+            {
+              "and": [
+                {
+                  "gte": {
+                    "left": "user.before.frIndexedInteger1",
+                    "right": {
+                      "literal": 1
+                    }
+                  }
+                },
+                {
+                  "gt": {
+                    "left": "user.after.frIndexedInteger1",
+                    "right": {
+                      "literal": 2
+                    }
+                  }
+                },
+                {
+                  "lte": {
+                    "left": "user.before.frIndexedInteger1",
+                    "right": {
+                      "literal": 3
+                    }
+                  }
+                },
+                {
+                  "lt": {
+                    "left": "user.after.frIndexedInteger1",
+                    "right": {
+                      "literal": 4
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "version": "v2"
+      },
+      "description": "Test event description",
+      "entityType": "user",
+      "id": "a1721a49-14a2-4e5c-b0ed-a30e9f0d82ff",
+      "metadata": {},
+      "mutationType": "create",
+      "name": "test_workflow_event_3",
+      "owners": [
+        {
+          "givenName": "Preston",
+          "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+          "mail": "test@test.com",
+          "sn": "Test",
+          "userName": "PrestonIGATestUser"
+        }
+      ],
+      "status": "active"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.499Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

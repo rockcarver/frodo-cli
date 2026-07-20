@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9": {
+      "assignments": [
+        {
+          "formId": "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9",
+          "metadata": {},
+          "objectId": "workflow/testWorkflow1/node/approvalTask-7e33e73d6763"
+        },
+        {
+          "formId": "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9",
+          "metadata": {},
+          "objectId": "workflow/testWorkflow2/node/approvalTask-7e33e73d6763"
+        },
+        {
+          "formId": "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9",
+          "metadata": {},
+          "objectId": "workflow/testWorkflow3/node/approvalTask-7e33e73d6763"
+        },
+        {
+          "formId": "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9",
+          "metadata": {},
+          "objectId": "workflow/testWorkflow4/node/approvalTask-7e33e73d6763"
+        }
+      ],
+      "categories": {
+        "applicationType": null,
+        "objectType": "Group",
+        "operation": "create"
+      },
+      "description": "This is a test application request form",
+      "form": {},
+      "id": "fa1a5e72-d803-4879-bc2a-07a5da3d8ee9",
+      "metadata": {},
+      "name": "test_workflow_request_form_1",
+      "type": "applicationRequest"
+    }
+  }
+}

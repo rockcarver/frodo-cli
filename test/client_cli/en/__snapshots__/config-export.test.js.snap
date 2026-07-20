@@ -29,6 +29,8 @@ Options:
   -a, --all                  Export everything to a single file.
   -A, --all-separate         Export everything to separate files in the -D
                              directory. Ignored with -a.
+  -c, --only-custom          Only export custom request types (IGA cloud
+                             deployments only).
   -d, --default              Export all scripts including the default scripts.
   -f, --file <file>          Name of the export file.
   -g, --global-only          Export only the global config. If -r, --realm-only

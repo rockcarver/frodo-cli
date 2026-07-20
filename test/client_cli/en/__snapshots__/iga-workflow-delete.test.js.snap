@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'iga workflow delete' should be expected english 1`] = `
+"Usage: frodo iga workflow delete [options] [host] [realm] [username] [password]
+
+Delete workflows.
+
+Arguments:
+  host                             AM base URL, e.g.:
+                                   https://cdk.iam.example.com/am. To use a
+                                   connection profile, just specify a unique
+                                   substring or alias.
+  realm                            Realm. Specify realm as '/' for the root
+                                   realm or 'realm' or '/parent/child'
+                                   otherwise. (default: "alpha" for Identity
+                                   Cloud tenants, "/" otherwise.)
+  username                         Username to login with. Must be an admin user
+                                   with appropriate rights to manage
+                                   authentication journeys/trees.
+  password                         Password.
+
+Deployment: Cloud-only
+
+Options:
+  -a, --all                        Delete all workflows. By default, deletes
+                                   both draft and published unless -d or -p are
+                                   used exclusively. Ignored with -i.
+  -d, --draft-only                 Delete only the draft workflow(s).
+  -F, --force                      Force delete workflow(s), even if they are
+                                   associated with request types.
+  -i, --workflow-id <workflow-id>  Workflow id. If specified, -a is ignored. By
+                                   default, deletes both draft and published
+                                   unless -d or -p are used exclusively.
+  -p, --published-only             Delete only the published workflow(s).
+  -h, --help                       Help
+  -hh, --help-more                 Help with all options.
+  -hhh, --help-all                 Help with all options, environment variables,
+                                   and usage examples.
+"
+`;

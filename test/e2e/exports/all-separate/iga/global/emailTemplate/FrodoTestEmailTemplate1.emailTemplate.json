@@ -1,0 +1,27 @@
+{
+  "emailTemplate": {
+    "FrodoTestEmailTemplate1": {
+      "_id": "emailTemplate/FrodoTestEmailTemplate1",
+      "defaultLocale": "en",
+      "displayName": "Frodo Test Email Template One",
+      "enabled": true,
+      "from": "",
+      "message": {
+        "en": "<h3>Click to reset your password</h3><h4><a href=\"{{object.resumeURI}}\">Password reset link</a></h4>",
+        "fr": "<h3>Cliquez pour réinitialiser votre mot de passe</h3><h4><a href=\"{{object.resumeURI}}\">Mot de passe lien de réinitialisation</a></h4>"
+      },
+      "mimeType": "text/html",
+      "subject": {
+        "en": "Reset your password",
+        "fr": "Réinitialisez votre mot de passe"
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.495Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

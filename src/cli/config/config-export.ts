@@ -99,6 +99,12 @@ export default function setup() {
         'Host URL of the environment to perform secret value encryption. The URL must resolve to an existing connection profile. Use this option to generate an export that can be imported into the target environment without requiring admin access to the source environment.'
       )
     )
+    .addOption(
+      new Option(
+        '-c, --only-custom',
+        'Only export custom request types (IGA cloud deployments only).'
+      )
+    )
     .addHelpText(
       'after',
       `How Frodo handles secrets:\n`['brightGreen'] +
@@ -158,6 +164,7 @@ export default function setup() {
               includeReadOnly: options.readOnly,
               onlyRealm: options.realmOnly,
               onlyGlobal: options.globalOnly,
+              onlyCustom: options.onlyCustom,
             }
           );
           if (!outcome) process.exitCode = 1;
@@ -188,6 +195,7 @@ export default function setup() {
               includeReadOnly: options.readOnly,
               onlyRealm: options.realmOnly,
               onlyGlobal: options.globalOnly,
+              onlyCustom: options.onlyCustom,
             }
           );
           if (!outcome) process.exitCode = 1;

@@ -1,0 +1,243 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.644Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "BasicRoleCreate": {
+      "draft": {
+        "childType": false,
+        "description": "Basic workflow for creating a governance role",
+        "displayName": "BasicRoleCreate",
+        "id": "BasicRoleCreate",
+        "mutable": false,
+        "name": "BasicRoleCreate",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1170,
+            "y": 232
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-3eab1948f1ec"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "exclusiveGateway-05b2e1af4b79": {
+              "x": 485.6666564941406,
+              "y": 135.66665649414062
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 782,
+              "y": 175.015625
+            },
+            "scriptTask-0b56191887de": {
+              "x": 782,
+              "y": 289.015625
+            },
+            "scriptTask-3eab1948f1ec": {
+              "x": 216,
+              "y": 149.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "displayName": "Create Role",
+            "name": "scriptTask-3eab1948f1ec",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-05b2e1af4b79"
+                }
+              ],
+              "script": "file://BasicRoleCreate/draft/scriptTask-3eab1948f1ec.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Role Create Validation Failure",
+            "name": "scriptTask-0b56191887de",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleCreate/draft/scriptTask-0b56191887de.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Update Request",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleCreate/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Gateway",
+            "name": "exclusiveGateway-05b2e1af4b79",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "failureReason == null",
+                  "outcome": "createSuccess",
+                  "step": "scriptTask-0359a9d77ee2"
+                },
+                {
+                  "condition": "failureReason != null",
+                  "outcome": "createFailure",
+                  "step": "scriptTask-0b56191887de"
+                }
+              ],
+              "script": "file://BasicRoleCreate/draft/exclusiveGateway-05b2e1af4b79.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic workflow for creating a governance role",
+        "displayName": "BasicRoleCreate",
+        "id": "BasicRoleCreate",
+        "mutable": false,
+        "name": "BasicRoleCreate",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1170,
+            "y": 232
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-3eab1948f1ec"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "exclusiveGateway-05b2e1af4b79": {
+              "x": 485.6666564941406,
+              "y": 135.66665649414062
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 782,
+              "y": 175.015625
+            },
+            "scriptTask-0b56191887de": {
+              "x": 782,
+              "y": 289.015625
+            },
+            "scriptTask-3eab1948f1ec": {
+              "x": 216,
+              "y": 149.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "Create Role",
+            "name": "scriptTask-3eab1948f1ec",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-05b2e1af4b79"
+                }
+              ],
+              "script": "file://BasicRoleCreate/published/scriptTask-3eab1948f1ec.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Role Create Validation Failure",
+            "name": "scriptTask-0b56191887de",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleCreate/published/scriptTask-0b56191887de.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Update Request",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleCreate/published/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Gateway",
+            "name": "exclusiveGateway-05b2e1af4b79",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "failureReason == null",
+                  "outcome": "createSuccess",
+                  "step": "scriptTask-0359a9d77ee2"
+                },
+                {
+                  "condition": "failureReason != null",
+                  "outcome": "createFailure",
+                  "step": "scriptTask-0b56191887de"
+                }
+              ],
+              "script": "file://BasicRoleCreate/published/exclusiveGateway-05b2e1af4b79.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

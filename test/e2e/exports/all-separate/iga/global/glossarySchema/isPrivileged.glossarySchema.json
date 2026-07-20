@@ -1,0 +1,24 @@
+{
+  "glossarySchema": {
+    "2924e262-4728-4a5f-a342-3044d7939192": {
+      "allowedValues": [],
+      "description": "",
+      "displayName": "Is Privileged",
+      "enumeratedValues": [],
+      "id": "2924e262-4728-4a5f-a342-3044d7939192",
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "isPrivileged",
+      "objectType": "/openidm/managed/assignment",
+      "searchable": false,
+      "type": "boolean"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.517Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

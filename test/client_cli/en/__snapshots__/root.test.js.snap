@@ -46,6 +46,7 @@ Commands:
                                     commands.
   esv                               Manage environment secrets and variables
                                     (ESVs).
+  iga                               Manage IGA configuration.
   log|logs                          List/View Identity Cloud logs
 
 Utilities:

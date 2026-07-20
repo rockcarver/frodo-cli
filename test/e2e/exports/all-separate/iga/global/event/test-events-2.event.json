@@ -1,0 +1,57 @@
+{
+  "event": {
+    "46cb85f2-6ee3-4626-86cf-532f92b3a06f": {
+      "action": {
+        "name": "BasicRoleDelete",
+        "parameters": {},
+        "type": "orchestration"
+      },
+      "condition": {
+        "filter": {
+          "or": [
+            {
+              "not_equals": {
+                "left": "user.before.city",
+                "right": {
+                  "literal": "sdfasfasfasfda"
+                }
+              }
+            },
+            {
+              "contains": {
+                "in_string": "user.after.city",
+                "search_string": {
+                  "literal": "sdfasdfasfaf"
+                }
+              }
+            }
+          ]
+        },
+        "version": "v2"
+      },
+      "description": "dfsafasdfasfa",
+      "entityType": "user",
+      "id": "46cb85f2-6ee3-4626-86cf-532f92b3a06f",
+      "metadata": {},
+      "mutationType": "update",
+      "name": "test-events-2",
+      "owners": [
+        {
+          "givenName": "ChildOne",
+          "id": "managed/user/0f2b6cba-0124-4846-afc2-f944acf09c58",
+          "mail": "pholderness+c1admin@trivir.com",
+          "sn": "Admin",
+          "userName": "phh-child1-org-admin"
+        }
+      ],
+      "status": "active"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.500Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

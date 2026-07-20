@@ -11,7 +11,6 @@ import {
   type CustomNodeExportOptions,
   type CustomNodeImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/NodeOps';
-import { Table } from 'cli-table3';
 import fs from 'fs';
 
 import { extractDataToFile, getExtractedData } from '../utils/Config';
@@ -20,6 +19,7 @@ import {
   createProgressIndicator,
   createTable,
   debugMessage,
+  getTableRowsFromArray,
   printError,
   printMessage,
   stopProgressIndicator,
@@ -636,23 +636,6 @@ export function extractCustomNodeScriptsToFiles(
     printError(error);
   }
   return false;
-}
-
-/**
- * Helper that gets multiple rows for a table for array data
- * @param table The table to push the rows to
- * @param rowName The name of the first row
- * @param array The array of data
- */
-function getTableRowsFromArray(
-  table: Table,
-  rowName: string,
-  array: string[]
-): void {
-  table.push([rowName['brightCyan'], array.length > 0 ? array[0] : '']);
-  for (let i = 1; i < array.length; ++i) {
-    table.push(['', array[i]]);
-  }
 }
 
 /**

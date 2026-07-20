@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.594Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "05b1bc14-6406-49a7-933a-97868f9e567c": {
+      "assignments": [
+        {
+          "formId": "05b1bc14-6406-49a7-933a-97868f9e567c",
+          "metadata": {},
+          "objectId": "requestType/a1af958e-1d43-4c9d-bb83-c6843135a21b"
+        }
+      ],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "",
+      "form": {
+        "config": {
+          "applyAttributePrivileges": false
+        },
+        "events": {},
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": "formText",
+                "formText": "Hello World!",
+                "id": "bd075a1a-5136-4a8f-9724-49c24872deae",
+                "layout": {
+                  "columns": 6,
+                  "offset": 3
+                },
+                "type": "formText",
+                "validation": {}
+              }
+            ],
+            "id": "74deef6f-925a-4568-86fb-e7d3f928d7c3"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "id": "8d635779-0582-4cb2-a45a-bf7f989a7bcd",
+                "label": "What do you say?",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "select",
+                "onChangeEvent": {},
+                "options": [
+                  {
+                    "label": "Hello!",
+                    "value": "hello"
+                  },
+                  {
+                    "label": "Goodbye!",
+                    "value": "bye"
+                  }
+                ],
+                "readOnly": false,
+                "type": "select",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "c56426e6-1766-4b93-b176-accacb9befdb"
+          }
+        ]
+      },
+      "id": "05b1bc14-6406-49a7-933a-97868f9e567c",
+      "metadata": {},
+      "name": "test",
+      "type": "request"
+    }
+  }
+}

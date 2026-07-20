@@ -1,0 +1,779 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.653Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "BasicRoleGrant": {
+      "draft": {
+        "childType": false,
+        "description": "Basic request flow for adding a user to a role",
+        "displayName": "Basic Role Grant",
+        "id": "BasicRoleGrant",
+        "mutable": false,
+        "name": "BasicRoleGrant",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2889,
+            "y": 467
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-d76490953517"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-c7867dd2593a": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 727,
+              "y": 144.015625
+            },
+            "exclusiveGateway-48e748c42994": {
+              "x": 1694,
+              "y": 23.015625
+            },
+            "exclusiveGateway-8cd9decab2e4": {
+              "x": 453,
+              "y": 120.015625
+            },
+            "inclusiveGateway-57e9b96eb570": {
+              "x": 939,
+              "y": 39.015625
+            },
+            "inclusiveGateway-d18d59004c0c": {
+              "x": 2288,
+              "y": 68.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1941,
+              "y": 65.015625
+            },
+            "scriptTask-0b56191887de": {
+              "x": 1939,
+              "y": 149.015625
+            },
+            "scriptTask-32dada3fc9f9": {
+              "x": 2551,
+              "y": 102.015625
+            },
+            "scriptTask-3eab1948f1ec": {
+              "x": 1428,
+              "y": 56.015625
+            },
+            "scriptTask-8506123e6208": {
+              "x": 721,
+              "y": 41.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1399,
+              "y": 325.015625
+            },
+            "scriptTask-d76490953517": {
+              "x": 161,
+              "y": 142.015625
+            },
+            "waitTask-4e25b1ee7a14": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.startDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1165,
+              "y": 13.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-8506123e6208"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-c7867dd2593a",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Role Grant Validation",
+            "name": "scriptTask-3eab1948f1ec",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-48e748c42994"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-3eab1948f1ec.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Gateway",
+            "name": "exclusiveGateway-48e748c42994",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "failureReason == null",
+                  "outcome": "validationFlowSuccess",
+                  "step": "scriptTask-0359a9d77ee2"
+                },
+                {
+                  "condition": "failureReason != null",
+                  "outcome": "validationFlowFailure",
+                  "step": "scriptTask-0b56191887de"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/exclusiveGateway-48e748c42994.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Role Grant Validation Failure",
+            "name": "scriptTask-0b56191887de",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-0b56191887de.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Provisioning",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-d18d59004c0c"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-d76490953517",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-8cd9decab2e4"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-d76490953517.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-8cd9decab2e4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApproval",
+                  "step": "scriptTask-8506123e6208"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-c7867dd2593a"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/exclusiveGateway-8cd9decab2e4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-8506123e6208",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-57e9b96eb570"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-8506123e6208.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has Start Date",
+            "name": "inclusiveGateway-57e9b96eb570",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasStartDate",
+                  "step": "waitTask-4e25b1ee7a14"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noStartDate",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/inclusiveGateway-57e9b96eb570.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Until Start Date",
+            "name": "waitTask-4e25b1ee7a14",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.startDate"
+              }
+            }
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-d18d59004c0c",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableEndWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "scriptTask-32dada3fc9f9"
+                },
+                {
+                  "condition": "enableEndWait == false",
+                  "outcome": "noEndDate",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/inclusiveGateway-d18d59004c0c.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Create Removal Request",
+            "name": "scriptTask-32dada3fc9f9",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/draft/scriptTask-32dada3fc9f9.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic request flow for adding a user to a role",
+        "displayName": "Basic Role Grant",
+        "id": "BasicRoleGrant",
+        "mutable": false,
+        "name": "BasicRoleGrant",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2889,
+            "y": 467
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-d76490953517"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-c7867dd2593a": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 727,
+              "y": 144.015625
+            },
+            "exclusiveGateway-48e748c42994": {
+              "x": 1694,
+              "y": 23.015625
+            },
+            "exclusiveGateway-8cd9decab2e4": {
+              "x": 453,
+              "y": 120.015625
+            },
+            "inclusiveGateway-57e9b96eb570": {
+              "x": 939,
+              "y": 39.015625
+            },
+            "inclusiveGateway-d18d59004c0c": {
+              "x": 2288,
+              "y": 68.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1941,
+              "y": 65.015625
+            },
+            "scriptTask-0b56191887de": {
+              "x": 1939,
+              "y": 149.015625
+            },
+            "scriptTask-32dada3fc9f9": {
+              "x": 2551,
+              "y": 102.015625
+            },
+            "scriptTask-3eab1948f1ec": {
+              "x": 1428,
+              "y": 56.015625
+            },
+            "scriptTask-8506123e6208": {
+              "x": 721,
+              "y": 41.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1399,
+              "y": 325.015625
+            },
+            "scriptTask-d76490953517": {
+              "x": 161,
+              "y": 142.015625
+            },
+            "waitTask-4e25b1ee7a14": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.startDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1165,
+              "y": 13.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-8506123e6208"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-c7867dd2593a",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Role Grant Validation",
+            "name": "scriptTask-3eab1948f1ec",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-48e748c42994"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-3eab1948f1ec.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Gateway",
+            "name": "exclusiveGateway-48e748c42994",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "failureReason == null",
+                  "outcome": "validationFlowSuccess",
+                  "step": "scriptTask-0359a9d77ee2"
+                },
+                {
+                  "condition": "failureReason != null",
+                  "outcome": "validationFlowFailure",
+                  "step": "scriptTask-0b56191887de"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/exclusiveGateway-48e748c42994.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Role Grant Validation Failure",
+            "name": "scriptTask-0b56191887de",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-0b56191887de.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Provisioning",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-d18d59004c0c"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-d76490953517",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-8cd9decab2e4"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-d76490953517.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-8cd9decab2e4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApproval",
+                  "step": "scriptTask-8506123e6208"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-c7867dd2593a"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/exclusiveGateway-8cd9decab2e4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-8506123e6208",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-57e9b96eb570"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-8506123e6208.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has Start Date",
+            "name": "inclusiveGateway-57e9b96eb570",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasStartDate",
+                  "step": "waitTask-4e25b1ee7a14"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noStartDate",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/inclusiveGateway-57e9b96eb570.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Until Start Date",
+            "name": "waitTask-4e25b1ee7a14",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.startDate"
+              }
+            }
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-d18d59004c0c",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableEndWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "scriptTask-32dada3fc9f9"
+                },
+                {
+                  "condition": "enableEndWait == false",
+                  "outcome": "noEndDate",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/inclusiveGateway-d18d59004c0c.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Create Removal Request",
+            "name": "scriptTask-32dada3fc9f9",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleGrant/published/scriptTask-32dada3fc9f9.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

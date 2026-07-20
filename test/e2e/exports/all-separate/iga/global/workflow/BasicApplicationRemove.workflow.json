@@ -1,0 +1,557 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.656Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "BasicApplicationRemove": {
+      "draft": {
+        "childType": false,
+        "description": "Basic request flow for removing a user's account in an application",
+        "displayName": "Basic Application Remove",
+        "id": "BasicApplicationRemove",
+        "mutable": false,
+        "name": "BasicApplicationRemove",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2087,
+            "y": 210
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-b80009644545"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "applicationOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 726,
+              "y": 162
+            },
+            "exclusiveGateway-2bf686c17905": {
+              "x": 457,
+              "y": 95.015625
+            },
+            "inclusiveGateway-0c53868eeb2a": {
+              "x": 1125,
+              "y": 59.015625
+            },
+            "scriptTask-626899b6e99a": {
+              "x": 1713,
+              "y": 102
+            },
+            "scriptTask-b80009644545": {
+              "x": 164,
+              "y": 108.015625
+            },
+            "scriptTask-ba009484a101": {
+              "x": 887,
+              "y": 68.015625
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1714,
+              "y": 207
+            },
+            "waitTask-0431eab1902c": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.endDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1352,
+              "y": 75.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Deprovisioning",
+            "name": "scriptTask-626899b6e99a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/scriptTask-626899b6e99a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-b80009644545",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-2bf686c17905"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/scriptTask-b80009644545.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-2bf686c17905",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/exclusiveGateway-2bf686c17905.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approval",
+            "name": "scriptTask-ba009484a101",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-0c53868eeb2a"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/scriptTask-ba009484a101.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-0c53868eeb2a",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "waitTask-0431eab1902c"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noEndDate",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/draft/inclusiveGateway-0c53868eeb2a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Task",
+            "name": "waitTask-0431eab1902c",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.endDate"
+              }
+            }
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic request flow for removing a user's account in an application",
+        "displayName": "Basic Application Remove",
+        "id": "BasicApplicationRemove",
+        "mutable": false,
+        "name": "BasicApplicationRemove",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2087,
+            "y": 210
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-b80009644545"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "applicationOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 726,
+              "y": 162
+            },
+            "exclusiveGateway-2bf686c17905": {
+              "x": 457,
+              "y": 95.015625
+            },
+            "inclusiveGateway-0c53868eeb2a": {
+              "x": 1125,
+              "y": 59.015625
+            },
+            "scriptTask-626899b6e99a": {
+              "x": 1713,
+              "y": 102
+            },
+            "scriptTask-b80009644545": {
+              "x": 164,
+              "y": 108.015625
+            },
+            "scriptTask-ba009484a101": {
+              "x": 887,
+              "y": 68.015625
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1714,
+              "y": 207
+            },
+            "waitTask-0431eab1902c": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.endDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1352,
+              "y": 75.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Deprovisioning",
+            "name": "scriptTask-626899b6e99a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/scriptTask-626899b6e99a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-b80009644545",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-2bf686c17905"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/scriptTask-b80009644545.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-2bf686c17905",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-ba009484a101"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/exclusiveGateway-2bf686c17905.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approval",
+            "name": "scriptTask-ba009484a101",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-0c53868eeb2a"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/scriptTask-ba009484a101.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-0c53868eeb2a",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "waitTask-0431eab1902c"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noEndDate",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "script": "file://BasicApplicationRemove/published/inclusiveGateway-0c53868eeb2a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Task",
+            "name": "waitTask-0431eab1902c",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.endDate"
+              }
+            }
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

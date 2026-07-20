@@ -1,0 +1,87 @@
+{
+  "event": {
+    "734c942e-e324-4930-a59d-a1ea44a2b06f": {
+      "action": {
+        "name": "testWorkflow4",
+        "parameters": {
+          "var1": "val1",
+          "var2": "val2",
+          "var3": "val3",
+          "var4": "val4",
+          "var5": "val5"
+        },
+        "type": "orchestration"
+      },
+      "condition": {
+        "filter": {
+          "or": [
+            {
+              "starts_with": {
+                "prefix": {
+                  "literal": "sdfsadfasfasfas"
+                },
+                "value": "user.after.city"
+              }
+            },
+            {
+              "contains": {
+                "in_string": "user.after.description",
+                "search_string": {
+                  "literal": "asdfasfdasfasfasfd"
+                }
+              }
+            },
+            {
+              "ends_with": {
+                "suffix": {
+                  "literal": "adsfasfsadfasdf"
+                },
+                "value": "user.after.frIndexedString11"
+              }
+            },
+            {
+              "not_contains": {
+                "in_string": "user.after.custom_RAP",
+                "search_string": {
+                  "literal": "asdfasdfsafasfaf"
+                }
+              }
+            },
+            {
+              "equals": {
+                "left": "user.after.frUnindexedInteger1",
+                "right": {
+                  "literal": 0
+                }
+              }
+            }
+          ]
+        },
+        "version": "v2"
+      },
+      "description": "sdafasfasdfasdfa",
+      "entityType": "user",
+      "id": "734c942e-e324-4930-a59d-a1ea44a2b06f",
+      "metadata": {},
+      "mutationType": "create",
+      "name": "test-events-3",
+      "owners": [
+        {
+          "givenName": "ChildTwo",
+          "id": "managed/user/fe4f7519-329e-4dc3-ab85-4ea023e22c25",
+          "mail": "pholderness+c2admin@trivir.com",
+          "sn": "Admin",
+          "userName": "phh-child2-org-admin"
+        }
+      ],
+      "status": "active"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.500Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

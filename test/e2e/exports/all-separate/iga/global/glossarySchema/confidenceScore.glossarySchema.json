@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "a65b7633-3dcb-4c83-8458-c14397f70715": {
+      "allowedValues": [],
+      "description": "Confidence Score",
+      "displayName": "Confidence Score",
+      "enumeratedValues": [],
+      "id": "a65b7633-3dcb-4c83-8458-c14397f70715",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "confidenceScore",
+      "objectType": "/iga/governance/entitlementGrant",
+      "searchable": true,
+      "type": "float"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.520Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

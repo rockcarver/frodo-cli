@@ -1,0 +1,36 @@
+{
+  "glossarySchema": {
+    "313a5700-be3f-467f-af12-14f2b4567f2f": {
+      "allowedValues": [
+        "Value 1",
+        "Value 2"
+      ],
+      "description": "Test String",
+      "displayName": "Test String",
+      "enumeratedValues": [
+        {
+          "text": "Text 1",
+          "value": "Value 1"
+        },
+        {
+          "text": "Text 2",
+          "value": "Value 2"
+        }
+      ],
+      "id": "313a5700-be3f-467f-af12-14f2b4567f2f",
+      "isMultiValue": true,
+      "metadata": {},
+      "name": "Test String",
+      "objectType": "/openidm/managed/role",
+      "searchable": true,
+      "type": "string"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.518Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

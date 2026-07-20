@@ -1,0 +1,243 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.665Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "phhBirthrightRolesRequiringApproval": {
+      "draft": null,
+      "published": {
+        "childType": false,
+        "description": "phh-birthright-roles-requiring-approval",
+        "displayName": "phh-birthright-roles-requiring-approval",
+        "id": "phhBirthrightRolesRequiringApproval",
+        "mutable": true,
+        "name": "phh-birthright-roles-requiring-approval",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 1303,
+            "y": 236
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "scriptTask-0e64ff0c1695"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 70,
+            "y": 151
+          },
+          "uiConfig": {
+            "approvalTask-f4e7324654b5": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://phhBirthrightRolesRequiringApproval/published/approvalTask-f4e7324654b5.workflow.js"
+              },
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 440,
+              "y": 126.5
+            },
+            "scriptTask-0e64ff0c1695": {
+              "x": 210,
+              "y": 153
+            },
+            "scriptTask-792e240778b1": {
+              "x": 712,
+              "y": 226
+            },
+            "scriptTask-ad05a46c2e74": {
+              "x": 712,
+              "y": 80
+            },
+            "scriptTask-aecf833994d2": {
+              "x": 1032,
+              "y": 153
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "Debug Task",
+            "name": "scriptTask-0e64ff0c1695",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "approvalTask-f4e7324654b5"
+                }
+              ],
+              "script": "file://phhBirthrightRolesRequiringApproval/published/scriptTask-0e64ff0c1695.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://phhBirthrightRolesRequiringApproval/published/approvalTask-f4e7324654b5.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/9de92b26-e91e-44b7-ac81-7ae1c6adf9ad"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-792e240778b1"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-ad05a46c2e74"
+                }
+              ]
+            },
+            "displayName": "Manager Approval",
+            "name": "approvalTask-f4e7324654b5",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Look Up Roles and Request",
+            "name": "scriptTask-792e240778b1",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhBirthrightRolesRequiringApproval/published/scriptTask-792e240778b1.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Finalize Request on Reject",
+            "name": "scriptTask-ad05a46c2e74",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-aecf833994d2"
+                }
+              ],
+              "script": "file://phhBirthrightRolesRequiringApproval/published/scriptTask-ad05a46c2e74.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Failure Handler",
+            "name": "scriptTask-aecf833994d2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhBirthrightRolesRequiringApproval/published/scriptTask-aecf833994d2.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ]
+      }
+    }
+  }
+}

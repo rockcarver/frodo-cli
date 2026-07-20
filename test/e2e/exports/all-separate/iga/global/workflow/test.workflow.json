@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.663Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "test": {
+      "draft": null,
+      "published": {
+        "childType": false,
+        "description": "test",
+        "displayName": "test",
+        "id": "test",
+        "mutable": true,
+        "name": "test",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 500,
+            "y": 50
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "approvalTask-3ffc87548f82"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 50,
+            "y": 250
+          },
+          "uiConfig": {
+            "approvalTask-3ffc87548f82": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationDate": 1,
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "variable",
+                "expirationDateVariable": "expiration",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 1
+              },
+              "x": 267.3999938964844,
+              "y": 178.8125
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": "managed/user/0f325c99-6965-4f45-b1e4-f9db1fa4dcf6",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "&{esv.email.welcome}"
+                },
+                "expiration": {
+                  "date": {
+                    "value": "content.expiration"
+                  }
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": null
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": null
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-3ffc87548f82",
+            "type": "approvalTask"
+          }
+        ]
+      }
+    }
+  }
+}

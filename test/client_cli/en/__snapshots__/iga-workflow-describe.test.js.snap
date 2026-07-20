@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help interface for 'iga workflow describe' should be expected english 1`] = `
+"Usage: frodo iga workflow describe [options] [host] [realm] [username] [password]
+
+Describe workflow.
+
+Arguments:
+  host                             AM base URL, e.g.:
+                                   https://cdk.iam.example.com/am. To use a
+                                   connection profile, just specify a unique
+                                   substring or alias.
+  realm                            Realm. Specify realm as '/' for the root
+                                   realm or 'realm' or '/parent/child'
+                                   otherwise. (default: "alpha" for Identity
+                                   Cloud tenants, "/" otherwise.)
+  username                         Username to login with. Must be an admin user
+                                   with appropriate rights to manage
+                                   authentication journeys/trees.
+  password                         Password.
+
+Deployment: Cloud-only
+
+Options:
+  -f, --file <file>                Name of the workflow export file to describe.
+                                   If not specified, will automatically pull the
+                                   workflow export data of the provided id from
+                                   the tenant.
+  -i, --workflow-id <workflow-id>  Workflow id. If not specified, will describe
+                                   first workflow in the provided export file.
+  -h, --help                       Help
+  -hh, --help-more                 Help with all options.
+  -hhh, --help-all                 Help with all options, environment variables,
+                                   and usage examples.
+"
+`;
