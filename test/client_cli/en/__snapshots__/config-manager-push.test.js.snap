@@ -19,8 +19,6 @@ Commands:
   connector-definitions  [Experimental] Import connector definitions.
   connector-mappings     [Experimental] Import connector mappings.
   cookie-domains         [Experimental] Import cookie domains.
-  cors                   [Experimental] Import CORS configuration.
-  custom-nodes           [Experimental] Import custom nodes.
   email-provider         [Experimental] Import email provider configuration.
   email-templates        [Experimental] Import email template objects.
   endpoints              [Experimental] Import custom endpoints objects.
@@ -31,7 +29,6 @@ Commands:
   managed-objects        [Experimental] Import managed objects.
   org-privileges         [Experimental] Import organization privileges config.
   password-policy        [Experimental] Import password-policy objects.
-  remote-servers         [Experimental] Import RCS config.
   schedules              [Experimental] Import schedules.
   service-objects        [Experimental] Import service objects.
   terms-and-conditions   [Experimental] Import terms and conditions.
@@ -39,6 +36,6 @@ Commands:
   ui-config              [Experimental] Import UI configuration.
 
   (Cloud-only):
-  secret-mappings        [Experimental] Import secret mappings.
+  csp                    [Experimental] Import content security policy.
 "
 `;
