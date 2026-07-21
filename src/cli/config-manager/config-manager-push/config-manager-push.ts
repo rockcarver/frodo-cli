@@ -6,6 +6,7 @@ import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
 import CookieDomains from './config-manager-push-cookie-domain';
 import Cors from './config-manager-push-cors';
+import CustomNodes from './config-manager-push-custom-nodes';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
@@ -50,6 +51,7 @@ export default function setup() {
   program.addCommand(Cors().name('cors'));
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));
+  program.addCommand(CustomNodes().name('custom-nodes'));
 
   return program;
 }
