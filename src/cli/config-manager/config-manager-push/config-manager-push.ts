@@ -17,6 +17,7 @@ import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import RemoteServers from './config-manager-push-remote-servers';
 import Schedules from './config-manager-push-schedules';
+import SecretMappings from './config-manager-push-secret-mappings';
 import ServiceObjects from './config-manager-push-service-objects';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
 import Themes from './config-manager-push-themes';
@@ -26,7 +27,6 @@ export default function setup() {
   const program = new FrodoStubCommand('push').description(
     'Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
-
   program.addCommand(Themes().name('themes'));
   program.addCommand(TermsAndConditions().name('terms-and-conditions'));
   program.addCommand(PasswordPolicy().name('password-policy'));
@@ -49,6 +49,7 @@ export default function setup() {
   program.addCommand(ConnectorMappings().name('connector-mappings'));
   program.addCommand(Cors().name('cors'));
   program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(SecretMappings().name('secret-mappings'));
 
   return program;
 }
