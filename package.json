@@ -1,6 +1,6 @@
 {
   "name": "@rockcarver/frodo-cli",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "type": "module",
   "description": "A command line interface to manage ForgeRock Identity Cloud tenants, ForgeOps deployments, and classic deployments.",
   "keywords": [
@@ -47,6 +47,7 @@
     "mcp:test-oauth2-mayact": "node tools/mcp-oauth2-mayact-update-test.mjs",
     "lint": "eslint --cache --cache-location .eslintcache \"src/**/*.ts\"",
     "lint:fix": "eslint --cache --cache-location .eslintcache --fix \"src/**/*.ts\"",
+    "lint:fix:ci": "eslint --no-cache --fix \"src/**/*.ts\"",
     "build": "npm run build:binary",
     "build:only": "npx tsup && npx tsc",
     "build:binary": "npm run build:only && npm run dist-pkg",
@@ -149,5 +150,9 @@
     "uuid": "^11.1.0",
     "yesno": "^0.4.0",
     "zod": "^4.3.6"
+  },
+  "allowScripts": {
+    "esbuild@0.27.2": true,
+    "fsevents@2.3.3": true
   }
 }

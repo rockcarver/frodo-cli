@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "If true, do not push integration branch, edit PR labels/comments, or create/update integration PR."
+        description: 'If true, do not push integration branch, edit PR labels/comments, or create/update integration PR.'
         required: false
         default: false
         type: boolean
@@ -73,6 +73,11 @@ jobs:
             title="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | .title")"
             has_integrated_label="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | ((.labels | map(.name) | index(\"integrated\")) != null)")"
             has_batch_label="$(echo "$prs_json" | jq -r ".[] | select(.number==$pr) | ((.labels | map(.name) | index(\"integration-batch\")) != null)")"
+            if git merge-base --is-ancestor origin/main "$head_sha"; then
+              rebased_on_main='true'
+            else
+              rebased_on_main='false'
+            fi
 
             if [ "$has_integrated_label" = "true" ] && [ "$has_batch_label" = "false" ]; then
               if git merge-base --is-ancestor "$head_sha" origin/main; then
@@ -80,8 +85,18 @@ jobs:
                 continue
               fi
 
+              if [ "$rebased_on_main" != 'true' ]; then
+                skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"not rebased on main"}]')"
+                continue
+              fi
+
               selected="$(echo "$selected" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
               stale_integrated_requeued="$(echo "$stale_integrated_requeued" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t}]')"
+              continue
+            fi
+
+            if [ "$rebased_on_main" != 'true' ]; then
+              skipped="$(echo "$skipped" | jq --argjson n "$pr" --arg t "$title" '. + [{"number":$n,"title":$t,"reason":"not rebased on main"}]')"
               continue
             fi
 
@@ -144,6 +159,32 @@ jobs:
           echo "auto_resolved_conflicts=$(echo "$summary" | jq -c '.auto_resolved_conflicts')" >> "$GITHUB_OUTPUT"
           echo "snapshot_updates=$(echo "$summary" | jq -c '.snapshot_updates')" >> "$GITHUB_OUTPUT"
           echo "lockfile_regeneration=$(echo "$summary" | jq -c '.lockfile_regeneration')" >> "$GITHUB_OUTPUT"
+
+      - name: Validate integration version is not behind main
+        run: |
+          git fetch origin main
+          main_version="$(git show origin/main:package.json | jq -r '.version')"
+          integration_version="$(jq -r '.version' package.json)"
+
+          newest_version="$(printf '%s\n%s\n' "$main_version" "$integration_version" | sort -V | tail -n1)"
+          if [ "$newest_version" != "$integration_version" ]; then
+            echo "::error::Integration branch version ($integration_version) is behind main ($main_version). Rebase or merge logic introduced an older package version."
+            exit 1
+          fi
+
+      - name: Auto-fix lint issues on integration branch
+        if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
+        run: |
+          npm ci
+          npm run lint:fix:ci
+          npm run lint
+
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore: auto-fix lint issues after integration merge"
+          else
+            echo "No lint auto-fixes were required."
+          fi
 
       - name: Apply labels and comments
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
@@ -272,7 +313,7 @@ jobs:
           fi
           echo "number=$integration_pr_number" >> "$GITHUB_OUTPUT"
 
-      - name: Label integration PR for snapshot review
+      - name: Sync integration snapshot review label
         if: ${{ steps.dryrun.outputs.dry_run != 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
@@ -280,8 +321,14 @@ jobs:
         run: |
           snapshot_updates='${{ steps.merge.outputs.snapshot_updates }}'
           integration_pr_number='${{ steps.integration_pr.outputs.number }}'
-          snapshot_file_count="$(echo "$snapshot_updates" | jq -r '(.files // []) | length' 2>/dev/null || echo 0)"
+          tests_outcome='${{ steps.integration_full_tests.outcome }}'
 
+          if [ "$tests_outcome" = 'success' ]; then
+            gh pr edit "$integration_pr_number" --repo "$REPO" --remove-label integration-needs-snapshot-review || true
+            exit 0
+          fi
+
+          snapshot_file_count="$(echo "$snapshot_updates" | jq -r '(.files // []) | length' 2>/dev/null || echo 0)"
           if [ "$snapshot_file_count" -gt 0 ]; then
             gh pr edit "$integration_pr_number" --repo "$REPO" --add-label integration-needs-snapshot-review || true
           fi

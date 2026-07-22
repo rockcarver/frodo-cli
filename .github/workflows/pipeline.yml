@@ -50,6 +50,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Guard against version drift from latest release
+        if: github.event_name != 'pull_request'
+        run: |
+          current_version="$(node -p \"require('./package.json').version\")"
+          latest_npm_version="$(npm view @rockcarver/frodo-cli version 2>/dev/null || true)"
+          latest_tag_version="$(git ls-remote --tags --refs origin 'refs/tags/v*' | awk -F'/' '{print $3}' | sed 's/^v//' | sort -V | tail -n1)"
+
+          latest_known_version="$latest_npm_version"
+          if [ -n "$latest_tag_version" ]; then
+            if [ -z "$latest_known_version" ]; then
+              latest_known_version="$latest_tag_version"
+            else
+              latest_known_version="$(printf '%s\n%s\n' "$latest_known_version" "$latest_tag_version" | sort -V | tail -n1)"
+            fi
+          fi
+
+          if [ -n "$latest_known_version" ]; then
+            newest_seen="$(printf '%s\n%s\n' "$current_version" "$latest_known_version" | sort -V | tail -n1)"
+            if [ "$newest_seen" != "$current_version" ]; then
+              echo "::error::package.json version ($current_version) is behind latest published/tagged version ($latest_known_version)."
+              exit 1
+            fi
+          fi
+
       - name: 'Determine Release Bump Type'
         id: release-bump
         env:
@@ -114,6 +138,18 @@ jobs:
           if [ -z "$new_version" ] || [ "$new_version" = "null" ]; then
             echo "::error::Failed to compute new version from $current_version using bump type $bump_type."
             exit 1
+          fi
+
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            if git ls-remote --tags --refs origin "refs/tags/v$new_version" | grep -q "refs/tags/v$new_version"; then
+              echo "::error::Tag v$new_version already exists in origin. Refusing to continue."
+              exit 1
+            fi
+
+            if npm view "@rockcarver/frodo-cli@$new_version" version >/dev/null 2>&1; then
+              echo "::error::Version $new_version is already published on npm. Refusing to continue."
+              exit 1
+            fi
           fi
 
           npm version "$new_version" --no-git-tag-version --allow-same-version
