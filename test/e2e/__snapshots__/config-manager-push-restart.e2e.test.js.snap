@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -c": should check for updates and then apply them to the cloud tenant" 1`] = `""`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -c": should check for updates and then apply them to the cloud tenant" 2`] = `
+"Experimental feature in use: 'frodo config-manager push restart'. This feature may change without notice.
+✔ No updates need to be applied
+All ESVs loaded - not restarting
+"
+`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -s": should check for updates to apply to the cloud tenant" 1`] = `""`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -s": should check for updates to apply to the cloud tenant" 2`] = `
+"Experimental feature in use: 'frodo config-manager push restart'. This feature may change without notice.
+ready
+"
+`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -w": should restart the cloud tenant and wait until restart is complete to exit command." 1`] = `""`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart -w": should restart the cloud tenant and wait until restart is complete to exit command." 2`] = `
+"Experimental feature in use: 'frodo config-manager push restart'. This feature may change without notice.
+"
+`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart": should restart the cloud tenant" 1`] = `""`;
+
+exports[`frodo config-manager push restart "frodo config-manager push restart": should restart the cloud tenant" 2`] = `
+"Experimental feature in use: 'frodo config-manager push restart'. This feature may change without notice.
+✔ Updates are being applied. Changes may take up to 10 minutes to propagate, during which time you will not be able to make further updates.
+"
+`;

@@ -18,6 +18,7 @@ import ManagedObjects from './config-manager-push-managed-objects';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
 import RemoteServers from './config-manager-push-remote-servers';
+import Restart from './config-manager-push-restart';
 import Schedules from './config-manager-push-schedules';
 import SecretMappings from './config-manager-push-secret-mappings';
 import ServiceObjects from './config-manager-push-service-objects';
@@ -53,7 +54,8 @@ export default function setup() {
   program.addCommand(RemoteServers().name('remote-servers'));
   program.addCommand(SecretMappings().name('secret-mappings'));
   program.addCommand(CustomNodes().name('custom-nodes'));
-
   program.addCommand(CSP().name('csp'));
+  program.addCommand(Restart().name('restart'));
+
   return program;
 }
