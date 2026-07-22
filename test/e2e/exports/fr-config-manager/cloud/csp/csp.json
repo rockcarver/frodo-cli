@@ -1,0 +1,19 @@
+{
+  "enforced": {
+    "active": false,
+    "directives": {}
+  },
+  "report-only": {
+    "active": true,
+    "directives": {
+      "frame-ancestors": [
+        "'self'"
+      ],
+      "script-src": [
+        "'self'",
+        "'unsafe-eval'",
+        "'unsafe-inline'"
+      ]
+    }
+  }
+}

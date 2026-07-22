@@ -1,0 +1,13 @@
+{
+  "_id": "am.services.oauth2.oidc.signing.RSA",
+  "_rev": "-2046502567",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Atest"
+  ],
+  "secretId": "am.services.oauth2.oidc.signing.RSA"
+}

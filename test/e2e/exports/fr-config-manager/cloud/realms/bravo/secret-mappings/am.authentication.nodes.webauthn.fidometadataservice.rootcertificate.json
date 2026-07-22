@@ -1,0 +1,13 @@
+{
+  "_id": "am.authentication.nodes.webauthn.fidometadataservice.rootcertificate",
+  "_rev": "132743902",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Btest"
+  ],
+  "secretId": "am.authentication.nodes.webauthn.fidometadataservice.rootcertificate"
+}

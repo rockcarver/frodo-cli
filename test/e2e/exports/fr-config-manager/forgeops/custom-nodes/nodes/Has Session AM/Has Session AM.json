@@ -1,0 +1,20 @@
+{
+  "_id": "session-1",
+  "description": "Checks if the user has a current session.",
+  "displayName": "Has Session AM",
+  "errorOutcome": false,
+  "inputs": [],
+  "outcomes": [
+    "True",
+    "False"
+  ],
+  "outputs": [],
+  "properties": {},
+  "script": {
+    "file": "Has Session AM.js"
+  },
+  "serviceName": "session",
+  "tags": [
+    "utilities"
+  ]
+}
