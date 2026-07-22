@@ -58,7 +58,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes, testSuccess } from './utils/TestUtils';
+import { getEnv,  testSuccess } from './utils/TestUtils';
 import { connection as c , forgeops_connection as fc} from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -81,19 +81,19 @@ describe('frodo idm import', () => {
   test(`"frodo idm schema object import -D ${managedObjectsExportDirectory}": should import the managed objects from the directory ${managedObjectsExportDirectory}`, async () => {
     const CMD = `frodo idm schema object import -D ${managedObjectsExportDirectory}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo idm schema object import -i -f ${managedObjectsExportDirectory}/${alphaUserFile}": should import just the alpha user managed object ${managedObjectsExportDirectory}/${alphaUserFile}`, async () => {
     const CMD = `frodo idm schema object import -i -f ${managedObjectsExportDirectory}/${alphaUserFile}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   test(`"frodo idm schema object import -f ${allManagedPath}": should import all managed objects from a single file ${allManagedPath}`, async () => {
     const CMD = `frodo idm schema object import -f ${allManagedPath}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot()
   });
 
   // Forgeops Tests

@@ -2,6 +2,7 @@ import { state } from '@rockcarver/frodo-lib';
 import { JwkRsa } from '@rockcarver/frodo-lib/types/ops/JoseOps.js';
 import { Option } from 'commander';
 import fs from 'fs';
+import c from 'tinyrainbow';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as s from '../../help/SampleData';
@@ -51,23 +52,23 @@ export default function setup() {
         `  - Fully configured OAuth2 trusted issuer - named '<clientId>-issuer'\n` +
         `  - Private Key as Json Web Key (JWK) - named '<clientId>_private.jwk.json'\n` +
         `  - Public Key as Json Web Key Set (JWKS) - named '<clientId>_public.jwks.json'\n` +
-        `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d ${s.amBaseUrl}\n`
+        ) +
         `  Same as above but use an existing JWK file instead of creating one.\n` +
-        `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --jwk-file rfc7523-client1_private.jwk.json ${s.amBaseUrl}\n`
+        ) +
         `  Generate and output to console all the artefacts for an RFC7523 authorization grant flow configuration but do not create any configuration or files.\n` +
-        `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --no-save ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --no-save ${s.amBaseUrl}\n`
+        ) +
         `  Generate and output in json format all the artefacts for an RFC7523 authorization grant flow configuration.\n` +
-        `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --json ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo admin generate-rfc7523-authz-grant-artefacts --client-id rfc7523-client1 --iss https://my-issuer.com/issuer --sub 146c2230-9448-4442-b86d-eb4a81a0121d --json ${s.amBaseUrl}\n`
+        ) +
         `\nRelated Commands:\n` +
-        `  Run ${'frodo admin execute-rfc7523-authz-grant-flow --help'['brightCyan']} to see how to test your configuration created with ${'frodo admin generate-rfc7523-authz-grant-artefacts'['brightCyan']}:\n`
+        `  Run ${c.cyanBright('frodo admin execute-rfc7523-authz-grant-flow --help')} to see how to test your configuration created with ${c.cyanBright('frodo admin generate-rfc7523-authz-grant-artefacts')}:\n`
     )
     .action(
       // implement command logic inside action handler

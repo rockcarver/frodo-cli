@@ -1,5 +1,6 @@
 import { frodo } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -37,17 +38,17 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Example command one with params and explanation what it does:\n` +
-        `  $ frodo something ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo something ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Example command two with params and explanation what it does:\n` +
-        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`
+        ) +
         `  Example command three with params and explanation what it does:\n` +
-        `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
-          'brightCyan'
-        ]
+        c.cyanBright(
+          `  $ frodo something --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler

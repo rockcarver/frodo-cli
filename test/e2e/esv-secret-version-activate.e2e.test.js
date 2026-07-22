@@ -52,7 +52,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
  */
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -64,12 +64,12 @@ describe('frodo esv secret version activate', () => {
     test('"frodo esv secret version activate -i esv-test-secret-pi-generic -v 1": should activate version 1 of the secret "esv-test-secret-pi-generic"', async () => {
         const CMD = `frodo esv secret version activate -i esv-test-secret-pi-generic -v 1`;
         const { stdout } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+        expect(stdout).toMatchSnapshot()
     });
 
     test('"frodo esv secret version activate --secret-id esv-test-secret-pi-generic --version 2": should do nothing special when activating version 2 of the secret "esv-test-secret-pi-generic", which is the latest and already activated version', async () => {
         const CMD = `frodo esv secret version activate --secret-id esv-test-secret-pi-generic --version 2`;
         const { stderr } = await exec(CMD, env);
-        expect(removeAnsiEscapeCodes(stderr)).toMatchSnapshot();
+        expect(stderr).toMatchSnapshot()
     });
 });

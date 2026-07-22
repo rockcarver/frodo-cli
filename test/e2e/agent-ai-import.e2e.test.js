@@ -54,7 +54,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes, stageFixture, clearFixture } from './utils/TestUtils';
+import { getEnv,  stageFixture, clearFixture } from './utils/TestUtils';
 import { connection as c } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -83,18 +83,18 @@ describe('frodo agent ai import', () => {
   test(`"frodo agent ai import -i testAgent -f ${allAlphaAIAgentsExport}": should import testAgent from file`, async () => {
     const CMD = `frodo agent ai import -i testAgent -f ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test(`"frodo agent ai import -f ${allAlphaAIAgentsExport}": should import first AI agent from file`, async () => {
     const CMD = `frodo agent ai import -f ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 
   test(`"frodo agent ai import -af ${allAlphaAIAgentsExport}": should import all AI agents from file`, async () => {
     const CMD = `frodo agent ai import -af ${allAlphaAIAgentsExport}`;
     const { stdout } = await exec(CMD, env);
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
   });
 });

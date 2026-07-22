@@ -1,6 +1,7 @@
 import { frodo, FrodoError, state } from '@rockcarver/frodo-lib';
 import { type AgentExportInterface } from '@rockcarver/frodo-lib/types/ops/AgentOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createProgressIndicator,
@@ -122,7 +123,7 @@ export async function listAgents(
         const status = resolveAgentStatus(agent);
         table.push([
           agent._id,
-          status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+          status === 'Active' ? c.greenBright('Active') : c.redBright(status),
           agent._type.name,
         ]);
       }
@@ -154,8 +155,8 @@ export async function listIdentityGatewayAgents(
         table.push([
           agent._id,
           agent.status === 'Active'
-            ? 'Active'['brightGreen']
-            : agent.status['brightRed'],
+            ? c.greenBright('Active')
+            : c.redBright(agent.status),
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -184,8 +185,8 @@ export async function listJavaAgents(long: boolean = false): Promise<boolean> {
         table.push([
           agent._id,
           agent['globalJ2EEAgentConfig']['status'] === 'Active'
-            ? 'Active'['brightGreen']
-            : agent['globalJ2EEAgentConfig']['status']['brightRed'],
+            ? c.greenBright('Active')
+            : c.redBright(agent['globalJ2EEAgentConfig']['status']),
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -214,8 +215,8 @@ export async function listWebAgents(long: boolean = false): Promise<boolean> {
         table.push([
           agent._id,
           agent['globalWebAgentConfig']['status'] === 'Active'
-            ? 'Active'['brightGreen']
-            : agent['globalWebAgentConfig']['status']['brightRed'],
+            ? c.greenBright('Active')
+            : c.redBright(agent['globalWebAgentConfig']['status']),
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -1463,7 +1464,7 @@ export async function listAIAgents(long: boolean = false): Promise<boolean> {
         const status = resolveAgentStatus(agent);
         table.push([
           agent._id,
-          status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+          status === 'Active' ? c.greenBright('Active') : c.redBright(status),
         ]);
       }
       printMessage(table.toString(), 'data');
@@ -1706,7 +1707,7 @@ export async function describeAIAgent(
     table.push(['Agent Id', agent._id]);
     table.push([
       'Status',
-      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+      status === 'Active' ? c.greenBright('Active') : c.redBright(status),
     ]);
     table.push(['Type', agent._type.name]);
     return table.toString();
@@ -1740,7 +1741,7 @@ export async function describeIdentityGatewayAgent(
     table.push(['Agent Id', targetAgent._id]);
     table.push([
       'Status',
-      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+      status === 'Active' ? c.greenBright('Active') : c.redBright(status),
     ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
@@ -1774,7 +1775,7 @@ export async function describeJavaAgent(
     table.push(['Agent Id', targetAgent._id]);
     table.push([
       'Status',
-      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+      status === 'Active' ? c.greenBright('Active') : c.redBright(status),
     ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
@@ -1808,7 +1809,7 @@ export async function describeWebAgent(
     table.push(['Agent Id', targetAgent._id]);
     table.push([
       'Status',
-      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+      status === 'Active' ? c.greenBright('Active') : c.redBright(status),
     ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
@@ -1844,7 +1845,7 @@ export async function describeAgent(
     table.push(['Agent Id', targetAgent._id]);
     table.push([
       'Status',
-      status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+      status === 'Active' ? c.greenBright('Active') : c.redBright(status),
     ]);
     table.push(['Type', targetAgent._type.name]);
     return table.toString();
@@ -1874,7 +1875,7 @@ export async function describeAgents(
       const status = resolveAgentStatus(agent);
       table.push([
         agent._id,
-        status === 'Active' ? 'Active'['brightGreen'] : status['brightRed'],
+        status === 'Active' ? c.greenBright('Active') : c.redBright(status),
         agent._type.name,
       ]);
     }

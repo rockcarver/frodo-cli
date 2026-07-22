@@ -1,5 +1,6 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -69,26 +70,26 @@ export default function setup() {
     )
     .addHelpText(
       'after',
-      `How Frodo handles secrets:\n`['brightGreen'] +
-        `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`[
-          'brightGreen'
-        ] +
+      c.greenBright(`How Frodo handles secrets:\n`) +
+        c.greenBright(
+          `  Frodo supports exporting and importing of ESV secret values. To leave stuartship of secret values with the cloud environment where they belong, frodo always encrypts values using either encryption keys from the source environment (default) or the target environment (--target parameter). Frodo never exports secrets in the clear.\n\n`
+        ) +
         `Usage Examples:\n` +
         `  Export secrets including active secret values to a single file (Note: only values of active and loaded secrets can be exported):\n` +
-        `  $ frodo esv secret export -a --include-active-values ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo esv secret export -a --include-active-values ${s.connId}\n`
+        ) +
         `  Export secrets including active secret values to individual files in a directory (Note: only values of active and loaded secrets can be exported):\n` +
-        `  $ frodo esv secret export -A -D ${s.connId}-secrets --include-active-values ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo esv secret export -A -D ${s.connId}-secrets --include-active-values ${s.connId}\n`
+        ) +
         `  Export secrets including active secret values to a single file for import into another environment.\n` +
         `  The --target parameter instructs frodo to encrypt the exported secret values using the target environment so they can be imported into that target environment without requiring the source environment they were exported from.\n` +
         `  Using the --target parameter, the target environment must be available at the time of export and the person performing the export must have a connection profile for the target environment.\n` +
         `  Without the --target parameter, the source environment must be available at the time of import and the person performing the import must have a connection profile for the source environment.\n` +
-        `  $ frodo esv secret export -a --include-active-values --target ${s.connId2} ${s.connId}\n`[
-          'brightCyan'
-        ]
+        c.cyanBright(
+          `  $ frodo esv secret export -a --include-active-values --target ${s.connId2} ${s.connId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler

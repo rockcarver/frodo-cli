@@ -1,5 +1,6 @@
 import { frodo, state } from '@rockcarver/frodo-lib';
 import { Option } from 'commander';
+import c from 'tinyrainbow';
 
 import * as s from '../../help/SampleData';
 import { getTokens } from '../../ops/AuthenticateOps';
@@ -63,49 +64,49 @@ export default function setup() {
       'after',
       `Usage Examples:\n` +
         `  Create a connection profile with a new log API key and secret and a new service account:\n` +
-        `  $ frodo conn save ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Create a connection profile using Amster private key credentials (PingAM classic deployments only):\n` +
-        `  $ frodo conn save --private-key ${s.amsterPrivateKey} ${s.amClassicBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --private-key ${s.amsterPrivateKey} ${s.amClassicBaseUrl}\n`
+        ) +
         `  Create a connection profile with a new log API key and secret and a new service account and set an alias:\n` +
-        `  $ frodo conn save --alias ${s.alias} ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --alias ${s.alias} ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Save an existing service account to an existing or new connection profile:\n` +
-        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`
+        ) +
         `  Save an existing service account to an existing or new connection profile and set an alias:\n` +
-        `  $ frodo conn save --alias ${s.alias} --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --alias ${s.alias} --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.amBaseUrl}\n`
+        ) +
         `  Save an existing service account to an existing connection profile (partial host URL only updates an existing profile):\n` +
-        `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --sa-id ${s.saId} --sa-jwk-file ${s.saJwkFile} ${s.connId}\n`
+        ) +
         `  Save a connection profile for a Proxy Connect-protected PingOne Advanced Identity Cloud environment:\n` +
-        `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Update an existing connection profile with a custom header override for a freshly Proxy Connect-protected PingOne Advanced Identity Cloud environment:\n` +
-        `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --authentication-header-overrides '{"MY-SECRET-HEADER": "proxyconnect secret header value"}' ${s.connId}\n`
+        ) +
         `  Save a connection profile for a mutable PingOne Advanced Identity Cloud environment:\n` +
-        `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.amBaseUrl} ${s.username} '${s.password}'\n`
+        ) +
         `  Update an existing connection profile with a configuration header override for a freshly mutable PingOne Advanced Identity Cloud environment:\n` +
-        `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.connId}\n`[
-          'brightCyan'
-        ] +
+        c.cyanBright(
+          `  $ frodo conn save --configuration-header-overrides '{"X-Configuration-Type": "mutable"}' ${s.connId}\n`
+        ) +
         `  Update an existing connection profile to use Amster private key credentials with a custom Amster journey (PingAM classic deployments only):\n` +
-        `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`[
-          'brightCyan'
-        ]
+        c.cyanBright(
+          `  $ frodo conn save --private-key ${s.amsterPrivateKey} --authentication-service ${s.customAmsterService} ${s.classicConnId}\n`
+        )
     )
     .action(
       // implement command logic inside action handler

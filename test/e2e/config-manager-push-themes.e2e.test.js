@@ -53,7 +53,7 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 
 import cp from 'child_process';
 import { promisify } from 'util';
-import { getEnv, removeAnsiEscapeCodes } from './utils/TestUtils';
+import { getEnv } from './utils/TestUtils';
 import { forgeops_connection as fc } from './utils/TestConfig';
 
 const exec = promisify(cp.exec);
@@ -71,5 +71,5 @@ test(`"frodo config-manager push themes -D ${allDirectory} -m forgeops": should 
             FRODO_REALM: 'alpha'
         }
     });
-    expect(removeAnsiEscapeCodes(stdout)).toMatchSnapshot();
+    expect(stdout).toMatchSnapshot();
 });

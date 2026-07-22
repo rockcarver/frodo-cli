@@ -6,6 +6,7 @@ import type {
   Saml2ExportInterface,
 } from '@rockcarver/frodo-lib/types/ops/Saml2Ops';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import {
   createObjectTable,
@@ -55,7 +56,7 @@ export function getOneLineDescription(
       roles.push(value);
     }
   }
-  const description = `[${saml2ProviderObj.entityId['brightCyan']}]${
+  const description = `[${c.cyanBright(saml2ProviderObj.entityId)}]${
     ' (' + saml2ProviderObj.entityLocation
   }${roles.length ? ' ' + roles.join(', ') + ')' : ')'}`;
   return description;
@@ -108,9 +109,9 @@ export async function listSaml2Providers(
       return true;
     } else {
       const table = createTable([
-        'Entity Id'['brightCyan'],
-        'Location'['brightCyan'],
-        'Role(s)'['brightCyan'],
+        c.cyanBright('Entity Id'),
+        c.cyanBright('Location'),
+        c.cyanBright('Role(s)'),
       ]);
       for (const provider of providerList) {
         table.push([
@@ -182,7 +183,7 @@ export async function exportSaml2MetadataToFile(
     updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
     stopProgressIndicator(
       indicatorId,
-      `Exported ${entityId['brightCyan']} metadata to ${filePath['brightCyan']}.`
+      `Exported ${c.cyanBright(entityId)} metadata to ${c.cyanBright(filePath)}.`
     );
     return true;
   } catch (error) {
@@ -228,8 +229,7 @@ export async function exportSaml2ProviderToFile(
     updateProgressIndicator(indicatorId, `Exported provider ${entityId}`);
     stopProgressIndicator(
       indicatorId,
-      // @ts-expect-error - brightCyan colors the string, even though it is not a property of string
-      `Exported ${entityId.brightCyan} to ${filePath.brightCyan}.`
+      `Exported ${c.cyanBright(entityId)} to ${c.cyanBright(filePath)}.`
     );
     debugMessage(
       `cli.Saml2Ops.exportSaml2ProviderToFile: end [entityId=${entityId}, file=${filePath}]`

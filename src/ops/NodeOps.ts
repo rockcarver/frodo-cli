@@ -12,6 +12,7 @@ import {
   type CustomNodeImportOptions,
 } from '@rockcarver/frodo-lib/types/ops/NodeOps';
 import fs from 'fs';
+import c from 'tinyrainbow';
 
 import { extractDataToFile, getExtractedData } from '../utils/Config';
 import {
@@ -59,7 +60,7 @@ export function getOneLineDescription(
   nodeObj: NodeSkeleton,
   nodeRef?: NodeRefSkeletonInterface | InnerNodeRefSkeletonInterface
 ): string {
-  const description = `[${nodeObj._id['brightCyan']}] ${nodeObj._type._id}${
+  const description = `[${c.cyanBright(nodeObj._id)}] ${nodeObj._type._id}${
     nodeRef ? ' - ' + nodeRef?.displayName : ''
   }`;
   return description;
@@ -138,11 +139,11 @@ export async function listCustomNodes(long: boolean = false): Promise<boolean> {
         table.push([
           wordwrap(node.displayName, 25, '  '),
           node._id,
-          numJourneys ? String(numJourneys)['brightGreen'] : '0'['brightRed'],
-          numInstances ? String(numInstances)['brightGreen'] : '0'['brightRed'],
+          numJourneys ? c.greenBright(String(numJourneys)) : c.redBright('0'),
+          numInstances ? c.greenBright(String(numInstances)) : c.redBright('0'),
           node.errorOutcome
-            ? 'enabled'['brightGreen']
-            : 'disabled'['brightRed'],
+            ? c.greenBright('enabled')
+            : c.redBright('disabled'),
           wordwrap(node.description, 30),
         ]);
       }
@@ -184,10 +185,10 @@ export async function describeCustomNode(
       return true;
     }
     const nodeTable = createKeyValueTable();
-    nodeTable.push(['Id'['brightCyan'], node._id]);
-    nodeTable.push(['Service Name'['brightCyan'], node.serviceName]);
-    nodeTable.push(['Display Name'['brightCyan'], node.displayName]);
-    nodeTable.push(['Description'['brightCyan'], node.description]);
+    nodeTable.push([c.cyanBright('Id'), node._id]);
+    nodeTable.push([c.cyanBright('Service Name'), node.serviceName]);
+    nodeTable.push([c.cyanBright('Display Name'), node.displayName]);
+    nodeTable.push([c.cyanBright('Description'), node.description]);
     getTableRowsFromArray(nodeTable, 'Inputs', node.inputs);
     getTableRowsFromArray(nodeTable, 'Outputs', node.outputs);
     const outcomes = node.outcomes;
@@ -203,17 +204,17 @@ export async function describeCustomNode(
     printMessage('\nProperties', 'data');
     for (const [name, prop] of Object.entries(node.properties)) {
       const propTable = createKeyValueTable();
-      propTable.push(['Name'['brightCyan'], name]);
-      propTable.push(['Title'['brightCyan'], prop.title]);
-      propTable.push(['Description'['brightCyan'], prop.description]);
+      propTable.push([c.cyanBright('Name'), name]);
+      propTable.push([c.cyanBright('Title'), prop.title]);
+      propTable.push([c.cyanBright('Description'), prop.description]);
       propTable.push([
-        'Required'['brightCyan'],
-        prop.required ? 'true'['brightGreen'] : 'false'['brightRed'],
+        c.cyanBright('Required'),
+        prop.required ? c.greenBright('true') : c.redBright('false'),
       ]);
-      propTable.push(['Type'['brightCyan'], prop.type]);
+      propTable.push([c.cyanBright('Type'), prop.type]);
       propTable.push([
-        'Multivalued'['brightCyan'],
-        prop.multivalued ? 'true'['brightGreen'] : 'false'['brightRed'],
+        c.cyanBright('Multivalued'),
+        prop.multivalued ? c.greenBright('true') : c.redBright('false'),
       ]);
       if (prop.defaultValue) {
         getTableRowsFromArray(
