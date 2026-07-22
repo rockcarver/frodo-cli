@@ -24,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated custom node pull option naming for consistency across config-manager commands:
   - `frodo config-manager pull custom-nodes` now uses `--name <name>` (replacing `--node-name <node-name>`).
-- The latest Unreleased CLI line is now based on `@rockcarver/frodo-lib` `4.1.0`.
 
 ## [4.1.0] - 2026-07-21
 
