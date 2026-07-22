@@ -5,6 +5,9 @@ import Authentication from './config-manager-push-authentication';
 import ConnectorDefinitions from './config-manager-push-connector-definitions';
 import ConnectorMappings from './config-manager-push-connector-mappings';
 import CookieDomains from './config-manager-push-cookie-domain';
+import Cors from './config-manager-push-cors';
+import CustomNodes from './config-manager-push-custom-nodes';
+import CSP from './config-manager-push-csp';
 import EmailProvider from './config-manager-push-email-provider';
 import EmailTemplates from './config-manager-push-email-templates';
 import Endpoints from './config-manager-push-endpoints';
@@ -14,7 +17,9 @@ import Locales from './config-manager-push-locales';
 import ManagedObjects from './config-manager-push-managed-objects';
 import OrgPrivileges from './config-manager-push-org-privileges';
 import PasswordPolicy from './config-manager-push-password-policy';
+import RemoteServers from './config-manager-push-remote-servers';
 import Schedules from './config-manager-push-schedules';
+import SecretMappings from './config-manager-push-secret-mappings';
 import ServiceObjects from './config-manager-push-service-objects';
 import TermsAndConditions from './config-manager-push-terms-and-conditions';
 import Themes from './config-manager-push-themes';
@@ -24,7 +29,6 @@ export default function setup() {
   const program = new FrodoStubCommand('push').description(
     'Import configuration optimized for CI/CD pipelines (format compatible with fr-config-manager).'
   );
-
   program.addCommand(Themes().name('themes'));
   program.addCommand(TermsAndConditions().name('terms-and-conditions'));
   program.addCommand(PasswordPolicy().name('password-policy'));
@@ -45,6 +49,11 @@ export default function setup() {
   program.addCommand(Authentication().name('authentication'));
   program.addCommand(ConnectorDefinitions().name('connector-definitions'));
   program.addCommand(ConnectorMappings().name('connector-mappings'));
+  program.addCommand(Cors().name('cors'));
+  program.addCommand(RemoteServers().name('remote-servers'));
+  program.addCommand(SecretMappings().name('secret-mappings'));
+  program.addCommand(CustomNodes().name('custom-nodes'));
 
+  program.addCommand(CSP().name('csp'));
   return program;
 }

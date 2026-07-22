@@ -1,0 +1,135 @@
+{
+  "certificationTemplate": {
+    "90224e2b-3166-4eb2-88ae-108a12443671": {
+      "allowBulkCertify": false,
+      "allowPartialSignoff": false,
+      "allowSelfCertification": true,
+      "assignmentNotification": null,
+      "assignmentNotificationIncludeManager": false,
+      "certificationType": "entitlement",
+      "defaultCertifierId": null,
+      "description": "Jim's test to see if a resulting artifact of the review decisions can be created.",
+      "enableForward": true,
+      "enableReassign": true,
+      "escalationFrequency": null,
+      "escalationNotification": null,
+      "escalationOwner": null,
+      "events": {},
+      "exceptionDuration": 0,
+      "excludeConditionalAccess": true,
+      "excludeRoleBasedAccess": true,
+      "expirationAction": "certify",
+      "expirationActionDelay": 0,
+      "expirationNotification": null,
+      "expirationReassignee": null,
+      "finalizeRule": "",
+      "id": "90224e2b-3166-4eb2-88ae-108a12443671",
+      "initializeRule": "",
+      "isEventBased": false,
+      "metadata": {},
+      "name": "Sample Access Review",
+      "ownerId": "managed/user/9de92b26-e91e-44b7-ac81-7ae1c6adf9ad",
+      "ownerInfo": {
+        "givenName": "csv",
+        "id": "9de92b26-e91e-44b7-ac81-7ae1c6adf9ad",
+        "mail": "1csv@example.com",
+        "sn": "one",
+        "userName": "1csv"
+      },
+      "reassignNotification": null,
+      "reassignPermissions": {
+        "certify": true,
+        "claim": true,
+        "comment": true,
+        "delegate": true,
+        "exception": true,
+        "forward": true,
+        "reassign": true,
+        "reset": true,
+        "revoke": true,
+        "save": true,
+        "signoff": true
+      },
+      "remediationDelay": 0,
+      "remediationRule": null,
+      "reminderFrequency": 0,
+      "reminderNotification": null,
+      "requireJustification": {
+        "exceptionAllowed": false,
+        "revoke": false
+      },
+      "schedule": null,
+      "scheduleId": null,
+      "selfCertificationRule": "all",
+      "skipInactiveCertifiers": false,
+      "stageDuration": 14,
+      "stages": [
+        {
+          "certifierId": "managed/user/dadb619a-897c-4333-8edc-383b73b25b24",
+          "certifierInfo": {
+            "givenName": "Jim",
+            "id": "dadb619a-897c-4333-8edc-383b73b25b24",
+            "mail": "jmontgomery@example.com",
+            "sn": "Montgomery",
+            "userName": "Jmontgom"
+          },
+          "certifierPath": null,
+          "certifierScript": null,
+          "certifierType": "user"
+        }
+      ],
+      "stagingEnabled": true,
+      "status": "active",
+      "targetFilter": {
+        "application": {
+          "operand": [
+            {
+              "operand": {
+                "targetName": "id",
+                "targetValue": "23b1fbc6-432e-4b8a-bb4e-bbb629f30157"
+              },
+              "operator": "EQUALS"
+            }
+          ],
+          "operator": "OR"
+        },
+        "decision": {
+          "operand": [],
+          "operator": "ALL"
+        },
+        "entitlement": {
+          "operand": [],
+          "operator": "ALL"
+        },
+        "memberOfOrg": [],
+        "type": [
+          "entitlementGrant",
+          "ResourceGrant"
+        ],
+        "user": {
+          "operand": [],
+          "operator": "ALL"
+        }
+      },
+      "uiConfig": {
+        "columnConfig": {
+          "entitlements": [
+            "user.user",
+            "application.application",
+            "entitlement.entitlement",
+            "account.account",
+            "review.flags",
+            "review.comments"
+          ]
+        }
+      }
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.491Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

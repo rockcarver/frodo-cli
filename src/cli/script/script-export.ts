@@ -77,6 +77,24 @@ export default function setup() {
         'Do not include script dependencies (i.e. library scripts). Ignored with -a and -A.'
       )
     )
+    .addOption(
+      new Option(
+        '--language <language>',
+        'Filter scripts by language when using -a or -A. Use lowercase values such as javascript or groovy.'
+      ).choices(['javascript', 'groovy'])
+    )
+    .addOption(
+      new Option(
+        '--context <context>',
+        'Filter scripts by context when using -a or -A. Values are case-insensitive; kebab-case and underscore formats are both accepted.'
+      )
+    )
+    .addOption(
+      new Option(
+        '--evaluator-version <version>',
+        'Filter scripts by evaluator version when using -a or -A. Combine with other filters to imply AND matching.'
+      )
+    )
     .action(
       // implement command logic inside action handler
       async (host, realm, user, password, options, command) => {
@@ -136,6 +154,11 @@ export default function setup() {
               deps: options.deps,
               includeDefault: options.default,
               useStringArrays: true,
+            },
+            {
+              context: options.context,
+              evaluatorVersion: options.evaluatorVersion,
+              language: options.language,
             }
           );
           if (!outcome) process.exitCode = 1;
@@ -151,6 +174,11 @@ export default function setup() {
               deps: options.deps,
               includeDefault: options.default,
               useStringArrays: true,
+            },
+            {
+              context: options.context,
+              evaluatorVersion: options.evaluatorVersion,
+              language: options.language,
             }
           );
           if (!outcome) process.exitCode = 1;

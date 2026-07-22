@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "b0bee61a-791b-44bf-a3b9-b6fec52df4f7": {
+      "allowedValues": [],
+      "description": "Entitlement that is the direct parent of this entitlement",
+      "displayName": "Parent Entitlement",
+      "enumeratedValues": [],
+      "id": "b0bee61a-791b-44bf-a3b9-b6fec52df4f7",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "parentEntitlement",
+      "objectType": "/openidm/managed/assignment",
+      "searchable": true,
+      "type": "string"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.520Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

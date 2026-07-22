@@ -1,0 +1,455 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.668Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "BasicViolationProcess": {
+      "draft": {
+        "childType": false,
+        "description": "Basic violation flow for determining how a policy violation is handled",
+        "displayName": "Basic Violation Process",
+        "id": "BasicViolationProcess",
+        "mutable": false,
+        "name": "BasicViolationProcess",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1380,
+            "y": 400
+          },
+          "startNode": {
+            "connections": {
+              "start": "violationTask-df7f65b04ec3"
+            },
+            "id": "startNode",
+            "x": 60,
+            "y": 140
+          },
+          "uiConfig": {
+            "exclusiveGateway-b1e244b742b5": {
+              "x": 760,
+              "y": 90
+            },
+            "scriptTask-313f487929a4": {
+              "x": 485,
+              "y": 80
+            },
+            "scriptTask-690cd5adc1b6": {
+              "x": 485,
+              "y": 164
+            },
+            "scriptTask-6e8507beca08": {
+              "x": 1040,
+              "y": 80.5
+            },
+            "violationTask-df7f65b04ec3": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationOwner.id"
+                  },
+                  "type": "violationOwner"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "script",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 230,
+              "y": 110
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "displayName": "Start Violation Task",
+            "name": "violationTask-df7f65b04ec3",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationOwner.id"
+                  },
+                  "permissions": {
+                    "allow": true,
+                    "comment": true,
+                    "exception": true,
+                    "reassign": true,
+                    "remediate": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "violationAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "violation.policyRule.violationOwner.id"
+                      },
+                      "permissions": {
+                        "allow": true,
+                        "comment": true,
+                        "exception": true,
+                        "reassign": true,
+                        "remediate": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(8*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 8,
+                  "notification": "violationEscalated"
+                },
+                "expiration": {
+                  "action": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationLifecycle.expiration.expires ? violation.policyRule.violationLifecycle.expiration.action : null"
+                  },
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationLifecycle.expiration.expires ? (new Date(new Date().getTime()+(violation.policyRule.violationLifecycle.expiration.duration*24*60*60*1000))).toISOString() : null"
+                  },
+                  "notification": "violationExpired"
+                },
+                "reassign": {
+                  "notification": "violationReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "violationReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": "scriptTask-690cd5adc1b6"
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": "scriptTask-313f487929a4"
+                }
+              ]
+            }
+          },
+          {
+            "displayName": "Remediate Violation",
+            "name": "scriptTask-690cd5adc1b6",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-b1e244b742b5"
+                }
+              ],
+              "script": "file://BasicViolationProcess/draft/scriptTask-690cd5adc1b6.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Allow Violation",
+            "name": "scriptTask-313f487929a4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/draft/scriptTask-313f487929a4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Remediation Validation",
+            "name": "exclusiveGateway-b1e244b742b5",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "remediation.remediationOptionId == \"grantRemoval\"",
+                  "outcome": "removeGrants",
+                  "step": "scriptTask-6e8507beca08"
+                },
+                {
+                  "condition": "!remediation || !remediation.remediationOptionId || remediation.remediationOptionId !== \"grantRemoval\"",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/draft/exclusiveGateway-b1e244b742b5.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Remove Grants Auto",
+            "name": "scriptTask-6e8507beca08",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/draft/scriptTask-6e8507beca08.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic violation flow for determining how a policy violation is handled",
+        "displayName": "Basic Violation Process",
+        "id": "BasicViolationProcess",
+        "mutable": false,
+        "name": "BasicViolationProcess",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1380,
+            "y": 400
+          },
+          "startNode": {
+            "connections": {
+              "start": "violationTask-df7f65b04ec3"
+            },
+            "id": "startNode",
+            "x": 60,
+            "y": 140
+          },
+          "uiConfig": {
+            "exclusiveGateway-b1e244b742b5": {
+              "x": 760,
+              "y": 90
+            },
+            "scriptTask-313f487929a4": {
+              "x": 485,
+              "y": 80
+            },
+            "scriptTask-690cd5adc1b6": {
+              "x": 485,
+              "y": 164
+            },
+            "scriptTask-6e8507beca08": {
+              "x": 1040,
+              "y": 80.5
+            },
+            "violationTask-df7f65b04ec3": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationOwner.id"
+                  },
+                  "type": "violationOwner"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "script",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 230,
+              "y": 110
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "Start Violation Task",
+            "name": "violationTask-df7f65b04ec3",
+            "type": "violationTask",
+            "violationTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationOwner.id"
+                  },
+                  "permissions": {
+                    "allow": true,
+                    "comment": true,
+                    "exception": true,
+                    "reassign": true,
+                    "remediate": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "violationAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": {
+                        "isExpression": true,
+                        "value": "violation.policyRule.violationOwner.id"
+                      },
+                      "permissions": {
+                        "allow": true,
+                        "comment": true,
+                        "exception": true,
+                        "reassign": true,
+                        "remediate": true
+                      }
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(8*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 8,
+                  "notification": "violationEscalated"
+                },
+                "expiration": {
+                  "action": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationLifecycle.expiration.expires ? violation.policyRule.violationLifecycle.expiration.action : null"
+                  },
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "violation.policyRule.violationLifecycle.expiration.expires ? (new Date(new Date().getTime()+(violation.policyRule.violationLifecycle.expiration.duration*24*60*60*1000))).toISOString() : null"
+                  },
+                  "notification": "violationExpired"
+                },
+                "reassign": {
+                  "notification": "violationReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*1*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "violationReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REMEDIATE",
+                  "step": "scriptTask-690cd5adc1b6"
+                },
+                {
+                  "condition": null,
+                  "outcome": "ALLOW",
+                  "step": "scriptTask-313f487929a4"
+                }
+              ]
+            }
+          },
+          {
+            "displayName": "Remediate Violation",
+            "name": "scriptTask-690cd5adc1b6",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-b1e244b742b5"
+                }
+              ],
+              "script": "file://BasicViolationProcess/published/scriptTask-690cd5adc1b6.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Allow Violation",
+            "name": "scriptTask-313f487929a4",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/published/scriptTask-313f487929a4.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Remediation Validation",
+            "name": "exclusiveGateway-b1e244b742b5",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "remediation.remediationOptionId == \"grantRemoval\"",
+                  "outcome": "removeGrants",
+                  "step": "scriptTask-6e8507beca08"
+                },
+                {
+                  "condition": "!remediation || !remediation.remediationOptionId || remediation.remediationOptionId !== \"grantRemoval\"",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/published/exclusiveGateway-b1e244b742b5.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Remove Grants Auto",
+            "name": "scriptTask-6e8507beca08",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicViolationProcess/published/scriptTask-6e8507beca08.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

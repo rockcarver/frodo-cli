@@ -1,0 +1,13 @@
+{
+  "_id": "am.authentication.nodes.persistentcookie.encryption",
+  "_rev": "-161166124",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Btest2"
+  ],
+  "secretId": "am.authentication.nodes.persistentcookie.encryption"
+}

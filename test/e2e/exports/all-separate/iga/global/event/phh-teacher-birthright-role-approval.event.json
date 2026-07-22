@@ -1,0 +1,59 @@
+{
+  "event": {
+    "27c4b3e8-76b1-4e4b-b2e4-d7e27c2ee060": {
+      "action": {
+        "name": "phhBirthrightRolesRequiringApproval",
+        "parameters": {
+          "roleNames": "phh-role-other-risk"
+        },
+        "type": "orchestration"
+      },
+      "condition": {
+        "filter": {
+          "and": [
+            {
+              "not_contains": {
+                "in_string": "user.before.description",
+                "search_string": {
+                  "literal": "teacher"
+                }
+              }
+            },
+            {
+              "contains": {
+                "in_string": "user.after.description",
+                "search_string": {
+                  "literal": "teacher"
+                }
+              }
+            }
+          ]
+        },
+        "version": "v2"
+      },
+      "description": "Teacher birthright role approval",
+      "entityType": "user",
+      "id": "27c4b3e8-76b1-4e4b-b2e4-d7e27c2ee060",
+      "metadata": {},
+      "mutationType": "update",
+      "name": "phh-teacher-birthright-role-approval",
+      "owners": [
+        {
+          "givenName": "Parent",
+          "id": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018",
+          "mail": "pholderness+poadmin@trivir.com",
+          "sn": "Admin",
+          "userName": "phh-parent-org-admin"
+        }
+      ],
+      "status": "active"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.500Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "glossarySchema": {
+    "cb607bc2-d4ad-4815-bea8-84b5bc36d4bc": {
+      "allowedValues": [],
+      "description": "Testing",
+      "displayName": "CP Dummy Entitlement",
+      "enumeratedValues": [],
+      "id": "cb607bc2-d4ad-4815-bea8-84b5bc36d4bc",
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "CP-DummyEntitlement",
+      "objectType": "/openidm/managed/assignment",
+      "searchable": true,
+      "type": "string"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.521Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

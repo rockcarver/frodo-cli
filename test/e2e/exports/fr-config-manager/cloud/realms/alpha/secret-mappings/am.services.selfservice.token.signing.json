@@ -1,0 +1,13 @@
+{
+  "_id": "am.services.selfservice.token.signing",
+  "_rev": "1981656929",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Atest2"
+  ],
+  "secretId": "am.services.selfservice.token.signing"
+}

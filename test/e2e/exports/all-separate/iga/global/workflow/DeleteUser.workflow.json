@@ -1,0 +1,415 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.679Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "DeleteUser": {
+      "draft": {
+        "childType": false,
+        "description": "Basic Request flow to delete a user",
+        "displayName": "Delete User",
+        "id": "DeleteUser",
+        "mutable": false,
+        "name": "DeleteUser",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1378,
+            "y": 118
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-ca9504ae90d8"
+            },
+            "id": "startNode",
+            "x": 12,
+            "y": 110
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://DeleteUser/draft/approvalTask-74cf85c35437.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 713,
+              "y": 169
+            },
+            "exclusiveGateway-abbb089758c8": {
+              "x": 433,
+              "y": 89.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 993,
+              "y": 31.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 994,
+              "y": 237.015625
+            },
+            "scriptTask-ca9504ae90d8": {
+              "x": 135,
+              "y": 111.015625
+            },
+            "scriptTask-e8842de66fbb": {
+              "x": 708,
+              "y": 26.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://DeleteUser/draft/approvalTask-74cf85c35437.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Delete User",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://DeleteUser/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://DeleteUser/draft/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Check",
+            "name": "scriptTask-ca9504ae90d8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-abbb089758c8"
+                }
+              ],
+              "script": "file://DeleteUser/draft/scriptTask-ca9504ae90d8.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Approval",
+            "name": "scriptTask-e8842de66fbb",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://DeleteUser/draft/scriptTask-e8842de66fbb.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-abbb089758c8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-e8842de66fbb"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://DeleteUser/draft/exclusiveGateway-abbb089758c8.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic Request flow to delete a user",
+        "displayName": "Delete User",
+        "id": "DeleteUser",
+        "mutable": false,
+        "name": "DeleteUser",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1378,
+            "y": 118
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-ca9504ae90d8"
+            },
+            "id": "startNode",
+            "x": 12,
+            "y": 110
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://DeleteUser/published/approvalTask-74cf85c35437.workflow.js"
+              },
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 713,
+              "y": 169
+            },
+            "exclusiveGateway-abbb089758c8": {
+              "x": 433,
+              "y": 89.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 993,
+              "y": 31.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 994,
+              "y": 237.015625
+            },
+            "scriptTask-ca9504ae90d8": {
+              "x": 135,
+              "y": 111.015625
+            },
+            "scriptTask-e8842de66fbb": {
+              "x": 708,
+              "y": 26.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": {
+                "isExpression": true,
+                "value": "file://DeleteUser/published/approvalTask-74cf85c35437.workflow.js"
+              },
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Delete User",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://DeleteUser/published/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://DeleteUser/published/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Permission Check",
+            "name": "scriptTask-ca9504ae90d8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-abbb089758c8"
+                }
+              ],
+              "script": "file://DeleteUser/published/scriptTask-ca9504ae90d8.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto-Approval",
+            "name": "scriptTask-e8842de66fbb",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://DeleteUser/published/scriptTask-e8842de66fbb.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-abbb089758c8",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-e8842de66fbb"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://DeleteUser/published/exclusiveGateway-abbb089758c8.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

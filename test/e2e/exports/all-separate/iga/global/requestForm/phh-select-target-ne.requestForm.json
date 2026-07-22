@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "d5299084-b2b2-4d66-ad94-f412f8bac3f5": {
+      "assignments": [],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "Select Non-Employee to disable",
+      "form": {
+        "events": {
+          "onLoad": {}
+        },
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Select the Non-Employee account to be disabled",
+                "id": "503e224d-bedc-4ed6-b4e4-a228b54683be",
+                "label": "Non-Employee to disable",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "neUserId",
+                "onChangeEvent": {},
+                "options": [],
+                "readOnly": false,
+                "type": "select",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "6e44bafb-1151-4996-afde-a5d159e0b34b"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Explain why the Non-Employee is being disabled",
+                "id": "94de5edf-61b5-4e1f-833c-01d65c276515",
+                "label": "Justification",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "justification",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "textarea",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "dbe4ec92-8d02-416d-813a-bed11b0f2a56"
+          }
+        ]
+      },
+      "id": "d5299084-b2b2-4d66-ad94-f412f8bac3f5",
+      "metadata": {},
+      "name": "phh-select-target-ne",
+      "type": "request"
+    }
+  }
+}

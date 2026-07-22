@@ -29,6 +29,12 @@ import {
   updateProgressIndicator,
 } from '../utils/Console';
 import { errorHandler } from './utils/OpsUtils';
+import {
+  createScriptFilter,
+  filterScriptExport,
+  filterScripts,
+  hasScriptFilters,
+} from './utils/ScriptFilters';
 import wordwrap from './utils/Wordwrap';
 
 const {
@@ -57,9 +63,81 @@ const {
 
 const langMap = { JAVASCRIPT: 'JavaScript', GROOVY: 'Groovy' };
 
+export type ScriptFilters = {
+  context?: string;
+  evaluatorVersion?: string;
+  language?: string;
+};
+
 type SeparatedScripts = {
   realm: Record<string, { script: Record<string, ScriptSkeleton> }>;
 };
+
+type ScriptLike = ScriptSkeleton & {
+  _id: string;
+  evaluatorVersion?: string;
+};
+
+/**
+ * Pass filters through to newer frodo-lib versions when available.
+ * Current frodo-lib releases ignore the extra argument, so callers still
+ * apply local filtering as a compatibility fallback.
+ */
+function readScriptsWithFilterPassthrough(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  const filter = createScriptFilter(filters);
+  return (
+    readScripts as unknown as (filter?: unknown) => Promise<ScriptLike[]>
+  )(filter);
+}
+
+/**
+ * Pass filters through to newer frodo-lib versions when available.
+ * Current frodo-lib releases ignore the extra argument, so callers still
+ * apply local filtering as a compatibility fallback.
+ */
+function exportScriptsWithFilterPassthrough(
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
+): Promise<ScriptExportInterface> {
+  const filter = createScriptFilter(filters);
+  const optionsWithFilter: ScriptExportOptions = filter
+    ? { ...options, filter }
+    : options;
+  return exportScripts(optionsWithFilter, errorHandler);
+}
+
+async function readFilteredScripts(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  return filterScripts(
+    await readScriptsWithFilterPassthrough(filters),
+    filters
+  );
+}
+
+async function readFilteredNonDefaultScripts(
+  filters: ScriptFilters = {}
+): Promise<ScriptLike[]> {
+  return (await readFilteredScripts(filters)).filter(
+    (script) => !script.default
+  );
+}
+
+function filterTypedScriptExport(
+  scriptExport: ScriptExportInterface,
+  filters: ScriptFilters = {},
+  includeDependencies = false
+): ScriptExportInterface {
+  return filterScriptExport(
+    scriptExport as unknown as {
+      script: Record<string, ScriptLike>;
+    },
+    filters,
+    includeDependencies
+  ) as ScriptExportInterface;
+}
 
 /**
  * Get a one-line description of the script object
@@ -106,7 +184,8 @@ export function getTableRowMd(scriptObj: ScriptSkeleton): string {
 export async function listScripts(
   long: boolean = false,
   usage: boolean = false,
-  file: string | null = null
+  file: string | null = null,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   let spinnerId: string;
   let scripts: ScriptSkeleton[] = [];
@@ -117,7 +196,7 @@ export async function listScripts(
       0,
       `Reading scripts...`
     );
-    scripts = await readScripts();
+    scripts = await readFilteredScripts(filters);
     scripts.sort((a, b) => a.name.localeCompare(b.name));
     stopProgressIndicator(
       spinnerId,
@@ -372,7 +451,8 @@ export async function exportScriptsToFile(
   file: string,
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
-  options: ScriptExportOptions
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFile: start`);
   try {
@@ -383,7 +463,11 @@ export async function exportScriptsToFile(
     if (file) {
       fileName = file;
     }
-    const scriptExport = await exportScripts(options, errorHandler);
+    const scriptExport = filterTypedScriptExport(
+      await exportScriptsWithFilterPassthrough(options, filters),
+      filters,
+      options.deps
+    );
     saveJsonToFile(
       scriptExport,
       getFilePath(fileName, true),
@@ -411,11 +495,16 @@ export async function exportScriptsToFiles(
   extract: boolean = false,
   includeMeta: boolean = true,
   keepModifiedProperties: boolean = false,
-  options: ScriptExportOptions
+  options: ScriptExportOptions,
+  filters: ScriptFilters = {}
 ): Promise<boolean> {
   debugMessage(`Cli.ScriptOps.exportScriptsToFiles: start`);
   const errors: Error[] = [];
-  const scriptExport = await exportScripts(options, errorHandler);
+  const scriptExport = filterTypedScriptExport(
+    await exportScriptsWithFilterPassthrough(options, filters),
+    filters,
+    options.deps
+  );
   const scriptList = Object.values(scriptExport.script);
   const barId = createProgressIndicator(
     'determinate',
@@ -796,13 +885,27 @@ export async function deleteScriptName(name: string): Promise<boolean> {
  * Delete all non-default scripts
  * @returns {Promise<boolean>} true if successful, false otherwise
  */
-export async function deleteAllScripts(): Promise<boolean> {
+export async function deleteAllScripts(
+  filters: ScriptFilters = {}
+): Promise<boolean> {
   const spinnerId = createProgressIndicator(
     'indeterminate',
     undefined,
     `Deleting all non-default scripts...`
   );
   try {
+    if (hasScriptFilters(filters)) {
+      const scripts = await readFilteredNonDefaultScripts(filters);
+      for (const script of scripts) {
+        await deleteScript(script._id);
+      }
+      stopProgressIndicator(
+        spinnerId,
+        `Deleted ${scripts.length} matching non-default script${scripts.length === 1 ? '' : 's'}.`,
+        'success'
+      );
+      return true;
+    }
     await deleteScripts(errorHandler);
     stopProgressIndicator(
       spinnerId,

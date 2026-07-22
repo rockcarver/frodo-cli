@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "bab632ff-9e7a-4a9d-a91b-c081ce091df7": {
+      "allowedValues": [],
+      "description": "Show last successful Login",
+      "displayName": "Last Successful Login",
+      "enumeratedValues": [],
+      "id": "bab632ff-9e7a-4a9d-a91b-c081ce091df7",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "lastSuccessfulLogin",
+      "objectType": "/iga/governance/account",
+      "searchable": true,
+      "type": "date"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.521Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

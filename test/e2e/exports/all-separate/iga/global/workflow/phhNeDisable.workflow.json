@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.667Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "phhNeDisable": {
+      "draft": null,
+      "published": {
+        "childType": false,
+        "description": "phh-ne-disable",
+        "displayName": "phh-ne-disable",
+        "id": "phhNeDisable",
+        "mutable": true,
+        "name": "phh-ne-disable",
+        "staticNodes": {
+          "endNode": {
+            "_outcomes": [],
+            "connections": {},
+            "displayDetails": {
+              "icon": "checkmark",
+              "value": "Success",
+              "variant": "success"
+            },
+            "displayType": "SingleInput",
+            "hasError": false,
+            "id": "endNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "End",
+            "nodeType": "SingleInput",
+            "schema": null,
+            "template": null,
+            "x": 601,
+            "y": 255
+          },
+          "startNode": {
+            "_outcomes": [
+              {
+                "displayName": "start",
+                "id": "start"
+              }
+            ],
+            "connections": {
+              "start": "scriptTask-99fdf317c49b"
+            },
+            "displayDetails": {
+              "icon": "play_arrow",
+              "value": "Start",
+              "variant": "info"
+            },
+            "displayType": "IconOutcomeNode",
+            "hasError": false,
+            "id": "startNode",
+            "isDeleteable": false,
+            "isDroppable": false,
+            "isEditable": false,
+            "isHovered": false,
+            "name": "Start",
+            "nodeType": "IconOutcomeNode",
+            "schema": null,
+            "template": null,
+            "x": 50,
+            "y": 250
+          },
+          "uiConfig": {
+            "scriptTask-99fdf317c49b": {
+              "x": 270.3999938964844,
+              "y": 250.6125030517578
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "Load Delegate Sources",
+            "name": "scriptTask-99fdf317c49b",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhNeDisable/published/scriptTask-99fdf317c49b.workflow.js"
+            },
+            "type": "scriptTask"
+          }
+        ]
+      }
+    }
+  }
+}

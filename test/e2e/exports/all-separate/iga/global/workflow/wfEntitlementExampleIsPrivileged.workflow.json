@@ -1,0 +1,460 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.671Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "wfEntitlementExampleIsPrivileged": {
+      "draft": {
+        "childType": false,
+        "description": "wfEntitlementExampleIsPrivileged",
+        "displayName": "wfEntitlementExampleIsPrivileged",
+        "id": "wfEntitlementExampleIsPrivileged",
+        "mutable": true,
+        "name": "wfEntitlementExampleIsPrivileged",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 2262,
+            "y": 220
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-e04f42607ba5"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 176
+          },
+          "uiConfig": {
+            "approvalTask-63163dc11c1f": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.entitlementOwner[0].id ? \"managed/user/\" + requestIndex.entitlementOwner[0].id : \"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "type": "entitlementOwner"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 722,
+              "y": 265
+            },
+            "approvalTask-77691047b28d": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.user.manager._refResourceId"
+                  },
+                  "type": "manager"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 1219,
+              "y": 273
+            },
+            "exclusiveGateway-48e748c42994": {
+              "x": 1917,
+              "y": 104
+            },
+            "exclusiveGateway-67a954f33919": {
+              "x": 462,
+              "y": 155
+            },
+            "inclusiveGateway-bcb05a148971": {
+              "x": 1216,
+              "y": 99
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1924,
+              "y": 258.6666666666667
+            },
+            "scriptTask-0b56191887de": {
+              "x": 1907,
+              "y": 367.33333333333337
+            },
+            "scriptTask-3eab1948f1ec": {
+              "x": 1532,
+              "y": 151.66666666666669
+            },
+            "scriptTask-5106f7a29d86": {
+              "x": 940,
+              "y": 210
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1567,
+              "y": 274.33333333333337
+            },
+            "scriptTask-e04f42607ba5": {
+              "x": 181,
+              "y": 178
+            },
+            "scriptTask-e21178ab80f7": {
+              "x": 724,
+              "y": 101
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "displayName": "Entitlement Grant Validation",
+            "name": "scriptTask-3eab1948f1ec",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-48e748c42994"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-3eab1948f1ec.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Validation Gateway",
+            "name": "exclusiveGateway-48e748c42994",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "failureReason == null",
+                  "outcome": "validationFlowSuccess",
+                  "step": "scriptTask-0359a9d77ee2"
+                },
+                {
+                  "condition": "failureReason != null",
+                  "outcome": "validationFlowFailure",
+                  "step": "scriptTask-0b56191887de"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/exclusiveGateway-48e748c42994.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Entitlement Grant Validation Failure",
+            "name": "scriptTask-0b56191887de",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-0b56191887de.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto Provisioning",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-e04f42607ba5",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-67a954f33919"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-e04f42607ba5.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Auto Approval",
+            "name": "scriptTask-e21178ab80f7",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-e21178ab80f7.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-67a954f33919",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApproval",
+                  "step": "scriptTask-e21178ab80f7"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-63163dc11c1f"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/exclusiveGateway-67a954f33919.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Entitlement Privileged",
+            "name": "scriptTask-5106f7a29d86",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-bcb05a148971"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/scriptTask-5106f7a29d86.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Inclusive Gateway",
+            "name": "inclusiveGateway-bcb05a148971",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "entPriv == true",
+                  "outcome": "Privileged",
+                  "step": "approvalTask-77691047b28d"
+                },
+                {
+                  "condition": "entPriv == false",
+                  "outcome": "NotPrivileged",
+                  "step": "scriptTask-3eab1948f1ec"
+                }
+              ],
+              "script": "file://wfEntitlementExampleIsPrivileged/draft/inclusiveGateway-bcb05a148971.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.user.manager._refResourceId"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/034484bf-1448-40b8-bdfa-56990ef0cc30"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [
+                    {
+                      "id": "managed/user/034484bf-1448-40b8-bdfa-56990ef0cc30"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 7,
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-3eab1948f1ec"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "displayName": "Manager Approval",
+            "name": "approvalTask-77691047b28d",
+            "type": "approvalTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "\"managed/user/\" + requestIndex.entitlementOwner[0].id ? \"managed/user/\" + requestIndex.entitlementOwner[0].id : \"managed/user/\" + requestIndex.applicationOwner[0].id"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/034484bf-1448-40b8-bdfa-56990ef0cc30"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [
+                    {
+                      "id": "managed/user/034484bf-1448-40b8-bdfa-56990ef0cc30"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 7,
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-5106f7a29d86"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-63163dc11c1f",
+            "type": "approvalTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": null
+    }
+  }
+}

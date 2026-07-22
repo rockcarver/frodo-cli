@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-07-21
+
+### Added
+
+- Support Identity Governance for cloud IGA tenants with first-class workflow lifecycle tooling and safer request type migration controls (PR #631):
+  - Added a new `frodo iga workflow` command group with end-to-end workflow operations: `list`, `describe`, `export`, `import`, `publish`, and `delete`.
+  - Added `--only-custom` (`-c`) to `frodo config export` and `frodo config import` so request type migration can be scoped to custom request types only.
+
+### Changed
+
+- The latest CLI workflow command set and IGA behavior in this line are based on `@rockcarver/frodo-lib` `4.1.0`.
+
+### Fixed
+
+- Fixed `frodo config import -A` behavior to better handle directory-based imports when global or realm subdirectories are missing, instead of failing early (PR #631).
+- Fixed config import UX to emit a clear warning when an import run completes with no entities imported (PR #631).
+
+## [4.0.2-0] - 2026-07-20
+
+## [4.0.1] - 2026-07-17
+
+### Changed
+
+- Updated journey commands to work correctly with frodo-lib 4.0.1 export format changes (PR #629).
+- Improved `frodo journey list`, `frodo journey describe`, and journey export flows to more reliably return the requested journey when processing multi-journey export data (PR #629).
+- Improved journey dependency handling for exports/imports involving nested trees referenced by Backchannel Initialize nodes via frodo-lib 4.0.1 (PR #595).
+- The latest CLI is now based on `@rockcarver/frodo-lib` `4.0.1`.
+
+### Added
+
+- Added script filtering options for bulk script operations (PR #627):
+  - `frodo script list --language <language> --context <context> --evaluator-version <version>`
+  - `frodo script export -a/-A --language <language> --context <context> --evaluator-version <version>`
+  - `frodo script delete -a --language <language> --context <context> --evaluator-version <version>`
+- Added support for combining script filters so you can narrow bulk list/export/delete operations to only the scripts you intend to target (PR #627).
+
+### Fixed
+
+- Improved service-account authentication reliability for hosts that include explicit default ports, avoiding JWT audience mismatches during token requests via frodo-lib 4.0.1 (PR #591).
+- Improved connection/runtime compatibility for standalone AM environments with incomplete `serverinfo` payloads by using more resilient version parsing via frodo-lib 4.0.1 (PR #594).
+- Fixed secret export behavior when active values are requested but `Use in Placeholders` is disabled: CLI flows now skip incompatible active-value reads instead of failing via frodo-lib 4.0.1 (PR #592).
+
+## [4.0.1-1] - 2026-07-16
+
+## [4.0.1-0] - 2026-07-16
+
 ## [4.0.0] - 2026-07-14
 
 ### Changed
@@ -29,8 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Additionally, journeys were updated to include custom node dependencies during exports. Even if a journey is exported with Frodo and contains these dependencies in the export JSON, they can still be imported into AIC/AM using the admin UI as it should ignore the custom node dependencies (since AIC/AM doesn't support exporting them yet).
 - Added `--retry <strategy>` option to all commands to control automatic retry of failed operations. Valid values for strategy:
   - everything: Retry all failed operations.
-  - network:    Retry only network-related failed operations.
-  - nothing:    Do not retry failed operations (this is the default modus operandi).
+  - network: Retry only network-related failed operations.
+  - nothing: Do not retry failed operations (this is the default modus operandi).
 - Added the ability to authenticate to an AM classic deployment using Amster credentials (i.e. a public/private key pair). The private key can be in a variety of formats such as PKCS, JWK, and OpenSSH, but is ultimately stored in PKCS#8 format. You can also use encrypted private keys by providing the passphrase when creating the connection profile.
 - Added secret store command coverage, including secret store mapping and alias sub-commands.
 - Added `frodo mcp ...` commands for Model Context Protocol server management.
@@ -169,7 +215,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- \#XXX: 
+- \#XXX:
 
 ## [4.0.0-3] - 2026-02-04
 
@@ -188,7 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- \#XXX: 
+- \#XXX:
 
 ## [4.0.0-2] - 2026-01-27
 
@@ -208,7 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- \#XXX: 
+- \#XXX:
 
 ## [3.1.1-1] - 2026-01-25
 
@@ -318,7 +364,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update to frodo-lib 3.0.0
 - Fixes and improvements to imports and exports:
-
   - Fixed an issue with file paths on the Windows version of Frodo that was causing errors on imports due to the differences between Windows and Linux file paths.
   - **_BREAKING_**: Updated IDM exports to be formatted the same as normal exports instead of as raw data by putting the raw data into a type object. This included changing the names of the exports to have a type ‘idm’, such as ‘sync.idm.json’ instead of ‘sync.json’, in order to reflect this change.
   - Added option to import an entity from a single file from the full export using the -f flag in the config import command.
@@ -382,7 +427,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Improvements to the `frodo script` commands:
-
   - Added the `-i`/`--script-id` option to import and export scripts by id.
   - Added the `--no-deps` option to not include library scripts in exports of single scripts. Similarly adds the option on single script imports using the same flag to not import library dependencies if so desired.
 
@@ -393,7 +437,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixes to the handling of scripts in the `frodo script` commands and the `frodo config import` command:
-
   - Fixing many bugs related to script extraction. For example, there were certain cases where importing wouldn't function correctly due to being unable to find the extracted script(s). For exports, library scripts weren't being extracted correctly either. Therefore, an overhaul was done to try and help simplify the extraction process to that it can work for multiple scripts if dealing with library scripts both on export and import.
   - Fixing many errors in the watch option for script imports. One big one was if there were several scripts for a single json file (e.g. when exporting scripts with library scripts) that only one of the scripts would correctly be watched. This was fixed by creating mappings before watching begins to map extracted script files with their corresponding json files so it functions correctly.
   - Fixing a small bug with config imports where, if the working directory started with `.` or `./` it would usually fail due to being unable to locate the expected files it was looking for.
@@ -682,13 +725,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - New commands to manage IDM mappings:
-
-  - `frodo mapping`  Manage IDM mappings.
-    - `delete`   Delete IDM mappings.
-    - `export`   Export IDM mappings.
-    - `import`   Import IDM mappings.
-    - `list`     List IDM mappings.
-    - `rename`   Renames mappings from the combined/default/legacy naming scheme (sync/\\<name>) to the separate/new naming scheme (mapping/\\<name>). To rename mappings from new back to legacy, use the -l, --legacy flag.
+  - `frodo mapping` Manage IDM mappings.
+    - `delete` Delete IDM mappings.
+    - `export` Export IDM mappings.
+    - `import` Import IDM mappings.
+    - `list` List IDM mappings.
+    - `rename` Renames mappings from the combined/default/legacy naming scheme (sync/\\<name>) to the separate/new naming scheme (mapping/\\<name>). To rename mappings from new back to legacy, use the -l, --legacy flag.
 
 ## [2.0.0-66] - 2024-07-10
 
@@ -900,10 +942,10 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 
 - \#283: Support for authentication settings:
 
-  - `frodo authn`  Manage authentication setting.
+  - `frodo authn` Manage authentication setting.
     - `describe` List authentication settings.
-    - `export`   Export authentication settings.
-    - `import`   Import authentication settings.
+    - `export` Export authentication settings.
+    - `import` Import authentication settings.
 
   Examples:
 
@@ -936,14 +978,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 ### Added
 
 - rockcarver/frodo-lib#53: Frodo Library now uses a file-based secure token cache to persist session and access tokens for re-use. The cached tokens are protected by the credential that was used to obtain them. Session tokens are encrypted using the hashed password as the master key, access tokens are encrypted using the hashed JWK private key as the master key. Therefore only users and processes with the correct credentials can access the tokens in the cache.
-
   - The new default behavior is for Frodo CLI to use the new token cache for all applicable commands.
   - A new global option `--no-cache` has been added to all commands to allow disabling the cache for indiviual invocations.
   - A new environment variable `FRODO_NO_CACHE` is available to globally turn off token caching.
   - A new environment variable `FRODO_TOKEN_CACHE_PATH` is available to instruct Frodo Library to use a non-default token cache file.
 
 - rockcarver/frodo-lib#340: Frodo Library now autotomatically refreshes expired session and access tokens.
-
   - The new default behavior is for Frodo CLI to automatically refresh tokens. This will only ever be noticeable during long-running operations like `frodo journey prune` or `frodo esv apply` that can take longer than 15 mins to complete.
 
 ### Fixed
@@ -1013,9 +1053,9 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - \#251: Support for Identity Cloud admin federation configuration:
 
   - `frodo admin federation` Manage admin federation configuration.
-    - `export`             Export admin federation providers.
-    - `import`             Import admin federation providers.
-    - `list`               List admin federation providers.
+    - `export` Export admin federation providers.
+    - `import` Import admin federation providers.
+    - `list` List admin federation providers.
 
   Examples:
 
@@ -1023,10 +1063,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
     `frodo admin federation list <myTenant>`
 
     `frodo admin federation list <myTenant> <username> <password>`
+
   - Export all admin federation providers to a single file:<br>
     `frodo admin federation export -a <myTenant>`
 
     `frodo admin federation export -a <myTenant> <username> <password>`
+
   - Import all admin federation providers from a single file:<br>
     `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
 
@@ -1056,9 +1098,9 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - \#251: Support for Identity Cloud admin federation configuration:
 
   - `frodo admin federation` Manage admin federation configuration.
-    - `export`             Export admin federation providers.
-    - `import`             Import admin federation providers.
-    - `list`               List admin federation providers.
+    - `export` Export admin federation providers.
+    - `import` Import admin federation providers.
+    - `list` List admin federation providers.
 
   Examples:
 
@@ -1066,10 +1108,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
     `frodo admin federation list <myTenant>`
 
     `frodo admin federation list <myTenant> <username> <password>`
+
   - Export all admin federation providers to a single file:<br>
     `frodo admin federation export -a <myTenant>`
 
     `frodo admin federation export -a <myTenant> <username> <password>`
+
   - Import all admin federation providers from a single file:<br>
     `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
 
@@ -1094,9 +1138,9 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - \#251: Support for Identity Cloud admin federation configuration:
 
   - `frodo admin federation` Manage admin federation configuration.
-    - `export`             Export admin federation providers.
-    - `import`             Import admin federation providers.
-    - `list`               List admin federation providers.
+    - `export` Export admin federation providers.
+    - `import` Import admin federation providers.
+    - `list` List admin federation providers.
 
   Examples:
 
@@ -1104,10 +1148,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
     `frodo admin federation list <myTenant>`
 
     `frodo admin federation list <myTenant> <username> <password>`
+
   - Export all admin federation providers to a single file:<br>
     `frodo admin federation export -a <myTenant>`
 
     `frodo admin federation export -a <myTenant> <username> <password>`
+
   - Import all admin federation providers from a single file:<br>
     `frodo admin federation import -a -f allProviders.admin.federation.json <myTenant>`
 
@@ -1151,24 +1197,24 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 
 - Support for authorization policies, policy sets, and resource types through new `authz` commands:
 
-  - `frodo authz type`    Manage authorization resource types.
-    - `delete`          Delete authorization resource types.
-    - `describe`        Describe authorization resource types.
-    - `export`          Export authorization resource types.
-    - `import`          Import authorization resource types.
-    - `list`            List authorization resource types.
-  - `frodo authz set`     Manage authorization policy sets.
-    - `delete`          Delete authorization policy sets.
-    - `describe`        Describe authorization policy sets.
-    - `export`          Export authorization policy sets.
-    - `import`          Import authorization policy sets.
-    - `list`            List authorization policy sets.
-  - `frodo authz policy`  Manage authorization policies.
-    - `delete`          Delete authorization policies.
-    - `describe`        Describe authorization policies.
-    - `export`          Export authorization policies.
-    - `import`          Import authorization policies.
-    - `list`            List authorization policies.
+  - `frodo authz type` Manage authorization resource types.
+    - `delete` Delete authorization resource types.
+    - `describe` Describe authorization resource types.
+    - `export` Export authorization resource types.
+    - `import` Import authorization resource types.
+    - `list` List authorization resource types.
+  - `frodo authz set` Manage authorization policy sets.
+    - `delete` Delete authorization policy sets.
+    - `describe` Describe authorization policy sets.
+    - `export` Export authorization policy sets.
+    - `import` Import authorization policy sets.
+    - `list` List authorization policy sets.
+  - `frodo authz policy` Manage authorization policies.
+    - `delete` Delete authorization policies.
+    - `describe` Describe authorization policies.
+    - `export` Export authorization policies.
+    - `import` Import authorization policies.
+    - `list` List authorization policies.
 
   Examples:
 
@@ -1420,7 +1466,6 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
      - `FRODO_SA_JWK`: Service account's java web key (jwk) as single-line string. Jwk must contain private key! If set, must also set `FRODO_SA_ID`.
 
 - \#143: Support Identity Cloud Service Accounts in `frodo conn save|add` command
-
   1. The `frodo conn add` command is renamed to `frodo conn save` and `add` is added as an alias for backwards compatibility.
   2. The `frodo conn save` command supports the following new options to manage service accounts:
      1. `--sa-id <uuid>` Service account's uuid. If specified, must also include `--sa-jwk-file`. Ignored with `--no-sa`.
@@ -2314,7 +2359,12 @@ Frodo CLI 2.x automatically refreshes session and access tokens before they expi
 - Fixed problem with adding connection profiles
 - Miscellaneous bug fixes
 
-[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0...HEAD
+[unreleased]: https://github.com/rockcarver/frodo-cli/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.2-0...v4.1.0
+[4.0.2-0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1...v4.0.2-0
+[4.0.1]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1-1...v4.0.1
+[4.0.1-1]: https://github.com/rockcarver/frodo-cli/compare/v4.0.1-0...v4.0.1-1
+[4.0.1-0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0...v4.0.1-0
 [4.0.0]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0-54...v4.0.0
 [4.0.0-54]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0-53...v4.0.0-54
 [4.0.0-53]: https://github.com/rockcarver/frodo-cli/compare/v4.0.0-52...v4.0.0-53

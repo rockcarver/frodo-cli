@@ -63,6 +63,12 @@ export default function setup() {
     )
     .addOption(
       new Option(
+        '-c, --only-custom',
+        'Only import custom request types (IGA cloud deployments only).'
+      )
+    )
+    .addOption(
+      new Option(
         '--include-active-values',
         'Import any secret values contained in the import file. By default, secret values are encrypted server-side in the environment they are exported from. Use --source <host url> to import a file exported from another environment than the one you are importing to.'
       )
@@ -129,6 +135,7 @@ export default function setup() {
             includeDefault: options.default,
             includeActiveValues: options.includeActiveValues,
             source: options.source,
+            onlyCustom: options.onlyCustom,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -152,6 +159,7 @@ export default function setup() {
             includeDefault: options.default,
             includeActiveValues: options.includeActiveValues,
             source: options.source,
+            onlyCustom: options.onlyCustom,
           });
           if (!outcome) process.exitCode = 1;
         }
@@ -169,6 +177,7 @@ export default function setup() {
               includeDefault: options.default,
               includeActiveValues: options.includeActiveValues,
               source: options.source,
+              onlyCustom: options.onlyCustom,
             }
           );
           if (!outcome) process.exitCode = 1;

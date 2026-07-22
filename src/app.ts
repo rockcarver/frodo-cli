@@ -22,6 +22,7 @@ import {
 } from './cli/FrodoCommand';
 import idm from './cli/idm/idm';
 import idp from './cli/idp/idp';
+import iga from './cli/iga/iga';
 import info from './cli/info/info';
 import journey from './cli/journey/journey';
 import log from './cli/log/log';
@@ -90,6 +91,7 @@ process.argv = normalizeExpandedHelpArgv(process.argv);
     program.addCommand(esv());
     program.addCommand(idm());
     program.addCommand(idp());
+    program.addCommand(iga());
     program.addCommand(info());
     program.addCommand(journey());
     program.addCommand(log());

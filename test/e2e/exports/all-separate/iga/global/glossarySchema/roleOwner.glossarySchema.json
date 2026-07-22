@@ -1,0 +1,26 @@
+{
+  "glossarySchema": {
+    "f1cc3b53-ef38-4ad7-b268-1ee482a411ef": {
+      "allowedValues": [],
+      "description": "Role Owner of Object",
+      "displayName": "Role Owner",
+      "id": "f1cc3b53-ef38-4ad7-b268-1ee482a411ef",
+      "isIndexed": true,
+      "isInternal": true,
+      "isMultiValue": false,
+      "managedObjectType": "/openidm/managed/user",
+      "metadata": {},
+      "name": "roleOwner",
+      "objectType": "/openidm/managed/role",
+      "searchable": true,
+      "type": "managedObject"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.522Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

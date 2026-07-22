@@ -22,6 +22,8 @@ Options:
                            Ignored with -i.
   -A, --all-separate       Import all configuration from separate (.json) files
                            in the (working) directory -D. Ignored with -i or -a.
+  -c, --only-custom        Only import custom request types (IGA cloud
+                           deployments only).
   -C, --clean              Remove existing service(s) before importing.
   -d, --default            Import all scripts including the default scripts.
   -f, --file <file>        Name of the file to import. Ignored with -A. If

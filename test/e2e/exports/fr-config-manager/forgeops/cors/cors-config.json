@@ -1,0 +1,68 @@
+{
+  "corsServiceGlobal": {
+    "_id": "",
+    "_rev": "515901845",
+    "_type": {
+      "_id": "CorsService",
+      "collection": false,
+      "name": "CORS Service"
+    },
+    "enabled": true
+  },
+  "corsServices": [
+    {
+      "_id": "cors",
+      "_type": {
+        "_id": "configuration",
+        "collection": true,
+        "name": "Cors Configuration"
+      },
+      "acceptedHeaders": [
+        "authorization",
+        "x-openidm-username",
+        "if-none-match",
+        "x-openidm-nosession",
+        "x-openidm-password",
+        "accept-api-version",
+        "x-requested-with",
+        "content-type",
+        "if-match",
+        "cache-control"
+      ],
+      "acceptedMethods": [
+        "HEAD",
+        "DELETE",
+        "POST",
+        "GET",
+        "PUT",
+        "PATCH"
+      ],
+      "acceptedOrigins": [
+        "http://localhost:8083",
+        "http://localhost:8888",
+        "http://localhost:8082"
+      ],
+      "allowCredentials": true,
+      "enabled": true,
+      "exposedHeaders": [
+        "WWW-Authenticate"
+      ],
+      "maxAge": 600
+    }
+  ],
+  "idmCorsConfig": {
+    "_id": "servletfilter/cors",
+    "filterClass": "org.eclipse.jetty.ee10.servlets.CrossOriginFilter",
+    "initParams": {
+      "allowCredentials": false,
+      "allowedHeaders": "authorization,accept,content-type,origin,x-requested-with,cache-control,accept-api-version,if-match,if-none-match",
+      "allowedMethods": "GET,POST,PUT,DELETE,PATCH",
+      "allowedOrigins": "*",
+      "chainPreflight": false,
+      "exposedHeaders": "WWW-Authenticate"
+    },
+    "urlPatterns": [
+      "/*"
+    ]
+  }
+}

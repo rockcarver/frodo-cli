@@ -48,7 +48,7 @@
 
 /*
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull custom-nodes -D configManagerPullCustomNodesDir0 -m forgeops
-FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull custom-nodes -D configManagerPullCustomNodesDir1 -n 'Display Callback' -m forgeops
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config-manager pull custom-nodes -D configManagerPullCustomNodesDir1 -n DoesUserExist -m forgeops
 */
 
 import { getEnv, testExport } from './utils/TestUtils';
@@ -63,9 +63,9 @@ describe('frodo config-manager pull custom-nodes', () => {
         const CMD = `frodo config-manager pull custom-nodes -D ${dirName} -m forgeops`;
         await testExport(CMD, env, undefined, undefined, dirName, false);
     });
-    test(`"frodo config-manager pull custom-nodes -D configManagerPullCustomNodesDir1 -n 'Display Callback' -m forgeops": should export custom node named: Display Callback`, async () => {
+    test(`"frodo config-manager pull custom-nodes -D configManagerPullCustomNodesDir1 -n DoesUserExist -m forgeops": should export custom node named: DoesUserExist`, async () => {
         const dirName = 'configManagerPullCustomNodesDir1';
-        const CMD = `frodo config-manager pull custom-nodes -D ${dirName} -n 'Display Callback' -m forgeops`;
+        const CMD = `frodo config-manager pull custom-nodes -D ${dirName} -n DoesUserExist -m forgeops`;
         await testExport(CMD, env, undefined, undefined, dirName, false);
     });
 });

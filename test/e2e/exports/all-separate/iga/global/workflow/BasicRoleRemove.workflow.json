@@ -1,0 +1,557 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.661Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "BasicRoleRemove": {
+      "draft": {
+        "childType": false,
+        "description": "Basic request flow for removing a user's role membership",
+        "displayName": "Basic Role Remove",
+        "id": "BasicRoleRemove",
+        "mutable": false,
+        "name": "BasicRoleRemove",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1823,
+            "y": 205
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-c99a721d2b93"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 694,
+              "y": 234
+            },
+            "exclusiveGateway-53007af1f4bf": {
+              "x": 479,
+              "y": 57.015625
+            },
+            "inclusiveGateway-a83e210b90d1": {
+              "x": 992,
+              "y": 70.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1498,
+              "y": 76.015625
+            },
+            "scriptTask-6dde9c0ec213": {
+              "x": 785,
+              "y": 84.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1165,
+              "y": 285.015625
+            },
+            "scriptTask-c99a721d2b93": {
+              "x": 187,
+              "y": 143.015625
+            },
+            "waitTask-e65fcbd06a6d": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.endDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1247,
+              "y": 84.015625
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-6dde9c0ec213"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Deprovisioning",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-53007af1f4bf",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-6dde9c0ec213"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/exclusiveGateway-53007af1f4bf.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-c99a721d2b93",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-53007af1f4bf"
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/scriptTask-c99a721d2b93.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-6dde9c0ec213",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-a83e210b90d1"
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/scriptTask-6dde9c0ec213.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-a83e210b90d1",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "waitTask-e65fcbd06a6d"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noEndDate",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://BasicRoleRemove/draft/inclusiveGateway-a83e210b90d1.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Task",
+            "name": "waitTask-e65fcbd06a6d",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.endDate"
+              }
+            }
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "Basic request flow for removing a user's role membership",
+        "displayName": "Basic Role Remove",
+        "id": "BasicRoleRemove",
+        "mutable": false,
+        "name": "BasicRoleRemove",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1823,
+            "y": 205
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-c99a721d2b93"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 140
+          },
+          "uiConfig": {
+            "approvalTask-74cf85c35437": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "type": "roleOwner"
+                }
+              ],
+              "events": {
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 694,
+              "y": 234
+            },
+            "exclusiveGateway-53007af1f4bf": {
+              "x": 479,
+              "y": 57.015625
+            },
+            "inclusiveGateway-a83e210b90d1": {
+              "x": 992,
+              "y": 70.015625
+            },
+            "scriptTask-0359a9d77ee2": {
+              "x": 1498,
+              "y": 76.015625
+            },
+            "scriptTask-6dde9c0ec213": {
+              "x": 785,
+              "y": 84.015625
+            },
+            "scriptTask-aec6c36b3a45": {
+              "x": 1165,
+              "y": 285.015625
+            },
+            "scriptTask-c99a721d2b93": {
+              "x": 187,
+              "y": 143.015625
+            },
+            "waitTask-e65fcbd06a6d": {
+              "events": {
+                "resumeDateNumber": 1,
+                "resumeDateRequestProperty": "request.common.endDate",
+                "resumeDateTimeSpan": "day(s)",
+                "resumeDateType": "requestProp"
+              },
+              "x": 1247,
+              "y": 84.015625
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": true,
+                    "value": "(function() {\n  var systemSettings = openidm.action(\"iga/commons/config/iga_access_request\", \"GET\", {}, {});\n  var approver = null;\n  if (requestIndex.roleOwner && requestIndex.roleOwner[0]) {\n    approver = \"managed/user/\" + requestIndex.roleOwner[0].id;\n  } else if (systemSettings && systemSettings.defaultApprover) {\n    approver = systemSettings.defaultApprover;\n  }\n  return approver;\n})()"
+                  },
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-aec6c36b3a45"
+                },
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-6dde9c0ec213"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-74cf85c35437",
+            "type": "approvalTask"
+          },
+          {
+            "displayName": "Deprovisioning",
+            "name": "scriptTask-0359a9d77ee2",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/scriptTask-0359a9d77ee2.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-aec6c36b3a45",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/scriptTask-aec6c36b3a45.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-53007af1f4bf",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApprove",
+                  "step": "scriptTask-6dde9c0ec213"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-74cf85c35437"
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/exclusiveGateway-53007af1f4bf.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-c99a721d2b93",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-53007af1f4bf"
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/scriptTask-c99a721d2b93.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-6dde9c0ec213",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "inclusiveGateway-a83e210b90d1"
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/scriptTask-6dde9c0ec213.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Has End Date",
+            "name": "inclusiveGateway-a83e210b90d1",
+            "scriptTask": {
+              "gatewayType": "inclusive",
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "enableWait == true",
+                  "outcome": "hasEndDate",
+                  "step": "waitTask-e65fcbd06a6d"
+                },
+                {
+                  "condition": "enableWait == false",
+                  "outcome": "noEndDate",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "script": "file://BasicRoleRemove/published/inclusiveGateway-a83e210b90d1.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Wait Task",
+            "name": "waitTask-e65fcbd06a6d",
+            "type": "waitTask",
+            "waitTask": {
+              "events": null,
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "COMPLETE",
+                  "step": "scriptTask-0359a9d77ee2"
+                }
+              ],
+              "resumeDate": {
+                "isExpression": true,
+                "value": "requestIndex.request.common.endDate"
+              }
+            }
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

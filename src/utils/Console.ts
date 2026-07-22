@@ -4,7 +4,7 @@ import {
   ProgressIndicatorStatusType,
   ProgressIndicatorType,
 } from '@rockcarver/frodo-lib/types/utils/Console';
-import Table from 'cli-table3';
+import Table, { Table as TableType } from 'cli-table3';
 import Color from 'colors';
 import { stderr as logUpdateStderr } from 'log-update';
 import c from 'tinyrainbow';
@@ -613,4 +613,21 @@ export function createObjectTable(object, keyMap = {}) {
   });
   addRows(object, depth, level + 1, table, keyMap);
   return table;
+}
+
+/**
+ * Helper that gets multiple rows for a table for array data
+ * @param table The table to push the rows to
+ * @param rowName The name of the first row
+ * @param array The array of data
+ */
+export function getTableRowsFromArray(
+  table: TableType,
+  rowName: string,
+  array: string[]
+): void {
+  table.push([rowName['brightCyan'], array.length > 0 ? array[0] : '']);
+  for (let i = 1; i < array.length; ++i) {
+    table.push(['', array[i]]);
+  }
 }

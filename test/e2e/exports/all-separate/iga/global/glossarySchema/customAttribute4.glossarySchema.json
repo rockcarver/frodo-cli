@@ -1,0 +1,25 @@
+{
+  "glossarySchema": {
+    "b1f1f37a-4134-43cd-8220-957cefbbe44e": {
+      "allowedValues": [],
+      "description": "custom attribute 4",
+      "displayName": "Custom Attribute 4",
+      "enumeratedValues": [],
+      "id": "b1f1f37a-4134-43cd-8220-957cefbbe44e",
+      "isInternal": true,
+      "isMultiValue": false,
+      "metadata": {},
+      "name": "customAttribute4",
+      "objectType": "/iga/governance/account",
+      "searchable": true,
+      "type": "string"
+    }
+  },
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.521Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  }
+}

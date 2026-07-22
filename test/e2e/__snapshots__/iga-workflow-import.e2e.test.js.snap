@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo iga workflow import "frodo iga workflow import --all --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import all workflows from the file "test/e2e/exports/all/allWorkflows.workflow.json" 1`] = `""`;
+
+exports[`frodo iga workflow import "frodo iga workflow import --all --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import all workflows from the file "test/e2e/exports/all/allWorkflows.workflow.json" 2`] = `
+"✔ Successfully imported workflow(s) from file test/e2e/exports/all/allWorkflows.workflow.json.
+"
+`;
+
+exports[`frodo iga workflow import "frodo iga workflow import --all-separate --directory test/e2e/exports/all-separate/iga/global/workflow --no-deps": should import all workflows from the directory "test/e2e/exports/all-separate/iga/global/workflow" 1`] = `""`;
+
+exports[`frodo iga workflow import "frodo iga workflow import --all-separate --directory test/e2e/exports/all-separate/iga/global/workflow --no-deps": should import all workflows from the directory "test/e2e/exports/all-separate/iga/global/workflow" 2`] = `
+"✔ Successfully imported workflow(s) from file BasicApplicationGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicApplicationRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicEntitlementRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleCreate.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleDelete.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleModify.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRolePublish.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicViolationProcess.workflow.json.
+✔ Successfully imported workflow(s) from file CreateEntitlement.workflow.json.
+✔ Successfully imported workflow(s) from file CreateUser.workflow.json.
+✔ Successfully imported workflow(s) from file DeleteUser.workflow.json.
+✔ Successfully imported workflow(s) from file ModifyEntitlement.workflow.json.
+✔ Successfully imported workflow(s) from file ModifyUser.workflow.json.
+✔ Successfully imported workflow(s) from file custom1BasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file extendGrantEndDate.workflow.json.
+✔ Successfully imported workflow(s) from file phhBasicApplicationGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhBasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhBirthrightRolesRequiringApproval.workflow.json.
+✔ Successfully imported workflow(s) from file phhDelegatedUserDisableWorkflow.workflow.json.
+✔ Successfully imported workflow(s) from file phhInternalRoleEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhNeDisable.workflow.json.
+✔ Successfully imported workflow(s) from file phhNewUserCreate.workflow.json.
+✔ Successfully imported workflow(s) from file test.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow1.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow4.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow5.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow6.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow7.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow8.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow9.workflow.json.
+✔ Successfully imported workflow(s) from file wfEntitlementExampleIsPrivileged.workflow.json.
+✔ Successfully imported workflows.
+"
+`;
+
+exports[`frodo iga workflow import "frodo iga workflow import --workflow-id testWorkflow1 --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import testWorkflow1 from the file "test/e2e/exports/all/allWorkflows.workflow.json" 1`] = `""`;
+
+exports[`frodo iga workflow import "frodo iga workflow import --workflow-id testWorkflow1 --file test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import testWorkflow1 from the file "test/e2e/exports/all/allWorkflows.workflow.json" 2`] = `
+"✔ Successfully imported workflow testWorkflow1.
+"
+`;
+
+exports[`frodo iga workflow import "frodo iga workflow import -AD test/e2e/exports/all-separate/iga/global/workflow": should import all workflows from the directory "test/e2e/exports/all-separate/iga/global/workflow" with dependencies 1`] = `""`;
+
+exports[`frodo iga workflow import "frodo iga workflow import -AD test/e2e/exports/all-separate/iga/global/workflow": should import all workflows from the directory "test/e2e/exports/all-separate/iga/global/workflow" with dependencies 2`] = `
+"✔ Successfully imported workflow(s) from file BasicApplicationGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicApplicationRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicEntitlementRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleCreate.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleDelete.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleGrant.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleModify.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRolePublish.workflow.json.
+✔ Successfully imported workflow(s) from file BasicRoleRemove.workflow.json.
+✔ Successfully imported workflow(s) from file BasicViolationProcess.workflow.json.
+✔ Successfully imported workflow(s) from file CreateEntitlement.workflow.json.
+✔ Successfully imported workflow(s) from file CreateUser.workflow.json.
+✔ Successfully imported workflow(s) from file DeleteUser.workflow.json.
+✔ Successfully imported workflow(s) from file ModifyEntitlement.workflow.json.
+✔ Successfully imported workflow(s) from file ModifyUser.workflow.json.
+✔ Successfully imported workflow(s) from file custom1BasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file extendGrantEndDate.workflow.json.
+✔ Successfully imported workflow(s) from file phhBasicApplicationGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhBasicEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhBirthrightRolesRequiringApproval.workflow.json.
+✔ Successfully imported workflow(s) from file phhDelegatedUserDisableWorkflow.workflow.json.
+✔ Successfully imported workflow(s) from file phhInternalRoleEntitlementGrant.workflow.json.
+✔ Successfully imported workflow(s) from file phhNeDisable.workflow.json.
+✔ Successfully imported workflow(s) from file phhNewUserCreate.workflow.json.
+✔ Successfully imported workflow(s) from file test.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow1.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow4.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow5.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow6.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow7.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow8.workflow.json.
+✔ Successfully imported workflow(s) from file testWorkflow9.workflow.json.
+✔ Successfully imported workflow(s) from file wfEntitlementExampleIsPrivileged.workflow.json.
+✔ Successfully imported workflows.
+"
+`;
+
+exports[`frodo iga workflow import "frodo iga workflow import -f test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import first workflow from the file "test/e2e/exports/all/allWorkflows.workflow.json" 1`] = `""`;
+
+exports[`frodo iga workflow import "frodo iga workflow import -f test/e2e/exports/all/allWorkflows.workflow.json --no-deps": should import first workflow from the file "test/e2e/exports/all/allWorkflows.workflow.json" 2`] = `
+"✔ Imported workflow from test/e2e/exports/all/allWorkflows.workflow.json
+"
+`;

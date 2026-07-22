@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "9c10b680-a790-4f73-95ed-81b345f0f3e9": {
+      "assignments": [
+        {
+          "formId": "9c10b680-a790-4f73-95ed-81b345f0f3e9",
+          "metadata": {},
+          "objectId": "workflow/phhDelegatedUserDisableWorkflow/node/approvalTask-bebe49db4dac"
+        }
+      ],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "Form for disabling users with delegation authority",
+      "form": {
+        "events": {},
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Enter the username of individual you are performing the operation for",
+                "id": "988aad8c-9ef4-4a83-8717-960931b89695",
+                "label": "Acting on behalf of",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "actingPrincipalId",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "ef298ed6-7f50-456a-9473-934eee627b36"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "These are those you can act on behalf of.",
+                "id": "4b64f437-f304-434a-9cb7-20227549b778",
+                "label": "Your direct reports",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "availableDirectReports",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "8587be1b-8a68-4a9a-bbfb-26dc47911897"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "User to be disabled",
+                "id": "13c44f83-9f4e-4da1-83ce-60137f25bcd9",
+                "label": "Target User to Disable",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "targetUserId",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "b24286b5-07ba-420f-9238-667035368e93"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "Why is this user being disabled?",
+                "id": "0ccdeb3c-5df7-45df-95ef-5ed10be592c6",
+                "label": "Justification",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "justification",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "textarea",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "915f0cd0-27e1-4d3d-bf55-bf3c1a7697e0"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "You are about to submit this using delegated authority...",
+                "id": "f5b98b5c-1f2b-4609-bcb1-2eb5d6d02953",
+                "label": "Important",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "confirmationMessage",
+                "onChangeEvent": {},
+                "readOnly": true,
+                "type": "textarea",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "7ab82555-de43-4840-adbb-f2ea959b6d9e"
+          }
+        ]
+      },
+      "id": "9c10b680-a790-4f73-95ed-81b345f0f3e9",
+      "metadata": {},
+      "name": "phh-delegated-user-disable-form",
+      "type": "request"
+    }
+  }
+}

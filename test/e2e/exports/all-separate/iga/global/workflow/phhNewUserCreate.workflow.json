@@ -1,0 +1,475 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.662Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "workflow": {
+    "phhNewUserCreate": {
+      "draft": {
+        "childType": false,
+        "description": "phh-new-user-create",
+        "displayName": "phh-new-user-create",
+        "id": "phhNewUserCreate",
+        "mutable": true,
+        "name": "phh-new-user-create",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1348,
+            "y": 177.5
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-4e9121fe850a"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 177.5
+          },
+          "uiConfig": {
+            "approvalTask-75cf4247ba1d": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 777,
+              "y": 226
+            },
+            "exclusiveGateway-621c9996676a": {
+              "x": 514,
+              "y": 153
+            },
+            "scriptTask-0e5b6187ea62": {
+              "x": 777,
+              "y": 80
+            },
+            "scriptTask-4e9121fe850a": {
+              "x": 210,
+              "y": 179.5
+            },
+            "scriptTask-626899b6e99a": {
+              "x": 1049,
+              "y": 97.66666666666667
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1049,
+              "y": 234.83333333333334
+            }
+          }
+        },
+        "status": "draft",
+        "steps": [
+          {
+            "displayName": "User Create Validation",
+            "name": "scriptTask-626899b6e99a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhNewUserCreate/draft/scriptTask-626899b6e99a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhNewUserCreate/draft/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-4e9121fe850a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-621c9996676a"
+                }
+              ],
+              "script": "file://phhNewUserCreate/draft/scriptTask-4e9121fe850a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-621c9996676a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApproval",
+                  "step": "scriptTask-0e5b6187ea62"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-75cf4247ba1d"
+                }
+              ],
+              "script": "file://phhNewUserCreate/draft/exclusiveGateway-621c9996676a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-0e5b6187ea62",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "script": "file://phhNewUserCreate/draft/scriptTask-0e5b6187ea62.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/9de92b26-e91e-44b7-ac81-7ae1c6adf9ad"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-626899b6e99a"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-75cf4247ba1d",
+            "type": "approvalTask"
+          }
+        ],
+        "type": "provisioning"
+      },
+      "published": {
+        "childType": false,
+        "description": "phh-new-user-create",
+        "displayName": "phh-new-user-create",
+        "id": "phhNewUserCreate",
+        "mutable": true,
+        "name": "phh-new-user-create",
+        "staticNodes": {
+          "endNode": {
+            "connections": null,
+            "id": "endNode",
+            "x": 1348,
+            "y": 177.5
+          },
+          "startNode": {
+            "connections": {
+              "start": "scriptTask-4e9121fe850a"
+            },
+            "id": "startNode",
+            "x": 70,
+            "y": 177.5
+          },
+          "uiConfig": {
+            "approvalTask-75cf4247ba1d": {
+              "actors": [
+                {
+                  "id": {
+                    "isExpression": false,
+                    "value": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018"
+                  },
+                  "type": "user"
+                }
+              ],
+              "events": {
+                "escalationDate": 5,
+                "escalationTimeSpan": "day(s)",
+                "escalationType": "applicationOwner",
+                "expirationDate": 7,
+                "expirationDateType": "duration",
+                "expirationDateVariable": "",
+                "expirationTimeSpan": "day(s)",
+                "reassignedActors": [],
+                "reminderDate": 3,
+                "reminderTimeSpan": "day(s)"
+              },
+              "x": 777,
+              "y": 226
+            },
+            "exclusiveGateway-621c9996676a": {
+              "x": 514,
+              "y": 153
+            },
+            "scriptTask-0e5b6187ea62": {
+              "x": 777,
+              "y": 80
+            },
+            "scriptTask-4e9121fe850a": {
+              "x": 210,
+              "y": 179.5
+            },
+            "scriptTask-626899b6e99a": {
+              "x": 1049,
+              "y": 97.66666666666667
+            },
+            "scriptTask-c58309b8c470": {
+              "x": 1049,
+              "y": 234.83333333333334
+            }
+          }
+        },
+        "status": "published",
+        "steps": [
+          {
+            "displayName": "User Create Validation",
+            "name": "scriptTask-626899b6e99a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhNewUserCreate/published/scriptTask-626899b6e99a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Reject Request",
+            "name": "scriptTask-c58309b8c470",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": null
+                }
+              ],
+              "script": "file://phhNewUserCreate/published/scriptTask-c58309b8c470.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Context Check",
+            "name": "scriptTask-4e9121fe850a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "exclusiveGateway-621c9996676a"
+                }
+              ],
+              "script": "file://phhNewUserCreate/published/scriptTask-4e9121fe850a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Context Gateway",
+            "name": "exclusiveGateway-621c9996676a",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "skipApproval == true",
+                  "outcome": "AutoApproval",
+                  "step": "scriptTask-0e5b6187ea62"
+                },
+                {
+                  "condition": "skipApproval == false",
+                  "outcome": "Approval",
+                  "step": "approvalTask-75cf4247ba1d"
+                }
+              ],
+              "script": "file://phhNewUserCreate/published/exclusiveGateway-621c9996676a.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "displayName": "Request Approved",
+            "name": "scriptTask-0e5b6187ea62",
+            "scriptTask": {
+              "language": "javascript",
+              "nextStep": [
+                {
+                  "condition": "true",
+                  "outcome": "done",
+                  "step": "scriptTask-626899b6e99a"
+                }
+              ],
+              "script": "file://phhNewUserCreate/published/scriptTask-0e5b6187ea62.workflow.js"
+            },
+            "type": "scriptTask"
+          },
+          {
+            "approvalMode": "any",
+            "approvalTask": {
+              "actors": [
+                {
+                  "id": "managed/user/6b21c283-d491-4fd9-8322-898c171c7018",
+                  "permissions": {
+                    "approve": true,
+                    "comment": true,
+                    "modify": true,
+                    "reassign": true,
+                    "reject": true
+                  }
+                }
+              ],
+              "approvalMode": "any",
+              "events": {
+                "assignment": {
+                  "notification": "requestAssigned"
+                },
+                "escalation": {
+                  "actors": [
+                    {
+                      "id": "managed/user/9de92b26-e91e-44b7-ac81-7ae1c6adf9ad"
+                    }
+                  ],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(5*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 5,
+                  "notification": "requestEscalated"
+                },
+                "expiration": {
+                  "action": "reject",
+                  "actors": [],
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()"
+                  },
+                  "notification": "requestExpired"
+                },
+                "reassign": {
+                  "notification": "requestReassigned"
+                },
+                "reminder": {
+                  "date": {
+                    "isExpression": true,
+                    "value": "(new Date(new Date().getTime()+(3*24*60*60*1000))).toISOString()"
+                  },
+                  "frequency": 3,
+                  "notification": "requestReminder"
+                }
+              },
+              "nextStep": [
+                {
+                  "condition": null,
+                  "outcome": "APPROVE",
+                  "step": "scriptTask-626899b6e99a"
+                },
+                {
+                  "condition": null,
+                  "outcome": "REJECT",
+                  "step": "scriptTask-c58309b8c470"
+                }
+              ]
+            },
+            "displayName": "Approval Task",
+            "name": "approvalTask-75cf4247ba1d",
+            "type": "approvalTask"
+          }
+        ],
+        "type": "provisioning"
+      }
+    }
+  }
+}

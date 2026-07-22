@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.594Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "2108a1e1-6be6-41e2-b356-b929114d98f5": {
+      "assignments": [],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create",
+        "requestType": "822e832b-865a-4b9a-9b35-8c9765c6a515"
+      },
+      "description": "",
+      "form": {
+        "events": {
+          "onLoad": {}
+        },
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "mlb stats number",
+                "id": "ed67d5a7-0d13-4bd6-82ec-a44929009d7b",
+                "label": "Team Number",
+                "layout": {
+                  "columns": 12,
+                  "offset": 0
+                },
+                "model": "custom.teamNumber",
+                "onChangeEvent": {},
+                "readOnly": false,
+                "type": "string",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "d99789d4-49d6-418b-b2f3-ad3e6ea0efd2"
+          }
+        ]
+      },
+      "id": "2108a1e1-6be6-41e2-b356-b929114d98f5",
+      "metadata": {},
+      "name": "phhCustomRequestForm",
+      "type": "request"
+    }
+  }
+}

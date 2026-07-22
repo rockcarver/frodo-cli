@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "exportDate": "2026-07-16T21:05:07.595Z",
+    "exportTool": "frodo",
+    "exportToolVersion": "v4.0.1-6 [v24.13.0]",
+    "origin": "https://openam-trivir-fairfax.forgeblocks.com/am",
+    "originAmVersion": "9.0.0"
+  },
+  "requestForm": {
+    "69c4d900-ff3c-400f-8d18-037693ade1fc": {
+      "assignments": [],
+      "categories": {
+        "applicationType": null,
+        "objectType": null,
+        "operation": "create"
+      },
+      "description": "Form for generating an RAP code for a user",
+      "form": {
+        "config": {
+          "applyAttributePrivileges": false
+        },
+        "events": {
+          "onLoad": {
+            "script": "const USER_FIELD = 'custom.idPath';\nconst RAP_FIELD = 'custom.rap';\n\nfunction main() {\n    const userPresent = !!form.getValue(USER_FIELD);\n    const rapPresent = !!form.getValue(RAP_FIELD);\n    if (rapPresent || userPresent) {\n        form.disableField(USER_FIELD);\n        form.setLabel(USER_FIELD, 'User');\n    }\n    if (!rapPresent) {\n        form.hideField(RAP_FIELD);\n    }\n}\n\nmain();",
+            "type": "script"
+          }
+        },
+        "fields": [
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "description": "",
+                "id": "be5596da-1cda-4576-b126-ca4e74eebce4",
+                "label": "Select a User",
+                "layout": {
+                  "columns": 4,
+                  "offset": 4
+                },
+                "model": "custom.idPath",
+                "onChangeEvent": {},
+                "options": {
+                  "object": "user",
+                  "queryFilter": "true"
+                },
+                "readOnly": false,
+                "type": "select",
+                "validation": {
+                  "required": true
+                }
+              }
+            ],
+            "id": "e530afc3-db58-460d-b5d9-687b54a0c381"
+          },
+          {
+            "fields": [
+              {
+                "customSlot": false,
+                "defaultValue": "",
+                "description": "",
+                "id": "d460e467-933f-42e6-93ef-d61e43dbb6f1",
+                "label": "RAP",
+                "layout": {
+                  "columns": 4,
+                  "offset": 4
+                },
+                "model": "custom.rap",
+                "onChangeEvent": {},
+                "readOnly": true,
+                "type": "string",
+                "validation": {
+                  "regex": {},
+                  "required": true
+                }
+              }
+            ],
+            "id": "f31def11-67b0-4f20-855c-d0230901703e"
+          }
+        ]
+      },
+      "id": "69c4d900-ff3c-400f-8d18-037693ade1fc",
+      "metadata": {},
+      "name": "pgh-generate-rap",
+      "type": "request"
+    }
+  }
+}

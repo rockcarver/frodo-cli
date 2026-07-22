@@ -1,0 +1,13 @@
+{
+  "_id": "am.services.oauth2.stateless.signing.ES512",
+  "_rev": "-224635891",
+  "_type": {
+    "_id": "mappings",
+    "collection": true,
+    "name": "Mappings"
+  },
+  "aliases": [
+    "Btest3"
+  ],
+  "secretId": "am.services.oauth2.stateless.signing.ES512"
+}

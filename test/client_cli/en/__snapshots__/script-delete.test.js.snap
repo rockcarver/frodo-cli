@@ -6,27 +6,38 @@ exports[`CLI help interface for 'script delete' should be expected english 1`] =
 Delete scripts.
 
 Arguments:
-  host                      AM base URL, e.g.: https://cdk.iam.example.com/am.
-                            To use a connection profile, just specify a unique
-                            substring or alias.
-  realm                     Realm. Specify realm as '/' for the root realm or
-                            'realm' or '/parent/child' otherwise. (default:
-                            "alpha" for Identity Cloud tenants, "/" otherwise.)
-  username                  Username to login with. Must be an admin user with
-                            appropriate rights to manage authentication
-                            journeys/trees.
-  password                  Password.
+  host                           AM base URL, e.g.:
+                                 https://cdk.iam.example.com/am. To use a
+                                 connection profile, just specify a unique
+                                 substring or alias.
+  realm                          Realm. Specify realm as '/' for the root realm
+                                 or 'realm' or '/parent/child' otherwise.
+                                 (default: "alpha" for Identity Cloud tenants,
+                                 "/" otherwise.)
+  username                       Username to login with. Must be an admin user
+                                 with appropriate rights to manage
+                                 authentication journeys/trees.
+  password                       Password.
 
 Options:
-  -a, --all                 Delete all non-default scripts in a realm. Ignored
-                            with -i.
-  -i, --script-id <uuid>    Uuid of the script. If specified, -a and -A are
-                            ignored.
-  -n, --script-name <name>  Name of the script. If specified, -a and -A are
-                            ignored.
-  -h, --help                Help
-  -hh, --help-more          Help with all options.
-  -hhh, --help-all          Help with all options, environment variables, and
-                            usage examples.
+  -a, --all                      Delete all non-default scripts in a realm.
+                                 Ignored with -i.
+  --context <context>            Filter scripts by context when using -a. Values
+                                 are case-insensitive; kebab-case and underscore
+                                 formats are both accepted.
+  --evaluator-version <version>  Filter scripts by evaluator version when using
+                                 -a. Combine with other filters to imply AND
+                                 matching.
+  -i, --script-id <uuid>         Uuid of the script. If specified, -a and -A are
+                                 ignored.
+  --language <language>          Filter scripts by language when using -a. Use
+                                 lowercase values such as javascript or groovy.
+                                 (choices: "javascript", "groovy")
+  -n, --script-name <name>       Name of the script. If specified, -a and -A are
+                                 ignored.
+  -h, --help                     Help
+  -hh, --help-more               Help with all options.
+  -hhh, --help-all               Help with all options, environment variables,
+                                 and usage examples.
 "
 `;

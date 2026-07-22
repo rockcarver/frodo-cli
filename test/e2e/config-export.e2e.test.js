@@ -56,6 +56,11 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgebloc
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -RAD exportAllTestDir5 --include-active-values
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -raf testExportAllAlpha.json
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -gAD exportAllTestDir9
+// Cloud IGA
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -NRag --use-string-arrays --no-coords -f testExportAllIGA1.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --all --only-custom --global --file testExportAllIGA2.json
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory exportAllTestDir11
+FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://openam-frodo-dev.forgeblocks.com/am frodo config export -cxAgD exportAllTestDir12
 // Classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export -adND exportAllTestDir6 -m classic
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=http://openam-frodo-dev.classic.com:8080/am frodo config export --all --modified-properties --read-only --file testExportAll2.json --include-active-values --use-string-arrays --no-decode --no-coords --type classic
@@ -68,12 +73,13 @@ FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/a
 FRODO_MOCK=record FRODO_NO_CACHE=1 FRODO_HOST=https://nightly.gcp.forgeops.com/am frodo config export -xAND exportAllTestDir12 --type forgeops
 */
 import { getEnv, testExport } from './utils/TestUtils';
-import { connection as c, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
+import { connection as c, iga_connection as ic, classic_connection as cc, forgeops_connection as fc } from './utils/TestConfig';
 
 process.env['FRODO_MOCK'] = '1';
 process.env['FRODO_CONNECTION_PROFILES_PATH'] =
   './test/e2e/env/Connections.json';
 const cloudEnv = getEnv(c);
+const igaEnv = getEnv(ic);
 const classicEnv = getEnv(cc);
 const forgeopsEnv = getEnv(fc);
 
@@ -135,6 +141,36 @@ describe('frodo config export', () => {
       const CMD = `frodo config export -gAD ${exportDirectory}`;
       await testExport(CMD, cloudEnv, undefined, undefined, exportDirectory, false);
     });
+  });
+
+  // Cloud IGA Tests
+
+  // TODO: Record test
+  test.skip('"frodo config export -NRag --use-string-arrays --no-coords -f testExportAllIGA1.json": should export all global IGA configuration with no-coords, string arrays, and read only configuration.', async () => {
+    const exportFile = 'testExportAllIGA1.json';
+    const CMD = `frodo config export -NRag --use-string-arrays --no-coords -f ${exportFile}`;
+    await testExport(CMD, igaEnv, type, exportFile, undefined, false, true);
+  });
+
+  // TODO: Record test
+  test.skip('"frodo config export --all --only-custom --global --file testExportAllIGA2.json": should export all global IGA configuration with only custom request types.', async () => {
+    const exportFile = 'testExportAllIGA2.json';
+    const CMD = `frodo config export --all --only-custom --global --file ${exportFile}`;
+    await testExport(CMD, igaEnv, type, exportFile, undefined, true, true);
+  });
+
+  // TODO: Record test
+  test.skip('"frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory exportAllTestDir11": should export all global IGA configuration separately with extracted scripts, no-coords, string arrays, and read only configuration.', async () => {
+    const exportDirectory = 'exportAllTestDir11';
+    const CMD = `frodo config export --no-metadata --read-only --all-separate -g --use-string-arrays --no-coords --directory ${exportDirectory}`;
+    await testExport(CMD, igaEnv, type, undefined, exportDirectory, false, true);
+  });
+
+  // TODO: Record test
+  test.skip('"frodo config export -cxAgD exportAllTestDir12": should export all global IGA configuration separately without extraction and only custom request types', async () => {
+    const exportDirectory = 'exportAllTestDir12';
+    const CMD = `frodo config export -cxAgD ${exportDirectory}`;
+    await testExport(CMD, igaEnv, type, undefined, exportDirectory, true, true);
   });
 
   // Classic Env Tests

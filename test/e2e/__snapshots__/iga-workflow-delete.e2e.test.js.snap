@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a": should delete all draft workflows 1`] = `""`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --draft-only -a": should delete all draft workflows 2`] = `
+"✔ Deleted workflows.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -Fa": should delete all published workflows 1`] = `
+"Error deleting workflow custom1BasicEntitlementGrant
+  Error deleting published workflow custom1BasicEntitlementGrant
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/custom1BasicEntitlementGrant/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow phhBirthrightRolesRequiringApproval
+  Error deleting published workflow phhBirthrightRolesRequiringApproval
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/phhBirthrightRolesRequiringApproval/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow test
+  Error deleting published workflow test
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/test/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow testWorkflow1
+  Error deleting published workflow testWorkflow1
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/testWorkflow1/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+✔ Deleted workflows.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --published-only -Fa": should delete all published workflows 2`] = `1`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --workflow-id testWorkflow4 --force": Should delete both draft and published testWorkflow4 1`] = `""`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete --workflow-id testWorkflow4 --force": Should delete both draft and published testWorkflow4 2`] = `
+"✔ Deleted workflow testWorkflow4.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -Fdp --all": should delete all workflows 1`] = `
+"Error deleting workflow custom1BasicEntitlementGrant
+  Error deleting published workflow custom1BasicEntitlementGrant
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/custom1BasicEntitlementGrant/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow phhBirthrightRolesRequiringApproval
+  Error deleting published workflow phhBirthrightRolesRequiringApproval
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/phhBirthrightRolesRequiringApproval/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow test
+  Error deleting published workflow test
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/test/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+Error deleting workflow testWorkflow1
+  Error deleting published workflow testWorkflow1
+    Network error:
+      URL: https://openam-frodo-dev.forgeblocks.com/auto/orchestration/definition/testWorkflow1/published
+      Status: 500
+      Code: ERR_BAD_RESPONSE
+✔ Deleted workflows.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -Fdp --all": should delete all workflows 2`] = `1`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -Fpi testWorkflow9": should delete published testWorkflow9 1`] = `""`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -Fpi testWorkflow9": should delete published testWorkflow9 2`] = `
+"✔ Deleted workflow testWorkflow9.
+"
+`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 1`] = `""`;
+
+exports[`frodo iga workflow delete "frodo iga workflow delete -di testWorkflow1": should delete draft testWorkflow1" 2`] = `
+"✔ Deleted workflow testWorkflow1.
+"
+`;
